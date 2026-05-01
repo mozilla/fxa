@@ -10,7 +10,8 @@ import { Localized, useLocalization } from '@fluent/react';
 
 import {
   cancelSubscriptionAtPeriodEndAction,
-  resubscribeSubscriptionAction
+  cancelSubscriptionImmediatelyAction,
+  resubscribeSubscriptionAction,
 } from '@fxa/payments/ui/actions';
 import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
 import infoIcon from '@fxa/shared/assets/images/infoBlack.svg';
@@ -97,7 +98,7 @@ export const FreeTrialContent = ({
     hasTax?: boolean,
     amount?: string,
     tax?: string,
-    date?: string,
+    date?: string
   ): { ftlId: string; fallbackText: string } => {
     if (hasTax) {
       switch (interval) {
@@ -174,10 +175,22 @@ export const FreeTrialContent = ({
     setLoading(true);
     setShowActionError(false);
 
-    const result = await cancelSubscriptionAtPeriodEndAction(
-      userId,
-      trial.id
-    );
+    const result = await cancelSubscriptionAtPeriodEndAction(userId, trial.id);
+    if (result.ok) {
+      setIsCancelled(true);
+    } else {
+      setShowActionError(true);
+    }
+    setLoading(false);
+  }
+
+  async function cancelSubscription() {
+    if (loading) return;
+
+    setLoading(true);
+    setShowActionError(false);
+
+    const result = await cancelSubscriptionImmediatelyAction(userId, trial.id);
     if (result.ok) {
       setIsCancelled(true);
     } else {
@@ -192,10 +205,7 @@ export const FreeTrialContent = ({
     setLoading(true);
     setShowActionError(false);
 
-    const result = await resubscribeSubscriptionAction(
-      userId,
-      trial.id
-    );
+    const result = await resubscribeSubscriptionAction(userId, trial.id);
     if (result.ok) {
       setIsCancelled(false);
     } else {
@@ -277,27 +287,31 @@ export const FreeTrialContent = ({
                 aria-hidden="true"
               />
               {trialEndDateFallback ? (
-                <Localized
-                  id="free-trial-content-payment-failed"
-                  vars={{ date: trialEndDateFallback }}
-                  elems={{ bold: <span className="font-bold" /> }}
-                >
-                  <p className="text-sm text-black">
-                    Your free trial ended on{' '}
-                    <span className="font-bold">{trialEndDateFallback}</span>.
-                    We were unable to process your payment to start your
-                    subscription. Please update your payment method to
-                    activate your subscription and restore access to your
-                    services.
-                  </p>
-                </Localized>
+                <p>
+                  <Localized
+                    id="free-trial-content-trial-ended"
+                    vars={{ date: trialEndDateFallback }}
+                    elems={{ bold: <span className="font-bold" /> }}
+                  >
+                    <span className="text-sm text-black">
+                      Your free trial ended on{' '}
+                      <span className="font-bold">{trialEndDateFallback}</span>.
+                    </span>
+                  </Localized>{' '}
+                  <Localized id="free-trial-content-could-not-process-payment">
+                    <span className="text-sm text-black">
+                      We couldn’t process your payment. Update your payment
+                      method to restore access. Processing can take up to 24
+                      hours and may vary by bank or payment method.
+                    </span>
+                  </Localized>
+                </p>
               ) : (
-                <Localized id="free-trial-content-payment-failed-no-date">
+                <Localized id="free-trial-content-could-not-process-payment">
                   <p className="text-sm text-black">
-                    We were unable to process your payment to start your
-                    subscription. Please update your payment method to
-                    activate your subscription and restore access to your
-                    services.
+                    We couldn’t process your payment. Update your payment method
+                    to restore access. Processing can take up to 24 hours and
+                    may vary by bank or payment method.
                   </p>
                 </Localized>
               )}
@@ -305,8 +319,8 @@ export const FreeTrialContent = ({
           </div>
         )}
 
-        {updatePaymentUrl && (
-          <div className="flex justify-end items-start gap-2 self-stretch">
+        <div className="flex flex-col tablet:flex-row tablet:justify-end items-start gap-2">
+          {updatePaymentUrl && (
             <div className="ms-auto w-full tablet:w-auto">
               <LinkExternal
                 href={updatePaymentUrl}
@@ -317,8 +331,32 @@ export const FreeTrialContent = ({
                 </Localized>
               </LinkExternal>
             </div>
-          </div>
-        )}
+          )}
+
+          <button
+            onClick={cancelSubscription}
+            disabled={loading}
+            className="relative border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
+            aria-label={l10n.getString(
+              'free-trial-content-button-cancel-subscription-aria',
+              { productName },
+              `Cancel subscription for ${productName}`
+            )}
+          >
+            {loading && (
+              <Image
+                src={spinner}
+                alt=""
+                className="absolute animate-spin h-5 w-5"
+              />
+            )}
+            <span className={loading ? 'text-transparent' : ''}>
+              <Localized id="free-trial-content-button-cancel-subscription">
+                Cancel subscription
+              </Localized>
+            </span>
+          </button>
+        </div>
       </>
     );
   } else {
@@ -352,126 +390,129 @@ export const FreeTrialContent = ({
     }
     return (
       <>
-      {isClient && (
-        <div className="bg-grey-10 leading-6 p-4 rounded-lg">
-          {isCancelled ? (
-            <div className="flex items-center gap-1">
-              <Image
-                src={alertIcon}
-                alt=""
-                width={20}
-                height={20}
-                aria-hidden="true"
-              />
-              {trialEndDateFallback ? (
-                <Localized
-                  id="free-trial-content-trial-expires"
-                  vars={{ date: trialEndDateFallback }}
-                >
-                  <p className="text-sm text-yellow-800">
-                    Your free trial expires on {trialEndDateFallback}.
-                  </p>
-                </Localized>
-              ) : (
-                <Localized id="free-trial-content-trial-cancelled">
-                  <p className="text-sm text-yellow-800">
-                    Your free trial has been cancelled.
-                  </p>
-                </Localized>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-1">
-              <Image
-                src={infoIcon}
-                alt=""
-                width={20}
-                height={20}
-                aria-hidden="true"
-              />
-              {chargeInfoContent ? (
-                chargeInfoContent
-              ) : trialEndDateFallback ? (
-                <Localized
-                  id="free-trial-content-trial-ends"
-                  vars={{ date: trialEndDateFallback }}
-                >
-                  <p className="text-sm">Your free trial ends on {trialEndDateFallback}. Update your payment method to keep access after your free trial.</p>
-                </Localized>
-              ) : (
-                <Localized id="free-trial-content-trial-active">
-                  <p className="text-sm">Your free trial is active.</p>
-                </Localized>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {showActionError && (
-        <Localized id="free-trial-content-action-error">
-          <p
-            className="mt-1 text-alert-red font-normal text-start"
-            role="alert"
-          >
-            An unexpected error occurred. Please try again.
-          </p>
-        </Localized>
-      )}
-
-      <div className="mt-3 tablet:mt-0 flex w-full flex-col tablet:flex-row tablet:justify-end gap-3">
-        <div className="ms-auto w-full tablet:w-auto">
-          {isCancelled ? (
-            <button
-              onClick={resumeTrial}
-              disabled={loading}
-              className="relative border box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
-              aria-label={l10n.getString(
-                'free-trial-content-button-resume-trial-aria',
-                { productName },
-                `Resume trial for ${productName}`
-              )}
-            >
-              {loading && (
+        {isClient && (
+          <div className="bg-grey-10 leading-6 p-4 rounded-lg">
+            {isCancelled ? (
+              <div className="flex items-center gap-1">
                 <Image
-                  src={spinner}
+                  src={alertIcon}
                   alt=""
-                  className="absolute animate-spin h-5 w-5"
+                  width={20}
+                  height={20}
+                  aria-hidden="true"
                 />
-              )}
-              <span className={loading ? 'text-transparent' : ''}>
-                <Localized id="free-trial-content-button-resume-trial">
-                  Resume trial
-                </Localized>
-              </span>
-            </button>
-          ) : (
-            <button
-              onClick={cancelTrial}
-              disabled={loading}
-              className="relative border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
-              aria-label={l10n.getString(
-                'free-trial-content-button-cancel-trial-aria',
-                { productName },
-                `Cancel trial for ${productName}`
-              )}
-            >
-              {loading && (
+                {trialEndDateFallback ? (
+                  <Localized
+                    id="free-trial-content-trial-expires"
+                    vars={{ date: trialEndDateFallback }}
+                  >
+                    <p className="text-sm text-yellow-800">
+                      Your free trial expires on {trialEndDateFallback}.
+                    </p>
+                  </Localized>
+                ) : (
+                  <Localized id="free-trial-content-trial-cancelled">
+                    <p className="text-sm text-yellow-800">
+                      Your free trial has been cancelled.
+                    </p>
+                  </Localized>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
                 <Image
-                  src={spinner}
+                  src={infoIcon}
                   alt=""
-                  className="absolute animate-spin h-5 w-5"
+                  width={20}
+                  height={20}
+                  aria-hidden="true"
                 />
-              )}
-              <span className={loading ? 'text-transparent' : ''}>
-                <Localized id="free-trial-content-button-cancel-trial">
-                  Cancel trial
-                </Localized>
-              </span>
-            </button>
-          )}
+                {chargeInfoContent ? (
+                  chargeInfoContent
+                ) : trialEndDateFallback ? (
+                  <Localized
+                    id="free-trial-content-trial-ends"
+                    vars={{ date: trialEndDateFallback }}
+                  >
+                    <p className="text-sm">
+                      Your free trial ends on {trialEndDateFallback}. Update
+                      your payment method to keep access after your free trial.
+                    </p>
+                  </Localized>
+                ) : (
+                  <Localized id="free-trial-content-trial-active">
+                    <p className="text-sm">Your free trial is active.</p>
+                  </Localized>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showActionError && (
+          <Localized id="free-trial-content-action-error">
+            <p
+              className="mt-1 text-alert-red font-normal text-start"
+              role="alert"
+            >
+              An unexpected error occurred. Please try again.
+            </p>
+          </Localized>
+        )}
+
+        <div className="mt-3 tablet:mt-0 flex w-full flex-col tablet:flex-row tablet:justify-end gap-3">
+          <div className="ms-auto w-full tablet:w-auto">
+            {isCancelled ? (
+              <button
+                onClick={resumeTrial}
+                disabled={loading}
+                className="relative border box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
+                aria-label={l10n.getString(
+                  'free-trial-content-button-resume-trial-aria',
+                  { productName },
+                  `Resume trial for ${productName}`
+                )}
+              >
+                {loading && (
+                  <Image
+                    src={spinner}
+                    alt=""
+                    className="absolute animate-spin h-5 w-5"
+                  />
+                )}
+                <span className={loading ? 'text-transparent' : ''}>
+                  <Localized id="free-trial-content-button-resume-trial">
+                    Resume trial
+                  </Localized>
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={cancelTrial}
+                disabled={loading}
+                className="relative border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
+                aria-label={l10n.getString(
+                  'free-trial-content-button-cancel-trial-aria',
+                  { productName },
+                  `Cancel trial for ${productName}`
+                )}
+              >
+                {loading && (
+                  <Image
+                    src={spinner}
+                    alt=""
+                    className="absolute animate-spin h-5 w-5"
+                  />
+                )}
+                <span className={loading ? 'text-transparent' : ''}>
+                  <Localized id="free-trial-content-button-cancel-trial">
+                    Cancel trial
+                  </Localized>
+                </span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
       </>
     );
   }

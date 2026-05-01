@@ -139,6 +139,27 @@ export class SubscriptionManagementService {
     await this.customerChanged(uid);
   }
 
+  @SanitizeExceptions()
+  async cancelSubscriptionImmediately(uid: string, subscriptionId: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new CancelSubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    await this.subscriptionManager.cancel(subscriptionId);
+
+    await this.customerChanged(uid);
+  }
+
   /**
    * Reload the customer data to reflect a change.
    * NOTE: This is currently duplicated in checkout.service.ts

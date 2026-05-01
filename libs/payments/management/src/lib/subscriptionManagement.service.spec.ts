@@ -291,6 +291,63 @@ describe('SubscriptionManagementService', () => {
     });
   });
 
+  describe('cancelSubscriptionImmediately', () => {
+    const mockStripeCustomer = StripeCustomerFactory();
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockStripeCustomer.id,
+    });
+    const mockSubscription = StripeResponseFactory(
+      StripeSubscriptionFactory({
+        customer: mockStripeCustomer.id,
+      })
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+    });
+
+    it('successfully cancels the subscription immediately', async () => {
+      await subscriptionManagementService.cancelSubscriptionImmediately(
+        mockAccountCustomer.uid,
+        mockSubscription.id
+      );
+
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+      expect(privateCustomerChanged).toHaveBeenCalledWith(
+        mockAccountCustomer.uid
+      );
+    });
+
+    it('fails with error on mismatching customer id between subscription and account', async () => {
+      jest.spyOn(subscriptionManager, 'retrieve').mockResolvedValueOnce(
+        StripeResponseFactory(
+          StripeSubscriptionFactory({
+            customer: 'differentCustomerId',
+          })
+        )
+      );
+
+      await expect(
+        subscriptionManagementService.cancelSubscriptionImmediately(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(CancelSubscriptionCustomerMismatch);
+      expect(subscriptionManager.cancel).not.toHaveBeenCalled();
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getPageContent', () => {
     const mockProductNameByPriceIdsResultUtil = {
       purchaseForPriceId: jest.fn(),
