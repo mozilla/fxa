@@ -2,21 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createMock } from '@golevelup/ts-jest';
-import { StatsD } from 'hot-shots';
-import { AuthLogger } from '../types';
-import {
-  installMockFxaMailer,
-  uninstallMockFxaMailer,
-} from '../../test/fixtures/fxa-mailer';
-
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
-const nock = require('nock');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { gleanMetrics } = require('../metrics/glean');
@@ -37,118 +27,16 @@ const MS_IN_DAY = 1000 * 60 * 60 * 24;
 // months are in question (I'm looking at you, February...)
 const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58;
 
-const SUBDOMAIN = 'test';
-const ZENDESK_USER_ID = 391245052392;
-const IDENTITY_ID = 374348876392;
-const MOCK_SEARCH_USERS_SUCESS = [
-  {
-    id: ZENDESK_USER_ID,
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392.json`,
-    name: 'test@example.com',
-    email: 'test@example.com',
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-19T23:43:40Z',
-    time_zone: 'Central America',
-    iana_time_zone: 'America/Guatemala',
-    phone: null,
-    shared_phone_number: null,
-    photo: null,
-    locale_id: 1,
-    locale: 'en-US',
-    organization_id: null,
-    role: 'end-user',
-    verified: false,
-    external_id: null,
-    tags: [],
-    alias: '',
-    active: true,
-    shared: false,
-    shared_agent: false,
-    last_login_at: null,
-    two_factor_auth_enabled: false,
-    signature: null,
-    details: '',
-    notes: '',
-    role_type: null,
-    custom_role_id: null,
-    moderator: false,
-    ticket_restriction: 'requested',
-    only_private_comments: false,
-    restricted_agent: true,
-    suspended: false,
-    chat_only: false,
-    default_group_id: null,
-    report_csv: false,
-    user_fields: {
-      user_id: '1234-0000',
-    },
-    result_type: 'user',
-  },
-];
-
-const MOCK_SEARCH_USERS_SUCESS_NO_RESULTS: any[] = [];
-
-const MOCK_FETCH_USER_IDENTITIES_SUCCESS = [
-  {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'test@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-18T23:22:49Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-];
-
-const MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED = [
-  {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'updated.email@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-18T23:22:49Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-];
-
-const MOCK_UPDATE_IDENTITY_SUCCESS = {
-  identity: {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'updated.email@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-20T00:16:56Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-};
-
 const otpOptions = {
   step: 60,
   window: 1,
   digits: 6,
 };
 
-let zendeskClient: any;
 let cadReminders: any;
 let db: any;
 let glean: any;
 
-const updateZendeskPrimaryEmail =
-  require('./emails')._updateZendeskPrimaryEmail;
 const updateStripeEmail = require('./emails')._updateStripeEmail;
 
 const makeRoutes = function (options: any = {}) {
@@ -170,7 +58,7 @@ const makeRoutes = function (options: any = {}) {
   config.otp = otpOptions;
   config.gleanMetrics = gleanConfig;
 
-  const log = options.log || createMock<AuthLogger>();
+  const log = options.log || mocks.mockLog();
   db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: () => Promise.resolve(),
@@ -182,7 +70,7 @@ const makeRoutes = function (options: any = {}) {
     options.verificationReminders || mocks.mockVerificationReminders();
   cadReminders = options.cadReminders || mocks.mockCadReminders();
   glean = gleanMetrics(config);
-  const statsd = createMock<StatsD>();
+  const statsd = mocks.mockStatsd();
 
   const signupUtils =
     options.signupUtils ||
@@ -213,7 +101,6 @@ const makeRoutes = function (options: any = {}) {
     verificationReminders,
     cadReminders,
     signupUtils,
-    undefined,
     options.stripeHelper,
     authServerCacheRedis,
     statsd
@@ -225,103 +112,6 @@ const makeRoutes = function (options: any = {}) {
 function runTest(route: any, request: any, assertions?: any) {
   return route.handler(request).then(assertions);
 }
-
-afterAll(() => uninstallMockFxaMailer());
-
-// Called in /recovery_email/set_primary, however the promise is not waited for
-// so we test the function independently as it doesn't affect the route success.
-describe('update zendesk primary email', () => {
-  let searchSpy: any, listSpy: any, updateSpy: any;
-
-  beforeEach(() => {
-    const config = {
-      zendesk: {
-        subdomain: SUBDOMAIN,
-        productNameFieldId: '192837465',
-      },
-    };
-    zendeskClient = require('../zendesk-client').createZendeskClient(config);
-    searchSpy = jest.spyOn(zendeskClient.search, 'queryAll');
-    listSpy = jest.spyOn(zendeskClient.useridentities, 'list');
-    updateSpy = jest.spyOn(zendeskClient, 'updateIdentity');
-  });
-
-  afterEach(() => {
-    nock.cleanAll();
-  });
-
-  it('should update the primary email address', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_SUCCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .put(`/api/v2/users/${ZENDESK_USER_ID}/identities/${IDENTITY_ID}.json`)
-      .reply(200, MOCK_UPDATE_IDENTITY_SUCCESS);
-
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should stop if the user wasnt found in zendesk', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS_NO_RESULTS);
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).not.toHaveBeenCalled();
-  });
-
-  it('should stop if the users email was already updated', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED);
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).not.toHaveBeenCalled();
-  });
-});
 
 describe('update stripe primary email', () => {
   let stripeHelper: any;
@@ -360,7 +150,7 @@ describe('/recovery_email/status', () => {
   const config: any = {};
   const mockDB = mocks.mockDB();
   let pushCalled: boolean;
-  const mockLog = createMock<AuthLogger>({
+  const mockLog = mocks.mockLog({
     info: jest.fn((op: any, data: any) => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true;
@@ -405,8 +195,7 @@ describe('/recovery_email/status', () => {
             expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
             expect(mockDB.deleteAccount).toHaveBeenNthCalledWith(
               1,
-              expect.objectContaining({ email: TEST_EMAIL_INVALID }),
-              ReasonForDeletion.InvalidEmail
+              expect.objectContaining({ email: TEST_EMAIL_INVALID })
             );
             expect(response.errno).toBe(error.ERRNO.INVALID_TOKEN);
             expect(mockLog.info).toHaveBeenCalledTimes(1);
@@ -583,7 +372,7 @@ describe('/recovery_email/resend_code', () => {
     secondEmailCode: secondEmailCode,
     email: TEST_EMAIL,
   });
-  const mockLog = createMock<AuthLogger>();
+  const mockLog = mocks.mockLog();
   mockLog.flowEvent = jest.fn(() => {
     return Promise.resolve();
   });
@@ -591,7 +380,7 @@ describe('/recovery_email/resend_code', () => {
   mocks.mockOAuthClientInfo({
     fetch: jest.fn().mockResolvedValue({ name: 'Firefox' }),
   });
-  const mockFxaMailer = installMockFxaMailer();
+  const mockFxaMailer = mocks.mockFxaMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
   const accountRoutes = makeRoutes({
     config: config,
@@ -725,7 +514,7 @@ describe('/recovery_email/resend_code', () => {
 
 describe('/recovery_email/verify_code', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockLog = createMock<AuthLogger>();
+  const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
     metricsContext: mocks.mockMetricsContext({
@@ -762,7 +551,7 @@ describe('/recovery_email/verify_code', () => {
   const mockDB = mocks.mockDB(dbData, dbErrors);
   const mockMailer = mocks.mockMailer();
   mocks.mockOAuthClientInfo();
-  const mockFxaMailer = installMockFxaMailer();
+  const mockFxaMailer = mocks.mockFxaMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
   const verificationReminders = mocks.mockVerificationReminders();
@@ -983,7 +772,7 @@ describe('/recovery_email/verify_code', () => {
 
 describe('/recovery_email', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockLog = createMock<AuthLogger>();
+  const mockLog = mocks.mockLog();
   let dbData: any,
     accountRoutes: any,
     mockDB: any,
@@ -1057,7 +846,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   let fxaMailer: any;
   beforeEach(() => {
     mocks.mockOAuthClientInfo();
-    fxaMailer = installMockFxaMailer();
+    fxaMailer = mocks.mockFxaMailer();
   });
   afterEach(() => {
     fxaMailer.sendVerifySecondaryCodeEmail.mockClear();
@@ -1065,7 +854,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   it('resends code when redis reservation exists for this uid', async () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockMailer = mocks.mockMailer();
     const mockDB = mocks.mockDB({
       uid,
@@ -1120,7 +909,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1203,7 +992,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1336,7 +1125,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1382,7 +1171,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1436,7 +1225,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const secret = 'existingsecret1234567890123456';
     const mockMailer = mocks.mockMailer();
-    const mockLog = createMock<AuthLogger>();
+    const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1484,7 +1273,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
 });
 
 describe('/emails/reminders/cad', () => {
-  const mockLog = createMock<AuthLogger>();
+  const mockLog = mocks.mockLog();
   let accountRoutes: any, mockRequest: any, route: any, uid: string;
 
   beforeEach(() => {
