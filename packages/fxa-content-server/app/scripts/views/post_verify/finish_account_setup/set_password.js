@@ -62,17 +62,9 @@ class SetPassword extends FormView {
   }
 
   redirectToProduct(account) {
-    return account.fetchSubscriptionPlans().then((plans) => {
-      const productId = this._verificationInfo.get('product_id');
-      const plan = plans.find((p) => p.product_id === productId);
-      const url = new URL(
-        plan && plan.product_metadata
-          ? plan.product_metadata.successActionButtonURL
-          : 'https://mozilla.org'
-      );
-      url.searchParams.set('email', account.get('email'));
-      return this.navigateAway(url.href);
-    });
+    const url = new URL('https://mozilla.org');
+    url.searchParams.set('email', account.get('email'));
+    return this.navigateAway(url.href);
   }
 
   beforeRender() {

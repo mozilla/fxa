@@ -1133,15 +1133,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Fetch the list of subscription plans on SubHub.
-     *
-     * @returns {Promise} - resolves with a list of subscription plans.
-     */
-    fetchSubscriptionPlans() {
-      return this._fxaClient.getSubscriptionPlans();
-    },
-
-    /**
      * Check to see if the account has any subscriptions.
      *
      * @returns {Promise} resolves to an array of zero or more subscriptions.
