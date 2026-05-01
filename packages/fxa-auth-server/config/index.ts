@@ -1443,6 +1443,78 @@ const convictConf = convict({
         env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
       },
     },
+    browserServices: {
+      doc: 'FxA-trusted browser services keyed by service name. Drives accountAuthorizations writes/reads, token-exchange auth checks, and Connected Services.',
+      format: Object,
+      env: 'OAUTH_BROWSER_SERVICES',
+      default: {
+        relay: {
+          displayName: 'Firefox Relay',
+          authorizationScope: 'https://identity.mozilla.com/apps/relay',
+          clientIds: [
+            // Relay web (prod, stage, dev).
+            '9ebfe2c2f9ea3c58',
+            '41b4363ae36440a9',
+            '723aa3bce05884d8',
+            // Firefox Desktop and Thunderbird mint Relay tokens directly
+            // post-ADR-0048 refresh-token migration.
+            '5882386c6d801776',
+            '8269bacd7bbc7f80',
+            // Mobile Firefox clients already use refresh tokens.
+            '1b1a3e44c54fbb58',
+            'a2270f727f45f648',
+            '3332a18d142636cb',
+          ],
+          serviceParams: ['relay'],
+          retentionDays: 1095,
+          allowSilentExchange: true,
+        },
+        smartwindow: {
+          displayName: 'Smart Window',
+          authorizationScope: 'https://identity.mozilla.com/apps/smartwindow',
+          clientIds: [
+            // Firefox Desktop ships the Smart Window integration; the
+            // Utils.sys.mjs path goes through fxAccounts.getOAuthToken
+            // which sends Firefox Desktop's hardcoded client_id.
+            '5882386c6d801776',
+          ],
+          serviceParams: ['smartwindow'],
+          retentionDays: 1095,
+          allowSilentExchange: true,
+        },
+        sync: {
+          displayName: 'Firefox Sync',
+          authorizationScope: 'https://identity.mozilla.com/apps/oldsync',
+          clientIds: [
+            '1b1a3e44c54fbb58',
+            '5882386c6d801776',
+            'a2270f727f45f648',
+            '3332a18d142636cb',
+          ],
+          serviceParams: ['sync'],
+          retentionDays: 1095,
+          allowSilentExchange: false,
+        },
+        vpn: {
+          displayName: 'Mozilla VPN',
+          authorizationScope: 'https://identity.mozilla.com/apps/vpn',
+          clientIds: [
+            // Mozilla VPN OAuth client.
+            'e6eb0d1e856335fc',
+            // Firefox-native clients that mint VPN tokens directly
+            // post-ADR-0048 refresh-token migration.
+            '5882386c6d801776',
+            '8269bacd7bbc7f80',
+            '1b1a3e44c54fbb58',
+            'a2270f727f45f648',
+            '3332a18d142636cb',
+          ],
+          serviceParams: ['vpn'],
+          retentionDays: 1095,
+          allowSilentExchange: true,
+        },
+      },
+    },
     git: {
       commit: {
         doc: 'Commit SHA when in stage/production',
