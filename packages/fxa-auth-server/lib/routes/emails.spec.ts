@@ -7,7 +7,6 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
-const nock = require('nock');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { gleanMetrics } = require('../metrics/glean');
@@ -28,118 +27,16 @@ const MS_IN_DAY = 1000 * 60 * 60 * 24;
 // months are in question (I'm looking at you, February...)
 const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58;
 
-const SUBDOMAIN = 'test';
-const ZENDESK_USER_ID = 391245052392;
-const IDENTITY_ID = 374348876392;
-const MOCK_SEARCH_USERS_SUCESS = [
-  {
-    id: ZENDESK_USER_ID,
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392.json`,
-    name: 'test@example.com',
-    email: 'test@example.com',
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-19T23:43:40Z',
-    time_zone: 'Central America',
-    iana_time_zone: 'America/Guatemala',
-    phone: null,
-    shared_phone_number: null,
-    photo: null,
-    locale_id: 1,
-    locale: 'en-US',
-    organization_id: null,
-    role: 'end-user',
-    verified: false,
-    external_id: null,
-    tags: [],
-    alias: '',
-    active: true,
-    shared: false,
-    shared_agent: false,
-    last_login_at: null,
-    two_factor_auth_enabled: false,
-    signature: null,
-    details: '',
-    notes: '',
-    role_type: null,
-    custom_role_id: null,
-    moderator: false,
-    ticket_restriction: 'requested',
-    only_private_comments: false,
-    restricted_agent: true,
-    suspended: false,
-    chat_only: false,
-    default_group_id: null,
-    report_csv: false,
-    user_fields: {
-      user_id: '1234-0000',
-    },
-    result_type: 'user',
-  },
-];
-
-const MOCK_SEARCH_USERS_SUCESS_NO_RESULTS: any[] = [];
-
-const MOCK_FETCH_USER_IDENTITIES_SUCCESS = [
-  {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'test@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-18T23:22:49Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-];
-
-const MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED = [
-  {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'updated.email@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-18T23:22:49Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-];
-
-const MOCK_UPDATE_IDENTITY_SUCCESS = {
-  identity: {
-    url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/391245052392/identities/374348876392.json`,
-    id: IDENTITY_ID,
-    user_id: ZENDESK_USER_ID,
-    type: 'email',
-    value: 'updated.email@example.com',
-    verified: false,
-    primary: true,
-    created_at: '2019-12-18T23:22:49Z',
-    updated_at: '2019-12-20T00:16:56Z',
-    undeliverable_count: 0,
-    deliverable_state: 'reserved_example',
-  },
-};
-
 const otpOptions = {
   step: 60,
   window: 1,
   digits: 6,
 };
 
-let zendeskClient: any;
 let cadReminders: any;
 let db: any;
 let glean: any;
 
-const updateZendeskPrimaryEmail =
-  require('./emails')._updateZendeskPrimaryEmail;
 const updateStripeEmail = require('./emails')._updateStripeEmail;
 
 const makeRoutes = function (options: any = {}) {
@@ -204,7 +101,6 @@ const makeRoutes = function (options: any = {}) {
     verificationReminders,
     cadReminders,
     signupUtils,
-    undefined,
     options.stripeHelper,
     authServerCacheRedis,
     statsd
@@ -216,101 +112,6 @@ const makeRoutes = function (options: any = {}) {
 function runTest(route: any, request: any, assertions?: any) {
   return route.handler(request).then(assertions);
 }
-
-// Called in /recovery_email/set_primary, however the promise is not waited for
-// so we test the function independently as it doesn't affect the route success.
-describe('update zendesk primary email', () => {
-  let searchSpy: any, listSpy: any, updateSpy: any;
-
-  beforeEach(() => {
-    const config = {
-      zendesk: {
-        subdomain: SUBDOMAIN,
-        productNameFieldId: '192837465',
-      },
-    };
-    zendeskClient = require('../zendesk-client').createZendeskClient(config);
-    searchSpy = jest.spyOn(zendeskClient.search, 'queryAll');
-    listSpy = jest.spyOn(zendeskClient.useridentities, 'list');
-    updateSpy = jest.spyOn(zendeskClient, 'updateIdentity');
-  });
-
-  afterEach(() => {
-    nock.cleanAll();
-  });
-
-  it('should update the primary email address', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_SUCCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .put(`/api/v2/users/${ZENDESK_USER_ID}/identities/${IDENTITY_ID}.json`)
-      .reply(200, MOCK_UPDATE_IDENTITY_SUCCESS);
-
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should stop if the user wasnt found in zendesk', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS_NO_RESULTS);
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).not.toHaveBeenCalled();
-  });
-
-  it('should stop if the users email was already updated', async () => {
-    const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED);
-    try {
-      await updateZendeskPrimaryEmail(
-        zendeskClient,
-        uid,
-        'test@example.com',
-        'updated.email@example.com'
-      );
-    } catch (err) {
-      throw new Error('should not throw');
-    }
-    expect(searchSpy).toHaveBeenCalledTimes(1);
-    expect(listSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).not.toHaveBeenCalled();
-  });
-});
 
 describe('update stripe primary email', () => {
   let stripeHelper: any;

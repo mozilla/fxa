@@ -23,39 +23,6 @@ const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
 
-async function updateZendeskPrimaryEmail(
-  zendeskClient,
-  uid,
-  currentPrimaryEmail,
-  newPrimaryEmail
-) {
-  const searchResult = await zendeskClient.search.queryAll(
-    `type:user user_id:${uid}`
-  );
-  const zenUser = searchResult.find(
-    (user) => user.email === currentPrimaryEmail
-  );
-  if (!zenUser) {
-    return;
-  }
-  const identityResult = await zendeskClient.useridentities.list(zenUser.id);
-  const primaryIdentity = identityResult.find(
-    (identity) =>
-      identity.type === 'email' &&
-      identity.primary &&
-      identity.value !== newPrimaryEmail
-  );
-  if (!primaryIdentity) {
-    return;
-  }
-  return zendeskClient.updateIdentity(zenUser.id, primaryIdentity.id, {
-    identity: {
-      verified: true,
-      value: newPrimaryEmail,
-    },
-  });
-}
-
 /**
  * Update the primary email in Stripe
  *
@@ -133,7 +100,6 @@ module.exports = (
   verificationReminders,
   cadReminders,
   signupUtils,
-  zendeskClient,
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper,
   authServerCacheRedis,
@@ -1295,13 +1261,6 @@ module.exports = (
             });
           };
 
-          updateZendeskPrimaryEmail(
-            zendeskClient,
-            uid,
-            currentEmail,
-            newEmailRecord.email
-          ).catch((err) => handleCriticalError(err, 'zendesk'));
-
           if (stripeHelper) {
             try {
               await updateStripeEmail(
@@ -1592,7 +1551,6 @@ module.exports = (
 };
 
 // Exported for testing purposes.
-module.exports._updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
 module.exports._updateStripeEmail = updateStripeEmail;
 module.exports.toRedisSecondaryEmailReservationKey =
   toRedisSecondaryEmailReservationKey;

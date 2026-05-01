@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { existsSync } from 'fs';
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { determineLocale, parseAcceptLanguage } from '@fxa/shared/l10n';
@@ -114,7 +115,9 @@ class Localizer {
     const emailsPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/emails.ftl`;
-    results.push(await this.bindings.fetchResource(emailsPath));
+    if (existsSync(emailsPath)) {
+      results.push(await this.bindings.fetchResource(emailsPath));
+    }
 
     const brandingPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'

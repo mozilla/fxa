@@ -39,18 +39,6 @@ const NEWSLETTERS_POST = {
   ],
 };
 
-const SUPPORT_TICKET_POST = {
-  ...TAGS_MISC,
-  description: '/support/ticket',
-  notes: [
-    dedent`
-      🔒 Authenticated with support secret or authenticated with OAuth bearer token
-
-      Creates a support ticket using the Zendesk client.
-    `,
-  ],
-};
-
 const WELLKNOWN_BROWSERID_GET = {
   ...TAGS_MISC,
   description: '/.well-known/browserid',
@@ -98,7 +86,6 @@ const API_DOCS = {
   GEO_ELIGIBILITY_GET,
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
-  SUPPORT_TICKET_POST,
   WELLKNOWN_BROWSERID_GET,
   WELLKNOWN_PUBLIC_KEYS,
 };
