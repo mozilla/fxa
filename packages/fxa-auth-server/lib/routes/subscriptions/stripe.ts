@@ -342,14 +342,6 @@ export class StripeHandler {
     return { subscriptionId };
   }
 
-  async listPlans(request: AuthRequest) {
-    this.log.begin('subscriptions.listPlans', request);
-    const plans = await this.stripeHelper.allAbbrevPlans(
-      request?.headers?.['accept-language']
-    );
-    return sanitizePlans(plans);
-  }
-
   async getProductName(request: AuthRequest) {
     this.log.begin('subscriptions.getProductName', request);
     const { productId } = request.query as Record<string, string>;
@@ -1045,22 +1037,6 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/subscriptions/plans',
-      options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PLANS_GET,
-        response: {
-          schema: isA
-            .array()
-            .items(
-              validators.subscriptionsPlanWithProductConfigValidator,
-              validators.subscriptionsPlanWithMetaDataValidator
-            ) as any,
-        },
-      },
-      handler: (request: AuthRequest) => stripeHandler.listPlans(request),
     },
     {
       method: 'GET',
