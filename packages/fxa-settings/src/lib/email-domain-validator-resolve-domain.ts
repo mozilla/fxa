@@ -6,6 +6,16 @@
 
 const EMAIL_VALIDATION_ENDPOINT = '/validate-email-domain';
 
+export class DomainValidationError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'DomainValidationError';
+    this.status = status;
+  }
+}
+
 export async function resolveDomain(domain: string) {
   const response = await fetch(
     `${EMAIL_VALIDATION_ENDPOINT}?domain=${domain}`,
@@ -17,7 +27,10 @@ export async function resolveDomain(domain: string) {
     }
   );
   if (!response.ok) {
-    throw new Error(`Failed to check domain ${domain}: ${response.statusText}`);
+    throw new DomainValidationError(
+      `Failed to check domain ${domain}: ${response.status} ${response.statusText}`,
+      response.status
+    );
   }
   return response.json();
 }

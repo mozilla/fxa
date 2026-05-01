@@ -4,7 +4,10 @@
 
 import { AuthUiErrors } from './auth-errors/auth-errors';
 import topEmailDomains from 'fxa-shared/email/topEmailDomains';
-import { resolveDomain } from './email-domain-validator-resolve-domain';
+import {
+  resolveDomain,
+  DomainValidationError,
+} from './email-domain-validator-resolve-domain';
 
 let previousDomain: string | undefined;
 let previousDomainResult: string | undefined;
@@ -61,7 +64,8 @@ export const checkEmailDomain = async (email: string) => {
       return;
     }
   } catch (error) {
-    if (error.message?.includes('Bad Request')) {
+    // Check for 400 Bad Request errors (invalid domain format/malformed request)
+    if (error instanceof DomainValidationError && error.status === 400) {
       throw AuthUiErrors.INVALID_EMAIL_DOMAIN;
     }
     // Don't error and allow submission in case of server failure
