@@ -187,7 +187,35 @@ export type FxAOAuthFlowBeginResponse = {
   state: string;
   code_challenge?: string;
   code_challenge_method?: string;
+  // Forward to /authorization, otherwise the OAuth code is keyless and Sync never enables.
+  keys_jwk?: string;
 };
+
+// Builds the oauth_webchannel_v1 Sync sign-in URL search params from the
+// fxa_oauth_flow_begin response. Callers may set additional params on the
+// returned URLSearchParams (e.g. entrypoint, email, utm_*).
+export function buildSyncOAuthSearch(
+  oauthParams: FxAOAuthFlowBeginResponse
+): URLSearchParams {
+  const search = new URLSearchParams({
+    context: 'oauth_webchannel_v1',
+    service: 'sync',
+    client_id: oauthParams.client_id,
+    state: oauthParams.state,
+    scope: oauthParams.scope,
+    access_type: oauthParams.access_type ?? 'offline',
+    response_type: oauthParams.response_type ?? 'code',
+  });
+  if (oauthParams.action) search.set('action', oauthParams.action);
+  if (oauthParams.code_challenge) {
+    search.set('code_challenge', oauthParams.code_challenge);
+  }
+  if (oauthParams.code_challenge_method) {
+    search.set('code_challenge_method', oauthParams.code_challenge_method);
+  }
+  if (oauthParams.keys_jwk) search.set('keys_jwk', oauthParams.keys_jwk);
+  return search;
+}
 
 // timeout tuned for device latency
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
