@@ -6,7 +6,10 @@ import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
-import { isPasskeyRegistrationEnabled } from '../passkey-utils';
+import {
+  isPasskeyRegistrationEnabled,
+  isPasskeyAuthenticationEnabled,
+} from '../passkey-utils';
 import { passkeyRoutes, PasskeyHandler } from './passkeys';
 import { FxaMailer } from '../senders/fxa-mailer';
 
@@ -51,7 +54,15 @@ describe('passkeys routes', () => {
     passkeys: {
       enabled: true,
       registrationEnabled: true,
+      authenticationEnabled: true,
     },
+  };
+
+  const mockAuthenticationOptions = {
+    challenge: 'auth-challenge-xyz',
+    timeout: 60000,
+    userVerification: 'required',
+    rpId: 'accounts.firefox.com',
   };
 
   const mockRegistrationOptions = {
@@ -102,6 +113,7 @@ describe('passkeys routes', () => {
     };
     customs = {
       checkAuthenticated: jest.fn(),
+      checkIpOnly: jest.fn(),
     };
     statsd = {
       increment: jest.fn(),
@@ -139,6 +151,10 @@ describe('passkeys routes', () => {
       listPasskeysForUser: jest.fn().mockResolvedValue([mockPasskeyRecord]),
       deletePasskey: jest.fn().mockResolvedValue(undefined),
       renamePasskey: jest.fn().mockResolvedValue(mockPasskeyRecord),
+      generateAuthenticationChallenge: jest
+        .fn()
+        .mockResolvedValue(mockAuthenticationOptions),
+      verifyAuthenticationResponse: jest.fn().mockResolvedValue({ uid: UID }),
     };
 
     mockFxaMailer = {
@@ -154,6 +170,7 @@ describe('passkeys routes', () => {
   afterEach(() => {
     config.passkeys.enabled = true;
     config.passkeys.registrationEnabled = true;
+    config.passkeys.authenticationEnabled = true;
     Container.reset();
   });
 
@@ -164,6 +181,19 @@ describe('passkeys routes', () => {
           passkeys: {
             enabled: true,
             registrationEnabled: false,
+          },
+        })
+      ).toThrow('Feature not enabled');
+    });
+  });
+
+  describe('isPasskeyAuthenticationEnabled', () => {
+    it('throws featureNotEnabled when authenticationEnabled is false', () => {
+      expect(() =>
+        isPasskeyAuthenticationEnabled({
+          passkeys: {
+            enabled: true,
+            authenticationEnabled: false,
           },
         })
       ).toThrow('Feature not enabled');
@@ -947,6 +977,207 @@ describe('passkeys routes', () => {
     });
   });
 
+  describe('POST /passkey/authentication/start', () => {
+    it('calls PasskeyService.generateAuthenticationChallenge with no uid and returns options', async () => {
+      const result = await runTest('/passkey/authentication/start', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+      });
+
+      expect(result).toBe(mockAuthenticationOptions);
+      expect(
+        mockPasskeyService.generateAuthenticationChallenge
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockPasskeyService.generateAuthenticationChallenge
+      ).toHaveBeenCalledWith();
+    });
+
+    it('enforces rate limiting via customs.checkIpOnly', async () => {
+      await runTest('/passkey/authentication/start', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+      });
+
+      expect(customs.checkIpOnly).toHaveBeenCalledWith(
+        expect.anything(),
+        'passkeyAuthStart'
+      );
+    });
+
+    it('throws when customs rate limit blocks the request', async () => {
+      customs.checkIpOnly = jest
+        .fn()
+        .mockRejectedValue(AppError.tooManyRequests(60));
+
+      await expect(() =>
+        runTest('/passkey/authentication/start', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+        })
+      ).rejects.toThrow('Client has sent too many requests');
+    });
+  });
+
+  describe('POST /passkey/authentication/finish', () => {
+    const payload = {
+      response: {
+        id: 'credential-id',
+        type: 'public-key',
+        response: { authenticatorData: 'abc' },
+      },
+      challenge: 'auth-challenge-xyz',
+    };
+
+    it('verifies the response and returns session token with metadata', async () => {
+      const result = await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(
+        mockPasskeyService.verifyAuthenticationResponse
+      ).toHaveBeenCalledWith(payload.response, payload.challenge);
+      expect(db.createPasskeyVerifiedSessionToken).toHaveBeenCalledWith(
+        expect.objectContaining({ uid: UID })
+      );
+      expect(result).toEqual({
+        uid: UID,
+        sessionToken: 'new-session-token-id',
+        verified: true,
+        requiresPasswordForSync: false,
+        hasPassword: true,
+      });
+    });
+
+    it('sets requiresPasswordForSync true when service is sync', async () => {
+      const result = await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload: { ...payload, service: 'sync' },
+      });
+
+      expect(result.requiresPasswordForSync).toBe(true);
+    });
+
+    it('sets hasPassword false for passwordless accounts', async () => {
+      db.account.mockResolvedValueOnce({
+        email: TEST_EMAIL,
+        emailCode: 'emailcode123',
+        emailVerified: true,
+        verifierSetAt: 0,
+      });
+
+      const result = await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(result.hasPassword).toBe(false);
+    });
+
+    it('records account.passkey.authentication_success security event', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.authentication_success',
+        expect.anything()
+      );
+    });
+
+    it('enforces rate limiting via customs.checkIpOnly', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(customs.checkIpOnly).toHaveBeenCalledWith(
+        expect.anything(),
+        'passkeyAuthFinish'
+      );
+    });
+
+    it('records authentication_failure and rethrows when verifyAuthenticationResponse fails', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.authentication_failure',
+        expect.anything()
+      );
+    });
+
+    it('does not record authentication_success when verification fails', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+        'account.passkey.authentication_success',
+        expect.anything()
+      );
+    });
+
+    it('throws when customs rate limit blocks the request', async () => {
+      customs.checkIpOnly = jest
+        .fn()
+        .mockRejectedValue(AppError.tooManyRequests(60));
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow('Client has sent too many requests');
+    });
+
+    it('propagates db.account failure after successful verification', async () => {
+      db.account.mockRejectedValueOnce(new Error('DB error'));
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow('DB error');
+
+      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+        'account.passkey.authentication_success',
+        expect.anything()
+      );
+      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+        'account.passkey.authentication_failure',
+        expect.anything()
+      );
+    });
+  });
+
   describe('PasskeyHandler.createPasskeySessionToken', () => {
     const mockAccount = {
       uid: UID,
@@ -978,7 +1209,8 @@ describe('passkeys routes', () => {
         customs,
         log,
         mockFxaMailer,
-        statsd
+        statsd,
+        glean
       );
     });
 
