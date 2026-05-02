@@ -1,0 +1,10 @@
+{
+  "commit": "894299f6f833b357648945aa21fa0b16cfa77277",
+  "summary": "chore(settings): replace esbuild with tsc/ts-node in packages/fxa-settings",
+  "description": "Because:\n- We want to test & develop with what we deploy.\n\nThis commit:\n- Part of the esbuild -> tsc/ts-node migration (split of a6d1a55ae4, PR mozilla/fxa#20390).\n- Scope: files under packages/fxa-settings (including deletion of deriver.ts).",
+  "timestamp": 1776973944000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

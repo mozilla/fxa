@@ -1,0 +1,12 @@
+{
+  "commit": "d7a529d2944255978c650e5ea84d3e5aa6828984",
+  "summary": "chore(event-broker): replace esbuild with tsc/ts-node in packages/fxa-event-broker",
+  "description": "Because:\n- We want to test & develop with what we deploy.\n\nThis commit:\n- Part of the esbuild -> tsc/ts-node migration (split of a6d1a55ae4, PR mozilla/fxa#20390).\n- Scope: files under packages/fxa-event-broker.",
+  "timestamp": 1777049287000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

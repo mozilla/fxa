@@ -1,0 +1,11 @@
+{
+  "commit": "161afb3fd1a8e2e2d445cf63937006921e431430",
+  "summary": "fix(content-server): Add explicit webpack alias for @fxa/shared/sentry-utils",
+  "description": "Because:\n- Even with TsconfigPathsPlugin configured against tsconfig.base.json,\n  webpack in content-server was emitting webpackMissingModule for\n  @fxa/shared/sentry-utils — the one new path import from app-side code\n  (app/scripts/lib/sentry.js). This surfaced as a pageError at runtime\n  (\"Cannot find module '@fxa/shared/sentry-utils'\") and broke the\n  app.bundle.js initialization path, causing the cookiesDisabled\n  Playwright test to hang waiting for the redirect to /cookies_disabled.\n\nThis commit:\n- Adds a direct resolve.alias entry for @fxa/shared/sentry-utils pointing\n  at libs/shared/sentry-utils/src/index.ts, mirroring the existing\n  @fxa/vendored aliases.",
+  "timestamp": 1776909275000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

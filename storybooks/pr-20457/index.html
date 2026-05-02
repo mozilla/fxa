@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1ea480f2a2b142accc6e1bc29aa5d03ce9bfeb74</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1ea480f2a2b142accc6e1bc29aa5d03ce9bfeb74</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/29/2026, 12:35:19 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): surface OAuth client-info fetch failures as discrete errors</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* When the in-app fetch to /v1/oauth/client/:id fails, fxa-settings
+  silently builds a &quot;ghost&quot; OAuth integration with all clientInfo fields
+  undefined. isTrusted() returns false, scope sanitisation strips every
+  scope a real RP typically requests, and the flow throws
+  &quot;Invalid OAuth parameter: scope&quot; (errno 109).
+* The resulting Sentry events look like RP misconfiguration but the real
+  cause is the client-info lookup never returning — confirmed by the
+  extras shape `clientInfo: { redirectUri: &quot;&quot; }` and `trusted: false`
+  across ~80k production events (FXA-CONTENT-1HYP, FXA-CONTENT-1GTG,
+  and related groupings).
+* The React-side regression was introduced by the GraphQL-to-REST
+  migration (FXA-12995): Apollo&#039;s useQuery propagated error state to
+  consumers, but the hand-rolled fetch replacement dropped that signal
+  and useIntegration proceeds as if the lookup succeeded.
+
+This commit:
+
+* Adds a clientInfoLoadFailed boolean to GenericIntegration so the
+  client-info lookup outcome is explicit on the integration itself.
+* Has IntegrationFactory.initClientInfo set the flag when a client_id
+  was present in the URL but this.clientInfo is undefined — i.e., the
+  lookup was expected to run and didn&#039;t produce a result.
+* Short-circuits OAuthWebIntegration.getPermissions to throw
+  SERVICE_UNAVAILABLE (errno 998) when the flag is set, bypassing the
+  scope-sanitisation path and its misleading Sentry capture. The
+  existing try/catch in AuthAndAccountSetupRoutes already renders
+  OAuthDataError for this throw, so user-facing behaviour is unchanged.
+* Captures the underlying fetch error to Sentry from useClientInfoState
+  under the dedicated tag area: &#039;useClientInfoState.fetch&#039;, separating
+  the real cause from the downstream symptom groupings.
+* Adds unit coverage for the new flag, the early-return, and the Sentry
+  capture on both network errors and non-OK HTTP responses.
+
+Note: this does not change fetch credentials or headers. A separate
+infrastructure track owns the Fastly/WAF bypass for
+GET /v1/oauth/client/:id (see FXA-13618 description).
+
+Closes #FXA-13618</pre></dd>
+  </dl>
+</body>
+</html>

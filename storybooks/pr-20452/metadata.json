@@ -1,0 +1,12 @@
+{
+  "commit": "9e41e38bde80c47f8455cff1a80fd7c7d55e7726",
+  "summary": "chore(sentry): remove unused @nestjs/apollo, @nestjs/graphql, @apollo/server",
+  "description": "Because:\n- fxa-graphql-api was retired and fxa-admin-server/admin-panel migrated\n  from GraphQL to REST, so nothing in the monorepo reaches\n  @nestjs/apollo, @nestjs/graphql, or @apollo/server at runtime.\n- The only remaining surface was three stale Sentry integration files:\n  a SentryPlugin class with zero importers and two dead `graphql`\n  context branches in the reporting helpers.\n- Dropping them shrinks the NestJS 11 lockstep upgrade scope\n  (FXA-13358), obsoletes dependabot PR #20275 (@apollo/server 4 → 5),\n  and eliminates five related advisories including GHSA-9q82-xgwf-vj6h.\n\nThis commit:\n- Deletes libs/shared/sentry/src/lib/nest/sentry.plugin.ts and its\n  barrel export.\n- Strips @nestjs/graphql and @apollo/server imports, isApolloError,\n  and processException from reporting.ts in both libs/shared/sentry\n  and libs/shared/sentry-nest, and removes the isApolloError call\n  from ignoreError.\n- Removes the \"should ignore apollo errors\" test and GraphQLError\n  import from both reporting.spec.ts files.\n- Removes @apollo/server, @nestjs/apollo, and @nestjs/graphql from the\n  root package.json and the corresponding yarn.lock entries.\n- Drops '@nestjs/apollo' and '@nestjs/graphql' from the\n  serverExternalPackages array in apps/payments/next/next.config.js\n  since those packages no longer resolve.\n- Pins @types/node-fetch ^2.6.12 as a direct root devDependency —\n  @apollo/server was transitively providing it, and\n  packages/fxa-admin-server/src/newsletters/basket.service.ts still\n  imports from node-fetch.\n- Migrates libs/vendored/jwtool/src/lib/jwtool.ts to Node 22's global\n  fetch (typed via @types/node/globals.d.ts) so the vendored library\n  no longer imports node-fetch.\n\nCloses #FXA-13606",
+  "timestamp": 1777572050000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

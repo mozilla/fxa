@@ -1,0 +1,12 @@
+{
+  "commit": "a3b4734720d792ba1072405dc03d309980b0f573",
+  "summary": "Merge pull request #20496 from mozilla/PAY-3669",
+  "description": "fix(libs/payments): Update payment could not process copy and add Cancel subscription button",
+  "timestamp": 1777666163000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "a6d1a55ae442648ded191cdf4226eca8a79b423a",
+  "summary": "chore(all): replace esbuild-register with ts-node/register in pm2, scripts, and mocha commands",
+  "description": "chore(all): Use tsc instead of esbuild\n\nBecause:\n- We want to test & develop with what we deploy\n\nThis Commit:\n- Removes esbuild\n- Uses tsc & ts-node instead\n- Fixes several nx config issues that were messing up caching\n- Fixes esm hacks for vendored modules\n- Creates dedicated build-ts target for typescript compilation, which makes nx task dependencies easier to configure.\n- Updates startup commands to use ts-node",
+  "timestamp": 1776381806000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

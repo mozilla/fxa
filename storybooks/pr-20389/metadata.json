@@ -1,0 +1,10 @@
+{
+  "commit": "17e4a7088cdc80479e1d511b74f0e7d8ea7bcfa6",
+  "summary": "feat(oauth,docs): wip VPN in mobile support + ADRs for recent oauth decisions",
+  "description": "",
+  "timestamp": 1776729694000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

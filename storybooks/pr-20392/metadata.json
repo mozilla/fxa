@@ -1,0 +1,12 @@
+{
+  "commit": "c91668cfc5c5338d6b12a8c39d8e43f416d6ff8a",
+  "summary": "fix(tests): skip lib/glean spec in content-server mocha bundle",
+  "description": "Because: under @mozilla/glean v5, the in-browser mocha runner's\nper-test testResetGlean is slow enough on CI's headless Firefox to\npush the misc.spec.ts Playwright wrapper past its 180s timeout. The\nprior facade-stub attempt (commit 2eb51a11bc) only shaved ~3s off\nthe runtime and did not close the gap.\n\nThis commit: reverts the facade-stub approach and instead skips the\nlib/glean spec require in test_start.js. Content-server is legacy\nand slated for removal, so we accept losing this in-browser coverage\nrather than carrying scaffolding to keep it running. The spec source\nis preserved for future migration to a Jest unit test if desired.",
+  "timestamp": 1777319033000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "c059c8ddcb50dc6e60768eb1beed84aaeef96e53",
+  "summary": "chore(shared): replace esbuild with tsc/ts-node in libs/shared",
+  "description": "Because:\n- We want to test & develop with what we deploy.\n\nThis commit:\n- Part of the esbuild -> tsc/ts-node migration (split of a6d1a55ae4, PR mozilla/fxa#20390).\n- Scope: files under libs/shared.\n- Pulls in libs/google/*, which are essentially 'shared' libs\n- Pulls in libs/vemdered. which are essentially 'shared' libs\n- Pulls in libs/payments/*, which could not be decoupled from libs/shared due to bi directional dependency bewteen shared/cms and payemnts/customer\n- Deletes libs/shared/nestjs/customs. This was not referenced, and created an atypical dependency direction with /libs/accounts/rate-limit.",
+  "timestamp": 1777066847000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

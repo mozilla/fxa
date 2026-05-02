@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 01c989b02fe9db5a58a98e1da8e18ed3d4f74484</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 01c989b02fe9db5a58a98e1da8e18ed3d4f74484</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/30/2026, 3:59:04 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(pair): simplify /pair and /connect_another_device bootstrap</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Both pages now ask Firefox via WebChannel for a signed-in Sync user. /pair
+shows the choice screen if signed in; otherwise it requests fresh sync
+OAuth params and hard-navigates to / with oauth_webchannel_v1.
+
+Direct visits to /connect_another_device hard-navigate to /pair when the
+browser is signed in *and* isEligibleForPairing() (legacy Sync-context
+plus pairing-entrypoint gate). When signed in but not eligible, the page
+renders. When not signed in, the same OAuth flow runs. WebChannel
+timeouts reveal the page as a safety fallback. Restores the legacy
+redirect_immediately + redirect_to handoff to /settings.
+
+The connect_another_device entrypoint uses an underscore form so it
+clears the CMS endpoint validator and the Index page no longer crashes
+on the redirect target. buildSyncOAuthSearch also forwards keys_jwk from
+the fxa_oauth_flow_begin response, otherwise the OAuth code comes back
+keyless and Sync never enables after oauth_login.
+
+Glean view events on /pair now wait until the bootstrap reveals the
+page, and the CAD Sign in button flips canSignIn to false on a
+WebChannel failure so the click stops being a silent no-op.
+
+Adds buildSyncOAuthSearch helper, FxAOAuthFlowBeginResponse type, and
+the OAuthFlowBegin functional-test channel. New unit and functional
+tests cover the bootstrap branches; the pair_preferences functional
+test captures the WebChannel dispatch via a page-side promise so it
+survives Firefox chrome tearing down the test tab.</pre></dd>
+  </dl>
+</body>
+</html>

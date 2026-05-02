@@ -1,0 +1,11 @@
+{
+  "commit": "a58da7627041a7401114edf681398e1a4d3fd940",
+  "summary": "fix(auth): remove prefixing on saved ip for security events",
+  "description": "Because:\n - We were prefixing ipv4 addresses with \"::\" and we shouldn't\n\nThis Commit:\n - Removes the prefixing all together so we write all IP addresses to\n   the security event as they appear\n\nCloses: FXA-13433",
+  "timestamp": 1777564007000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "55c469434a7ca4aaeb1086299e3c97332fb2db00",
+  "summary": "chore(auth): Remove support ticket integration",
+  "description": "",
+  "timestamp": 1777641923000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

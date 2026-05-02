@@ -1,0 +1,10 @@
+{
+  "commit": "db2da1c5a7aed1ac8222a9a683f95cd6494814a4",
+  "summary": "fix(auth): Use fxaMailer for verifyShortCode email",
+  "description": "Because:\n - We were not using the new fxaMailer for verifyShortCode emails\n - Email templates were having to re-define cms properties each time\n\nThis Commit:\n - Updates to use the fxaMailer for verifyShortCode emails\n - Adds a shared CmsEmailTemplateData to make properties similar between\n   cms emails, including a target value for subject localization\n - Updates appropriate tests\n\nCloses:",
+  "timestamp": 1777568279000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

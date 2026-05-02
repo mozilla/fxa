@@ -1,0 +1,11 @@
+{
+  "commit": "b5e5fd657cef583822527dc36798cfeec597e6a8",
+  "summary": "chore(passkeys): Update comments on passkey redis config",
+  "description": "",
+  "timestamp": 1777667068000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

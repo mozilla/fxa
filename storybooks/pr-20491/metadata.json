@@ -1,0 +1,10 @@
+{
+  "commit": "01c989b02fe9db5a58a98e1da8e18ed3d4f74484",
+  "summary": "fix(pair): simplify /pair and /connect_another_device bootstrap",
+  "description": "Both pages now ask Firefox via WebChannel for a signed-in Sync user. /pair\nshows the choice screen if signed in; otherwise it requests fresh sync\nOAuth params and hard-navigates to / with oauth_webchannel_v1.\n\nDirect visits to /connect_another_device hard-navigate to /pair when the\nbrowser is signed in *and* isEligibleForPairing() (legacy Sync-context\nplus pairing-entrypoint gate). When signed in but not eligible, the page\nrenders. When not signed in, the same OAuth flow runs. WebChannel\ntimeouts reveal the page as a safety fallback. Restores the legacy\nredirect_immediately + redirect_to handoff to /settings.\n\nThe connect_another_device entrypoint uses an underscore form so it\nclears the CMS endpoint validator and the Index page no longer crashes\non the redirect target. buildSyncOAuthSearch also forwards keys_jwk from\nthe fxa_oauth_flow_begin response, otherwise the OAuth code comes back\nkeyless and Sync never enables after oauth_login.\n\nGlean view events on /pair now wait until the bootstrap reveals the\npage, and the CAD Sign in button flips canSignIn to false on a\nWebChannel failure so the click stops being a silent no-op.\n\nAdds buildSyncOAuthSearch helper, FxAOAuthFlowBeginResponse type, and\nthe OAuthFlowBegin functional-test channel. New unit and functional\ntests cover the bootstrap branches; the pair_preferences functional\ntest captures the WebChannel dispatch via a page-side promise so it\nsurvives Firefox chrome tearing down the test tab.",
+  "timestamp": 1777564744000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

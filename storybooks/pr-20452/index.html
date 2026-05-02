@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9e41e38bde80c47f8455cff1a80fd7c7d55e7726</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9e41e38bde80c47f8455cff1a80fd7c7d55e7726</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/30/2026, 6:00:50 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(sentry): remove unused @nestjs/apollo, @nestjs/graphql, @apollo/server</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- fxa-graphql-api was retired and fxa-admin-server/admin-panel migrated
+  from GraphQL to REST, so nothing in the monorepo reaches
+  @nestjs/apollo, @nestjs/graphql, or @apollo/server at runtime.
+- The only remaining surface was three stale Sentry integration files:
+  a SentryPlugin class with zero importers and two dead `graphql`
+  context branches in the reporting helpers.
+- Dropping them shrinks the NestJS 11 lockstep upgrade scope
+  (FXA-13358), obsoletes dependabot PR #20275 (@apollo/server 4 → 5),
+  and eliminates five related advisories including GHSA-9q82-xgwf-vj6h.
+
+This commit:
+- Deletes libs/shared/sentry/src/lib/nest/sentry.plugin.ts and its
+  barrel export.
+- Strips @nestjs/graphql and @apollo/server imports, isApolloError,
+  and processException from reporting.ts in both libs/shared/sentry
+  and libs/shared/sentry-nest, and removes the isApolloError call
+  from ignoreError.
+- Removes the &quot;should ignore apollo errors&quot; test and GraphQLError
+  import from both reporting.spec.ts files.
+- Removes @apollo/server, @nestjs/apollo, and @nestjs/graphql from the
+  root package.json and the corresponding yarn.lock entries.
+- Drops &#039;@nestjs/apollo&#039; and &#039;@nestjs/graphql&#039; from the
+  serverExternalPackages array in apps/payments/next/next.config.js
+  since those packages no longer resolve.
+- Pins @types/node-fetch ^2.6.12 as a direct root devDependency —
+  @apollo/server was transitively providing it, and
+  packages/fxa-admin-server/src/newsletters/basket.service.ts still
+  imports from node-fetch.
+- Migrates libs/vendored/jwtool/src/lib/jwtool.ts to Node 22&#039;s global
+  fetch (typed via @types/node/globals.d.ts) so the vendored library
+  no longer imports node-fetch.
+
+Closes #FXA-13606</pre></dd>
+  </dl>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "commit": "5e730b1c17fcc2e35e300236a4e955fbfa00c923",
+  "summary": "feat(signin): Add conditional keys fetch, scopes in fxaOAuthLogin, \"Authorization\" state + in Strapi",
+  "description": "Because:\n* Non-Sync browser services (VPN, Relay, SmartWindow) should not force password entry just to fetch keys, but should fetch them opportunistically if a password is entered for another reason\n* The browser needs to know which scopes were granted after the authorization flow completes\n* The isSignedIntoFirefoxDesktop state was too narrow for the scope authorization flow which applies to all Firefox platforms, and we want this editable in Strapi\n\nThis commit:\n* Splits wantsKeys into requiresKeys (Sync only, forces password) and wantsKeysIfPasswordEntered (non-Sync, opportunistic), with wantsKeys, to allow a \"cached login\" render without the \"keys optional\" capability, which is a capability intended for passwordless non-sync browser logins\n* Adds scopes field to fxaOAuthLogin WebChannel message at all call sites, because the browser needs to know which scopes were actually granted — with ADR 0049, FxA may deny requested scopes or grant additional ones, and the browser may not request scope at all\n* Renames isSignedIntoFirefoxDesktop to isSignedIntoFirefox and removes the Desktop-only check, adds a new page in Strapi for this state so the copy can be updated (e.g. \"Authorize\")\n* Adds tests/stories, updates Signin stories to new format\n\ncloses FXA-12939",
+  "timestamp": 1777671030000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

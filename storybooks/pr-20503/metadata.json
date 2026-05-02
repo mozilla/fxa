@@ -1,0 +1,10 @@
+{
+  "commit": "2d2202a812789dec30632b7ce2fff232909097d3",
+  "summary": "chore(auth-client,auth,content): Remove /subscriptions/plans",
+  "description": "",
+  "timestamp": 1777667629000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

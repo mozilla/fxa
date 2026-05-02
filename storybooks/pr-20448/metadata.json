@@ -1,0 +1,12 @@
+{
+  "commit": "1cc99469c11c82fe138dfe6ba39f27072733cf6e",
+  "summary": "chore(fxa-shared): replace esbuild with tsc/ts-node in packages/fxa-shared",
+  "description": "Because:\n- We want to test & develop with what we deploy.\n\nThis commit:\n- Part of the esbuild -> tsc/ts-node migration (split of a6d1a55ae4, PR mozilla/fxa#20390).\n- Scope: files under packages/fxa-shared.",
+  "timestamp": 1777049229000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

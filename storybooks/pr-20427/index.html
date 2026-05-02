@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5e730b1c17fcc2e35e300236a4e955fbfa00c923</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5e730b1c17fcc2e35e300236a4e955fbfa00c923</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>5/1/2026, 9:30:30 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(signin): Add conditional keys fetch, scopes in fxaOAuthLogin, &quot;Authorization&quot; state + in Strapi</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Non-Sync browser services (VPN, Relay, SmartWindow) should not force password entry just to fetch keys, but should fetch them opportunistically if a password is entered for another reason
+* The browser needs to know which scopes were granted after the authorization flow completes
+* The isSignedIntoFirefoxDesktop state was too narrow for the scope authorization flow which applies to all Firefox platforms, and we want this editable in Strapi
+
+This commit:
+* Splits wantsKeys into requiresKeys (Sync only, forces password) and wantsKeysIfPasswordEntered (non-Sync, opportunistic), with wantsKeys, to allow a &quot;cached login&quot; render without the &quot;keys optional&quot; capability, which is a capability intended for passwordless non-sync browser logins
+* Adds scopes field to fxaOAuthLogin WebChannel message at all call sites, because the browser needs to know which scopes were actually granted — with ADR 0049, FxA may deny requested scopes or grant additional ones, and the browser may not request scope at all
+* Renames isSignedIntoFirefoxDesktop to isSignedIntoFirefox and removes the Desktop-only check, adds a new page in Strapi for this state so the copy can be updated (e.g. &quot;Authorize&quot;)
+* Adds tests/stories, updates Signin stories to new format
+
+closes FXA-12939</pre></dd>
+  </dl>
+</body>
+</html>
