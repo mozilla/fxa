@@ -135,16 +135,16 @@ It's important to note that sentry also supports tracing integration. So we typi
 
 ## Testing
 
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will first lint the code and then test all files ending under `test/`, and uses `esbuild-register` so it can process TypeScript files.
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will first lint the code and then test all files ending under `test/`, and uses `ts-node/register` so it can process TypeScript files.
 
 Test specific tests with the following commands:
 
 ```bash
 # Test only test/oauth/scopes.js
-npx mocha -r esbuild-register test/oauth/scopes.js
+npx mocha -r ts-node/register/transpile-only -r tsconfig-paths/register test/oauth/scopes.js
 
 # Grep for "invalid scope values"
-npx mocha -r esbuild-register -g "invalid scope values" --recursive test
+npx mocha -r ts-node/register/transpile-only -r tsconfig-paths/register -g "invalid scope values" --recursive test
 ```
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

@@ -17,7 +17,13 @@
       "label": "Run Current Test",
       "type": "shell",
       "command": "./node_modules/mocha/bin/mocha.js",
-      "args": ["-r", "esbuild-register", "${relativeFile}"],
+      "args": [
+        "-r",
+        "ts-node/register/transpile-only",
+        "-r",
+        "tsconfig-paths/register",
+        "${relativeFile}"
+      ],
       "group": "test",
       "presentation": {
         "echo": true,
