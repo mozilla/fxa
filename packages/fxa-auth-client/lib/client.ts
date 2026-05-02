@@ -3084,24 +3084,6 @@ export default class AuthClient {
     );
   }
 
-  async createSupportTicket(
-    accessToken: string,
-    supportTicket: {
-      topic: string;
-      subject?: string;
-      message: string;
-    }
-  ) {
-    return this.request(
-      'POST',
-      '/support/ticket',
-      supportTicket,
-      new Headers({
-        authorization: `Bearer ${accessToken}`,
-      })
-    );
-  }
-
   async updateNewsletters(
     sessionToken: hexstring,
     newsletters: string[],
