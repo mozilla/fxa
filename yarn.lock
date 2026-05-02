@@ -31619,8 +31619,6 @@ __metadata:
     "@types/mocha": "npm:^10"
     "@types/node": "npm:^22.13.5"
     "@types/prettier": "npm:^2"
-    esbuild: "npm:^0.17.15"
-    esbuild-register: "npm:^3.5.0"
     eslint: "npm:^8.38.0"
     eslint-config-react-app: "npm:^7.0.1"
     fast-text-encoding: "npm:^1.0.4"
