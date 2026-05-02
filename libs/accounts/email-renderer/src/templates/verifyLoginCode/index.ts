@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TemplateData as AutomatedEmailChangePasswordTemplateData } from '../../partials/automatedEmailChangePassword';
+import { TemplateData as CmsEmailTemplateData } from '../../partials/cmsEmail';
 import { TemplateData as UserInfoTemplateData } from '../../partials/userInfo';
 
 export type TemplateData = AutomatedEmailChangePasswordTemplateData &
+  CmsEmailTemplateData &
   UserInfoTemplateData & {
     code: string;
     passwordChangeLink: string;
@@ -22,13 +24,6 @@ export type TemplateData = AutomatedEmailChangePasswordTemplateData &
       city: string;
     };
     date: string;
-
-    cmsRpClientId?: string;
-    cmsRpFromName?: string;
-    entrypoint?: string;
-    subject?: string;
-    headline?: string;
-    description?: string;
   };
 
 export const template = 'verifyLoginCode';
