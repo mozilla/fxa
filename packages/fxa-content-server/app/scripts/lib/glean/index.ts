@@ -355,29 +355,31 @@ export const GleanMetrics = {
     config: GleanMetricsConfig,
     context: GleanMetricsContext
   ) => {
+    if (!config.enabled) {
+      gleanEnabled = false;
+      return;
+    }
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
     // initialization could cause an error
     try {
-      if (config.enabled) {
-        Glean.initialize(config.applicationId, config.uploadEnabled, {
-          appDisplayVersion: config.appDisplayVersion,
-          channel: config.channel,
-          serverEndpoint: config.serverEndpoint,
-          // Glean does not offer direct control over when metrics are uploaded;
-          // this ensures that events are uploaded.
-          maxEvents: 1,
-          enableAutoPageLoadEvents: true,
-          enableAutoElementClickEvents: true,
-        });
-        Glean.setLogPings(config.logPings);
-        if (config.debugViewTag) {
-          Glean.setDebugViewTag(config.debugViewTag);
-        }
-
-        gleanMetricsContext = context;
+      Glean.initialize(config.applicationId, config.uploadEnabled, {
+        appDisplayVersion: config.appDisplayVersion,
+        channel: config.channel,
+        serverEndpoint: config.serverEndpoint,
+        // Glean does not offer direct control over when metrics are uploaded;
+        // this ensures that events are uploaded.
+        maxEvents: 1,
+        enableAutoPageLoadEvents: true,
+        enableAutoElementClickEvents: true,
+      });
+      Glean.setLogPings(config.logPings);
+      if (config.debugViewTag) {
+        Glean.setDebugViewTag(config.debugViewTag);
       }
-      GleanMetrics.setEnabled(config.enabled);
+
+      gleanMetricsContext = context;
+      GleanMetrics.setEnabled(true);
       await initMetrics();
     } catch (_) {
       // set some states so we won't try to do anything with glean.js later
