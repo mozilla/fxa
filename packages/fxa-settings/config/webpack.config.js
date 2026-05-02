@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This file was created by react-scripts' (create-react-app) eject script.
 
 const fs = require('fs');
@@ -358,7 +362,6 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
-        fxaCryptoDeriver: require.resolve('@fxa/vendored/crypto-relier/esm'),
         ...(modules.webpackAliases || {}),
       },
       plugins: [
