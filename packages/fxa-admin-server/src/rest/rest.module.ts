@@ -19,6 +19,7 @@ import { EmailBounceController } from './email-bounce/email-bounce.controller';
 import { RelyingPartyController } from './relying-party/relying-party.controller';
 import { RateLimitingController } from './rate-limiting/rate-limiting.controller';
 import { EmailBlocklistController } from './email-blocklist/email-blocklist.controller';
+import { WafTokensController } from './waf-tokens/waf-tokens.controller';
 import {
   RateLimitProvider,
   RateLimitRedisProvider,
@@ -41,6 +42,7 @@ import { CartModule } from './cart.module';
     RateLimitingController,
     RelyingPartyController,
     EmailBlocklistController,
+    WafTokensController,
   ],
   providers: [
     RateLimitProvider,

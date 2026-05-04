@@ -15,6 +15,8 @@ import type {
   AccountDeleteTaskStatus,
   AccountResetResponse,
   EmailBlocklistEntry,
+  WafBypassTokenDto,
+  WafBypassTokenCreateDto,
 } from 'fxa-admin-server/src/types';
 
 function baseUrl() {
@@ -273,5 +275,30 @@ export const adminApi = {
 
   deleteAllEmailBlocklistEntries(): Promise<{ ok: boolean }> {
     return apiFetch('/api/email-blocklist/all', { method: 'DELETE' });
+  },
+
+  // ---- WAF bypass tokens ----
+
+  getWafTokens(): Promise<WafBypassTokenDto[]> {
+    return apiFetch('/api/waf-tokens');
+  },
+
+  createWafToken(data: WafBypassTokenCreateDto): Promise<WafBypassTokenDto> {
+    return apiFetch('/api/waf-tokens', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  rotateWafToken(id: string): Promise<WafBypassTokenDto> {
+    return apiFetch(`/api/waf-tokens/${encodeURIComponent(id)}/rotate`, {
+      method: 'POST',
+    });
+  },
+
+  deleteWafToken(id: string): Promise<boolean> {
+    return apiFetch(`/api/waf-tokens/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
   },
 };
