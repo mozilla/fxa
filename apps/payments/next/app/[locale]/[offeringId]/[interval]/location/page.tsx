@@ -4,7 +4,7 @@
 
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
@@ -193,7 +193,10 @@ export default async function Location({
                 )
               );
 
-              redirect(redirectUrl.href);
+              return {
+                ok: true,
+                data: { redirectToUrl: redirectUrl.href },
+              };
             }}
           />
           <p id="form-information" className="pt-5 text-center">
