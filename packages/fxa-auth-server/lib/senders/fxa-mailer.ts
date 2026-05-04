@@ -495,10 +495,7 @@ export class FxaMailer extends FxaEmailRenderer {
       { 'X-Link': links.passwordChangeLink },
       opts
     );
-    const rendered = await this.renderNewDeviceLogin({
-      ...opts,
-      ...links,
-    });
+    const rendered = await this.renderNewDeviceLogin({ ...opts, ...links });
 
     return this.sendEmail(opts, headers, rendered);
   }

@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TemplateData as AutomatedEmailNoActionTemplateData } from '../../partials/automatedEmailNoAction';
+import { TemplateData as CmsEmailTemplateData } from '../../partials/cmsEmail';
 import { TemplateData as UserInfoTemplateData } from '../../partials/userInfo';
 
 export type TemplateData = AutomatedEmailNoActionTemplateData &
+  CmsEmailTemplateData &
   UserInfoTemplateData & {
     date: string;
     time: string;
@@ -14,12 +16,6 @@ export type TemplateData = AutomatedEmailNoActionTemplateData &
     link: string;
     mozillaSupportUrl: string;
     showBannerWarning: boolean;
-    cmsRpClientId?: string;
-    cmsRpFromName?: string;
-    entrypoint?: string;
-    subject?: string;
-    headline?: string;
-    description?: string;
   };
 
 export const template = 'newDeviceLogin';
