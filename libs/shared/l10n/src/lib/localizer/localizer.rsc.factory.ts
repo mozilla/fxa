@@ -5,7 +5,7 @@ import 'server-only';
 import { Injectable } from '@nestjs/common';
 import { LocalizerBase } from './localizer.base';
 import type { ILocalizerBindings } from './localizer.interfaces';
-import supportedLanguages from '../supported-languages.json';
+const supportedLanguages: string[] = require('../supported-languages.json');
 import { FluentBundle } from '@fluent/bundle';
 import { LocalizerRsc } from './localizer.rsc';
 import { JSDOM } from 'jsdom';

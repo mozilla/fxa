@@ -6,31 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/payments/legacy/src/index.ts",
         "outputPath": "dist/libs/payments/legacy",
-        "outputFileName": "main.js",
         "tsConfig": "libs/payments/legacy/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/payments/legacy/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

@@ -6,32 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/pem-jwk/src/index.ts",
         "outputPath": "dist/libs/shared/pem-jwk",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/pem-jwk/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/shared/pem-jwk/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node",
-        "format": ["cjs", "esm"]
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "test-unit": {

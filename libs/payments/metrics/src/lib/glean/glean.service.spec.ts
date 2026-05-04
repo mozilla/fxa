@@ -55,7 +55,6 @@ import {
 } from '@fxa/shared/experiments';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { AsyncLocalStorageCartProvider } from '@fxa/payments/cart';
 
 describe('PaymentsGleanService', () => {
   let paymentsGleanService: PaymentsGleanService;
@@ -72,7 +71,6 @@ describe('PaymentsGleanService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         AccountManager,
-        AsyncLocalStorageCartProvider,
         CustomerManager,
         Logger,
         MockFirestoreProvider,

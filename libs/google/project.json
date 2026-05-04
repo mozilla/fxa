@@ -6,16 +6,20 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/google/src/index.ts",
         "outputPath": "dist/libs/google",
-        "outputFileName": "main.js",
         "tsConfig": "libs/google/tsconfig.lib.json",
-        "assets": ["libs/google/*.md"],
-        "declaration": true
+        "assets": ["libs/google/*.md"]
       }
     },
     "lint": {
