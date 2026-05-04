@@ -10,4 +10,7 @@ export class SetDefaultStripePaymentDetailsActionArgs {
 
   @IsString()
   paymentMethodId!: string;
+
+  @IsString()
+  ipAddress!: string;
 }

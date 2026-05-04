@@ -61,6 +61,7 @@ manage-payment-method-intent-error-try-again = Hmm. There was a problem authoriz
 manage-payment-method-intent-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
 manage-payment-method-intent-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
 manage-payment-method-intent-error-generic = An unexpected error has occurred while processing your payment, please try again.
+manage-payment-method-tax-address-required = We could not determine your billing location. Please verify your payment method information and try again.
 
 ## Next Charge
 

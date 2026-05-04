@@ -5,15 +5,18 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import { getIpAddress } from '../utils/getIpAddress';
 
 export const updateStripePaymentDetails = async (
   uid: string,
   confirmationTokenId: string
 ) => {
   const actionsService = getApp().getActionsService();
+  const ipAddress = await getIpAddress();
 
   return actionsService.updateStripePaymentDetails({
     uid,
     confirmationTokenId,
+    ipAddress,
   });
 };

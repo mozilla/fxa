@@ -34,6 +34,12 @@ export function getManagePaymentMethodErrorFtlInfo(errorCode?: string) {
           'It looks like your card has insufficient funds. Try another card.',
         messageFtl: 'manage-payment-method-intent-error-insufficient-funds',
       };
+    case 'tax_address_required':
+      return {
+        message:
+          'We could not determine your billing location. Please verify your payment method information and try again.',
+        messageFtl: 'manage-payment-method-tax-address-required',
+      };
     case 'intent_failed_generic':
     default:
       return {

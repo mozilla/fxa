@@ -70,3 +70,14 @@ export class ManagePaymentMethodIntentInsufficientFundsError extends ManagePayme
     this.name = 'ManagePaymentMethodIntentInsufficientFundsError';
   }
 }
+
+export class ManagePaymentMethodTaxAddressRequiredError extends ManagePaymentMethodIntentFailedHandledError {
+  constructor(errorCode: string) {
+    super(
+      'ManagePaymentMethod could not resolve a tax address for the customer',
+      {},
+      errorCode
+    );
+    this.name = 'ManagePaymentMethodTaxAddressRequiredError';
+  }
+}
