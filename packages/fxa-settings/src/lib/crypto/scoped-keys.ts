@@ -4,7 +4,7 @@
 
 // NOTE: Ported from scoped-keys.js in content server. Minor typescript adaptions applied.
 
-import fxaCryptoDeriver from './deriver';
+import * as cryptoRelier from '@fxa/vendored/crypto-relier';
 
 /**
  * Derive scoped keys and create an encrypted bundle for key transport
@@ -45,8 +45,7 @@ export async function createEncryptedBundle(
  * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
  */
 async function encryptBundle(bundleObject: any, keysJwk: any) {
-  const cryptoDeriver = await fxaCryptoDeriver();
-  const fxaDeriverUtils = new cryptoDeriver.DeriverUtils();
+  const fxaDeriverUtils = new cryptoRelier.DeriverUtils();
   return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
 }
 
@@ -64,8 +63,7 @@ async function deriveScopedKeys(inputKey: any, uid: string, keyData: any) {
   required(uid, 'uid');
   required(keyData, 'key data');
 
-  const cryptoDeriver = await fxaCryptoDeriver();
-  const scopedKeys = new cryptoDeriver.ScopedKeys();
+  const scopedKeys = new cryptoRelier.ScopedKeys();
 
   return scopedKeys.deriveScopedKey({
     identifier: keyData.identifier,
