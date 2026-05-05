@@ -27,6 +27,7 @@ export default async function AuthErrorPage({
     ? resolvedSearchParams.error[0]
     : resolvedSearchParams?.error;
   getApp().getEmitterService().emit('auth', { type: 'error', errorMessage });
+  // temp comment
 
   return (
     <>
