@@ -17,6 +17,7 @@ import type {
   EmailBlocklistEntry,
   WafBypassTokenDto,
   WafBypassTokenCreateDto,
+  DomainBlocklistEntry,
 } from 'fxa-admin-server/src/types';
 
 function baseUrl() {
@@ -300,5 +301,29 @@ export const adminApi = {
     return apiFetch(`/api/waf-tokens/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
+  },
+
+  // ---- Domain blocklist ----
+
+  getDomainBlocklist(): Promise<DomainBlocklistEntry[]> {
+    return apiFetch('/api/domain-blocklist');
+  },
+
+  addDomainBlocklistEntries(domains: string[]): Promise<{ ok: boolean }> {
+    return apiFetch('/api/domain-blocklist/add', {
+      method: 'POST',
+      body: JSON.stringify({ domains }),
+    });
+  },
+
+  removeDomainBlocklistEntry(domain: string): Promise<{ removed: boolean }> {
+    return apiFetch('/api/domain-blocklist', {
+      method: 'DELETE',
+      body: JSON.stringify({ domain }),
+    });
+  },
+
+  deleteAllDomainBlocklistEntries(): Promise<{ ok: boolean }> {
+    return apiFetch('/api/domain-blocklist/all', { method: 'DELETE' });
   },
 };

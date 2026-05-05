@@ -20,6 +20,7 @@ import { RelyingPartyController } from './relying-party/relying-party.controller
 import { RateLimitingController } from './rate-limiting/rate-limiting.controller';
 import { EmailBlocklistController } from './email-blocklist/email-blocklist.controller';
 import { WafTokensController } from './waf-tokens/waf-tokens.controller';
+import { DomainBlocklistController } from './domain-blocklist/domain-blocklist.controller';
 import {
   RateLimitProvider,
   RateLimitRedisProvider,
@@ -43,6 +44,7 @@ import { CartModule } from './cart.module';
     RelyingPartyController,
     EmailBlocklistController,
     WafTokensController,
+    DomainBlocklistController,
   ],
   providers: [
     RateLimitProvider,

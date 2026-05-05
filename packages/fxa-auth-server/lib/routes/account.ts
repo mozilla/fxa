@@ -4,6 +4,7 @@
 import {
   Account,
   EmailBlocklist,
+  DomainBlocklist,
   getAccountCustomerByUid,
 } from 'fxa-shared/db/models/auth';
 import {
@@ -580,6 +581,30 @@ export class AccountHandler {
     return response;
   }
 
+  private async checkBlocklists(normalizedEmail: string): Promise<void> {
+    const blockedRegex =
+      await EmailBlocklist.findMatchingRegex(normalizedEmail);
+    if (blockedRegex !== null) {
+      this.log.info('account.create.blocked', {
+        domain: normalizedEmail.split('@')[1],
+        blockedRegex,
+        blocker: 'regex',
+      });
+      this.statsd.increment('account.create.blocked', { blocker: 'regex' });
+      throw error.requestBlocked(false);
+    }
+    const blockedDomain =
+      await DomainBlocklist.findMatchingDomain(normalizedEmail);
+    if (blockedDomain !== null) {
+      this.log.info('account.create.blocked', {
+        domain: blockedDomain,
+        blocker: 'domain',
+      });
+      this.statsd.increment('account.create.blocked', { blocker: 'domain' });
+      throw error.requestBlocked(false);
+    }
+  }
+
   private async checkEmailDomainValidity(email: string): Promise<boolean> {
     let invalidDomain = false;
     const domain = email.split('@')[1];
@@ -642,18 +667,9 @@ export class AccountHandler {
       throw error.accountExists(email);
     }
 
-    // Block creation if email matches the admin-managed blocklist
+    // Block creation if email matches the admin-managed blocklists
     const normalizedEmail = normalizeEmail(email);
-    const blockedRegex =
-      await EmailBlocklist.findMatchingRegex(normalizedEmail);
-    if (blockedRegex !== null) {
-      this.log.info('account.create.blocked', {
-        domain: normalizedEmail.split('@')[1],
-        blockedRegex,
-      });
-      this.statsd.increment('account.create.blocked');
-      throw error.requestBlocked(false);
-    }
+    await this.checkBlocklists(normalizedEmail);
 
     // Block creation if email is reserved for secondary email registration
     const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
@@ -751,8 +767,6 @@ export class AccountHandler {
       throw error.accountCreationRejected();
     }
 
-    const client = await getClientById(clientId);
-
     if (this.config.accountDestroy.onCreateIfUnverified) {
       await deleteAccountIfUnverified(
         this.db,
@@ -764,6 +778,10 @@ export class AccountHandler {
     } else if (await this.db.accountExists(email)) {
       throw error.accountExists(email);
     }
+
+    await this.checkBlocklists(normalizeEmail(email));
+
+    const client = await getClientById(clientId);
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
