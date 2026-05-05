@@ -24,7 +24,13 @@ describe('the signing-key management scripts', () => {
       const base = path.resolve(__dirname, '../../scripts');
       return execFileSync(
         process.execPath,
-        ['-r', 'esbuild-register', path.join(base, name)],
+        [
+          '-r',
+          'ts-node/register/transpile-only',
+          '-r',
+          'tsconfig-paths/register',
+          path.join(base, name),
+        ],
         {
           env: {
             FXA_OPENID_KEYFILE: keyFile,

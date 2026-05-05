@@ -22,7 +22,7 @@ const execOptions = {
 describe('starting script - convert-customers-to-stripe-automatic-tax', () => {
   it('does not fail', async () => {
     await execAsync(
-      'node -r esbuild-register scripts/convert-customers-to-stripe-automatic-tax.ts --help',
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/convert-customers-to-stripe-automatic-tax.ts --help',
       execOptions
     );
   });

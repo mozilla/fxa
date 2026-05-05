@@ -16,7 +16,8 @@ const execOptions = {
 
 const command = [
   'node',
-  '-r esbuild-register',
+  '-r ts-node/register/transpile-only',
+  '-r tsconfig-paths/register',
   'scripts/delete-inactive-accounts/enqueue-inactive-account-deletions.ts',
 ];
 
@@ -52,22 +53,18 @@ describe('enqueue inactive account deletions script', () => {
     expect(dbResultsLimitString).toBe('500000');
   });
 
-  it(
-    'requires an BQ dataset id',
-    async () => {
-      try {
-        await exec(command.join(' '), execOptions);
-        throw new Error('Expected script to fail without a BQ dataset id');
-      } catch (err: any) {
-        expect(err.code).toBe(1);
-        expect(err.stderr).toContain('BigQuery dataset ID is required.');
-      }
+  it('requires an BQ dataset id', async () => {
+    try {
+      await exec(command.join(' '), execOptions);
+      throw new Error('Expected script to fail without a BQ dataset id');
+    } catch (err: any) {
+      expect(err.code).toBe(1);
+      expect(err.stderr).toContain('BigQuery dataset ID is required.');
+    }
 
-      const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
-      await exec(cmd.join(' '), execOptions);
-    },
-    30 * 1000
-  );
+    const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
+    await exec(cmd.join(' '), execOptions);
+  });
 
   it('requires the end date to be the same or later than the start date', async () => {
     try {

@@ -24,7 +24,7 @@ const execOptions = {
 describe('#integration - scripts/verification-reminders:', () => {
   it('does not fail', async () => {
     return execAsync(
-      'node -r esbuild-register scripts/verification-reminders',
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/verification-reminders',
       execOptions
     );
   });

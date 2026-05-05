@@ -960,7 +960,7 @@ workflows:
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
-          resource_class: large
+          resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_pull_request
@@ -1275,6 +1275,7 @@ workflows:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: nightly

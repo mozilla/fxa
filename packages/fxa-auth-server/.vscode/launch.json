@@ -60,7 +60,11 @@
       "request": "launch",
       "name": "Verification Reminders",
       "args": [
-        "-r", "esbuild-register", "${workspaceFolder}/scripts/verification-reminders.js"
+        "-r",
+        "ts-node/register/transpile-only",
+        "-r",
+        "tsconfig-paths/register",
+        "${workspaceFolder}/scripts/verification-reminders.js"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

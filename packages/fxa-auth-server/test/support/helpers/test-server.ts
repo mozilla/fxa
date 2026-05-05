@@ -183,7 +183,9 @@ export function spawnAuthServer(
     'node',
     [
       '-r',
-      'esbuild-register',
+      'ts-node/register/transpile-only',
+      '-r',
+      'tsconfig-paths/register',
       path.join(AUTH_SERVER_ROOT, 'bin', 'key_server.js'),
     ],
     {
