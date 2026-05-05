@@ -73,6 +73,7 @@ export interface RelyingPartyResult {
   SignupConfirmedSyncPage: Page;
   SigninPage: Page;
   SigninCachedPage?: Page;
+  AuthorizePage?: Page;
   SigninTokenCodePage?: Page;
   SigninUnblockCodePage?: Page;
   SigninTotpCodePage?: Page;

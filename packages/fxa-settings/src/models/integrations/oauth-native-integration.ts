@@ -68,10 +68,6 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return this.isFirefoxDesktopClient() && this.isDefaultSyncService();
   }
 
-  private isFirefoxClient() {
-    return this.isFirefoxDesktopClient() || this.isFirefoxMobileClient();
-  }
-
   // Sync should always provide a `service=sync` parameter for all Fx Desktop versions
   // and newer mobile versions. We'll default to Sync if it's missing.
   private isDefaultSyncService() {
@@ -126,9 +122,16 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  // See JSDoc comment above the generic integration base class wantsKeys
-  wantsKeys() {
-    return true;
+  // Sync requires keys, which forces password entry.
+  requiresKeys(): boolean {
+    return this.isSync() && this._scopeRequestsKeys();
+  }
+
+  // Non-Sync browser services (Relay, VPN, SmartWindow) want keys
+  // opportunistically if the user enters a password for another reason,
+  // so they can turn Sync on without being bounced back to FxA.
+  wantsKeysIfPasswordEntered(): boolean {
+    return this.isFirefoxNonSync() && this._scopeRequestsKeys();
   }
 
   getWebChannelServices(syncEngines?: SyncEngines) {
@@ -145,6 +148,13 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
       return { sync: syncEngines || {} };
     }
     return undefined;
+  }
+
+  // TODO: When server-side scope resolution (ADR 0049) is implemented,
+  // granted scopes may differ from requested scopes. Update this to return
+  // the actual granted scopes from the server response.
+  getGrantedScopes(): string | undefined {
+    return this.data.scope;
   }
 
   getServiceName() {

@@ -127,6 +127,7 @@ export interface RelierCmsInfo {
 
   SigninPage?: PageRelierCmsInfo;
   SigninCachedPage?: PageRelierCmsInfo;
+  AuthorizePage?: PageRelierCmsInfo;
   SigninTotpCodePage?: PageRelierCmsInfo;
   SigninPasswordlessCodePage?: PageRelierCmsInfo;
   SigninTokenCodePage?: PageRelierCmsInfo;

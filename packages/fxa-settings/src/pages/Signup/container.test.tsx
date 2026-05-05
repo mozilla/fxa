@@ -56,6 +56,7 @@ function mockIntegration() {
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     isSync: () => true,
+    requiresKeys: () => true,
     wantsKeys: () => true,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,

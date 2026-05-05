@@ -206,7 +206,7 @@ describe('Signin utils', () => {
 
       it('navigates to OAuth redirect for successful OAuth flow', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
-        (mockOAuthIntegration as any).wantsKeys = jest
+        (mockOAuthIntegration as any).requiresKeys = jest
           .fn()
           .mockReturnValue(false);
 

@@ -27,7 +27,10 @@ export type SigninUnblockIntegration = Pick<
   | 'getClientId'
   | 'wantsTwoStepAuthentication'
   | 'clientInfo'
+  | 'requiresKeys'
+  | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'getGrantedScopes'
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
@@ -37,7 +40,9 @@ export type SigninUnblockIntegration = Pick<
   | 'getWebChannelServices'
   | 'wantsLogin'
   | 'getCmsInfo'
+  | 'isFirefoxClient'
   | 'isFirefoxMobileClient'
+  | 'isFirefoxDesktopClient'
   | 'getLegalTerms'
 >;
 
@@ -48,7 +53,10 @@ export type SigninIntegration =
       | 'isSync'
       | 'getService'
       | 'getClientId'
+      | 'requiresKeys'
+      | 'wantsKeysIfPasswordEntered'
       | 'wantsKeys'
+      | 'getGrantedScopes'
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
@@ -57,7 +65,9 @@ export type SigninIntegration =
       | 'isFirefoxNonSync'
       | 'getWebChannelServices'
       | 'getCmsInfo'
+      | 'isFirefoxClient'
       | 'isFirefoxMobileClient'
+      | 'isFirefoxDesktopClient'
       | 'getLegalTerms'
     >
   | SigninOAuthIntegration;
@@ -69,7 +79,10 @@ export type SigninOAuthIntegration = Pick<
   | 'getService'
   | 'getClientId'
   | 'wantsTwoStepAuthentication'
+  | 'requiresKeys'
+  | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'getGrantedScopes'
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
@@ -79,7 +92,9 @@ export type SigninOAuthIntegration = Pick<
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'getCmsInfo'
+  | 'isFirefoxClient'
   | 'isFirefoxMobileClient'
+  | 'isFirefoxDesktopClient'
   | 'getLegalTerms'
 >;
 
@@ -115,7 +130,7 @@ export interface SigninProps {
   localizedSuccessBannerDescription?: string;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
-  isSignedIntoFirefoxDesktop?: boolean;
+  isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
 

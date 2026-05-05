@@ -253,7 +253,7 @@ describe('Signin component', () => {
       it('does not render third party auth for sync, emits expected Glean event', async () => {
         const hardNavigateSpy = jest
           .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => { });
+          .mockImplementation(() => {});
 
         const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
@@ -622,7 +622,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -688,7 +688,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
               finishOAuthFlowHandler = jest
                 .fn()
                 .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -1069,6 +1069,7 @@ describe('Signin component', () => {
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
         supportsKeysOptionalLogin: false,
+        isSignedIntoFirefox: false,
       });
 
       passwordInputRendered();
@@ -1126,7 +1127,7 @@ describe('Signin component', () => {
         beforeEach(() => {
           hardNavigateSpy = jest
             .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => { });
+            .mockImplementation(() => {});
         });
 
         afterEach(() => {
@@ -1183,10 +1184,9 @@ describe('Signin component', () => {
         });
 
         it('allows navigation for cached Sync passwordless user on mobile', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(true);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1218,10 +1218,9 @@ describe('Signin component', () => {
         });
 
         it('shows merge warning for cached Sync passwordless signin when user accepts', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(true);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1258,10 +1257,9 @@ describe('Signin component', () => {
         });
 
         it('aborts cached Sync passwordless signin when user rejects merge', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(false);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(false);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1810,11 +1808,13 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('hides "use a different account" link for Firefox Desktop users', () => {
+      it('hides "use a different account" link in authorization flow (desktop)', () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
         renderWithLocalizationProvider(
           <Subject
+            integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
-            isSignedIntoFirefoxDesktop={true}
+            isSignedIntoFirefox={true}
           />
         );
 
@@ -1823,7 +1823,26 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('shows "use a different account" link for non-Firefox Desktop users', () => {
+      it('hides "use a different account" link in authorization flow (mobile)', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Vpn,
+          isSync: false,
+          isMobile: true,
+        });
+        renderWithLocalizationProvider(
+          <Subject
+            integration={integration}
+            sessionToken={MOCK_SESSION_TOKEN}
+            isSignedIntoFirefox={true}
+          />
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Use a different account' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('shows "use a different account" link outside authorization flow', () => {
         renderWithLocalizationProvider(
           <Subject sessionToken={MOCK_SESSION_TOKEN} />
         );
@@ -1866,7 +1885,7 @@ describe('Signin component', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => { });
+        .mockImplementation(() => {});
     });
     afterEach(() => {
       hardNavigateSpy.mockRestore();
@@ -2016,22 +2035,32 @@ describe('Signin component', () => {
       expect(additionalInfo).toBeInTheDocument();
     });
 
-    describe('SigninCachedPage CMS config', () => {
-      const cachedCmsProps = {
-        cmsInfo: {
-          ...MOCK_CMS_INFO,
-          SigninCachedPage: {
-            headline: 'Welcome back',
-            description: 'Continue to your Mozilla account',
-            primaryButtonText: 'Continue',
-            pageTitle: 'Welcome back',
-          },
+    describe('activePageCms resolution', () => {
+      const cachedCmsInfo: RelierCmsInfo = {
+        ...MOCK_CMS_INFO,
+        SigninCachedPage: {
+          headline: 'Welcome back',
+          description: 'Continue to your Mozilla account',
+          primaryButtonText: 'Continue',
+          pageTitle: 'Welcome back',
         },
       };
 
-      it('renders cached CMS headline and description for cached user', () => {
+      const authorizeCmsInfo: RelierCmsInfo = {
+        ...cachedCmsInfo,
+        AuthorizePage: {
+          headline: 'Authorize VPN',
+          description: 'Grant access to Mozilla VPN',
+          primaryButtonText: 'Authorize',
+          pageTitle: 'Authorize VPN',
+        },
+      };
+
+      it('cached user sees SigninCachedPage CMS content', () => {
         render({
-          integration: createMockSigninWebIntegration(cachedCmsProps),
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
@@ -2044,9 +2073,11 @@ describe('Signin component', () => {
         ).toBeInTheDocument();
       });
 
-      it('renders cached CMS button text for cached user', () => {
+      it('cached user sees SigninCachedPage button text', () => {
         render({
-          integration: createMockSigninWebIntegration(cachedCmsProps),
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
@@ -2056,40 +2087,114 @@ describe('Signin component', () => {
         ).toBeInTheDocument();
       });
 
-      it('falls back to headingText when SigninCachedPage is not set', () => {
+      it('cached user falls back to default when SigninCachedPage is not set', () => {
         render({
           integration: createMockSigninWebIntegration(cmsProps),
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
 
-        // Cached users should not see SigninPage CMS headline
         expect(
           screen.queryByRole('heading', {
             name: cmsProps.cmsInfo.SigninPage.headline,
           })
         ).not.toBeInTheDocument();
-        // Should fall back to default headingText
         expect(
           screen.getByRole('heading', { name: 'Sign in' })
         ).toBeInTheDocument();
       });
 
-      it('uses SigninPage CMS config for non-cached user even when SigninCachedPage is set', () => {
+      it('non-cached user uses SigninPage CMS even when SigninCachedPage is set', () => {
         render({
-          integration: createMockSigninWebIntegration(cachedCmsProps),
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
           hasPassword: true,
           sessionToken: undefined,
         });
 
         expect(
           screen.getByRole('heading', {
-            name: cachedCmsProps.cmsInfo.SigninPage.headline,
+            name: cachedCmsInfo.SigninPage?.headline,
           })
         ).toBeInTheDocument();
         expect(
           screen.queryByRole('heading', { name: 'Welcome back' })
         ).not.toBeInTheDocument();
+      });
+
+      it('authorization flow uses AuthorizePage CMS content', () => {
+        render({
+          integration: createMockSigninOAuthNativeIntegration({
+            service: OAuthNativeServices.Vpn,
+            isSync: false,
+            cmsInfo: authorizeCmsInfo,
+          }),
+          isSignedIntoFirefox: true,
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Authorize VPN' })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText('Grant access to Mozilla VPN')
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('heading', { name: 'Welcome back' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('authorization flow falls back to SigninCachedPage when no AuthorizePage', () => {
+        render({
+          integration: createMockSigninOAuthNativeIntegration({
+            service: OAuthNativeServices.Vpn,
+            isSync: false,
+            cmsInfo: cachedCmsInfo,
+          }),
+          isSignedIntoFirefox: true,
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Welcome back' })
+        ).toBeInTheDocument();
+      });
+
+      it('authorization flow falls back to default when neither page is set', () => {
+        render({
+          integration: createMockSigninOAuthNativeIntegration({
+            service: OAuthNativeServices.Vpn,
+            isSync: false,
+          }),
+          isSignedIntoFirefox: true,
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Sign in' })
+        ).toBeInTheDocument();
+      });
+
+      it('non-authorization flow ignores AuthorizePage', () => {
+        render({
+          integration: createMockSigninWebIntegration({
+            cmsInfo: authorizeCmsInfo,
+          }),
+          isSignedIntoFirefox: false,
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.queryByRole('heading', { name: 'Authorize VPN' })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: 'Welcome back' })
+        ).toBeInTheDocument();
       });
     });
   });

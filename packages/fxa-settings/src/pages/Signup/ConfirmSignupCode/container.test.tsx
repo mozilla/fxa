@@ -109,6 +109,7 @@ function applyMocks() {
 
   integration = {
     type: ModelsModule.IntegrationType.OAuthWeb,
+    requiresKeys: () => false,
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   } as Integration;
@@ -296,6 +297,7 @@ describe('confirm-signup-container', () => {
     it('renders error component when value is undefined for non-OAuthNative', () => {
       integration = {
         type: ModelsModule.IntegrationType.OAuthWeb,
+        requiresKeys: () => true,
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
@@ -314,6 +316,7 @@ describe('confirm-signup-container', () => {
     it('navigates to signin with error when recovery fails for OAuthNative', async () => {
       integration = {
         type: ModelsModule.IntegrationType.OAuthNative,
+        requiresKeys: () => true,
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
@@ -326,7 +329,9 @@ describe('confirm-signup-container', () => {
         .mockReturnValue({
           isRecovering: false,
           recoveryFailed: true,
-          attemptOAuthFlowRecovery: jest.fn().mockResolvedValue({ success: false }),
+          attemptOAuthFlowRecovery: jest
+            .fn()
+            .mockResolvedValue({ success: false }),
         });
 
       render();
@@ -334,7 +339,8 @@ describe('confirm-signup-container', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/signin', {
           state: {
-            localizedErrorMessage: 'Something went wrong. Please sign in again.',
+            localizedErrorMessage:
+              'Something went wrong. Please sign in again.',
           },
         });
       });

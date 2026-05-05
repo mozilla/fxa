@@ -22,7 +22,11 @@ import {
   KeyTransforms as T,
   ModelDataProvider,
 } from '../../../lib/model-data';
-import { IsEmailOrEmpty, IsFxaRedirectToUrl, IsFxaRedirectUri } from '../../../lib/validation';
+import {
+  IsEmailOrEmpty,
+  IsFxaRedirectToUrl,
+  IsFxaRedirectUri,
+} from '../../../lib/validation';
 
 /**
  * Base integration class. Fields in this class represents data commonly accessed across many pages and is useful for various flows.
