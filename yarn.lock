@@ -9661,16 +9661,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mozilla/glean@npm:^5.0.4":
-  version: 5.0.4
-  resolution: "@mozilla/glean@npm:5.0.4"
+"@mozilla/glean@npm:^5.0.8":
+  version: 5.0.8
+  resolution: "@mozilla/glean@npm:5.0.8"
   dependencies:
     fflate: "npm:^0.8.0"
     tslib: "npm:^2.3.1"
     uuid: "npm:^9.0.0"
   bin:
     glean: dist/cli/cli.js
-  checksum: 10c0/167ba4c5afc360124a03934c3da2048b6c33d561ebc3f28ed106b91e0b0a75e5d938bac7b1e9fd13d37449e8d9e4d9adccc2e6e05c266b57f3e0bb1527543d9a
+  checksum: 10c0/266513cf9accb397c904815ac45a9d5a718635fca4a31cdfa7b2964e1502551d765bd04b3a6fe3cf40cefb23a40e99ff995a7888f205e3fca4d8d2a250b6cc24
   languageName: node
   linkType: hard
 
@@ -32498,7 +32498,7 @@ __metadata:
     "@graphql-codegen/typescript": "npm:^4.0.1"
     "@graphql-codegen/typescript-document-nodes": "npm:^4.0.1"
     "@grpc/grpc-js": "npm:^1.11.1"
-    "@mozilla/glean": "npm:^5.0.4"
+    "@mozilla/glean": "npm:^5.0.8"
     "@nestjs/apollo": "npm:^12.2.1"
     "@nestjs/cli": "npm:^11.0.1"
     "@nestjs/common": "npm:^10.4.5"
