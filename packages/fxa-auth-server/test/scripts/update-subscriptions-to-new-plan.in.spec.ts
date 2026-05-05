@@ -22,7 +22,7 @@ const execOptions = {
 describe('starting script - update-subscriptions-to-new-plan', () => {
   it('does not fail', async () => {
     await execAsync(
-      'node -r esbuild-register scripts/update-subscriptions-to-new-plan.ts --help',
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/update-subscriptions-to-new-plan.ts --help',
       execOptions
     );
   });

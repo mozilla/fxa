@@ -88,7 +88,7 @@ describe('#integration - scripts/bulk-mailer', () => {
     ]);
 
     await execAsync(
-      `node -r esbuild-register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email} > ${USER_DUMP_PATH}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email} > ${USER_DUMP_PATH}`,
       execOptions
     );
   });
@@ -106,7 +106,7 @@ describe('#integration - scripts/bulk-mailer', () => {
   it('fails if --input missing', async () => {
     try {
       await execAsync(
-        'node -r esbuild-register scripts/bulk-mailer --method sendVerifyEmail',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --method sendVerifyEmail',
         execOptions
       );
       throw new Error('script should have failed');
@@ -118,7 +118,7 @@ describe('#integration - scripts/bulk-mailer', () => {
   it('fails if --input file missing', async () => {
     try {
       await execAsync(
-        'node -r esbuild-register scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
         execOptions
       );
       throw new Error('script should have failed');
@@ -130,7 +130,7 @@ describe('#integration - scripts/bulk-mailer', () => {
   it('fails if --method missing', async () => {
     try {
       await execAsync(
-        'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH}',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH}',
         execOptions
       );
       throw new Error('script should have failed');
@@ -142,7 +142,7 @@ describe('#integration - scripts/bulk-mailer', () => {
   it('fails if --method is invalid', async () => {
     try {
       await execAsync(
-        'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
         execOptions
       );
       throw new Error('script should have failed');
@@ -153,7 +153,7 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('succeeds with valid input file and method, writing files to disk', async () => {
     await execAsync(
-      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail --write ${OUTPUT_DIRECTORY}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail --write ${OUTPUT_DIRECTORY}`,
       execOptions
     );
 
@@ -204,7 +204,7 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('succeeds with valid input file and method, writing emails to stdout', async () => {
     const output = await execAsync(
-      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail`,
       execOptions
     );
     const result = output.stdout.toString();
@@ -221,7 +221,7 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('succeeds with valid input file and method, sends', async () => {
     await execAsync(
-      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
       execOptions
     );
   });

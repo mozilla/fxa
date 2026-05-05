@@ -25,7 +25,7 @@ const execOptions = {
 describe('#integration - scripts/delete-account:', () => {
   it('does not fail', async () => {
     await execAsync(
-      'node -r esbuild-register scripts/delete-account',
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/delete-account',
       execOptions
     );
   });

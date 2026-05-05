@@ -55,11 +55,14 @@ function generateKeysIfNeeded(): void {
   for (const { label, script, env } of keyScripts) {
     console.log(`[Jest Global Setup] Checking/generating ${label}...`);
     try {
-      execSync(`node -r esbuild-register ${script}`, {
-        cwd: AUTH_SERVER_ROOT,
-        env,
-        stdio: 'inherit',
-      });
+      execSync(
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  ${script}`,
+        {
+          cwd: AUTH_SERVER_ROOT,
+          env,
+          stdio: 'inherit',
+        }
+      );
     } catch {
       // Script exits with error if keys already exist
     }
@@ -177,7 +180,9 @@ export default async function globalSetup(): Promise<void> {
     'node',
     [
       '-r',
-      'esbuild-register',
+      'ts-node/register/transpile-only',
+      '-r',
+      'tsconfig-paths/register',
       path.join(AUTH_SERVER_ROOT, 'test', 'mail_helper.js'),
     ],
     {
