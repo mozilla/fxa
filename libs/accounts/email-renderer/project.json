@@ -19,7 +19,7 @@
       }
     },
     "build-ts": {
-      "executor": "@nx/esbuild:esbuild",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "dependsOn": ["l10n-prime"],
       "options": {
@@ -31,11 +31,18 @@
           "libs/accounts/email-renderer/src/**/*.txt",
           "libs/accounts/email-renderer/src/**/*.mjml"
         ],
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "build-css": {
+      "cache": true,
       "executor": "nx:run-commands",
+      "inputs": [
+        "{projectRoot}/src/**/*.scss"
+      ],
+      "outputs": [
+        "{projectRoot}/src/css"
+      ],
       "options": {
         "commands": [
           "ts-node libs/accounts/email-renderer/src/sass-compile-files.ts"
@@ -125,6 +132,7 @@
       ]
     },
     "l10n-merge": {
+      "cache": true,
       "dependsOn": ["l10n-prime"],
       "executor": "nx:run-commands",
       "options": {

@@ -6,14 +6,21 @@
   "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "libs/payments/api-server/src/index.ts",
-        "outputPath": "dist/libs/payments/api-server",
-        "outputFileName": "main.js",
         "tsConfig": "libs/payments/api-server/tsconfig.lib.json",
+        "outputPath": "dist/libs/payments/api-server",
+        "main": "libs/payments/api-server/src/index.ts",
+        "outputFileName": "main.js",
         "declaration": true,
         "assets": [
           {

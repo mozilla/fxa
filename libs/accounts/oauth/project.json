@@ -6,14 +6,21 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/accounts/oauth",
         "main": "libs/accounts/oauth/src/index.ts",
         "tsConfig": "libs/accounts/oauth/tsconfig.lib.json",
         "assets": ["libs/accounts/oauth/*.md"],
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "test": {

@@ -6,14 +6,21 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/sentry-next",
         "main": "libs/shared/sentry-next/src/index.ts",
         "tsConfig": "libs/shared/sentry-next/tsconfig.lib.json",
         "assets": ["libs/shared/sentry-next/*.md"],
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "test-unit": {

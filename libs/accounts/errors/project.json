@@ -6,14 +6,26 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/accounts/errors",
         "main": "libs/accounts/errors/src/index.ts",
+        "outputPath": "dist/libs/accounts/errors",
         "tsConfig": "libs/accounts/errors/tsconfig.lib.json",
-        "assets": ["libs/accounts/errors/*.md"],
-        "format": ["cjs"]
+        "assets": [
+          {
+            "glob": "libs/accounts/errors/*.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
       }
     },
     "test-unit": {
