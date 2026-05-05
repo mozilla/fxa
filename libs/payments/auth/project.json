@@ -6,14 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/payments/auth",
         "main": "libs/payments/auth/src/index.ts",
+        "outputPath": "dist/libs/payments/auth",
         "tsConfig": "libs/payments/auth/tsconfig.lib.json",
-        "assets": ["libs/payments/auth/*.md"],
-        "format": ["cjs"]
+        "assets": [
+          {
+            "glob": "libs/payments/auth/*.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
       }
     },
     "test-unit": {

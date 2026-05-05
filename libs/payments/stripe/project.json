@@ -6,31 +6,26 @@
   "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/payments/stripe/src/index.ts",
         "outputPath": "dist/libs/payments/stripe",
-        "outputFileName": "main.js",
         "tsConfig": "libs/payments/stripe/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/payments/stripe/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

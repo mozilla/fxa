@@ -6,16 +6,22 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "dependsOn": ["^build", "glean-generate", "glean-generate-frontend"],
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/payments/metrics",
         "main": "libs/payments/metrics/src/index.ts",
         "tsConfig": "libs/payments/metrics/tsconfig.lib.json",
-        "assets": ["libs/payments/metrics/*.md"],
-        "declaration": true
-      },
-      "dependsOn": ["glean-generate", "glean-generate-frontend"]
+        "assets": ["libs/payments/metrics/*.md"]
+      }
     },
     "compile": {
       "command": "tsc -p libs/payments/metrics/tsconfig.json --noEmit",
@@ -23,16 +29,38 @@
     },
     "glean-generate": {
       "dependsOn": ["glean-lint"],
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+      ],
+      "outputs": [
+        "{projectRoot}/src/lib/glean/__generated__/server_events.ts"
+      ],
       "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
     },
     "glean-lint": {
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+      ],
       "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
     },
     "glean-generate-frontend": {
       "dependsOn": ["glean-lint-frontend"],
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
+      ],
+      "outputs": [
+        "{projectRoot}/src/lib/glean/__generated__/subscriptions.ts"
+      ],
       "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml -f typescript -o libs/payments/metrics/src/lib/glean/__generated__"
     },
     "glean-lint-frontend": {
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
+      ],
       "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
     },
     "test-unit": {

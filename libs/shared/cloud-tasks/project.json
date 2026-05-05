@@ -6,31 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/cloud-tasks/src/index.ts",
         "outputPath": "dist/libs/shared/cloud-tasks",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/cloud-tasks/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/shared/cloud-tasks/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {
