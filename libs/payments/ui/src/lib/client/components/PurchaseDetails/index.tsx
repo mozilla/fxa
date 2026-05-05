@@ -29,7 +29,7 @@ type PurchaseDetailsProps = {
   totalPrice: React.ReactNode;
   locale: string;
   showPrices: boolean;
-  freeTrialEligibility?: {
+  freeTrialOffer?: {
     trialLengthDays: number;
   } | null;
   firstChargeAmount?: number;
@@ -48,7 +48,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     totalPrice,
     locale,
     showPrices,
-    freeTrialEligibility,
+    freeTrialOffer,
     firstChargeAmount,
     interval,
     cartState,
@@ -61,8 +61,8 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   // may return different data as Stripe state changes
   const [stableInvoice, setStableInvoice] = useState(invoice);
   const [stableTotalPrice, setStableTotalPrice] = useState(totalPrice);
-  const [stableFreeTrialEligibility, setStableFreeTrialEligibility] =
-    useState(freeTrialEligibility);
+  const [stableFreeTrialOffer, setStableFreeTrialOffer] =
+    useState(freeTrialOffer);
   const [stableTrialStartDate, setStableTrialStartDate] =
     useState(trialStartDate);
   const [stableTrialEndDate, setStableTrialEndDate] = useState(trialEndDate);
@@ -70,7 +70,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     if (cartState === 'start' || cartState === 'success') {
       setStableInvoice(invoice);
       setStableTotalPrice(totalPrice);
-      setStableFreeTrialEligibility(freeTrialEligibility);
+      setStableFreeTrialOffer(freeTrialOffer);
       setStableTrialStartDate(trialStartDate);
       setStableTrialEndDate(trialEndDate);
     }
@@ -78,7 +78,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     cartState,
     invoice,
     totalPrice,
-    freeTrialEligibility,
+    freeTrialOffer,
     trialStartDate,
     trialEndDate,
   ]);
@@ -102,12 +102,12 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   );
   const freeTrial =
     !!stableTrialEndDate ||
-    (!!stableFreeTrialEligibility &&
-      stableFreeTrialEligibility.trialLengthDays > 0);
+    (!!stableFreeTrialOffer &&
+      stableFreeTrialOffer.trialLengthDays > 0);
   const trialDayLength =
     stableTrialStartDate && stableTrialEndDate
       ? Math.round((stableTrialEndDate - stableTrialStartDate) / 86400)
-      : stableFreeTrialEligibility?.trialLengthDays;
+      : stableFreeTrialOffer?.trialLengthDays;
   const formattedTrialEndDate = freeTrial
     ? getLocalizedDateString(
         stableTrialEndDate ??
