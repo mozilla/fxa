@@ -3111,10 +3111,10 @@ describe('/account/login', () => {
               name: 'account.signin_confirm_bypass_new_account',
               uid,
               ipAddr: mockRequest.app.clientAddress,
-              additionalInfo: {
+              additionalInfo: expect.objectContaining({
                 userAgent: mockRequest.headers['user-agent'],
                 location: mockRequest.app.geo.location,
-              },
+              }),
             })
           );
         });
@@ -3149,10 +3149,10 @@ describe('/account/login', () => {
               name: 'account.signin_confirm_bypass_known_ip',
               uid,
               ipAddr: mockRequest.app.clientAddress,
-              additionalInfo: {
+              additionalInfo: expect.objectContaining({
                 userAgent: mockRequest.headers['user-agent'],
                 location: mockRequest.app.geo.location,
-              },
+              }),
             })
           );
         });
@@ -3393,11 +3393,11 @@ describe('/account/login', () => {
               uid: uid,
               ipAddr: requestWithUserAgent.app.clientAddress,
               tokenId: undefined,
-              additionalInfo: {
+              additionalInfo: expect.objectContaining({
                 userAgent:
                   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 location: requestWithUserAgent.app.geo.location,
-              },
+              }),
             })
           );
         });

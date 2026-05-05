@@ -2,7 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { isRecognizedDevice } = require('./security-event');
+jest.mock('typedi', () => ({
+  Container: { get: jest.fn() },
+  Token: class Token {
+    constructor(public name: string) {}
+  },
+}));
+
+const { Container } = require('typedi');
+const { isRecognizedDevice, recordSecurityEvent } = require('./security-event');
+
+function makeOpts(extraHeaders: Record<string, string> = {}) {
+  return {
+    db: {},
+    account: { uid: 'test-uid' },
+    request: {
+      headers: { 'user-agent': 'TestAgent/1.0', ...extraHeaders },
+      app: {
+        clientIdTag: undefined,
+        serviceTag: undefined,
+        clientAddress: '127.0.0.1',
+        geo: { location: { city: 'Portland', country: 'US' } },
+      },
+      auth: { credentials: { uid: 'test-uid', id: 'token-id' } },
+    },
+  };
+}
 
 describe('isRecognizedDevice', () => {
   beforeEach(() => {});
@@ -277,5 +302,66 @@ describe('isRecognizedDevice', () => {
     );
 
     expect(result).toBe(true);
+  });
+});
+
+describe('recordSecurityEvent', () => {
+  let mockMgrRecordSecurityEvent: jest.Mock;
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    mockMgrRecordSecurityEvent = jest.fn().mockResolvedValue(undefined);
+    Container.get.mockReturnValue({
+      recordSecurityEvent: mockMgrRecordSecurityEvent,
+    });
+  });
+
+  it('includes all WAF headers in additionalInfo.waf when present', async () => {
+    const opts = makeOpts({
+      'client-ja4': 't13d1516h2_test',
+      'client-ja3': 'abcdef123456',
+      'x-fastly-request-id': 'fastly-req-123',
+      'x-sigsci-requestid': 'sigsci-req-456',
+      'x-sigsci-tags': 'SQLI,BOT-CHALLENGED',
+    });
+
+    await recordSecurityEvent('account.login', opts);
+
+    expect(mockMgrRecordSecurityEvent).toHaveBeenCalledWith(
+      opts.db,
+      expect.objectContaining({
+        additionalInfo: expect.objectContaining({
+          waf: expect.objectContaining({
+            clientJa4: 't13d1516h2_test',
+            clientJa3: 'abcdef123456',
+            fastlyRequestId: 'fastly-req-123',
+            sigsciRequestId: 'sigsci-req-456',
+            sigsciTags: 'SQLI,BOT-CHALLENGED',
+          }),
+        }),
+      })
+    );
+  });
+
+  it('omits waf from additionalInfo when no WAF headers are present', async () => {
+    await recordSecurityEvent('account.login', makeOpts());
+
+    const [, message] = mockMgrRecordSecurityEvent.mock.calls[0];
+    expect(message.additionalInfo.waf).toBeUndefined();
+  });
+
+  it('includes waf when only some WAF headers are present', async () => {
+    const opts = makeOpts({
+      'client-ja4': 't13d1516h2_partial',
+      'x-sigsci-tags': 'TRAVERSAL',
+    });
+
+    await recordSecurityEvent('account.login', opts);
+
+    const [, message] = mockMgrRecordSecurityEvent.mock.calls[0];
+    expect(message.additionalInfo.waf).toMatchObject({
+      clientJa4: 't13d1516h2_partial',
+      sigsciTags: 'TRAVERSAL',
+    });
   });
 });

@@ -781,7 +781,7 @@ describe('/session/destroy', () => {
         uid: 'foo',
         ipAddr: '63.245.221.32',
         tokenId: undefined,
-        additionalInfo: {
+        additionalInfo: expect.objectContaining({
           userAgent: 'test user-agent',
           location: {
             city: 'Mountain View',
@@ -790,7 +790,7 @@ describe('/session/destroy', () => {
             state: 'California',
             stateCode: 'CA',
           },
-        },
+        }),
       });
     });
   });

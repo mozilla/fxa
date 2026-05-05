@@ -103,7 +103,7 @@ describe('backup authentication codes', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: undefined,
-            additionalInfo: {
+            additionalInfo: expect.objectContaining({
               userAgent: 'test user-agent',
               location: {
                 city: 'Mountain View',
@@ -112,7 +112,7 @@ describe('backup authentication codes', () => {
                 state: 'California',
                 stateCode: 'CA',
               },
-            },
+            }),
           });
         }
       );
@@ -142,7 +142,7 @@ describe('backup authentication codes', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: undefined,
-            additionalInfo: {
+            additionalInfo: expect.objectContaining({
               userAgent: 'test user-agent',
               location: {
                 city: 'Mountain View',
@@ -151,7 +151,7 @@ describe('backup authentication codes', () => {
                 state: 'California',
                 stateCode: 'CA',
               },
-            },
+            }),
           });
         }
       );
@@ -204,7 +204,7 @@ describe('backup authentication codes', () => {
           uid: 'uid',
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -213,7 +213,7 @@ describe('backup authentication codes', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
     });

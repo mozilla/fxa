@@ -39,6 +39,13 @@ interface SecurityEventAdditionalInfo {
   };
   client_id?: string;
   service?: string;
+  waf?: {
+    clientJa4?: string;
+    clientJa3?: string;
+    fastlyRequestId?: string;
+    sigsciRequestId?: string;
+    sigsciTags?: string;
+  };
 }
 
 type SecurityEvent = BaseEvent & {
