@@ -6,7 +6,7 @@ import { MetricsContext } from './metrics.context';
 describe('metrics context', () => {
   it('creates', () => {
     // Note! The auth-server expects quite a few query params to be propagated during
-    // graphql calls. These are commonly referred to as the metrics context.
+    // calls. These are commonly referred to as the metrics context.
     const queryParams = {
       flowId: 'test1',
       utmCampaign: 'test2',

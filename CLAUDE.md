@@ -26,7 +26,6 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 - **Generated / Artifacts / Runtime / Cache:**
   `**/(build|dist|.next|storybook-static)/**`, `**/.nx/cache/**`, `**/.eslintcache`, `**/*.map`,
   `**/schema.gql`, `**/public/locales/**`, `**/__generated__/**`,
-  `**/config/gql/allowlist/**` (except `gql-playground.json`),
   `**/(coverage|.nyc_output|artifacts/tests|logs)/**`, `**/*.log*`,
   `**/.pm2/**`, `pm2/`, `process.yml`, `**/(temp|tmp)/**`,
   `**/tsconfig.tsbuildinfo`, `**/version.json`, `dump.rdb`
@@ -38,8 +37,7 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 
 - **Apps/Services (`packages/*`):**
   - `fxa-auth-server` — Core auth API (SRP/OAuth/sessions); talks to MySQL/Redis.
-  - `fxa-settings` — React UI for sign-in/settings; uses `fxa-auth-client` and GraphQL.
-  - `fxa-graphql-api` — NestJS BFF/gateway; aggregates server data for the UI.
+  - `fxa-settings` — React UI for sign-in/settings; uses `fxa-auth-client` (REST).
   - `fxa-profile-server` — User profile API.
 
 - **Shared libraries (`libs/*`):**
@@ -70,7 +68,6 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 - **Ports:** `yarn ports`
 - **Nx:** `nx build <pkg>`, `nx lint <pkg>`, `nx test-unit <pkg>`, `nx test-integration <pkg>`, `nx start <pkg>`
 - **Pkg scripts:** `cd packages/<name> && yarn <script>`
-- **GraphQL allowlist:** `yarn gql:allowlist`
 - **L10N:** `yarn l10n:prime`
 - **DB migrations:** add new SQL under `packages/db-migrations/databases/fxa/patches/` → `nx run db-migrations:migrate`
   **Never edit existing published migration files.**
