@@ -57,6 +57,7 @@ const SigninPasswordlessCode = ({
   sendError,
   setCurrentSplitLayout,
   isSignup = false,
+  isSignedIntoFirefox = false,
   resendCountdownSeconds = 0,
 }: SigninPasswordlessCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -113,6 +114,9 @@ const SigninPasswordlessCode = ({
       sendErrorProcessed.current = true;
     }
   }, [sendError, ftlMsgResolver]);
+
+  const isSignedIntoFirefoxDesktop =
+    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-passwordless-code-required-error',
@@ -511,16 +515,21 @@ const SigninPasswordlessCode = ({
               : `${expirationMinutes} minutes`}
             .
           </span>
-        </FtlMsg>{' '}
-        <FtlMsg id="signin-passwordless-code-other-account-link">
-          <a
-            href="/"
-            className="link-blue"
-            onClick={handleDifferentAccountClick}
-          >
-            Use a different account
-          </a>
         </FtlMsg>
+        {!isSignedIntoFirefoxDesktop && (
+          <>
+            {' '}
+            <FtlMsg id="signin-passwordless-code-other-account-link">
+              <a
+                href="/"
+                className="link-blue"
+                onClick={handleDifferentAccountClick}
+              >
+                Use a different account
+              </a>
+            </FtlMsg>
+          </>
+        )}
       </p>
 
       <FormVerifyCode

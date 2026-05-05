@@ -243,6 +243,32 @@ describe('SigninPasswordlessCode page', () => {
   });
 
   describe('"Use a different account" link', () => {
+    it('is hidden when signed into Firefox desktop', () => {
+      const integration = createMockSigninOAuthNativeIntegration();
+      render({ integration, isSignedIntoFirefox: true });
+
+      expect(
+        screen.queryByRole('link', { name: 'Use a different account' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('is shown when signed into Firefox but not a desktop client (mobile)', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        isSync: true,
+        isMobile: true,
+      });
+      render({ integration, isSignedIntoFirefox: true });
+
+      screen.getByRole('link', { name: 'Use a different account' });
+    });
+
+    it('is shown when on a desktop Firefox client but not signed into Firefox', () => {
+      const integration = createMockSigninOAuthNativeIntegration();
+      render({ integration, isSignedIntoFirefox: false });
+
+      screen.getByRole('link', { name: 'Use a different account' });
+    });
+
     it('clicking navigates to root and removes email from query params', async () => {
       render({ isSignup: false });
 
