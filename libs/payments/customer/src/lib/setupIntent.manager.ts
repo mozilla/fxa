@@ -23,6 +23,12 @@ export class SetupIntentManager {
     });
   }
 
+  async confirm(setupIntentId: string, confirmationTokenId: string) {
+    return this.stripeClient.setupIntentConfirm(setupIntentId, {
+      confirmation_token: confirmationTokenId,
+    });
+  }
+
   async retrieve(setupIntentId: string) {
     return this.stripeClient.setupIntentRetrieve(setupIntentId);
   }

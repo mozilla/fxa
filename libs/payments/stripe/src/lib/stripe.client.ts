@@ -142,8 +142,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('subscriptionsList', undefined, args[0]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
-    client: (_: any, context: StripeClient) => new AsyncLocalStorageAdapter(false, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
@@ -197,8 +199,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('subscriptionsRetrieve', args[0], args[1]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
-    client: (_: any, context: StripeClient) => new AsyncLocalStorageAdapter(false, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async subscriptionsRetrieve(
@@ -318,8 +322,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('paymentMethodsRetrieve', args[0], args[1]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
-    client: (_: any, context: StripeClient) => new AsyncLocalStorageAdapter(false, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async paymentMethodRetrieve(
@@ -346,7 +352,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('pricesRetrieve', args[0], args[1]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -362,7 +369,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('productsRetrieve', args[0], args[1]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -378,7 +386,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('promotionCodesList', undefined, args[0]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -394,7 +403,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('promotionCodesRetrieve', args[0], args[1]),
-    strategy: (_: any, context: StripeClient) => new CacheFirstStrategy(undefined, undefined, context.log),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -461,6 +471,18 @@ export class StripeClient {
     params?: Stripe.SetupIntentRetrieveParams
   ) {
     const result = await this.stripe.setupIntents.retrieve(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentConfirm(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentConfirmParams
+  ) {
+    const result = await this.stripe.setupIntents.confirm(setupIntentId, {
       ...params,
       expand: undefined,
     });

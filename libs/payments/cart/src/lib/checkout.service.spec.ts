@@ -1074,6 +1074,79 @@ describe('CheckoutService', () => {
         });
       });
 
+      describe('confirms pending setup intent on subscription', () => {
+        const mockPendingSetupIntentId = 'seti_pending_12345';
+        const mockSubscriptionWithPendingSetup = StripeResponseFactory(
+          StripeSubscriptionFactory({
+            pending_setup_intent: mockPendingSetupIntentId,
+          })
+        );
+        const mockInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: null,
+            amount_due: 0,
+          })
+        );
+        const mockSetupIntent = StripeResponseFactory(
+          StripeSetupIntentFactory({
+            status: 'succeeded',
+            payment_method: StripePaymentMethodFactory().id,
+          })
+        );
+
+        beforeEach(async () => {
+          jest
+            .spyOn(subscriptionManager, 'create')
+            .mockResolvedValue(mockSubscriptionWithPendingSetup);
+          jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+          jest
+            .spyOn(setupIntentManager, 'confirm')
+            .mockResolvedValue(mockSetupIntent);
+          jest
+            .spyOn(setupIntentManager, 'createAndConfirm')
+            .mockResolvedValue(mockSetupIntent);
+        });
+
+        beforeEach(async () => {
+          await checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          );
+        });
+
+        it('calls setupIntentManager.confirm with the pending setup intent', () => {
+          expect(setupIntentManager.confirm).toHaveBeenCalledWith(
+            mockPendingSetupIntentId,
+            mockConfirmationToken.id
+          );
+        });
+
+        it('does not call createAndConfirm', () => {
+          expect(setupIntentManager.createAndConfirm).not.toHaveBeenCalled();
+        });
+
+        it('increments setup intent status counter', () => {
+          expect(statsd.increment).toHaveBeenCalledWith(
+            'checkout_stripe_payment_setupintent_status',
+            { status: mockSetupIntent.status }
+          );
+        });
+
+        it('calls updateProcessingCart with the confirmed setup intent id', () => {
+          expect(cartManager.updateProcessingCart).toHaveBeenCalledWith(
+            mockCart.id,
+            mockPrePayStepsResult.version,
+            {
+              stripeSubscriptionId: mockSubscriptionWithPendingSetup.id,
+              stripeIntentId: mockSetupIntent.id,
+            }
+          );
+        });
+      });
+
       describe('payment intent error', () => {
         beforeEach(async () => {
           jest

@@ -189,7 +189,7 @@ export class CheckoutService {
         await this.accountCustomerManager.getAccountCustomerByUid(uid);
 
         throw new AccountCustomerAlreadyExistsError(uid);
-      } catch(error) {
+      } catch (error) {
         if (!(error instanceof AccountCustomerNotFoundError)) {
           throw error;
         }
@@ -428,8 +428,7 @@ export class CheckoutService {
                     trial_period_days: freeTrial.trialLengthDays,
                     trial_settings: {
                       end_behavior: {
-                        missing_payment_method:
-                          'cancel' as const,
+                        missing_payment_method: 'cancel' as const,
                       },
                     },
                   }
@@ -488,10 +487,7 @@ export class CheckoutService {
           subscription.status
         );
       }
-      await this.freeTrialManager.recordFreeTrial(
-        uid,
-        freeTrial.internalName
-      );
+      await this.freeTrialManager.recordFreeTrial(uid, freeTrial.internalName);
     }
 
     // Get payment/setup intent for subscription
@@ -516,6 +512,15 @@ export class CheckoutService {
             off_session: false,
           }
         );
+      } else if (subscription.pending_setup_intent) {
+        intent = await this.setupIntentManager.confirm(
+          subscription.pending_setup_intent,
+          confirmationTokenId
+        );
+
+        this.statsd.increment('checkout_stripe_payment_setupintent_status', {
+          status: intent.status,
+        });
       } else {
         intent = await this.setupIntentManager.createAndConfirm(
           customer.id,
@@ -743,10 +748,7 @@ export class CheckoutService {
           subscription.status
         );
       }
-      await this.freeTrialManager.recordFreeTrial(
-        uid,
-        freeTrial.internalName
-      );
+      await this.freeTrialManager.recordFreeTrial(uid, freeTrial.internalName);
     }
 
     const updatedVersion = version + 1;
@@ -973,15 +975,14 @@ export class CheckoutService {
           taxAddress,
         });
       } else {
-        upcomingInvoice =
-          await this.invoiceManager.previewUpcomingForUpgrade({
-            priceId,
-            customer,
-            fromSubscriptionItem,
-            ...(isTrialing && {
-              trialEnd: Math.floor(Date.now() / 1000),
-            }),
-          });
+        upcomingInvoice = await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId,
+          customer,
+          fromSubscriptionItem,
+          ...(isTrialing && {
+            trialEnd: Math.floor(Date.now() / 1000),
+          }),
+        });
       }
       return upcomingInvoice.subtotal;
     } else {
@@ -1014,7 +1015,10 @@ export class CheckoutService {
 
     const fetchResult = await Promise.all([
       this.nimbusManager.fetchExperiments({
-        nimbusUserId: this.nimbusManager.generateNimbusId(uid, experimentationId),
+        nimbusUserId: this.nimbusManager.generateNimbusId(
+          uid,
+          experimentationId
+        ),
         preview: searchParams?.experimentationPreview === 'true',
       }),
       this.productConfigurationManager.getFreeTrial(offeringConfigId),
@@ -1035,9 +1039,7 @@ export class CheckoutService {
     }
 
     const [nimbusResult, freeTrialUtil] = fetchResult;
-    if (
-      !nimbusResult?.Features?.['free-trial-feature']?.enabled
-    ) {
+    if (!nimbusResult?.Features?.['free-trial-feature']?.enabled) {
       return null;
     }
 
@@ -1049,7 +1051,9 @@ export class CheckoutService {
     const matchingTrial = freeTrials.find(
       (trial) =>
         trial.trialLengthDays > 0 &&
-        trial.countries.some((country) => country.slice(0, 2) === countryCode) &&
+        trial.countries.some(
+          (country) => country.slice(0, 2) === countryCode
+        ) &&
         trial.intervals.includes(interval)
     );
     return matchingTrial ?? null;
@@ -1074,7 +1078,7 @@ export class CheckoutService {
       interval: args.interval,
       uid: args.uid,
       experimentationId: args.experimentationId,
-      searchParams: args.searchParams
+      searchParams: args.searchParams,
     });
     if (!offer) {
       return { offer: null, userEligible: false };
@@ -1088,7 +1092,7 @@ export class CheckoutService {
 
     return {
       offer,
-      userEligible: !isBlockedByCooldown
+      userEligible: !isBlockedByCooldown,
     };
   }
 }
