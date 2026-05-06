@@ -35,7 +35,6 @@ export function isPasskeyRegistrationEnabled(config: ConfigType): boolean {
  * Checks if passkey authentication (sign in with passkey) is enabled.
  * Requires both the master `passkeys.enabled` flag and `passkeys.authenticationEnabled`.
  * @throws AppError.featureNotEnabled if either flag is disabled
- * TODO FXA-13069: wire into passkey authentication routes once they are added to passkeys.ts
  */
 export function isPasskeyAuthenticationEnabled(config: ConfigType): boolean {
   if (!config.passkeys.enabled || !config.passkeys.authenticationEnabled) {

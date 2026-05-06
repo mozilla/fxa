@@ -60,9 +60,61 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
   ],
 };
 
+/**
+ * Swagger/OpenAPI documentation for `POST /passkey/authentication/start`.
+ *
+ * Initiates the WebAuthn authentication (assertion) ceremony.
+ */
+const PASSKEY_AUTHENTICATION_START_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/authentication/start',
+  notes: [
+    dedent`
+      🔓 Unauthenticated
+
+      Initiates the WebAuthn authentication ceremony. Returns
+      \`PublicKeyCredentialRequestOptionsJSON\` to pass to
+      \`navigator.credentials.get\`. \`allowCredentials\` is always empty
+      \`allowCredentials\` is omitted when the allow-list is empty (discoverable flow).
+
+      **Request body:** none
+    `,
+  ],
+};
+
+/**
+ * Swagger/OpenAPI documentation for `POST /passkey/authentication/finish`.
+ *
+ * Completes the WebAuthn authentication ceremony and creates an AAL2 session.
+ */
+const PASSKEY_AUTHENTICATION_FINISH_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/authentication/finish',
+  notes: [
+    dedent`
+      🔓 Unauthenticated
+
+      Completes the WebAuthn authentication ceremony. On success, returns an
+      AAL2 session token.
+
+      **Request body:**
+      - \`response\` (object, required) — AuthenticationResponseJSON from the browser
+      - \`challenge\` (string, required) — challenge from the start endpoint
+      - \`service\` (string, optional) — OAuth service identifier (e.g. \`"sync"\`)
+
+      **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`requiresPasswordForSync\`,
+      \`hasPassword\`
+
+      **Security event:** \`account.passkey.authentication_success\` recorded on success.
+    `,
+  ],
+};
+
 const PASSKEYS_API_DOCS = {
   PASSKEY_REGISTRATION_START_POST,
   PASSKEY_REGISTRATION_FINISH_POST,
+  PASSKEY_AUTHENTICATION_START_POST,
+  PASSKEY_AUTHENTICATION_FINISH_POST,
   PASSKEYS_GET: {
     ...TAGS_PASSKEYS,
     description: '/passkeys',

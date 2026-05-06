@@ -11,10 +11,15 @@ import { ConfigType } from '../../config';
 import {
   isPasskeyFeatureEnabled,
   isPasskeyRegistrationEnabled,
+  isPasskeyAuthenticationEnabled,
 } from '../passkey-utils';
 import { GleanMetricsType } from '../metrics/glean';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
-import { RegistrationResponseJSON } from '@simplewebauthn/server';
+import validators from './validators';
+import {
+  RegistrationResponseJSON,
+  AuthenticationResponseJSON,
+} from '@simplewebauthn/server';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { reportSentryError } from '../sentry';
@@ -31,6 +36,11 @@ interface Customs {
     email: string,
     action: string
   ) => Promise<void>;
+  /**
+   * Enforces rate-limiting by IP address only (no uid/email required).
+   * Used for unauthenticated endpoints where the caller is not yet identified.
+   */
+  checkIpOnly: (req: AuthRequest, action: string) => Promise<void>;
 }
 
 /** Subset of the database used by passkey routes. */
@@ -342,6 +352,91 @@ export class PasskeyHandler {
   }
 
   /**
+   * Handles `POST /passkey/authentication/start`.
+   *
+   * Initiates the WebAuthn authentication (assertion) ceremony by generating
+   * a challenge and returning `PublicKeyCredentialRequestOptions` for the
+   * browser. No email or uid is accepted in the request body — discoverable
+   * credentials only.
+   *
+   * @param request - Unauthenticated Hapi request.
+   * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
+   */
+  async authenticationStart(request: AuthRequest) {
+    await this.customs.checkIpOnly(request, 'passkeyAuthStart');
+
+    const options = await this.service.generateAuthenticationChallenge();
+
+    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+    // await this.glean.passkey.authenticationStarted(request);
+
+    return options;
+  }
+
+  /**
+   * Handles `POST /passkey/authentication/finish`.
+   *
+   * Completes the WebAuthn authentication ceremony by verifying the assertion
+   * response, creating an AAL2 session token, and returning the session along
+   * with flags the UI needs to drive the post-login flow.
+   *
+   * @param request - Unauthenticated Hapi request containing `response`,
+   *   `challenge`, and optional `service` in the payload.
+   * @returns Session token, uid, and metadata including `requiresPasswordForSync`
+   *   and `hasPassword`.
+   */
+  async authenticationFinish(request: AuthRequest) {
+    await this.customs.checkIpOnly(request, 'passkeyAuthFinish');
+
+    const { response, challenge, service } = request.payload as {
+      response: AuthenticationResponseJSON;
+      challenge: string;
+      service?: string;
+    };
+
+    let uid: string;
+    try {
+      ({ uid } = await this.service.verifyAuthenticationResponse(
+        response,
+        challenge
+      ));
+    } catch (err) {
+      await recordSecurityEvent('account.passkey.authentication_failure', {
+        db: this.db,
+        request,
+      });
+      throw err;
+    }
+
+    const account = await this.db.account(uid);
+
+    const sessionToken = await this.createPasskeySessionToken(
+      { ...account, uid },
+      request
+    );
+
+    await recordSecurityEvent('account.passkey.authentication_success', {
+      db: this.db,
+      request,
+      account: { uid },
+    });
+
+    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+    // await this.glean.passkey.authenticationSuccess(request);
+
+    const requiresPasswordForSync = service === 'sync';
+    const hasPassword = account.verifierSetAt > 0;
+
+    return {
+      uid,
+      sessionToken: sessionToken.id,
+      verified: true,
+      requiresPasswordForSync,
+      hasPassword,
+    };
+  }
+
+  /**
    * Creates a passkey-verified session token for the authenticated account.
    *
    * No `tokenVerificationId` is set — the passkey assertion is itself AAL2, so
@@ -396,18 +491,20 @@ export class PasskeyHandler {
  */
 export const passkeyRoutes = (
   customs: Customs,
-  db: any,
+  db: DB,
   config: ConfigType,
   statsd: any,
   glean: GleanMetricsType,
   log: any
 ) => {
   // Passkey route flag hierarchy:
-  //   passkeys.enabled (master switch) — gates management routes (list/delete/rename)
-  //   + registrationEnabled            — gates registration routes
-  //   + authenticationEnabled          — gates auth routes (TODO FXA-13095)
+  //   passkeys.enabled (master switch)  — gates management routes (list/delete/rename)
+  //   + registrationEnabled             — gates registration routes
+  //   + authenticationEnabled           — gates authentication routes
   const passkeysEnabledCheck = () => isPasskeyFeatureEnabled(config);
   const registrationEnabledCheck = () => isPasskeyRegistrationEnabled(config);
+  const authenticationEnabledCheck = () =>
+    isPasskeyAuthenticationEnabled(config);
 
   const service = Container.get(PasskeyService);
   if (!service) {
@@ -640,6 +737,77 @@ export const passkeyRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('passkey.delete', request);
         return handler.deletePasskey(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/passkey/authentication/start',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_START_POST,
+        pre: [{ method: authenticationEnabledCheck }],
+        auth: false,
+        response: {
+          schema: isA.object({
+            challenge: isA.string().required(),
+            allowCredentials: isA.array().items(isA.object()).optional(),
+            timeout: isA.number().optional(),
+            userVerification: isA
+              .string()
+              .valid('discouraged', 'preferred', 'required')
+              .optional(),
+            rpId: isA.string().optional(),
+            hints: isA
+              .array()
+              .items(
+                isA.string().valid('hybrid', 'security-key', 'client-device')
+              )
+              .optional(),
+            extensions: isA.object().optional(),
+          }),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        log.begin('passkey.authentication.start', request);
+        return handler.authenticationStart(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/passkey/authentication/finish',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_FINISH_POST,
+        pre: [{ method: authenticationEnabledCheck }],
+        auth: false,
+        validate: {
+          payload: isA.object({
+            response: isA
+              .object({
+                id: isA.string().required(),
+                type: isA.string().valid('public-key').required(),
+              })
+              .unknown(true)
+              .required(),
+            challenge: isA
+              .string()
+              .max(64)
+              .regex(/^[A-Za-z0-9_-]+$/)
+              .required(),
+            service: validators.service.optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().required(),
+            sessionToken: isA.string().required(),
+            verified: isA.boolean().required(),
+            requiresPasswordForSync: isA.boolean().required(),
+            hasPassword: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        log.begin('passkey.authentication.finish', request);
+        return handler.authenticationFinish(request);
       },
     },
     {
