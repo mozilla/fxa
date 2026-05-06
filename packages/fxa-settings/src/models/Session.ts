@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client/browser';
+import { ERRNO } from '@fxa/accounts/errors';
 import {
   sessionToken,
   clearSignedInAccountUid,
@@ -102,7 +103,15 @@ export class Session implements SessionData {
   async destroy() {
     const token = sessionToken();
     if (token) {
-      await this.authClient.sessionDestroy(token);
+      try {
+        await this.authClient.sessionDestroy(token);
+      } catch (e) {
+        // Token already invalid on the server:
+        // treat as already-destroyed so local cleanup + redirect still run.
+        if ((e as { errno?: number })?.errno !== ERRNO.INVALID_TOKEN) {
+          throw e;
+        }
+      }
     }
     clearSignedInAccountUid();
     dispatchStorageEvent('isSignedIn');
