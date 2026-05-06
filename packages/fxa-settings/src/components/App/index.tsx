@@ -656,6 +656,7 @@ const AuthAndAccountSetupRoutes = ({
             integration,
             serviceName,
             flowQueryParams,
+            isSignedIntoFirefox,
             setCurrentSplitLayout,
           }}
         />
@@ -665,6 +666,7 @@ const AuthAndAccountSetupRoutes = ({
             integration,
             serviceName,
             flowQueryParams,
+            isSignedIntoFirefox,
             setCurrentSplitLayout,
           }}
         />

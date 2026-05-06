@@ -20,6 +20,7 @@ import { getHandledError, type HandledError } from '../../../lib/error-utils';
 const SigninPasswordlessCodeContainer = ({
   integration,
   flowQueryParams,
+  isSignedIntoFirefox,
   setCurrentSplitLayout,
 }: SigninPasswordlessCodeContainerProps & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
@@ -45,7 +46,7 @@ const SigninPasswordlessCodeContainer = ({
   const [sendError, setSendError] = useState<HandledError | null>(null);
 
   const cmsInfo = integration.getCmsInfo();
-  const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout
+  const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout;
 
   // If no email in state, redirect to signin
   useEffect(() => {
@@ -120,6 +121,7 @@ const SigninPasswordlessCodeContainer = ({
         sendError,
         setCurrentSplitLayout,
         isSignup,
+        isSignedIntoFirefox,
         resendCountdownSeconds: 5,
       }}
     />

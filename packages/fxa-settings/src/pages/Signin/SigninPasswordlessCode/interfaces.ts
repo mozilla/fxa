@@ -21,6 +21,7 @@ export interface PasswordlessLocationState {
 export interface SigninPasswordlessCodeContainerProps {
   integration: SigninIntegration;
   flowQueryParams: QueryParams;
+  isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
 
@@ -34,6 +35,7 @@ export interface SigninPasswordlessCodeProps {
   setCurrentSplitLayout?: (value: boolean) => void;
   // True if user is signing up (new account)
   isSignup?: boolean;
+  isSignedIntoFirefox?: boolean;
   resendCountdownSeconds?: number;
 }
 

@@ -9,6 +9,7 @@ import { Subject, createMockWebIntegration } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
+import { createMockSigninOAuthNativeIntegration } from '../mocks';
 
 export default {
   title: 'Pages/Signin/SigninPasswordlessCode',
@@ -18,11 +19,7 @@ export default {
 
 export const DefaultSignin = () => (
   <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="user@example.com"
-      expirationMinutes={5}
-      isSignup={false}
-    />
+    <Subject email="user@example.com" expirationMinutes={5} isSignup={false} />
   </AppContext.Provider>
 );
 
@@ -49,21 +46,13 @@ export const WithCmsInfo = () => (
 
 export const ShortExpiration = () => (
   <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="user@example.com"
-      expirationMinutes={1}
-      isSignup={false}
-    />
+    <Subject email="user@example.com" expirationMinutes={1} isSignup={false} />
   </AppContext.Provider>
 );
 
 export const LongExpiration = () => (
   <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="user@example.com"
-      expirationMinutes={15}
-      isSignup={false}
-    />
+    <Subject email="user@example.com" expirationMinutes={15} isSignup={false} />
   </AppContext.Provider>
 );
 
@@ -72,6 +61,18 @@ export const LongEmailAddress = () => (
     <Subject
       email="verylongemailaddress.with.multiple.dots@subdomain.example.com"
       expirationMinutes={5}
+      isSignup={false}
+    />
+  </AppContext.Provider>
+);
+
+export const SignedIntoFirefoxDesktop = () => (
+  <AppContext.Provider value={mockAppContext()}>
+    <Subject
+      email="user@example.com"
+      expirationMinutes={5}
+      integration={createMockSigninOAuthNativeIntegration({ isSync: true })}
+      isSignedIntoFirefox={true}
       isSignup={false}
     />
   </AppContext.Provider>
@@ -90,4 +91,3 @@ export const WithSendError = () => (
     />
   </AppContext.Provider>
 );
-

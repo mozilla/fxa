@@ -92,6 +92,7 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   integration = createMockWebIntegration(),
   isSignup = false,
+  isSignedIntoFirefox = false,
   sendError = null,
 }: Partial<SigninPasswordlessCodeProps>) => {
   return (
@@ -104,6 +105,7 @@ export const Subject = ({
           flowQueryParams: {},
           integration,
           isSignup,
+          isSignedIntoFirefox,
           sendError,
         }}
       />
