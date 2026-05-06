@@ -126,6 +126,9 @@ async function getOAuthData(
   if (integration.data.accessType === 'offline') {
     opts.access_type = integration.data.accessType;
   }
+  if (integration.data.service) {
+    opts.service = integration.data.service;
+  }
 
   const result: OAuthData | null = await authClient.createOAuthCode(
     sessionToken,

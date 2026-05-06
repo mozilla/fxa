@@ -57,6 +57,12 @@ const OAUTH_SERVER_DOCS =
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
+const {
+  getAuthorizationScope,
+  shouldBypassAuthCheck,
+  recordAuthorizationOnLogin,
+  SERVICE_AMBIGUOUS_CLIENT_IDS,
+} = require('../../oauth/browser-services');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -430,15 +436,80 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       throw OauthError.unauthorizedTokenExchangeClient(originalClientId);
     }
 
-    // Validate requested scope is in allowlist
+    // Authorize scope-by-scope. One Firefox clientId mints tokens for
+    // several services, so we resolve off the requested scope, not the
+    // bearer.
+    //   1. Normalize scope to an array (ScopeSet on the live route,
+    //      string in unit tests).
+    //   2. Resolve each value to a configured service; dedupe by service.
+    //   3. Reject if any service has allowSilentExchange=false (Sync) so
+    //      a multi-scope request can't smuggle Sync past the gate.
+    //   4. No resolution: fall back to the legacy allowlist for
+    //      unconfigured scopes.
+    //   5. Otherwise: require an accountAuthorizations row per service,
+    //      bypassing Relay until application-services handles a 4xx.
     const requestedScope = params.scope;
-    if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
-      log.debug('token_exchange.scope_not_allowed', {
-        requested: requestedScope.toString(),
-        allowed: TOKEN_EXCHANGE_ALLOWED_SCOPES.toString(),
-      });
-      // TODO future auth table checks, FXA-12937
-      throw OauthError.forbidden();
+    const requestedValues =
+      typeof requestedScope === 'string'
+        ? requestedScope.split(/\s+/).filter(Boolean)
+        : requestedScope.getScopeValues();
+    const seen = new Set();
+    const resolutions = [];
+    for (const value of requestedValues) {
+      const r = getAuthorizationScope(undefined, undefined, value);
+      if (r && !seen.has(r.name)) {
+        seen.add(r.name);
+        resolutions.push(r);
+      }
+    }
+
+    function recordOutcome(service, outcome) {
+      statsd.increment('oauth.token_exchange.resolution', { service, outcome });
+    }
+
+    for (const r of resolutions) {
+      if (r.allowSilentExchange === false) {
+        recordOutcome(r.name, 'rejected_silent_disallowed');
+        log.debug('token_exchange.silent_exchange_disallowed', {
+          service: r.name,
+        });
+        throw OauthError.forbidden();
+      }
+    }
+
+    if (resolutions.length === 0) {
+      if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
+        recordOutcome('legacy', 'rejected_legacy_allowlist');
+        log.debug('token_exchange.scope_not_allowed', {
+          requested: requestedScope.toString(),
+        });
+        throw OauthError.forbidden();
+      }
+      recordOutcome('legacy', 'granted_legacy_allowlist');
+    } else {
+      for (const r of resolutions) {
+        if (shouldBypassAuthCheck(r)) {
+          recordOutcome(r.name, 'granted_relay_bypass');
+          log.info('token_exchange.relay_bypass', {
+            scope: r.authorizationScope,
+          });
+          continue;
+        }
+        const row = await oauthDB.getAccountAuthorization(
+          subjectToken.userId,
+          r.authorizationScope,
+          r.name
+        );
+        if (!row) {
+          recordOutcome(r.name, 'rejected_no_row');
+          log.debug('token_exchange.not_authorized', {
+            service: r.name,
+            scope: r.authorizationScope,
+          });
+          throw OauthError.forbidden();
+        }
+        recordOutcome(r.name, 'granted');
+      }
     }
 
     //  Original scope plus requested scope, e.g. Sync + Relay
@@ -518,6 +589,26 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           error: err.message,
         });
       }
+    }
+
+
+    // Record on offline grants. Token-exchange is a reader, not a writer.
+    // Service-ambiguous clientIds (Desktop) record at /oauth/authorization
+    // instead, where service= is the trustworthy intent signal.
+    const grantClientIdHex =
+      grant.clientId && hex(grant.clientId).toLowerCase();
+    if (
+      grant.offline &&
+      params.grant_type !== GRANT_TOKEN_EXCHANGE &&
+      grantClientIdHex &&
+      !SERVICE_AMBIGUOUS_CLIENT_IDS.has(grantClientIdHex)
+    ) {
+      await recordAuthorizationOnLogin(oauthDB, log, {
+        uid: grant.userId,
+        clientId: grantClientIdHex,
+        scope: grant.scope,
+        statsd,
+      });
     }
 
     const uid = hex(grant.userId);
