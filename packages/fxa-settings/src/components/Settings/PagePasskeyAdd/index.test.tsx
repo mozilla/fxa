@@ -310,6 +310,49 @@ describe('PagePasskeyAdd', () => {
     expect(mockCaptureException).toHaveBeenCalledWith(serverError);
   });
 
+  it('shows "Passkey limit reached" when completePasskeyRegistration returns errno 226', async () => {
+    const limitError = {
+      errno: 226,
+      message: 'Maximum number of passkeys reached',
+      code: 400,
+    };
+    mockCompletePasskeyRegistration.mockRejectedValue(limitError);
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith('Passkey limit reached');
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_226' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('shows "Passkey limit reached" when beginPasskeyRegistration returns errno 226', async () => {
+    const limitError = {
+      errno: 226,
+      message: 'Maximum number of passkeys reached',
+      code: 400,
+    };
+    mockBeginPasskeyRegistration.mockRejectedValue(limitError);
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith('Passkey limit reached');
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_226' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+  });
+
   it('cancel button navigates back to settings', () => {
     mockBeginPasskeyRegistration.mockReturnValue(new Promise(() => {}));
     renderPage();

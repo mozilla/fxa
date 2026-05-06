@@ -24,6 +24,11 @@ import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
+import {
+  getLocalizedErrorMessage,
+  HandledError,
+} from '../../../lib/error-utils';
+import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
 
 export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
   return (
@@ -134,16 +139,29 @@ export const PagePasskeyAdd = () => {
         }
 
         // Server error
+        const errno = (error as { errno?: number })?.errno;
+        const isKnownAuthError =
+          typeof errno === 'number' && !!AuthUiErrorNos[errno];
+
         GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
-          event: { reason: 'server_error' },
+          event: {
+            reason: isKnownAuthError ? `auth_error_${errno}` : 'server_error',
+          },
         });
-        Sentry.captureException(error);
-        alertBar.error(
-          ftlMsgResolver.getMsg(
-            'page-passkey-add-error-system',
-            'System not available. Try again later.'
-          )
-        );
+
+        if (isKnownAuthError) {
+          alertBar.error(
+            getLocalizedErrorMessage(ftlMsgResolver, error as HandledError)
+          );
+        } else {
+          Sentry.captureException(error);
+          alertBar.error(
+            ftlMsgResolver.getMsg(
+              'page-passkey-add-error-system',
+              'System not available. Try again later.'
+            )
+          );
+        }
         navigateToSettings();
       }
     };
