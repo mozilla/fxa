@@ -11,14 +11,18 @@ import { useFtlMsgResolver } from '../../../models';
 import { useCmsInfoState } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
 import ButtonBack from '../../../components/ButtonBack';
-import { getBasicAccountData } from '../../../lib/account-storage';
 import { Constants } from '../../../lib/constants';
-import firefox, { FirefoxCommand } from '../../../lib/channels/firefox';
+import firefox, {
+  buildSyncOAuthSearch,
+  FirefoxCommand,
+} from '../../../lib/channels/firefox';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import qrCodeFirefoxMobile from '../../../components/images/qr_code_firefox_mobile.svg';
 import mobileFirefoxIcon from './mobile-ff.svg';
 import mobileDownloadIcon from './mobile-download.svg';
@@ -83,6 +87,8 @@ const Pair = ({
 
   const [currentView, setCurrentView] = useState<PairView>('choice');
   const [selectedRadio, setSelectedRadio] = useState<MobileChoice | null>(null);
+  // Hide the choice screen until the WebChannel decision resolves.
+  const [bootstrapping, setBootstrapping] = useState(true);
 
   const choiceHeaderRef = useRef<HTMLHeadingElement>(null);
   const downloadHeaderRef = useRef<HTMLHeadingElement>(null);
@@ -95,9 +101,6 @@ const Pair = ({
   }, [currentView]);
 
   useEffect(() => {
-    // Matches Backbone's beforeRender sequence — runs once on mount.
-    // getBasicAccountData() is called inside the effect to avoid creating
-    // a new object reference on every render (which would re-trigger this effect).
     const ua = navigator.userAgent;
     const isFirefoxDesktop =
       /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
@@ -106,37 +109,51 @@ const Pair = ({
       navigateWithQuery('/pair/unsupported');
       return;
     }
-    const accountData = getBasicAccountData();
-    if (!accountData) {
-      navigateWithQuery('/connect_another_device', {
-        state: { forceView: true },
-      });
-      return;
-    }
-    if (!accountData.verified || !accountData.sessionToken) {
-      const params = new URLSearchParams({
-        context: Constants.FX_DESKTOP_V3_CONTEXT,
-        entrypoint: 'fxa:pair',
-        service: Constants.SYNC_SERVICE,
-      });
-      navigateWithQuery(`/signin?${params}`);
-      return;
-    }
+
+    let cancelled = false;
+    (async () => {
+      const signedInUser = await firefox
+        .requestSignedInUser(
+          Constants.OAUTH_CONTEXT,
+          true,
+          Constants.SYNC_SERVICE
+        )
+        .catch(() => undefined);
+      if (cancelled) return;
+      if (signedInUser?.sessionToken && signedInUser.verified) {
+        setBootstrapping(false);
+        return;
+      }
+      const oauthParams = await firefox
+        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+        .catch(() => null);
+      if (cancelled) return;
+      if (oauthParams) {
+        hardNavigate(`/?${buildSyncOAuthSearch(oauthParams)}`);
+        return;
+      }
+      // WebChannel didn't reply; reveal the page so the user isn't stuck.
+      setBootstrapping(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fire Glean view events for the choice flow
+  // Fire Glean view events only after the bootstrap reveals the page;
+  // otherwise users redirected during bootstrap would skew the metric.
   useEffect(() => {
+    if (bootstrapping) return;
     if (currentView === 'choice') {
       GleanMetrics.cadFireFox.choiceView();
       return;
     }
     GleanMetrics.cadFireFox.view();
-  }, [currentView]);
+  }, [bootstrapping, currentView]);
 
-  // Show success banner only on the choice screen (matches Backbone). Drive
-  // the banner variant from reach-router location state set by getSyncNavigate
-  // — the Backbone-era query params are only read by Backbone /pair now.
+  // Banner variant is driven by reach-router state from getSyncNavigate.
   const { origin: pairOrigin } = (location.state ?? {}) as Pick<
     SigninLocationState,
     'origin'
@@ -146,8 +163,7 @@ const Pair = ({
 
   const isSendTab = isSendTabEntrypoint(integration?.data.entrypoint);
 
-  // Send the pair_preferences WebChannel command to Firefox.
-  // This tells Firefox to open about:preferences#sync and start the pairing flow.
+  // Tells Firefox to open about:preferences#sync and start pairing.
   const openPairPreferences = useCallback(() => {
     firefox.send(FirefoxCommand.PairPreferences, {});
   }, []);
@@ -185,6 +201,10 @@ const Pair = ({
     GleanMetrics.cadFireFox.syncDeviceSubmit();
     openPairPreferences();
   }, [openPairPreferences]);
+
+  if (bootstrapping) {
+    return <LoadingSpinner fullScreen />;
+  }
 
   if (currentView === 'download') {
     return (

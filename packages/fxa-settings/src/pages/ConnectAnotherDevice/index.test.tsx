@@ -127,7 +127,7 @@ describe('ConnectAnotherDevice', () => {
     expect(
       screen.getByText('Sign in to this Firefox to complete set-up')
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it('renders device-specific messaging for Android', () => {
