@@ -1,4 +1,3 @@
-import { Stripe } from 'stripe';
 import {
   OfferingCommonContentResult,
   PurchaseDetailsTransformed,
@@ -9,69 +8,10 @@ import { StripeMetadataKeysForCMS } from './types';
  *  Class that maps CMS Config onto a single Stripe Plan's metadata
  */
 export class PlanMapperUtil {
-  errorFields: string[] = [];
   constructor(
     private commonContent: OfferingCommonContentResult,
-    private purchaseDetails: PurchaseDetailsTransformed,
-    private stripeMetadata: Stripe.Metadata | null,
-    private cmsEnabled: boolean
+    private purchaseDetails: PurchaseDetailsTransformed
   ) {}
-
-  /**
-   * For a specific Metadata key, determine whether to use the Stripe metadata value
-   * or CMS value
-   */
-  mapField(
-    stripeFieldName: StripeMetadataKeysForCMS,
-    stripeValue?: string,
-    cmsValue?: string | null
-  ) {
-    // If cms config enabled, skip comparison and
-    // return undefined if null, otherwise cmsValue
-    if (this.cmsEnabled) {
-      return cmsValue === null ? undefined : cmsValue;
-    }
-
-    // Return undefined if stripe and cms aren't provided
-    if (stripeValue === undefined && cmsValue === null) {
-      return undefined;
-    }
-
-    // Return cms if no stripe value is available
-    if (!stripeValue && !!cmsValue) {
-      return cmsValue;
-    }
-
-    // If stripe does not match cms, return stripe and log error
-    if (stripeValue !== cmsValue) {
-      this.errorFields.push(stripeFieldName);
-      return stripeValue;
-    }
-
-    return stripeValue;
-  }
-
-  /**
-   * Return the Stripe metadata value for the provided key
-   */
-  getStripeForMetadataKey(stripeMetadataKey: StripeMetadataKeysForCMS) {
-    if (!this.stripeMetadata) {
-      return undefined;
-    }
-
-    switch (stripeMetadataKey) {
-      case StripeMetadataKeysForCMS.NewsletterSlug:
-        return (
-          this.stripeMetadata[StripeMetadataKeysForCMS.NewsletterSlug] &&
-          this.stripeMetadata[StripeMetadataKeysForCMS.NewsletterSlug]
-            .split(',')
-            .sort()
-            .join(',')
-        );
-      default:
-        return this.stripeMetadata[stripeMetadataKey];
-    }
-  }
 
   /**
    * Return the CMS config value for the provided Stripe metadata key,
@@ -121,24 +61,19 @@ export class PlanMapperUtil {
   }
 
   /**
-   * Merges Stripe and CMS values where appropriate, and logs fields where
-   * CMS does not match Stripe metadata values
+   * Build a Stripe-metadata-shaped object from CMS config values.
    */
-  mergeStripeAndCMS() {
+  mapCMSToStripeMetadata() {
     const mappedMetadata: {
       [key in StripeMetadataKeysForCMS]?: string;
     } = {};
     Object.values(StripeMetadataKeysForCMS).forEach((key) => {
-      mappedMetadata[key] = this.mapField(
-        key,
-        this.getStripeForMetadataKey(key),
-        this.getCMSForMetadataKey(key)
-      );
+      const cmsValue = this.getCMSForMetadataKey(key);
+      if (cmsValue !== null && cmsValue !== undefined) {
+        mappedMetadata[key] = cmsValue;
+      }
     });
 
-    return {
-      metadata: mappedMetadata,
-      errorFields: this.errorFields,
-    };
+    return mappedMetadata;
   }
 }

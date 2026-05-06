@@ -20,7 +20,6 @@ import {
   StripePaymentConfigManagerService,
   StripeFirestoreService,
   StripeService,
-  validateStripePlan,
 } from './stripe.service';
 
 describe('Stripe Factory', () => {
@@ -135,33 +134,6 @@ describe('Stripe Service', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  it('invalidates empty plan', () => {
-    const result = validateStripePlan({ metadata: {} });
-    expect(result).toBeFalsy();
-  });
-
-  it('validates plan', () => {
-    const baseUrl = 'https://cdn.accounts.firefox.com';
-
-    const result = validateStripePlan({
-      metadata: {
-        webIconURL: `${baseUrl}/icon`,
-        successActionButtonURL: `${baseUrl}/dl`,
-        appStoreLink: `${baseUrl}/appstore`,
-        playStoreLink: `${baseUrl}/appstore`,
-        productSet: 'product-123',
-        productOrder: '123',
-        'product:termsOfServiceDownloadURL': `${baseUrl}/legal/test-123`,
-        'product:termsOfServiceURL': `${baseUrl}/toc`,
-        'product:privacyNoticeDownloadURL': `${baseUrl}/legal/test-123`,
-        'product:privacyNoticeURL': `${baseUrl}/privacy`,
-        'product:cancellationSurveyURL': `${baseUrl}/cancel-survey`,
-        'capabilities-test1': 'test-123',
-      },
-    });
-    expect(result).toBeTruthy();
   });
 
   it('looks up latest invoice', async () => {

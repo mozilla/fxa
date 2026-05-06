@@ -16,14 +16,12 @@ const config = require('../../config').default.getProperties();
 const {
   mockCMSClients,
   mockLog,
-  mockPlans,
   mockCMSPlanIdsToClientCapabilities,
 } = require('../../test/mocks');
 const { AppConfig, AuthLogger } = require('../types');
 const { StripeHelper } = require('./stripe');
 const { PlayBilling } = require('./iap/google-play');
 const { AppleIAP } = require('./iap/apple-app-store');
-const { PaymentConfigManager } = require('./configuration/manager');
 
 const subscriptionCreated =
   require('../../test/local/payments/fixtures/stripe/subscription_created.json')
@@ -35,17 +33,12 @@ const {
 } = require('./iap/google-play/subscription-purchase');
 
 const authDbModule = require('fxa-shared/db/models/auth');
-const {
-  ALL_RPS_CAPABILITIES_KEY,
-} = require('fxa-shared/subscriptions/configuration/base');
 const { PurchaseQueryError } = require('./iap/google-play/types');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   SubscriptionEligibilityResult,
 } = require('fxa-shared/subscriptions/types');
-const Sentry = require('@sentry/node');
-const sentryModule = require('../sentry');
 
 const VALID_SUB_API_RESPONSE = {
   kind: 'androidpublisher#subscriptionPurchase',
@@ -79,8 +72,6 @@ describe('CapabilityService', () => {
   let log: any;
   let mockSubscriptionPurchase: any;
   let mockProfileClient: any;
-  let mockPaymentConfigManager: any;
-  let mockConfigPlans: any;
   let mockCapabilityManager: any;
   let mockConfig: any;
 
@@ -96,18 +87,6 @@ describe('CapabilityService', () => {
     };
     mockProfileClient = {
       deleteCache: jest.fn().mockResolvedValue({}),
-    };
-    mockConfigPlans = [
-      {
-        stripePriceId: 'plan_123456',
-        capabilities: {
-          c1: ['capAlpha'],
-        },
-      },
-    ];
-    mockPaymentConfigManager = {
-      allPlans: jest.fn().mockResolvedValue(mockConfigPlans),
-      getMergedConfig: (price: any) => price,
     };
     mockStripeHelper.allAbbrevPlans = jest.fn(async () => [
       {
@@ -152,14 +131,13 @@ describe('CapabilityService', () => {
         },
       },
     ]);
-    mockStripeHelper.allMergedPlanConfigs = jest.fn(async () => {});
     mockCapabilityManager = {
       getClients: jest.fn().mockResolvedValue(mockCMSClients),
       priceIdsToClientCapabilities: jest
         .fn()
         .mockResolvedValue(mockCMSPlanIdsToClientCapabilities),
     };
-    mockConfig = { ...config, cms: { enabled: false } };
+    mockConfig = { ...config };
     log = mockLog();
 
     Container.set(AppConfig, mockConfig);
@@ -168,7 +146,6 @@ describe('CapabilityService', () => {
     Container.set(PlayBilling, mockPlayBilling);
     Container.set(AppleIAP, mockAppleIAP);
     Container.set(ProfileClient, mockProfileClient);
-    Container.set(PaymentConfigManager, mockPaymentConfigManager);
     Container.set(CapabilityManager, mockCapabilityManager);
     capabilityService = new CapabilityService();
   });
@@ -486,37 +463,34 @@ describe('CapabilityService', () => {
       expect(error.message).toBe('Unknown subscription plan');
     });
 
-    it('returns the eligibility from Stripe if eligibilityManager is not found', async () => {
+    it('throws an error if eligibilityManager is not found', async () => {
+      Container.remove(EligibilityManager);
+      capabilityService = new CapabilityService();
+
       capabilityService.allAbbrevPlansByPlanId = jest.fn().mockResolvedValue({
         plan_123456: mockAbbrevPlans[0],
       });
-      capabilityService.eligibilityFromStripeMetadata = jest
+      capabilityService.getAllSubscribedAbbrevPlans = jest
         .fn()
-        .mockResolvedValue([SubscriptionEligibilityResult.CREATE]);
-      const expected = [SubscriptionEligibilityResult.CREATE];
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_123456'
-      );
-      expect(actual).toEqual(expected);
+        .mockResolvedValue([[], []]);
+
+      let err: any;
+      try {
+        await capabilityService.getPlanEligibility(UID, 'plan_123456');
+      } catch (e) {
+        err = e;
+      }
+      expect(err).toBeDefined();
+      expect(err.message).toBe('An internal validation check failed.');
     });
 
-    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: jest.fn() };
-      jest
-        .spyOn(Sentry, 'withScope')
-        .mockImplementation((cb: any) => cb(sentryScope));
-      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
-
+    it('returns the eligibility from EligibilityManager', async () => {
       Container.set(EligibilityManager, {});
       capabilityService = new CapabilityService();
 
       capabilityService.allAbbrevPlansByPlanId = jest.fn().mockResolvedValue({
         plan_123456: mockAbbrevPlans[0],
       });
-      capabilityService.eligibilityFromStripeMetadata = jest
-        .fn()
-        .mockResolvedValue([SubscriptionEligibilityResult.UPGRADE]);
       capabilityService.getAllSubscribedAbbrevPlans = jest
         .fn()
         .mockResolvedValue([[mockAbbrevPlans[1]], []]);
@@ -528,25 +502,7 @@ describe('CapabilityService', () => {
         UID,
         'plan_123456'
       );
-      expect(actual).toEqual([SubscriptionEligibilityResult.UPGRADE]);
-
-      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-      expect(sentryScope.setContext).toHaveBeenCalledWith(
-        'getPlanEligibility',
-        {
-          stripeSubscribedPlans: [mockAbbrevPlans[1]],
-          iapSubscribedPlans: [],
-          eligibilityManagerResult: [SubscriptionEligibilityResult.CREATE],
-          stripeEligibilityResult: [SubscriptionEligibilityResult.UPGRADE],
-          uid: UID,
-          targetPlanId: 'plan_123456',
-        }
-      );
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
-        `Eligibility mismatch for uid8675309 on plan_123456`,
-        'error'
-      );
+      expect(actual).toEqual([SubscriptionEligibilityResult.CREATE]);
     });
   });
 
@@ -595,13 +551,6 @@ describe('CapabilityService', () => {
     const mockPlanTier2LongIntervalDiffCurr = {
       ...mockPlanTier2LongInterval,
       currency: 'eur',
-    };
-    const mockPlanNoProductOrder = {
-      plan_id: 'plan_NOPRODUCTORDER',
-      product_id: 'prod_ABCDEF',
-      product_metadata: {
-        productSet: 'set1,set2',
-      },
     };
 
     describe('FromEligibilityManager', () => {
@@ -870,128 +819,15 @@ describe('CapabilityService', () => {
       });
     });
 
-    describe('FromStripeMetadata', () => {
-      it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-        capabilityService.fetchSubscribedPricesFromAppStore = jest
-          .fn()
-          .mockResolvedValue(['plan_123456']);
-        const actual = await capabilityService.eligibilityFromStripeMetadata(
-          [],
-          [mockPlanTier2LongInterval],
-          mockPlanTier1ShortInterval
-        );
-        expect(actual).toEqual({
-          subscriptionEligibilityResult:
-            SubscriptionEligibilityResult.BLOCKED_IAP,
-          eligibleSourcePlan: mockPlanTier2LongInterval,
-        });
-      });
-
-      it('returns create for targetPlan with productSet user is not subscribed to', async () => {
-        const actual = await capabilityService.eligibilityFromStripeMetadata(
-          [],
-          [],
-          mockPlanTier1ShortInterval
-        );
-        expect(actual).toEqual({
-          subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
-        });
-      });
-
-      it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = jest
-          .fn()
-          .mockResolvedValue([mockPlanTier1ShortInterval.plan_id]);
-        const actual = await capabilityService.eligibilityFromStripeMetadata(
-          [mockPlanTier1ShortInterval],
-          [],
-          mockPlanTier2LongInterval
-        );
-        expect(actual).toEqual({
-          subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
-          eligibleSourcePlan: mockPlanTier1ShortInterval,
-        });
-      });
-
-      it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = jest
-          .fn()
-          .mockResolvedValue([mockPlanTier2LongInterval.plan_id]);
-        const actual = await capabilityService.eligibilityFromStripeMetadata(
-          [mockPlanTier2LongInterval],
-          [],
-          mockPlanTier1ShortInterval
-        );
-        expect(actual).toEqual({
-          subscriptionEligibilityResult:
-            SubscriptionEligibilityResult.DOWNGRADE,
-          eligibleSourcePlan: mockPlanTier2LongInterval,
-        });
-      });
-
-      it('returns invalid for targetPlan with no product order', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = jest
-          .fn()
-          .mockResolvedValue([mockPlanTier2LongInterval.plan_id]);
-        const actual = await capabilityService.eligibilityFromStripeMetadata(
-          [mockPlanTier2LongInterval],
-          [],
-          mockPlanNoProductOrder
-        );
-        expect(actual).toEqual({
-          subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
-        });
-      });
-    });
-
-    describe('eligibilityManagerResult and stripeEligibilityResult should match', () => {
-      let mockEligibilityManager: any;
-
-      beforeEach(() => {
-        mockEligibilityManager = {};
-        Container.set(EligibilityManager, mockEligibilityManager);
-        capabilityService = new CapabilityService();
-      });
-
-      it('returns blocked_iap result from both', async () => {
-        mockEligibilityManager.getOfferingOverlap = jest
-          .fn()
-          .mockResolvedValueOnce([])
-          .mockResolvedValueOnce([
-            {
-              comparison: 'same',
-              priceId: mockPlanTier1ShortInterval.plan_id,
-            },
-          ]);
-
-        capabilityService.fetchSubscribedPricesFromAppStore = jest
-          .fn()
-          .mockResolvedValue(['plan_123456']);
-
-        const eligiblityActual =
-          await capabilityService.eligibilityFromEligibilityManager(
-            [],
-            [mockPlanTier1ShortInterval],
-            mockPlanTier1LongInterval
-          );
-
-        const stripeActual =
-          await capabilityService.eligibilityFromStripeMetadata(
-            [],
-            [mockPlanTier1ShortInterval],
-            mockPlanTier1LongInterval
-          );
-
-        expect(eligiblityActual.subscriptionEligibilityResult).toEqual(
-          stripeActual.subscriptionEligibilityResult
-        );
-      });
-    });
   });
 
   describe('processPriceIdDiff', () => {
     it('should process the product diff', async () => {
       mockAuthEvents.emit = jest.fn().mockReturnValue({});
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValueOnce({ c1: ['capRemoved'] })
+        .mockResolvedValueOnce({ c1: ['capAdded'] });
       await capabilityService.processPriceIdDiff({
         uid: UID,
         priorPriceIds: ['plan_123456', 'plan_876543'],
@@ -1082,7 +918,7 @@ describe('CapabilityService', () => {
         c0: ['capAll'],
         c1: ['capAll', 'cap4', 'cap5', 'capZZ', 'capAlpha'],
         c2: ['capAll', 'cap5', 'cap6', 'capC', 'capD'],
-        c3: ['capAll', 'capD', 'capE', 'capP'],
+        c3: ['capAll', 'capD', 'capE'],
         null: [
           'capAll',
           'cap4',
@@ -1091,7 +927,6 @@ describe('CapabilityService', () => {
           'capC',
           'capD',
           'capE',
-          'capP',
           'capZZ',
           'capAlpha',
         ],
@@ -1101,330 +936,45 @@ describe('CapabilityService', () => {
       }
     });
 
-    it('supports capabilities visible to all clients', async () => {
-      mockStripeHelper.allAbbrevPlans = jest.fn(async () => [
-        {
-          plan_id: 'plan_123456',
-          product_id: 'prod_123456',
-          product_metadata: {
-            capabilities: 'cap1,cap2,cap3',
-          },
-        },
-        {
-          plan_id: 'plan_876543',
-          product_id: 'prod_876543',
-          product_metadata: {
-            capabilities: 'capA,capB,capC',
-          },
-        },
-        {
-          plan_id: 'plan_ABCDEF',
-          product_id: 'prod_ABCDEF',
-          product_metadata: {
-            capabilities: 'cap00,  cap01,cap02',
-          },
-        },
-      ]);
-      mockConfigPlans[0].capabilities = {
-        '*': ['capAlpha'],
-      };
-
-      for (const clientId of ['c0', 'c1', 'c2', 'c3', 'null']) {
-        const expected = [
-          'cap1',
-          'cap2',
-          'cap3',
-          'capA',
-          'capB',
-          'capC',
-          'capAlpha',
-        ];
-        await assertExpectedCapabilities(clientId, expected);
-      }
-    });
-
-    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
+    it('throws when CapabilityManager is not found', async () => {
       Container.remove(CapabilityManager);
 
-      let mockCapabilityService: any = {};
-      mockCapabilityService = new CapabilityService();
-
+      const mockCapabilityService = new CapabilityService();
       const subscribedPrices =
         await mockCapabilityService.subscribedPriceIds(UID);
 
-      const mockStripeCapabilities =
-        await mockCapabilityService.planIdsToClientCapabilitiesFromStripe(
-          subscribedPrices
-        );
-
-      const mockCMSCapabilities =
+      let err: any;
+      try {
         await mockCapabilityService.planIdsToClientCapabilities(
           subscribedPrices
         );
-
-      expect(mockCMSCapabilities).toEqual(mockStripeCapabilities);
-    });
-
-    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: jest.fn() };
-      jest
-        .spyOn(Sentry, 'withScope')
-        .mockImplementation((cb: any) => cb(sentryScope));
-      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
-
-      mockCapabilityManager.priceIdsToClientCapabilities = jest
-        .fn()
-        .mockResolvedValue({
-          c1: ['capAlpha'],
-          c4: ['capBeta', 'capDelta', 'capEpsilon'],
-          c6: ['capGamma', 'capZeta'],
-          c8: ['capOmega'],
-        });
-
-      const expected: any = {
-        c0: ['capAll'],
-        c1: ['capAll', 'cap4', 'cap5', 'capZZ', 'capAlpha'],
-        c2: ['capAll', 'cap5', 'cap6', 'capC', 'capD'],
-        c3: ['capAll', 'capD', 'capE', 'capP'],
-        null: [
-          'capAll',
-          'cap4',
-          'cap5',
-          'cap6',
-          'capC',
-          'capD',
-          'capE',
-          'capP',
-          'capZZ',
-          'capAlpha',
-        ],
-      };
-
-      for (const clientId in expected) {
-        await assertExpectedCapabilities(clientId, expected[clientId]);
+      } catch (e) {
+        err = e;
       }
-
-      expect(sentryScope.setContext).toHaveBeenCalledTimes(5);
-      expect(sentryScope.setContext).toHaveBeenCalledWith(
-        'planIdsToClientCapabilities',
-        {
-          subscribedPrices: ['plan_123456', 'plan_876543', 'plan_PLAY'],
-          cms: {
-            c1: ['capAlpha'],
-            c4: ['capBeta', 'capDelta', 'capEpsilon'],
-            c6: ['capGamma', 'capZeta'],
-            c8: ['capOmega'],
-          },
-          stripe: {
-            c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
-            '*': ['capAll'],
-            c2: ['cap5', 'cap6', 'capC', 'capD'],
-            c3: ['capD', 'capE', 'capP'],
-          },
-        }
-      );
-
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(5);
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
-        `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
-        'error'
-      );
+      expect(err).toBeDefined();
+      expect(err.message).toBe('An internal validation check failed.');
     });
   });
 
   describe('getClients', () => {
-    beforeEach(() => {
-      mockStripeHelper.allAbbrevPlans = jest.fn(async () => mockPlans);
+    it('returns the clients from CapabilityManager', async () => {
+      const clients = await capabilityService.getClients();
+      expect(clients).toEqual(mockCMSClients);
+      expect(mockCapabilityManager.getClients).toHaveBeenCalledTimes(1);
     });
 
-    describe('getClientsFromStripe', () => {
-      it('returns the clients and their capabilities', async () => {
-        const expected = [
-          {
-            capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-            clientId: 'client1',
-          },
-          {
-            capabilities: [
-              'exampleCap0',
-              'exampleCap2',
-              'exampleCap4',
-              'exampleCap5',
-              'exampleCap6',
-              'exampleCap7',
-            ],
-            clientId: 'client2',
-          },
-        ];
-        const actual = await capabilityService.getClientsFromStripe();
-        expect(actual).toEqual(expected);
-      });
-
-      it('adds the capabilities from the Firestore config document when available', async () => {
-        const mockPlanConfigs: any = {
-          firefox_pro_basic_999: {
-            capabilities: {
-              [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
-              client2: ['wibble', 'quux'],
-            },
-          },
-        };
-        mockStripeHelper.allMergedPlanConfigs = jest.fn(
-          async () => mockPlanConfigs
-        );
-        const expected = [
-          {
-            capabilities: [
-              'exampleCap0',
-              'exampleCap1',
-              'exampleCap3',
-              'goodnewseveryone',
-            ],
-            clientId: 'client1',
-          },
-          {
-            capabilities: [
-              'exampleCap0',
-              'exampleCap2',
-              'exampleCap4',
-              'exampleCap5',
-              'exampleCap6',
-              'exampleCap7',
-              'goodnewseveryone',
-              'quux',
-              'wibble',
-            ],
-            clientId: 'client2',
-          },
-        ];
-        const actual = await capabilityService.getClientsFromStripe();
-        expect(actual).toEqual(expected);
-      });
-    });
-
-    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
+    it('throws when CapabilityManager is not found', async () => {
       Container.remove(CapabilityManager);
+      const mockCapabilityService = new CapabilityService();
 
-      let mockCapabilityService: any = {};
-      mockCapabilityService = new CapabilityService();
-
-      const mockClientsFromStripe =
-        await mockCapabilityService.getClientsFromStripe();
-
-      const clients = await mockCapabilityService.getClients();
-
-      expect(clients).toEqual(mockClientsFromStripe);
-    });
-
-    it('returns results from CMS when it matches Stripe', async () => {
-      const sentryScope = { setContext: jest.fn() };
-      jest
-        .spyOn(Sentry, 'withScope')
-        .mockImplementation((cb: any) => cb(sentryScope));
-      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
-
-      const mockClientsFromCMS = await mockCapabilityManager.getClients();
-
-      const mockClientsFromStripe =
-        await capabilityService.getClientsFromStripe();
-
-      expect(mockClientsFromCMS).toEqual(mockClientsFromStripe);
-
-      const clients = await capabilityService.getClients();
-      expect(clients).toEqual(mockClientsFromCMS);
-
-      expect(Sentry.withScope).not.toHaveBeenCalled();
-      expect(sentryScope.setContext).not.toHaveBeenCalled();
-      expect(sentryModule.reportSentryMessage).not.toHaveBeenCalled();
-    });
-
-    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: jest.fn() };
-      jest
-        .spyOn(Sentry, 'withScope')
-        .mockImplementation((cb: any) => cb(sentryScope));
-      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
-
-      mockCapabilityManager.getClients = jest.fn().mockResolvedValue([
-        {
-          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-          clientId: 'client1',
-        },
-      ]);
-
-      const mockClientsFromCMS = await mockCapabilityManager.getClients();
-
-      const mockClientsFromStripe =
-        await capabilityService.getClientsFromStripe();
-
-      expect(mockClientsFromCMS).not.toEqual(mockClientsFromStripe);
-
-      const clients = await capabilityService.getClients();
-      expect(clients).toEqual(mockClientsFromStripe);
-
-      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-      expect(sentryScope.setContext).toHaveBeenCalledWith('getClients', {
-        cms: mockClientsFromCMS,
-        stripe: mockClientsFromStripe,
-      });
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
-      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
-        `CapabilityService.getClients - Returned Stripe as clients did not match.`,
-        'error'
-      );
-
-      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-      expect(sentryScope.setContext).toHaveBeenCalledWith('getClients', {
-        cms: mockClientsFromCMS,
-        stripe: mockClientsFromStripe,
-      });
-    });
-  });
-
-  describe('CMS flag is enabled', () => {
-    it('returns planIdsToClientCapabilities from CMS', async () => {
-      mockConfig.cms.enabled = true;
-
-      capabilityService.subscribedPriceIds = jest.fn().mockResolvedValue([UID]);
-
-      const mockCMSCapabilities =
-        await mockCapabilityManager.priceIdsToClientCapabilities(
-          capabilityService.subscribedPrices
-        );
-
-      const expected = {
-        '*': ['capAll'],
-        c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
-        c2: ['cap5', 'cap6', 'capC', 'capD'],
-        c3: ['capD', 'capE'],
-      };
-
-      expect(mockCMSCapabilities).toEqual(expected);
-    });
-
-    it('returns getClients from CMS', async () => {
-      mockConfig.cms.enabled = true;
-
-      const mockClientsFromCMS = await mockCapabilityManager.getClients();
-
-      const expected = [
-        {
-          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-          clientId: 'client1',
-        },
-        {
-          capabilities: [
-            'exampleCap0',
-            'exampleCap2',
-            'exampleCap4',
-            'exampleCap5',
-            'exampleCap6',
-            'exampleCap7',
-          ],
-          clientId: 'client2',
-        },
-      ];
-      expect(mockClientsFromCMS).toEqual(expected);
+      let err: any;
+      try {
+        await mockCapabilityService.getClients();
+      } catch (e) {
+        err = e;
+      }
+      expect(err).toBeDefined();
+      expect(err.message).toBe('An internal validation check failed.');
     });
   });
 });

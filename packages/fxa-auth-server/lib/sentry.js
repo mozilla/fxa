@@ -7,7 +7,6 @@
 const Sentry = require('@sentry/node');
 
 const {
-  formatMetadataValidationErrorMessage,
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 
@@ -103,5 +102,4 @@ module.exports = {
   reportSentryMessage,
   reportSentryError,
   reportValidationError,
-  formatMetadataValidationErrorMessage,
 };

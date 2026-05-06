@@ -19,7 +19,3 @@ export enum StripeMetadataKeysForCMS {
   NewsletterLabel = 'newsletterLabelTextCode',
   NewsletterSlug = 'newsletterSlug',
 }
-
-export type StripeMetadataWithCMS = Partial<
-  Record<StripeMetadataKeysForCMS, string>
->;

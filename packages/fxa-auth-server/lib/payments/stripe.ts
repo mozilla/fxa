@@ -64,11 +64,6 @@ import { ConfigType } from '../../config';
 import { AppError as error } from '@fxa/accounts/errors';
 import { GoogleMapsService } from '../google-maps-services';
 import Redis from '../redis';
-import { subscriptionProductMetadataValidator } from '../routes/validators';
-import {
-  formatMetadataValidationErrorMessage,
-  reportValidationError,
-} from 'fxa-shared/sentry/report-validation-error';
 import { AppConfig, AuthFirestore, AuthLogger, TaxAddress } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
@@ -284,27 +279,6 @@ export class StripeHelper extends StripeHelperBase {
         }
       }
     }
-  }
-
-  /**
-   * Validates state of stripe plan
-   * @param plan
-   * @returns true if plan is valid
-   */
-  protected override async validatePlan(plan: Stripe.Plan): Promise<boolean> {
-    const { error } = await subscriptionProductMetadataValidator.validateAsync({
-      ...plan.metadata,
-      ...(plan.product as Stripe.Product)?.metadata,
-    });
-
-    if (error) {
-      const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
-      this.log.error(`fetchAllPlans: ${msg}`, { error, plan: plan });
-      reportValidationError(msg, error as any);
-      return false;
-    }
-
-    return true;
   }
 
   /**

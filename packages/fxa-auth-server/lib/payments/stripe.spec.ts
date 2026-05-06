@@ -3439,103 +3439,68 @@ describe('StripeHelper', () => {
   });
 
   describe('fetchAllPlans', () => {
-    describe('without Firestore configs', () => {
-      beforeEach(() => {
-        stripeHelper.config.subscriptions.productConfigsFirestore.enabled = false;
-      });
+    it('returns plans with valid product references and skips invalid ones', async () => {
+      const planMissingProduct: any = {
+        id: 'plan_noprod',
+        object: 'plan',
+        product: null,
+      };
+      const planUnloadedProduct: any = {
+        id: 'plan_stringprod',
+        object: 'plan',
+        product: 'prod_123',
+      };
+      const planDeletedProduct: any = {
+        id: 'plan_deletedprod',
+        object: 'plan',
+        product: { deleted: true },
+      };
+      const goodPlan = deepCopy(plan1);
+      goodPlan.product = deepCopy(product1);
+      goodPlan.product.metadata['product:privacyNoticeURL'] =
+        'https://cdn.accounts.firefox.com/legal/privacy\n\n';
+      goodPlan.metadata['product:privacyNoticeURL'] =
+        'https://cdn.accounts.firefox.com/legal/privacy\n\n';
+      const dupeGoodPlan = deepCopy(goodPlan);
 
-      afterEach(() => {
-        stripeHelper.config.subscriptions.productConfigsFirestore.enabled = true;
-      });
+      const planList = [
+        planMissingProduct,
+        planUnloadedProduct,
+        planDeletedProduct,
+        goodPlan,
+      ];
 
-      it('only returns valid plans', async () => {
-        const validProductMetadata = plan1.product.metadata;
-        const planMissingProduct: any = {
-          id: 'plan_noprod',
-          object: 'plan',
-          product: null,
-        };
-        const planUnloadedProduct: any = {
-          id: 'plan_stringprod',
-          object: 'plan',
-          product: 'prod_123',
-        };
-        const planDeletedProduct: any = {
-          id: 'plan_deletedprod',
-          object: 'plan',
-          product: { deleted: true },
-        };
-        const planInvalidProductMetadata: any = {
-          id: 'plan_invalidproductmetadata',
-          object: 'plan',
-          product: {
-            metadata: Object.assign({}, validProductMetadata, {
-              // Include some invalid whitespace that will be trimmed.
-              'product:privacyNoticeDownloadURL': 'https://example.com',
-            }),
-          },
-        };
-        const goodPlan = deepCopy(plan1);
-        goodPlan.product = deepCopy(product1);
-        goodPlan.product.metadata['product:privacyNoticeURL'] =
-          'https://cdn.accounts.firefox.com/legal/privacy\n\n';
-        goodPlan.metadata['product:privacyNoticeURL'] =
-          'https://cdn.accounts.firefox.com/legal/privacy\n\n';
-        const dupeGoodPlan = deepCopy(goodPlan);
+      listStripePlans.mockRestore();
+      jest
+        .spyOn(stripeHelper.stripe.plans, 'list')
+        .mockReturnValue(planList as any);
 
-        const planList = [
-          planMissingProduct,
-          planUnloadedProduct,
-          planDeletedProduct,
-          planInvalidProductMetadata,
-          goodPlan,
-        ];
+      const actual = await stripeHelper.fetchAllPlans();
 
-        listStripePlans.mockRestore();
-        jest
-          .spyOn(stripeHelper.stripe.plans, 'list')
-          .mockReturnValue(planList as any);
+      expect(actual).toEqual([goodPlan]);
+      expect(actual[0].product.metadata['product:privacyNoticeURL']).toBe(
+        dupeGoodPlan.product.metadata['product:privacyNoticeURL'].trim()
+      );
+      expect(actual[0].metadata['product:privacyNoticeURL']).toBe(
+        dupeGoodPlan.metadata['product:privacyNoticeURL'].trim()
+      );
 
-        const actual = await stripeHelper.fetchAllPlans();
-
-        /** Assert that only the "good" plan was returned */
-        expect(actual).toEqual([goodPlan]);
-        // Assert that the product metadata was trimmed
-        expect(actual[0].product.metadata['product:privacyNoticeURL']).toBe(
-          dupeGoodPlan.product.metadata['product:privacyNoticeURL'].trim()
-        );
-        // Assert that the plan metadata was trimmed
-        expect(actual[0].metadata['product:privacyNoticeURL']).toBe(
-          dupeGoodPlan.metadata['product:privacyNoticeURL'].trim()
-        );
-
-        /** Verify the error cases were handled properly */
-        expect(stripeHelper.log.error).toHaveBeenCalledTimes(4);
-        /** Plan.product is null */
-        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
-          1,
-          `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
-          expect.anything()
-        );
-        /** Plan.product is string */
-        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
-          2,
-          `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
-          expect.anything()
-        );
-        /** Plan.product is DeletedProduct */
-        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
-          3,
-          `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
-          expect.anything()
-        );
-        /** Plan.product has invalid metadata */
-        expect(
-          stripeHelper.log.error.mock.calls[3][0].includes(
-            `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
-          )
-        ).toBe(true);
-      });
+      expect(stripeHelper.log.error).toHaveBeenCalledTimes(3);
+      expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+        1,
+        `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
+        expect.anything()
+      );
+      expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+        2,
+        `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
+        expect.anything()
+      );
+      expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+        3,
+        `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
+        expect.anything()
+      );
     });
   });
 
@@ -7713,7 +7678,7 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('filters out invalid plans', async () => {
+    it('returns all plans regardless of metadata shape', async () => {
       const first = { ...plan1, product: { ...plan1.product, metadata: {} } };
       const second = {
         ...plan2,
@@ -7741,46 +7706,9 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.plans.list.mock.calls.length === 1
       ).toBeTruthy();
 
-      expect(actual).toEqual(
-        [first]
-          .map((p: any) => ({
-            amount: p.amount,
-            currency: p.currency,
-            interval_count: p.interval_count,
-            interval: p.interval,
-            plan_id: p.id,
-            plan_metadata: p.metadata,
-            plan_name: p.nickname || '',
-            product_id: p.product.id,
-            product_metadata: p.product.metadata,
-            product_name: p.product.name,
-            active: true,
-            configuration: {
-              locales: {},
-              productSet: undefined,
-              stripePriceId: p.id,
-              styles: {},
-              support: {},
-              uiContent: {},
-              urls: {},
-            },
-          }))
-          .concat(
-            [second].map((p: any) => ({
-              amount: p.amount,
-              currency: p.currency,
-              interval_count: p.interval_count,
-              interval: p.interval,
-              plan_id: p.id,
-              plan_metadata: p.metadata,
-              plan_name: p.nickname || '',
-              product_id: p.product.id,
-              product_metadata: p.product.metadata,
-              product_name: p.product.name,
-              active: true,
-              configuration: null,
-            }))
-          )
+      expect(actual).toHaveLength(3);
+      expect(actual.map((p) => p.plan_id).sort()).toEqual(
+        [first.id, second.id, third.id].sort()
       );
     });
 
@@ -7886,14 +7814,6 @@ describe('StripeHelper', () => {
         .mockReturnValue(asyncIterable([newPlan1, plan2, plan3]) as any);
       jest.spyOn(localStripeHelper, 'allPlans');
       jest.spyOn(localStripeHelper, 'allConfiguredPlans');
-      const sentryScope: any = {
-        setContext: jest.fn(),
-        setExtra: jest.fn(),
-      };
-      jest
-        .spyOn(Sentry, 'withScope')
-        .mockImplementation((cb: any) => cb(sentryScope));
-      jest.spyOn(sentryModule, 'reportSentryMessage');
       const actual = await localStripeHelper.allAbbrevPlans();
       expect(
         localStripeHelper.allConfiguredPlans.mock.calls.length === 1
@@ -7904,39 +7824,6 @@ describe('StripeHelper', () => {
       ).toBeTruthy();
       expect(actual[0].plan_metadata['webIconURL']).toBe(newWebIconURL);
       expect(actual[0].product_metadata['webIconURL']).toBe(newWebIconURL);
-      expect(Sentry.withScope as jest.Mock).toHaveBeenCalledTimes(1);
-      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns CMS values when flag is enabled', async () => {
-      mockConfig.cms.enabled = true;
-      const mockProductConfigurationManager = {
-        getPurchaseWithDetailsOfferingContentByPlanIds: jest
-          .fn()
-          .mockResolvedValue(),
-        getSupportedLocale: jest.fn().mockResolvedValue('en'),
-      };
-      Container.set(
-        ProductConfigurationManager,
-        mockProductConfigurationManager
-      );
-      const localStripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
-      jest
-        .spyOn(localStripeHelper.stripe.plans, 'list')
-        .mockReturnValue(asyncIterable([plan1, plan2, plan3]) as any);
-      jest.spyOn(localStripeHelper, 'allPlans');
-      jest.spyOn(localStripeHelper, 'allConfiguredPlans');
-      await localStripeHelper.allAbbrevPlans();
-      expect(mockConfig.cms.enabled).toBe(true);
-      expect(
-        localStripeHelper.allConfiguredPlans.mock.calls.length === 1
-      ).toBeTruthy();
-      expect(localStripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
-      expect(
-        localStripeHelper.stripe.plans.list.mock.calls.length === 1
-      ).toBeTruthy();
-      // cleanup
-      mockConfig.cms.enabled = false;
     });
   });
 });

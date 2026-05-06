@@ -30,7 +30,6 @@ const {
 } = require('../../docs/swagger/shared/descriptions');
 const {
   subscriptionProductMetadataBaseValidator,
-  capabilitiesClientIdPattern,
 } = require('fxa-shared/subscriptions/validation');
 const {
   VX_REGEX: CLIENT_SALT_STRING,
@@ -565,52 +564,6 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
 // - metadata can contain arbitrary keys that we don't expect (e.g. used by other systems)
 // - but we can make a good effort at validating what we expect to see when we see it
 module.exports.subscriptionPlanMetadataValidator = isA.object().unknown(true);
-
-module.exports.subscriptionProductMetadataValidator = {
-  validate: function (metadata) {
-    const hasCapability = Object.keys(metadata).some((k) =>
-      capabilitiesClientIdPattern.test(k)
-    );
-
-    if (!hasCapability) {
-      return {
-        error: 'Capability missing from metadata',
-      };
-    }
-
-    const { value: result, error } =
-      subscriptionProductMetadataBaseValidator.validate(metadata, {
-        abortEarly: false,
-      });
-
-    if (error) {
-      return { error };
-    }
-
-    return { result };
-  },
-  async validateAsync(metadata) {
-    const hasCapability = Object.keys(metadata).some((k) =>
-      capabilitiesClientIdPattern.test(k)
-    );
-
-    if (!hasCapability) {
-      return {
-        error: 'Capability missing from metadata',
-      };
-    }
-
-    try {
-      const validationSchema = subscriptionProductMetadataBaseValidator;
-      const value = await validationSchema.validateAsync(metadata, {
-        abortEarly: false,
-      });
-      return { value };
-    } catch (error) {
-      return { error };
-    }
-  },
-};
 
 module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
   plan_id: module.exports.subscriptionsPlanId

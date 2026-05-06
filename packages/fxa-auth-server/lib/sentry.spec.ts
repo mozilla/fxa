@@ -34,7 +34,6 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const config = require('../config').default.getProperties();
 const {
   configureSentry,
-  formatMetadataValidationErrorMessage,
   filterExtras,
 } = require('./sentry');
 
@@ -193,42 +192,4 @@ describe('Sentry', () => {
     });
   });
 
-  describe('Sentry helpers', () => {
-    describe('formatMetadataValidationErrorMessage', () => {
-      const plan = {
-        id: 'plan_123',
-      };
-
-      it('formats the error message when error is a string', () => {
-        const errorStr = 'Capability missing from metadata';
-        const actualMsg = formatMetadataValidationErrorMessage(
-          plan.id,
-          errorStr
-        );
-        const expectedMsg = `${plan.id} metadata invalid: ${errorStr}`;
-        expect(actualMsg).toEqual(expectedMsg);
-      });
-
-      it('formats the error message when error is an object', () => {
-        const errorObj = {
-          details: [
-            {
-              message: '"successActionButtonURL" is required',
-              type: 'any.required',
-            },
-            {
-              message: 'product:privacyNoticeURL must be a valid uri',
-              type: 'string.uri',
-            },
-          ],
-        };
-        const expectedMsg = `${plan.id} metadata invalid: ${errorObj.details[0].message}; ${errorObj.details[1].message};`;
-        const actualMsg = formatMetadataValidationErrorMessage(
-          plan.id,
-          errorObj
-        );
-        expect(actualMsg).toEqual(expectedMsg);
-      });
-    });
-  });
 });
