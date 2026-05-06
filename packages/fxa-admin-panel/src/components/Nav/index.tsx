@@ -6,6 +6,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
+import shieldIcon from '../../images/icon-shield.svg';
 import logsIcon from '../../images/icon-logs.svg';
 import emailBlocklistIcon from '../../images/icon-email-blocklist.svg';
 import { AdminPanelFeature } from '@fxa/shared/guards';
@@ -110,6 +111,21 @@ export const Nav = () => (
                 alt="rate limit icon"
               />
               Rate Limiting
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.ManageWafTokens]}>
+          <li>
+            <NavLink
+              to="/waf-tokens"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={shieldIcon}
+                alt="shield icon"
+              />
+              WAF Bypass Tokens
             </NavLink>
           </li>
         </Guard>

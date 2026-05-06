@@ -50,6 +50,8 @@ export enum AdminPanelFeature {
   RateLimiting = 'RateLimiting',
   DeleteRecoveryPhone = 'DeleteRecoveryPhone',
   EmailBlocklist = 'EmailBlocklist',
+  WafTokens = 'WafTokens',
+  ManageWafTokens = 'ManageWafTokens',
 }
 
 /** Enum of known user groups */
@@ -212,6 +214,14 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.EmailBlocklist]: {
     name: 'Manage Email Blocklist',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.WafTokens]: {
+    name: 'View WAF Bypass Tokens',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.ManageWafTokens]: {
+    name: 'Manage WAF Bypass Tokens',
     level: PermissionLevel.Admin,
   },
 };

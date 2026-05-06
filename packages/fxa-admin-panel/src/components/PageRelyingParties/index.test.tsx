@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import PageRelyingParties from '.';
 import { MOCK_RP_ALL_FIELDS, MOCK_RP_FALSY_FIELDS } from './mocks';
 import { IClientConfig } from '../../../interfaces';
@@ -11,6 +12,13 @@ import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { adminApi } from '../../lib/api';
+
+const renderPage = () =>
+  renderWithLocalizationProvider(
+    <MemoryRouter>
+      <PageRelyingParties />
+    </MemoryRouter>
+  );
 
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 
@@ -29,9 +37,17 @@ jest.mock('../../hooks/UserContext.ts', () => ({
   }),
 }));
 
+jest.mock('../../hooks/GuardContext.ts', () => ({
+  useGuardContext: () => ({
+    guard: mockGuard,
+    setGuard: () => {},
+  }),
+}));
+
 jest.mock('../../lib/api', () => ({
   adminApi: {
     getRelyingParties: jest.fn(),
+    getWafTokens: jest.fn(),
     createRelyingParty: jest.fn(),
     updateRelyingParty: jest.fn(),
     deleteRelyingParty: jest.fn(),
@@ -40,13 +56,17 @@ jest.mock('../../lib/api', () => ({
   },
 }));
 
+beforeEach(() => {
+  (adminApi.getWafTokens as jest.Mock).mockResolvedValue([]);
+});
+
 afterEach(() => {
   jest.clearAllMocks();
 });
 
 it('renders without imploding and shows loading text', () => {
   (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([]);
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
   const rpHeading = screen.getByRole('heading', { level: 2 });
   expect(rpHeading).toHaveTextContent('Relying Parties');
   screen.getByText('Loading...');
@@ -54,7 +74,7 @@ it('renders without imploding and shows loading text', () => {
 
 it('renders as expected with zero relying parties', async () => {
   (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([]);
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
   await screen.findByText('No relying parties were found', { exact: false });
 });
 
@@ -62,7 +82,7 @@ it('renders as expected with a relying party containing all fields', async () =>
   (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([
     MOCK_RP_ALL_FIELDS,
   ]);
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
   await screen.findByText(MOCK_RP_ALL_FIELDS.id);
   screen.getByText(MOCK_RP_ALL_FIELDS.id);
   screen.getByText(MOCK_RP_ALL_FIELDS.name);
@@ -82,7 +102,7 @@ it('creates a new relying party via UI', async () => {
     secret: 'SECRET123',
   });
 
-  const { container } = renderWithLocalizationProvider(<PageRelyingParties />);
+  const { container } = renderPage();
   await screen.findByText('Create!');
   fireEvent.click(screen.getByText('Create!'));
   fireEvent.change(screen.getByPlaceholderText('name'), {
@@ -146,7 +166,7 @@ it('updates an existing relying party via UI', async () => {
     .mockResolvedValueOnce([rp]);
   (adminApi.updateRelyingParty as jest.Mock).mockResolvedValue(true);
 
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
 
   await screen.findByText(rp.name);
   fireEvent.click(screen.getByText('🖊️ Edit'));
@@ -174,7 +194,7 @@ it('deletes an existing relying party via UI', async () => {
     .mockResolvedValueOnce([rp]);
   (adminApi.deleteRelyingParty as jest.Mock).mockResolvedValue(true);
 
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
 
   await screen.findByText(rp.name);
   fireEvent.click(screen.getByText('🗑️ Delete'));
@@ -196,7 +216,7 @@ it('filters relying parties by name and id', async () => {
   const rp1 = { ...MOCK_RP_ALL_FIELDS };
   const rp2 = { ...MOCK_RP_FALSY_FIELDS };
   (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([rp1, rp2]);
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
 
   // Both are visible initially
   await screen.findByText(rp1.name);
@@ -228,7 +248,7 @@ it('renders as expected with a relying party containing falsy fields', async () 
   (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([
     MOCK_RP_FALSY_FIELDS,
   ]);
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
   expect(await screen.findAllByText('false')).toHaveLength(4);
   screen.getByText('(empty string)');
   screen.getByText('NULL');
@@ -248,7 +268,7 @@ it('rotates relying party secret', async () => {
     true
   );
 
-  renderWithLocalizationProvider(<PageRelyingParties />);
+  renderPage();
 
   await screen.findByText(MOCK_RP_ALL_FIELDS.name);
 

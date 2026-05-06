@@ -25,6 +25,7 @@ import {
   SecurityEvent,
   SessionToken,
   TotpToken,
+  WafBypassToken,
 } from 'fxa-shared/db/models/auth';
 import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
@@ -55,6 +56,7 @@ export class DatabaseService implements OnModuleDestroy {
   public sessionTokens: typeof SessionToken;
   public device: typeof Device;
   public relyingParty: typeof RelyingParty;
+  public wafBypassTokens: typeof WafBypassToken;
   public linkedAccounts: typeof LinkedAccount;
 
   protected mySqlOAuthShared: MysqlOAuthShared;
@@ -104,6 +106,8 @@ export class DatabaseService implements OnModuleDestroy {
     // Rebind for oauth db
     RelyingParty.knex(this.knexOauth);
     this.relyingParty = RelyingParty;
+    WafBypassToken.knex(this.knexOauth);
+    this.wafBypassTokens = WafBypassToken;
 
     this.mySqlOAuthShared = mySqlOAuthShared;
     this.connectedServicesDb = new ConnectedServicesDb(

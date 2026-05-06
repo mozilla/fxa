@@ -3,16 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { NavLink } from 'react-router-dom';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import {
   RelyingPartyCreatedDto,
   RelyingPartyDto,
   RelyingPartyUpdateDto,
   RotateSecretDto,
+  WafBypassTokenDto,
 } from 'fxa-admin-server/src/types';
 import ErrorAlert from '../ErrorAlert';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
+import { useGuardContext } from '../../hooks/GuardContext';
+import { useUserContext } from '../../hooks/UserContext';
 import { getFormattedDate } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
 import { adminApi } from '../../lib/api';
@@ -556,9 +560,11 @@ const RotateRelyingPartySecret = ({
 /** UI for deleting an existing relying party. */
 const DeleteRelyingParty = ({
   data,
+  wafToken,
   onExit,
 }: {
   data: RelyingPartyDto;
+  wafToken: WafBypassTokenDto | null;
   onExit: () => void;
 }) => {
   const [status, setStatus] = useState('');
@@ -589,6 +595,14 @@ const DeleteRelyingParty = ({
       <h3 className="header-lg font-bold">
         Deleting Relying Party: {data.name}
       </h3>
+      {wafToken && (
+        <p className="p-4 m-2 rounded bg-yellow-50">
+          <b>⚠️ This RP has a linked WAF bypass token.</b> It will be removed
+          from the database automatically, but you must also remove it from the
+          Fastly <code>fxa_ci_bypass_tokens</code> list in both{' '}
+          <code>accounts</code> and <code>accounts-api</code>.
+        </p>
+      )}
       <form onSubmit={handleSubmit}>
         <label>
           Are you sure you want to proceed? This cannot be undone! To continue
@@ -632,10 +646,13 @@ const DeleteRelyingParty = ({
 /** UI for viewing relying party's current state. */
 const RelyingPartyRow = ({
   data,
+  wafToken,
+  canManageWafTokens,
   onExit,
 }: {
   data: RelyingPartyDto;
-  onDelete: (id: string) => Promise<void>;
+  wafToken: WafBypassTokenDto | null;
+  canManageWafTokens: boolean;
   onExit: () => void;
 }) => {
   const [mode, setMode] = useState<
@@ -737,6 +754,23 @@ const RelyingPartyRow = ({
             children={<span>{(!!hasPreviousSecret).toString()}</span>}
           />
           <TableRowYHeader header="Notes" children={<span>{notes}</span>} />
+          <TableRowYHeader
+            header="WAF Bypass Token"
+            children={
+              wafToken ? (
+                <span className="font-mono">{wafToken.token}</span>
+              ) : canManageWafTokens ? (
+                <span className="result-grey">
+                  None —{' '}
+                  <NavLink to="/waf-tokens" className="underline text-blue-700">
+                    manage in WAF Bypass Tokens
+                  </NavLink>
+                </span>
+              ) : (
+                <span className="result-grey">None</span>
+              )
+            }
+          />
         </TableYHeaders>
       </div>
     );
@@ -758,6 +792,7 @@ const RelyingPartyRow = ({
       <DeleteRelyingParty
         {...{
           data,
+          wafToken,
           onExit: () => {
             setMode('view');
             onExit();
@@ -795,33 +830,57 @@ const RelyingPartyRow = ({
 
 /** Page displaying all relying parties and allows for basic CRUD type operations. */
 export const PageRelyingParties = () => {
+  const { guard } = useGuardContext();
+  const { user } = useUserContext();
+  const canViewWafTokens = guard.allow(AdminPanelFeature.WafTokens, user.group);
+  const canManageWafTokens = guard.allow(
+    AdminPanelFeature.ManageWafTokens,
+    user.group
+  );
+
   const [showAddRp, setShowAddRp] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
   const [relyingParties, setRelyingParties] = useState<RelyingPartyDto[]>([]);
+  const [wafTokenByClientId, setWafTokenByClientId] = useState<
+    Record<string, WafBypassTokenDto>
+  >({});
 
   const loadRelyingParties = useCallback(async () => {
     setLoading(true);
     setError(undefined);
     try {
-      const data = await adminApi.getRelyingParties();
-      setRelyingParties(data);
+      const fetches: [
+        Promise<RelyingPartyDto[]>,
+        Promise<WafBypassTokenDto[]>,
+      ] = [
+        adminApi.getRelyingParties(),
+        canViewWafTokens
+          ? adminApi.getWafTokens()
+          : Promise.resolve([] as WafBypassTokenDto[]),
+      ];
+      const [rps, wafTokens] = await Promise.all(fetches);
+      setRelyingParties(rps);
+      setWafTokenByClientId(
+        Object.fromEntries(
+          wafTokens
+            .filter(
+              (t): t is WafBypassTokenDto & { clientId: string } =>
+                t.clientId !== null
+            )
+            .map((t) => [t.clientId, t])
+        )
+      );
     } catch (err) {
       setError(err as Error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [canViewWafTokens]);
 
   useEffect(() => {
     loadRelyingParties();
   }, [loadRelyingParties]);
-
-  const handleDelete = async (id: string) => {
-    try {
-      await adminApi.deleteRelyingParty(id);
-    } catch {}
-  };
 
   // Let's us find a specific RP quickly.
   const [filter, setFilter] = useState('');
@@ -932,11 +991,13 @@ export const PageRelyingParties = () => {
             <section>
               {getFilteredRps().map((data) => (
                 <RelyingPartyRow
+                  key={data.id}
                   data={data}
+                  wafToken={wafTokenByClientId[data.id] ?? null}
+                  canManageWafTokens={canManageWafTokens}
                   onExit={() => {
                     loadRelyingParties();
                   }}
-                  onDelete={handleDelete}
                 />
               ))}
             </section>

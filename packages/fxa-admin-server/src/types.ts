@@ -289,3 +289,18 @@ export interface EmailBlocklistEntry {
   regex: string;
   createdAt: number;
 }
+
+export interface WafBypassTokenDto {
+  id: string;
+  name: string;
+  token: string;
+  /** null for standalone tokens not tied to an OAuth client (e.g. FxA itself) */
+  clientId: string | null;
+  createdAt: number;
+}
+
+export interface WafBypassTokenCreateDto {
+  name: string;
+  /** omit for standalone tokens not tied to an OAuth client (e.g. FxA itself) */
+  clientId?: string;
+}
