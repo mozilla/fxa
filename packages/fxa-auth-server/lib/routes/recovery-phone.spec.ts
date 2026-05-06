@@ -161,7 +161,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -170,7 +170,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
@@ -286,7 +286,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -295,7 +295,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
@@ -601,7 +601,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -610,7 +610,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
 
@@ -745,7 +745,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -754,7 +754,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
@@ -792,7 +792,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -801,7 +801,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         });
       }
     });
@@ -843,7 +843,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -852,7 +852,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
@@ -888,7 +888,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -897,7 +897,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         });
       }
     });
@@ -936,7 +936,7 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
-          additionalInfo: {
+          additionalInfo: expect.objectContaining({
             userAgent: 'test user-agent',
             location: {
               city: 'Mountain View',
@@ -945,7 +945,7 @@ describe('/recovery_phone', () => {
               state: 'California',
               stateCode: 'CA',
             },
-          },
+          }),
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(1);

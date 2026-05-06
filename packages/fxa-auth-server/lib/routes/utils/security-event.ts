@@ -14,6 +14,15 @@ export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
 
   const clientId = opts?.request?.app?.clientIdTag;
   const service = opts?.request?.app?.serviceTag;
+  const headers = opts?.request?.headers;
+
+  const waf = {
+    clientJa4: headers?.['client-ja4'],
+    clientJa3: headers?.['client-ja3'],
+    fastlyRequestId: headers?.['x-fastly-request-id'],
+    sigsciRequestId: headers?.['x-sigsci-requestid'],
+    sigsciTags: headers?.['x-sigsci-tags'],
+  };
 
   await mgr.recordSecurityEvent(opts.db, {
     name,
@@ -25,6 +34,7 @@ export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
       location: opts?.request.app.geo.location,
       ...(clientId && { client_id: clientId }),
       ...(service && { service }),
+      waf: Object.values(waf).some(Boolean) ? waf : undefined,
     },
   });
 }

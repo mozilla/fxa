@@ -291,7 +291,7 @@ describe('totp', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: 'id',
-            additionalInfo: {
+            additionalInfo: expect.objectContaining({
               userAgent: 'test user-agent',
               location: {
                 city: 'Mountain View',
@@ -300,7 +300,7 @@ describe('totp', () => {
                 state: 'California',
                 stateCode: 'CA',
               },
-            },
+            }),
           }
         );
 
@@ -403,7 +403,7 @@ describe('totp', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: 'id',
-            additionalInfo: {
+            additionalInfo: expect.objectContaining({
               userAgent: 'test user-agent',
               location: {
                 city: 'Mountain View',
@@ -412,7 +412,7 @@ describe('totp', () => {
                 state: 'California',
                 stateCode: 'CA',
               },
-            },
+            }),
           }
         );
 
