@@ -17,6 +17,7 @@ import PageRateLimiting from './components/PageRateLimiting';
 import PageAccountReset from './components/PageAccountReset';
 import PageEmailBlocklist from './components/PageEmailBlocklist';
 import PageWafTokens from './components/PageWafTokens';
+import PageDomainBlocklist from './components/PageDomainBlocklist';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -56,6 +57,12 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.ManageWafTokens, user.group) && (
                 <Route path="/waf-tokens" element={<PageWafTokens />} />
+              )}
+              {guard.allow(AdminPanelFeature.DomainBlocklist, user.group) && (
+                <Route
+                  path="/domain-blocklist"
+                  element={<PageDomainBlocklist />}
+                />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

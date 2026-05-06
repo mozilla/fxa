@@ -87,6 +87,15 @@ jest.mock('./utils/account', () => {
   };
 });
 
+jest.mock('fxa-shared/db/models/auth', () => ({
+  EmailBlocklist: {
+    findMatchingRegex: jest.fn().mockResolvedValue(null),
+  },
+  DomainBlocklist: {
+    findMatchingDomain: jest.fn().mockResolvedValue(null),
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Route factory (mirrors the Mocha `makeRoutes`)
 // ---------------------------------------------------------------------------
@@ -237,6 +246,36 @@ describe('/account/passwordless/send_code', () => {
 
       expect(result).toEqual({});
     });
+  });
+
+  it('blocks new account registration when domain matches regex blocklist', async () => {
+    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValueOnce(
+      '@example\\.com$'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('blocks new account registration when domain matches domain blocklist', async () => {
+    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValueOnce(
+      'example.com'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValue(null);
   });
 
   it('should send OTP for existing passwordless account', () => {

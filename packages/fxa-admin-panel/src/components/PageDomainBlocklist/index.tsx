@@ -4,13 +4,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../../lib/api';
-import type { EmailBlocklistEntry } from 'fxa-admin-server/src/types';
+import type { DomainBlocklistEntry } from 'fxa-admin-server/src/types';
 
 const btnClass =
   'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
 
-const PageEmailBlocklist = () => {
-  const [entries, setEntries] = useState<EmailBlocklistEntry[]>([]);
+const PageDomainBlocklist = () => {
+  const [entries, setEntries] = useState<DomainBlocklistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,12 +21,8 @@ const PageEmailBlocklist = () => {
   const loadEntries = useCallback(async () => {
     setError(null);
     try {
-      const data = await adminApi.getEmailBlocklist();
-      setEntries(
-        [...data].sort(
-          (a, b) => b.createdAt - a.createdAt || a.regex.localeCompare(b.regex)
-        )
-      );
+      const data = await adminApi.getDomainBlocklist();
+      setEntries(data);
     } catch (e) {
       setError('Failed to load blocklist.');
     }
@@ -40,17 +36,17 @@ const PageEmailBlocklist = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const raw = textareaRef.current?.value ?? '';
-    const regexes = raw
+    const domains = raw
       .split('\n')
       .map((x) => x.trim())
       .filter((x) => x.length > 0);
 
-    if (regexes.length === 0) return;
+    if (domains.length === 0) return;
 
     setHasInput(false);
     setSubmitting(true);
     try {
-      await adminApi.addEmailBlocklistEntries(regexes);
+      await adminApi.addDomainBlocklistEntries(domains);
       if (textareaRef.current) textareaRef.current.value = '';
       await loadEntries();
     } catch (e) {
@@ -81,10 +77,10 @@ const PageEmailBlocklist = () => {
     e.target.value = '';
   };
 
-  const handleDelete = async (regex: string) => {
+  const handleDelete = async (domain: string) => {
     try {
-      await adminApi.removeEmailBlocklistEntry(regex);
-      setEntries((prev) => prev.filter((e) => e.regex !== regex));
+      await adminApi.removeDomainBlocklistEntry(domain);
+      setEntries((prev) => prev.filter((e) => e.domain !== domain));
     } catch {
       window.alert('Failed to remove entry.');
     }
@@ -98,7 +94,7 @@ const PageEmailBlocklist = () => {
     )
       return;
     try {
-      await adminApi.deleteAllEmailBlocklistEntries();
+      await adminApi.deleteAllDomainBlocklistEntries();
       await loadEntries();
     } catch {
       window.alert('Failed to delete all entries.');
@@ -107,57 +103,49 @@ const PageEmailBlocklist = () => {
 
   return (
     <>
-      <h2 className="header-page">Email Blocklist (regex)</h2>
+      <h2 className="header-page">Email Blocklist (string)</h2>
       <ul className="list-disc list-inside mb-4">
         <li>
-          Blocks registration for emails matching any pattern. Does not affect
-          existing accounts.
+          Blocks registration for any email whose domain exactly matches an
+          entry. Does not affect existing accounts.
         </li>
         <li>
-          Patterns are regexes matched against the full address. Mostly used for
-          domains (e.g. <code>@evildoge\.example\.com$</code>).
+          Enter plain domain names only — no <code>@</code>, no wildcards, no
+          regex. E.g. <code>evildoge.example.com</code>.
         </li>
         <li>
-          Use <code>$</code> to anchor to the end of the address — without it,{' '}
-          <code>@mozilla\.com</code> would also match{' '}
-          <code>@mozilla\.com.haxor.net</code>.
+          Matching is case-insensitive; entries are normalized to lowercase on
+          save.
         </li>
         <li>
-          Enter one pattern per line, or upload a CSV/TXT file (one entry per
-          line). Duplicates are silently ignored.
+          Enter one domain per line, or upload a CSV/TXT file (one entry per
+          line). Leading <code>@</code> is stripped automatically. Duplicates
+          are silently ignored.
         </li>
         <li>Blocked attempts are logged and counted in statsd.</li>
         <li>
-          Changes propagate to auth-server within 5 minutes. Keep the list small
-          (hundreds of entries, not thousands) to avoid slowing registration.
+          Changes propagate to auth-server within 5 minutes (same cache TTL as
+          the regex blocklist).
         </li>
       </ul>
-      <p className="mb-4">
-        <strong>
-          ⚠️ Avoid complex patterns with nested quantifiers (e.g.{' '}
-          <code>{'(a+)+'}</code>).
-        </strong>{' '}
-        These can cause slow matching on every registration attempt. Stick to
-        simple domain patterns like <code>@domain\.com$</code>.
-      </p>
 
       <form method="post" onSubmit={handleSubmit}>
         <textarea
           ref={textareaRef}
-          data-testid="blocklist-input"
-          aria-label="Email blocklist patterns, one per line"
-          name="regexList"
+          data-testid="domain-blocklist-input"
+          aria-label="Domain blocklist entries, one per line"
+          name="domainList"
           rows={8}
           cols={60}
           className="border-2 block"
-          placeholder={'@evildoge\\.example\\.com$\n@haxor\\.net$'}
+          placeholder={'evildoge.example.com\nhaxor.net'}
           onChange={(e) => setHasInput(e.target.value.trim().length > 0)}
         />
         <br />
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.txt"
+          accept=".csv,.txt,.conf"
           className="hidden"
           onChange={handleFileChange}
         />
@@ -171,7 +159,7 @@ const PageEmailBlocklist = () => {
         &nbsp;
         <button
           type="submit"
-          data-testid="blocklist-add-btn"
+          data-testid="domain-blocklist-add-btn"
           className="bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded disabled:opacity-40 disabled:cursor-not-allowed"
           disabled={submitting || !hasInput}
         >
@@ -202,25 +190,25 @@ const PageEmailBlocklist = () => {
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-grey-50">
-              <th className="text-left p-2 border border-grey-100">Pattern</th>
+              <th className="text-left p-2 border border-grey-100">Domain</th>
               <th className="text-left p-2 border border-grey-100">Added</th>
               <th className="p-2 border border-grey-100"></th>
             </tr>
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.regex} className="hover:bg-grey-10">
+              <tr key={entry.domain} className="hover:bg-grey-10">
                 <td className="p-2 border border-grey-100 font-mono">
-                  {entry.regex}
+                  {entry.domain}
                 </td>
                 <td className="p-2 border border-grey-100 whitespace-nowrap">
                   {new Date(entry.createdAt).toISOString()}
                 </td>
                 <td className="p-2 border border-grey-100 text-center">
                   <button
-                    data-testid={`delete-${entry.regex}`}
+                    data-testid={`delete-${entry.domain}`}
                     className={btnClass}
-                    onClick={() => handleDelete(entry.regex)}
+                    onClick={() => handleDelete(entry.domain)}
                   >
                     🗑️ Remove
                   </button>
@@ -234,4 +222,4 @@ const PageEmailBlocklist = () => {
   );
 };
 
-export default PageEmailBlocklist;
+export default PageDomainBlocklist;

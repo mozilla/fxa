@@ -304,3 +304,8 @@ export interface WafBypassTokenCreateDto {
   /** omit for standalone tokens not tied to an OAuth client (e.g. FxA itself) */
   clientId?: string;
 }
+
+export interface DomainBlocklistEntry {
+  domain: string;
+  createdAt: number;
+}

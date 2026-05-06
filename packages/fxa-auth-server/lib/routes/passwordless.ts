@@ -29,6 +29,8 @@ import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
 } from './utils/passwordless';
+import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import {
   getOptionalCmsEmailConfig,
@@ -183,6 +185,30 @@ class PasswordlessHandler {
       'sendCode',
       request
     );
+
+    if (isNewAccount) {
+      const normalized = normalizeEmail(email);
+      const blockedRegex = await EmailBlocklist.findMatchingRegex(normalized);
+      if (blockedRegex !== null) {
+        this.log.info('account.create.blocked', {
+          domain: normalized.split('@')[1],
+          blockedRegex,
+          blocker: 'regex',
+        });
+        this.statsd.increment('account.create.blocked', { blocker: 'regex' });
+        throw error.requestBlocked(false);
+      }
+      const blockedDomain =
+        await DomainBlocklist.findMatchingDomain(normalized);
+      if (blockedDomain !== null) {
+        this.log.info('account.create.blocked', {
+          domain: blockedDomain,
+          blocker: 'domain',
+        });
+        this.statsd.increment('account.create.blocked', { blocker: 'domain' });
+        throw error.requestBlocked(false);
+      }
+    }
 
     return this.generateAndSendOtp(
       request,

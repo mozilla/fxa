@@ -52,6 +52,7 @@ export enum AdminPanelFeature {
   EmailBlocklist = 'EmailBlocklist',
   WafTokens = 'WafTokens',
   ManageWafTokens = 'ManageWafTokens',
+  DomainBlocklist = 'DomainBlocklist',
 }
 
 /** Enum of known user groups */
@@ -222,6 +223,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.ManageWafTokens]: {
     name: 'Manage WAF Bypass Tokens',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DomainBlocklist]: {
+    name: 'Manage Domain Blocklist',
     level: PermissionLevel.Admin,
   },
 };

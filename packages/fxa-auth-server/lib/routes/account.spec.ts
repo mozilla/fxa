@@ -177,6 +177,7 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
   fxaSharedDbModelsOverride = {
     getAccountCustomerByUid: mockGetAccountCustomerByUid,
     EmailBlocklist: { findMatchingRegex: jest.fn().mockResolvedValue(null) },
+    DomainBlocklist: { findMatchingDomain: jest.fn().mockResolvedValue(null) },
     ...((requireMocks || {})['fxa-shared/db/models/auth'] || {}),
   };
   // Set up ../oauth/jwt mock if provided in requireMocks
@@ -1311,6 +1312,85 @@ describe('/account/create', () => {
       expect(emailMessage.description).toBe('Use code below and gogogo');
     }).finally(() => jest.useRealTimers());
   });
+
+  it('rejects account creation when email matches the blocklist', async () => {
+    const { mockRequest, mockLog, mockDB } = setup();
+
+    mockLog.info = jest.fn();
+
+    const blockedRegex = '@blocked\\.example\\.com$';
+    const accountRoutes = makeRoutes(
+      { log: mockLog, db: mockDB },
+      {
+        'fxa-shared/db/models/auth': {
+          EmailBlocklist: {
+            findMatchingRegex: jest.fn().mockResolvedValue(blockedRegex),
+          },
+          DomainBlocklist: {
+            findMatchingDomain: jest.fn().mockResolvedValue(null),
+          },
+        },
+      }
+    );
+    const route = getRoute(accountRoutes, '/account/create');
+
+    statsd.increment.mockClear();
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.REQUEST_BLOCKED,
+    });
+
+    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
+      blocker: 'regex',
+    });
+    expect(mockLog.info).toHaveBeenCalledWith(
+      'account.create.blocked',
+      expect.objectContaining({
+        domain: expect.any(String),
+        blockedRegex,
+        blocker: 'regex',
+      })
+    );
+  });
+
+  it('rejects account creation when email domain matches the domain blocklist', async () => {
+    const { mockRequest, mockLog, mockDB } = setup();
+
+    mockLog.info = jest.fn();
+
+    const blockedDomain = 'blocked.example.com';
+    const accountRoutes = makeRoutes(
+      { log: mockLog, db: mockDB },
+      {
+        'fxa-shared/db/models/auth': {
+          EmailBlocklist: {
+            findMatchingRegex: jest.fn().mockResolvedValue(null),
+          },
+          DomainBlocklist: {
+            findMatchingDomain: jest.fn().mockResolvedValue(blockedDomain),
+          },
+        },
+      }
+    );
+    const route = getRoute(accountRoutes, '/account/create');
+
+    statsd.increment.mockClear();
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.REQUEST_BLOCKED,
+    });
+
+    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
+      blocker: 'domain',
+    });
+    expect(mockLog.info).toHaveBeenCalledWith(
+      'account.create.blocked',
+      expect.objectContaining({
+        domain: blockedDomain,
+        blocker: 'domain',
+      })
+    );
+  });
 });
 
 describe('/account/stub', () => {
@@ -1444,7 +1524,7 @@ describe('/account/stub', () => {
     });
   });
 
-  it('rejects account creation when email matches the blocklist', async () => {
+  it('rejects stub account creation when email matches the regex blocklist', async () => {
     const { mockRequest, mockLog, mockDB } = setup();
 
     mockLog.info = jest.fn();
@@ -1457,10 +1537,13 @@ describe('/account/stub', () => {
           EmailBlocklist: {
             findMatchingRegex: jest.fn().mockResolvedValue(blockedRegex),
           },
+          DomainBlocklist: {
+            findMatchingDomain: jest.fn().mockResolvedValue(null),
+          },
         },
       }
     );
-    const route = getRoute(accountRoutes, '/account/create');
+    const route = getRoute(accountRoutes, '/account/stub');
 
     statsd.increment.mockClear();
 
@@ -1468,12 +1551,54 @@ describe('/account/stub', () => {
       errno: error.ERRNO.REQUEST_BLOCKED,
     });
 
-    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked');
+    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
+      blocker: 'regex',
+    });
     expect(mockLog.info).toHaveBeenCalledWith(
       'account.create.blocked',
       expect.objectContaining({
         domain: expect.any(String),
         blockedRegex,
+        blocker: 'regex',
+      })
+    );
+  });
+
+  it('rejects stub account creation when email domain matches the domain blocklist', async () => {
+    const { mockRequest, mockLog, mockDB } = setup();
+
+    mockLog.info = jest.fn();
+
+    const blockedDomain = 'blocked.example.com';
+    const accountRoutes = makeRoutes(
+      { log: mockLog, db: mockDB },
+      {
+        'fxa-shared/db/models/auth': {
+          EmailBlocklist: {
+            findMatchingRegex: jest.fn().mockResolvedValue(null),
+          },
+          DomainBlocklist: {
+            findMatchingDomain: jest.fn().mockResolvedValue(blockedDomain),
+          },
+        },
+      }
+    );
+    const route = getRoute(accountRoutes, '/account/stub');
+
+    statsd.increment.mockClear();
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.REQUEST_BLOCKED,
+    });
+
+    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
+      blocker: 'domain',
+    });
+    expect(mockLog.info).toHaveBeenCalledWith(
+      'account.create.blocked',
+      expect.objectContaining({
+        domain: blockedDomain,
+        blocker: 'domain',
       })
     );
   });

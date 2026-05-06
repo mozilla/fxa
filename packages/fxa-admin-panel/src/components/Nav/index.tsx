@@ -80,7 +80,22 @@ export const Nav = () => (
                 src={emailBlocklistIcon}
                 alt="blocklist icon"
               />
-              Email Blocklist
+              Email Blocklist (regex)
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.DomainBlocklist]}>
+          <li>
+            <NavLink
+              to="/domain-blocklist"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={emailBlocklistIcon}
+                alt="blocklist icon"
+              />
+              Email Blocklist (string)
             </NavLink>
           </li>
         </Guard>
