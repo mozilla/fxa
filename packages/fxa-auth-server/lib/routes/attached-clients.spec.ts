@@ -41,7 +41,8 @@ function makeRoutes(options: any = {}) {
   const devices = options.devices || require('../devices')(log, db, push);
   const clientUtils =
     options.clientUtils || require('./utils/clients')(log, config);
-  return require('./attached-clients')(log, db, devices, clientUtils);
+  const statsd = options.statsd || { increment: jest.fn() };
+  return require('./attached-clients')(log, db, devices, clientUtils, statsd);
 }
 
 function newId(size = 32) {

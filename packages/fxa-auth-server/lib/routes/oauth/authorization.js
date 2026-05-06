@@ -11,6 +11,7 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const { recordAuthorizationOnLogin } = require('../../oauth/browser-services');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -31,7 +32,7 @@ function isLocalHost(url) {
   return host === 'localhost' || host === 'localhost';
 }
 
-module.exports = ({ log, oauthDB, config }) => {
+module.exports = ({ log, oauthDB, config, statsd }) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
@@ -174,6 +175,17 @@ module.exports = ({ log, oauthDB, config }) => {
     }
     validateClientDetails(client, req.payload);
     const grant = await validateRequestedGrant(claims, client, req.payload);
+    // Record consent here (not at /oauth/token) so service= is available.
+    // Writer swallows errors; bookkeeping cannot break sign-in.
+    if (grant.offline) {
+      await recordAuthorizationOnLogin(oauthDB, log, {
+        uid: grant.userId,
+        clientId: hex(grant.clientId),
+        scope: grant.scope,
+        serviceParam: req.payload.service,
+        statsd,
+      });
+    }
     switch (req.payload.response_type) {
       case RESPONSE_TYPE_CODE:
         return await generateAuthorizationCode(client, req.payload, grant);
@@ -303,6 +315,9 @@ module.exports = ({ log, oauthDB, config }) => {
                 otherwise: Joi.forbidden(),
               })
               .description(DESCRIPTION.resource + DESCRIPTION.resourceOauth),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
           }),
         },
         response: {
@@ -389,6 +404,9 @@ module.exports = ({ log, oauthDB, config }) => {
               .description(DESCRIPTION.acrValues),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
           }).and('code_challenge', 'code_challenge_method'),
         },
         response: {

@@ -118,7 +118,6 @@ class OauthDB extends ConnectedServicesDb {
     if (t) {
       const extraMetadata = new RefreshTokenMetadata(new Date());
       await this.redis.setRefreshToken(t.userId, id, extraMetadata);
-      // Periodically update timestamp in MySQL as well.
       if (
         extraMetadata.lastUsedAt - t.lastUsedAt >
         REFRESH_LAST_USED_AT_UPDATE_AFTER_MS
@@ -234,12 +233,43 @@ class OauthDB extends ConnectedServicesDb {
     await this.redis.removeAccessTokensForUser(uid);
     await this.redis.removeRefreshTokensForUser(uid);
     await this.mysql._removeTokensAndCodes(uid);
+    await this.mysql._deleteAllAccountAuthorizationsForUser(uid);
   }
 
   async pruneAuthorizationCodes(ttlInMs) {
     return await this.mysql._pruneAuthorizationCodes(
       ttlInMs || config.get('oauthServer.expiration.code')
     );
+  }
+
+  async upsertAccountAuthorization(uid, scope, service, authorizedAt) {
+    await this.ready();
+    return this.mysql._upsertAccountAuthorization(
+      uid,
+      scope,
+      service,
+      authorizedAt
+    );
+  }
+
+  async getAccountAuthorization(uid, scope, service) {
+    await this.ready();
+    return this.mysql._getAccountAuthorization(uid, scope, service);
+  }
+
+  async deleteAccountAuthorization(uid, scope, service) {
+    await this.ready();
+    return this.mysql._deleteAccountAuthorization(uid, scope, service);
+  }
+
+  async deleteAllAccountAuthorizationsForUser(uid) {
+    await this.ready();
+    return this.mysql._deleteAllAccountAuthorizationsForUser(uid);
+  }
+
+  async listAccountAuthorizationsByUid(uid) {
+    await this.ready();
+    return this.mysql._listAccountAuthorizationsByUid(uid);
   }
 }
 
