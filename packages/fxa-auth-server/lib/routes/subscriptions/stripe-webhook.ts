@@ -16,10 +16,8 @@ import Container from 'typedi';
 import { ConfigType } from '../../../config';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import {
-  formatMetadataValidationErrorMessage,
   reportSentryError,
   reportSentryMessage,
-  reportValidationError,
 } from '../../../lib/sentry';
 import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
@@ -36,7 +34,6 @@ import {
   VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
 import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestore';
 
@@ -763,7 +760,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Validate plan metadata and update cached plans.
+   * Update cached plans on plan create/update.
    */
   async handlePlanCreatedOrUpdatedEvent(
     request: AuthRequest,
@@ -774,7 +771,6 @@ export class StripeWebhookHandler extends StripeHandler {
       plan.product as string
     );
     const allPlans = await this.stripeHelper.allPlans();
-    // remove the plan until we have validated its metadata
     const updatedList = allPlans.filter((p) => p.id !== plan.id);
 
     if (!product || product.deleted) {
@@ -788,32 +784,6 @@ export class StripeWebhookHandler extends StripeHandler {
 
       this.stripeHelper.updateAllPlans(updatedList);
       return;
-    }
-
-    // We'll keep validating the metadata, but if the Firestore config docs
-    // feature flag is on, we add the plan to the list regardless of the
-    // validation result.
-    //
-    // TODO remove metadata validation once we've successfully moved to
-    // Firestore based product configs
-
-    const { error } = await subscriptionProductMetadataValidator.validateAsync({
-      ...product.metadata,
-      ...plan.metadata,
-    });
-
-    if (error) {
-      const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
-      this.log.error(`handlePlanCreatedOrUpdatedEvent: ${msg}`, {
-        error,
-        plan,
-      });
-      reportValidationError(msg, error as any);
-
-      if (!this.config.subscriptions.productConfigsFirestore.enabled) {
-        this.stripeHelper.updateAllPlans(updatedList);
-        return;
-      }
     }
 
     // The original plans list has the product expanded so we attach the
@@ -841,7 +811,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Update products cache and validate metadata.
+   * Update products cache.
    */
   async handleProductWebhookEvent(request: AuthRequest, event: Stripe.Event) {
     const allProducts = await this.stripeHelper.allProducts();
@@ -863,43 +833,12 @@ export class StripeWebhookHandler extends StripeHandler {
 
     if (event.type !== 'product.deleted') {
       for (const plan of cachedPlans) {
-        const { error } =
-          await subscriptionProductMetadataValidator.validateAsync({
-            ...product.metadata,
-            ...plan.metadata,
-          });
-
-        if (error) {
-          const msg = formatMetadataValidationErrorMessage(
-            plan.id,
-            error as any
-          );
-          this.log.error(`handleProductWebhookEvent: ${msg}`, {
-            error,
-            product,
-          });
-          reportValidationError(msg, error as any);
-        }
-
-        // We'll keep validating the metadata, but if the Firestore config docs
-        // feature flag is on, we add the plan to the list regardless of the
-        // validation result.
-        //
-        // TODO remove metadata validation once we've successfully moved to
-        // Firestore based product configs
-        if (
-          this.config.subscriptions.productConfigsFirestore.enabled ||
-          !error
-        ) {
-          updatedPlans.push({
-            ...plan,
-            product,
-          });
-        }
+        updatedPlans.push({
+          ...plan,
+          product,
+        });
       }
-      // Add any valid plans found in Stripe that are missing from the cache.
-      // This is possible e.g. if a plan was created before a product's metadata
-      // was valid and was never updated afterward.
+      // Add any plans found in Stripe that are missing from the cache.
       for (const plan of latestStripePlansForProduct) {
         const cachedPlan = updatedPlans.find((p) => p.id === plan.id);
         if (!cachedPlan) {

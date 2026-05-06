@@ -23,7 +23,6 @@ import {
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { StripeMetadataWithCMSFactory } from './factories';
 import { StripeMapperService } from './stripe-mapper.service';
 import { MockStripeMapperConfigProvider } from './stripe-mapper.config';
 
@@ -90,90 +89,34 @@ describe('StripeMapperService', () => {
   });
 
   describe('mapCMSToStripePlans', () => {
-    it('should return stripe metadata with error due to plan.product not being an object', async () => {
-      const validMetadata = StripeMetadataWithCMSFactory({
-        webIconURL: 'https://example.com/webIconURL',
-      });
+    it('returns plan unchanged when product is not expanded', async () => {
       const stripePlan = StripePlanFactory({
         product: 'stringvalue',
-        metadata: validMetadata,
+        metadata: { foo: 'bar' },
       });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
-      expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
-        validMetadata.webIconURL
+      const mappedPlans = await stripeMapper.mapCMSToStripePlans(
+        [stripePlan],
+        'en'
       );
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe(
-        'Plan product not expanded'
-      );
+      expect(mappedPlans[0]).toEqual(stripePlan);
     });
 
-    it('should return stripe metadata with error due to missing cms data', async () => {
+    it('returns plan unchanged when no CMS config is found', async () => {
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
         undefined
       );
-      const validMetadata = StripeMetadataWithCMSFactory({
-        webIconURL: 'https://example.com/webIconURL',
-      });
       const stripePlan = StripePlanFactory() as Stripe.Plan;
       stripePlan.product = StripeProductFactory({
-        metadata: validMetadata,
+        metadata: { foo: 'bar' },
       });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
-      const actualProduct = mappedPlans[0].product as Stripe.Product;
-      expect(actualProduct.metadata?.['webIconURL']).toBe(
-        validMetadata.webIconURL
+      const mappedPlans = await stripeMapper.mapCMSToStripePlans(
+        [stripePlan],
+        'en'
       );
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe('No CMS config');
+      expect(mappedPlans[0]).toEqual(stripePlan);
     });
 
-    it('should return stripe metadata with error due to invalid fields in product.metadata', async () => {
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
-        PurchaseWithDetailsOfferingContentTransformedFactory()
-      );
-      const validMetadata = StripeMetadataWithCMSFactory({
-        webIconURL: 'https://example.com/webIconURL',
-      });
-      const stripePlan = StripePlanFactory() as Stripe.Plan;
-      stripePlan.product = StripeProductFactory({
-        metadata: validMetadata,
-      });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
-      const actualProduct = mappedPlans[0].product as Stripe.Product;
-      expect(actualProduct.metadata?.['webIconURL']).toBe(
-        validMetadata.webIconURL
-      );
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe('webIconURL');
-    });
-
-    it('should return stripe metadata with error due to invalid fields in plan.metadata', async () => {
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
-        PurchaseWithDetailsOfferingContentTransformedFactory()
-      );
-      const validMetadata = StripeMetadataWithCMSFactory({
-        webIconURL: 'https://example.com/webIconURL',
-      });
-      const planOverrideMetadata = StripeMetadataWithCMSFactory({
-        webIconURL: 'https://plan.override/emailIcon',
-      });
-      const stripePlan = StripePlanFactory({
-        metadata: planOverrideMetadata,
-      }) as Stripe.Plan;
-      stripePlan.product = StripeProductFactory({
-        metadata: validMetadata,
-      });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
-      const actualProduct = mappedPlans[0].product as Stripe.Product;
-      expect(actualProduct.metadata?.['webIconURL']).toBe(
-        planOverrideMetadata.webIconURL
-      );
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe('webIconURL');
-    });
-
-    it('should return data from cms default locale if no localization data is available', async () => {
+    it('overlays CMS values from default locale when no localizations are available', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
       expected.purchaseDetails.localizations = [];
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
@@ -187,8 +130,10 @@ describe('StripeMapperService', () => {
       stripePlan.product = StripeProductFactory({
         metadata: productMetadata,
       });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
+      const mappedPlans = await stripeMapper.mapCMSToStripePlans(
+        [stripePlan],
+        'en'
+      );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         expected.purchaseDetails.webIcon
@@ -202,10 +147,9 @@ describe('StripeMapperService', () => {
       expect(actualProduct.metadata?.['productOrder']).toBe(
         productMetadata.productOrder
       );
-      expect(nonMatchingPlans).toHaveLength(0);
     });
 
-    it('should return data from cms for locale when available', async () => {
+    it('overlays CMS values from localizations when available', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
         expected
@@ -218,8 +162,10 @@ describe('StripeMapperService', () => {
       stripePlan.product = StripeProductFactory({
         metadata: productMetadata,
       });
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
+      const mappedPlans = await stripeMapper.mapCMSToStripePlans(
+        [stripePlan],
+        'en'
+      );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         expected.purchaseDetails.localizations[0].webIcon
@@ -233,10 +179,9 @@ describe('StripeMapperService', () => {
       expect(actualProduct.metadata?.['productOrder']).toBe(
         productMetadata.productOrder
       );
-      expect(nonMatchingPlans).toHaveLength(0);
     });
 
-    it('should return data from CMS and not error on locale plan', async () => {
+    it('preserves plan metadata when overlaying multiple plans for the same product', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
         purchaseDetails: {
           localizations: [],
@@ -256,105 +201,27 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const stripePlan1 = StripePlanFactory({
-        metadata: StripeMetadataWithCMSFactory({
-          'product:details:1': 'Detail 1 in English',
-        }),
+        metadata: { 'product:details:1': 'Detail 1 in English' },
       }) as Stripe.Plan;
       stripePlan1.product = product;
       const stripePlan2 = StripePlanFactory({
-        metadata: StripeMetadataWithCMSFactory({
+        metadata: {
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
-        }),
-      }) as Stripe.Plan;
-      stripePlan2.product = product;
-
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans(
-          [stripePlan1, stripePlan2],
-          'en',
-          false
-        );
-
-      expect(nonMatchingPlans).toHaveLength(0);
-      const actualProduct1 = mappedPlans[0].product as Stripe.Product;
-      const actualProduct2 = mappedPlans[1].product as Stripe.Product;
-      expect(mappedPlans[0].metadata?.['product:details:1']).toBe(
-        expected.purchaseDetails.details[0]
-      );
-      expect(actualProduct1.metadata?.['product:details:1']).toBe(
-        expected.purchaseDetails.details[0]
-      );
-      expect(mappedPlans[1].metadata?.['product:details:1']).toBe(
-        'Detail 1 in French'
-      );
-      expect(actualProduct2.metadata?.['product:details:1']).toBe(
-        'Detail 1 in French'
-      );
-    });
-
-    it('should return data from Stripe and concat errors for product', async () => {
-      const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
-        purchaseDetails: {
-          localizations: [],
-          ...PurchaseDetailsTransformedFactory({
-            details: ['Detail 1 in English'],
-          }),
         },
-      });
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValue(
-        expected
-      );
-      const productMetadata = {
-        productSet: 'set',
-        productOrder: 'order',
-      };
-      const product = StripeProductFactory({
-        metadata: productMetadata,
-      });
-      const stripePlan1 = StripePlanFactory({
-        metadata: StripeMetadataWithCMSFactory({
-          'product:details:1': 'Detail 1 in German',
-        }),
-      }) as Stripe.Plan;
-      stripePlan1.product = product;
-      const stripePlan2 = StripePlanFactory({
-        metadata: StripeMetadataWithCMSFactory({
-          'product:details:1': 'Detail 1 in French',
-          'product:details:2': 'Detail 2 in French',
-        }),
       }) as Stripe.Plan;
       stripePlan2.product = product;
 
-      const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapCMSToStripePlans(
-          [stripePlan1, stripePlan2],
-          'en',
-          false
-        );
+      const mappedPlans = await stripeMapper.mapCMSToStripePlans(
+        [stripePlan1, stripePlan2],
+        'en'
+      );
 
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe(
-        'product:details:1, product:details:2'
-      );
-      const actualProduct1 = mappedPlans[0].product as Stripe.Product;
-      const actualProduct2 = mappedPlans[1].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['product:details:1']).toBe(
-        'Detail 1 in German'
-      );
-      expect(actualProduct1.metadata?.['product:details:1']).toBe(
-        'Detail 1 in German'
+        expected.purchaseDetails.details[0]
       );
       expect(mappedPlans[1].metadata?.['product:details:1']).toBe(
-        'Detail 1 in French'
-      );
-      expect(actualProduct2.metadata?.['product:details:1']).toBe(
-        'Detail 1 in French'
-      );
-      expect(mappedPlans[1].metadata?.['product:details:2']).toBe(
-        'Detail 2 in French'
-      );
-      expect(actualProduct2.metadata?.['product:details:2']).toBe(
-        'Detail 2 in French'
+        expected.purchaseDetails.details[0]
       );
     });
   });

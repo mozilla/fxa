@@ -138,7 +138,27 @@ describe('#integration - remote subscriptions (enabled)', () => {
 
   const mockPlaySubscriptions: Record<string, any> = {};
   const mockAppStoreSubscriptions: Record<string, any> = {};
-  const mockCapabilityManager: Record<string, any> = { getClients: () => {} };
+  const mockCapabilityManager: Record<string, any> = {
+    getClients: async () => [
+      {
+        clientId: CLIENT_ID,
+        capabilities: ['123donePro', 'FooBar', 'ILikePie', 'MechaMozilla'],
+      },
+    ],
+    priceIdsToClientCapabilities: async (priceIds: string[]) => {
+      const result: Record<string, string[]> = {};
+      if (priceIds.includes(PLAN_ID)) {
+        result[CLIENT_ID] = ['123donePro', 'ILikePie'];
+      }
+      if (priceIds.includes('plan_1b')) {
+        const existing = result[CLIENT_ID] || [];
+        result[CLIENT_ID] = [
+          ...new Set([...existing, 'MechaMozilla', 'FooBar']),
+        ];
+      }
+      return result;
+    },
+  };
   const mockProfileClient: Record<string, any> = {};
 
   beforeAll(async () => {
@@ -152,7 +172,7 @@ describe('#integration - remote subscriptions (enabled)', () => {
     config.subscriptions.stripeApiKey = 'sk_test_fake';
     config.subscriptions.paypalNvpSigCredentials = { enabled: false };
     config.subscriptions.productConfigsFirestore = { enabled: true };
-    config.cms = { ...config.cms, enabled: false };
+    config.cms = { ...config.cms, enabled: true };
     config.customsUrl = 'none';
     config.rateLimit = {
       ...config.rateLimit,

@@ -750,55 +750,7 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      it('throws a sentry error if the update event data is invalid', async () => {
-        const updatedEvent = deepCopy(eventProductUpdated);
-        updatedEvent.data.object.id = 'anotherone';
-        updatedEvent.data.object.metadata['product:termsOfServiceDownloadURL'] =
-          'https://FAIL.cdn.mozilla.net/legal/mozilla_vpn_tos';
-        const invalidPlan = {
-          ...validPlan.data.object,
-          metadata: {},
-          product: updatedEvent.data.object,
-        };
-        const allPlans = [...validPlanList, invalidPlan];
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
-          allPlans
-        );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
-          [invalidPlan]
-        );
-        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
-          {},
-          updatedEvent
-        );
-
-        expect(scopeContextSpy).toHaveBeenCalledTimes(1);
-        expect(captureMessageSpy).toHaveBeenCalledTimes(1);
-
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId
-        ).toHaveBeenCalledWith(updatedEvent.data.object.id);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
-        ).toHaveBeenCalledWith([updatedEvent.data.object]);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledWith(validPlanList);
-      });
-
-      it('does not throw a sentry error if the update event data is valid', async () => {
+      it('updates the cached products and plans for cached plans matching the product', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
         StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           validPlanList
@@ -812,6 +764,15 @@ describe('StripeWebhookHandler', () => {
         );
 
         expect(scopeContextSpy).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledWith([updatedEvent.data.object]);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
       });
 
       it('updates the cached products and remove the plans on a product.deleted', async () => {
@@ -843,34 +804,7 @@ describe('StripeWebhookHandler', () => {
         ).toHaveBeenCalledWith([]);
       });
 
-      it('update all plans when Firestore product config feature flag is set to true', async () => {
-        config.subscriptions.productConfigsFirestore.enabled = true;
-        const updatedEvent = deepCopy(eventProductUpdated);
-        const invalidPlan = {
-          ...validPlan.data.object,
-          metadata: {},
-          product: updatedEvent.data.object,
-        };
-        const allPlans = [...validPlanList, invalidPlan];
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
-          allPlans
-        );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
-          allPlans
-        );
-        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
-          {},
-          updatedEvent
-        );
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledWith(allPlans);
-      });
-
-      it('updates the cached plans to include any valid plans missing from the cache', async () => {
+      it('updates the cached plans to include any plans missing from the cache', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
         StripeWebhookHandlerInstance.stripeHelper.updateAllPlans.mockResolvedValue(
           undefined
@@ -926,40 +860,7 @@ describe('StripeWebhookHandler', () => {
         ]);
       });
 
-      it('throws a sentry error if the update event data is invalid', async () => {
-        const updatedEvent = deepCopy(eventPlanUpdated);
-        updatedEvent.data.object.metadata = {
-          'product:termsOfServiceDownloadURL':
-            'https://FAIL.net/legal/mozilla_vpn_tos',
-        };
-        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockResolvedValue(
-          {
-            ...validProduct.data.object,
-          }
-        );
-
-        await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
-          {},
-          updatedEvent
-        );
-
-        expect(scopeContextSpy).toHaveBeenCalled();
-        expect(captureMessageSpy).toHaveBeenCalled();
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
-        ).toHaveBeenCalledWith(validProduct.data.object.id);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
-        ).toHaveBeenCalledWith([]);
-      });
-
-      it('does not throw a sentry error if the update event data is valid', async () => {
+      it('updates the cached plans when the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventPlanUpdated);
         StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockResolvedValue(
           validProduct.data.object
