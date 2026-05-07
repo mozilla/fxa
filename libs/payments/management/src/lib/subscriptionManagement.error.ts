@@ -75,13 +75,6 @@ export class SetDefaultPaymentAccountCustomerMissingStripeId extends Subscriptio
   }
 }
 
-export class CreateBillingAgreementActiveBillingAgreement extends SubscriptionManagementError {
-  constructor(uid: string) {
-    super('Account already has an active paypal billing agreement', { uid });
-    this.name = 'CreateBillingAgreementActiveBillingAgreement';
-  }
-}
-
 export class CreateBillingAgreementAccountCustomerMissingStripeId extends SubscriptionManagementError {
   constructor(uid: string) {
     super(

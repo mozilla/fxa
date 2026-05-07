@@ -112,7 +112,6 @@ import {
   SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   CreateBillingAgreementAccountCustomerMissingStripeId,
-  CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
 } from './subscriptionManagement.error';
@@ -2574,7 +2573,7 @@ describe('SubscriptionManagementService', () => {
       );
       expect(privateCustomerChanged).toHaveBeenCalled();
     });
-    it('throws an error if the user has an active paypal billing agreement', async () => {
+    it('returns if the user has an active paypal billing agreement', async () => {
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
         .mockResolvedValue(faker.string.uuid());
@@ -2584,7 +2583,7 @@ describe('SubscriptionManagementService', () => {
           faker.string.uuid(),
           faker.string.uuid()
         )
-      ).rejects.toBeInstanceOf(CreateBillingAgreementActiveBillingAgreement);
+      ).resolves.toBeUndefined();
       expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
     it('throws an error if the account customer has no stripe id', async () => {

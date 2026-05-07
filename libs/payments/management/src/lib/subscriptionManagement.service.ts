@@ -56,7 +56,6 @@ import {
   CancelSubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
   CreateBillingAgreementAccountCustomerMissingStripeId,
-  CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
 } from './subscriptionManagement.error';
@@ -1266,7 +1265,11 @@ export class SubscriptionManagementService {
     let recentActivePaypalCustomer: ResultPaypalCustomer | undefined;
     try {
       if (await this.paypalBillingAgreementManager.retrieveActiveId(uid)) {
-        throw new CreateBillingAgreementActiveBillingAgreement(uid);
+        this.log.warn(
+          'createPaypalBillingAgreementId: active billing agreement already exists',
+          { uid }
+        );
+        return;
       }
 
       accountCustomer =
