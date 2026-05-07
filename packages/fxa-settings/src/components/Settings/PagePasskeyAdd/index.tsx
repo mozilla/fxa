@@ -15,7 +15,10 @@ import {
   useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
-import { createCredential } from '../../../lib/passkeys/webauthn';
+import {
+  createCredential,
+  isWebAuthnLevel3Supported,
+} from '../../../lib/passkeys/webauthn';
 import {
   handleWebAuthnError,
   WebAuthnErrorType,
@@ -29,8 +32,28 @@ import {
   HandledError,
 } from '../../../lib/error-utils';
 import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
+import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
 
 export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
+  const alertBar = useAlertBar();
+  const navigateWithQuery = useNavigateWithQuery();
+  // Pre-check before MfaGuard mounts so an unsupported browser never triggers
+  // an MFA prompt. Detection is best-effort; PagePasskeyAdd's catch block still
+  // surfaces NotSupportedError defensively if the ceremony itself rejects.
+  const supported = isWebAuthnLevel3Supported();
+  // prevent multiple redirects before unmount
+  const hasRedirectedRef = useRef(false);
+
+  useEffect(() => {
+    if (!supported && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      alertBar.error(unsupportedPasskeyMessage());
+      navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
+    }
+  }, [supported, alertBar, navigateWithQuery]);
+
+  if (!supported) return null;
+
   return (
     <MfaGuard requiredScope="passkey" reason={MfaReason.createPasskey}>
       <PagePasskeyAdd />
@@ -162,6 +185,14 @@ export const PagePasskeyAdd = () => {
               reason: reasonMap[categorized.errorType] || 'webauthn_unknown',
             },
           });
+          if (categorized.errorType === WebAuthnErrorType.NotSupported) {
+            // Defensive: MfaGuardPagePasskeyAdd should have caught this before
+            // MFA, so we only reach here if detection raced. Push the alert and
+            // leave the user on the page — they can use Cancel to navigate
+            // away themselves.
+            alertBar.error(unsupportedPasskeyMessage());
+            return;
+          }
           alertBar.error(
             ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
           );

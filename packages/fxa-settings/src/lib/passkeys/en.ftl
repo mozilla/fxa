@@ -17,8 +17,10 @@ passkey-registration-error-timeout = Passkey setup was canceled. Try again.
 # User clicked the in-page Cancel link while the ceremony was still pending
 passkey-registration-canceled = Passkey setup was canceled. Try again.
 
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Passkeys aren’t supported here. Try another method or device.
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Learn more
 
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Passkeys can’t be set up on this page. Use the secure site and try again.
@@ -47,7 +49,7 @@ passkey-authentication-error-not-allowed-existing = Passkey setup isn’t availa
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
 
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Passkeys aren’t supported. Try another method or device.
+passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.
