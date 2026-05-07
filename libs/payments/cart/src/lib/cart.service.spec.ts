@@ -136,8 +136,8 @@ import {
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics'; // Circular!
+} from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   MockNimbusManagerConfigProvider,
   NimbusManager,
@@ -238,7 +238,7 @@ describe('CartService', () => {
         PaymentIntentManager,
         PaymentMethodManager,
         PaymentsGleanManager,
-        PaymentsGleanService,
+        PaymentsMetricsAggregatorService,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalCustomerManager,

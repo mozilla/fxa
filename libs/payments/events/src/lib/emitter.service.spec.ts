@@ -42,8 +42,8 @@ import {
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
-  PaymentsGleanService,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
 import {
@@ -101,7 +101,7 @@ describe('PaymentsEmitterService', () => {
   let statsd: StatsD;
   let logger: Logger;
   let subscriptionManager: SubscriptionManager;
-  let paymentsGleanService: PaymentsGleanService;
+  let paymentsGleanService: PaymentsMetricsAggregatorService;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
   const mockCommonMetricsData = CommonMetricsFactory({
@@ -139,7 +139,7 @@ describe('PaymentsEmitterService', () => {
         StripeClient,
         PriceManager,
         PaymentsGleanManager,
-        PaymentsGleanService,
+        PaymentsMetricsAggregatorService,
         ProductConfigurationManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -166,7 +166,7 @@ describe('PaymentsEmitterService', () => {
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
     subscriptionManager = moduleRef.get(SubscriptionManager);
-    paymentsGleanService = moduleRef.get(PaymentsGleanService);
+    paymentsGleanService = moduleRef.get(PaymentsMetricsAggregatorService);
   });
 
   it('should be defined', () => {

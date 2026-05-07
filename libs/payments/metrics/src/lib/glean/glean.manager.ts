@@ -7,6 +7,7 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  PaymentProvidersType,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
   TrialConversionData,
@@ -15,12 +16,9 @@ import {
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
+  type SubPlatPaymentMethodType,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  PaymentProvidersType,
-  type SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
 import { mapSession } from './utils/mapSession';
 import { mapUtm } from './utils/mapUtm';

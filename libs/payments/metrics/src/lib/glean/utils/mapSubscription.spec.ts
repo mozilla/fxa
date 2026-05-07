@@ -9,7 +9,7 @@ import {
   CheckoutParamsFactory,
 } from '../glean.factory';
 import { mapSubscription } from './mapSubscription';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import { SubPlatPaymentMethodType } from '../glean.types';
 
 describe('mapSubscription', () => {
   it('should map all values', () => {

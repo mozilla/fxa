@@ -51,14 +51,12 @@ import {
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
-import {
-  PaymentsGleanManager,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics';
+import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { NimbusManager, NimbusManagerConfig } from '@fxa/payments/experiments';
 import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 
 @Module({
   imports: [
@@ -97,7 +95,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     SubscriptionEventsService,
     PaymentsGleanFactory,
     PaymentsGleanManager,
-    PaymentsGleanService,
+    PaymentsMetricsAggregatorService,
     PaymentsEmitterService,
     PriceManager,
     ProductManager,

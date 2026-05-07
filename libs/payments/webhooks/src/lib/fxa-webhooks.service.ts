@@ -15,7 +15,7 @@ import {
   StaleWhileRevalidateWithFallbackStrategy,
 } from '@fxa/shared/db/type-cacheable';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { PaymentsGleanService } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
@@ -67,7 +67,7 @@ export class FxaWebhookService {
     private fxaWebhookConfig: FxaWebhookConfig,
     @Inject(StatsDService) private statsd: StatsD,
     @Inject(Logger) private log: LoggerService,
-    private paymentsGleanService: PaymentsGleanService,
+    private paymentsGleanService: PaymentsMetricsAggregatorService,
     private accountCustomerManager: AccountCustomerManager,
     private customerManager: CustomerManager
   ) {

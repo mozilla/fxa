@@ -136,8 +136,8 @@ import {
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
-  PaymentsGleanService,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   MockNimbusManagerConfigProvider,
   NimbusManager,
@@ -172,7 +172,7 @@ describe('CheckoutService', () => {
   let statsd: StatsD;
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
-  let gleanService: PaymentsGleanService;
+  let gleanService: PaymentsMetricsAggregatorService;
   let freeTrialManager: FreeTrialManager;
   let nimbusManager: NimbusManager;
 
@@ -230,7 +230,7 @@ describe('CheckoutService', () => {
         PaymentIntentManager,
         PaymentMethodManager,
         PaymentsGleanManager,
-        PaymentsGleanService,
+        PaymentsMetricsAggregatorService,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalClientConfig,
@@ -277,7 +277,7 @@ describe('CheckoutService', () => {
     statsd = moduleRef.get(StatsDService);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
-    gleanService = moduleRef.get(PaymentsGleanService);
+    gleanService = moduleRef.get(PaymentsMetricsAggregatorService);
     freeTrialManager = moduleRef.get(FreeTrialManager);
     nimbusManager = moduleRef.get(NimbusManager);
   });

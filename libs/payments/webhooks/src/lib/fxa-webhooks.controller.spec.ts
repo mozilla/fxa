@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { MockPaymentsGleanServiceFactory } from '@fxa/payments/metrics';
+import { MockPaymentsMetricsAggregatorServiceFactory } from '@fxa/payments/metrics-aggregator';
 import {
   AccountCustomerManager,
   MockStripeConfigProvider,
@@ -29,7 +29,7 @@ describe('FxaWebhooksController', () => {
         MockFxaWebhookConfigProvider,
         MockStatsDProvider,
         MockLoggerProvider,
-        MockPaymentsGleanServiceFactory,
+        MockPaymentsMetricsAggregatorServiceFactory,
         AccountCustomerManager,
         MockAccountDatabaseNestFactory,
         CustomerManager,

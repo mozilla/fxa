@@ -5,9 +5,10 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  type PaymentProvidersType,
+  type SubPlatPaymentMethodType,
   type SubscriptionCancellationData,
 } from '../glean.types';
-import { PaymentProvidersType, SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { determineCheckoutType } from './determineCheckoutType';
 import { mapParams } from './mapParams';
 import { normalizeGleanFalsyValues } from './normalizeGleanFalsyValues';

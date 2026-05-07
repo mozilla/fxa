@@ -42,10 +42,8 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
 } from '@fxa/payments/customer';
-import {
-  PaymentsGleanManager,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics';
+import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import {
@@ -156,7 +154,7 @@ import { NimbusManager } from '@fxa/payments/experiments';
     SubscriptionManager,
     PaymentsGleanFactory,
     PaymentsGleanManager,
-    PaymentsGleanService,
+    PaymentsMetricsAggregatorService,
     PaymentsEmitterService,
     StripeEventManager,
     SubscriptionEventsService,
