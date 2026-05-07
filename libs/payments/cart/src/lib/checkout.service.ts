@@ -92,10 +92,8 @@ import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
-import {
-  type CommonMetrics,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics';
+import { type CommonMetrics } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
 import { FreeTrialManager } from './free-trial.manager';
 import type { PaymentsSearchParams } from './searchParams.schema';
@@ -127,7 +125,7 @@ export class CheckoutService {
     private paymentMethodManager: PaymentMethodManager,
     private freeTrialManager: FreeTrialManager,
     private nimbusManager: NimbusManager,
-    private gleanService: PaymentsGleanService,
+    private gleanService: PaymentsMetricsAggregatorService,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 

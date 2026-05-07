@@ -29,8 +29,8 @@ import {
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
-  PaymentsGleanService,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
@@ -89,7 +89,7 @@ describe('StripeWebhooksController', () => {
         PayPalClient,
         CurrencyManager,
         MockCurrencyConfigProvider,
-        PaymentsGleanService,
+        PaymentsMetricsAggregatorService,
         PaymentsGleanManager,
         MockPaymentsGleanConfigProvider,
         MockPaymentsGleanFactory,

@@ -13,27 +13,27 @@ import {
   PageContentByPriceIdsResultUtil,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
-import type {
-  AccountsMetricsData,
-  CommonMetrics,
-  ExperimentationData,
-  GenericGleanSubManageEvent,
-  GleanMetricsData,
-  SessionMetricsData,
-  StripeMetricsData,
-  SubPlatCmsMetricsData,
-} from './glean.types';
+import {
+  PaymentsGleanManager,
+  type AccountsMetricsData,
+  type CommonMetrics,
+  type ExperimentationData,
+  type GenericGleanSubManageEvent,
+  type GleanMetricsData,
+  type SessionMetricsData,
+  type StripeMetricsData,
+  type SubPlatCmsMetricsData,
+} from '@fxa/payments/metrics';
 import type {
   StripeCustomer,
   StripePrice,
   StripeSubscription,
 } from '@fxa/payments/stripe';
 import { getPriceFromSubscription } from '@fxa/payments/customer';
-import { PaymentsGleanManager } from './glean.manager';
 import { Logger, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class PaymentsGleanService {
+export class PaymentsMetricsAggregatorService {
   constructor(
     private accountManager: AccountManager,
     private customerManager: CustomerManager,

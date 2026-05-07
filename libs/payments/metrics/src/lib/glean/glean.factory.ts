@@ -26,8 +26,9 @@ import {
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
+  TaxAddress,
+  SubplatInterval,
 } from './glean.types';
-import { SubplatInterval, TaxAddressFactory } from '@fxa/payments/customer';
 
 export const CheckoutParamsFactory = (
   override?: Record<string, string>
@@ -119,6 +120,14 @@ export const SubManageMetricsArgsFactory = (
   uid: faker.string.uuid(),
   commonMetrics: CommonMetricsFactory(),
   subscriptionId: `sub_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
+export const TaxAddressFactory = (
+  override?: Partial<TaxAddress>
+): TaxAddress => ({
+  countryCode: faker.location.countryCode(),
+  postalCode: faker.location.zipCode(),
   ...override,
 });
 

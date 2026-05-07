@@ -8,8 +8,8 @@ import { CartManager, TaxChangeAllowedStatus } from '@fxa/payments/cart';
 import {
   PaymentsGleanManager,
   type GenericGleanSubManageEvent,
-  PaymentsGleanService,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
   CheckoutEvents,
@@ -46,7 +46,7 @@ export class PaymentsEmitterService {
     private log: Logger,
     private nimbusManager: NimbusManager,
     private paymentsGleanManager: PaymentsGleanManager,
-    private paymentsGleanService: PaymentsGleanService,
+    private paymentsGleanService: PaymentsMetricsAggregatorService,
     private paymentMethodManager: PaymentMethodManager,
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD,

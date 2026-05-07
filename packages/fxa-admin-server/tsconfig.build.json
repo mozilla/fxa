@@ -16,6 +16,9 @@
       "@fxa/payments/experiments": ["libs/payments/experiments/src/index"],
       "@fxa/payments/iap": ["libs/payments/iap/src/index"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index"],
+      "@fxa/payments/metrics-aggregator": [
+        "libs/payments/metrics-aggregator/src/index"
+      ],
       "@fxa/shared/account/account": ["libs/shared/account/account/src/index"],
       "@fxa/profile/client": ["libs/profile/client/src/index"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],

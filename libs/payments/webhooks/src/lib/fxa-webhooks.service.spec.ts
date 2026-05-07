@@ -15,9 +15,9 @@ import { MockLoggerProvider } from '@fxa/shared/log';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import type { StatsD } from 'hot-shots';
 import {
-  MockPaymentsGleanServiceFactory,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics';
+  MockPaymentsMetricsAggregatorServiceFactory,
+  PaymentsMetricsAggregatorService,
+} from '@fxa/payments/metrics-aggregator';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
@@ -149,7 +149,7 @@ describe('FxaWebhookService', () => {
   let service: FxaWebhookService;
   let statsd: StatsD;
   let logger: LoggerService;
-  let paymentsGleanService: PaymentsGleanService;
+  let paymentsGleanService: PaymentsMetricsAggregatorService;
   let accountCustomerManager: AccountCustomerManager;
   let customerManager: CustomerManager;
   let originalFetch: typeof global.fetch;
@@ -164,7 +164,7 @@ describe('FxaWebhookService', () => {
         MockFxaWebhookConfigProvider,
         MockStatsDProvider,
         MockLoggerProvider,
-        MockPaymentsGleanServiceFactory,
+        MockPaymentsMetricsAggregatorServiceFactory,
         AccountCustomerManager,
         MockAccountDatabaseNestFactory,
         CustomerManager,
@@ -176,7 +176,7 @@ describe('FxaWebhookService', () => {
     service = module.get(FxaWebhookService);
     statsd = module.get(StatsDService);
     logger = module.get<LoggerService>(Logger);
-    paymentsGleanService = module.get(PaymentsGleanService);
+    paymentsGleanService = module.get(PaymentsMetricsAggregatorService);
     accountCustomerManager = module.get(AccountCustomerManager);
     customerManager = module.get(CustomerManager);
 

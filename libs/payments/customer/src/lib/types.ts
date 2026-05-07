@@ -37,6 +37,7 @@ export enum PaymentProvider {
   Stripe = 'stripe',
 }
 
+// Duplicated as enum SubPlatPaymentMethodType in @fxa/payments/metrics — keep in sync.
 export enum SubPlatPaymentMethodType {
   PayPal = 'external_paypal',
   Stripe = 'stripe',
@@ -77,6 +78,7 @@ export interface AccountCreditBalance {
   currency: string | null;
 }
 
+// Duplicated as type PaymentProvidersType in @fxa/payments/metrics — keep in sync.
 export type PaymentProvidersType =
   | 'stripe'
   | 'google_iap'
@@ -203,6 +205,7 @@ export type StripeInvoiceMetadata = StripeMetadata<STRIPE_INVOICE_METADATA>;
 export type StripeInvoiceMetadataInput =
   StripeMetadataInput<STRIPE_INVOICE_METADATA>;
 
+// Duplicated as enum SubplatInterval in @fxa/payments/metrics — keep in sync.
 export enum SubplatInterval {
   Daily = 'daily',
   Weekly = 'weekly',
@@ -211,6 +214,7 @@ export enum SubplatInterval {
   Yearly = 'yearly',
 }
 
+// Duplicated as interface TaxAddress in @fxa/payments/metrics — keep in sync.
 export interface TaxAddress {
   countryCode: string;
   postalCode: string;

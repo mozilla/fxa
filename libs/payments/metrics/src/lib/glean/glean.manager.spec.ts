@@ -11,13 +11,15 @@ import {
   SubscriptionCancellationDataFactory,
   TrialConversionDataFactory,
 } from './glean.factory';
-import { PaymentsGleanProvider } from './glean.types';
+import {
+  PaymentsGleanProvider,
+  SubPlatPaymentMethodType,
+} from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
 import {
   MockPaymentsGleanConfigProvider,
   PaymentsGleanConfig,
 } from './glean.config';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 const mockCommonMetricsData = {
   commonMetricsData: CommonMetricsFactory(),
