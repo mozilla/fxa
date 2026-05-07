@@ -1506,29 +1506,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.cancelSubscription = function (
-    refreshToken,
-    subscriptionId
-  ) {
-    return this.doRequestWithBearerToken(
-      'DELETE',
-      `${this.baseURL}/oauth/subscriptions/active/${subscriptionId}`,
-      refreshToken
-    );
-  };
-
-  ClientApi.prototype.reactivateSubscription = function (
-    refreshToken,
-    subscriptionId
-  ) {
-    return this.doRequestWithBearerToken(
-      'POST',
-      `${this.baseURL}/oauth/subscriptions/reactivate`,
-      refreshToken,
-      { subscriptionId }
-    );
-  };
-
   ClientApi.prototype.stubAccount = function (email, clientId) {
     return this.doRequest('POST', `${this.baseURL}/account/stub`, null, {
       email,

@@ -9,7 +9,6 @@ import { Container } from 'typedi';
 
 import {
   BAUpdateOptions,
-  CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
   nvpToObject,
@@ -17,7 +16,6 @@ import {
   PayPalClientError,
   RefundTransactionOptions,
   RefundType,
-  SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
 } from '@fxa/payments/paypal';
@@ -214,52 +212,6 @@ export class PayPalHelper {
     paymentAttempt: number
   ): string {
     return `${invoiceId}-${paymentAttempt}`;
-  }
-
-  /**
-   * Parse the invoice Id and payment attempt out of the idempotency key
-   *
-   * Returns the paymentAttempt with 1 added to reflect the actual payment
-   * attempts made as the original attempt number is incremented *after* the
-   * attempt is made successfully.
-   *
-   * @param idempotencyKey
-   */
-  public parseIdempotencyKey(idempotencyKey: string): {
-    invoiceId: string;
-    paymentAttempt: number;
-  } {
-    const parsedValue = idempotencyKey.split('-');
-    return {
-      invoiceId: parsedValue[0],
-      paymentAttempt: parseInt(parsedValue[1]) + 1,
-    };
-  }
-
-  /**
-   * Get a token authorizing transaction to move to the next stage.
-   *
-   * If the call to PayPal fails, a PayPalClientError will be thrown.
-   *
-   */
-  public async getCheckoutToken(
-    options: SetExpressCheckoutOptions
-  ): Promise<string> {
-    const response = await this.client.setExpressCheckout(options);
-    return response.TOKEN;
-  }
-
-  /**
-   * Create billing agreement using the ExpressCheckout token.
-   *
-   * If the call to PayPal fails, a PayPalClientError will be thrown.
-   *
-   */
-  public async createBillingAgreement(
-    options: CreateBillingAgreementOptions
-  ): Promise<string> {
-    const response = await this.client.createBillingAgreement(options);
-    return response.BILLINGAGREEMENTID;
   }
 
   /**

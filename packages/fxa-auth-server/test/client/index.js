@@ -1221,20 +1221,6 @@ module.exports = (config) => {
     return this.api.updatePayment(refreshToken, paymentToken);
   };
 
-  Client.prototype.cancelSubscription = function (
-    refreshToken,
-    subscriptionId
-  ) {
-    return this.api.cancelSubscription(refreshToken, subscriptionId);
-  };
-
-  Client.prototype.reactivateSubscription = function (
-    refreshToken,
-    subscriptionId
-  ) {
-    return this.api.reactivateSubscription(refreshToken, subscriptionId);
-  };
-
   Client.prototype.upgradeCredentials = async function (newPassword, headers) {
     const resStart = await this.api.passwordChangeStart(
       this.email,
