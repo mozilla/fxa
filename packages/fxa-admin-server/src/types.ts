@@ -111,6 +111,12 @@ export interface Passkey {
   prfEnabled: boolean;
 }
 
+export interface AccountAuthorization {
+  scope: string;
+  service: string;
+  authorizedAt: number;
+}
+
 export interface LinkedAccount {
   uid?: string;
   authAt?: number;
@@ -209,6 +215,7 @@ export interface Account {
   backupCodes: BackupCodes[];
   recoveryPhone: RecoveryPhone[];
   passkeys: Passkey[];
+  accountAuthorizations: AccountAuthorization[];
 }
 
 export interface RelyingPartyUpdateDto {

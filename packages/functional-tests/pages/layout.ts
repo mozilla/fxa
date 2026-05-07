@@ -73,6 +73,30 @@ export abstract class BaseLayout {
     });
   }
 
+  /**
+   * Installs a page-side listener for the next `WebChannelMessageToChrome`
+   * event matching `command` and returns a promise that resolves with the
+   * event's `data` payload. Call BEFORE the action that triggers the message
+   * (e.g. before clicking a sign-in button) to avoid the polling/timeout race
+   * that `checkWebChannelMessage` is subject to on slow runners.
+   */
+  async waitForWebChannelMessage(
+    command: FirefoxCommand
+  ): Promise<Record<string, unknown>> {
+    return this.page.evaluate(
+      (expected) =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          window.addEventListener('WebChannelMessageToChrome', (e: Event) => {
+            const detail = JSON.parse((e as CustomEvent).detail);
+            if (detail.message.command === expected) {
+              resolve(detail.message.data || {});
+            }
+          });
+        }),
+      command
+    );
+  }
+
   async checkWebChannelMessage(command: FirefoxCommand) {
     // Retry across navigations — a client-side redirect after page.goto
     // can destroy the execution context mid-evaluate.

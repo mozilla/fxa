@@ -100,6 +100,7 @@ let accountResponse: AccountProps = {
   linkedAccounts: [],
   accountEvents: [],
   passkeys: [],
+  accountAuthorizations: [],
 };
 
 it('renders without imploding', () => {
@@ -317,6 +318,37 @@ it('displays the locale', async () => {
   const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('account-locale')).toHaveTextContent('en-US');
   expect(getByTestId('edit-account-locale')).toBeInTheDocument();
+});
+
+it('shows "no authorizations" message when authorizations list is empty', () => {
+  const { getByTestId } = render(<Account {...accountResponse} />);
+  expect(getByTestId('account-authorizations-none')).toBeInTheDocument();
+});
+
+it('displays authorized browser services', () => {
+  const withAuthorizations = {
+    ...accountResponse,
+    accountAuthorizations: [
+      {
+        service: 'sync',
+        scope: 'https://identity.mozilla.com/apps/oldsync',
+        authorizedAt: 1589467100316,
+      },
+      {
+        service: 'relay',
+        scope: 'https://identity.mozilla.com/apps/relay',
+        authorizedAt: 1589467200000,
+      },
+    ],
+  };
+  const { getAllByTestId, getByRole } = render(
+    <Account {...withAuthorizations} />
+  );
+
+  expect(
+    getByRole('heading', { name: /authorized browser services/i })
+  ).toBeInTheDocument();
+  expect(getAllByTestId('account-authorization-service')).toHaveLength(2);
 });
 
 it('displays key-stretch-version', async () => {

@@ -33,6 +33,8 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import { Knex, knex } from 'knex';
 import { AppConfig } from '../config';
+import { AccountAuthorization } from '../types';
+import { uuidTransformer } from './transformers';
 
 function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
@@ -135,6 +137,22 @@ export class DatabaseService implements OnModuleDestroy {
     const cachedSessionTokens =
       await this.connectedServicesDb.cache.getSessionTokens(uid);
     return mergeCachedSessionTokens(dbSessionTokens, cachedSessionTokens, true);
+  }
+
+  public async accountAuthorizations(
+    uid: string
+  ): Promise<AccountAuthorization[]> {
+    const uidBuffer = uuidTransformer.to(uid);
+    const rows = await this.knexOauth('accountAuthorizations')
+      .select('scope', 'service', 'authorizedAt')
+      .where('uid', uidBuffer)
+      .orderBy('authorizedAt', 'desc')
+      .limit(10);
+    return rows.map((row) => ({
+      scope: row.scope,
+      service: row.service,
+      authorizedAt: Number(row.authorizedAt),
+    }));
   }
 
   public async attachedDevices(uid: string) {

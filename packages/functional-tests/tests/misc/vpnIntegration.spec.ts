@@ -33,17 +33,21 @@ test.describe('vpn integration', () => {
     await expect(signin.cachedSigninHeading).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
 
+    // Install listeners before the click so the dispatched events can't be
+    // missed by a slow polling cycle.
+    const oauthLoginPromise = signin.waitForWebChannelMessage(
+      FirefoxCommand.OAuthLogin
+    );
+    const loginPromise = signin.waitForWebChannelMessage(FirefoxCommand.Login);
+
     await signin.signInButton.click();
 
-    // Verify fxaOAuthLogin was sent with VPN scopes
-    await signin.checkWebChannelMessageScopes(
-      FirefoxCommand.OAuthLogin,
-      'https://identity.mozilla.com/apps/vpn'
+    const oauthLogin = await oauthLoginPromise;
+    expect(oauthLogin.scopes).toEqual(
+      expect.stringContaining('https://identity.mozilla.com/apps/vpn')
     );
 
-    // Verify services data includes vpn
-    await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      vpn: {},
-    });
+    const login = await loginPromise;
+    expect(login.services).toEqual({ vpn: {} });
   });
 });

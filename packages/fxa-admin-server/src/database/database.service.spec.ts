@@ -18,6 +18,18 @@ describe('#integration - DatabaseService', () => {
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
+    // Ensure the table exists in the test DB. The shared oauth fixture set
+    // is built once and cached; adding a new fixture file there can be
+    // skipped by stale build caches, so create the table inline here.
+    await knex.raw(
+      'CREATE TABLE IF NOT EXISTS `accountAuthorizations` (' +
+        '`uid` BINARY(16) NOT NULL,' +
+        '`scope` VARCHAR(512) NOT NULL,' +
+        '`service` VARCHAR(64) NOT NULL,' +
+        '`authorizedAt` BIGINT UNSIGNED NOT NULL,' +
+        'PRIMARY KEY (`uid`, `scope`, `service`)' +
+        ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
   });
 
   afterAll(async () => {
@@ -88,5 +100,47 @@ describe('#integration - DatabaseService', () => {
 
   it('should be able to invoke attachedDevices', async () => {
     await service.attachedDevices('AB12');
+  });
+
+  it('returns rows ordered by authorizedAt descending', async () => {
+    const uid = 'aabbccddeeff00112233445566778899';
+    const uidBuffer = Buffer.from(uid, 'hex');
+    const now = Date.now();
+    await service.knexOauth('accountAuthorizations').insert([
+      {
+        uid: uidBuffer,
+        scope: 'https://identity.mozilla.com/apps/oldsync',
+        service: 'sync',
+        authorizedAt: now - 1000,
+      },
+      {
+        uid: uidBuffer,
+        scope: 'https://identity.mozilla.com/apps/relay',
+        service: 'relay',
+        authorizedAt: now,
+      },
+    ]);
+
+    const rows = await service.accountAuthorizations(uid);
+
+    expect(rows).toEqual([
+      {
+        scope: 'https://identity.mozilla.com/apps/relay',
+        service: 'relay',
+        authorizedAt: now,
+      },
+      {
+        scope: 'https://identity.mozilla.com/apps/oldsync',
+        service: 'sync',
+        authorizedAt: now - 1000,
+      },
+    ]);
+  });
+
+  it('returns an empty array when the uid has no authorizations', async () => {
+    const rows = await service.accountAuthorizations(
+      '00000000000000000000000000000001'
+    );
+    expect(rows).toEqual([]);
   });
 });
