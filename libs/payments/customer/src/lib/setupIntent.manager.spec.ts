@@ -63,6 +63,31 @@ describe('SetupIntentManager', () => {
     });
   });
 
+  describe('confirm', () => {
+    it('should confirm an existing setup intent', async () => {
+      const mockSetupIntentId = 'seti_12345';
+      const mockConfirmationToken = 'confirmToken';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+
+      jest
+        .spyOn(stripeClient, 'setupIntentConfirm')
+        .mockResolvedValue(mockResponse);
+
+      const result = await setupIntentManager.confirm(
+        mockSetupIntentId,
+        mockConfirmationToken
+      );
+
+      expect(stripeClient.setupIntentConfirm).toHaveBeenCalledWith(
+        mockSetupIntentId,
+        {
+          confirmation_token: mockConfirmationToken,
+        }
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('retrieve', () => {
     it('should retrieve a payment intent', async () => {
       const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
