@@ -52,14 +52,19 @@ export abstract class BaseTarget {
     readonly authServerUrl: string,
     emailUrl?: string
   ) {
+    // Default to v2 key stretching — that's the state new accounts are
+    // created in nowadays. Creating accounts as v1 here means the first
+    // sign-in triggers a v1→v2 upgrade (password/change/start + finish)
+    // that bumps account.verifierSetAt; subsequent OAuth /authorization
+    // calls reusing the cached session then 401 on assertion validation.
     const keyStretchVersion = parseInt(
-      process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
+      process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '2'
     );
     this.authClient = this.createAuthClient(keyStretchVersion);
     this.emailClient = new EmailClient(emailUrl);
   }
 
-  createAuthClient(keyStretchVersion = 1): AuthClient {
+  createAuthClient(keyStretchVersion = 2): AuthClient {
     if (![1, 2].includes(keyStretchVersion)) {
       throw new Error(
         `Invalid keyStretchVersion =${keyStretchVersion}. The` +
