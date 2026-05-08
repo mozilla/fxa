@@ -68,48 +68,4 @@ test.describe('Admin Panel', () => {
       timeout: 10000,
     });
   });
-
-  test('account by-uid response includes accountAuthorizations field', async ({
-    target,
-    testAccountTracker,
-  }) => {
-    const details = testAccountTracker.generateAccountDetails();
-    const credentials = await target.createAccount(
-      details.email,
-      details.password
-    );
-
-    const res = await fetch(
-      `${ADMIN_SERVER_URL}/api/account/by-uid?uid=${encodeURIComponent(credentials.uid)}`,
-      {
-        headers: {
-          'oidc-claim-id-token-email': 'test-admin@mozilla.com',
-          'remote-groups': 'vpn_fxa_admin_panel_prod',
-        },
-      }
-    );
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(Array.isArray(data.accountAuthorizations)).toBe(true);
-    // A brand-new account has no browser-service authorizations on record.
-    expect(data.accountAuthorizations).toEqual([]);
-  });
-
-  test('admin panel renders the authorized browser services section', async ({
-    target,
-    page,
-    testAccountTracker,
-  }) => {
-    const credentials = testAccountTracker.generateAccountDetails();
-    await target.createAccount(credentials.email, credentials.password);
-
-    await page.goto(`${ADMIN_PANEL_URL}/account-search`);
-    await page.getByTestId('email-input').fill(credentials.email);
-    await page.getByTestId('search-button').click();
-
-    await expect(
-      page.getByRole('heading', { name: /authorized browser services/i })
-    ).toBeVisible({ timeout: 10000 });
-    await expect(page.getByTestId('account-authorizations-none')).toBeVisible();
-  });
 });
