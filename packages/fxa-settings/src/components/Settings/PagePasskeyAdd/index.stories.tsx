@@ -2,17 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import { Meta } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
-import { PagePasskeyAdd } from '.';
-import { AppContext } from 'fxa-settings/src/models';
 import {
-  mockAppContext,
-  mockSettingsContext,
-} from 'fxa-settings/src/models/mocks';
-import { SettingsContext } from 'fxa-settings/src/models/contexts/SettingsContext';
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+} from '@reach/router';
+import { PagePasskeyAdd } from '.';
+import { AppContext } from '../../../models';
+import { AlertBarInfo } from '../../../models/AlertBarInfo';
+import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { MfaContext } from '../MfaGuard';
 import { getDefault } from '../../../lib/config';
 
@@ -26,11 +29,27 @@ const mockAccount = {
   getCachedJwtByScope: () => 'mock-jwt',
 } as any;
 
-// Auth client that never resolves — keeps the loading page visible.
 const hangingAuthClient = {
   beginPasskeyRegistration: () => new Promise(() => {}),
   completePasskeyRegistration: () => new Promise(() => {}),
 };
+
+// Mirrors AlertBarInfo calls into the Actions panel; the real banner shows
+// on the destination settings page, not here.
+class StoryAlertBarInfo extends AlertBarInfo {
+  success(message: string | ReactNode, gleanEvent?: () => void) {
+    action('alertBar.success')(message);
+    super.success(message, gleanEvent);
+  }
+  error(message: string | ReactNode, error?: Error) {
+    action('alertBar.error')(message);
+    super.error(message, error);
+  }
+  info(message: string | ReactNode) {
+    action('alertBar.info')(message);
+    super.info(message);
+  }
+}
 
 function initLocalAccount() {
   const NS = '__fxa_storage';
@@ -58,8 +77,23 @@ const configWithPasskeys = {
 
 export const CeremonyInProgress = () => {
   initLocalAccount();
+  // In-memory history so navigation doesn't change the storybook iframe's
+  // real URL (which would unmount the story). Memoized so toolbar-driven
+  // re-renders (theme, direction, etc.) don't accumulate listeners or
+  // recreate the history on every render.
+  const history = useMemo(
+    () => createHistory(createMemorySource('/settings/passkeys/add')),
+    []
+  );
+  useEffect(
+    () =>
+      history.listen(({ location }) =>
+        action('navigate')(`${location.pathname}${location.hash ?? ''}`)
+      ),
+    [history]
+  );
   return (
-    <LocationProvider>
+    <LocationProvider history={history}>
       <AppContext.Provider
         value={mockAppContext({
           account: mockAccount,
@@ -67,7 +101,9 @@ export const CeremonyInProgress = () => {
           config: configWithPasskeys,
         })}
       >
-        <SettingsContext.Provider value={mockSettingsContext()}>
+        <SettingsContext.Provider
+          value={mockSettingsContext({ alertBarInfo: new StoryAlertBarInfo() })}
+        >
           <MfaContext.Provider value="passkey">
             <PagePasskeyAdd />
           </MfaContext.Provider>

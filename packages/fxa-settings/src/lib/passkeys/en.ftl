@@ -14,6 +14,9 @@ passkey-registration-error-not-allowed-existing = Passkey setup isn’t availabl
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Passkey setup was canceled. Try again.
 
+# User clicked the in-page Cancel link while the ceremony was still pending
+passkey-registration-canceled = Passkey setup was canceled. Try again.
+
 # Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
 passkey-registration-error-not-supported = Passkeys aren’t supported here. Try another method or device.
 

@@ -226,14 +226,20 @@ const DEFAULT_TIMEOUT_MS = 60_000;
  * them via PublicKeyCredential.parseCreationOptionsFromJSON(), invokes the
  * browser prompt, and returns the serialized credential via toJSON().
  *
+ * Pass `externalSignal` to actively cancel the ceremony from outside (e.g.
+ * a Cancel button); aborting it propagates as the underlying AbortError so
+ * callers can distinguish it from the internal timeout (TimeoutError).
+ *
  * Throws:
  * - DOMException('NotSupportedError') when required WebAuthn APIs are absent
  * - DOMException('TimeoutError') when the operation exceeds timeoutMs
+ * - DOMException('AbortError') when externalSignal aborts before completion
  * - Any DOMException thrown by the browser (propagated as-is)
  */
 export async function createCredential(
   options: PublicKeyCredentialCreationOptionsJSON,
-  timeoutMs = DEFAULT_TIMEOUT_MS
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  externalSignal?: AbortSignal
 ): Promise<PublicKeyCredentialJSON> {
   if (!isWebAuthnLevel3Supported()) {
     throw new DOMException(
@@ -248,6 +254,15 @@ export async function createCredential(
     timedOut = true;
     controller.abort();
   }, timeoutMs);
+
+  const onExternalAbort = () => controller.abort();
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort();
+    } else {
+      externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+    }
+  }
 
   try {
     const parsedOptions = (
@@ -266,6 +281,7 @@ export async function createCredential(
     throw e;
   } finally {
     clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', onExternalAbort);
   }
 }
 

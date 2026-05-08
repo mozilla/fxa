@@ -48,25 +48,47 @@ export const PagePasskeyAdd = () => {
 
   const ceremonyStarted = useRef(false);
   const isMounted = useRef(true);
+  const wasCanceled = useRef(false);
+  const abortController = useRef<AbortController | null>(null);
 
   const navigateToSettings = useCallback(() => {
     navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
   }, [navigateWithQuery]);
 
   const handleCancel = useCallback(() => {
+    if (wasCanceled.current) return;
+    // Mark cancellation before aborting so the in-flight ceremony's catch
+    // block can suppress the resulting AbortError instead of double-firing
+    // alert/navigate.
+    wasCanceled.current = true;
+    abortController.current?.abort();
+    alertBar.error(
+      ftlMsgResolver.getMsg(
+        'passkey-registration-canceled',
+        'Passkey setup was canceled. Try again.'
+      )
+    );
     navigateToSettings();
-  }, [navigateToSettings]);
+  }, [alertBar, ftlMsgResolver, navigateToSettings]);
 
   useEffect(() => {
     isMounted.current = true;
     return () => {
       isMounted.current = false;
+      // Sticky guard so a StrictMode dry-run unmount doesn't surface as a
+      // spurious error banner on remount.
+      wasCanceled.current = true;
+      abortController.current?.abort();
+      abortController.current = null;
     };
   }, []);
 
   useEffect(() => {
     if (ceremonyStarted.current) return;
     ceremonyStarted.current = true;
+
+    const controller = new AbortController();
+    abortController.current = controller;
 
     const runCeremony = async () => {
       GleanMetrics.accountPref.passkeyCreateView();
@@ -83,12 +105,19 @@ export const PagePasskeyAdd = () => {
         const challenge = creationOptions.challenge;
         hadExcludeCredentials = !!creationOptions.excludeCredentials?.length;
 
-        if (!isMounted.current) return;
+        if (!isMounted.current || wasCanceled.current) return;
 
         // Step 2: Browser WebAuthn prompt
-        const credential = await createCredential(creationOptions);
+        const credential = await createCredential(
+          creationOptions,
+          undefined,
+          controller.signal
+        );
 
-        if (!isMounted.current) return;
+        // After the WebAuthn prompt resolves we're past the abortable window;
+        // if the user has clicked Cancel by this point, skip the server call
+        // so we don't create a passkey the user thinks they canceled.
+        if (!isMounted.current || wasCanceled.current) return;
 
         // Step 3: Complete registration with server
         await authClient.completePasskeyRegistration(
@@ -98,7 +127,7 @@ export const PagePasskeyAdd = () => {
         );
         await account.refresh('passkeys');
 
-        if (!isMounted.current) return;
+        if (!isMounted.current || wasCanceled.current) return;
 
         // Success
         GleanMetrics.accountPref.passkeyCreateSuccessView();
@@ -107,7 +136,9 @@ export const PagePasskeyAdd = () => {
         );
         navigateToSettings();
       } catch (error) {
-        if (!isMounted.current) return;
+        // handleCancel already showed the cancellation banner and navigated;
+        // suppress the AbortError side effects so they don't double-fire.
+        if (!isMounted.current || wasCanceled.current) return;
 
         // Check if MFA JWT expired
         if (handleMfaError(error)) return;

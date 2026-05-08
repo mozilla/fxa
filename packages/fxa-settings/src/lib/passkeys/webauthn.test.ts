@@ -167,6 +167,50 @@ describe('createCredential', () => {
     await expect(promise).rejects.toMatchObject({ name: 'TimeoutError' });
   });
 
+  it('propagates AbortError when an external signal aborts before completion', async () => {
+    mockCreate.mockImplementation(({ signal }: { signal: AbortSignal }) => {
+      return new Promise((_, reject) => {
+        signal.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError'))
+        );
+      });
+    });
+
+    const externalController = new AbortController();
+    const promise = createCredential(
+      mockCreationOptions,
+      undefined,
+      externalController.signal
+    );
+    externalController.abort();
+    await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('rejects immediately when the external signal is already aborted', async () => {
+    // Real browsers reject navigator.credentials.create() synchronously when
+    // passed an already-aborted signal; mirror that behaviour in the mock.
+    mockCreate.mockImplementation(({ signal }: { signal: AbortSignal }) => {
+      if (signal.aborted) {
+        return Promise.reject(new DOMException('Aborted', 'AbortError'));
+      }
+      return new Promise((_, reject) => {
+        signal.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError'))
+        );
+      });
+    });
+
+    const externalController = new AbortController();
+    externalController.abort();
+    await expect(
+      createCredential(
+        mockCreationOptions,
+        undefined,
+        externalController.signal
+      )
+    ).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
   it('clears the timeout after successful credential creation', async () => {
     const spy = jest.spyOn(global, 'clearTimeout');
     await createCredential(mockCreationOptions);
