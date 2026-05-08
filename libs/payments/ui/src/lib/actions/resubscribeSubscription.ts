@@ -5,12 +5,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
-export const resubscribeSubscriptionAction = async (
-  uid: string,
-  subscriptionId: string
-) => {
+export const resubscribeSubscriptionAction = async (subscriptionId: string) => {
+  const uid = await requireSessionUid();
   const result = await getApp().getActionsService().resubscribeSubscription({
     uid,
     subscriptionId,

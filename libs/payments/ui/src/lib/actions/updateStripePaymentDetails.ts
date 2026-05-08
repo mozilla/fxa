@@ -4,13 +4,14 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import { getIpAddress } from '../utils/getIpAddress';
 
 export const updateStripePaymentDetails = async (
-  uid: string,
   confirmationTokenId: string
 ) => {
+  const uid = await requireSessionUid();
   const actionsService = getApp().getActionsService();
   const ipAddress = await getIpAddress();
 

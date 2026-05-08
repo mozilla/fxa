@@ -3,10 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use server';
 
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
-export const getTaxAddressAction = async (ipAddress: string, uid?: string) => {
-  const { result } = await getApp().getActionsService().getTaxAddress({ ipAddress, uid });
+export const getTaxAddressAction = async (ipAddress: string) => {
+  const uid = await getSessionUid();
+  const { result } = await getApp()
+    .getActionsService()
+    .getTaxAddress({ ipAddress, uid });
 
   return result;
 };

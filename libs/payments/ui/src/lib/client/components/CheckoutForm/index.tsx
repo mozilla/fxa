@@ -90,7 +90,6 @@ interface CheckoutFormProps {
     };
   };
   locale: string;
-  sessionUid?: string;
   sessionEmail?: string;
   isFreeTrial?: boolean;
   trialLengthDays?: number;
@@ -103,7 +102,6 @@ export function CheckoutForm({
   cmsCommonContent,
   cart,
   locale,
-  sessionUid,
   sessionEmail,
   isFreeTrial,
   trialLengthDays,
@@ -256,8 +254,7 @@ export function CheckoutForm({
         cart.version,
         getAttributionParams(searchParams),
         params,
-        Object.fromEntries(searchParams),
-        sessionUid
+        Object.fromEntries(searchParams)
       );
 
       const queryParamString = searchParams.toString()
@@ -340,8 +337,7 @@ export function CheckoutForm({
       confirmationToken.id,
       getAttributionParams(searchParams),
       params,
-      Object.fromEntries(searchParams),
-      sessionUid
+      Object.fromEntries(searchParams)
     );
 
     const queryParamString = searchParams.toString()
@@ -446,7 +442,6 @@ export function CheckoutForm({
                 cartId={cart.id}
                 cartVersion={cart.version}
                 cartCurrency={cart.currency}
-                sessionUid={sessionUid}
                 searchParams={searchParams}
                 disabled={loading || !formEnabled}
               />
@@ -492,7 +487,6 @@ interface CheckoutPayPalButtonProps {
   cartId: string;
   cartVersion: number;
   cartCurrency: string;
-  sessionUid?: string;
   searchParams: ReadonlyURLSearchParams;
   disabled: boolean;
 }
@@ -501,7 +495,6 @@ function CheckoutPayPalButton({
   cartId,
   cartVersion,
   cartCurrency,
-  sessionUid,
   searchParams,
   disabled,
 }: CheckoutPayPalButtonProps) {
@@ -557,7 +550,6 @@ function CheckoutPayPalButton({
           getAttributionParams(searchParams),
           params,
           Object.fromEntries(searchParams),
-          sessionUid,
           data.orderID
         );
         const queryParamString = searchParams.toString()

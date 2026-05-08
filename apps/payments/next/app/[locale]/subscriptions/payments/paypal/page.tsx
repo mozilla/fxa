@@ -33,10 +33,9 @@ export default async function PaypalPaymentManagementPage({
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }
-  const sessionUid = session.user.id;
   const [paypalBillingAgreementId, currency] = await Promise.all([
-    getPayPalBillingAgreementId(session.user.id),
-    determineCurrencyForCustomerAction(session.user.id),
+    getPayPalBillingAgreementId(),
+    determineCurrencyForCustomerAction(),
   ]);
 
   if (paypalBillingAgreementId || !currency) {
@@ -97,7 +96,6 @@ export default async function PaypalPaymentManagementPage({
             ></div>
           </div>
           <PaypalManagement
-            sessionUid={sessionUid}
             paypalClientId={config.paypal.clientId}
             nonce={nonce}
             currency={currency}

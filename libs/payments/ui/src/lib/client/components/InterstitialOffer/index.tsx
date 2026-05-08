@@ -20,7 +20,6 @@ import { BaseButton } from '../BaseButton';
 import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface InterstitialOfferProps {
-  uid: string;
   metricsEnabled: boolean;
   locale: string;
   subscriptionId: string;
@@ -52,7 +51,6 @@ interface InterstitialOfferProps {
 }
 
 export function InterstitialOffer({
-  uid,
   metricsEnabled,
   locale,
   subscriptionId,
@@ -153,10 +151,7 @@ export function InterstitialOffer({
     });
 
     try {
-      const result = await cancelSubscriptionAtPeriodEndAction(
-        uid,
-        subscriptionId
-      );
+      const result = await cancelSubscriptionAtPeriodEndAction(subscriptionId);
 
       if (result.ok) {
         glean.recordInterstitialOfferResult({

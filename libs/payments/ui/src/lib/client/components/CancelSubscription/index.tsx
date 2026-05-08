@@ -18,7 +18,6 @@ import { getLocalizedDateString } from '@fxa/shared/l10n';
 import { LinkExternal } from '@fxa/shared/react';
 
 interface CancelSubscriptionProps {
-  userId: string;
   subscriptionId: string;
   locale: string;
   pageContent: {
@@ -32,7 +31,6 @@ interface CancelSubscriptionProps {
 }
 
 export function CancelSubscription({
-  userId,
   subscriptionId,
   locale,
   pageContent,
@@ -56,10 +54,7 @@ export function CancelSubscription({
     }
 
     setLoading(true);
-    const result = await cancelSubscriptionAtPeriodEndAction(
-      userId,
-      subscriptionId
-    );
+    const result = await cancelSubscriptionAtPeriodEndAction(subscriptionId);
     if (result.ok) {
       setCheckedState(false);
       setShowCancelActionError(false);

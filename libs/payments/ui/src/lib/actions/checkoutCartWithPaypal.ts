@@ -4,6 +4,7 @@
 
 'use server';
 
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
@@ -15,9 +16,9 @@ export const checkoutCartWithPaypal = async (
   attribution: SubscriptionAttributionParams,
   params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string | string[] | undefined>,
-  sessionUid?: string,
   token?: string
 ) => {
+  const sessionUid = await getSessionUid();
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),

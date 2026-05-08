@@ -118,7 +118,6 @@ export function PaymentSection({
           cmsCommonContent={cmsCommonContent}
           cart={cart}
           locale={locale}
-          sessionUid={sessionUid}
           sessionEmail={sessionEmail}
           isFreeTrial={isFreeTrial}
           trialLengthDays={trialLengthDays}

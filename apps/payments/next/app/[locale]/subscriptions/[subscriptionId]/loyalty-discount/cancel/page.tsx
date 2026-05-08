@@ -39,12 +39,9 @@ export default async function LoyaltyDiscountCancelPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   let pageContent;
   try {
     pageContent = await determineChurnCancelEligibilityAction(
-      uid,
       subscriptionId,
       acceptLanguage
     );
@@ -89,7 +86,6 @@ export default async function LoyaltyDiscountCancelPage({
 
   return (
     <ChurnCancel
-      uid={uid}
       metricsEnabled={session?.user?.metricsEnabled ?? true}
       subscriptionId={subscriptionId}
       locale={locale}

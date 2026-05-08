@@ -19,7 +19,6 @@ import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
 import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 import { config } from 'apps/payments/next/config';
-import { auth } from 'apps/payments/next/auth';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
 
 export const dynamic = 'force-dynamic';
@@ -36,7 +35,6 @@ export default async function Location({
   const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, resolvedParams.locale);
   const emitterService = getApp().getEmitterService();
-  const session = await auth();
   const providedCountryCode = resolvedSearchParams['countryCode'];
   const providedPostalCode = resolvedSearchParams['postalCode'];
   const taxAddress =
@@ -51,15 +49,13 @@ export default async function Location({
         }
       : undefined;
 
-  const fxaUid = session?.user?.id;
-
   let cms: PageContentOfferingTransformed | undefined;
   let locationStatus: LocationStatus | TaxChangeAllowedStatus | undefined;
   let customerCurrency: string | undefined;
   try {
     const [cmsData, validateLocationResults] = await Promise.all([
       fetchCMSData(resolvedParams.offeringId, acceptLanguage, resolvedParams.locale),
-      validateLocationAction(resolvedParams.offeringId, taxAddress, fxaUid, resolvedParams.interval),
+      validateLocationAction(resolvedParams.offeringId, taxAddress, resolvedParams.interval),
     ]);
     cms = cmsData;
     locationStatus = validateLocationResults.status;
@@ -166,7 +162,6 @@ export default async function Location({
               const result = await validateLocationAction(
                 resolvedParams.offeringId,
                 { countryCode, postalCode },
-                fxaUid,
                 resolvedParams.interval
               );
 
