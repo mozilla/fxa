@@ -131,6 +131,7 @@ if (proxyUrl) {
     '/account-reset',
     '/relying-parties',
     '/rate-limiting',
+    '/waf-tokens',
     '/permissions',
   ].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
