@@ -150,7 +150,6 @@ export default async function CheckoutLayout({
                         countryCode,
                         postalCode,
                       },
-                      session?.user?.id,
                       resolvedParams.interval
                     );
 

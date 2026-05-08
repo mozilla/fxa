@@ -18,16 +18,23 @@ export async function register() {
 
     const otelConfig = app.getOtelConfig();
     const logger = app.getLogger();
-    initTracing({
-      ...otelConfig,
-      batchProcessor: otelConfig.batchProcessor ?? true,
-      clientName: otelConfig.clientName ?? "",
-      corsUrls: otelConfig.corsUrls ?? "http://localhost:\\d*/",
-      filterPii: otelConfig.filterPii ?? true,
-      sampleRate: otelConfig.sampleRate ?? 0,
-      serviceName: otelConfig.serviceName ?? "",
-    }, logger);
+    initTracing(
+      {
+        ...otelConfig,
+        batchProcessor: otelConfig.batchProcessor ?? true,
+        clientName: otelConfig.clientName ?? '',
+        corsUrls: otelConfig.corsUrls ?? 'http://localhost:\\d*/',
+        filterPii: otelConfig.filterPii ?? true,
+        sampleRate: otelConfig.sampleRate ?? 0,
+        serviceName: otelConfig.serviceName ?? '',
+      },
+      logger
+    );
 
     monkeyPatchServerLogging();
+
+    // Initialize NextAuth singleton so server actions calling getSessionUid()
+    // work regardless of which routes the worker ends up serving.
+    await import('./auth');
   }
 }

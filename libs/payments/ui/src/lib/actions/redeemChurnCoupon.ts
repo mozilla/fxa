@@ -4,12 +4,12 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
 
 export const redeemChurnCouponAction = async (
-  uid: string,
   subscriptionId: string,
   churnType: 'cancel' | 'stay_subscribed',
   params: Record<string, string | string[] | undefined>,
@@ -17,6 +17,7 @@ export const redeemChurnCouponAction = async (
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
+  const uid = await requireSessionUid();
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),

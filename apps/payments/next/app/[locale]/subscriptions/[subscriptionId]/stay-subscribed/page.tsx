@@ -30,10 +30,7 @@ export default async function StaySubscribedPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   const pageContent = await getStaySubscribedFlowContentAction(
-    uid,
     subscriptionId,
     acceptLanguage
   );
@@ -44,7 +41,6 @@ export default async function StaySubscribedPage({
 
   return (
     <StaySubscribed
-      userId={uid}
       subscriptionId={subscriptionId}
       locale={locale}
       pageContent={pageContent}

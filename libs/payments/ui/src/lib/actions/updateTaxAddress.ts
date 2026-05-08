@@ -6,6 +6,7 @@
 
 import { revalidatePath } from 'next/cache';
 
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import { TaxAddress } from '@fxa/payments/customer';
 
@@ -14,9 +15,9 @@ export const updateTaxAddressAction = async (
   version: number,
   offeringId: string,
   taxAddress: TaxAddress,
-  uid?: string,
   interval?: string
 ) => {
+  const uid = await getSessionUid();
   const actionsService = getApp().getActionsService();
 
   const result = await actionsService.updateTaxAddress({

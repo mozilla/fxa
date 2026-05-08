@@ -39,12 +39,9 @@ export default async function LoyaltyDiscountStaySubscribedPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   let pageContent;
   try {
     pageContent = await determineStaySubscribedEligibilityAction(
-      uid,
       subscriptionId,
       acceptLanguage
     );
@@ -88,7 +85,6 @@ export default async function LoyaltyDiscountStaySubscribedPage({
   if (isAllowedStayReason) {
     return (
       <ChurnStaySubscribed
-        uid={uid}
         metricsEnabled={session?.user?.metricsEnabled ?? true}
         subscriptionId={subscriptionId}
         locale={locale}

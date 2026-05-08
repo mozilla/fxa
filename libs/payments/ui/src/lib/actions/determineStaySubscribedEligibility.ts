@@ -4,14 +4,15 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
 export const determineStaySubscribedEligibilityAction = async (
-  uid: string,
   subscriptionId: string,
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
+  const uid = await requireSessionUid();
   return await getApp().getActionsService().determineStaySubscribedEligibility({
     uid,
     subscriptionId,

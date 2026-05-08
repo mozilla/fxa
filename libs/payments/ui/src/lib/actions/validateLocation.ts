@@ -4,14 +4,15 @@
 'use server';
 
 import { TaxAddress } from '@fxa/payments/customer';
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
 export const validateLocationAction = async (
   offeringId: string,
   taxAddress?: TaxAddress,
-  uid?: string,
   interval?: string
 ) => {
+  const uid = await getSessionUid();
   return await getApp()
     .getActionsService()
     .validateLocation({ offeringId, taxAddress, uid, interval });

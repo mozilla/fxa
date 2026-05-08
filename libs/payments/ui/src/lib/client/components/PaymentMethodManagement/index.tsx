@@ -27,12 +27,10 @@ import {
 } from '@fxa/payments/ui/actions';
 
 export function PaymentMethodManagement({
-  uid,
   defaultPaymentMethod,
   sessionEmail,
   locale,
 }: {
-  uid?: string;
   defaultPaymentMethod?: {
     id: string;
     type?: string;
@@ -144,7 +142,6 @@ export function PaymentMethodManagement({
       return await handleNextAction(response.setupIntent.client_secret);
     } else if (response.setupIntent?.status === 'succeeded') {
       await setDefaultStripePaymentDetails(
-        uid ?? '',
         typeof response.setupIntent.payment_method === 'string'
           ? response.setupIntent.payment_method
           : (response.setupIntent.payment_method?.id ?? '')
@@ -189,7 +186,6 @@ export function PaymentMethodManagement({
       }
 
       const { ok, result, errorMessage } = await updateStripePaymentDetails(
-        uid ?? '',
         confirmationToken.id
       );
       if (!ok || !result) {
