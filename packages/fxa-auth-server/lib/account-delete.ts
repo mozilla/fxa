@@ -13,7 +13,7 @@ import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 
 import { ConfigType } from '../config';
-import { ERRNO } from '@fxa/accounts/errors';
+import { AppError, ERRNO } from '@fxa/accounts/errors';
 import OAuthDb from './oauth/db';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
@@ -149,26 +149,49 @@ export class AccountDeleteManager {
       return;
     }
 
-    await this.deleteAccountFromDb(uid);
-    await this.deleteOAuthTokens(uid);
+    // Track the awaited cleanup step so a failure that reaches the catch
+    // can be attributed to a specific dependency (DB, OAuth, Stripe, etc.)
+    // instead of just "deleteAccount failed somewhere". Pushbox is
+    // fire-and-forget with its own error handler and is not represented.
+    let stage = 'fxaDb';
+    try {
+      await this.deleteAccountFromDb(uid);
+      stage = 'oauthTokens';
+      await this.deleteOAuthTokens(uid);
 
-    // data eng rely on this to delete the account data from BQ.
-    // user self-deletes are logged when the client request was handled
-    if (reason !== ReasonForDeletion.UserRequested) {
-      this.log.info('accountDeleted.byCloudTask', { uid });
+      // data eng rely on this to delete the account data from BQ.
+      // user self-deletes are logged when the client request was handled
+      if (reason !== ReasonForDeletion.UserRequested) {
+        this.log.info('accountDeleted.byCloudTask', { uid });
+      }
+
+      // see comment in the function on why we are not awaiting
+      this.deletePushboxRecords(uid);
+
+      stage = 'subscriptions';
+      await this.deleteSubscriptions(uid, reason, customerId);
+      stage = 'firestoreCustomer';
+      await this.deleteFirestoreCustomer(uid);
+      stage = 'appleIap';
+      await this.appleIap?.purchaseManager.deletePurchases(uid);
+      stage = 'playBilling';
+      await this.playBilling?.purchaseManager.deletePurchases(uid);
+      this.statsd.increment('account.destroy.success', { reason });
+      this.glean.account.deleteTaskHandled(request ?? requestForGlean, {
+        reason,
+      });
+    } catch (error) {
+      // Mirror the failure signals emitted by quickDelete so cloud-task
+      // failures (inactive cleanup, admin-triggered, scripts) are visible
+      // on the same dashboards and alerts as user-initiated failures.
+      this.log.error('deleteAccount', { uid, reason, stage, error });
+      Sentry.withScope((scope) => {
+        scope.setTag('deleteStage', stage);
+        reportSentryError(error);
+      });
+      this.statsd.increment('account.destroy.failure', { reason, stage });
+      throw error;
     }
-
-    // see comment in the function on why we are not awaiting
-    this.deletePushboxRecords(uid);
-
-    await this.deleteSubscriptions(uid, reason, customerId);
-    await this.deleteFirestoreCustomer(uid);
-    await this.appleIap?.purchaseManager.deletePurchases(uid);
-    await this.playBilling?.purchaseManager.deletePurchases(uid);
-    this.statsd.increment('account.destroy.success', { reason });
-    this.glean.account.deleteTaskHandled(request ?? requestForGlean, {
-      reason,
-    });
   }
 
   /**
@@ -185,13 +208,30 @@ export class AccountDeleteManager {
 
     try {
       await this.deleteAccountFromDb(uid);
-      await this.deleteOAuthTokens(uid);
-      this.statsd.increment('account.destroy.quick-delete');
     } catch (error) {
-      // If the account wasn't fully deleted, we should log the error and
-      // still queue the account for cleanup.
+      // The account row still exists -- surface to the caller so the
+      // route skips enqueueing a doomed cloud task and the user sees a
+      // real error instead of a false success.
       this.log.error('quickDelete', { uid, error });
+      reportSentryError(error);
+      this.statsd.increment('account.destroy.quick-delete.failure');
+      throw AppError.accountDeletionFailed();
     }
+
+    // The account row is gone -- from the user's perspective the account
+    // is deleted. OAuth-token cleanup is best-effort here; the cloud task
+    // enqueued by the route runs deleteOAuthTokens again, so a transient
+    // failure now would be retried then. Swallow it to avoid surfacing
+    // "couldn't delete your account" for an account that has been deleted.
+    try {
+      await this.deleteOAuthTokens(uid);
+    } catch (error) {
+      this.log.error('quickDelete.oauthTokens', { uid, error });
+      reportSentryError(error);
+      this.statsd.increment('account.destroy.quick-delete.oauth-failure');
+    }
+
+    this.statsd.increment('account.destroy.quick-delete');
   }
 
   /**

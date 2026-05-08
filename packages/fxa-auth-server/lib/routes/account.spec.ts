@@ -4214,28 +4214,25 @@ describe('/account/destroy', () => {
     });
   });
 
-  it('should delete the account and enqueue account task on error', () => {
+  it('should propagate the error and skip enqueueing the cloud task when quickDelete fails', async () => {
     const route = buildRoute();
+    // makeRoutes() reassigns mockAccountQuickDelete during buildRoute(),
+    // so attach the rejection AFTER buildRoute().
+    const quickDeleteError = error.accountDeletionFailed();
+    mockAccountQuickDelete.mockRejectedValueOnce(quickDeleteError);
 
-    // Here we act like there's an error when calling accountDeleteManager.quickDelete(...)
-    mockAccountQuickDelete = jest
-      .fn()
-      .mockRejectedValue(new Error('quickDelete failed'));
-
-    return runTest(route, mockRequest, () => {
-      expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
-      expect(mockDB.accountRecord).toHaveBeenCalledWith(email);
-      expect(mockAccountTasksDeleteAccount).toHaveBeenCalledTimes(1);
-      expect(mockAccountTasksDeleteAccount).toHaveBeenCalledWith({
-        uid,
-        customerId: 'customer123',
-        reason: ReasonForDeletion.UserRequested,
-      });
-      expect(glean.account.deleteComplete).toHaveBeenCalledTimes(1);
-      expect(glean.account.deleteComplete).toHaveBeenCalledWith(mockRequest, {
-        uid,
-      });
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DELETION_FAILED,
+      output: { statusCode: 500 },
     });
+
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord).toHaveBeenCalledWith(email);
+    expect(mockAccountQuickDelete).toHaveBeenCalledTimes(1);
+    // Crucially: the cloud task is NOT enqueued and the user is NOT told
+    // the deletion succeeded when the immediate cleanup failed.
+    expect(mockAccountTasksDeleteAccount).not.toHaveBeenCalled();
+    expect(glean.account.deleteComplete).not.toHaveBeenCalled();
   });
 
   it('should delete the passwordless account', () => {

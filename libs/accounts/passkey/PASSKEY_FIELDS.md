@@ -369,7 +369,7 @@ Note: No additional indexes needed. The number of passkeys per user is constrain
 ### Foreign Keys
 
 - `uid` references `accounts(uid)` (no CASCADE - handled by deleteAccount stored procedure)
-- When an account is deleted, passkeys are explicitly deleted via `deleteAccount_22` stored procedure
+- When an account is deleted, passkeys are explicitly deleted via `deleteAccount_23` stored procedure
 
 ## Implementation Resources
 

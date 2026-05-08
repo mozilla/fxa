@@ -932,6 +932,16 @@ export class AppError extends Error {
     });
   }
 
+  static accountDeletionFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.ACCOUNT_DELETION_FAILED,
+      message:
+        'Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.',
+    });
+  }
+
   static unverifiedSession() {
     return new AppError({
       code: 400,

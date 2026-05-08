@@ -370,6 +370,11 @@ const ERRORS = {
     errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,
     message: 'Passkey challenge expired',
   },
+  ACCOUNT_DELETION_FAILED: {
+    errno: ERRNO.ACCOUNT_DELETION_FAILED,
+    message:
+      'Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.',
+  },
   USER_CANCELED_LOGIN: {
     errno: 1001,
     message: 'Login attempt cancelled',
