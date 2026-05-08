@@ -22,37 +22,19 @@ test.describe('severity-2 #smoke', () => {
       await settings.checkWebChannelMessage(FirefoxCommand.OAuthFlowBegin);
     });
 
-    test('Continue on the choice screen dispatches pair_preferences', async ({
+    test('Continue advances to the download view when no mobile is selected', async ({
       target,
       syncOAuthBrowserPages: { page },
     }) => {
       await page.goto(`${target.contentServerUrl}/pair`);
       // Click the label so React's onChange fires; the radio is hidden behind
       // it, and check() on the input itself fails actionability.
-      await page.locator('label[for="has-mobile"]').click();
+      await page.locator('label[for="needs-mobile"]').click();
       await expect(page.getByTestId('pair-continue-btn')).toBeEnabled();
 
-      // Capture WebChannelMessageToChrome dispatches in a page-side promise
-      // *before* clicking, so we observe pair_preferences even if Firefox's
-      // chrome handler tears the test tab down right after.
-      const dispatched = page.evaluate(
-        () =>
-          new Promise<string>((resolve) => {
-            window.addEventListener(
-              'WebChannelMessageToChrome',
-              (e: Event) => {
-                const detail = JSON.parse((e as CustomEvent).detail);
-                if (detail.message.command === 'fxaccounts:pair_preferences') {
-                  resolve(detail.message.command);
-                }
-              },
-              { once: false }
-            );
-          })
-      );
-
       await page.getByTestId('pair-continue-btn').click();
-      expect(await dispatched).toBe('fxaccounts:pair_preferences');
+
+      await expect(page.locator('#pair-header-mobile')).toBeVisible();
     });
 
     test('direct /connect_another_device dispatches fxa_status and oauth_flow_begin', async ({
