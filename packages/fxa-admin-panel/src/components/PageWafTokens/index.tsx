@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../../lib/api';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
-import { getFormattedDate } from '../../lib/utils';
+import { getFormattedDate, getWafTfPath } from '../../lib/utils';
 import type {
   WafBypassTokenDto,
   RelyingPartyDto,
@@ -47,7 +47,7 @@ const WafTokenRow = ({
   const handleRotate = async () => {
     if (
       !window.confirm(
-        `Rotate token "${token.name}"?\n\nThe old token will continue to work until fxa_ci_bypass_tokens is updated in webservices-infra.`
+        `Rotate token "${token.name}"?\n\nThe old token will continue to work until fxa_ci_bypass_tokens is updated in ${getWafTfPath()} (webservices-infra).`
       )
     )
       return;
@@ -63,7 +63,7 @@ const WafTokenRow = ({
   const handleDelete = async () => {
     if (
       !window.confirm(
-        `Delete token "${token.name}"? The token will continue to be used until it's also removed from fxa_ci_bypass_tokens in webservices-infra.`
+        `Delete token "${token.name}"? The token will continue to be used until it's also removed from fxa_ci_bypass_tokens in ${getWafTfPath()} (webservices-infra).`
       )
     )
       return;
@@ -144,9 +144,9 @@ const CreateTokenForm = ({
       <div className="p-4 border border-grey-100 rounded mt-4">
         <p className="font-bold mb-2">Token created.</p>
         <p className="mb-1">
-          Add this value to <code>fxa_ci_bypass_tokens</code> in both the{' '}
-          <code>accounts</code> and <code>accounts-api</code> Fastly sites, then
-          run <code>terraform apply</code>:
+          Add this value to <code>fxa_ci_bypass_tokens</code> in{' '}
+          <code>{getWafTfPath()}</code> (webservices-infra), then run{' '}
+          <code>terraform apply</code>:
         </p>
         <pre className="p-3 bg-grey-50 rounded mb-3">{createdToken}</pre>
         <button className={btnClass} onClick={onCancel}>
@@ -259,9 +259,9 @@ export const PageWafTokens = () => {
     const lines = tokens.map((t) => {
       const rawLabel = t.clientId ? rpById[t.clientId] || t.clientId : t.name;
       const label = rawLabel.replace(/[\r\n]+/g, ' ');
-      return `  "${t.token}",  # ${label}`;
+      return `    "${t.token}", # ${label}`;
     });
-    const hcl = `entries = [\n${lines.join('\n')}\n]`;
+    const hcl = `locals {\n  fxa_ci_bypass_tokens = [\n${lines.join('\n')}\n  ]\n}`;
     try {
       await navigator.clipboard.writeText(hcl);
       setExportCopied(true);
@@ -288,10 +288,11 @@ export const PageWafTokens = () => {
       </ul>
       <p className="mb-4 p-3 rounded bg-yellow-50 text-sm">
         <b>Reminder:</b> Changes here do <b>not</b> automatically update the
-        WAF. After generating or rotating a token, add it to{' '}
-        <code>fxa_ci_bypass_tokens</code> in both the <code>accounts</code> and{' '}
-        <code>accounts-api</code> Fastly sites in <code>webservices-infra</code>{' '}
-        and run <code>terraform apply</code>.
+        WAF. After generating or rotating a token, update{' '}
+        <code>fxa_ci_bypass_tokens</code> in <code>{getWafTfPath()}</code>{' '}
+        (webservices-infra) and run <code>terraform apply</code>. Use{' '}
+        <b>Export for Terraform</b> below to copy the full <code>locals</code>{' '}
+        block.
       </p>
 
       <hr />
