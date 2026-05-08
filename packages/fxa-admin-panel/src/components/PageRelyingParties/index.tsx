@@ -17,7 +17,7 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
 import { useGuardContext } from '../../hooks/GuardContext';
 import { useUserContext } from '../../hooks/UserContext';
-import { getFormattedDate } from '../../lib/utils';
+import { getFormattedDate, getWafTfPath } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
 import { adminApi } from '../../lib/api';
 
@@ -598,9 +598,9 @@ const DeleteRelyingParty = ({
       {wafToken && (
         <p className="p-4 m-2 rounded bg-yellow-50">
           <b>⚠️ This RP has a linked WAF bypass token.</b> It will be removed
-          from the database automatically, but you must also remove it from the
-          Fastly <code>fxa_ci_bypass_tokens</code> list in both{' '}
-          <code>accounts</code> and <code>accounts-api</code>.
+          from the database automatically, but you must also remove it from the{' '}
+          <code>fxa_ci_bypass_tokens</code> list in{' '}
+          <code>{getWafTfPath()}</code> (webservices-infra).
         </p>
       )}
       <form onSubmit={handleSubmit}>
