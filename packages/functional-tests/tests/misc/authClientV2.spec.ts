@@ -51,7 +51,8 @@ test.describe('auth-client-tests', () => {
     target,
     testAccountTracker,
   }) => {
-    const client = target.authClient;
+    // target.authClient defaults to v2 now; force v1 for this test.
+    const client = target.createAuthClient(1);
     const { email, password } = testAccountTracker.generateAccountDetails();
 
     await signUp(client, email, password, target);
@@ -127,7 +128,8 @@ test.describe('auth-client-tests', () => {
     target,
     testAccountTracker,
   }) => {
-    const client = target.authClient;
+    // target.authClient defaults to v2 now; force v1 for this test.
+    const client = target.createAuthClient(1);
     const { email, password } = testAccountTracker.generateAccountDetails();
 
     await signUp(client, email, password, target);
