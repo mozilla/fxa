@@ -64,6 +64,12 @@ exports.create = async function createServer() {
         // which is more forgiving of missing Origin header.
         origin: ['*'],
       },
+      // Byte-range slicing is meaningless for a JSON API and triggers Hapi's
+      // 206 partial-content path on otherwise-fine responses (FXA-13625).
+      // Static image serving lives on a separate server (server/_static.js).
+      response: {
+        ranges: false,
+      },
       security: {
         hsts: {
           maxAge: 31536000,
