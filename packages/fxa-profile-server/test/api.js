@@ -287,7 +287,7 @@ describe('#integration - api', function () {
         });
     });
 
-    it('should error out on unexpected 400s from auth server', () => {
+    it('should propagate unexpected 4xx errors from auth server', () => {
       mock.token({
         user: USERID,
         scope: ['profile:write'],
@@ -296,7 +296,7 @@ describe('#integration - api', function () {
 
       mock.log('batch', (rec) => {
         return (
-          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:500'
+          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:400'
         );
       });
 
@@ -308,22 +308,6 @@ describe('#integration - api', function () {
         );
       });
 
-      mock.log('server', function (rec) {
-        return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === 'summary' &&
-          rec.args[1].path === '/v1/_core_profile'
-        );
-      });
-
-      mock.log('server', function (rec) {
-        return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === 'summary' &&
-          rec.args[1].path === '/v1/profile'
-        );
-      });
-
       return Server.api
         .get({
           url: '/profile',
@@ -332,8 +316,8 @@ describe('#integration - api', function () {
           },
         })
         .then((res) => {
-          assert.equal(res.statusCode, 500);
-          assert.equal(res.result.errno, 999);
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 107);
           assertSecurityHeaders(res);
         });
     });
