@@ -33,6 +33,22 @@ Incorporate findings directly into the draft — do not list them separately or 
 
 ## Step 3: Output
 
+Follow this template:
+
+```
+## Description
+_What needs to be done and why._
+
+## Acceptance Criteria
+- [ ]
+- [ ]
+
+## Notes
+_Links, context, or constraints._
+```
+
+Include this information:
+
 **Design:** *(Figma link if applicable. Note that all copy, strings, and visual specs should be taken from the latest Figma file — do not reproduce design details here as they may change before implementation. Omit if no design involved.)*
 
 **Background:**
