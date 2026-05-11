@@ -245,6 +245,24 @@ export interface PublicKeyCredentialCreationOptionsJSON {
   extensions?: AuthenticationExtensionsJSON;
 }
 
+export interface PublicKeyCredentialRequestOptionsJSON {
+  challenge: Base64URLString;
+  timeout?: number;
+  rpId?: string;
+  allowCredentials?: PublicKeyCredentialDescriptorJSON[];
+  userVerification?: UserVerificationRequirement;
+  hints?: ('hybrid' | 'security-key' | 'client-device')[];
+  extensions?: AuthenticationExtensionsJSON;
+}
+
+export type PasskeyAuthenticationResult = {
+  uid: hexstring;
+  sessionToken: hexstring;
+  verified: boolean;
+  requiresPasswordForSync: boolean;
+  hasPassword: boolean;
+};
+
 export interface PublicKeyCredentialJSON {
   id: Base64URLString;
   rawId: Base64URLString;
@@ -3539,6 +3557,85 @@ export default class AuthClient {
       { name },
       headers
     );
+  }
+
+  /**
+   * Starts a passkey authentication (assertion) flow.
+   *
+   * No email is sent — the server returns options with an empty
+   * `allowCredentials` so the browser uses discoverable credentials, which
+   * prevents account enumeration.
+   *
+   * @param headers Optional additional headers
+   */
+  async beginPasskeyAuthentication(
+    headers?: Headers
+  ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    return this.request('POST', '/passkey/authentication/start', {}, headers);
+  }
+
+  /**
+   * Completes a passkey authentication flow by submitting the browser's
+   * assertion response together with the original challenge.
+   *
+   * @param response `PublicKeyCredentialJSON` returned by the browser
+   * @param challenge The challenge string returned by `beginPasskeyAuthentication`
+   * @param options.service Optional service identifier (e.g. `sync`). Drives
+   *   `requiresPasswordForSync` in the response.
+   * @param headers Optional additional headers
+   */
+  async completePasskeyAuthentication(
+    response: PublicKeyCredentialJSON,
+    challenge: string,
+    options: { service?: string } = {},
+    headers?: Headers
+  ): Promise<PasskeyAuthenticationResult> {
+    const payload: {
+      response: PublicKeyCredentialJSON;
+      challenge: string;
+      service?: string;
+    } = {
+      response,
+      challenge,
+      ...(options.service ? { service: options.service } : {}),
+    };
+
+    return this.request(
+      'POST',
+      '/passkey/authentication/finish',
+      payload,
+      headers
+    );
+  }
+
+  /**
+   * Verifies the user's password after a passkey authentication, in order to
+   * unlock Sync keys. Reauthenticates the passkey-verified session with
+   * `keys: true` to obtain a `keyFetchToken` and `unwrapBKey`; the caller can
+   * then fetch wrapped keys via `accountKeys`.
+   *
+   * @param sessionToken The passkey-verified session token
+   * @param email The account's primary email (needed to derive credentials)
+   * @param password The user's password
+   * @param headers Optional additional headers
+   */
+  async verifyPasswordAfterPasskey(
+    sessionToken: hexstring,
+    email: string,
+    password: string,
+    headers?: Headers
+  ): Promise<{ keyFetchToken: hexstring; unwrapBKey: hexstring }> {
+    const { keyFetchToken, unwrapBKey } = await this.sessionReauth(
+      sessionToken,
+      email,
+      password,
+      { keys: true },
+      headers
+    );
+    return {
+      keyFetchToken: keyFetchToken as hexstring,
+      unwrapBKey: unwrapBKey as hexstring,
+    };
   }
 
   protected async getPayloadV2({
