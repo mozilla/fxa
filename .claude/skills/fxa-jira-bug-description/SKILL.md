@@ -38,6 +38,32 @@ Incorporate findings directly into Root Cause and Key Reference Files. Surface g
 
 ## Step 3: Output
 
+Use this template:
+
+```
+## Summary
+_One-line description of the bug._
+
+## Steps to Reproduce
+1. _Start on this page_
+2. _Click this button_
+3. _Observe this behavior_
+
+## Expected
+_What should happen._
+
+## Actual
+_What actually happens._
+
+## Environment
+_Browser, OS, env (prod/stage/local), user/account if relevant._
+
+## Notes
+_Logs, screenshots, Sentry links._
+```
+
+Include this information:
+
 **Summary:** `[area] <concise bug description>` — e.g. `[auth] Passkey registration fails silently when device has no authenticator`
 
 **Background:**
