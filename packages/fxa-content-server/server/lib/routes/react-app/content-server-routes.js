@@ -52,9 +52,6 @@ const FRONTEND_ROUTES = [
   'post_verify/third_party_auth/set_password',
   'primary_email_verified',
   'signup_confirmed_sync', // React app only
-  'push/completed',
-  'push/confirm_login',
-  'push/send_login',
   'report_signin',
   'reset_password',
   'reset_password_confirmed',
@@ -68,8 +65,6 @@ const FRONTEND_ROUTES = [
   'signin',
   'signin_bounced',
   'signin_token_code',
-  'signin_push_code',
-  'signin_push_code_confirm',
   'signin_totp_code',
   'signin_recovery_code',
   'signin_recovery_choice',

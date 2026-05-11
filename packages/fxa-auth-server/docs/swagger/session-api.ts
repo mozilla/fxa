@@ -130,30 +130,6 @@ const SESSION_RESEND_CODE_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
-const SESSION_SEND_PUSH_POST = {
-  ...TAGS_SESSION,
-  description: '/session/verify/send_push',
-  notes: [
-    dedent`
-      🔒 Authenticated with session token
-
-      Sends a push notification to all push enabled devices to verify current session.
-    `,
-  ],
-};
-
-const SESSION_VERIFY_PUSH_POST = {
-  ...TAGS_SESSION,
-  description: '/session/verify/verify_push',
-  notes: [
-    dedent`
-    🔒 Authenticated with session token
-
-    Endpoint that accepts a code and tokenVerificationId to verify a session.
-    `,
-  ],
-};
-
 const API_DOCS = {
   SESSION_DESTROY_POST,
   SESSION_DUPLICATE_POST,
@@ -161,8 +137,6 @@ const API_DOCS = {
   SESSION_STATUS_GET,
   SESSION_RESEND_CODE_POST,
   SESSION_VERIFY_CODE_POST,
-  SESSION_SEND_PUSH_POST,
-  SESSION_VERIFY_PUSH_POST,
 };
 
 export default API_DOCS;

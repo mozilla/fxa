@@ -2643,35 +2643,6 @@ export default class AuthClient {
     );
   }
 
-  async sendLoginPushRequest(
-    sessionToken: hexstring,
-    headers?: Headers
-  ): Promise<void> {
-    return this.sessionPost(
-      '/session/verify/send_push',
-      sessionToken,
-      {},
-      headers
-    );
-  }
-
-  async verifyLoginPushRequest(
-    sessionToken: hexstring,
-    tokenVerificationId: string,
-    code: string,
-    headers?: Headers
-  ): Promise<void> {
-    return this.sessionPost(
-      '/session/verify/verify_push',
-      sessionToken,
-      {
-        tokenVerificationId,
-        code,
-      },
-      headers
-    );
-  }
-
   async verifyTotpCode(
     sessionToken: hexstring,
     code: string,
@@ -3149,15 +3120,6 @@ export default class AuthClient {
       payload.expiry_grace_period = expiryGracePeriod;
     }
     return this.request('POST', '/oauth/id-token-verify', payload, headers);
-  }
-
-  async sendPushLoginRequest(sessionToken: string, headers?: Headers) {
-    return this.sessionPost(
-      '/session/verify/send_push',
-      sessionToken,
-      {},
-      headers
-    );
   }
 
   /**

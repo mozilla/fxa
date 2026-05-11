@@ -1362,14 +1362,6 @@ FxaClientWrapper.prototype = {
    */
   createCadReminder: createClientDelegate('createCadReminder'),
 
-  /**
-   * Sends a push notification to compatible devices that can verify a login
-   * request
-   *
-   * @returns {Promise} resolves with response when complete.
-   */
-  sendPushLoginRequest: createClientDelegate('sendPushLoginRequest'),
-
   finishSetup: withClient((client, relier, token, email, password) => {
     return client.finishSetup(token, email, password).then((accountData) => {
       return getUpdatedSessionData(email, relier, accountData);

@@ -25,7 +25,6 @@ const STARTUP_EXPERIMENTS = {
 const MANUAL_EXPERIMENTS = {
   emailMxValidation: BaseExperiment,
   qrCodeCad: BaseExperiment,
-  pushLogin: BaseExperiment,
   pocketMigration: BaseExperiment,
 };
 

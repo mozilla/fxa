@@ -1704,14 +1704,6 @@ const Account = Backbone.Model.extend(
       return this._fxaClient.createCadReminder(this.get('sessionToken'));
     },
 
-    /**
-     * Sends a push notification to verify a login request.
-     *
-     * @returns {Promise} resolves with response when complete.
-     */
-    sendPushLoginRequest() {
-      return this._fxaClient.sendPushLoginRequest(this.get('sessionToken'));
-    },
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,
