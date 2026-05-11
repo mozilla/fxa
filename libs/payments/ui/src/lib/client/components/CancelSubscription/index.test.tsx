@@ -100,7 +100,6 @@ jest.mock('@fxa/shared/react', () => ({
 import { CancelSubscription } from './index';
 
 const baseProps = {
-  userId: 'user-id',
   subscriptionId: 'sub-id',
   locale: 'en',
   pageContent: {
@@ -169,7 +168,6 @@ describe('CancelSubscription', () => {
       });
 
       expect(mockCancelSubscriptionAtPeriodEndAction).toHaveBeenCalledWith(
-        'user-id',
         'sub-id'
       );
 
