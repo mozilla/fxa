@@ -334,18 +334,10 @@ module.exports.recoveryCodes = function (codeCount, codeLen, base) {
   });
 };
 
-module.exports.stripePaymentMethodId = isA.string().max(30);
-module.exports.paypalPaymentToken = isA.string().max(30);
 module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
 module.exports.subscriptionsProductName = isA.string().max(255);
-module.exports.subscriptionsPaymentToken = isA.string().max(255);
-module.exports.subscriptionPaymentCountryCode = isA
-  .string()
-  .length(2)
-  .allow(null);
-
 // This is fxa-auth-db-mysql's perspective on an active subscription
 module.exports.activeSubscriptionValidator = isA.object({
   uid: isA.string().required().description(DESCRIPTIONS.uid),
@@ -360,54 +352,6 @@ module.exports.activeSubscriptionValidator = isA.object({
     .alternatives(isA.number(), isA.any().allow(null))
     .description(DESCRIPTIONS.cancelledAt),
 });
-
-module.exports.subscriptionsSetupIntent = isA
-  .object({
-    client_secret: isA
-      .string()
-      .required()
-      .description(DESCRIPTIONS.clientSecret),
-  })
-  .unknown(true);
-
-// This is a Stripe subscription object with latest_invoice.payment_intent expanded
-module.exports.subscriptionsSubscriptionExpandedValidator = isA
-  .object({
-    id: isA.string().required(),
-    object: isA.string().allow('subscription').required(),
-    latest_invoice: isA
-      .object({
-        id: isA.string().required(),
-        object: isA.string().allow('invoice').required(),
-        payment_intent: isA
-          .object({
-            id: isA.string().required(),
-            object: isA.string().allow('payment_intent').required(),
-            client_secret: isA.string().required(),
-          })
-          .unknown(true)
-          .required(),
-      })
-      .unknown(true)
-      .required()
-      .description(DESCRIPTIONS.latestInvoice),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsInvoicePIExpandedValidator = isA
-  .object({
-    id: isA.string().required(),
-    object: isA.string().allow('invoice').required(),
-    payment_intent: isA
-      .object({
-        id: isA.string().required(),
-        object: isA.string().allow('payment_intent').required(),
-        client_secret: isA.string().required(),
-      })
-      .unknown(true)
-      .required(),
-  })
-  .unknown(true);
 
 module.exports.subscriptionsSubscriptionValidator = isA.object({
   _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -552,12 +496,6 @@ module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
     .items(module.exports.subscriptionsAppStoreSubscriptionSupportValidator),
 });
 
-module.exports.subscriptionsSubscriptionListValidator = isA.object({
-  subscriptions: isA
-    .array()
-    .items(module.exports.subscriptionsSubscriptionValidator),
-});
-
 // https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
 // Trying to be a bit flexible in validation here:
 // - subhub may not yet be including product / plan metadata in responses
@@ -635,159 +573,11 @@ module.exports.customerId = isA
   .string()
   .optional()
   .description(DESCRIPTIONS.customerId);
-module.exports.subscriptionsCustomerValidator = isA.object({
-  customerId: module.exports.customerId,
-  billing_name: isA
-    .alternatives(isA.string(), isA.any().allow(null))
-    .optional()
-    .description(DESCRIPTIONS.billingName),
-  exp_month: isA.number().optional().description(DESCRIPTIONS.expMonth),
-  exp_year: isA.number().optional().description(DESCRIPTIONS.expYear),
-  last4: isA.string().optional().description(DESCRIPTIONS.last4),
-  payment_provider: isA
-    .string()
-    .optional()
-    .description(DESCRIPTIONS.paymentProvider),
-  payment_type: isA.string().optional().description(DESCRIPTIONS.paymentType),
-  paypal_payment_error: isA
-    .string()
-    .optional()
-    .description(DESCRIPTIONS.paypalPaymentError),
-  brand: isA.string().optional().description(DESCRIPTIONS.brand),
-  billing_agreement_id: isA
-    .alternatives(isA.string(), isA.any().allow(null))
-    .optional()
-    .description(DESCRIPTIONS.billingAgreementId),
-  subscriptions: isA
-    .array()
-    .items(module.exports.subscriptionsSubscriptionValidator)
-    .optional()
-    .description(DESCRIPTIONS.subscriptions),
-});
-
-module.exports.subscriptionsStripeIntentValidator = isA
-  .object({
-    client_secret: isA
-      .string()
-      .optional()
-      .description(DESCRIPTIONS.clientSecret),
-    created: isA.number().required().description(DESCRIPTIONS.createdAt),
-    payment_method: isA
-      .alternatives(isA.string(), isA.object({}).unknown(true))
-      .optional()
-      .allow(null),
-    source: isA.alternatives().conditional('payment_method', {
-      // cannot be that strict here since this validator is used in two routes
-      is: null,
-      then: isA.string().optional(),
-      otherwise: isA.any().optional().allow(null),
-    }),
-    status: isA.string().required().description(DESCRIPTIONS.status),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsStripeSourceValidator = isA
-  .object({
-    id: isA.string().required(),
-    object: isA.string().required(),
-    brand: isA.string().optional().description(DESCRIPTIONS.brand),
-    exp_month: isA.string().optional().description(DESCRIPTIONS.expMonth),
-    exp_year: isA.string().optional().description(DESCRIPTIONS.expYear),
-    last4: isA.string().optional().description(DESCRIPTIONS.last4),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsStripeInvoiceValidator = isA
-  .object({
-    id: isA.string().required(),
-    payment_intent: isA
-      .alternatives(
-        isA.string().allow(null),
-        module.exports.subscriptionsStripeIntentValidator
-      )
-      .optional(),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsStripePriceValidator = isA
-  .object({
-    id: isA.string().required(),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsStripeSubscriptionItemValidator = isA
-  .object({
-    id: isA.string().required(),
-    created: isA.number().required(),
-    price: module.exports.subscriptionsStripePriceValidator.required(),
-  })
-  .unknown(true);
-
-module.exports.subscriptionsStripeSubscriptionValidator = isA
-  .object({
-    id: isA.string().required(),
-    cancel_at: isA.alternatives(isA.number(), isA.any().valid(null)),
-    canceled_at: isA
-      .alternatives(isA.number(), isA.any().valid(null))
-      .description(DESCRIPTIONS.cancelledAt),
-    cancel_at_period_end: isA
-      .bool()
-      .required()
-      .description(DESCRIPTIONS.cancelAtPeriodEnd),
-    created: isA.number().required().description(DESCRIPTIONS.createdAt),
-    current_period_end: isA
-      .number()
-      .required()
-      .description(DESCRIPTIONS.currentPeriodEnd),
-    current_period_start: isA
-      .number()
-      .required()
-      .description(DESCRIPTIONS.currentPeriodStart),
-    ended_at: isA.alternatives(isA.number(), isA.any().valid(null)),
-    items: isA
-      .object({
-        data: isA
-          .array()
-          .items(module.exports.subscriptionsStripeSubscriptionItemValidator)
-          .required(),
-      })
-      .unknown(true)
-      .optional(),
-    latest_invoice: isA
-      .alternatives(
-        isA.string(),
-        module.exports.subscriptionsStripeInvoiceValidator
-      )
-      .optional(),
-    status: isA.string().required().description(DESCRIPTIONS.status),
-  })
-  .unknown(true);
-
 module.exports.subscriptionsGooglePlaySubscriptionValidator =
   playStoreSubscriptionSchema;
 
 module.exports.subscriptionsAppStoreSubscriptionValidator =
   appStoreSubscriptionSchema;
-
-module.exports.subscriptionsStripeCustomerValidator = isA
-  .object({
-    invoices_settings: isA
-      .object({
-        default_payment_method: isA.string().optional(),
-      })
-      .unknown(true)
-      .optional(),
-    subscriptions: isA
-      .object({
-        data: isA
-          .array()
-          .items(module.exports.subscriptionsStripeSubscriptionValidator)
-          .required(),
-      })
-      .unknown(true)
-      .optional(),
-  })
-  .unknown(true);
 
 module.exports.subscriptionsMozillaSubscriptionsValidator = isA
   .object({

@@ -568,73 +568,14 @@ export function useDefaultCmsState({
   return state;
 }
 
+const emptyProductInfoState: {
+  loading: boolean;
+  error?: Error;
+  data?: { productInfo: RelierSubscriptionInfo };
+} = { loading: false };
+
 export function useProductInfoState() {
-  const { config } = useContext(AppContext);
-  const [state, setState] = useState<{
-    loading: boolean;
-    error?: Error;
-    data?: { productInfo: RelierSubscriptionInfo };
-  }>({ loading: false });
-
-  const productId =
-    new RegExp('/subscriptions/products/(.*)').exec(
-      window.location.pathname
-    )?.[1] || '';
-
-  useEffect(() => {
-    if (!productId || !config) {
-      setState({ loading: false });
-      return;
-    }
-
-    let mounted = true;
-    setState((prev) => ({ ...prev, loading: true }));
-
-    const fetchProductInfo = async () => {
-      try {
-        const response = await fetch(
-          `${config.servers.auth.url}/v1/oauth/subscriptions/productname?productId=${encodeURIComponent(productId)}`,
-          {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch product info: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (mounted) {
-          setState({
-            loading: false,
-            data: {
-              productInfo: {
-                subscriptionProductId: data.productId || productId,
-                subscriptionProductName: data.productName || null,
-              },
-            },
-          });
-        }
-      } catch (error) {
-        if (mounted) {
-          setState({
-            loading: false,
-            error: error instanceof Error ? error : new Error('Unknown error'),
-          });
-        }
-      }
-    };
-
-    fetchProductInfo();
-
-    return () => {
-      mounted = false;
-    };
-  }, [productId, config]);
-
-  return state;
+  return emptyProductInfoState;
 }
 
 export function useLegalTermsState() {

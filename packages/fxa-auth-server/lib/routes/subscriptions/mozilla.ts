@@ -18,12 +18,10 @@ import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import type { AppendedPlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/types';
 import type { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
 import { VError } from 'verror';
 import type { ConfigType } from '../../../config';
-import { sanitizePlans } from './stripe';
 import type { StripePrice } from '@fxa/payments/stripe';
 import { PriceManager, type SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
@@ -322,32 +320,6 @@ export class MozillaSubscriptionHandler {
       }
     }
   }
-
-  async getPlanEligibility(request: AuthRequest) {
-    this.log.begin('mozillaSubscriptions.validatePlanEligibility', request);
-
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.checkAuthenticated(
-      request,
-      uid,
-      email,
-      'mozillaSubscriptionsValidatePlanEligibility'
-    );
-
-    const targetPlanId = request.params.planId;
-
-    const result = await this.capabilityService.getPlanEligibility(
-      uid,
-      targetPlanId
-    );
-
-    return {
-      eligibility: result.subscriptionEligibilityResult,
-      currentPlan:
-        result.eligibleSourcePlan &&
-        sanitizePlans([result.eligibleSourcePlan]).at(0),
-    };
-  }
 }
 
 export const mozillaSubscriptionRoutes = ({
@@ -404,26 +376,6 @@ export const mozillaSubscriptionRoutes = ({
       },
       handler: (request: AuthRequest) =>
         mozillaSubscriptionHandler.getBillingDetailsAndSubscriptions(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planId}',
-      options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY,
-        auth: {
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        validate: {
-          params: {
-            planId: validators.subscriptionsPlanId
-              .required()
-              .description(DESCRIPTIONS.planId),
-          },
-        },
-      },
-      handler: (request: AuthRequest) =>
-        mozillaSubscriptionHandler.getPlanEligibility(request),
     },
   ];
 };

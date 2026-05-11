@@ -237,8 +237,6 @@ const SUBHUB_METHOD_NAMES = [
   'deleteCustomer',
   'listSubscriptions',
   'createSubscription',
-  'cancelSubscription',
-  'reactivateSubscription',
 ];
 
 const STATSD_METHOD_NAMES = ['increment', 'timing', 'histogram'];

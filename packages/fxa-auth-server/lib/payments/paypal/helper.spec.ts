@@ -28,7 +28,6 @@ import {
 
 const { mockLog } = require('../../../test/mocks');
 
-const successfulSetExpressCheckoutResponse = require('../../../test/local/payments/fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('../../../test/local/payments/fixtures/paypal/do_reference_transaction_success.json');
 const successfulRefundTransactionResponse = require('../../../test/local/payments/fixtures/paypal/refund_transaction_success.json');
 const failedDoReferenceTransactionResponse = require('../../../test/local/payments/fixtures/paypal/do_reference_transaction_failure.json');
@@ -142,83 +141,6 @@ describe('PayPalHelper', () => {
         paymentAttempt
       );
       expect(result).toEqual(invoiceId + '-' + paymentAttempt);
-    });
-  });
-
-  describe('parseIdempotencyKey', () => {
-    const invoiceId = 'inv_000';
-    const paymentAttempt = 0;
-
-    it('successfully parses an idempotency key', async () => {
-      const result = paypalHelper.parseIdempotencyKey(
-        invoiceId + '-' + paymentAttempt
-      );
-      expect(result).toEqual({
-        invoiceId,
-        paymentAttempt: paymentAttempt + 1,
-      });
-    });
-  });
-
-  describe('getCheckoutToken', () => {
-    const validOptions = { currencyCode: 'USD' };
-
-    it('it returns the token from doRequest', async () => {
-      paypalHelper.client.doRequest = jest
-        .fn()
-        .mockResolvedValue(successfulSetExpressCheckoutResponse);
-      const token = await paypalHelper.getCheckoutToken(validOptions);
-      expect(token).toEqual(successfulSetExpressCheckoutResponse.TOKEN);
-    });
-
-    it('if doRequest unsuccessful, throws an error', async () => {
-      const nvpError = new PayPalNVPError('Fake', {} as NVPErrorResponse, {
-        message: 'oh no',
-        errorCode: 123,
-      });
-      paypalHelper.client.doRequest = jest.fn().mockImplementation(() => {
-        throw new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse);
-      });
-      await expect(paypalHelper.getCheckoutToken(validOptions)).rejects.toThrow(
-        PayPalClientError
-      );
-    });
-
-    it('calls setExpressCheckout with passed options', async () => {
-      paypalHelper.client.setExpressCheckout = jest
-        .fn()
-        .mockResolvedValue(successfulSetExpressCheckoutResponse);
-      const currencyCode = 'EUR';
-      await paypalHelper.getCheckoutToken({ currencyCode });
-      expect(paypalHelper.client.setExpressCheckout).toHaveBeenCalledTimes(1);
-      expect(paypalHelper.client.setExpressCheckout).toHaveBeenCalledWith({
-        currencyCode,
-      });
-    });
-  });
-
-  describe('createBillingAgreement', () => {
-    const validOptions = {
-      token: 'insert_token_value_here',
-    };
-
-    const expectedResponse = {
-      BILLINGAGREEMENTID: 'B-7FB31251F28061234',
-      ACK: 'Success',
-    };
-
-    it('calls createBillingAgreement with passed options', async () => {
-      paypalHelper.client.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValue(expectedResponse);
-      const response = await paypalHelper.createBillingAgreement(validOptions);
-      expect(paypalHelper.client.createBillingAgreement).toHaveBeenCalledTimes(
-        1
-      );
-      expect(paypalHelper.client.createBillingAgreement).toHaveBeenCalledWith(
-        validOptions
-      );
-      expect(response).toEqual('B-7FB31251F28061234');
     });
   });
 

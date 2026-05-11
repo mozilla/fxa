@@ -4,7 +4,6 @@
 
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
-  stripeInvoicesToSubsequentInvoicePreviewsDTO,
   stripeInvoiceToLatestInvoiceItemsDTO,
 } from './stripe-formatter';
 
@@ -114,47 +113,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.discount).toBeUndefined();
     expect(invoice.one_time_charge).toBe(proratedInvoice.total);
     expect(invoice.prorated_amount).toBe(proratedInvoice.lines.data[0].amount);
-  });
-});
-
-describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
-  it('formats an array of invoices', () => {
-    const invoice = stripeInvoicesToSubsequentInvoicePreviewsDTO([
-      deepCopy(previewInvoiceWithDiscountAndTax),
-      deepCopy(previewInvoiceWithDiscountAndTax),
-    ]);
-    expect(invoice[0].subscriptionId).toBe(
-      previewInvoiceWithDiscountAndTax.subscription
-    );
-    expect(invoice[0].period_start).toBe(
-      previewInvoiceWithDiscountAndTax.period_end
-    );
-    expect(invoice[0].total).toBe(previewInvoiceWithDiscountAndTax.total);
-    expect(invoice[1].subscriptionId).toBe(
-      previewInvoiceWithDiscountAndTax.subscription
-    );
-    expect(invoice[1].period_start).toBe(
-      previewInvoiceWithDiscountAndTax.period_end
-    );
-    expect(invoice[1].total).toBe(previewInvoiceWithDiscountAndTax.total);
-  });
-
-  it('formats an invoice where tax display_name is an empty string', () => {
-    const invoicePreview = deepCopy(previewInvoiceWithTax);
-    invoicePreview.total_tax_amounts[0].tax_rate.display_name = '';
-
-    const invoices = stripeInvoicesToSubsequentInvoicePreviewsDTO([
-      invoicePreview,
-    ]);
-    const invoice = invoices[0];
-
-    expect(invoice.total).toBe(invoicePreview.total);
-    expect(invoice.subtotal).toBe(invoicePreview.subtotal);
-    expect(invoice.tax[0].amount).toBe(
-      invoicePreview.total_tax_amounts[0].amount
-    );
-    expect(invoice.tax[0].display_name).toBeUndefined();
-    expect(invoice.tax[0].inclusive).toBe(true);
   });
 });
 

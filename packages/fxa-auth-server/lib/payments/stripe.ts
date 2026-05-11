@@ -18,7 +18,6 @@ import {
   getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import {
   getIapPurchaseType,
   isAppStoreSubscriptionPurchase,
@@ -40,7 +39,6 @@ import {
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
-  getMinimumAmount,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import {
@@ -51,11 +49,9 @@ import {
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
   PaypalPaymentError,
   WebSubscription,
-  InvoicePreview,
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
-import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';
@@ -64,7 +60,7 @@ import { ConfigType } from '../../config';
 import { AppError as error } from '@fxa/accounts/errors';
 import { GoogleMapsService } from '../google-maps-services';
 import Redis from '../redis';
-import { AppConfig, AuthFirestore, AuthLogger, TaxAddress } from '../types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
@@ -75,7 +71,6 @@ import {
   StripeFirestore,
 } from './stripe-firestore';
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
-import { generateIdempotencyKey, roundTime } from './utils';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
@@ -355,412 +350,11 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Create a stripe customer.
    */
-  async createPlainCustomer(args: {
-    uid: string;
-    email: string;
-    displayName: string;
-    idempotencyKey: string;
-    taxAddress?: TaxAddress;
-  }): Promise<Stripe.Customer> {
-    const { uid, email, displayName, idempotencyKey, taxAddress } = args;
-
-    const shipping = taxAddress
-      ? {
-          name: email,
-          address: {
-            country: taxAddress.countryCode,
-            postal_code: taxAddress.postalCode,
-          },
-        }
-      : undefined;
-
-    const stripeCustomer = await this.stripe.customers.create(
-      {
-        email,
-        name: displayName,
-        description: uid,
-        metadata: {
-          userid: uid,
-          geoip_date: new Date().toString(),
-        },
-        shipping,
-      },
-      {
-        idempotencyKey,
-      }
-    );
-    await Promise.all([
-      createAccountCustomer(uid, stripeCustomer.id),
-      this.stripeFirestore.insertCustomerRecord(uid, stripeCustomer),
-    ]);
-    return stripeCustomer;
-  }
-
   /**
    * Insert a local db record for a customer that already exist on Stripe.
    */
   async createLocalCustomer(uid: string, stripeCustomer: Stripe.Customer) {
     return createAccountCustomer(uid, stripeCustomer.id);
-  }
-
-  /**
-   * Update an existing customer to use a new payment method id.
-   */
-  async retryInvoiceWithPaymentId(
-    customerId: string,
-    invoiceId: string,
-    paymentMethodId: string,
-    idempotencyKey: string
-  ) {
-    try {
-      const paymentMethod = await this.stripe.paymentMethods.attach(
-        paymentMethodId,
-        {
-          customer: customerId,
-        },
-        { idempotencyKey }
-      );
-      const customer = await this.stripe.customers.update(customerId, {
-        invoice_settings: { default_payment_method: paymentMethodId },
-      });
-      await this.stripeFirestore.insertCustomerRecordWithBackfill(
-        customer.metadata.userid,
-        customer
-      );
-      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
-      // Try paying now instead of waiting for Stripe since this could block a
-      // customer from finishing a payment
-      const invoice = await this.stripe.invoices.pay(invoiceId, {
-        expand: ['payment_intent'],
-      });
-      await this.stripeFirestore.insertInvoiceRecord(invoice);
-      return invoice;
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
-  }
-
-  /**
-   * Create a subscription for the provided customer.
-   */
-  async createSubscriptionWithPMI(opts: {
-    customerId: string;
-    priceId: string;
-    paymentMethodId?: string;
-    promotionCode?: Stripe.PromotionCode;
-    automaticTax: boolean;
-  }) {
-    const {
-      customerId,
-      priceId,
-      paymentMethodId,
-      promotionCode,
-      automaticTax,
-    } = opts;
-
-    let paymentMethod;
-    if (paymentMethodId) {
-      try {
-        paymentMethod = await this.stripe.paymentMethods.attach(
-          paymentMethodId,
-          {
-            customer: customerId,
-          }
-          // At the moment the frontend creates a new paymentMethod before every call to this method.
-          // If we were to reuse the same idempotencyKey we'd get the idempotency_error from Stripe.
-          // https://stripe.com/docs/api/errors
-          // As a potential alternative approach, we could compare paymentMethod fingerprints before
-          // attaching it to paymentMethods.
-          // { idempotencyKey: `pma-${subIdempotencyKey}` }
-        );
-      } catch (err) {
-        if (err.type === 'StripeCardError') {
-          throw error.rejectedSubscriptionPaymentToken(err.message, err);
-        }
-        throw err;
-      }
-      const customer = await this.stripe.customers.update(customerId, {
-        invoice_settings: { default_payment_method: paymentMethodId },
-      });
-      await this.stripeFirestore.insertCustomerRecordWithBackfill(
-        customer.metadata.userid,
-        customer
-      );
-      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
-    }
-
-    this.statsd.increment('stripe_subscription', {
-      payment_provider: 'stripe',
-    });
-
-    const subIdempotencyKey = generateIdempotencyKey([
-      customerId,
-      priceId,
-      paymentMethod?.card?.fingerprint || '',
-      roundTime(),
-    ]);
-
-    const createParams: Stripe.SubscriptionCreateParams = {
-      customer: customerId,
-      items: [{ price: priceId }],
-      expand: ['latest_invoice.payment_intent.latest_charge'],
-      promotion_code: promotionCode?.id,
-      automatic_tax: {
-        enabled: automaticTax,
-      },
-    };
-
-    const subscription = await this.stripe.subscriptions.create(createParams, {
-      idempotencyKey: `ssc-${subIdempotencyKey}`,
-    });
-
-    const paymentIntent = (subscription.latest_invoice as Stripe.Invoice)
-      .payment_intent as Stripe.PaymentIntent;
-
-    if (paymentIntent?.last_payment_error) {
-      await this.cancelSubscription(subscription.id);
-
-      throw error.rejectedSubscriptionPaymentToken(
-        paymentIntent.last_payment_error.code,
-        new Error(
-          `Subscription creation failed with error code ${paymentIntent.last_payment_error.code}`
-        )
-      );
-    }
-
-    const updatedSubscription = await this.postSubscriptionCreationUpdates({
-      subscription,
-      promotionCode,
-    });
-
-    return updatedSubscription;
-  }
-
-  /**
-   * Create a subscription for the provided customer using PayPal.
-   *
-   * A subscription will be created for out-of-band payment with the
-   * collection_method set to send_invoice.
-   *
-   * If an active/past_due subscription exists in this state for this
-   * priceId, then it will be returned instead of creating a new one.
-   *
-   */
-  async createSubscriptionWithPaypal(opts: {
-    customer: Stripe.Customer;
-    priceId: string;
-    promotionCode?: Stripe.PromotionCode;
-    subIdempotencyKey: string;
-    automaticTax: boolean;
-  }) {
-    const {
-      customer,
-      priceId,
-      promotionCode,
-      subIdempotencyKey,
-      automaticTax,
-    } = opts;
-
-    const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
-    if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
-      if (sub.collection_method === 'send_invoice') {
-        sub.latest_invoice = await this.expandResource(
-          sub.latest_invoice,
-          INVOICES_RESOURCE
-        );
-        return sub;
-      }
-      throw error.subscriptionAlreadyExists();
-    } else if (sub && sub.status === 'incomplete') {
-      // Sub has never been active or charged, delete it.
-      this.stripe.subscriptions.cancel(sub.id);
-    }
-
-    this.statsd.increment('stripe_subscription', {
-      payment_provider: 'paypal',
-    });
-
-    const createParams: Stripe.SubscriptionCreateParams = {
-      customer: customer.id,
-      items: [{ price: priceId }],
-      expand: ['latest_invoice'],
-      collection_method: 'send_invoice',
-      days_until_due: 1,
-      promotion_code: promotionCode?.id,
-      automatic_tax: {
-        enabled: automaticTax,
-      },
-    };
-
-    const subscription = await this.stripe.subscriptions.create(createParams, {
-      idempotencyKey: `ssc-${subIdempotencyKey}`,
-    });
-
-    const updatedSubscription = await this.postSubscriptionCreationUpdates({
-      subscription,
-      promotionCode,
-    });
-
-    return updatedSubscription;
-  }
-
-  private async postSubscriptionCreationUpdates({
-    subscription,
-    promotionCode,
-  }: {
-    subscription: Stripe.Response<Stripe.Subscription>;
-    promotionCode?: Stripe.PromotionCode;
-  }) {
-    // Save the promotion code into the subscription's metadata now that the
-    // subscription has been successfully created.
-    if (
-      promotionCode &&
-      (subscription.latest_invoice as Stripe.Invoice).discount
-    ) {
-      const subscriptionMetadata = {
-        ...subscription.metadata,
-        [SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY]: promotionCode.code,
-      };
-      subscription.metadata = subscriptionMetadata;
-      await this.stripe.subscriptions.update(subscription.id, {
-        metadata: subscriptionMetadata,
-      });
-    }
-
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
-      ...subscription,
-      latest_invoice: subscription.latest_invoice
-        ? (subscription.latest_invoice as Stripe.Invoice).id
-        : null,
-    });
-
-    return subscription;
-  }
-
-  /**
-   * Previews an invoice for a customer in the provided country with a
-   * subscription of the given priceId and a possible discount applied.
-   *
-   * The discount parameter is optional and can be either a coupon id or
-   * a promotion code.
-   */
-  async previewInvoice({
-    customer,
-    priceId,
-    promotionCode,
-    taxAddress,
-    isUpgrade,
-    sourcePlan,
-  }: {
-    customer?: Stripe.Customer;
-    priceId: string;
-    promotionCode?: string;
-    taxAddress?: TaxAddress;
-    isUpgrade?: boolean;
-    sourcePlan?: AbbrevPlan;
-  }): Promise<InvoicePreview> {
-    const params: Stripe.InvoiceRetrieveUpcomingParams = {};
-
-    const { currency: planCurrency } = await this.findAbbrevPlanById(priceId);
-
-    if (promotionCode) {
-      const stripePromotionCode = await this.findValidPromoCode(
-        promotionCode,
-        priceId
-      );
-      if (stripePromotionCode) {
-        params['coupon'] = stripePromotionCode.coupon.id;
-      }
-    }
-
-    const automaticTax = !!(
-      (customer &&
-        this.isCustomerTaxableWithSubscriptionCurrency(
-          customer,
-          planCurrency
-        )) ||
-      (!customer &&
-        taxAddress &&
-        this.currencyHelper.isCurrencyCompatibleWithCountry(
-          planCurrency,
-          taxAddress.countryCode
-        ))
-    );
-
-    const shipping =
-      !customer && taxAddress
-        ? {
-            name: '',
-            address: {
-              country: taxAddress.countryCode,
-              postal_code: taxAddress.postalCode,
-            },
-          }
-        : undefined;
-
-    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
-      customer: customer?.id,
-      automatic_tax: {
-        enabled: automaticTax,
-      },
-      customer_details: {
-        tax_exempt: 'none', // Param required when shipping address not present
-        shipping,
-      },
-      subscription_items: [{ price: priceId }],
-      expand: ['total_tax_amounts.tax_rate'],
-      ...params,
-    };
-
-    try {
-      const firstInvoice =
-        await this.stripe.invoices.retrieveUpcoming(requestObject);
-
-      let proratedInvoice;
-      if (isUpgrade && requestObject.subscription_items?.length) {
-        try {
-          requestObject.subscription_proration_behavior = 'always_invoice';
-          requestObject.subscription_proration_date = Math.floor(
-            Date.now() / 1000
-          );
-          const subscriptionItem = customer?.subscriptions?.data
-            .flatMap((sub) => sub.items.data)
-            ?.find((sub) => sub.plan.id === sourcePlan?.plan_id);
-
-          requestObject.subscription_items[0].id = subscriptionItem?.id;
-          requestObject.subscription = subscriptionItem?.subscription;
-
-          proratedInvoice =
-            await this.stripe.invoices.retrieveUpcoming(requestObject);
-        } catch (error: any) {
-          Sentry.withScope((scope) => {
-            scope.setContext('previewInvoice.proratedInvoice', {
-              error: error,
-              msg: error.message,
-            });
-            reportSentryMessage(
-              `Invoice Preview Error: Prorated Invoice Preview`,
-              'error' as SeverityLevel
-            );
-          });
-          this.log.error('subscriptions.previewInvoice.proratedInvoice', error);
-        }
-      }
-
-      return [firstInvoice, proratedInvoice];
-    } catch (e: any) {
-      this.log.warn('stripe.previewInvoice.automatic_tax', {
-        postalCode: taxAddress?.postalCode,
-        countryCode: taxAddress?.countryCode,
-        priceId,
-        promotionCode,
-      });
-
-      throw e;
-    }
   }
 
   /**
@@ -784,47 +378,6 @@ export class StripeHelper extends StripeHelperBase {
     return this.stripe.coupons.retrieve(couponId, {
       expand: ['applies_to'],
     });
-  }
-
-  /**
-   * Determines whether a given promotion code is
-   * a valid code in the system for the given price, and if it hasn't
-   * expired.
-   *
-   * Note that this does not check whether the coupon has been redeemed to
-   * many times, whether its valid for a first time customer, or any of the
-   * other conditions that may apply to its use.
-   */
-  async findValidPromoCode(
-    code: string,
-    priceId: string
-  ): Promise<Stripe.PromotionCode | undefined> {
-    const nowSecs = Date.now() / 1000;
-
-    // Determine if code exists, is active, and has not expired.
-    const promotionCode = await this.findPromoCodeByCode(code, true);
-    if (
-      !promotionCode ||
-      (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
-    ) {
-      return;
-    }
-
-    // Is the coupon valid given redemptions/expiration and product restrictions?
-    if (!promotionCode.coupon.valid) {
-      return;
-    }
-
-    // Is the coupon valid for this price?
-    const planContainsPromo = await this.checkPromotionCodeForPlan(
-      code,
-      priceId
-    );
-    if (!planContainsPromo) {
-      return;
-    }
-
-    return promotionCode;
   }
 
   /**
@@ -954,96 +507,6 @@ export class StripeHelper extends StripeHelperBase {
       }
     } else {
       return true;
-    }
-  }
-
-  /**
-   * Retrieve details about a coupon for a given priceId and possible
-   * promotion code for a customer in the provided country. Will also
-   * provide the discount amount for the subscription via
-   * previewInvoice return value. Coupon details are returned
-   * regardless of current validity (expiry, redeemability).
-   *
-   * Throws invalidPromoCode error if the promotion code does not
-   * exist for the provided priceId.
-   */
-  async retrieveCouponDetails({
-    priceId,
-    promotionCode,
-    taxAddress,
-  }: {
-    priceId: string;
-    promotionCode: string;
-    taxAddress?: TaxAddress;
-  }): Promise<Coupon.couponDetailsSchema> {
-    const stripePromotionCode = await this.retrievePromotionCodeForPlan(
-      promotionCode,
-      priceId
-    );
-
-    if (stripePromotionCode?.coupon.id) {
-      const stripeCoupon: Stripe.Coupon = stripePromotionCode.coupon;
-
-      const couponDetails: Coupon.couponDetailsSchema = {
-        promotionCode: promotionCode,
-        type: stripeCoupon.duration,
-        durationInMonths: stripeCoupon.duration_in_months,
-        valid: false,
-        maximallyRedeemed: false,
-        expired: false,
-      };
-
-      const verifiedPromotionAndCoupon = await this.verifyPromotionAndCoupon(
-        priceId,
-        stripePromotionCode
-      );
-
-      if (verifiedPromotionAndCoupon.valid) {
-        try {
-          const invoicePreview = (
-            await this.previewInvoice({
-              priceId,
-              promotionCode,
-              taxAddress,
-            })
-          )[0];
-
-          const { currency, discount, total, total_discount_amounts } =
-            invoicePreview;
-
-          const minAmount = getMinimumAmount(currency);
-          if (total !== 0 && minAmount && total < minAmount) {
-            throw error.invalidPromoCode(promotionCode);
-          }
-
-          if (discount && total_discount_amounts) {
-            couponDetails.discountAmount = total_discount_amounts[0].amount;
-          }
-        } catch (err) {
-          if (
-            err instanceof error &&
-            err.errno === error.ERRNO.INVALID_PROMOTION_CODE
-          ) {
-            throw err;
-          } else {
-            verifiedPromotionAndCoupon.valid = false;
-            Sentry.withScope((scope) => {
-              scope.setContext('retrieveCouponDetails', {
-                priceId,
-                promotionCode,
-              });
-              reportSentryError(err);
-            });
-          }
-        }
-      }
-
-      return {
-        ...couponDetails,
-        ...verifiedPromotionAndCoupon,
-      };
-    } else {
-      throw error.invalidPromoCode(promotionCode);
     }
   }
 
@@ -1423,52 +886,6 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Set the state (code), country (code), and postal code for a customer.
-   * Returns a boolean indicating success.  It does not throw any exceptions as
-   * this operation should not block any functionality.
-   *
-   * This will _overwrite_ any existing customer address.
-   */
-  async setCustomerLocation({
-    customerId,
-    postalCode,
-    country,
-  }: {
-    customerId: string;
-    postalCode: string;
-    country: string;
-  }): Promise<boolean> {
-    try {
-      const state = await this.googleMapsService.getStateFromZip(
-        postalCode,
-        country
-      );
-
-      await this.updateCustomerBillingAddress({
-        customerId: customerId,
-        options: {
-          line1: '',
-          line2: '',
-          city: '',
-          state,
-          country,
-          postalCode,
-        },
-      });
-      return true;
-    } catch (err: unknown) {
-      Sentry.withScope((scope) => {
-        scope.setContext('setCustomerLocation', {
-          customer: { id: customerId },
-          postalCode,
-          country,
-        });
-        reportSentryError(err);
-      });
-    }
-    return false;
-  }
-  /**
    * Update the customer object to add a PayPal Billing Agreement ID.
    *
    * This is a no-op if the billing agreement is already attached to the customer.
@@ -1561,56 +978,6 @@ export class StripeHelper extends StripeHelperBase {
     subscriptionId: string
   ): Promise<Stripe.Subscription> {
     return this.stripe.subscriptions.cancel(subscriptionId);
-  }
-
-  /**
-   * Create a SetupIntent for a customer.
-   */
-  async createSetupIntent(customerId: string): Promise<Stripe.SetupIntent> {
-    return this.stripe.setupIntents.create({ customer: customerId });
-  }
-
-  /**
-   * Updates the default payment method used for invoices for the customer
-   */
-  async updateDefaultPaymentMethod(
-    customerId: string,
-    paymentMethodId: string
-  ): Promise<Stripe.Customer> {
-    const customer = await this.stripe.customers.update(customerId, {
-      invoice_settings: { default_payment_method: paymentMethodId },
-    });
-    await this.stripeFirestore.insertCustomerRecordWithBackfill(
-      customer.metadata.userid,
-      customer
-    );
-    return customer;
-  }
-
-  /**
-   * Remove all sources from a customer.
-   *
-   * For users that are using payment methods, we no longer wish to store
-   * sources so we remove them all.
-   *
-   * Returns the deleted cards.
-   */
-  async removeSources(customerId: string): Promise<Stripe.Card[]> {
-    const sources = await this.stripe.customers.listSources(customerId, {
-      object: 'card',
-    });
-    if (sources.data.length === 0) {
-      return [];
-    }
-    return Promise.all(
-      sources.data.map(
-        (s) =>
-          this.stripe.customers.deleteSource(
-            customerId,
-            s.id
-          ) as unknown as Promise<Stripe.Card>
-      )
-    );
   }
 
   async getPaymentMethod(
@@ -1791,15 +1158,6 @@ export class StripeHelper extends StripeHelperBase {
     );
   }
 
-  async detachPaymentMethod(
-    paymentMethodId: string
-  ): Promise<Stripe.PaymentMethod> {
-    const paymentMethod =
-      await this.stripe.paymentMethods.detach(paymentMethodId);
-    await this.stripeFirestore.removePaymentMethodRecord(paymentMethodId);
-    return paymentMethod;
-  }
-
   /**
    * Fetch a customer for the record from Stripe based on user id.
    */
@@ -1898,29 +1256,6 @@ export class StripeHelper extends StripeHelperBase {
         {}
       );
     }
-  }
-
-  /**
-   * Fetch a subscription for a customer from Stripe.
-   *
-   * Uses Redis caching if configured.
-   *
-   * Note: This method is used in context to only return this
-   * subscription if it belongs to this user.
-   */
-  async subscriptionForCustomer(
-    uid: string,
-    email: string,
-    subscriptionId: string
-  ): Promise<Stripe.Subscription | void> {
-    const customer = await this.fetchCustomer(uid, ['subscriptions']);
-    if (!customer) {
-      return;
-    }
-
-    return customer.subscriptions?.data.find(
-      (subscription) => subscription.id === subscriptionId
-    );
   }
 
   /**
@@ -2096,124 +1431,6 @@ export class StripeHelper extends StripeHelperBase {
       updatedSubscription
     );
     return updatedSubscription;
-  }
-
-  /**
-   * Change a subscription to the new plan.
-   *
-   * Note that this call does not verify its a valid upgrade, the
-   * `verifyPlanUpgradeForSubscription` should be done first to
-   * validate this is an appropriate change for tier use.
-   */
-  async changeSubscriptionPlan(
-    subscription: Stripe.Subscription,
-    newPlanId: string,
-    newPlanAmount: number,
-    newPlanCurrency: string
-  ): Promise<Stripe.Subscription> {
-    const currentPlanId = subscription.items.data[0].plan.id;
-    if (currentPlanId === newPlanId) {
-      throw error.subscriptionAlreadyChanged();
-    }
-
-    const updatedMetadata = {
-      ...subscription.metadata,
-      amount: newPlanAmount,
-      currency: newPlanCurrency,
-      previous_plan_id: currentPlanId,
-      plan_change_date: moment().unix(),
-    };
-
-    const updatedSubscription = await this.updateSubscriptionAndBackfill(
-      subscription,
-      {
-        cancel_at_period_end: false,
-        items: [
-          {
-            id: subscription.items.data[0].id,
-            plan: newPlanId,
-          },
-        ],
-        proration_behavior: 'always_invoice',
-        metadata: updatedMetadata,
-      }
-    );
-    return updatedSubscription;
-  }
-
-  /**
-   * Cancel a given subscription for a customer
-   * If the subscription does not belong to the customer, throw an error
-   */
-  async cancelSubscriptionForCustomer(
-    uid: string,
-    email: string,
-    subscriptionId: string
-  ): Promise<void> {
-    const subscription = await this.subscriptionForCustomer(
-      uid,
-      email,
-      subscriptionId
-    );
-    if (!subscription) {
-      throw error.unknownSubscription(subscriptionId);
-    }
-
-    await this.updateSubscriptionAndBackfill(subscription, {
-      cancel_at_period_end: true,
-      metadata: {
-        ...(subscription.metadata || {}),
-        cancelled_for_customer_at: moment().unix(),
-      },
-    });
-  }
-
-  /**
-   * Reactivate a given subscription for a customer
-   * If a customer has an active subscription that is set to cancel at the period end:
-   *  1. Update the subscription to remain active at the period end
-   *  2. Verify that after the update the subscription is still in an active state
-   *    True: return the updated Subscription
-   *    False: throw an error
-   * If the customer does not own the subscription, throw an error
-   */
-  async reactivateSubscriptionForCustomer(
-    uid: string,
-    email: string,
-    subscriptionId: string
-  ): Promise<Stripe.Subscription> {
-    const subscription = await this.subscriptionForCustomer(
-      uid,
-      email,
-      subscriptionId
-    );
-    if (!subscription) {
-      throw error.unknownSubscription(subscriptionId);
-    }
-
-    if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-      const err = new Error(
-        `Reactivated subscription (${subscriptionId}) is not active/trialing`
-      );
-      throw error.backendServiceFailure(
-        'stripe',
-        'reactivateSubscription',
-        {},
-        err
-      );
-    }
-
-    const reactivatedSubscription = await this.updateSubscriptionAndBackfill(
-      subscription,
-      {
-        cancel_at_period_end: false,
-        metadata: {
-          ...(subscription.metadata || {}),
-          cancelled_for_customer_at: '',
-        },
-      }
-    );
-    return reactivatedSubscription;
   }
 
   /**
@@ -3515,7 +2732,10 @@ export class StripeHelper extends StripeHelperBase {
       CUSTOMER_RESOURCE
     );
     if (!customer.deleted && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
+      await this.stripeFirestore.fetchAndInsertCustomer(
+        customerId,
+        event.created
+      );
       const subscription =
         await this.stripe.subscriptions.retrieve(subscriptionId);
       return subscription;
@@ -3556,7 +2776,10 @@ export class StripeHelper extends StripeHelperBase {
       );
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
+        await this.stripeFirestore.fetchAndInsertCustomer(
+          customerId,
+          event.created
+        );
         await this.stripeFirestore.fetchAndInsertInvoice(
           invoiceId,
           event.created
