@@ -66,7 +66,14 @@ export async function initSubplat({
     collectionName: `${config.authFirestore.prefix}iap-play-purchases`,
   };
   const appleClientConfig: AppleIapClientConfig = {
-    credentials: [config.subscriptions.appStore.credentials as any],
+    credentials: Object.entries(config.subscriptions.appStore.credentials).map(
+      ([bundleKey, v]: [string, any]) => ({
+        bundleId: bundleKey.replace(/_/g, '.'),
+        key: v.serverApiKey,
+        keyId: v.serverApiKeyId,
+        issuerId: v.issuerId,
+      })
+    ),
     environment: config.subscriptions.appStore.sandbox
       ? Environment.Sandbox
       : Environment.Production,
