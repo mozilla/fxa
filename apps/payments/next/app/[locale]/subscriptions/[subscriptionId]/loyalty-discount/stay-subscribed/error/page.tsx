@@ -40,12 +40,9 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   let pageContent;
   try {
     pageContent = await determineStaySubscribedEligibilityAction(
-      uid,
       subscriptionId,
       acceptLanguage
     );

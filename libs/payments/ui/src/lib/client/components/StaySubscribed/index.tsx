@@ -21,7 +21,6 @@ import {
 } from '@fxa/shared/l10n';
 
 interface StaySubscribedProps {
-  userId: string;
   subscriptionId: string;
   locale: string;
   pageContent: {
@@ -39,7 +38,6 @@ interface StaySubscribedProps {
 }
 
 export function StaySubscribed({
-  userId,
   subscriptionId,
   locale,
   pageContent,
@@ -67,7 +65,7 @@ export function StaySubscribed({
     setLoading(true);
     setResubscribeActionError(false);
 
-    const result = await resubscribeSubscriptionAction(userId, subscriptionId);
+    const result = await resubscribeSubscriptionAction(subscriptionId);
     if (!result.ok) {
       setResubscribeActionError(true);
     }

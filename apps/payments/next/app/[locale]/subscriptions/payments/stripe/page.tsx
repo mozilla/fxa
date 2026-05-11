@@ -28,7 +28,7 @@ export default async function StripePaymentManagementPage({
 
   let stripeClientSession;
   try {
-    stripeClientSession = await getStripeClientSession(session.user.id);
+    stripeClientSession = await getStripeClientSession();
   } catch (error) {
     if (error.name === 'AccountCustomerNotFoundError') {
       // TODO: replace with redirect to collect tax location data and create customer / accountCustomer
@@ -58,7 +58,6 @@ export default async function StripePaymentManagementPage({
         instanceKey={instanceKey}
       >
         <PaymentMethodManagement
-          uid={session?.user?.id}
           defaultPaymentMethod={defaultPaymentMethod}
           sessionEmail={session?.user?.email ?? undefined}
           locale={locale}

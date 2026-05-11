@@ -28,7 +28,6 @@ import { LinkExternal } from '@fxa/shared/react';
 import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface ChurnStaySubscribedProps {
-  uid: string;
   metricsEnabled: boolean;
   subscriptionId: string;
   locale: string;
@@ -69,7 +68,6 @@ interface ChurnStaySubscribedProps {
 }
 
 export function ChurnStaySubscribed({
-  uid,
   metricsEnabled,
   subscriptionId,
   locale,
@@ -157,7 +155,6 @@ export function ChurnStaySubscribed({
 
     try {
       const result = await redeemChurnCouponAction(
-        uid,
         subscriptionId,
         'stay_subscribed',
         { ...params },
@@ -213,7 +210,7 @@ export function ChurnStaySubscribed({
     });
 
     try {
-      const result = await resubscribeSubscriptionAction(uid, subscriptionId);
+      const result = await resubscribeSubscriptionAction(subscriptionId);
       if (result.ok) {
         glean.recordRetentionFlowResult({
           ...retentionFlowBase,

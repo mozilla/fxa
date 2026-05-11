@@ -45,14 +45,12 @@ interface TrialSubscription {
 interface FreeTrialContentProps {
   trial: TrialSubscription;
   locale: string;
-  userId: string;
   updatePaymentUrl?: string;
 }
 
 export const FreeTrialContent = ({
   trial,
   locale,
-  userId,
   updatePaymentUrl,
 }: FreeTrialContentProps) => {
   const {
@@ -175,7 +173,7 @@ export const FreeTrialContent = ({
     setLoading(true);
     setShowActionError(false);
 
-    const result = await cancelSubscriptionAtPeriodEndAction(userId, trial.id);
+    const result = await cancelSubscriptionAtPeriodEndAction(trial.id);
     if (result.ok) {
       setIsCancelled(true);
     } else {
@@ -190,7 +188,7 @@ export const FreeTrialContent = ({
     setLoading(true);
     setShowActionError(false);
 
-    const result = await cancelSubscriptionImmediatelyAction(userId, trial.id);
+    const result = await cancelSubscriptionImmediatelyAction(trial.id);
     if (result.ok) {
       setIsCancelled(true);
     } else {
@@ -205,7 +203,7 @@ export const FreeTrialContent = ({
     setLoading(true);
     setShowActionError(false);
 
-    const result = await resubscribeSubscriptionAction(userId, trial.id);
+    const result = await resubscribeSubscriptionAction(trial.id);
     if (result.ok) {
       setIsCancelled(false);
     } else {

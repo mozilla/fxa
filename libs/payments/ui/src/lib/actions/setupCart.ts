@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use server';
 
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import type { SubplatInterval, TaxAddress } from '@fxa/payments/customer';
 
@@ -11,9 +12,9 @@ export const setupCartAction = async (
   offeringConfigId: string,
   taxAddress: TaxAddress,
   experiment?: string,
-  promoCode?: string,
-  uid?: string
+  promoCode?: string
 ) => {
+  const uid = await getSessionUid();
   return getApp().getActionsService().setupCart({
     interval,
     offeringConfigId,

@@ -60,6 +60,7 @@
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
+      "@fxa/payments/ui-auth": ["libs/payments/ui-auth/src/index.ts"],
       "@fxa/payments/ui/actions": ["libs/payments/ui/src/lib/actions/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
       "@fxa/payments/ui/utils": ["libs/payments/ui/src/utils.ts"],

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { auth } from 'apps/payments/next/auth';
 import { notFound, redirect } from 'next/navigation';
 import {
   validateLocationAction,
@@ -58,9 +57,7 @@ export default async function New({
   const resolvedSearchParams = await searchParams;
   const { offeringId, interval } = resolvedParams;
   const ipAddress = await getIpAddress();
-  const session = await auth();
 
-  const fxaUid = session?.user?.id;
   const searchParamsCoupon = Array.isArray(resolvedSearchParams.coupon)
     ? resolvedSearchParams.coupon[0]
     : resolvedSearchParams.coupon || undefined;
@@ -74,14 +71,13 @@ export default async function New({
   const taxAddress =
     countryCode && postalCode
       ? { countryCode, postalCode }
-      : await getTaxAddressAction(ipAddress, fxaUid);
+      : await getTaxAddressAction(ipAddress);
 
   // Check if the customer is in a location not supported by Subscription Platform
   // or whether the product is not available in the customer's location
   const { isValid: locationIsValid } = await validateLocationAction(
     offeringId,
     taxAddress,
-    fxaUid,
     interval
   );
 
@@ -128,8 +124,7 @@ export default async function New({
       offeringId,
       taxAddress,
       undefined,
-      cartCoupon || searchParamsCoupon,
-      fxaUid
+      cartCoupon || searchParamsCoupon
     );
 
     redirectToUrl = getRedirectToUrl(cart, resolvedParams, resolvedSearchParams);
@@ -143,8 +138,7 @@ export default async function New({
         offeringId,
         taxAddress,
         undefined,
-        undefined,
-        fxaUid
+        undefined
       );
       redirectToUrl = getRedirectToUrl(cart, resolvedParams, resolvedSearchParams);
     } else if (

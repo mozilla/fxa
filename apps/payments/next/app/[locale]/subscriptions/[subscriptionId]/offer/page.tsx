@@ -41,12 +41,9 @@ export default async function InterstitialOfferPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   let interstitialOfferContent;
   try {
     interstitialOfferContent = await getInterstitialOfferContentAction(
-      uid,
       subscriptionId,
       acceptLanguage,
       locale
@@ -74,7 +71,6 @@ export default async function InterstitialOfferPage({
 
   return (
     <InterstitialOffer
-      uid={uid}
       metricsEnabled={session?.user?.metricsEnabled ?? true}
       locale={locale}
       subscriptionId={subscriptionId}

@@ -30,7 +30,6 @@ import { LinkExternal } from '@fxa/shared/react';
 import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface ChurnCancelProps {
-  uid: string;
   metricsEnabled: boolean;
   subscriptionId: string;
   locale: string;
@@ -72,7 +71,6 @@ interface ChurnCancelProps {
 }
 
 export function ChurnCancel({
-  uid,
   metricsEnabled,
   subscriptionId,
   locale,
@@ -166,7 +164,6 @@ export function ChurnCancel({
 
     try {
       const result = await redeemChurnCouponAction(
-        uid,
         subscriptionId,
         'cancel',
         { ...params },
@@ -220,10 +217,7 @@ export function ChurnCancel({
     });
 
     try {
-      const result = await cancelSubscriptionAtPeriodEndAction(
-        uid,
-        subscriptionId
-      );
+      const result = await cancelSubscriptionAtPeriodEndAction(subscriptionId);
 
       if (result.ok) {
         glean.recordRetentionFlowResult({

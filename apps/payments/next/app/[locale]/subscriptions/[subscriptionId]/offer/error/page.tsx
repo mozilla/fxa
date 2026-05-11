@@ -44,13 +44,10 @@ export default async function InterstitialOfferErrorPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   let interstitialOfferContent = null;
 
   try {
     interstitialOfferContent = await getInterstitialOfferContentAction(
-      uid,
       subscriptionId,
       acceptLanguage,
       locale

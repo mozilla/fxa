@@ -56,7 +56,6 @@ export default async function Manage({
     redirect(redirectToUrl.href);
   }
 
-  const userId = session.user.id;
   const entrypoint =
     resolvedSearchParams?.utm_medium === 'email'
       ? 'email'
@@ -64,7 +63,6 @@ export default async function Manage({
         ? 'internal_nav'
         : undefined;
   const experiments = await getExperimentsAction({
-    fxaUid: userId,
     language: locale,
     experimentationPreview:
       resolvedSearchParams?.experimentationPreview === 'true',
@@ -79,7 +77,6 @@ export default async function Manage({
     googleIapSubscriptions,
     trialSubscriptions,
   } = await getSubManPageContentAction(
-    session.user?.id,
     { ...resolvedParams },
     { ...resolvedSearchParams },
     acceptLanguage,
@@ -343,7 +340,6 @@ export default async function Manage({
                       <FreeTrialContent
                         trial={trial}
                         locale={locale}
-                        userId={userId}
                         updatePaymentUrl={
                           type === SubPlatPaymentMethodType.PayPal
                             ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`

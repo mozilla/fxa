@@ -29,10 +29,7 @@ export default async function CancelSubscriptionPage({
     redirect(redirectToUrl.href);
   }
 
-  const uid = session.user.id;
-
   const pageContent = await getCancelFlowContentAction(
-    uid,
     subscriptionId,
     acceptLanguage
   );
@@ -43,7 +40,6 @@ export default async function CancelSubscriptionPage({
 
   return (
     <CancelSubscription
-      userId={uid}
       subscriptionId={subscriptionId}
       locale={locale}
       pageContent={pageContent}
