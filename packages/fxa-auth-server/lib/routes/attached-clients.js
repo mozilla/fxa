@@ -7,7 +7,6 @@
 const isA = require('joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
-const { getAuthorizationScope } = require('../oauth/browser-services');
 const { AppError: error } = require('@fxa/accounts/errors');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -18,71 +17,7 @@ const DEVICES_AND_SESSIONS_DOC =
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 
-// Map<serviceName, authorizationScope> for services the user has at least
-// one refresh token for. Snapshotted pre-destroy to scope cleanup.
-async function snapshotAuthorizedServices(uid) {
-  // Lazy-required: importing instantiates OauthDB and connects to MySQL.
-  const oauthDB = require('../oauth/db');
-  const rows = await oauthDB.getRefreshTokensByUid(uid);
-  const out = new Map();
-  for (const row of rows) {
-    const clientIdHex = row.clientId?.toString('hex');
-    for (const value of row.scope.getScopeValues()) {
-      const resolved = getAuthorizationScope(clientIdHex, undefined, value);
-      if (resolved && !out.has(resolved.name)) {
-        out.set(resolved.name, resolved.authorizationScope);
-      }
-    }
-  }
-  return out;
-}
-
-// Sign-out cleanup. Drops accountAuthorizations rows whose service no
-// longer has any backing refresh token, scoped to services this destroy
-// touched. Read-then-delete is not atomic; a racing grant self-heals via
-// the throttled touch on the next refresh-token use.
-async function cleanupAccountAuthorizations(uid, before, log, statsd) {
-  if (before.size === 0) {
-    return;
-  }
-  let after;
-  try {
-    after = await snapshotAuthorizedServices(uid);
-  } catch (err) {
-    statsd?.increment('account_authz.cleanup.failed', { phase: 'snapshot' });
-    log?.warn?.('accountAuthorizations.cleanupFailed', {
-      err: err && err.message,
-    });
-    return;
-  }
-  const oauthDB = require('../oauth/db');
-  for (const [serviceName, authorizationScope] of before) {
-    if (after.has(serviceName)) {
-      continue;
-    }
-    try {
-      await oauthDB.deleteAccountAuthorization(
-        uid,
-        authorizationScope,
-        serviceName
-      );
-      statsd?.increment('account_authz.cleanup.deleted', {
-        service: serviceName,
-      });
-    } catch (err) {
-      statsd?.increment('account_authz.cleanup.failed', {
-        phase: 'delete',
-        service: serviceName,
-      });
-      log?.warn?.('accountAuthorizations.cleanupFailed', {
-        service: serviceName,
-        err: err && err.message,
-      });
-    }
-  }
-}
-
-module.exports = (log, db, devices, clientUtils, statsd) => {
+module.exports = (log, db, devices, clientUtils) => {
   return [
     {
       method: 'GET',
@@ -271,27 +206,6 @@ module.exports = (log, db, devices, clientUtils, statsd) => {
         const credentials = request.auth.credentials;
         const payload = request.payload;
 
-        // sessionTokenId-only destroys never touch refresh tokens.
-        const willTouchOAuth = !!(
-          payload.deviceId ||
-          payload.refreshTokenId ||
-          (payload.clientId && !payload.sessionTokenId)
-        );
-        // Snapshot is bookkeeping; a failure here must not fail the destroy.
-        // An empty Map turns cleanup into a no-op and self-heals on the next
-        // throttled touch.
-        let before = new Map();
-        if (willTouchOAuth) {
-          try {
-            before = await snapshotAuthorizedServices(credentials.uid);
-          } catch (err) {
-            statsd?.increment('account_authz.cleanup.snapshot_failed');
-            log?.warn?.('accountAuthorizations.snapshotFailed', {
-              err: err && err.message,
-            });
-          }
-        }
-
         if (payload.deviceId) {
           // If we got a `deviceId`, then deleting that should also delete `sessionTokenId` and `refreshTokenId`,
           // assuming that they match the ones that were actually on the device record.
@@ -356,15 +270,6 @@ module.exports = (log, db, devices, clientUtils, statsd) => {
             }
             await db.deleteSessionToken(sessionToken);
           }
-        }
-
-        if (willTouchOAuth) {
-          await cleanupAccountAuthorizations(
-            credentials.uid,
-            before,
-            log,
-            statsd
-          );
         }
 
         return {};

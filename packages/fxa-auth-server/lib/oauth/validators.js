@@ -91,4 +91,3 @@ exports.refreshToken = authServerValidators.refreshToken;
 exports.authorizationCode = authServerValidators.authorizationCode;
 exports.url = authServerValidators.url;
 exports.hexString = authServerValidators.hexString;
-exports.service = authServerValidators.service;
