@@ -175,7 +175,6 @@ const baseProps = {
   },
   cart: baseCart,
   locale: 'en',
-  sessionUid: 'session-uid',
   sessionEmail: 'user@example.com',
 };
 
@@ -342,7 +341,6 @@ describe('CheckoutForm', () => {
         expect.any(Object),
         expect.any(Object),
         expect.any(Object),
-        'session-uid',
         'order-id-123'
       );
       expect(mockRouterPush).toHaveBeenCalledWith('./processing');

@@ -89,7 +89,6 @@ const basePageContent = {
 };
 
 const baseProps = {
-  userId: 'user-id',
   subscriptionId: 'sub-id',
   locale: 'en',
   pageContent: basePageContent,
@@ -170,7 +169,6 @@ describe('StaySubscribed', () => {
       });
 
       expect(mockResubscribeSubscriptionAction).toHaveBeenCalledWith(
-        'user-id',
         'sub-id'
       );
 
