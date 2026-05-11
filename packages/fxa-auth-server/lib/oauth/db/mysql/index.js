@@ -176,23 +176,6 @@ const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
 const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
-// First grant wins; subsequent grants for the same (uid, scope, service)
-// are no-ops so authorizedAt reflects the original consent moment.
-const QUERY_ACCOUNT_AUTHZ_UPSERT =
-  'INSERT IGNORE INTO accountAuthorizations ' +
-  '(uid, scope, service, authorizedAt) ' +
-  'VALUES (?, ?, ?, ?)';
-const QUERY_ACCOUNT_AUTHZ_FIND =
-  'SELECT uid, scope, service, authorizedAt ' +
-  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
-const QUERY_ACCOUNT_AUTHZ_DELETE =
-  'DELETE FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
-const QUERY_ACCOUNT_AUTHZ_DELETE_BY_UID =
-  'DELETE FROM accountAuthorizations WHERE uid=?';
-const QUERY_ACCOUNT_AUTHZ_LIST_BY_UID =
-  'SELECT uid, scope, service, authorizedAt ' +
-  'FROM accountAuthorizations WHERE uid=?';
-
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
@@ -622,36 +605,6 @@ class MysqlStore extends MysqlOAuthShared {
 
   _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
-  }
-
-  _upsertAccountAuthorization(uid, scope, service, authorizedAt) {
-    return this._write(QUERY_ACCOUNT_AUTHZ_UPSERT, [
-      buf(uid),
-      scope,
-      service,
-      authorizedAt,
-    ]);
-  }
-
-  async _getAccountAuthorization(uid, scope, service) {
-    const rows = await this._read(QUERY_ACCOUNT_AUTHZ_FIND, [
-      buf(uid),
-      scope,
-      service,
-    ]);
-    return firstRow(rows) || null;
-  }
-
-  _deleteAccountAuthorization(uid, scope, service) {
-    return this._write(QUERY_ACCOUNT_AUTHZ_DELETE, [buf(uid), scope, service]);
-  }
-
-  _deleteAllAccountAuthorizationsForUser(uid) {
-    return this._write(QUERY_ACCOUNT_AUTHZ_DELETE_BY_UID, [buf(uid)]);
-  }
-
-  _listAccountAuthorizationsByUid(uid) {
-    return this._read(QUERY_ACCOUNT_AUTHZ_LIST_BY_UID, [buf(uid)]);
   }
 
   getEncodingInfo() {
