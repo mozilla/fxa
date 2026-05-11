@@ -3071,10 +3071,6 @@ export default class AuthClient {
     );
   }
 
-  async getSubscriptionPlans(headers?: Headers) {
-    return this.request('GET', '/oauth/subscriptions/plans', null, headers);
-  }
-
   async getActiveSubscriptions(accessToken: string) {
     return this.request(
       'GET',

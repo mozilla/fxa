@@ -1479,14 +1479,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.getSubscriptionPlans = function (refreshToken) {
-    return this.doRequestWithBearerToken(
-      'GET',
-      `${this.baseURL}/oauth/subscriptions/plans`,
-      refreshToken
-    );
-  };
-
   ClientApi.prototype.getActiveSubscriptions = function (refreshToken) {
     return this.doRequestWithBearerToken(
       'GET',
