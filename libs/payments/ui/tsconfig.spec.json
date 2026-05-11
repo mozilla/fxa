@@ -8,7 +8,11 @@
   "include": [
     "jest.config.ts",
     "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.spec.tsx",
+    "src/**/*.d.ts",
+    "test/**/*.ts",
+    "test/**/*.tsx"
   ]
 }
