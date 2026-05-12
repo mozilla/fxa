@@ -3006,7 +3006,6 @@ export default class AuthClient {
       scope?: string;
       code_challenge_method?: string;
       code_challenge?: string;
-      service?: string;
     } = {},
     headers?: Headers
   ) {
@@ -3023,7 +3022,6 @@ export default class AuthClient {
         redirect_uri: options.redirect_uri,
         response_type: options.response_type,
         scope: options.scope,
-        service: options.service,
         state,
       },
       headers
