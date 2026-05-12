@@ -48,12 +48,14 @@ import {
 
 import { collect, parseBooleanArg } from '../lib/args';
 import { emitStatsdMetrics } from '../lib/metrics';
-import { AppConfig, AuthLogger } from '../../lib/types';
+import { AccountEventsManager } from '../../lib/account-events';
+import { AppConfig, AuthFirestore, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
+import { setupFirestore } from '../../lib/firestore-db';
 import { requestForGlean } from '../../lib/inactive-accounts';
 import initLog from '../../lib/log';
 import initRedis from '../../lib/redis';
-import { gleanMetrics } from '../../lib/metrics/glean';
+import { gleanMetrics, GleanMetricsType } from '../../lib/metrics/glean';
 import Token from '../../lib/tokens';
 import * as random from '../../lib/crypto/random';
 import { createDB } from '../../lib/db';
@@ -65,7 +67,6 @@ import {
   hasActiveRefreshToken,
   hasActiveSessionToken,
   IsActiveFnBuilder,
-  setDateToUTC,
   buildExclusionsTempTableQuery,
 } from './lib';
 
@@ -75,7 +76,7 @@ const statsd = new StatsD({ ...config.statsd });
 // {{{ constants and defaults
 
 const defaultDaysTilFirstEmail = 0;
-const defaultResultsLImit = 500000;
+const defaultBatchSize = 1000;
 const defaultConcurrency = 100;
 const twoYearsAgo = () => {
   const x = new Date();
@@ -87,6 +88,120 @@ const exclusionsTempTableName = 'exclusions';
 
 // /constants and defaults }}}
 
+type MaybeEnqueueFirstEmailDeps = {
+  accountEventsManager: Pick<AccountEventsManager, 'findEmailEvents'>;
+  emailCloudTasks: {
+    scheduleFirstEmail: (task: {
+      payload: InactiveAccountEmailTaskPayloadParam;
+      emailOptions?: { deliveryTime: number };
+      taskOptions?: CloudTaskOptions;
+    }) => Promise<unknown>;
+  };
+  glean: GleanMetricsType;
+  statsd: Pick<StatsD, 'increment'>;
+  log: Pick<AuthLogger, 'error'>;
+  debugLog: (message: string) => void;
+  msTilFirstEmail: number;
+  // injectable for testing
+  now?: () => number;
+};
+
+/**
+ * Enqueue the first inactive-account notification email for a single uid.
+ *
+ * Accounts that have already received an `inactiveAccountFirstWarning`
+ * `emailSent` event are skipped.  This skip is the primary idempotency guard
+ * that makes repeated scheduled runs of this script safe: no state is persisted
+ * between runs, so without it an account could be notified more than once.
+ *
+ * @returns `true` if a Cloud Task was enqueued, `false` if the account was
+ *   skipped (already notified) or enqueuing failed.
+ */
+export const maybeEnqueueFirstEmail = async (
+  uid: string,
+  {
+    accountEventsManager,
+    emailCloudTasks,
+    glean,
+    statsd,
+    log,
+    debugLog,
+    msTilFirstEmail,
+    now = Date.now,
+  }: MaybeEnqueueFirstEmailDeps
+): Promise<boolean> => {
+  let priorEvents;
+  try {
+    priorEvents = await accountEventsManager.findEmailEvents(
+      uid,
+      'emailSent',
+      'inactiveAccountFirstWarning',
+      0,
+      now()
+    );
+  } catch (dedupeCheckError) {
+    // Fail safe: if we can't confirm whether a first-warning email was already
+    // sent, skip this uid rather than risk notifying it twice.  It will be
+    // reconsidered on the next scheduled run.
+    statsd.increment('accounts.inactive.cron.dedupe-check.error');
+    log.error('accounts.inactive.dedupeCheckError', {
+      dedupeCheckError,
+      uid,
+    });
+    return false;
+  }
+  if (priorEvents && priorEvents.length > 0) {
+    statsd.increment('accounts.inactive.cron.skipped-already-notified');
+    debugLog(`Skipping ${uid}: first-warning email already sent.`);
+    return false;
+  }
+
+  // @TODO this function could be abstracted and moved to InactiveAccountsManager
+  const taskPayload: InactiveAccountEmailTaskPayloadParam = {
+    uid,
+  };
+  const taskId = `${uid}-inactive-delete-first-email`;
+  const taskOptions: CloudTaskOptions = {
+    taskId,
+  };
+
+  try {
+    await glean.inactiveAccountDeletion.firstEmailTaskRequest(requestForGlean, {
+      uid,
+    });
+
+    await emailCloudTasks.scheduleFirstEmail({
+      payload: taskPayload,
+      emailOptions: { deliveryTime: now() + msTilFirstEmail },
+      taskOptions: taskOptions,
+    });
+
+    await glean.inactiveAccountDeletion.firstEmailTaskEnqueued(
+      requestForGlean,
+      {
+        uid,
+      }
+    );
+    return true;
+  } catch (cloudTaskQueueError) {
+    // Note that the fxa cloud tasks lib already emitted some statsd metrics
+    statsd.increment('cloud-tasks.inactive-account-email.enqueue.error-code', {
+      errorCode: cloudTaskQueueError.code as unknown as string,
+    });
+    await glean.inactiveAccountDeletion.firstEmailTaskRejected(
+      requestForGlean,
+      {
+        uid,
+      }
+    );
+    log.error('accounts.inactive.emailEnqueueError', {
+      cloudTaskQueueError,
+      uid,
+    });
+    return false;
+  }
+};
+
 const exclusionList = collect();
 
 const init = async () => {
@@ -94,16 +209,13 @@ const init = async () => {
   program
     .description(
       'Starts the inactive account deletion process by enqueuing the first email\n' +
-        'notification for inactive accounts.  This script allows segmenting the\n' +
-        'accounts to search by account creation date. It also optionally accepts a\n' +
-        'date at or after when an account is active in order to be excluded.\n\n' +
-        'For example, to start the inactive deletion process on accounts created\n' +
-        'between 2015-01-01 and 2015-01-31 where the account is not active after\n' +
-        '2024-10-31:\n' +
-        '  enqueue-inactive-account-deletions.ts \\\n' +
-        '    --start-date 2015-01-01 \\\n' +
-        '    --end-date 2015-12-31 \\\n' +
-        '    --active-by-date 2024-10-31'
+        'notification for the oldest N inactive accounts that have not yet been\n' +
+        'notified.  Designed to be invoked on a schedule (e.g. a Kubernetes CronJob).\n\n' +
+        'Each run picks up to --batch-size candidates with createdAt < two-years-ago,\n' +
+        'ordered by createdAt ASC, then filters out any that have already received an\n' +
+        'inactiveAccountFirstWarning email.  No state is persisted between runs; the\n' +
+        'cursor advances implicitly as old accounts are deleted ~60 days after\n' +
+        'notification.'
     )
     .option(
       '--dry-run [true|false]',
@@ -130,35 +242,19 @@ const init = async () => {
       false
     )
     .option(
-      '--active-by-date [date]',
-      'An account is considered active if it has any activity at or after this date.  Optional.  Defaults to two years ago from script execution time.',
-      Date.parse
-    )
-    .option(
-      '--start-date [date]',
-      'Start of date range of account creation date, inclusive.  Optional.  Defaults to 2012-03-12.',
-      Date.parse,
-      '2012-03-12'
-    )
-    .option(
-      '--end-date [date]',
-      'End of date range of account creation date, inclusive.  Defaults to a day before active by date.',
-      Date.parse
-    )
-    .option(
       '--days-til-first-email [float]',
       'The amount of time from now until the first email is sent, in days.  Defaults to 0.  Max allowed (GCP limit) is 30.',
       parseFloat
     )
     .option(
-      '--results-limit [number]',
-      'The number of results per accounts DB query.  Defaults to 500000.',
+      '--batch-size [number]',
+      `The max number of candidate accounts to consider per run.  Defaults to ${defaultBatchSize}.`,
       (x) => parseInt(x),
-      defaultResultsLImit
+      defaultBatchSize
     )
     .option(
       '--output-path [path]',
-      'File path to write the list of UIDs from MySQL.  Optional.  Defaults to CWD and filename based on the end date.'
+      'File path to write the list of UIDs from MySQL.  Optional.  Defaults to CWD and filename based on the run timestamp.'
     )
     .option(
       '--bq-dataset <string>',
@@ -185,22 +281,19 @@ const init = async () => {
     throw new Error('BigQuery dataset ID is required.');
   }
 
-  const startDate = setDateToUTC(program.startDate);
-  const endDate = program.endDate
-    ? setDateToUTC(program.endDate)
-    : twoYearsAgo();
-  const activeByDate = program.activeByDate
-    ? setDateToUTC(program.activeByDate)
-    : twoYearsAgo();
-  const startDateTimestamp = startDate.valueOf();
-  const endDateTimestamp = endDate.valueOf() + 86400000; // next day for < comparisons
-  const activeByDateTimestamp = activeByDate.valueOf();
-
-  if (endDateTimestamp <= startDateTimestamp) {
-    throw new Error(
-      'The end date must be on the same day or later than the start date.'
-    );
+  const batchSize = program.batchSize;
+  if (!Number.isInteger(batchSize) || batchSize <= 0) {
+    throw new Error('--batch-size must be a positive integer.');
   }
+
+  const endDate = twoYearsAgo();
+  const activeByDate = twoYearsAgo();
+  // No lower bound on createdAt — ORDER BY createdAt ASC + LIMIT batchSize
+  // naturally starts at the oldest still-existing candidate. As accounts age
+  // out via deletion, the cursor advances implicitly.
+  const startDateTimestamp = 0;
+  const endDateTimestamp = endDate.valueOf();
+  const activeByDateTimestamp = activeByDate.valueOf();
 
   const daysTilFirstEmail =
     program.daysTilFirstEmail !== undefined
@@ -214,24 +307,19 @@ const init = async () => {
   }
 
   const msTilFirstEmail = daysTilFirstEmail * 86400000;
+  const runTag = `${Date.now()}`;
   const mysqlResCsvPath =
     program.outputPath ||
-    path.join(
-      process.cwd(),
-      `mysql-inactive-account-uids-${endDate
-        .toISOString()
-        .substring(0, 10)}.csv`
-    );
+    path.join(process.cwd(), `mysql-inactive-account-uids-${runTag}.csv`);
 
   // /arguments }}}
 
   console.log(`Save inactive account UIDs: ${program.saveUids}`);
   console.log(`Enqueue emails: ${program.enqueueEmails}`);
-  console.log(`Start date: ${startDate.toISOString()}`);
-  console.log(`End date: ${endDate.toISOString()}`);
+  console.log(`Batch size: ${batchSize}`);
+  console.log(`End date (createdAt <): ${endDate.toISOString()}`);
   console.log(`Active by date: ${activeByDate.toISOString()}`);
   console.log(`Days 'til first email: ${daysTilFirstEmail}`);
-  console.log(`Per MySQL query results limit: ${program.resultsLimit}`);
 
   if (program.dryRun) {
     console.log(
@@ -295,20 +383,16 @@ const init = async () => {
 
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
+  Container.set(StatsD, statsd);
+  if (!Container.has(AuthFirestore)) {
+    Container.set(AuthFirestore, setupFirestore(config));
+  }
+  const accountEventsManager = new AccountEventsManager();
+  Container.set(AccountEventsManager, accountEventsManager);
 
   // /dependencies }}}
 
-  const postfixTableName = (prefix: string) =>
-    `${prefix}_${startDate
-      .toISOString()
-      .substring(0, 10)
-      .replaceAll('-', '')}_${endDate
-      .toISOString()
-      .substring(0, 10)
-      .replaceAll('-', '')}_${activeByDate
-      .toISOString()
-      .substring(0, 10)
-      .replaceAll('-', '')}`;
+  const postfixTableName = (prefix: string) => `${prefix}_${runTag}`;
 
   // {{{ build exclusions temp table in BQ and start a session
 
@@ -368,45 +452,23 @@ const init = async () => {
 
   // {{{ write MySQL results to CSV and load into BQ temp table
 
-  const accountQueryBuilder = () =>
-    accountWhereAndOrderByQueryBuilder(
-      startDateTimestamp,
-      endDateTimestamp,
-      activeByDateTimestamp
-    )
-      .select('accounts.uid')
-      .limit(program.resultsLimit);
+  const accountsQuery = accountWhereAndOrderByQueryBuilder(
+    startDateTimestamp,
+    endDateTimestamp,
+    activeByDateTimestamp
+  )
+    .select('accounts.uid')
+    .limit(batchSize);
 
-  let hasMaxResultsCount = true;
-  let totalRowsReturned = 0;
-  let inactiveCandidateUids: string[] = [];
+  const accounts = await emitStatsdMetrics(
+    async () => await accountsQuery,
+    'accounts.inactive.sql-query',
+    statsd
+  )();
 
-  while (hasMaxResultsCount) {
-    const accountsQuery = accountQueryBuilder();
-    accountsQuery.offset(totalRowsReturned);
+  const inactiveCandidateUids: string[] = accounts.map((x) => x.uid);
 
-    const accounts = await emitStatsdMetrics(
-      async () => await accountsQuery,
-      'accounts.inactive.sql-query',
-      statsd
-    )();
-
-    debugLog(`MySQL results count: ${accounts.length}`);
-
-    if (!accounts.length) {
-      hasMaxResultsCount = false;
-      break;
-    }
-
-    inactiveCandidateUids = inactiveCandidateUids.concat(
-      accounts.map((x) => x.uid)
-    );
-
-    hasMaxResultsCount = accounts.length === program.resultsLimit;
-    totalRowsReturned += accounts.length;
-  }
-
-  debugLog(`MySQL total rows returned: ${totalRowsReturned}`);
+  debugLog(`MySQL results count: ${inactiveCandidateUids.length}`);
 
   const inactivesMySqlResultsTableName = await saveUidsToBqTable(
     inactiveCandidateUids,
@@ -580,52 +642,17 @@ const init = async () => {
       await queue.onSizeLessThan(concurrency * 5);
 
       queue.add(async () => {
-        // @TODO this function could be abstracted and moved to InactiveAccountsManager
-        const taskPayload: InactiveAccountEmailTaskPayloadParam = {
-          uid,
-        };
-        const taskId = `${uid}-inactive-delete-first-email`;
-        const taskOptions: CloudTaskOptions = {
-          taskId,
-        };
-
-        try {
-          await glean.inactiveAccountDeletion.firstEmailTaskRequest(
-            requestForGlean,
-            {
-              uid,
-            }
-          );
-
-          await emailCloudTasks.scheduleFirstEmail({
-            payload: taskPayload,
-            emailOptions: { deliveryTime: Date.now() + msTilFirstEmail },
-            taskOptions: taskOptions,
-          });
-
+        const enqueued = await maybeEnqueueFirstEmail(uid, {
+          accountEventsManager,
+          emailCloudTasks,
+          glean,
+          statsd,
+          log,
+          debugLog,
+          msTilFirstEmail,
+        });
+        if (enqueued) {
           emailsQueued++;
-          await glean.inactiveAccountDeletion.firstEmailTaskEnqueued(
-            requestForGlean,
-            {
-              uid,
-            }
-          );
-        } catch (cloudTaskQueueError) {
-          // Note that the fxa cloud tasks lib already emitted some statsd metrics
-          statsd.increment(
-            'cloud-tasks.inactive-account-email.enqueue.error-code',
-            { errorCode: cloudTaskQueueError.code as unknown as string }
-          );
-          await glean.inactiveAccountDeletion.firstEmailTaskRejected(
-            requestForGlean,
-            {
-              uid,
-            }
-          );
-          log.error('accounts.inactive.emailEnqueueError', {
-            cloudTaskQueueError,
-            uid,
-          });
         }
       });
     }
