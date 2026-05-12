@@ -78,7 +78,8 @@
     "paymentsNextSubscriptionManagement": true,
     "passkeysEnabled": true,
     "passkeyRegistrationEnabled": true,
-    "passkeyAuthenticationEnabled": false
+    "passkeyAuthenticationEnabled": false,
+    "passwordlessEnabled": true
   },
   "darkMode": {
     "enabled": true
