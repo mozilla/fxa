@@ -112,13 +112,6 @@ export const relyingPartyQuery = graphql(`
         pageTitle
         splitLayout
       }
-      AuthorizePage {
-        headline
-        description
-        primaryButtonText
-        pageTitle
-        splitLayout
-      }
       SigninPasswordlessCodePage {
         headline
         description

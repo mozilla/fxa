@@ -1,0 +1,162 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { RouteComponentProps } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import React, { useEffect } from 'react';
+import AppLayout from '../../../../components/AppLayout';
+import CardHeader from '../../../../components/CardHeader';
+import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
+import AlternativeAuthOptions from '../../../../components/AlternativeAuthOptions';
+import GleanMetrics from '../../../../lib/glean';
+import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
+import Banner from '../../../../components/Banner';
+import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
+import SigninUserLockup from '../SigninUserLockup';
+import { useCachedSigninLockup } from '../../useCachedSigninLockup';
+import { useConfig } from '../../../../models';
+
+export const viewName = 'signin';
+
+// Signin landing page for linked-passwordless users — their only paths
+// forward are the alternative auth options (third-party providers today,
+// passkeys once the ceremony is wired). Mirrors the `showPasskeySignin`
+// flag-gating used in the password Signin component.
+const SigninAlternativeAuthOptions = ({
+  integration,
+  email,
+  serviceName,
+  avatarData,
+  avatarLoading,
+  flowQueryParams,
+  localizedErrorFromLocationState,
+  localizedSuccessBannerHeading,
+  localizedSuccessBannerDescription,
+  isSignedIntoFirefox = false,
+  setCurrentSplitLayout,
+}: SigninAlternativeAuthOptionsProps & RouteComponentProps) => {
+  const config = useConfig();
+  const navigateWithQuery = useNavigateWithQuery();
+
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
+
+  const {
+    clientId,
+    legalTerms,
+    cmsInfo,
+    cachedPageCms,
+    title,
+    splitLayout,
+    additionalAccessibilityInfo,
+    localizedBannerError,
+  } = useCachedSigninLockup({ integration, localizedErrorFromLocationState });
+
+  // Hide "Use a different account" when the user is signed into Firefox Desktop.
+  // Users cannot choose another account due to the inability to merge
+  // account/sync data (the "merge stop"/warning).
+  // Note, there is an edge case where users signing in with third party auth can
+  // select a different account once they are at Google/Apple. These users will
+  // be blocked later, once we have access to the new account's UID.
+  const hideAccountSwitchLink =
+    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
+
+  useEffect(() => {
+    // NOTE: linked-passwordless users were historically tracked under
+    // cachedLogin.view because they share similarities, so that is
+    // preserved here.
+    GleanMetrics.cachedLogin.view({ event: { thirdPartyLinks: true } });
+    // Linked-passwordless is the only render path where third-party auth is
+    // the user's only option. Track this separately from the generic TPA
+    // view so we can size the impact of the linked-no-password cohort.
+    GleanMetrics.thirdPartyAuth.loginNoPwView();
+  }, []);
+
+  return (
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+      {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: localizedSuccessBannerHeading || '',
+            localizedDescription: localizedSuccessBannerDescription || '',
+          }}
+        />
+      )}
+      <CardHeader
+        headingText="Sign in"
+        headingTextFtlId="signin-header"
+        subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
+        subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
+        {...{
+          clientId,
+          serviceName,
+          cmsLogoUrl: cmsInfo?.shared.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared.logoAltText,
+          cmsHeadline: cachedPageCms?.headline,
+          cmsDescription: cachedPageCms?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
+        }}
+      />
+      {localizedBannerError && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedBannerError }}
+        />
+      )}
+      <SigninUserLockup
+        {...{
+          email,
+          avatarData,
+          avatarLoading,
+          additionalAccessibilityInfo,
+        }}
+      />
+
+      <AlternativeAuthOptions
+        showThirdPartyAuth={true}
+        showPasskeySignin={showPasskeySignin}
+        isStandalone={true}
+        {...{ viewName, flowQueryParams }}
+      />
+
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
+
+      <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
+        {!hideAccountSwitchLink && (
+          <FtlMsg id="signin-use-a-different-account-link">
+            <a
+              href="/"
+              className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
+              onClick={(e) => {
+                e.preventDefault();
+                GleanMetrics.login.diffAccountLinkClick();
+
+                // Some RPs may specify an email address in the query params which
+                // we prioritize. Users attempting to change their email address is a signal
+                // that the email in query params is not correct.
+                const searchParams = new URLSearchParams(
+                  window.location.search
+                );
+                searchParams.delete('email');
+                navigateWithQuery(`/?${searchParams.toString()}`, {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              }}
+            >
+              Use a different account
+            </a>
+          </FtlMsg>
+        )}
+      </div>
+    </AppLayout>
+  );
+};
+
+export default SigninAlternativeAuthOptions;

@@ -22,6 +22,7 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   Subject,
+  SubjectProps,
 } from './mocks';
 import {
   MOCK_CMS_INFO,
@@ -37,7 +38,6 @@ import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
@@ -138,9 +138,8 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (
-  props: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}
-) => renderWithLocalizationProvider(<Subject {...props} />);
+const render = (props: SubjectProps = {}) =>
+  renderWithLocalizationProvider(<Subject {...props} />);
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -666,7 +665,7 @@ describe('Signin component', () => {
               await act(() => {
                 render({ beginSigninHandler, integration });
               });
-              await await enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
             });
             it('is not sent otherwise', async () => {
@@ -954,75 +953,9 @@ describe('Signin component', () => {
       });
     });
 
-    describe('user does not have a password', () => {
-      it('renders as expected without linked account', () => {
-        render({ hasPassword: false });
-
-        signInHeaderRendered();
-        defaultAvatarAndEmailRendered();
-        signInButtonAndSeparatorRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
-        differentAccountLinkRendered();
-        expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-
-        passwordInputNotRendered();
-      });
-
-      it('renders as expected with linked account', () => {
-        render({ hasPassword: false, hasLinkedAccount: true });
-        signInHeaderRendered();
-        defaultAvatarAndEmailRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
-
-        passwordInputNotRendered();
-        expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: 'Sign in' })
-        ).not.toBeInTheDocument();
-      });
-
-      it('renders third party auth options for sync with linked account', () => {
-        const integration = createMockSigninOAuthNativeSyncIntegration();
-        render({ integration, hasPassword: false, hasLinkedAccount: true });
-
-        signInHeaderRendered();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).toBeInTheDocument();
-      });
-    });
-
-    describe('thirdPartyAuth.loginNoPwView Glean event', () => {
-      it('fires when linked account with no password and TPA is shown', () => {
-        render({ hasPassword: false, hasLinkedAccount: true });
-        expect(GleanMetrics.thirdPartyAuth.loginNoPwView).toHaveBeenCalledTimes(
-          1
-        );
-      });
-
-      it('does not fire when the user has a password', () => {
-        render({ hasPassword: true, hasLinkedAccount: true });
-        expect(
-          GleanMetrics.thirdPartyAuth.loginNoPwView
-        ).not.toHaveBeenCalled();
-      });
-
-      it('does not fire when TPA is hidden (Sync with password)', () => {
-        const integration = createMockSigninOAuthNativeSyncIntegration();
-        render({ integration, hasPassword: true, hasLinkedAccount: true });
-        expect(
-          GleanMetrics.thirdPartyAuth.loginNoPwView
-        ).not.toHaveBeenCalled();
-      });
+    it('does not fire thirdPartyAuth.loginNoPwView (owned by SigninAlternativeAuthOptions)', () => {
+      render({ hasPassword: true, hasLinkedAccount: true });
+      expect(GleanMetrics.thirdPartyAuth.loginNoPwView).not.toHaveBeenCalled();
     });
   });
 
@@ -1047,58 +980,6 @@ describe('Signin component', () => {
       ).not.toBeInTheDocument();
       expect(screen.queryByText('or')).not.toBeInTheDocument();
       passwordInputNotRendered();
-    });
-
-    it('shows cached signin for service=relay when supportsKeysOptionalLogin is true', () => {
-      const integration = createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.Relay,
-        isSync: false,
-      });
-      render({
-        integration,
-        sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: true,
-      });
-
-      passwordInputNotRendered();
-      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: false },
-      });
-    });
-
-    it('shows cached signin for service=smartwindow when supportsKeysOptionalLogin is true', () => {
-      const integration = createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.SmartWindow,
-        isSync: false,
-      });
-      render({
-        integration,
-        sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: true,
-      });
-
-      passwordInputNotRendered();
-      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: false },
-      });
-    });
-
-    it('requires password for service=relay when supportsKeysOptionalLogin is false', () => {
-      const integration = createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.Relay,
-        isSync: false,
-      });
-      render({
-        integration,
-        sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: false,
-        isSignedIntoFirefox: false,
-      });
-
-      passwordInputRendered();
-      expect(GleanMetrics.login.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: false },
-      });
     });
 
     it('sends webchannel message if cached signin for service=relay when supportsKeysOptionalLogin is true', async () => {
@@ -1155,25 +1036,6 @@ describe('Signin component', () => {
 
         afterEach(() => {
           hardNavigateSpy.mockRestore();
-        });
-
-        it('renders password input when integration wants keys and user has a password', () => {
-          const integration = createMockSigninOAuthNativeSyncIntegration();
-          render({ integration, sessionToken: MOCK_SESSION_TOKEN });
-          passwordInputRendered();
-        });
-
-        it('does not render password input when integration wants keys but user has no password', () => {
-          const integration = createMockSigninOAuthNativeSyncIntegration();
-          render({
-            integration,
-            sessionToken: MOCK_SESSION_TOKEN,
-            hasPassword: false,
-            hasLinkedAccount: true,
-          });
-          passwordInputNotRendered();
-          // Should show cached sign-in button instead
-          screen.getByRole('button', { name: 'Sign in' });
         });
 
         it('passes isSignInWithThirdPartyAuth for cached Sync passwordless user', async () => {
@@ -1705,47 +1567,6 @@ describe('Signin component', () => {
     });
 
     describe('errored submission', () => {
-      it('requires password if cached credentials have expired', async () => {
-        const cachedSigninHandler = jest
-          .fn()
-          .mockReturnValueOnce(createCachedSigninResponseError());
-        renderWithLocalizationProvider(
-          <Subject
-            sessionToken={MOCK_SESSION_TOKEN}
-            {...{ cachedSigninHandler }}
-          />
-        );
-
-        await submit();
-        await waitFor(() => {
-          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-          screen.getByText('Session expired. Sign in to continue.');
-          passwordInputRendered();
-        });
-      });
-
-      it('shows third party auth instead of password when session expires for passwordless user', async () => {
-        const cachedSigninHandler = jest
-          .fn()
-          .mockReturnValueOnce(createCachedSigninResponseError());
-        renderWithLocalizationProvider(
-          <Subject
-            sessionToken={MOCK_SESSION_TOKEN}
-            hasPassword={false}
-            hasLinkedAccount={true}
-            {...{ cachedSigninHandler }}
-          />
-        );
-
-        await submit();
-        await waitFor(() => {
-          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-          screen.getByText('Session expired. Sign in to continue.');
-          passwordInputNotRendered();
-          thirdPartyAuthRendered();
-        });
-      });
-
       it('displays other errors', async () => {
         const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
         const cachedSigninHandler = jest.fn().mockReturnValueOnce(
@@ -1768,50 +1589,6 @@ describe('Signin component', () => {
       });
     });
 
-    describe('user does not have a password', () => {
-      it('renders as expected without linked account', () => {
-        renderWithLocalizationProvider(
-          <Subject sessionToken={MOCK_SESSION_TOKEN} hasPassword={false} />
-        );
-
-        signInHeaderRendered();
-        avatarAndEmailRendered();
-        screen.getByRole('button', { name: 'Sign in' });
-        privacyAndTermsRendered();
-        differentAccountLinkRendered();
-        thirdPartyAuthNotRendered();
-
-        expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-
-        passwordInputNotRendered();
-      });
-
-      it('renders as expected with linked account (passwordless)', () => {
-        renderWithLocalizationProvider(
-          <Subject
-            sessionToken={MOCK_SESSION_TOKEN}
-            hasPassword={false}
-            hasLinkedAccount={true}
-          />
-        );
-        signInHeaderRendered();
-        avatarAndEmailRendered();
-        privacyAndTermsRendered();
-        thirdPartyAuthNotRendered();
-
-        screen.getByRole('button', { name: 'Sign in' });
-
-        // OAuth buttons and forgot password should NOT be rendered for cached users
-        expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-
-        passwordInputNotRendered();
-      });
-    });
-
     describe('UI simplification for cached users', () => {
       it('hides OAuth buttons for cached users', () => {
         renderWithLocalizationProvider(
@@ -1831,7 +1608,7 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('hides "use a different account" link in authorization flow (desktop)', () => {
+      it('hides "use a different account" link when signed into Firefox desktop with a service', () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         renderWithLocalizationProvider(
           <Subject
@@ -1846,7 +1623,7 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('hides "use a different account" link in authorization flow (mobile)', () => {
+      it('hides "use a different account" link when signed into Firefox mobile with a service (cached view via keys_optional)', () => {
         const integration = createMockSigninOAuthNativeIntegration({
           service: OAuthNativeServices.Vpn,
           isSync: false,
@@ -1857,6 +1634,7 @@ describe('Signin component', () => {
             integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
             isSignedIntoFirefox={true}
+            supportsKeysOptionalLogin={true}
           />
         );
 
@@ -1865,7 +1643,7 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('shows "use a different account" link outside authorization flow', () => {
+      it('shows "use a different account" link when not signed into Firefox', () => {
         renderWithLocalizationProvider(
           <Subject sessionToken={MOCK_SESSION_TOKEN} />
         );
@@ -1994,42 +1772,6 @@ describe('Signin component', () => {
       expect(cmsDescription).toMatchSnapshot('cms description');
     });
 
-    it('renders CardHeader with CMS content when password is not needed', () => {
-      const cmsProps = {
-        cmsInfo: {
-          ...MOCK_CMS_INFO,
-          SigninCachedPage: undefined,
-          SigninPage: {
-            headline: 'CMS override',
-            description: 'just for you!',
-            primaryButtonText: 'Click me',
-            pageTitle: 'I am a title',
-          },
-        },
-      };
-
-      // No SigninCachedPage and password not needed, so CMS headline
-      // is not available and the heading falls back to default
-      render({
-        integration: createMockSigninWebIntegration(cmsProps),
-        hasPassword: false,
-      });
-
-      // No CMS headline from SigninCachedPage, so no CMS logo rendered
-      expect(
-        screen.queryByRole('img', {
-          name: cmsProps.cmsInfo.shared.logoAltText,
-        })
-      ).not.toBeInTheDocument();
-
-      // Falls back to the default "Sign in" text
-      expect(
-        screen.getByRole('heading', {
-          name: 'Sign in',
-        })
-      ).toBeInTheDocument();
-    });
-
     it('renders the CMS-styled submit button', () => {
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
@@ -2066,16 +1808,6 @@ describe('Signin component', () => {
           description: 'Continue to your Mozilla account',
           primaryButtonText: 'Continue',
           pageTitle: 'Welcome back',
-        },
-      };
-
-      const authorizeCmsInfo: RelierCmsInfo = {
-        ...cachedCmsInfo,
-        AuthorizePage: {
-          headline: 'Authorize VPN',
-          description: 'Grant access to Mozilla VPN',
-          primaryButtonText: 'Authorize',
-          pageTitle: 'Authorize VPN',
         },
       };
 
@@ -2146,30 +1878,7 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
       });
 
-      it('authorization flow uses AuthorizePage CMS content', () => {
-        render({
-          integration: createMockSigninOAuthNativeIntegration({
-            service: OAuthNativeServices.Vpn,
-            isSync: false,
-            cmsInfo: authorizeCmsInfo,
-          }),
-          isSignedIntoFirefox: true,
-          sessionToken: MOCK_SESSION_TOKEN,
-          hasPassword: true,
-        });
-
-        expect(
-          screen.getByRole('heading', { name: 'Authorize VPN' })
-        ).toBeInTheDocument();
-        expect(
-          screen.getByText('Grant access to Mozilla VPN')
-        ).toBeInTheDocument();
-        expect(
-          screen.queryByRole('heading', { name: 'Welcome back' })
-        ).not.toBeInTheDocument();
-      });
-
-      it('authorization flow falls back to SigninCachedPage when no AuthorizePage', () => {
+      it('signed-into-Firefox cached signin uses SigninCachedPage CMS content', () => {
         render({
           integration: createMockSigninOAuthNativeIntegration({
             service: OAuthNativeServices.Vpn,
@@ -2177,44 +1886,11 @@ describe('Signin component', () => {
             cmsInfo: cachedCmsInfo,
           }),
           isSignedIntoFirefox: true,
+          supportsKeysOptionalLogin: true,
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
 
-        expect(
-          screen.getByRole('heading', { name: 'Welcome back' })
-        ).toBeInTheDocument();
-      });
-
-      it('authorization flow falls back to default when neither page is set', () => {
-        render({
-          integration: createMockSigninOAuthNativeIntegration({
-            service: OAuthNativeServices.Vpn,
-            isSync: false,
-          }),
-          isSignedIntoFirefox: true,
-          sessionToken: MOCK_SESSION_TOKEN,
-          hasPassword: true,
-        });
-
-        expect(
-          screen.getByRole('heading', { name: 'Sign in' })
-        ).toBeInTheDocument();
-      });
-
-      it('non-authorization flow ignores AuthorizePage', () => {
-        render({
-          integration: createMockSigninWebIntegration({
-            cmsInfo: authorizeCmsInfo,
-          }),
-          isSignedIntoFirefox: false,
-          sessionToken: MOCK_SESSION_TOKEN,
-          hasPassword: true,
-        });
-
-        expect(
-          screen.queryByRole('heading', { name: 'Authorize VPN' })
-        ).not.toBeInTheDocument();
         expect(
           screen.getByRole('heading', { name: 'Welcome back' })
         ).toBeInTheDocument();

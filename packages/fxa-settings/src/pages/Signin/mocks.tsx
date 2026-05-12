@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Signin from '.';
+import React from 'react';
+import SigninDecider from './components/SigninDecider';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
@@ -336,6 +337,24 @@ export const mockCachedSigninHandler: CachedSigninHandler = () =>
 export const mockSendUnblockEmailHandler: SendUnblockEmailHandler = () =>
   Promise.resolve(SEND_UNBLOCK_EMAIL_HANDLER_RESPONSE);
 
+/**
+ * Test-helper prop shape. Accepts the union of inputs needed by either child
+ * (password Signin + cached SigninCached) so callers can pass `sessionToken`
+ * and `cachedSigninHandler` even though those aren't on the password
+ * `SigninProps`. The `SigninDecider` inside `Subject` routes appropriately.
+ */
+export type SubjectProps = Partial<SigninProps> & {
+  sessionToken?: hexstring;
+  cachedSigninHandler?: CachedSigninHandler;
+  supportsKeysOptionalLogin?: boolean;
+  passwordlessSupported?: boolean;
+  skipPasswordlessRedirect?: boolean;
+};
+
+/**
+ * Routes through the container's `SigninDecider` so tests exercise the
+ * password-vs-cached decision logic end-to-end.
+ */
 export const Subject = ({
   integration = createMockSigninWebIntegration(),
   sessionToken = undefined,
@@ -352,14 +371,12 @@ export const Subject = ({
   isSignedIntoFirefox = false,
   supportsKeysOptionalLogin = false,
   ...props // overrides
-}: Partial<SigninProps> & {
-  supportsKeysOptionalLogin?: boolean;
-} = {}) => {
+}: SubjectProps = {}) => {
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   return (
     <LocationProvider>
       <AppContext.Provider value={mockAppContext()}>
-        <Signin
+        <SigninDecider
           {...{
             integration,
             email,
