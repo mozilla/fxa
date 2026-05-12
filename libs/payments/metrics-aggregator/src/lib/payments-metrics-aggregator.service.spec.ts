@@ -3,19 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { PaymentsGleanManager } from './glean.manager';
-import { PaymentsGleanService } from './glean.service';
-import { MockPaymentsGleanFactory } from './glean.test-provider';
-import {
-  MockPaymentsGleanConfigProvider,
-  PaymentsGleanConfig,
-} from './glean.config';
 import {
   AccountsMetricsDataFactory,
   CommonMetricsFactory,
   GenericGleanSubManageEventFactory,
   GleanMetricsDataFactory,
-} from './glean.factory';
+  MockPaymentsGleanConfigProvider,
+  MockPaymentsGleanFactory,
+  PaymentsGleanConfig,
+  PaymentsGleanManager,
+} from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from './payments-metrics-aggregator.service';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
   CustomerManager,
@@ -55,10 +53,9 @@ import {
 } from '@fxa/shared/experiments';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { AsyncLocalStorageCartProvider } from '@fxa/payments/cart';
 
-describe('PaymentsGleanService', () => {
-  let paymentsGleanService: PaymentsGleanService;
+describe('PaymentsMetricsAggregatorService', () => {
+  let aggregatorService: PaymentsMetricsAggregatorService;
   let paymentsGleanManager: PaymentsGleanManager;
   let subscriptionManager: SubscriptionManager;
   let productConfigurationManager: ProductConfigurationManager;
@@ -72,7 +69,6 @@ describe('PaymentsGleanService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         AccountManager,
-        AsyncLocalStorageCartProvider,
         CustomerManager,
         Logger,
         MockFirestoreProvider,
@@ -88,7 +84,7 @@ describe('PaymentsGleanService', () => {
         NimbusManager,
         PriceManager,
         PaymentsGleanManager,
-        PaymentsGleanService,
+        PaymentsMetricsAggregatorService,
         ProductConfigurationManager,
         StrapiClient,
         StripeClient,
@@ -97,7 +93,7 @@ describe('PaymentsGleanService', () => {
       ],
     }).compile();
 
-    paymentsGleanService = moduleRef.get(PaymentsGleanService);
+    aggregatorService = moduleRef.get(PaymentsMetricsAggregatorService);
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
@@ -120,7 +116,7 @@ describe('PaymentsGleanService', () => {
     });
 
     it('logs one entry per nimbus user id', () => {
-      paymentsGleanService.handleUserDelete(mockUid);
+      aggregatorService.handleUserDelete(mockUid);
 
       expect(
         nimbusManager.generateAllNimbusIdsForDeletion
@@ -137,7 +133,7 @@ describe('PaymentsGleanService', () => {
     it('still logs deletion even when glean is disabled', () => {
       gleanConfig.enabled = false;
 
-      paymentsGleanService.handleUserDelete(mockUid);
+      aggregatorService.handleUserDelete(mockUid);
 
       expect(
         nimbusManager.generateAllNimbusIdsForDeletion
@@ -158,7 +154,7 @@ describe('PaymentsGleanService', () => {
         .spyOn(nimbusManager, 'generateAllNimbusIdsForDeletion')
         .mockReturnValue(['single-nimbus-id']);
 
-      paymentsGleanService.handleUserDelete(mockUid);
+      aggregatorService.handleUserDelete(mockUid);
 
       expect(logger.log).toHaveBeenCalledTimes(1);
       expect(logger.log).toHaveBeenCalledWith('glean.user.delete', {
@@ -174,7 +170,7 @@ describe('PaymentsGleanService', () => {
     beforeEach(() => {
       jest.spyOn(paymentsGleanManager, 'recordGenericEvent').mockReturnValue();
       jest
-        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .spyOn(aggregatorService, 'retrieveSubManageMetricsData')
         .mockResolvedValue(
           GleanMetricsDataFactory({
             accounts: AccountsMetricsDataFactory({ metricsOptOut: false }),
@@ -183,10 +179,10 @@ describe('PaymentsGleanService', () => {
     });
 
     it('successfully calls GleanManager', async () => {
-      await paymentsGleanService.recordGenericSubManageEvent(mockEventData);
+      await aggregatorService.recordGenericSubManageEvent(mockEventData);
 
       expect(
-        paymentsGleanService.retrieveSubManageMetricsData
+        aggregatorService.retrieveSubManageMetricsData
       ).toHaveBeenCalledWith(
         mockEventData.commonMetrics,
         mockEventData.uid,
@@ -200,16 +196,16 @@ describe('PaymentsGleanService', () => {
 
     it('does not call GleanManager if opted out', async () => {
       jest
-        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .spyOn(aggregatorService, 'retrieveSubManageMetricsData')
         .mockResolvedValue(
           GleanMetricsDataFactory({
             accounts: AccountsMetricsDataFactory({ metricsOptOut: true }),
           })
         );
-      await paymentsGleanService.recordGenericSubManageEvent(mockEventData);
+      await aggregatorService.recordGenericSubManageEvent(mockEventData);
 
       expect(
-        paymentsGleanService.retrieveSubManageMetricsData
+        aggregatorService.retrieveSubManageMetricsData
       ).toHaveBeenCalledWith(
         mockEventData.commonMetrics,
         mockEventData.uid,
@@ -254,18 +250,18 @@ describe('PaymentsGleanService', () => {
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(mockPageContentUtil);
-      jest.spyOn(paymentsGleanService, 'mapExperimentationMetricsData');
-      jest.spyOn(paymentsGleanService, 'mapStripeMetricsData');
-      jest.spyOn(paymentsGleanService, 'mapAccountsMetricsData');
-      jest.spyOn(paymentsGleanService, 'mapSubPlatCmsMetricsData');
-      jest.spyOn(paymentsGleanService, 'mapSessionMetricsData');
+      jest.spyOn(aggregatorService, 'mapExperimentationMetricsData');
+      jest.spyOn(aggregatorService, 'mapStripeMetricsData');
+      jest.spyOn(aggregatorService, 'mapAccountsMetricsData');
+      jest.spyOn(aggregatorService, 'mapSubPlatCmsMetricsData');
+      jest.spyOn(aggregatorService, 'mapSessionMetricsData');
       jest
         .spyOn(nimbusManager, 'fetchExperiments')
         .mockResolvedValue(SubPlatNimbusResultFactory());
     });
 
     it('successfully retrieves all data', async () => {
-      await paymentsGleanService.retrieveSubManageMetricsData(
+      await aggregatorService.retrieveSubManageMetricsData(
         mockCommonMetrics,
         mockUid,
         mockSubscriptionId
@@ -282,27 +278,27 @@ describe('PaymentsGleanService', () => {
         productConfigurationManager.getPageContentByPriceIds
       ).toHaveBeenCalledWith([mockPrice.id]);
       expect(
-        paymentsGleanService.mapExperimentationMetricsData
+        aggregatorService.mapExperimentationMetricsData
       ).toHaveBeenCalledWith(mockUid, mockCommonMetrics, mockCustomer);
-      expect(paymentsGleanService.mapStripeMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapStripeMetricsData).toHaveBeenCalledWith(
         mockCustomer,
         mockPrice,
         mockSubscription
       );
-      expect(paymentsGleanService.mapAccountsMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapAccountsMetricsData).toHaveBeenCalledWith(
         mockUid,
         mockAccount
       );
       expect(
-        paymentsGleanService.mapSubPlatCmsMetricsData
+        aggregatorService.mapSubPlatCmsMetricsData
       ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
-      expect(paymentsGleanService.mapSessionMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
     });
 
     it('successfully complets without calling Stripe data', async () => {
-      await paymentsGleanService.retrieveSubManageMetricsData(
+      await aggregatorService.retrieveSubManageMetricsData(
         mockCommonMetrics,
         mockUid
       );
@@ -314,21 +310,21 @@ describe('PaymentsGleanService', () => {
       ).not.toHaveBeenCalled();
 
       expect(
-        paymentsGleanService.mapExperimentationMetricsData
+        aggregatorService.mapExperimentationMetricsData
       ).toHaveBeenCalledWith(mockUid, mockCommonMetrics, undefined);
-      expect(paymentsGleanService.mapStripeMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapStripeMetricsData).toHaveBeenCalledWith(
         undefined,
         undefined,
         undefined
       );
-      expect(paymentsGleanService.mapAccountsMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapAccountsMetricsData).toHaveBeenCalledWith(
         mockUid,
         mockAccount
       );
       expect(
-        paymentsGleanService.mapSubPlatCmsMetricsData
+        aggregatorService.mapSubPlatCmsMetricsData
       ).toHaveBeenCalledWith(undefined, undefined);
-      expect(paymentsGleanService.mapSessionMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
     });
@@ -337,28 +333,28 @@ describe('PaymentsGleanService', () => {
       jest
         .spyOn(customerManager, 'retrieve')
         .mockRejectedValue(new Error('testing'));
-      await paymentsGleanService.retrieveSubManageMetricsData(
+      await aggregatorService.retrieveSubManageMetricsData(
         mockCommonMetrics,
         mockUid,
         mockSubscriptionId
       );
 
       expect(
-        paymentsGleanService.mapExperimentationMetricsData
+        aggregatorService.mapExperimentationMetricsData
       ).toHaveBeenCalledWith(mockUid, mockCommonMetrics, undefined);
-      expect(paymentsGleanService.mapStripeMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapStripeMetricsData).toHaveBeenCalledWith(
         undefined,
         mockPrice,
         mockSubscription
       );
-      expect(paymentsGleanService.mapAccountsMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapAccountsMetricsData).toHaveBeenCalledWith(
         mockUid,
         mockAccount
       );
       expect(
-        paymentsGleanService.mapSubPlatCmsMetricsData
+        aggregatorService.mapSubPlatCmsMetricsData
       ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
-      expect(paymentsGleanService.mapSessionMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
     });
@@ -368,28 +364,28 @@ describe('PaymentsGleanService', () => {
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockRejectedValue(new Error('testing'));
 
-      await paymentsGleanService.retrieveSubManageMetricsData(
+      await aggregatorService.retrieveSubManageMetricsData(
         mockCommonMetrics,
         mockUid,
         mockSubscriptionId
       );
 
       expect(
-        paymentsGleanService.mapExperimentationMetricsData
+        aggregatorService.mapExperimentationMetricsData
       ).toHaveBeenCalledWith(mockUid, mockCommonMetrics, mockCustomer);
-      expect(paymentsGleanService.mapStripeMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapStripeMetricsData).toHaveBeenCalledWith(
         mockCustomer,
         mockPrice,
         mockSubscription
       );
-      expect(paymentsGleanService.mapAccountsMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapAccountsMetricsData).toHaveBeenCalledWith(
         mockUid,
         mockAccount
       );
       expect(
-        paymentsGleanService.mapSubPlatCmsMetricsData
+        aggregatorService.mapSubPlatCmsMetricsData
       ).toHaveBeenCalledWith(mockSubscription, undefined);
-      expect(paymentsGleanService.mapSessionMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
     });
@@ -399,28 +395,28 @@ describe('PaymentsGleanService', () => {
         .spyOn(accountManager, 'getAccounts')
         .mockRejectedValue(new Error('testing'));
 
-      await paymentsGleanService.retrieveSubManageMetricsData(
+      await aggregatorService.retrieveSubManageMetricsData(
         mockCommonMetrics,
         mockUid,
         mockSubscriptionId
       );
 
       expect(
-        paymentsGleanService.mapExperimentationMetricsData
+        aggregatorService.mapExperimentationMetricsData
       ).toHaveBeenCalledWith(mockUid, mockCommonMetrics, mockCustomer);
-      expect(paymentsGleanService.mapStripeMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapStripeMetricsData).toHaveBeenCalledWith(
         mockCustomer,
         mockPrice,
         mockSubscription
       );
-      expect(paymentsGleanService.mapAccountsMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapAccountsMetricsData).toHaveBeenCalledWith(
         mockUid,
         undefined
       );
       expect(
-        paymentsGleanService.mapSubPlatCmsMetricsData
+        aggregatorService.mapSubPlatCmsMetricsData
       ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
-      expect(paymentsGleanService.mapSessionMetricsData).toHaveBeenCalledWith(
+      expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
     });
@@ -464,7 +460,7 @@ describe('PaymentsGleanService', () => {
     );
 
     it('successfully returns all data', () => {
-      const result = paymentsGleanService.mapStripeMetricsData(
+      const result = aggregatorService.mapStripeMetricsData(
         mockCustomer,
         mockPrice,
         mockSubscription
@@ -484,7 +480,7 @@ describe('PaymentsGleanService', () => {
     });
 
     it('successfully returns undefined data', () => {
-      const result = paymentsGleanService.mapStripeMetricsData(
+      const result = aggregatorService.mapStripeMetricsData(
         undefined,
         undefined,
         undefined
@@ -507,7 +503,7 @@ describe('PaymentsGleanService', () => {
     const mockUid = mockAccount.uid.toString();
 
     it('successfully returns all data', () => {
-      const result = paymentsGleanService.mapAccountsMetricsData(
+      const result = aggregatorService.mapAccountsMetricsData(
         mockUid,
         mockAccount
       );
@@ -520,7 +516,7 @@ describe('PaymentsGleanService', () => {
     });
 
     it('successfully returns undefined data', () => {
-      const result = paymentsGleanService.mapAccountsMetricsData(
+      const result = aggregatorService.mapAccountsMetricsData(
         mockUid,
         undefined
       );
@@ -551,7 +547,7 @@ describe('PaymentsGleanService', () => {
       PageContentByPriceIdByPriceIdsResultFactory()
     );
     it('successfully returns all data', () => {
-      const result = paymentsGleanService.mapSubPlatCmsMetricsData(
+      const result = aggregatorService.mapSubPlatCmsMetricsData(
         mockSubscription,
         mockPageContentUtil
       );
@@ -563,7 +559,7 @@ describe('PaymentsGleanService', () => {
     });
 
     it('successfully returns undefined data', () => {
-      const result = paymentsGleanService.mapSubPlatCmsMetricsData();
+      const result = aggregatorService.mapSubPlatCmsMetricsData();
 
       expect(result).toEqual({
         offeringId: undefined,
@@ -580,7 +576,7 @@ describe('PaymentsGleanService', () => {
       });
 
       const result =
-        paymentsGleanService.mapSessionMetricsData(mockCommonMetrics);
+        aggregatorService.mapSessionMetricsData(mockCommonMetrics);
       expect(result).toEqual({
         locale: 'en',
         ipAddress: mockCommonMetrics.ipAddress,
@@ -593,7 +589,7 @@ describe('PaymentsGleanService', () => {
       const mockCommonMetrics = CommonMetricsFactory();
 
       const result =
-        paymentsGleanService.mapSessionMetricsData(mockCommonMetrics);
+        aggregatorService.mapSessionMetricsData(mockCommonMetrics);
       expect(result).toEqual({
         locale: undefined,
         ipAddress: mockCommonMetrics.ipAddress,
@@ -636,7 +632,7 @@ describe('PaymentsGleanService', () => {
     });
 
     it('successfully returns data fetched from nimbus', async () => {
-      const result = await paymentsGleanService.mapExperimentationMetricsData(
+      const result = await aggregatorService.mapExperimentationMetricsData(
         mockUid,
         mockCommonMetrics,
         mockCustomer
@@ -651,7 +647,7 @@ describe('PaymentsGleanService', () => {
       jest
         .spyOn(nimbusManager, 'fetchExperiments')
         .mockRejectedValue(new Error('testing'));
-      const result = await paymentsGleanService.mapExperimentationMetricsData(
+      const result = await aggregatorService.mapExperimentationMetricsData(
         mockUid,
         mockCommonMetrics,
         mockCustomer

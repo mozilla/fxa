@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import type { ResultCart } from '@fxa/payments/cart';
-import type { SubplatInterval } from '@fxa/payments/customer';
-
 export const CheckoutTypes = [
   'new_account',
   'existing_account',
@@ -12,7 +9,21 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import type { TaxAddress } from '@fxa/payments/customer';
+
+// Should match type TaxAddress in @fxa/payments/customer
+export interface TaxAddress {
+  countryCode: string;
+  postalCode: string;
+}
+
+// Should match enum SubplatInterval in @fxa/payments/customer
+export enum SubplatInterval {
+  Daily = 'daily',
+  Weekly = 'weekly',
+  Monthly = 'monthly',
+  HalfYearly = 'halfyearly',
+  Yearly = 'yearly',
+}
 
 export const PaymentProvidersTypePartial = [
   'stripe',
@@ -20,6 +31,19 @@ export const PaymentProvidersTypePartial = [
   'apple_iap',
   'paypal',
 ] as const;
+
+// Should match type PaymentProvidersType in @fxa/payments/customer
+export type PaymentProvidersType = (typeof PaymentProvidersTypePartial)[number];
+
+// Should match enum SubPlatPaymentMethodType in @fxa/payments/customer
+export enum SubPlatPaymentMethodType {
+  PayPal = 'external_paypal',
+  Stripe = 'stripe',
+  Card = 'card',
+  ApplePay = 'apple_pay',
+  GooglePay = 'google_pay',
+  Link = 'link',
+}
 
 export type CommonMetrics = {
   ipAddress: string;
@@ -31,15 +55,14 @@ export type CommonMetrics = {
   searchParams: Record<string, string>;
 };
 
-export type CartMetrics = Pick<
-  ResultCart,
-  | 'uid'
-  | 'errorReasonId'
-  | 'couponCode'
-  | 'currency'
-  | 'stripeCustomerId'
-  | 'taxAddress'
->;
+export type CartMetrics = {
+  uid?: string;
+  errorReasonId?: string | null;
+  couponCode?: string | null;
+  currency?: string | null;
+  stripeCustomerId?: string | null;
+  taxAddress?: TaxAddress | null;
+};
 
 export type ExperimentationData = {
   nimbusUserId: string;

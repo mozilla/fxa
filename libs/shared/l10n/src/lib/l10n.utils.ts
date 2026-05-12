@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { negotiateLanguages } from '@fluent/langneg';
-import availableLocales from './supported-languages.json';
+const availableLocales: string[] = require('./supported-languages.json');
 import moment from 'moment';
 import { LocalizeOptions } from './l10n.types';
 import { DEFAULT_LOCALE, EN_GB_LOCALES } from './l10n.constants';
@@ -162,7 +162,7 @@ export function determineLocale(
   )[0];
 }
 
-import rtlLocales from './rtl-locales.json';
+const rtlLocales: string[] = require('./rtl-locales.json');
 
 /**
  * Given a set of supported languages and an accept-language http header value, this resolves the direction of the language that fits best.

@@ -1,4 +1,7 @@
-import { PaymentsGleanService } from './glean.service';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { PaymentsGleanProvider } from './glean.types';
 
 /**
@@ -17,20 +20,5 @@ export const MockPaymentsGleanFactory = {
       recordPaySetupFail: () => {},
       recordSubscriptionEnded: () => {},
       recordSubscriptionTrialConverted: () => {},
-    }) as any,
-};
-
-export const MockPaymentsGleanServiceFactory = {
-  provide: PaymentsGleanService,
-  useFactory: () =>
-    ({
-      handleUserDelete: () => {},
-      recordGenericSubManageEvent: () => {},
-      retrieveSubManageMetricsData: () => {},
-      mapStripeMetricsData: () => {},
-      mapAccountsMetricsData: () => {},
-      mapSubPlatCmsMetricsData: () => {},
-      mapSessionMetricsData: () => {},
-      mapExperimentationMetricsData: () => {},
     }) as any,
 };

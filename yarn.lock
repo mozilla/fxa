@@ -9939,25 +9939,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/esbuild@npm:21.2.4":
-  version: 21.2.4
-  resolution: "@nx/esbuild@npm:21.2.4"
-  dependencies:
-    "@nx/devkit": "npm:21.2.4"
-    "@nx/js": "npm:21.2.4"
-    picocolors: "npm:^1.1.0"
-    tinyglobby: "npm:^0.2.12"
-    tsconfig-paths: "npm:^4.1.2"
-    tslib: "npm:^2.3.0"
-  peerDependencies:
-    esbuild: ">=0.19.2 <1.0.0"
-  peerDependenciesMeta:
-    esbuild:
-      optional: true
-  checksum: 10c0/05fa3875ae9a5fc36e2f4675af08630e6c34cd50310cd7d52532794f3016aac0d01ac60a3b5b5b08e4ae1673d14fe67c253a83b6afaf385af0779cf3d20b63cc
-  languageName: node
-  linkType: hard
-
 "@nx/eslint-plugin@npm:21.2.4":
   version: 21.2.4
   resolution: "@nx/eslint-plugin@npm:21.2.4"
@@ -31744,7 +31725,6 @@ __metadata:
     "@nestjs/schematics": "npm:11.0.9"
     "@nestjs/testing": "npm:^10.3.4"
     "@next/bundle-analyzer": "npm:^15.1.6"
-    "@nx/esbuild": "npm:21.2.4"
     "@nx/eslint-plugin": "npm:21.2.4"
     "@nx/jest": "npm:21.2.4"
     "@nx/js": "npm:21.2.4"
@@ -31837,8 +31817,6 @@ __metadata:
     copyfiles: "npm:^2.4.1"
     diffparser: "npm:^2.0.1"
     dotenv: "npm:^16.4.5"
-    esbuild: "npm:^0.17.15"
-    esbuild-register: "npm:^3.5.0"
     eslint: "npm:^8.57.1"
     eslint-config-next: "npm:15.5.14"
     eslint-config-prettier: "npm:^10.1.5"
