@@ -312,12 +312,15 @@ describe('CartService', () => {
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
 
-    it('cancels a created subscription', async () => {
+    it('cancels and stamps suppression metadata for a created subscription with paid zero-cost invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'paid', total: 0 })
+      );
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockCustomer.id,
-          latest_invoice: null,
+          latest_invoice: mockInvoice.id,
         })
       );
       const mockCart = ResultCartFactory({
@@ -336,6 +339,10 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
@@ -347,6 +354,14 @@ describe('CartService', () => {
         cartService.finalizeProcessingCart(mockCart.id)
       ).rejects.toThrow(Error);
 
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          metadata: {
+            suppress_cancellation_email: 'true',
+          },
+        }
+      );
       expect(subscriptionManager.cancel).toHaveBeenCalledWith(
         mockSubscription.id,
         {
@@ -357,12 +372,15 @@ describe('CartService', () => {
       );
     });
 
-    it('gracefully handles subscription not found during cancel', async () => {
+    it('gracefully handles subscription not found during cancel of paid zero-cost cart', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'paid', total: 0 })
+      );
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockCustomer.id,
-          latest_invoice: null,
+          latest_invoice: mockInvoice.id,
         })
       );
       const mockCart = ResultCartFactory({
@@ -386,6 +404,10 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
       jest.spyOn(subscriptionManager, 'cancel').mockRejectedValue(stripeError);
       jest
         .spyOn(paymentIntentManager, 'retrieve')
@@ -400,10 +422,13 @@ describe('CartService', () => {
 
     it('cancels a created subscription with async local storage', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'paid', total: 0 })
+      );
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockCustomer.id,
-          latest_invoice: null,
+          latest_invoice: mockInvoice.id,
         })
       );
       const mockCart = ResultCartFactory({
@@ -429,6 +454,10 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
@@ -440,6 +469,14 @@ describe('CartService', () => {
         cartService.finalizeProcessingCart(mockCart.id)
       ).rejects.toThrow(Error);
 
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          metadata: {
+            suppress_cancellation_email: 'true',
+          },
+        }
+      );
       expect(subscriptionManager.cancel).toHaveBeenCalledWith(
         mockSubscription.id,
         {
@@ -448,6 +485,50 @@ describe('CartService', () => {
           },
         }
       );
+    });
+
+    it('does not cancel the subscription when the invoice is voidable (relies on invoice void to expire)', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'open' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: mockInvoice.id,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(invoiceManager.void).toHaveBeenCalledWith(mockInvoice.id);
+      expect(subscriptionManager.update).not.toHaveBeenCalled();
+      expect(subscriptionManager.cancel).not.toHaveBeenCalled();
     });
 
     it('finalizes and voids a draft invoice', async () => {

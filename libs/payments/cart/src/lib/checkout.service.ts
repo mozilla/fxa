@@ -27,6 +27,7 @@ import {
   PromotionCodeManager,
   retrieveSubscriptionItem,
   STRIPE_CUSTOMER_METADATA,
+  STRIPE_SETUP_INTENT_METADATA,
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
@@ -488,7 +489,6 @@ export class CheckoutService {
       await this.freeTrialManager.recordFreeTrial(uid, freeTrial.internalName);
     }
 
-    // Get payment/setup intent for subscription
     let intent: StripePaymentIntent | StripeSetupIntent | undefined;
     try {
       assert(
@@ -511,6 +511,14 @@ export class CheckoutService {
           }
         );
       } else if (subscription.pending_setup_intent) {
+
+        // Subscription metadata is required by welcome email dispatcher for zero-cost subscriptions
+        await this.setupIntentManager.update(subscription.pending_setup_intent, {
+          metadata: {
+            [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
+          },
+        });
+
         intent = await this.setupIntentManager.confirm(
           subscription.pending_setup_intent,
           confirmationTokenId
@@ -522,7 +530,10 @@ export class CheckoutService {
       } else {
         intent = await this.setupIntentManager.createAndConfirm(
           customer.id,
-          confirmationTokenId
+          confirmationTokenId,
+          {
+            [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
+          }
         );
 
         this.statsd.increment('checkout_stripe_payment_setupintent_status', {

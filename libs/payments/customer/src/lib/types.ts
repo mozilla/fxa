@@ -182,6 +182,7 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   AutoCancelledRedundantFor = 'autoCancelledRedundantFor',
   RedundantCancellation = 'redundantCancellation',
   CancelledForCustomerAt = 'cancelled_for_customer_at',
+  SuppressCancellationEmail = 'suppress_cancellation_email',
   UtmCampaign = 'utm_campaign',
   UtmContent = 'utm_content',
   UtmMedium = 'utm_medium',
@@ -204,6 +205,14 @@ export enum STRIPE_INVOICE_METADATA {
 export type StripeInvoiceMetadata = StripeMetadata<STRIPE_INVOICE_METADATA>;
 export type StripeInvoiceMetadataInput =
   StripeMetadataInput<STRIPE_INVOICE_METADATA>;
+
+export enum STRIPE_SETUP_INTENT_METADATA {
+  SubscriptionId = 'subscription_id',
+}
+export type StripeSetupIntentMetadata =
+  StripeMetadata<STRIPE_SETUP_INTENT_METADATA>;
+export type StripeSetupIntentMetadataInput =
+  StripeMetadataInput<STRIPE_SETUP_INTENT_METADATA>;
 
 // Duplicated as enum SubplatInterval in @fxa/payments/metrics — keep in sync.
 export enum SubplatInterval {

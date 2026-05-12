@@ -61,6 +61,57 @@ describe('SetupIntentManager', () => {
       });
       expect(result).toEqual(mockResponse);
     });
+
+    it('should pass metadata through to setupIntentCreate when provided', async () => {
+      const mockConfirmationToken = 'confirmToken';
+      const mockCustomerId = 'cus_12345';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+
+      jest
+        .spyOn(stripeClient, 'setupIntentCreate')
+        .mockResolvedValue(mockResponse);
+
+      await setupIntentManager.createAndConfirm(
+        mockCustomerId,
+        mockConfirmationToken,
+        { subscription_id: 'sub_abc' }
+      );
+
+      expect(stripeClient.setupIntentCreate).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+        confirm: true,
+        confirmation_token: mockConfirmationToken,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'never',
+        },
+        use_stripe_sdk: true,
+        metadata: { subscription_id: 'sub_abc' },
+      });
+    });
+  });
+
+  describe('update', () => {
+    it('should update a setup intent', async () => {
+      const mockSetupIntentId = 'seti_12345';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+      const params = { metadata: { subscription_id: 'sub_abc' } };
+
+      jest
+        .spyOn(stripeClient, 'setupIntentUpdate')
+        .mockResolvedValue(mockResponse);
+
+      const result = await setupIntentManager.update(
+        mockSetupIntentId,
+        params
+      );
+
+      expect(stripeClient.setupIntentUpdate).toHaveBeenCalledWith(
+        mockSetupIntentId,
+        params
+      );
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('confirm', () => {

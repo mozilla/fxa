@@ -218,6 +218,7 @@ describe('StripeWebhookHandler', () => {
         'handleInvoiceCreatedEvent',
         'handleInvoiceUpcomingEvent',
         'handleTaxRateCreatedOrUpdatedEvent',
+        'handleSetupIntentSucceededEvent',
       ];
       const handlerStubs: any = {};
 
@@ -521,6 +522,25 @@ describe('StripeWebhookHandler', () => {
 
       describe('when the event.type is invoice.paid', () => {
         itOnlyCallsThisHandler('handleInvoicePaidEvent', eventInvoicePaid);
+      });
+
+      describe('when the event.type is setup_intent.succeeded', () => {
+        itOnlyCallsThisHandler(
+          'handleSetupIntentSucceededEvent',
+          {
+            id: 'evt_setup_intent_succeeded_routing',
+            type: 'setup_intent.succeeded',
+            data: {
+              object: {
+                id: 'seti_routing_test',
+                object: 'setup_intent',
+                metadata: {},
+              },
+            },
+          },
+          false,
+          false
+        );
       });
 
       describe('when the event.type is invoice.payment_failed', () => {
@@ -1114,6 +1134,36 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper
             .conditionallyRemoveBillingAgreement
         ).toHaveBeenCalledWith(customerFixture);
+      });
+
+      it('skips the cancellation email when subscription metadata has suppress_cancellation_email=true', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          customerFixture
+        );
+        const deletedEvent = deepCopy(subscriptionDeleted);
+        deletedEvent.data.object.metadata = {
+          ...(deletedEvent.data.object.metadata || {}),
+          suppress_cancellation_email: 'true',
+        };
+        const sendSubscriptionDeletedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
+        const account = { email: customerFixture.email };
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+
+        expect(sendSubscriptionDeletedEmailStub).not.toHaveBeenCalled();
+        // The rest of the handler still runs.
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
+          sub: deletedEvent.data.object,
+          uid: customerFixture.metadata.userid,
+        });
       });
 
       it('sends subscriptionReplaced email if metadata includes redundantCancellation', async () => {
@@ -1858,6 +1908,77 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      it('does not send an email when invoice amount_due is 0 on a $0 invoice and collection_method is charge_automatically (Stripe card)', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        paidEvent.data.object.total = 0;
+        paidEvent.data.object.amount_due = 0;
+        paidEvent.data.object.collection_method = 'charge_automatically';
+        const customer = deepCopy(customerFixture);
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        const account = { email: customerFixture.email };
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          customer
+        );
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        expect(sendSubscriptionInvoiceEmailStub).not.toHaveBeenCalled();
+      });
+
+      it('does not send an email when amount_due is 0 from a customer credit balance covering a non-zero total (Stripe card)', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        paidEvent.data.object.total = 500;
+        paidEvent.data.object.amount_due = 0;
+        paidEvent.data.object.collection_method = 'charge_automatically';
+        const customer = deepCopy(customerFixture);
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        const account = { email: customerFixture.email };
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          customer
+        );
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        expect(sendSubscriptionInvoiceEmailStub).not.toHaveBeenCalled();
+      });
+
+      it('sends an email when invoice amount_due is 0 and collection_method is send_invoice (PayPal)', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        paidEvent.data.object.total = 0;
+        paidEvent.data.object.amount_due = 0;
+        paidEvent.data.object.collection_method = 'send_invoice';
+        const customer = deepCopy(customerFixture);
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        const account = { email: customerFixture.email };
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          customer
+        );
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        expect(sendSubscriptionInvoiceEmailStub).toHaveBeenCalledWith(
+          paidEvent.data.object
+        );
+      });
+
       it('reports a sentry error for a customer missing a firefox account', async () => {
         const paidEvent = deepCopy(eventInvoicePaid);
         const customer = deepCopy(customerFixture);
@@ -1883,6 +2004,149 @@ describe('StripeWebhookHandler', () => {
             invoiceId: paidEvent.data.object.id,
             userId: customer.metadata.userid,
           }),
+          expect.anything()
+        );
+      });
+    });
+
+    describe('handleSetupIntentSucceededEvent', () => {
+      const makeEvent = (metadata: Record<string, string> | null) => ({
+        id: 'evt_setup_intent_test',
+        type: 'setup_intent.succeeded',
+        data: {
+          object: {
+            id: 'seti_test_123',
+            object: 'setup_intent',
+            metadata,
+          },
+        },
+      });
+
+      const mockSubscription = {
+        id: 'sub_test_123',
+        status: 'active',
+        latest_invoice: 'in_test_123',
+        customer: 'cus_test_123',
+      };
+      const mockInvoice = {
+        id: 'in_test_123',
+        status: 'paid',
+        customer: 'cus_test_123',
+        subscription: 'sub_test_123',
+        total: 0,
+        billing_reason: 'subscription_create',
+      };
+
+      it('silently no-ops when SetupIntent has no subscription_id metadata', async () => {
+        const event = makeEvent(null);
+        const dispatchStub = jest
+          .spyOn(
+            StripeWebhookHandlerInstance,
+            'sendSubscriptionInvoiceEmail'
+          )
+          .mockResolvedValue(undefined);
+        const sentryMod = require('../../sentry');
+        const reportMessage = jest
+          .spyOn(sentryMod, 'reportSentryMessage')
+          .mockReturnValue(undefined);
+
+        await StripeWebhookHandlerInstance.handleSetupIntentSucceededEvent(
+          {},
+          event
+        );
+
+        expect(dispatchStub).not.toHaveBeenCalled();
+        expect(reportMessage).not.toHaveBeenCalled();
+      });
+
+      it('dispatches the welcome emails when subscription is active and invoice is paid', async () => {
+        const event = makeEvent({ subscription_id: mockSubscription.id });
+        const dispatchStub = jest
+          .spyOn(
+            StripeWebhookHandlerInstance,
+            'sendSubscriptionInvoiceEmail'
+          )
+          .mockResolvedValue(undefined);
+
+        const customer = deepCopy(customerFixture);
+        const account = { email: customer.email };
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockImplementation((id) => {
+            if (id === mockSubscription.id) return mockSubscription;
+            if (id === mockInvoice.id) return mockInvoice;
+            return customer;
+          });
+
+        await StripeWebhookHandlerInstance.handleSetupIntentSucceededEvent(
+          {},
+          event
+        );
+
+        expect(dispatchStub).toHaveBeenCalledWith(mockInvoice);
+      });
+
+      it('reports a Sentry warning when the subscription is not active', async () => {
+        const event = makeEvent({ subscription_id: mockSubscription.id });
+        const dispatchStub = jest
+          .spyOn(
+            StripeWebhookHandlerInstance,
+            'sendSubscriptionInvoiceEmail'
+          )
+          .mockResolvedValue(undefined);
+        const sentryMod = require('../../sentry');
+        const reportMessage = jest
+          .spyOn(sentryMod, 'reportSentryMessage')
+          .mockReturnValue(undefined);
+
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          { ...mockSubscription, status: 'incomplete' }
+        );
+
+        await StripeWebhookHandlerInstance.handleSetupIntentSucceededEvent(
+          {},
+          event
+        );
+
+        expect(dispatchStub).not.toHaveBeenCalled();
+        expect(reportMessage).toHaveBeenCalledWith(
+          expect.stringContaining('subscription_not_active'),
+          expect.anything()
+        );
+      });
+
+      it('reports a Sentry warning when the latest invoice is not paid', async () => {
+        const event = makeEvent({ subscription_id: mockSubscription.id });
+        const dispatchStub = jest
+          .spyOn(
+            StripeWebhookHandlerInstance,
+            'sendSubscriptionInvoiceEmail'
+          )
+          .mockResolvedValue(undefined);
+        const sentryMod = require('../../sentry');
+        const reportMessage = jest
+          .spyOn(sentryMod, 'reportSentryMessage')
+          .mockReturnValue(undefined);
+
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockImplementation((id) => {
+            if (id === mockSubscription.id) return mockSubscription;
+            if (id === mockInvoice.id) return { ...mockInvoice, status: 'open' };
+            return undefined;
+          });
+
+        await StripeWebhookHandlerInstance.handleSetupIntentSucceededEvent(
+          {},
+          event
+        );
+
+        expect(dispatchStub).not.toHaveBeenCalled();
+        expect(reportMessage).toHaveBeenCalledWith(
+          expect.stringContaining('invoice_not_paid'),
           expect.anything()
         );
       });

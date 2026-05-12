@@ -26,6 +26,7 @@ import {
   getSubplatInterval,
   SetupIntentManager,
   PromotionCodeError,
+  STRIPE_SUBSCRIPTION_METADATA,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
@@ -280,34 +281,47 @@ export class CartService {
             }
           }
 
+          const isZeroPaidInvoice =
+            invoice?.status === 'paid' && invoice.total === 0;
+
           if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
-            try {
-              await this.subscriptionManager.cancel(subscriptionId, {
-                cancellation_details: {
-                  comment: 'Automatic Cancellation: Cart checkout failed.',
-                },
-              });
-            } catch (e) {
-              if (
-                e.code === 'resource_missing' ||
-                e.message?.startsWith('No such subscription')
-              ) {
-                this.log.log(
-                  'cartService.wrapWithCartCatch.subscriptionNotFound',
-                  {
+            if (isZeroPaidInvoice) {
+              try {
+                await this.subscriptionManager.update(subscriptionId, {
+                  metadata: {
+                    [STRIPE_SUBSCRIPTION_METADATA.SuppressCancellationEmail]:
+                      'true',
+                  },
+                });
+                await this.subscriptionManager.cancel(subscriptionId, {
+                  cancellation_details: {
+                    comment: 'Automatic Cancellation: Cart checkout failed.',
+                  },
+                });
+              } catch (e) {
+                if (
+                  e.code === 'resource_missing' ||
+                  e.message?.startsWith('No such subscription')
+                ) {
+                  this.log.log(
+                    'cartService.wrapWithCartCatch.subscriptionNotFound',
+                    {
+                      subscriptionId,
+                      eligibilityStatus: cart.eligibilityStatus,
+                      offeringId: cart.offeringConfigId,
+                      interval: cart.interval,
+                    }
+                  );
+                  this.statsd.increment(
+                    'subscription_deletion_failed_not_found'
+                  );
+                } else {
+                  throw new CartSubscriptionDeletionFailedError(
+                    cartId,
                     subscriptionId,
-                    eligibilityStatus: cart.eligibilityStatus,
-                    offeringId: cart.offeringConfigId,
-                    interval: cart.interval,
-                  }
-                );
-                this.statsd.increment('subscription_deletion_failed_not_found');
-              } else {
-                throw new CartSubscriptionDeletionFailedError(
-                  cartId,
-                  subscriptionId,
-                  e
-                );
+                    e
+                  );
+                }
               }
             }
           } else {
