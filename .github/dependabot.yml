@@ -21,9 +21,6 @@ updates:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
     groups:
-      one-package-per-pr: # prevent grouping of unrelated PRs
-        patterns:
-          - '*'
       opentelemetry-packages:
         patterns:
           - '@opentelemetry/*'
