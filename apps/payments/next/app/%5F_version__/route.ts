@@ -7,5 +7,5 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  return NextResponse.json({ body: { version: process.env.version } });
+  return NextResponse.json({ version: process.env.version });
 }
