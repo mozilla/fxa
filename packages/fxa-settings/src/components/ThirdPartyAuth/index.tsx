@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
 
@@ -14,14 +14,16 @@ import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useMetrics } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';
+import BoxButton from '../BoxButton';
+
+export type ThirdPartyAuthVariant = 'icon' | 'box';
 
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: () => void;
   onContinueWithApple?: () => void;
-  showSeparator?: boolean;
   viewName?: string;
   flowQueryParams?: QueryParams;
-  separatorType?: 'or' | 'signInWith';
+  variant?: ThirdPartyAuthVariant;
 };
 
 /**
@@ -32,87 +34,57 @@ export type ThirdPartyAuthProps = {
 const ThirdPartyAuth = ({
   onContinueWithGoogle,
   onContinueWithApple,
-  showSeparator = true,
   viewName = 'unknown',
   flowQueryParams,
-  separatorType = 'or',
+  variant = 'icon',
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
-  useEffect(() => {
-    // If the separator is shown, the user has set a password
-    if (!showSeparator) {
-      GleanMetrics.thirdPartyAuth.loginNoPwView();
-    }
-  }, [showSeparator]);
+  const buttonContainerClassName =
+    variant === 'box' ? 'flex flex-col gap-2.5' : 'flex gap-4 justify-center';
 
   return (
-    <>
-      <div className="flex flex-col">
-        {showSeparator && (
-          <>
-            <div className="text-sm flex items-center justify-center my-6">
-              <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-              {(() => {
-                const id =
-                  separatorType === 'signInWith'
-                    ? 'third-party-auth-options-sign-in-with'
-                    : 'third-party-auth-options-or';
-                const defaultText =
-                  separatorType === 'signInWith' ? 'Sign in with' : 'or';
-                return (
-                  <FtlMsg id={id}>
-                    <div className="mx-4 text-base text-grey-500 dark:text-grey-200 font-extralight">
-                      {defaultText}
-                    </div>
-                  </FtlMsg>
-                );
-              })()}
-              <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-            </div>
-          </>
-        )}
-        <div className="flex gap-4 justify-center">
-          <ThirdPartySignInButton
-            {...{
-              party: 'google',
-              ...config.googleAuthConfig,
-              scope: 'openid email profile',
-              responseType: 'code',
-              accessType: 'offline',
-              prompt: 'consent',
-              viewName,
-              flowQueryParams,
-              onSubmit: onContinueWithGoogle,
-              buttonText: (
-                <>
-                  <GoogleLogo className="w-full h-auto" />
-                </>
-              ),
-            }}
-          />
-          <ThirdPartySignInButton
-            {...{
-              party: 'apple',
-              ...config.appleAuthConfig,
-              scope: 'email',
-              responseType: 'code id_token',
-              accessType: 'offline',
-              prompt: 'consent',
-              viewName,
-              responseMode: 'form_post',
-              flowQueryParams,
-              onSubmit: onContinueWithApple,
-              buttonText: (
-                <>
-                  <AppleLogo className="w-full h-auto" />
-                </>
-              ),
-            }}
-          />
-        </div>
-      </div>
-    </>
+    <div className={buttonContainerClassName}>
+      <ThirdPartySignInButton
+        {...{
+          party: 'google',
+          ...config.googleAuthConfig,
+          scope: 'openid email profile',
+          responseType: 'code',
+          accessType: 'offline',
+          prompt: 'consent',
+          viewName,
+          flowQueryParams,
+          variant,
+          onSubmit: onContinueWithGoogle,
+          buttonText: (
+            <>
+              <GoogleLogo className="w-full h-auto" />
+            </>
+          ),
+        }}
+      />
+      <ThirdPartySignInButton
+        {...{
+          party: 'apple',
+          ...config.appleAuthConfig,
+          scope: 'email',
+          responseType: 'code id_token',
+          accessType: 'offline',
+          prompt: 'consent',
+          viewName,
+          responseMode: 'form_post',
+          flowQueryParams,
+          variant,
+          onSubmit: onContinueWithApple,
+          buttonText: (
+            <>
+              <AppleLogo className="w-full h-auto" />
+            </>
+          ),
+        }}
+      />
+    </div>
   );
 };
 
@@ -130,6 +102,7 @@ const ThirdPartySignInButton = ({
   onSubmit,
   viewName,
   flowQueryParams,
+  variant = 'icon',
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -144,6 +117,7 @@ const ThirdPartySignInButton = ({
   onSubmit?: () => void;
   viewName?: string;
   flowQueryParams?: QueryParams;
+  variant?: ThirdPartyAuthVariant;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const { l10n } = useLocalization();
@@ -218,6 +192,35 @@ const ThirdPartySignInButton = ({
     onSubmit,
   ]);
 
+  if (variant === 'box') {
+    const labelFtlId =
+      party === 'google'
+        ? 'continue-with-google-button'
+        : 'continue-with-apple-button';
+    const labelDefault =
+      party === 'google' ? 'Continue with Google' : 'Continue with Apple';
+    const logoBgClass =
+      party === 'google'
+        ? 'bg-[#F9F4F4] border border-[#747775]'
+        : 'bg-black border-2 border-transparent dark:border-grey-300';
+
+    return (
+      <BoxButton
+        onClick={handleClick}
+        aria-label={getLoginAriaLabel()}
+        leadingIcon={
+          <span
+            className={`w-8 h-8 rounded-full flex items-center justify-center p-1.5 ${logoBgClass}`}
+          >
+            {buttonText}
+          </span>
+        }
+      >
+        <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
+      </BoxButton>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -225,7 +228,7 @@ const ThirdPartySignInButton = ({
       ${
         party === 'google'
           ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
-          : 'bg-black border-transparent'
+          : 'bg-black border-transparent dark:border-grey-300'
       }
       `}
       onClick={handleClick}

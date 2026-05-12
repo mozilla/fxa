@@ -71,8 +71,10 @@ export const decorators: Decorator[] = [
 
 export const parameters = {
   options: {
-    storySort: {
-      method: 'alphabetical',
-    },
+    storySort: (a, b) =>
+      a.title.localeCompare(b.title, undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }),
   },
 };

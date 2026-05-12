@@ -22,7 +22,7 @@ describe('ButtonPasskeySignin', () => {
   });
 
   it('renders loading state with spinner and loading text', () => {
-    renderWithLocalizationProvider(<ButtonPasskeySignin loading={true} />);
+    renderWithLocalizationProvider(<ButtonPasskeySignin isLoading={true} />);
 
     screen.getByText('Securely signing in…');
     const button = screen.getByRole('button');
@@ -54,7 +54,7 @@ describe('ButtonPasskeySignin', () => {
     const handleClick = jest.fn();
 
     renderWithLocalizationProvider(
-      <ButtonPasskeySignin onClick={handleClick} loading={true} />
+      <ButtonPasskeySignin onClick={handleClick} isLoading={true} />
     );
 
     const button = screen.getByRole('button');

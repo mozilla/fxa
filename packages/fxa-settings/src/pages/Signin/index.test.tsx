@@ -1001,6 +1001,30 @@ describe('Signin component', () => {
         ).toBeInTheDocument();
       });
     });
+
+    describe('thirdPartyAuth.loginNoPwView Glean event', () => {
+      it('fires when linked account with no password and TPA is shown', () => {
+        render({ hasPassword: false, hasLinkedAccount: true });
+        expect(GleanMetrics.thirdPartyAuth.loginNoPwView).toHaveBeenCalledTimes(
+          1
+        );
+      });
+
+      it('does not fire when the user has a password', () => {
+        render({ hasPassword: true, hasLinkedAccount: true });
+        expect(
+          GleanMetrics.thirdPartyAuth.loginNoPwView
+        ).not.toHaveBeenCalled();
+      });
+
+      it('does not fire when TPA is hidden (Sync with password)', () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({ integration, hasPassword: true, hasLinkedAccount: true });
+        expect(
+          GleanMetrics.thirdPartyAuth.loginNoPwView
+        ).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe('with sessionToken', () => {

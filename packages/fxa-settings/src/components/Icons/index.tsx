@@ -14,6 +14,7 @@ import { ReactComponent as BackupRecoverySms } from './icon_backup_recovery_sms.
 import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.min.svg';
 import { ReactComponent as CheckmarkCircleFullGreen } from './icon_checkmark_circle_full_green.min.svg';
 import { ReactComponent as CheckmarkCircleOutlineCurrent } from './icon_checkmark_circle_outline_current.min.svg';
+import { ReactComponent as ChevronRight } from './icon_chevron_right.min.svg';
 import { ReactComponent as Close } from './icon_close.min.svg';
 import { ReactComponent as Code } from './icon_code.min.svg';
 import { ReactComponent as ErrorOutlineCurrent } from './icon_error_circle_outline_current.min.svg';
@@ -196,6 +197,15 @@ export const CheckmarkCircleOutlineCurrentIcon = ({
       ariaHidden,
       ...getCheckMarkAria(mode),
     }}
+  />
+);
+
+export const ChevronRightIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    Image={ChevronRight}
+    ariaLabel="Chevron right"
+    ariaLabelFtlId="chevron-right-icon-aria-label"
+    {...{ className, ariaHidden }}
   />
 );
 
