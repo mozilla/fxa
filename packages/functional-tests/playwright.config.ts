@@ -106,6 +106,22 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         trace: 'retain-on-failure',
       },
     })) as Project[]),
+    ...TargetNames.map(
+      (name) =>
+        ({
+          name: `${name}-payments-next`,
+          testDir: 'tests-payments-next',
+          use: {
+            browserName: 'chromium',
+            targetName: name,
+            launchOptions: {
+              headless: !DEBUG,
+              slowMo: SLOWMO,
+            },
+            trace: 'retain-on-failure',
+          },
+        }) as Project
+    ),
   ],
   reporter: CI
     ? [

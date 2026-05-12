@@ -33,9 +33,7 @@
       "inputs": [
         "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
       ],
-      "outputs": [
-        "{projectRoot}/src/lib/glean/__generated__/server_events.ts"
-      ],
+      "outputs": ["{projectRoot}/src/lib/glean/__generated__/server_events.ts"],
       "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
     },
     "glean-lint": {
@@ -51,9 +49,7 @@
       "inputs": [
         "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
       ],
-      "outputs": [
-        "{projectRoot}/src/lib/glean/__generated__/subscriptions.ts"
-      ],
+      "outputs": ["{projectRoot}/src/lib/glean/__generated__/subscriptions.ts"],
       "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml -f typescript -o libs/payments/metrics/src/lib/glean/__generated__"
     },
     "glean-lint-frontend": {

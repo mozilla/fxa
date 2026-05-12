@@ -40,6 +40,9 @@ parameters:
   untrusted-relier-domain:
     type: string
     default: ''
+  payments-next-domain:
+    type: string
+    default: ''
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
@@ -351,6 +354,9 @@ commands:
     parameters:
       project:
         type: string
+      test_dir:
+        type: string
+        default: tests
       grep_invert:
         type: string
         default: ''
@@ -376,7 +382,7 @@ commands:
             fi
             echo "targeting project << parameters.project >> $GREP $GREP_INVERT"
             npx nx build fxa-auth-client
-            cd packages/functional-tests/tests
+            cd packages/functional-tests/<< parameters.test_dir >>
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
 
@@ -389,6 +395,7 @@ commands:
             NODE_OPTIONS: --dns-result-order=ipv4first
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
+            PAYMENTS_NEXT_DOMAIN: << pipeline.parameters.payments-next-domain >>
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
@@ -468,6 +475,9 @@ commands:
             - packages/**/locales
             - packages/**/emails/css
             - configs/gql/allowlist
+            - apps/**/public/locales
+            - apps/**/.next
+            - libs/**/glean/__generated__
 
   restore-workspace:
     steps:
@@ -876,6 +886,85 @@ jobs:
           workflow: << parameters.workflow >>
           test_suite: e2e
 
+  # Runs payments-next functional tests using playwright.
+  # For local: uses functional-test-executor with full infra.
+  # For stage/production: uses smoke-test-executor.
+  playwright-payments-tests:
+    parameters:
+      parallelism:
+        type: integer
+        default: 1
+      project:
+        type: string
+        default: local-payments-next
+      grep:
+        type: string
+        default: ''
+      workflow:
+        type: string
+      fail_fast:
+        type: boolean
+        default: true
+    executor: functional-test-executor
+    parallelism: << parameters.parallelism >>
+    steps:
+      - git-checkout
+      - restore-workspace
+      - gcp-cli/setup
+      - run:
+          name: Add localhost
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
+      - run:
+          name: Start services for payments playwright tests
+          command: ./packages/functional-tests/scripts/start-payments-services.sh
+          environment:
+            NODE_ENV: test
+            MYSQL_CONFIG__HOST: 127.0.0.1
+          no_output_timeout: 10m
+      - run-playwright-tests:
+          project: << parameters.project >>
+          test_dir: tests-payments-next
+          fail_fast: << parameters.fail_fast >>
+      - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: e2e-payments
+
+  # Runs payments-next smoke tests against remote targets (stage/production).
+  payments-smoke-tests:
+    parameters:
+      parallelism:
+        type: integer
+        default: 4
+      project:
+        type: string
+        default: stage-payments-next
+      grep:
+        type: string
+        default: '#smoke'
+      workflow:
+        type: string
+      fail_fast:
+        type: boolean
+        default: true
+    executor: smoke-test-executor
+    parallelism: << parameters.parallelism >>
+    steps:
+      - git-checkout
+      - gcp-cli/setup
+      - provision
+      - run-playwright-tests:
+          project: << parameters.project >>
+          test_dir: tests-payments-next
+          fail_fast: << parameters.fail_fast >>
+      - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: e2e-payments
+
   update-yarn-cache:
     executor: default-executor
     resource_class: medium+
@@ -1018,6 +1107,16 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - payments-smoke-tests:
+          name: Payments Smoke Tests (production)
+          workflow: production_smoke_tests
+          project: production-payments-next
+          grep: '#smoke'
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -1027,6 +1126,17 @@ workflows:
           name: Smoke Test Stage - Playwright
           workflow: stage_smoke_tests
           project: stage
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+          fail_fast: false
+      - payments-smoke-tests:
+          name: Payments Smoke Tests (stage)
+          workflow: stage_smoke_tests
+          project: stage-payments-next
+          grep: '#smoke'
           filters:
             branches:
               only: /.*/
@@ -1306,6 +1416,12 @@ workflows:
           requires:
             - Build (nightly)
           fail_fast: false
+      - playwright-payments-tests:
+          name: Payments Functional Tests - Playwright (nightly)
+          workflow: nightly
+          requires:
+            - Build (nightly)
+          fail_fast: false
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
@@ -1320,6 +1436,7 @@ workflows:
             - Integration Test - Servers - Auth Scripts (nightly)
             - Integration Test - Libraries (nightly)
             - Firefox Functional Tests - Playwright (nightly)
+            - Payments Functional Tests - Playwright (nightly)
       - create-fxa-image:
           name: Create FxA Image (nightly)
           requires:
