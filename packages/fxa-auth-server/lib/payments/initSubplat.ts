@@ -4,23 +4,12 @@
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import {
   CustomerManager,
-  CustomerSessionManager,
-  InvoiceManager,
-  PaymentMethodManager,
   PriceManager,
-  SetupIntentManager,
   SubscriptionManager,
 } from '@fxa/payments/customer';
-import { ChurnInterventionManager, TaxService } from '@fxa/payments/cart';
-import { GeoDBManager, setupGeoDB } from '@fxa/shared/geodb';
+import { ChurnInterventionManager } from '@fxa/payments/cart';
 import { AuthFirestore } from '@fxa/shared/db/firestore';
 import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
-import {
-  PaypalBillingAgreementManager,
-  PayPalClient,
-  PaypalCustomerManager,
-} from '@fxa/payments/paypal';
-import { CurrencyManager } from '@fxa/payments/currency';
 import {
   EligibilityManager,
   EligibilityService,
@@ -34,10 +23,7 @@ import {
   type GoogleIapClientConfig,
 } from '@fxa/payments/iap';
 import { Environment } from 'app-store-server-api';
-import {
-  ChurnInterventionService,
-  SubscriptionManagementService,
-} from '@fxa/payments/management';
+import { ChurnInterventionService } from '@fxa/payments/management';
 import { NotifierService, setupSns } from '@fxa/shared/notifier';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { ProfileClient, type ProfileClientConfig } from '@fxa/profile/client';
@@ -113,10 +99,6 @@ export async function initSubplat({
     logger
   );
   const strapiClient = new StrapiClient(config.cms.strapiClient, firestore, winstonLogger(loggerName));
-  const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials,
-    statsd
-  );
   const googleIapClient = new GoogleIapClient(googleClientConfig);
   const appleIapClient = new AppleIapClient(appleClientConfig);
   const profileClient = new ProfileClient(
@@ -140,15 +122,6 @@ export async function initSubplat({
     appleIapClient,
     legacyLog
   );
-  const currencyManager = new CurrencyManager({
-    currenciesToCountries: config.currenciesToCountries,
-    taxIds: config.subscriptions.taxIds,
-  });
-  const invoiceManager = new InvoiceManager(
-    stripeClient,
-    paypalClient,
-    currencyManager
-  );
   const priceManager = new PriceManager(stripeClient);
   const productConfigurationManager = new ProductConfigurationManager(
     strapiClient,
@@ -171,34 +144,12 @@ export async function initSubplat({
     priceManager
   );
   const accountCustomerManager = new AccountCustomerManager(accountDatabase);
-  const customerSessionManager = new CustomerSessionManager(stripeClient);
-  const geodbReader = await setupGeoDB(config.geodb.dbPath);
-  const geodbManager = new GeoDBManager(geodbReader, {
-    locationOverride: {},
-  });
-  const taxService = new TaxService(
-    accountCustomerManager,
-    customerManager,
-    geodbManager,
-    subscriptionManager,
-    currencyManager
-  );
   const notifierService = new NotifierService(
     notifierSnsConfig,
     logger,
     notifierSnsService,
     statsd
   );
-  const paypalCustomerManager = new PaypalCustomerManager(accountDatabase);
-  const paypalBillingAgreementManager = new PaypalBillingAgreementManager(
-    paypalClient,
-    paypalCustomerManager
-  );
-  const paymentMethodManager = new PaymentMethodManager(
-    stripeClient,
-    paypalBillingAgreementManager
-  );
-  const setupIntentManager = new SetupIntentManager(stripeClient);
 
   /**
    * Initialize Services
@@ -224,28 +175,6 @@ export async function initSubplat({
     churnInterventionConfig
   );
 
-  const subscriptionManagementService = new SubscriptionManagementService(
-    statsd,
-    accountCustomerManager,
-    appleIapPurchaseManager,
-    churnInterventionService,
-    currencyManager,
-    customerManager,
-    customerSessionManager,
-    googleIapPurchaseManager,
-    invoiceManager,
-    notifierService,
-    paymentMethodManager,
-    profileClient,
-    productConfigurationManager,
-    setupIntentManager,
-    subscriptionManager,
-    taxService,
-    paypalBillingAgreementManager,
-    paypalCustomerManager,
-    logger
-  );
-
   /**
    * Add initialized instances to Container
    */
@@ -253,5 +182,4 @@ export async function initSubplat({
   Container.set(CustomerManager, customerManager);
   Container.set(ProductConfigurationManager, productConfigurationManager);
   Container.set(ChurnInterventionService, churnInterventionService);
-  Container.set(SubscriptionManagementService, subscriptionManagementService);
 }
