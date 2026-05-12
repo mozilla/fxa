@@ -30,7 +30,10 @@ export default async function StripePaymentManagementPage({
   try {
     stripeClientSession = await getStripeClientSession();
   } catch (error) {
-    if (error.name === 'AccountCustomerNotFoundError') {
+    if (
+      error.name === 'AccountCustomerNotFoundError' ||
+      error.name === 'CurrencyForCustomerNotFoundError'
+    ) {
       // TODO: replace with redirect to collect tax location data and create customer / accountCustomer
       redirect(
         `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`

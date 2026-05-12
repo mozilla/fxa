@@ -1048,7 +1048,9 @@ export class SubscriptionManagementService {
     return currency;
   }
 
-  @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError, CurrencyForCustomerNotFoundError],
+  })
   async getStripePaymentManagementDetails(uid: string) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
