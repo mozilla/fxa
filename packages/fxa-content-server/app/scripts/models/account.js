@@ -95,6 +95,7 @@ const DEPRECATED_KEYS = [
   'emails',
   'totp',
   'backupCodes',
+  'passkeys',
   // Note: 'recoveryKey' is NOT deprecated - it contains estimatedSyncDeviceCount needed by fxa-settings
   'recoveryPhone',
   'attachedClients',
@@ -1703,7 +1704,6 @@ const Account = Backbone.Model.extend(
     createCadReminder() {
       return this._fxaClient.createCadReminder(this.get('sessionToken'));
     },
-
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,
