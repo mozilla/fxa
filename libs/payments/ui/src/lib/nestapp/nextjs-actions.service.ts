@@ -26,6 +26,7 @@ import {
   ManagePaymentMethodIntentTryAgainError,
   ManagePaymentMethodIntentInsufficientFundsError,
   ManagePaymentMethodTaxAddressRequiredError,
+  CurrencyForCustomerNotFoundError,
 } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
@@ -1126,7 +1127,9 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError, CurrencyForCustomerNotFoundError],
+  })
   @NextIOValidator(
     GetStripePaymentManagementDetailsArgs,
     GetStripePaymentManagementDetailsResult
