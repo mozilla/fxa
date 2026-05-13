@@ -89,7 +89,9 @@ test.describe('severity-1 #smoke', () => {
       // Attempt to sign in with new password
       const { sessionToken } = await target.authClient.signIn(
         credentials.email,
-        newPassword
+        newPassword,
+        {},
+        target.ciHeader
       );
 
       const newAccountData = await target.authClient.sessionReauth(
