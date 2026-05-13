@@ -127,12 +127,6 @@ const SigninTokenCodeContainer = lazy(
 const SigninTotpCodeContainer = lazy(
   () => import('../../pages/Signin/SigninTotpCode/container')
 );
-const SigninPushCodeContainer = lazy(
-  () => import('../../pages/Signin/SigninPushCode/container')
-);
-const SigninPushCodeConfirmContainer = lazy(
-  () => import('../../pages/Signin/SigninPushCodeConfirm/container')
-);
 const SigninUnblockContainer = lazy(
   () => import('../../pages/Signin/SigninUnblock/container')
 );
@@ -719,14 +713,6 @@ const AuthAndAccountSetupRoutes = ({
         <SigninTotpCodeContainer
           path="/signin_totp_code/*"
           {...{ integration, serviceName, setCurrentSplitLayout }}
-        />
-        <SigninPushCodeContainer
-          path="/signin_push_code/*"
-          {...{ integration, serviceName }}
-        />
-        <SigninPushCodeConfirmContainer
-          path="/signin_push_code_confirm/*"
-          {...{ integration, serviceName }}
         />
         <SigninConfirmed
           path="/signin_verified/*"

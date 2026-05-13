@@ -2862,7 +2862,6 @@ convictConf.set(
   'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication'
 );
 convictConf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
-convictConf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);
 convictConf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
 convictConf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
 convictConf.set(

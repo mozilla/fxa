@@ -58,7 +58,6 @@ require('./spec/lib/experiments/grouping-rules/base');
 require('./spec/lib/experiments/grouping-rules/communication-prefs');
 require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
-require('./spec/lib/experiments/grouping-rules/push');
 require('./spec/lib/experiments/grouping-rules/sentry');
 require('./spec/lib/fxa-client');
 // lib/glean spec skipped in the in-browser mocha bundle. Under @mozilla/glean
@@ -238,9 +237,6 @@ require('./spec/views/post_verify/secondary_email/add_secondary_email');
 require('./spec/views/post_verify/secondary_email/confirm_secondary_email');
 require('./spec/views/post_verify/third_party_auth/set_password');
 require('./spec/views/progress_indicator');
-require('./spec/views/push/confirm_login');
-require('./spec/views/push/send_login');
-require('./spec/views/push/completed');
 require('./spec/views/ready');
 require('./spec/views/report_sign_in');
 require('./spec/views/reset_password');

@@ -220,7 +220,6 @@ const PUSH_METHOD_NAMES = [
   'notifyAccountDestroyed',
   'notifyCommandReceived',
   'notifyProfileUpdated',
-  'notifyVerifyLoginRequest',
   'sendPush',
 ];
 

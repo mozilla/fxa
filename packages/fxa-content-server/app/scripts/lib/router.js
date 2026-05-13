@@ -396,9 +396,6 @@ Router = Router.extend({
       );
     },
 
-    'push/confirm_login(/)': createViewHandler('push/confirm_login'),
-    'push/send_login(/)': createViewHandler('push/send_login'),
-    'push/completed(/)': createViewHandler('push/completed'),
     'primary_email_verified(/)': function () {
       this.createReactOrBackboneViewHandler(
         'primary_email_verified',
@@ -579,20 +576,6 @@ Router = Router.extend({
           }),
         }
       );
-    },
-    'signin_push_code(/)': function () {
-      this.createReactViewHandler('signin_push_code', {
-        ...Url.searchParams(this.window.location.search),
-        // for subplat redirect only
-        ...(this.relier.get('redirectTo') && {
-          redirect_to: this.relier.get('redirectTo'),
-        }),
-      });
-    },
-    'signin_push_code_confirm(/)': function () {
-      this.createReactViewHandler('signin_push_code_confirm', {
-        ...Url.searchParams(this.window.location.search),
-      });
     },
     'signin_unblock(/)': function () {
       this.createReactOrBackboneViewHandler(
