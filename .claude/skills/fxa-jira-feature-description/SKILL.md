@@ -1,12 +1,12 @@
 ---
 name: fxa-jira-feature-description
-description: Drafts a concise Jira description for an FXA task. Gathers context via targeted interview, researches relevant patterns in the repo, then outputs a clean description ready for an engineer to hand to Claude for implementation.
+description: Drafts a concise Jira description for an FXA task. Gathers context via targeted interview, researches relevant patterns in the repo, outputs a clean description, and optionally files the ticket via the Atlassian MCP. Returns the new FXA-N key when filed.
 user-invocable: true
 ---
 
 # FXA Jira Description
 
-Draft a Jira description for an FXA task. Output the description only — do not create, edit, or suggest changes to any source files.
+Draft a Jira description for an FXA task, and optionally file the ticket via the Atlassian MCP. Do not create, edit, or suggest changes to any source files.
 
 ## Step 1: Gather Context
 
@@ -57,9 +57,29 @@ Specific files the implementer should read before starting. One line each.
 
 **Open Questions:** *(omit if none)*
 
+## Step 4: Optionally file the ticket via Atlassian MCP
+
+After producing the draft (Step 3), check whether the Atlassian MCP is available in the current session (look for `mcp__atlassian__createJiraIssue` in the available tools). If not available, stop — the user files the ticket manually using the drafted description.
+
+If available, ask the user via `AskUserQuestion` whether to file now:
+
+- "File now via Atlassian MCP (Recommended)"
+- "Skip — I'll file manually"
+
+If the user picks "Skip", stop and output the draft. If "File now", call `mcp__atlassian__createJiraIssue` with:
+
+- `cloudId`: `mozilla-hub.atlassian.net` (the Atlassian MCP accepts the site hostname directly; fall back to `getAccessibleAtlassianResources` if the call ever rejects this form).
+- `projectKey`: `FXA`
+- `issueTypeName`: `Task`
+- `summary`: the one-line "what" sentence from Step 1 / the leading description sentence
+- `description`: the full drafted body from Step 3 (Background, AC, Implementation Steps, etc.)
+- `contentFormat`: `markdown`
+
+Surface the returned `FXA-N` key and the issue URL. That key is this skill's return value when invoked inline by another skill (e.g. `/fxa-pr-open` uses it to populate the `Closes:` line).
+
 ## Guidelines
 
-- Output the description only — no source file changes
+- Do not create, edit, or suggest changes to any source files. Filing a Jira ticket via the MCP (Step 4) is not a source file change.
 - Implementation Steps should give enough detail to start work without follow-up questions — file paths and patterns, not prose
 - Do not include design details (copy, colours, layout, component specifics) — note that the implementer should refer to the latest Figma file
 - Omit redundant or obvious acceptance criteria

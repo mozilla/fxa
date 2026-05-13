@@ -97,3 +97,4 @@ Suggest these proactively when the task matches — do not wait to be asked.
 | `/fxa-explain-code`             | Understanding what changed and why                                                          |
 | `/fxa-simplify`                 | Cleaning up recently written code                                                           |
 | `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
+| `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
