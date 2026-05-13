@@ -290,9 +290,9 @@ describe('Pair', () => {
         },
       ],
     ])(
-      'starts an OAuth flow when fxa_status returns %s',
+      'starts an OAuth flow when fxa_status returns %s on every attempt',
       async (_, response) => {
-        requestSignedInUserMock.mockResolvedValueOnce(response);
+        requestSignedInUserMock.mockResolvedValue(response);
         renderWithRouter(<Pair />);
         await waitFor(() =>
           expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
@@ -303,12 +303,33 @@ describe('Pair', () => {
       }
     );
 
+    it('retries fxa_status once when the first reply is empty, then reveals on success', async () => {
+      requestSignedInUserMock
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'token',
+          verified: true,
+        });
+      await renderPair();
+      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it('caps fxa_status at two asks before falling through to OAuth', async () => {
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      renderWithRouter(<Pair />);
+      await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
+      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+    });
+
     it('hard-navigates to / with the OAuth params Firefox returned', async () => {
       const hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
         .mockImplementation(() => {});
       try {
-        requestSignedInUserMock.mockResolvedValueOnce(undefined);
+        requestSignedInUserMock.mockResolvedValue(undefined);
         fxaOAuthFlowBeginMock.mockResolvedValueOnce({
           action: 'signin',
           response_type: 'code',
