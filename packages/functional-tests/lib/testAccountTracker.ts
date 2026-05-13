@@ -398,7 +398,9 @@ export class TestAccountTracker {
 
     const { sessionToken } = await this.target.authClient.signIn(
       account.email,
-      account.password
+      account.password,
+      {},
+      this.target.ciHeader
     );
 
     const [status, has2FA] = await Promise.all([
