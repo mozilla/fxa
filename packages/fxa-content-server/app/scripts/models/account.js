@@ -1704,7 +1704,6 @@ const Account = Backbone.Model.extend(
     createCadReminder() {
       return this._fxaClient.createCadReminder(this.get('sessionToken'));
     },
-<<<<<<< HEAD
 
     /**
      * Sends a push notification to verify a login request.
@@ -1714,8 +1713,6 @@ const Account = Backbone.Model.extend(
     sendPushLoginRequest() {
       return this._fxaClient.sendPushLoginRequest(this.get('sessionToken'));
     },
-=======
->>>>>>> b46e4198cc (fix(backbone): Add 'passkeys' to DEPRECATED_KEYS in backbone's account model)
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,
