@@ -14,6 +14,22 @@ import {
 import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
+import { AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
+
+// Override mockAppContext's config to flip the passkey signin feature flags
+// on. Used by the story that documents the passkey-enabled state.
+const passkeyEnabledContext = () => {
+  const ctx = mockAppContext();
+  if (ctx.config) {
+    ctx.config.featureFlags = {
+      ...ctx.config.featureFlags,
+      passkeysEnabled: true,
+      passkeyAuthenticationEnabled: true,
+    };
+  }
+  return ctx;
+};
 
 export default {
   title: 'Pages/Index',
@@ -131,3 +147,12 @@ export const WithErrorBanner = storyWithProps({
 export const WithErrorTooltip = storyWithProps({
   initialTooltipMessage: 'Container can pass a tooltip error',
 });
+
+// Passkey button renders beneath the email field. Click to drive the
+// WebAuthn ceremony — in Storybook this surfaces the natural "unexpected
+// error" banner (no authenticator wired up).
+export const WithPasskey = () => (
+  <AppContext.Provider value={passkeyEnabledContext()}>
+    <Subject />
+  </AppContext.Provider>
+);

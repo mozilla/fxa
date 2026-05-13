@@ -18,7 +18,6 @@ const handlers = {
   onContinue: async (password: string) => {
     action('onContinue')(password);
   },
-  onGoToSettings: () => action('onGoToSettings')(),
 };
 
 export const Default = () => (

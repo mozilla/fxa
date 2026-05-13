@@ -349,6 +349,11 @@ export type SubjectProps = Partial<SigninProps> & {
   supportsKeysOptionalLogin?: boolean;
   passwordlessSupported?: boolean;
   skipPasswordlessRedirect?: boolean;
+  /**
+   * When true, overrides mockAppContext config to flip the passkey signin
+   * feature flags on. Use in stories that document the passkey-enabled UI.
+   */
+  passkeyEnabled?: boolean;
 };
 
 /**
@@ -370,12 +375,21 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   isSignedIntoFirefox = false,
   supportsKeysOptionalLogin = false,
+  passkeyEnabled = false,
   ...props // overrides
 }: SubjectProps = {}) => {
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
+  const contextValue = mockAppContext();
+  if (passkeyEnabled && contextValue.config) {
+    contextValue.config.featureFlags = {
+      ...contextValue.config.featureFlags,
+      passkeysEnabled: true,
+      passkeyAuthenticationEnabled: true,
+    };
+  }
   return (
     <LocationProvider>
-      <AppContext.Provider value={mockAppContext()}>
+      <AppContext.Provider value={contextValue}>
         <SigninDecider
           {...{
             integration,

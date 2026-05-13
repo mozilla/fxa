@@ -41,9 +41,7 @@ import {
   updateBasicAccountData,
   ExtendedAccountState,
 } from '../lib/account-storage';
-
-/** OAuth token TTL in seconds for profile server requests */
-const PROFILE_OAUTH_TOKEN_TTL_SECONDS = 300;
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../lib/oauth';
 
 export interface DeviceLocation {
   city: string | null;

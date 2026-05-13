@@ -22,6 +22,7 @@ export enum WebAuthnErrorCategory {
 
 export enum WebAuthnErrorType {
   NotAllowed = 'NotAllowedError',
+  Abort = 'AbortError',
   Timeout = 'TimeoutError',
   NotSupported = 'NotSupportedError',
   Security = 'SecurityError',
@@ -82,6 +83,22 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
   NotAllowedError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotAllowed,
+    logToSentry: false,
+    ftlId: {
+      registration: 'passkey-registration-error-not-allowed',
+      authentication: 'passkey-authentication-error-not-allowed',
+    },
+    fallbackText: {
+      registration:
+        'Passkey setup failed or is unavailable. Try again or choose another method.',
+      authentication:
+        'Sign-in with passkey failed or is unavailable. Try again or choose another method.',
+    },
+  },
+  // Shares NotAllowedError wording — both mean the ceremony was cancelled.
+  AbortError: {
+    category: WebAuthnErrorCategory.UserAction,
+    errorType: WebAuthnErrorType.Abort,
     logToSentry: false,
     ftlId: {
       registration: 'passkey-registration-error-not-allowed',

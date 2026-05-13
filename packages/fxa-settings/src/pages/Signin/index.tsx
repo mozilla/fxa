@@ -19,7 +19,10 @@ import {
   useFtlMsgResolver,
   isWebIntegration,
   isOAuthNativeIntegration,
+  useAuthClient,
+  useConfig,
 } from '../../models';
+import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
@@ -28,7 +31,6 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
-import { useConfig } from '../../models';
 import SigninUserLockup from './components/SigninUserLockup';
 
 export const viewName = 'signin';
@@ -59,6 +61,16 @@ const Signin = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
+  const authClient = useAuthClient();
+
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+  });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -372,6 +384,12 @@ const Signin = ({
       <AlternativeAuthOptions
         showThirdPartyAuth={!hideThirdPartyAuth}
         showPasskeySignin={showPasskeySignin}
+        passkeySignIn={
+          showPasskeySignin
+            ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
+            : undefined
+        }
+        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
         {...{ viewName, flowQueryParams }}
       />
 

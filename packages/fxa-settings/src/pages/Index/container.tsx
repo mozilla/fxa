@@ -40,6 +40,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';
 import { IntegrationType } from '../../models/integrations/integration';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 
 const IndexContainer = ({
   integration,
@@ -55,6 +56,10 @@ const IndexContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+  const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
 
   const [errorBannerMessage, setErrorBannerMessage] = useState(
     location.state?.localizedErrorFromLocationState || ''
@@ -62,8 +67,13 @@ const IndexContainer = ({
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
 
-  // This must be a 'ref' because we don't want to trigger a re-render when the state changes
-  const attemptedEmailAutoSubmit = useRef(false);
+  // Cancelled on first user interaction so an in-flight auto-submit can't
+  // override the navigation the user chose. Ref (not state) — flipping
+  // shouldn't trigger a re-render.
+  const shouldAttemptAutoSubmit = useRef(true);
+  const disableAutoSubmit = useCallback(() => {
+    shouldAttemptAutoSubmit.current = false;
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -396,7 +406,7 @@ const IndexContainer = ({
 
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
-    } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
+    } else if (shouldTrySuggestedEmail && shouldAttemptAutoSubmit.current) {
       // Must be in an async function or else `setIsLoading(false)` can be called prematurely with
       // the next render, before async actions in `processEmailSubmission` have finished
       (async () => {
@@ -410,7 +420,7 @@ const IndexContainer = ({
         }
         // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
         // causing multiple sync warnings to be displayed. This ensures it is called once.
-        attemptedEmailAutoSubmit.current = true;
+        shouldAttemptAutoSubmit.current = false;
         await processEmailSubmission(suggestedEmail, false);
       })();
     } else {
@@ -418,7 +428,7 @@ const IndexContainer = ({
     }
   }, [
     ftlMsgResolver,
-    attemptedEmailAutoSubmit,
+    shouldAttemptAutoSubmit,
     browserUserChecked,
     navigateWithQuery,
     processEmailSubmission,
@@ -477,6 +487,9 @@ const IndexContainer = ({
         isMobile,
         useFxAStatusResult,
         setCurrentSplitLayout,
+        authClient,
+        finishOAuthFlowHandler,
+        disableAutoSubmit,
       }}
       prefillEmail={initialPrefill}
     />

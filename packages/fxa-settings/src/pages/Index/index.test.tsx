@@ -68,7 +68,6 @@ describe('Index page', () => {
 
     screen.getByRole('heading', { name: 'Continue to your Mozilla account' });
     screen.getByText(syncText);
-
     screen.getByText(syncTextSecondary);
     thirdPartyAuthNotRendered();
 
