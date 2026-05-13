@@ -4,17 +4,25 @@
 
 import Container from 'typedi';
 import { v4 as uuidv4 } from 'uuid';
-import { AppError } from '@fxa/accounts/errors';
+import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { reportSentryError } from './sentry';
 import { AppConfig, AuthLogger } from './types';
 
 const mocks = require('../test/mocks');
+const mockReportSentryError = reportSentryError as jest.MockedFunction<
+  typeof reportSentryError
+>;
 
 const isActiveStub = jest.fn();
 
 jest.mock('fxa-shared/db/models/auth', () => ({}));
+jest.mock('./sentry', () => ({
+  ...jest.requireActual('./sentry'),
+  reportSentryError: jest.fn(),
+}));
 jest.mock('./inactive-accounts', () => {
   const actual = jest.requireActual('./inactive-accounts');
   return {
@@ -265,6 +273,52 @@ describe('AccountDeleteManager', () => {
       }
     });
 
+    it('should rethrow, log, report, and increment failure metric when the db delete fails', async () => {
+      const dbError = new Error('FK constraint violation');
+      mockFxaDb.deleteAccount.mockRejectedValueOnce(dbError);
+
+      await expect(
+        accountDeleteManager.deleteAccount(uid, deleteReason)
+      ).rejects.toBe(dbError);
+
+      expect(mockLog.error).toHaveBeenCalledWith('deleteAccount', {
+        uid,
+        reason: deleteReason,
+        stage: 'fxaDb',
+        error: dbError,
+      });
+      expect(mockReportSentryError).toHaveBeenCalledWith(dbError);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.failure',
+        { reason: deleteReason, stage: 'fxaDb' }
+      );
+      expect(mockStatsd.increment).not.toHaveBeenCalledWith(
+        'account.destroy.success',
+        expect.anything()
+      );
+    });
+
+    it('should tag the failure metric with the stage that threw', async () => {
+      // Stripe runs after the DB and OAuth steps; the failure stage tag
+      // should reflect that, not the generic "deleteAccount failed".
+      mockStripeHelper.removeCustomer.mockImplementation(async () => {
+        throw new Error('stripe boom');
+      });
+
+      await expect(
+        accountDeleteManager.deleteAccount(uid, deleteReason)
+      ).rejects.toThrow('stripe boom');
+
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'deleteAccount',
+        expect.objectContaining({ stage: 'subscriptions' })
+      );
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.failure',
+        { reason: deleteReason, stage: 'subscriptions' }
+      );
+    });
+
     describe('scheduled inactive account deletion', () => {
       it('should skip if the account is active', async () => {
         isActiveStub.mockResolvedValue(true);
@@ -309,6 +363,9 @@ describe('AccountDeleteManager', () => {
       );
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledTimes(1);
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledWith(uid);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.quick-delete'
+      );
     });
 
     it('should error if its not user requested', async () => {
@@ -318,6 +375,65 @@ describe('AccountDeleteManager', () => {
       } catch (err: any) {
         expect(err.message).toMatch(/^quickDelete only supports user/);
       }
+    });
+
+    it('should throw an accountDeletionFailed AppError, log, report, and increment failure metric when the db delete fails', async () => {
+      const dbError = new Error('FK constraint violation');
+      mockFxaDb.deleteAccount.mockRejectedValueOnce(dbError);
+
+      await expect(
+        accountDeleteManager.quickDelete(uid, deleteReason)
+      ).rejects.toMatchObject({
+        errno: ERRNO.ACCOUNT_DELETION_FAILED,
+        output: { statusCode: 500 },
+      });
+
+      expect(mockLog.error).toHaveBeenCalledWith('quickDelete', {
+        uid,
+        error: dbError,
+      });
+      expect(mockReportSentryError).toHaveBeenCalledWith(dbError);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.quick-delete.failure'
+      );
+      expect(mockStatsd.increment).not.toHaveBeenCalledWith(
+        'account.destroy.quick-delete'
+      );
+    });
+
+    it('should swallow oauth-token cleanup failure when the db delete already succeeded', async () => {
+      // The account row is gone, so from the user's perspective the
+      // account is deleted. Surfacing errno 239 here would tell the user
+      // we failed to delete an account that no longer exists; the cloud
+      // task enqueued by the route will retry oauth cleanup anyway.
+      const oauthError = new Error('oauth db unreachable');
+      mockOAuthDb.removeTokensAndCodes = jest
+        .fn()
+        .mockRejectedValue(oauthError);
+
+      await expect(
+        accountDeleteManager.quickDelete(uid, deleteReason)
+      ).resolves.toBeUndefined();
+
+      expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
+        expect.objectContaining({ uid })
+      );
+      expect(mockLog.error).toHaveBeenCalledWith('quickDelete.oauthTokens', {
+        uid,
+        error: oauthError,
+      });
+      expect(mockReportSentryError).toHaveBeenCalledWith(oauthError);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.quick-delete.oauth-failure'
+      );
+      // Quick-delete still records the success counter so dashboards
+      // reflect the actual user-visible outcome.
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.quick-delete'
+      );
+      expect(mockStatsd.increment).not.toHaveBeenCalledWith(
+        'account.destroy.quick-delete.failure'
+      );
     });
   });
 
