@@ -97,6 +97,7 @@ Suggest these proactively when the task matches — do not wait to be asked.
 | `/fxa-explain-code`             | Understanding what changed and why                                                          |
 | `/fxa-simplify`                 | Cleaning up recently written code                                                           |
 | `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
+| `/fxa-pr-screenshots`           | _Experimental._ Capturing UI or email-template screenshots for a PR's Screenshots section   |
 | `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
 | `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
 | `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
