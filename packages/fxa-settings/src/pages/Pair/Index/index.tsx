@@ -112,14 +112,29 @@ const Pair = ({
 
     let cancelled = false;
     (async () => {
-      const signedInUser = await firefox
-        .requestSignedInUser(
-          Constants.OAUTH_CONTEXT,
-          true,
-          Constants.SYNC_SERVICE
-        )
-        .catch(() => undefined);
+      const askFirefox = () =>
+        firefox
+          .requestSignedInUser(
+            Constants.OAUTH_CONTEXT,
+            true,
+            Constants.SYNC_SERVICE
+          )
+          .catch(() => undefined);
+
+      // Retry on empty replies so a slow fxaLogin handoff doesn't bail to /signin.
+      const MAX_RETRIES = 1;
+      let signedInUser = await askFirefox();
+      for (
+        let attempt = 0;
+        !cancelled &&
+        attempt < MAX_RETRIES &&
+        (!signedInUser?.sessionToken || !signedInUser?.verified);
+        attempt++
+      ) {
+        signedInUser = await askFirefox();
+      }
       if (cancelled) return;
+
       if (signedInUser?.sessionToken && signedInUser.verified) {
         setBootstrapping(false);
         return;
