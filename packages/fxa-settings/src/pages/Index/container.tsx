@@ -328,10 +328,13 @@ const IndexContainer = ({
           canLinkAccountOk = true;
         }
 
-        isManualSubmission &&
-          GleanMetrics.emailFirst.submitSuccess({
-            event: { reason: accountExists ? 'login' : 'registration' },
-          });
+        GleanMetrics.emailFirst.submitSuccess({
+          event: {
+            reason: `${accountExists ? 'login' : 'registration'}${
+              isManualSubmission ? '' : '-auto'
+            }`,
+          },
+        });
 
         handleSuccessNavigation(
           exists,
@@ -342,9 +345,17 @@ const IndexContainer = ({
           passwordlessSupported
         );
       } catch (error) {
-        if (isManualSubmission && isEmail(email)) {
+        // If we reach the catch before accountStatusByEmail resolved (e.g. a
+        // network error), accountExists is undefined and we can't attribute
+        // the failure to login vs registration. Skip the event in that case
+        // rather than recording a misleading reason.
+        if (isEmail(email) && typeof accountExists === 'boolean') {
           GleanMetrics.emailFirst.submitFail({
-            event: { reason: accountExists ? 'login' : 'registration' },
+            event: {
+              reason: `${accountExists ? 'login' : 'registration'}${
+                isManualSubmission ? '' : '-auto'
+              }`,
+            },
           });
         }
         // if email verification fails, clear from params to avoid re-use
