@@ -44,13 +44,13 @@ payload=$(jq -n \
   --arg param "${parameter_name}" \
   '{
     branch: $branch,
-    parameters: {
+    parameters: ({
       enable_test_pull_request: false,
       enable_test_and_deploy_tag: false,
       enable_deploy_packages: false,
       enable_deploy_ci_images: false,
       enable_nightly: false
-    } | .[$param] = true
+    } | .[$param] = true)
   }')
 
 response=$(curl -sS -X POST \
