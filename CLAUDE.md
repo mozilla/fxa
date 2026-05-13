@@ -98,3 +98,26 @@ Suggest these proactively when the task matches — do not wait to be asked.
 | `/fxa-simplify`                 | Cleaning up recently written code                                                           |
 | `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
 | `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
+| `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
+| `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
+| `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
+
+## 8) Testing Guidelines
+
+> Examples and rationale: `.claude/skills/fxa-testing-shared/GUIDELINES.md`
+
+**Test layers and shift-left.** Three layers from cheapest to costliest: unit (`nx test-unit`), integration (`nx test-integration`), functional/E2E (Playwright in `packages/functional-tests`). Test business logic at its source as a unit — route handlers and React components are thin shells, not branch-coverage harnesses. When a route/component has more than ~3 tests differing only in input shape, that's the signal to extract the rule into a pure function and unit-test it directly; reserve route/component tests for wiring (auth, response shape, error propagation).
+
+- **Name tests for what they assert.** One observable behavior per `it()`; use `it.each` for table cases, never `forEach` inside one test.
+- **Cover all paths.** Happy paths _and_ rejection paths (`mockRejectedValue`); flag hard-to-test code rather than skipping coverage.
+- **Tests are first-class.** Intent and expected behavior should be inferable from tests alone.
+- **Trust, but verify.** When tests and implementation disagree, investigate — don't blindly fix one to match the other.
+- **Mock at system boundaries.** No mocking same-package helpers, no tautological mocks (mock returns `X` → assert `X`). When in doubt, mock less.
+- **Type your mocks.** Prefer `jest.Mocked<T>`; `any` is an escape hatch that loses contract-drift detection.
+- **Tests must be independent.** No shared mutable state; reset in `beforeEach`. `jest.clearAllMocks()` in `beforeEach` is redundant _only_ if the package's `jest.config.*` sets `clearMocks: true` (currently `fxa-auth-server`, `fxa-profile-server`). Mid-`it()` `mockClear`/`mockReset` is a band-aid for leakage — fix the leak.
+- **Assert explicitly.** Exact values and shapes; avoid `toBeTruthy()`, `expect.anything()`, broad `objectContaining({})`. `expect.any(<Type>)` only for genuinely non-deterministic fields.
+- **Test behavior, not implementation.** Public interfaces only — no asserting on private state.
+- **Test async correctly.** Always `await`; use `jest.useFakeTimers()` + `jest.setSystemTime()`. Bumped per-test timeouts usually mask real-timer or unmocked-I/O bugs.
+- **Deterministic test values.** Hardcoded constants for UIDs/tokens/timestamps; no `Math.random()`/`uuid()`/`Date.now()` in setup.
+- **Leave things better.** New tests follow these rules; suggest `/fxa-test-repair` for legacy violations rather than copying them.
+- **No focused tests in commits; skipped tests need a reason.** Never commit `it.only`/`describe.only`/`fit`/`fdescribe`. `it.skip`/`xit`/`xdescribe`/`it.todo` are OK only with a comment explaining why (ideally a Jira/issue reference); otherwise delete the test.

@@ -62,14 +62,26 @@ Evaluate the diff through these lenses, in order of priority:
 - Hapi route handlers that catch and re-throw instead of letting the error pipeline handle it
 
 **4. Tests**
+
+Apply the FXA testing rules in `.claude/skills/fxa-testing-shared/GUIDELINES.md` (read it before reviewing test changes). Common quick-review triggers:
+
 - New auth-server source files without co-located `*.spec.ts`; fxa-settings uses `*.test.tsx` convention
-- `jest.clearAllMocks()` in `beforeEach` — unnecessary, `clearMocks: true` is global
+- `jest.clearAllMocks()` in `beforeEach` — redundant only when the package's `jest.config.*` sets `clearMocks: true` (currently `fxa-auth-server` and `fxa-profile-server`); do not flag in other packages without checking their config
+- `mockClear`/`mockReset`/`jest.clearAllMocks`/`jest.resetAllMocks` called **inside** an `it()` body — band-aid for state leakage from prior tests or shared setup; fix the isolation instead
 - `proxyquire` in new test code — should use `jest.mock()`
 - New Mocha tests in `test/local/` or `test/remote/` — new tests must be Jest
-- Over-mocked tests that only test mock wiring
+- Over-mocked tests that only test mock wiring; mocking internal helpers in the same package instead of at system boundaries
+- Tautological mocks: mock returns `X`, assertion checks for `X`, no real logic in between
+- Untyped mocks where the real interface is available — typed mocks (`jest.Mocked<T>`) catch contract drift
+- Soft matchers used to make tests pass: `expect.anything()`, `expect.any(Object)`, broad `expect.objectContaining({})` with one trivial key
+- `forEach` / `for` loops driving multiple `expect` calls inside one `it()` body — use `it.each` so each case is independently reported
+- Manually bumped per-test timeouts (`it('...', async () => {...}, 30_000)`, `jest.setTimeout(...)` for a single file) — usually masks a real timer or unmocked I/O
 - Prefer `jest.useFakeTimers()` and `jest.setSystemTime()` over `setTimeout` or mocking `Date.now` directly
 - Flag patterns likely to cause open handle warnings (unclosed connections, uncleared timers)
 - Flag missing `act()` wrapping in React test state updates
+- Committed `it.only`, `describe.only`, `fit`, `fdescribe` — silently skips the rest of the suite, never acceptable. `it.skip`, `xit`, `xdescribe`, `it.todo` — flag only when there is no comment explaining the skip; a justified skip (ideally with a Jira/issue reference) is acceptable
+- For `*.test.tsx` in `fxa-settings`: also apply `.claude/skills/fxa-check-react/SKILL.md` Section 5 (querying by role, `userEvent` over `fireEvent`, no asserting on refs/instances)
+- Route/component tests with many fixtures-per-branch (>~3 tests differing only in input shape) — heavy branching at the route/component level signals the rule should be extracted and unit-tested directly; reserve route/component tests for wiring
 
 **5. Database Migrations**
 - Edits to existing published migration files — CRITICAL, never allowed
