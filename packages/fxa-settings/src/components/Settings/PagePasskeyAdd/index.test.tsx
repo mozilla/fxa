@@ -11,6 +11,7 @@ import { Account, AppContext } from '../../../models';
 import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { MfaContext } from '../MfaGuard';
+import { createCredential } from '../../../lib/passkeys/webauthn';
 import {
   WebAuthnErrorCategory,
   WebAuthnErrorType,
@@ -34,10 +35,13 @@ jest.mock('@sentry/browser', () => ({
   captureException: (...args: unknown[]) => mockCaptureException(...args),
 }));
 
-// Mock WebAuthn utilities
-const mockCreateCredential = jest.fn();
+const mockCreateCredential = jest.fn() as jest.MockedFunction<
+  typeof createCredential
+>;
 jest.mock('../../../lib/passkeys/webauthn', () => ({
-  createCredential: (...args: unknown[]) => mockCreateCredential(...args),
+  createCredential: (
+    ...args: Parameters<typeof createCredential>
+  ): ReturnType<typeof createCredential> => mockCreateCredential(...args),
 }));
 
 const mockHandleWebAuthnError = jest.fn();
@@ -93,6 +97,7 @@ const mockCredential = {
     clientDataJSON: 'ZXlK',
     attestationObject: 'bzJO',
   },
+  clientExtensionResults: {},
 };
 
 function renderPage() {
@@ -183,7 +188,11 @@ describe('PagePasskeyAdd', () => {
       replace: true,
     });
     expect(mockBeginPasskeyRegistration).toHaveBeenCalledWith('mock-jwt');
-    expect(mockCreateCredential).toHaveBeenCalledWith(mockCreationOptions);
+    expect(mockCreateCredential).toHaveBeenCalledWith(
+      mockCreationOptions,
+      undefined,
+      expect.any(AbortSignal)
+    );
     expect(mockCompletePasskeyRegistration).toHaveBeenCalledWith(
       'mock-jwt',
       mockCredential,
@@ -353,12 +362,74 @@ describe('PagePasskeyAdd', () => {
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-  it('cancel button navigates back to settings', () => {
+  it('cancel button shows cancellation banner and navigates back to settings', () => {
     mockBeginPasskeyRegistration.mockReturnValue(new Promise(() => {}));
     renderPage();
     fireEvent.click(screen.getByTestId('passkey-add-cancel'));
+    expect(mockAlertError).toHaveBeenCalledWith(
+      'Passkey setup was canceled. Try again.'
+    );
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
+  });
+
+  it('cancel button aborts the in-flight WebAuthn ceremony', async () => {
+    let capturedSignal: AbortSignal | undefined;
+    mockCreateCredential.mockImplementation((_opts, _timeoutMs, signal) => {
+      capturedSignal = signal;
+      return new Promise(() => {});
+    });
+    renderPage();
+    await waitFor(() => expect(capturedSignal).toBeDefined());
+    expect(capturedSignal!.aborted).toBe(false);
+    fireEvent.click(screen.getByTestId('passkey-add-cancel'));
+    expect(capturedSignal!.aborted).toBe(true);
+  });
+
+  it('cancel between createCredential and completePasskeyRegistration skips the server completion call', async () => {
+    // Hold createCredential resolution so we can click cancel after it resolves
+    // but before the success path proceeds.
+    let resolveCreate: (value: typeof mockCredential) => void = () => {};
+    mockCreateCredential.mockImplementation(
+      () =>
+        new Promise<typeof mockCredential>((resolve) => {
+          resolveCreate = resolve;
+        })
+    );
+    renderPage();
+    await waitFor(() => expect(mockCreateCredential).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId('passkey-add-cancel'));
+    resolveCreate(mockCredential);
+    // Yield twice so the awaited continuation runs and observes wasCanceled.
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
+    expect(mockAlertSuccess).not.toHaveBeenCalled();
+    expect(mockAlertError).toHaveBeenCalledWith(
+      'Passkey setup was canceled. Try again.'
+    );
+  });
+
+  it('cancel does not double-fire alerts when the AbortError surfaces in the catch block', async () => {
+    mockCreateCredential.mockImplementation(
+      (_opts, _timeoutMs, signal) =>
+        new Promise<typeof mockCredential>((_resolve, reject) => {
+          signal?.addEventListener('abort', () => {
+            reject(new DOMException('Aborted', 'AbortError'));
+          });
+        })
+    );
+    renderPage();
+    await waitFor(() => expect(mockCreateCredential).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId('passkey-add-cancel'));
+    await Promise.resolve();
+    await Promise.resolve();
+    // Only the cancel banner — the catch block must not fire its own banner.
+    expect(mockAlertError).toHaveBeenCalledTimes(1);
+    expect(mockAlertError).toHaveBeenCalledWith(
+      'Passkey setup was canceled. Try again.'
+    );
+    expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
   });
 });
