@@ -15,27 +15,14 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => {
-  // Default separator type is 'or'
-  return (
-    <AppLayout>
-      <Subject showSeparator />
-    </AppLayout>
-  );
-};
+export const IconVariant = () => (
+  <AppLayout>
+    <Subject />
+  </AppLayout>
+);
 
-export const SignInWithSeparator = () => {
-  return (
-    <AppLayout>
-      <Subject showSeparator separatorType="signInWith" />
-    </AppLayout>
-  );
-};
-
-export const NoSeparator = () => {
-  return (
-    <AppLayout>
-      <Subject showSeparator={false} />
-    </AppLayout>
-  );
-};
+export const BoxVariant = () => (
+  <AppLayout>
+    <Subject variant="box" />
+  </AppLayout>
+);

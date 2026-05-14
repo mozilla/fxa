@@ -15,6 +15,7 @@ import {
 } from 'fxa-settings/src/models/mocks';
 import { SettingsContext } from 'fxa-settings/src/models/contexts/SettingsContext';
 import { Passkey } from 'fxa-auth-client/browser';
+import AlertBar from '../AlertBar';
 
 function initLocalAccount() {
   const NS = '__fxa_storage';
@@ -93,6 +94,7 @@ const storyWithMockPasskeys = (
           })}
         >
           <SettingsContext.Provider value={mockSettingsContext()}>
+            <AlertBar />
             <UnitRowPasskey />
           </SettingsContext.Provider>
         </AppContext.Provider>

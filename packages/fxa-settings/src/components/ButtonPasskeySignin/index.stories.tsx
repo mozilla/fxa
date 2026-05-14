@@ -15,25 +15,25 @@ export default {
 } as Meta;
 
 export const Default = () => {
-  const [loading, setLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleClick = () => {
     action('clicked')();
-    setLoading(true);
+    setIsLoading(true);
     setTimeout(() => {
-      setLoading(false);
+      setIsLoading(false);
     }, 2000);
   };
 
   return (
     <div className="card mx-auto">
-      <ButtonPasskeySignin loading={loading} onClick={handleClick} />
+      <ButtonPasskeySignin isLoading={isLoading} onClick={handleClick} />
     </div>
   );
 };
 
 export const Loading = () => (
   <div className="card mx-auto">
-    <ButtonPasskeySignin loading={true} onClick={action('clicked')} />
+    <ButtonPasskeySignin isLoading={true} onClick={action('clicked')} />
   </div>
 );

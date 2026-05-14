@@ -12,9 +12,9 @@ import CardHeader, {
 } from '../../components/CardHeader';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import { isOAuthNativeIntegration } from '../../models';
+import { isOAuthNativeIntegration, useConfig } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
@@ -36,6 +36,11 @@ export const Index = ({
   useFxAStatusResult,
   setCurrentSplitLayout,
 }: IndexProps) => {
+  const config = useConfig();
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
@@ -195,14 +200,15 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        (!isOAuthNativeIntegration(integration) ||
-          useFxAStatusResult.supportsKeysOptionalLogin) && (
-          <ThirdPartyAuth
-            showSeparator
-            viewName="index"
-            flowQueryParams={flowQueryParams}
-          />
-        )
+        <AlternativeAuthOptions
+          showThirdPartyAuth={
+            !isOAuthNativeIntegration(integration) ||
+            useFxAStatusResult.supportsKeysOptionalLogin
+          }
+          showPasskeySignin={showPasskeySignin}
+          viewName="index"
+          flowQueryParams={flowQueryParams}
+        />
       )}
       <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>

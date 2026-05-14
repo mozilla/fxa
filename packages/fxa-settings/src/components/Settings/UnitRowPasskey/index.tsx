@@ -2,17 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React from 'react';
 import UnitRow, { UnitRowProps } from '../UnitRow';
-import { useAccount, useFtlMsgResolver, useConfig } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useFtlMsgResolver,
+  useConfig,
+} from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { PasskeySubRow } from '../SubRow';
 import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
+import { PASSKEY_SUPPORT_URL } from '../../../lib/passkeys/constants';
+import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
 import { Banner } from '../../Banner';
 
 export const UnitRowPasskey = () => {
   const account = useAccount();
+  const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const config = useConfig();
   const maxPasskeys = config.passkeys.maxPerUser;
@@ -20,7 +28,6 @@ export const UnitRowPasskey = () => {
   const hasPasskeys = passkeys.length > 0;
   const isAtLimit = passkeys.length >= maxPasskeys;
   const webAuthnSupported = isWebAuthnLevel3Supported();
-  const [showWebAuthnError, setShowWebAuthnError] = useState(false);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> = hasPasskeys
     ? {
@@ -37,18 +44,6 @@ export const UnitRowPasskey = () => {
 
   const getSubRows = () => (
     <>
-      {showWebAuthnError && (
-        <Banner
-          type="error"
-          className="mb-2"
-          content={{
-            localizedDescription: ftlMsgResolver.getMsg(
-              'passkey-row-webauthn-not-supported',
-              'Your browser or device doesn’t support passkeys.'
-            ),
-          }}
-        />
-      )}
       {webAuthnSupported && isAtLimit && (
         <Banner
           type="warning"
@@ -70,10 +65,7 @@ export const UnitRowPasskey = () => {
 
   const learnMoreLink = (
     <FtlMsg id="passkey-row-info-link-2">
-      <LinkExternal
-        href="https://support.mozilla.org/kb/placeholder-article" // TODO: Update with actual support article link
-        className="link-blue text-sm"
-      >
+      <LinkExternal href={PASSKEY_SUPPORT_URL} className="link-blue text-sm">
         Learn more
       </LinkExternal>
     </FtlMsg>
@@ -90,7 +82,9 @@ export const UnitRowPasskey = () => {
         webAuthnSupported && !isAtLimit ? '/settings/passkeys/add' : undefined
       }
       revealModal={
-        !webAuthnSupported ? () => setShowWebAuthnError(true) : undefined
+        !webAuthnSupported
+          ? () => alertBar.error(unsupportedPasskeyMessage())
+          : undefined
       }
       disabled={webAuthnSupported && isAtLimit}
       disabledReason={ftlMsgResolver.getMsg(
