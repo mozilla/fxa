@@ -3204,7 +3204,7 @@ account_pref:
       - interaction
     extra_keys:
       reason:
-        description: Error type - not_allowed, not_supported, security, timeout, webauthn_unknown, or server_error
+        description: Error type - not_allowed, not_supported, security, timeout, webauthn_unknown, auth_error_{errno}, or server_error
         type: string
   passkey_create_success_view:
     type: event

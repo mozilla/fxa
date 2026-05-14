@@ -309,7 +309,7 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledWith(
-        'System not available. Try again later.'
+        'There was a problem creating your passkey. Try again later.'
       );
     });
     expect(
@@ -330,7 +330,7 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledWith(
-        'System not available. Try again later.'
+        'There was a problem creating your passkey. Try again later.'
       );
     });
     expect(mockCaptureException).toHaveBeenCalledWith(serverError);
@@ -377,6 +377,81 @@ describe('PagePasskeyAdd', () => {
       event: { reason: 'auth_error_226' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('shows rate-limit message when beginPasskeyRegistration returns 429 with retryAfterLocalized', async () => {
+    mockBeginPasskeyRegistration.mockRejectedValue({
+      errno: 114,
+      code: 429,
+      message: 'Client has sent too many requests',
+      retryAfter: 60,
+      retryAfterLocalized: 'in 1 minute',
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith(
+        expect.stringMatching(/Please try again in 1 minute/)
+      );
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_114' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('shows rate-limit message when beginPasskeyRegistration returns 429 without retryAfterLocalized', async () => {
+    mockBeginPasskeyRegistration.mockRejectedValue({
+      errno: 114,
+      code: 429,
+      message: 'Client has sent too many requests',
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith(
+        expect.stringMatching(/Please try again later/)
+      );
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_114' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+  });
+
+
+  it('shows localized message for a known non-throttle auth error', async () => {
+    // errno 226 (PASSKEY_LIMIT_REACHED) is a known auth error.
+    mockBeginPasskeyRegistration.mockRejectedValue({
+      errno: 226,
+      message: 'Passkey limit reached',
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith(
+        expect.stringMatching(/Passkey limit reached/)
+      );
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_226' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockAlertError).not.toHaveBeenCalledWith(
+      'System not available. Try again later.'
+    );
   });
 
   it('cancel button shows cancellation banner and navigates back to settings', () => {
