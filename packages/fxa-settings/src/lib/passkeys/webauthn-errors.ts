@@ -113,12 +113,12 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     errorType: WebAuthnErrorType.NotSupported,
     logToSentry: false,
     ftlId: {
-      registration: 'passkey-registration-error-not-supported',
-      authentication: 'passkey-authentication-error-not-supported',
+      registration: 'passkey-registration-error-not-supported-v2',
+      authentication: 'passkey-authentication-error-not-supported-v2',
     },
     fallbackText: {
-      registration: `Passkeys aren’t supported here. Try another method or device.`,
-      authentication: `Passkeys aren’t supported. Try another method or device.`,
+      registration: `Your browser or device doesn’t support passkeys.`,
+      authentication: `Your browser or device doesn’t support passkeys.`,
     },
   },
   SecurityError: {

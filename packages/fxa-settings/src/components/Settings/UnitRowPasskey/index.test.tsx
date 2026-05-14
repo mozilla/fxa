@@ -3,13 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Passkey } from 'fxa-auth-client/browser';
 import { Account, AppContext } from '../../../models';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import {
+  MOCK_ACCOUNT,
+  mockAppContext,
+  mockSettingsContext,
+} from '../../../models/mocks';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { AlertBarInfo } from '../../../models/AlertBarInfo';
 
 jest.mock('../SubRow', () => ({
   ...jest.requireActual('../SubRow'),
@@ -63,6 +69,9 @@ let mockAccount = {
   passkeys: mockPasskeys,
 };
 
+let alertBarInfo: AlertBarInfo;
+let alertErrorSpy: jest.SpyInstance;
+
 describe('UnitRowPasskey', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -71,21 +80,26 @@ describe('UnitRowPasskey', () => {
       ...MOCK_ACCOUNT,
       passkeys: mockPasskeys,
     };
+    alertBarInfo = new AlertBarInfo();
+    alertErrorSpy = jest.spyOn(alertBarInfo, 'error');
   });
 
-  const renderUnitRowPasskey = () => {
-    return renderWithLocalizationProvider(
+  const renderUnitRowPasskey = () =>
+    renderWithLocalizationProvider(
       <LocationProvider>
         <AppContext.Provider
           value={mockAppContext({
             account: mockAccount as unknown as Account,
           })}
         >
-          <UnitRowPasskey />
+          <SettingsContext.Provider
+            value={mockSettingsContext({ alertBarInfo })}
+          >
+            <UnitRowPasskey />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       </LocationProvider>
     );
-  };
 
   it('renders header and description', async () => {
     renderUnitRowPasskey();
@@ -128,7 +142,7 @@ describe('UnitRowPasskey', () => {
     });
   });
 
-  it('shows a Create button (not a link) and no error banner until clicked when WebAuthn is not supported', async () => {
+  it('shows a Create button (not a link) and does not push an alert until clicked when WebAuthn is not supported', async () => {
     isWebAuthnLevel3Supported.mockReturnValue(false);
     renderUnitRowPasskey();
     await waitFor(() => {
@@ -139,19 +153,33 @@ describe('UnitRowPasskey', () => {
     expect(
       screen.queryByRole('link', { name: 'Create' })
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Your browser or device doesn’t support passkeys.')
-    ).not.toBeInTheDocument();
+    expect(alertErrorSpy).not.toHaveBeenCalled();
   });
 
-  it('reveals the error banner when the user clicks Create and WebAuthn is not supported', async () => {
+  it('pushes an unsupported-passkey alert when the user clicks Create and WebAuthn is not supported', async () => {
     isWebAuthnLevel3Supported.mockReturnValue(false);
     renderUnitRowPasskey();
     const createButton = await screen.findByRole('button', { name: 'Create' });
     fireEvent.click(createButton);
+    expect(alertErrorSpy).toHaveBeenCalledTimes(1);
+    const [alertContent] = alertErrorSpy.mock.calls[0];
+    expect(React.isValidElement(alertContent)).toBe(true);
+
+    // Render the captured alert node and assert the user-visible content.
+    // Scope queries to the alert's container so they don't collide with the
+    // existing "Learn more" link that lives inside UnitRowPasskey itself.
+    const { container } = renderWithLocalizationProvider(<>{alertContent}</>);
     expect(
-      screen.getByText('Your browser or device doesn’t support passkeys.')
+      within(container).getByText(
+        'Your browser or device doesn’t support passkeys.'
+      )
     ).toBeInTheDocument();
+    expect(
+      within(container).getByRole('link', { name: /Learn more/ })
+    ).toHaveAttribute(
+      'href',
+      'https://support.mozilla.org/kb/placeholder-article'
+    );
   });
 
   it('shows warning banner and disabled Create button when at max passkeys', async () => {

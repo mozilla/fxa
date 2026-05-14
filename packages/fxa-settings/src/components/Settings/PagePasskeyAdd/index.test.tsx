@@ -5,11 +5,13 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { LocationProvider } from '@reach/router';
 
-import { PagePasskeyAdd } from '.';
+import { MfaGuardPagePasskeyAdd, PagePasskeyAdd } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { AlertBarInfo } from '../../../models/AlertBarInfo';
 import { MfaContext } from '../MfaGuard';
 import { createCredential } from '../../../lib/passkeys/webauthn';
 import {
@@ -38,10 +40,12 @@ jest.mock('@sentry/browser', () => ({
 const mockCreateCredential = jest.fn() as jest.MockedFunction<
   typeof createCredential
 >;
+const mockIsWebAuthnLevel3Supported = jest.fn(() => true);
 jest.mock('../../../lib/passkeys/webauthn', () => ({
   createCredential: (
     ...args: Parameters<typeof createCredential>
   ): ReturnType<typeof createCredential> => mockCreateCredential(...args),
+  isWebAuthnLevel3Supported: () => mockIsWebAuthnLevel3Supported(),
 }));
 
 const mockHandleWebAuthnError = jest.fn();
@@ -79,8 +83,9 @@ jest.mock('../../../lib/cache', () => ({
 const mockBeginPasskeyRegistration = jest.fn();
 const mockCompletePasskeyRegistration = jest.fn();
 
-const mockAlertSuccess = jest.fn();
-const mockAlertError = jest.fn();
+let alertBarInfo: AlertBarInfo;
+let mockAlertSuccess: jest.SpyInstance;
+let mockAlertError: jest.SpyInstance;
 
 const mockCreationOptions = {
   rp: { name: 'Mozilla', id: 'accounts.firefox.com' },
@@ -111,19 +116,6 @@ function renderPage() {
     completePasskeyRegistration: mockCompletePasskeyRegistration,
   };
 
-  const alertBarInfo = {
-    success: mockAlertSuccess,
-    error: mockAlertError,
-    info: jest.fn(),
-    show: jest.fn(),
-    hide: jest.fn(),
-    setType: jest.fn(),
-    setContent: jest.fn(),
-    visible: false,
-    type: 'success' as const,
-    content: null,
-  };
-
   return render(
     <AppContext.Provider
       value={mockAppContext({
@@ -131,11 +123,7 @@ function renderPage() {
         authClient: authClient as any,
       })}
     >
-      <SettingsContext.Provider
-        value={mockSettingsContext({
-          alertBarInfo: alertBarInfo as any,
-        })}
-      >
+      <SettingsContext.Provider value={mockSettingsContext({ alertBarInfo })}>
         <MfaContext.Provider value="passkey">
           <PagePasskeyAdd />
         </MfaContext.Provider>
@@ -147,6 +135,9 @@ function renderPage() {
 describe('PagePasskeyAdd', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    alertBarInfo = new AlertBarInfo();
+    mockAlertSuccess = jest.spyOn(alertBarInfo, 'success');
+    mockAlertError = jest.spyOn(alertBarInfo, 'error');
     mockBeginPasskeyRegistration.mockResolvedValue(mockCreationOptions);
     mockCreateCredential.mockResolvedValue(mockCredential);
     mockCompletePasskeyRegistration.mockResolvedValue({
@@ -258,6 +249,32 @@ describe('PagePasskeyAdd', () => {
       expect.any(Function),
       { hadExcludeCredentials: true }
     );
+  });
+
+  it('renders the unsupported-passkey alert (with Learn more link) on NotSupportedError', async () => {
+    const notSupportedError = new DOMException(
+      'not supported',
+      'NotSupportedError'
+    );
+    mockCreateCredential.mockRejectedValue(notSupportedError);
+    mockHandleWebAuthnError.mockReturnValue({
+      category: WebAuthnErrorCategory.DevicePlatform,
+      errorType: WebAuthnErrorType.NotSupported,
+      ftlId: 'passkey-registration-error-not-supported-v2',
+      fallbackText: 'Your browser or device doesn’t support passkeys.',
+      logToSentry: false,
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledTimes(1);
+    });
+    const [alertContent] = mockAlertError.mock.calls[0];
+    expect(React.isValidElement(alertContent)).toBe(true);
+    // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
+    // primary handler. If we reach here (race), don't auto-redirect — the user
+    // can use Cancel to navigate away.
+    expect(mockNavigateWithQuery).not.toHaveBeenCalled();
   });
 
   it('handles timeout error', async () => {
@@ -431,5 +448,44 @@ describe('PagePasskeyAdd', () => {
       'Passkey setup was canceled. Try again.'
     );
     expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
+  });
+});
+
+describe('MfaGuardPagePasskeyAdd pre-check', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    alertBarInfo = new AlertBarInfo();
+    mockAlertSuccess = jest.spyOn(alertBarInfo, 'success');
+    mockAlertError = jest.spyOn(alertBarInfo, 'error');
+    mockIsWebAuthnLevel3Supported.mockReturnValue(true);
+  });
+
+  function renderWrapper() {
+    return render(
+      <LocationProvider>
+        <AppContext.Provider value={mockAppContext()}>
+          <SettingsContext.Provider
+            value={mockSettingsContext({ alertBarInfo })}
+          >
+            <MfaContext.Provider value="passkey">
+              <MfaGuardPagePasskeyAdd />
+            </MfaContext.Provider>
+          </SettingsContext.Provider>
+        </AppContext.Provider>
+      </LocationProvider>
+    );
+  }
+
+  it('pushes the unsupported alert and redirects to settings before MFA fires when WebAuthn is unsupported', () => {
+    mockIsWebAuthnLevel3Supported.mockReturnValue(false);
+    const { container } = renderWrapper();
+    expect(mockAlertError).toHaveBeenCalledTimes(1);
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+    // PagePasskeyAdd never mounts when unsupported.
+    expect(container).toBeEmptyDOMElement();
+    // MFA ceremony is skipped entirely.
+    expect(mockBeginPasskeyRegistration).not.toHaveBeenCalled();
   });
 });
