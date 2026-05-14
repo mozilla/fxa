@@ -17,3 +17,8 @@ export async function requireSessionUid(): Promise<string> {
   }
   return uid;
 }
+
+export async function getSessionEmail(): Promise<string | undefined> {
+  const session = await getAuthInstance().auth();
+  return session?.user?.email ?? undefined;
+}

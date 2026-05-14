@@ -8,7 +8,7 @@ import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class StrapiClientConfig {
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   public readonly graphqlApiUri!: string;
 
   @IsString()

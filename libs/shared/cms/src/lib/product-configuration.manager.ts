@@ -14,6 +14,7 @@ import {
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import {
+  BusinessEntitlementsQuery,
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
   ServicesWithCapabilitiesQuery,
@@ -33,6 +34,10 @@ import {
   SubPlatIntervalNotFoundError,
 } from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
+import {
+  businessEntitlementsQuery,
+  BusinessEntitlementsResultUtil,
+} from './queries/business-entitlements';
 import {
   capabilityServiceByPlanIdsQuery,
   CapabilityServiceByPlanIdsResultUtil,
@@ -206,6 +211,29 @@ export class ProductConfigurationManager {
     return new CapabilityServiceByPlanIdsResultUtil(
       queryResult as DeepNonNullable<CapabilityServiceByPlanIdsQuery>
     );
+  }
+
+  // Memoizes the result wrapper against the StrapiClient-cached query
+  // reference, so the wrapper's precomputed email index is built once per
+  // cache cycle instead of once per request. When StrapiClient rotates the
+  // snapshot, the new query result is a new reference and a fresh util
+  // (with a fresh index) is built — no added staleness.
+  private businessEntitlementsUtilCache = new WeakMap<
+    BusinessEntitlementsQuery,
+    BusinessEntitlementsResultUtil
+  >();
+
+  async getBusinessEntitlements(): Promise<BusinessEntitlementsResultUtil> {
+    const queryResult = (await this.strapiClient.query(
+      businessEntitlementsQuery,
+      {}
+    )) as BusinessEntitlementsQuery;
+    let util = this.businessEntitlementsUtilCache.get(queryResult);
+    if (!util) {
+      util = new BusinessEntitlementsResultUtil(queryResult);
+      this.businessEntitlementsUtilCache.set(queryResult, util);
+    }
+    return util;
   }
 
   async getPurchaseDetailsForEligibility(

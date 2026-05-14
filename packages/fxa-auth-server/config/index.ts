@@ -1168,6 +1168,14 @@ const convictConf = convict({
       env: 'SUBSCRIPTIONS_BILLING_PRICE_INFO_FEATURE',
       default: false,
     },
+    emailCapabilityList: {
+      enabled: {
+        doc: 'Grant capabilities to users whose primary email is on the Strapi-managed allowlist (Business / BusinessEntitlement content types).',
+        format: Boolean,
+        env: 'EMAIL_CAPABILITY_LIST_ENABLED',
+        default: true,
+      },
+    },
   },
   currenciesToCountries: {
     doc: 'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',

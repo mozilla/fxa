@@ -8,6 +8,8 @@ export interface CapabilitiesResult {
 
 export interface ServiceResult {
   oauthClientId: string;
+  internalName: string;
+  description: string | null;
   capabilities: CapabilitiesResult[];
 }
 

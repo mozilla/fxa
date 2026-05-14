@@ -4,6 +4,7 @@
 
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNumber,
@@ -170,6 +171,22 @@ class AppleIapSubscriptionContent {
   storeId!: string;
 }
 
+class BusinessEntitlement {
+  @IsString()
+  clientId!: string;
+
+  @IsString()
+  displayName!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string | null;
+
+  @IsArray()
+  @IsString({ each: true })
+  capabilities!: string[];
+}
+
 class GoogleIapSubscriptionContent {
   @IsBoolean()
   autoRenewing!: boolean;
@@ -218,4 +235,8 @@ export class GetSubManPageContentActionResult {
   @ValidateNested()
   @Type(() => GoogleIapSubscriptionContent)
   googleIapSubscriptions!: GoogleIapSubscriptionContent[];
+
+  @ValidateNested()
+  @Type(() => BusinessEntitlement)
+  entitlements!: BusinessEntitlement[];
 }

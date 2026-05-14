@@ -99,6 +99,30 @@ describe('Nav', () => {
     );
   });
 
+  it('renders the subscriptions link for a B2B-allowlisted user with no paid subs', () => {
+    const account = {
+      primaryEmail: {
+        email: 'stomlinson@mozilla.com',
+      },
+      subscriptions: [],
+      hasBusinessEntitlement: true,
+      linkedAccounts: [],
+    } as unknown as Account;
+    renderWithLocalizationProvider(
+      <AppContext.Provider value={{ account }}>
+        <Nav />
+      </AppContext.Provider>
+    );
+
+    expect(screen.getByTestId('nav-link-subscriptions')).toHaveTextContent(
+      'Paid Subscriptions'
+    );
+    expect(screen.getByTestId('nav-link-subscriptions')).toHaveAttribute(
+      'href',
+      '/subscriptions'
+    );
+  });
+
   it('renders as expected without newsletters link', () => {
     const config = Object.assign({}, getDefault(), {
       marketingEmailPreferencesUrl: '',

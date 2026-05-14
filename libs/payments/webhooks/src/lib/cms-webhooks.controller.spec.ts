@@ -5,15 +5,20 @@
 import { Test } from '@nestjs/testing';
 import { CmsWebhooksController } from './cms-webhooks.controller';
 import { CmsWebhookService } from './cms-webhooks.service';
+import { EmailCapabilityWebhookService } from './email-capability-webhook.service';
 import { CmsContentValidationManager, MockStrapiClientConfigProvider, StrapiClient } from '@fxa/shared/cms';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { Logger } from '@nestjs/common';
-import type { StrapiValidationWebhookPayload } from './cms-webhooks.types';
+import type {
+  StrapiEmailCapabilityListWebhookPayload,
+  StrapiValidationWebhookPayload,
+} from './cms-webhooks.types';
 
 describe('CmsWebhooksController', () => {
   let controller: CmsWebhooksController;
   let service: CmsWebhookService;
+  let emailCapabilityService: EmailCapabilityWebhookService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -22,6 +27,14 @@ describe('CmsWebhooksController', () => {
         CmsWebhooksController,
         CmsWebhookService,
         CmsContentValidationManager,
+        {
+          provide: EmailCapabilityWebhookService,
+          useValue: {
+            handleEmailCapabilityListWebhook: jest
+              .fn()
+              .mockResolvedValue(undefined),
+          },
+        },
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         StrapiClient,
@@ -31,6 +44,7 @@ describe('CmsWebhooksController', () => {
 
     controller = module.get(CmsWebhooksController);
     service = module.get(CmsWebhookService);
+    emailCapabilityService = module.get(EmailCapabilityWebhookService);
   });
 
   describe('postStrapiValidation', () => {
@@ -58,6 +72,38 @@ describe('CmsWebhooksController', () => {
 
     it('returns success response', async () => {
       const result = await controller.postStrapiValidation(
+        'Bearer secret',
+        mockPayload
+      );
+
+      expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('postEmailCapabilityList', () => {
+    const mockPayload: StrapiEmailCapabilityListWebhookPayload = {
+      event: 'entry.update',
+      model: 'business-entitlement',
+      entry: {
+        id: 1,
+        documentId: 'doc-1',
+        capabilities: [{ slug: 'capA' }],
+        matchers: [
+          { __component: 'matchers.email-list', emails: ['user@example.com'] },
+        ],
+      },
+    };
+
+    it('delegates to EmailCapabilityWebhookService', async () => {
+      await controller.postEmailCapabilityList('Bearer secret', mockPayload);
+
+      expect(
+        emailCapabilityService.handleEmailCapabilityListWebhook
+      ).toHaveBeenCalledWith('Bearer secret', mockPayload);
+    });
+
+    it('returns success response', async () => {
+      const result = await controller.postEmailCapabilityList(
         'Bearer secret',
         mockPayload
       );

@@ -1905,7 +1905,10 @@ export class AccountHandler {
       scope.contains('profile:subscriptions')
     ) {
       const capabilities =
-        await this.capabilityService.subscriptionCapabilities(uid as string);
+        await this.capabilityService.subscriptionCapabilities(
+          uid as string,
+          account.primaryEmail?.email
+        );
       if (Object.keys(capabilities).length > 0) {
         res.subscriptionsByClientId = capabilities;
       }
@@ -2665,6 +2668,19 @@ export class AccountHandler {
       }
     }
 
+    // B2B allowlist signal — keyed on the primary email, decoupled from
+    // Stripe/IAP state above. Defensive: the Settings home page reads this
+    // to show the "Paid Subscriptions" link; a CMS hiccup must not 500
+    // `/account` for everyone, so swallow into `false`.
+    const primaryEmail =
+      formattedEmails.find((e) => e.isPrimary)?.email ??
+      account.primaryEmail?.email;
+    const hasBusinessEntitlement = this.config.subscriptions?.enabled
+      ? await this.capabilityService
+          .hasBusinessEntitlement(primaryEmail)
+          .catch(() => false)
+      : false;
+
     return {
       createdAt: account.createdAt,
       passwordCreatedAt: account.verifierSetAt,
@@ -2683,6 +2699,7 @@ export class AccountHandler {
         ...iapAppStoreSubscriptions,
         ...webSubscriptions,
       ],
+      hasBusinessEntitlement,
     };
   }
 }
@@ -3342,6 +3359,7 @@ export const accountRoutes = (
                 validators.subscriptionsGooglePlaySubscriptionValidator,
                 validators.subscriptionsAppStoreSubscriptionValidator
               ),
+            hasBusinessEntitlement: isA.boolean().optional(),
           }),
         },
       },

@@ -5,6 +5,8 @@ subscription-management-page-banner-warning-link-no-payment-method = Add a payme
 subscription-management-subscriptions-heading = Subscriptions
 subscription-management-free-trial-heading = Free trials
 subscription-management-your-free-trials-aria = Your free trials
+subscription-management-entitlements-heading = Services included with your account
+subscription-management-your-entitlements-aria = Services included with your account
 
 # Heading for mobile only quick links menu
 subscription-management-jump-to-heading = Jump to

@@ -4,7 +4,7 @@
 
 'use server';
 
-import { requireSessionUid } from '@fxa/payments/ui-auth';
+import { getSessionEmail, requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
@@ -16,6 +16,7 @@ export const getSubManPageContentAction = async (
   selectedLanguage?: string
 ) => {
   const uid = await requireSessionUid();
+  const email = await getSessionEmail();
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
@@ -26,6 +27,7 @@ export const getSubManPageContentAction = async (
     .getActionsService()
     .getSubManPageContent({
       uid,
+      email,
       requestArgs,
       acceptLanguage,
       selectedLanguage,

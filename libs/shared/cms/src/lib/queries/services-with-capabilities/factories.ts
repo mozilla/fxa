@@ -18,6 +18,8 @@ export const ServiceResultFactory = (
   override?: Partial<ServiceResult>
 ): ServiceResult => ({
   oauthClientId: faker.string.sample(),
+  internalName: faker.company.name(),
+  description: faker.lorem.sentence(),
   capabilities: [CapabilitiesResultFactory()],
   ...override,
 });

@@ -59,6 +59,7 @@ export interface UnifiedAccountData {
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   subscriptions: { created: number; productName: string }[];
+  hasBusinessEntitlement: boolean;
   securityEvents: SecurityEvent[];
 
   // UI state (transient)
@@ -92,6 +93,7 @@ export type ExtendedAccountState = Pick<
   | 'attachedClients'
   | 'linkedAccounts'
   | 'subscriptions'
+  | 'hasBusinessEntitlement'
   | 'securityEvents'
   | 'passkeys'
   | 'isLoading'
@@ -113,6 +115,7 @@ const defaultExtendedState: ExtendedAccountState = {
   attachedClients: [],
   linkedAccounts: [],
   subscriptions: [],
+  hasBusinessEntitlement: false,
   securityEvents: [],
   passkeys: [],
   isLoading: false,
@@ -265,6 +268,7 @@ export function getExtendedAccountState(uid?: string): ExtendedAccountState {
     attachedClients: account.attachedClients,
     linkedAccounts: account.linkedAccounts,
     subscriptions: account.subscriptions,
+    hasBusinessEntitlement: account.hasBusinessEntitlement ?? false,
     securityEvents: account.securityEvents,
     passkeys: account.passkeys,
     isLoading: account.isLoading,
@@ -350,6 +354,7 @@ export function getFullAccountData(uid?: string): {
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   subscriptions: { created: number; productName: string }[];
+  hasBusinessEntitlement: boolean;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 } | null {
@@ -377,6 +382,7 @@ export function getFullAccountData(uid?: string): {
     attachedClients: account.attachedClients,
     linkedAccounts: account.linkedAccounts,
     subscriptions: account.subscriptions,
+    hasBusinessEntitlement: account.hasBusinessEntitlement ?? false,
     securityEvents: account.securityEvents,
     passkeys: account.passkeys,
   };

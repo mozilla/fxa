@@ -5,7 +5,16 @@
 import { ServiceResult, ServicesWithCapabilitiesResult } from './types';
 
 export class ServicesWithCapabilitiesResultUtil {
-  constructor(private rawResult: ServicesWithCapabilitiesResult) {}
+  private readonly byClientId: ReadonlyMap<string, ServiceResult>;
+
+  constructor(private rawResult: ServicesWithCapabilitiesResult) {
+    const index = new Map<string, ServiceResult>();
+    for (const service of this.rawResult.services ?? []) {
+      if (!service?.oauthClientId) continue;
+      index.set(service.oauthClientId.toLowerCase(), service);
+    }
+    this.byClientId = index;
+  }
 
   getServices(): ServiceResult[] {
     return this.services;
@@ -13,5 +22,9 @@ export class ServicesWithCapabilitiesResultUtil {
 
   get services() {
     return this.rawResult.services;
+  }
+
+  findServiceByClientId(clientId: string): ServiceResult | undefined {
+    return this.byClientId.get(clientId.toLowerCase());
   }
 }

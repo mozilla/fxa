@@ -8,7 +8,11 @@ import { PaypalClientConfig } from '@fxa/payments/paypal';
 import { StripeConfig } from '@fxa/payments/stripe';
 import { StrapiClientConfig } from '@fxa/shared/cms';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
-import { FxaWebhookConfig, StripeEventConfig } from '@fxa/payments/webhooks';
+import {
+  AuthServerEmailCapabilityConfig,
+  FxaWebhookConfig,
+  StripeEventConfig,
+} from '@fxa/payments/webhooks';
 import { StatsDConfig } from '@fxa/shared/metrics/statsd';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 import { FxaOAuthConfig } from '@fxa/payments/auth';
@@ -78,4 +82,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
+
+  @Type(() => AuthServerEmailCapabilityConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly authServerEmailCapabilityConfig!: Partial<AuthServerEmailCapabilityConfig>;
 }

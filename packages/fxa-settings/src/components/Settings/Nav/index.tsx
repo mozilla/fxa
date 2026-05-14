@@ -41,7 +41,11 @@ export const Nav = ({
   const dataCollectionLinkRef = useRef<HTMLAnchorElement>(null);
 
   const primaryEmail = account.primaryEmail.email;
-  const hasSubscription = account.subscriptions.length > 0;
+  // Show the "Paid Subscriptions" entry point for paying subscribers AND
+  // for users whose email is on the Strapi-managed B2B allowlist — the
+  // payments-next manage page surfaces entitlement cards for the latter.
+  const showSubscriptionsLink =
+    account.subscriptions.length > 0 || account.hasBusinessEntitlement;
   const hasLinkedAccounts = account.linkedAccounts.length > 0;
   const marketingCommPrefLink =
     config.marketingEmailPreferencesUrl &&
@@ -216,7 +220,7 @@ export const Nav = ({
           </ul>
         </li>
 
-        {hasSubscription && (
+        {showSubscriptionsLink && (
           <li className="mb-5">
             <LinkExternal
               className="font-bold focus-visible-default rounded-sm outline-offset-2"

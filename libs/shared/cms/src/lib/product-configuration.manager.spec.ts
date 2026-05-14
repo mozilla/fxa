@@ -21,6 +21,8 @@ import {
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
+  BusinessEntitlementsQueryFactory,
+  BusinessEntitlementsResultUtil,
   cancelInterstitialOfferQuery,
   CancelInterstitialOfferResultFactory,
   CancelInterstitialOfferUtil,
@@ -784,6 +786,37 @@ describe('productConfigurationManager', () => {
 
       expect(result).toBeInstanceOf(FreeTrialUtil);
       expect(result.freeTrial.freeTrials).toHaveLength(1);
+    });
+  });
+
+  describe('getBusinessEntitlements', () => {
+    it('returns the same util instance while the cached query result is unchanged', async () => {
+      const queryData = BusinessEntitlementsQueryFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const first = await productConfigurationManager.getBusinessEntitlements();
+      const second =
+        await productConfigurationManager.getBusinessEntitlements();
+
+      expect(first).toBeInstanceOf(BusinessEntitlementsResultUtil);
+      expect(second).toBe(first);
+    });
+
+    it('builds a fresh util when the StrapiClient returns a new query result', async () => {
+      const first = BusinessEntitlementsQueryFactory();
+      const second = BusinessEntitlementsQueryFactory();
+      const spy = jest
+        .spyOn(strapiClient, 'query')
+        .mockResolvedValueOnce(first)
+        .mockResolvedValueOnce(second);
+
+      const utilA =
+        await productConfigurationManager.getBusinessEntitlements();
+      const utilB =
+        await productConfigurationManager.getBusinessEntitlements();
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(utilA).not.toBe(utilB);
     });
   });
 });

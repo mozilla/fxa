@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export * from './lib/auth-server-email-capability.client';
+export * from './lib/auth-server-email-capability.config';
 export * from './lib/cms-webhooks.controller';
 export * from './lib/cms-webhooks.error';
 export * from './lib/cms-webhooks.service';
 export * from './lib/cms-webhooks.types';
+export * from './lib/email-capability-webhook.service';
 export * from './lib/fxa-webhooks.config';
 export * from './lib/fxa-webhooks.controller';
 export * from './lib/fxa-webhooks.error';
