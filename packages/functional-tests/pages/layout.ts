@@ -10,6 +10,10 @@ import {
   FirefoxCommandRequest,
   FirefoxCommand,
 } from '../lib/channels';
+import {
+  clearCapturedWebChannelEvents,
+  getCapturedWebChannelEvents,
+} from '../lib/webChannelCapture';
 
 export abstract class BaseLayout {
   /**
@@ -74,14 +78,12 @@ export abstract class BaseLayout {
   }
 
   async checkWebChannelMessage(command: FirefoxCommand) {
-    // Retry across navigations — a client-side redirect after page.goto
-    // can destroy the execution context mid-evaluate.
-    await expect(async () => {
-      const messages = await this.page.evaluate(() =>
-        JSON.parse(sessionStorage.getItem('webChannelEvents') || '[]')
-      );
-      const found = messages.find(
-        (x: { command: string }) => x.command === command
+    // Reads from the Node-side capture (installed via createPages), which
+    // survives cross-origin navigation, unlike the FxA-origin sessionStorage
+    // mirror that the OAuth redirect would orphan.
+    await expect(() => {
+      const found = getCapturedWebChannelEvents(this.page).find(
+        (x) => x.command === command
       );
       expect(found).toBeTruthy();
     }).toPass({ timeout: 5000 });
@@ -90,15 +92,11 @@ export abstract class BaseLayout {
   async getWebChannelEvents(): Promise<
     Array<{ command: string; data: Record<string, unknown> }>
   > {
-    return await this.page.evaluate(() => {
-      return JSON.parse(sessionStorage.getItem('webChannelEvents') || '[]');
-    });
+    return getCapturedWebChannelEvents(this.page);
   }
 
   async clearWebChannelEvents() {
-    await this.page.evaluate(() => {
-      sessionStorage.removeItem('webChannelEvents');
-    });
+    clearCapturedWebChannelEvents(this.page);
   }
 
   /**

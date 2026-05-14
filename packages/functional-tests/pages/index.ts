@@ -41,10 +41,15 @@ import { InlineRecoveryKey } from './inlineRecoveryKey';
 import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 import { InlineTotpSetupPage } from './inlineTotpSetup';
 import { PasskeyExamplePage } from './passkey';
+import { installWebChannelCapture } from '../lib/webChannelCapture';
 
 export { PasskeyPage } from './passkey';
 
-export function create(page: Page, target: BaseTarget) {
+export async function create(page: Page, target: BaseTarget) {
+  // Capture WebChannel events on the Node side so they survive cross-origin
+  // navigations (e.g., the OAuth redirect after signin). Must be installed
+  // before any page.goto so the addInitScript applies to the first document.
+  await installWebChannelCapture(page);
   return {
     avatar: new AvatarPage(page, target),
     changePassword: new ChangePasswordPage(page, target),

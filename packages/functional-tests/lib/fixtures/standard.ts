@@ -25,7 +25,7 @@ import { join, dirname, basename } from 'path';
 const DEBUG = !!process.env.DEBUG;
 
 export { Page, expect };
-export type POMS = ReturnType<typeof createPages>;
+export type POMS = Awaited<ReturnType<typeof createPages>>;
 export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
@@ -48,7 +48,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   ],
 
   pages: async ({ target, page }, use) => {
-    const pages = createPages(page, target);
+    const pages = await createPages(page, target);
     await use(pages);
     // Cleanup passkey CDP sessions from any page that used them
     for (const pageInstance of Object.values(pages)) {
@@ -130,7 +130,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 export async function newPages(browser: Browser, target: BaseTarget) {
   const context = await browser.newContext();
   const page = await context.newPage();
-  return createPages(page, target);
+  return await createPages(page, target);
 }
 
 // When running tests that utilize Sync (sign-in/out), we need to run them in a

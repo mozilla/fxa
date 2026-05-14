@@ -28,7 +28,7 @@ test.describe('severity-2 #smoke', () => {
       const secondContext = await browser.newContext();
       const secondPage = await secondContext.newPage();
 
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await createPages(secondPage, target);
 
       await signInAccount(
         target,
@@ -80,7 +80,7 @@ test.describe('severity-2 #smoke', () => {
       const secondContext = await browser.newContext();
       const secondPage = await secondContext.newPage();
 
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await createPages(secondPage, target);
 
       await signInAccount(
         target,
