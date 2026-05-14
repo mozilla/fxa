@@ -1910,7 +1910,10 @@ export class AccountHandler {
       scope.contains('profile:subscriptions')
     ) {
       const capabilities =
-        await this.capabilityService.subscriptionCapabilities(uid as string);
+        await this.capabilityService.subscriptionCapabilities(
+          uid as string,
+          account.primaryEmail?.email
+        );
       if (Object.keys(capabilities).length > 0) {
         res.subscriptionsByClientId = capabilities;
       }
