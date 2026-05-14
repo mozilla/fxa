@@ -14,7 +14,7 @@ import CardHeader from '../../components/CardHeader';
 import InputPassword from '../../components/InputPassword';
 import Avatar from '../../components/Settings/Avatar';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
@@ -104,6 +104,12 @@ const Signin = ({
   const [hasCachedAccount, setHasCachedAccount] =
     useState<boolean>(!!sessionToken);
 
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled &&
+    !hasCachedAccount
+  );
+
   // Relay browser service login launched in Firefox desktop 135, and the "keys optional"
   // capability (Sync decoupling) launched in Fx desktop 147, meaning all Relay service users
   // in those Fx versions require a password. This also covers Mobile until Sync has been
@@ -179,6 +185,12 @@ const Signin = ({
       });
     }
   }, [showPasswordInput, hideThirdPartyAuth]);
+
+  useEffect(() => {
+    if (hasLinkedAccountAndNoPassword && !hideThirdPartyAuth) {
+      GleanMetrics.thirdPartyAuth.loginNoPwView();
+    }
+  }, [hasLinkedAccountAndNoPassword, hideThirdPartyAuth]);
 
   const signInWithCachedAccount = useCallback(
     async (sessionToken: hexstring) => {
@@ -587,15 +599,12 @@ const Signin = ({
         </form>
       )}
 
-      {!hideThirdPartyAuth && (
-        <ThirdPartyAuth
-          showSeparator={true}
-          separatorType={
-            hasLinkedAccountAndNoPassword ? 'signInWith' : undefined
-          }
-          {...{ viewName, flowQueryParams }}
-        />
-      )}
+      <AlternativeAuthOptions
+        showThirdPartyAuth={!hideThirdPartyAuth}
+        showPasskeySignin={showPasskeySignin}
+        isStandalone={hasLinkedAccountAndNoPassword}
+        {...{ viewName, flowQueryParams }}
+      />
 
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 

@@ -13,7 +13,7 @@ import CardHeader, {
   getCmsHeadlineStyle,
 } from '../../components/CardHeader';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
@@ -350,9 +350,11 @@ export const Signup = ({
         onSubmit={handleSubmit(onSubmit)}
       />
 
-      {showThirdPartyAuth && (
-        <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
-      )}
+      <AlternativeAuthOptions
+        showThirdPartyAuth={showThirdPartyAuth}
+        viewName="signup"
+        flowQueryParams={flowQueryParams}
+      />
 
       <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>

@@ -9,7 +9,6 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { Subject } from './mocks';
 
-const mockViewWithNoPasswordSet = jest.fn();
 const mockStartGoogleAuthFromIndex = jest.fn();
 const mockStartAppleAuthFromIndex = jest.fn();
 const mockStartGoogleAuthFromLogin = jest.fn();
@@ -34,9 +33,6 @@ jest.mock('../../lib/glean', () => {
         },
       },
       thirdPartyAuth: {
-        loginNoPwView: () => {
-          mockViewWithNoPasswordSet();
-        },
         startGoogleAuthFromLogin: () => {
           mockStartGoogleAuthFromLogin();
         },
@@ -90,7 +86,6 @@ describe('ThirdPartyAuthComponent', () => {
     const user = userEvent.setup();
     renderWith({
       enabled: true,
-      showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
       flowQueryParams: { flowId: '123' },
@@ -118,7 +113,6 @@ describe('ThirdPartyAuthComponent', () => {
     const user = userEvent.setup();
     renderWith({
       enabled: true,
-      showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
       flowQueryParams: { flowId: '123' },
@@ -142,26 +136,6 @@ describe('ThirdPartyAuthComponent', () => {
     });
   });
 
-  it('hides separator', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-    });
-
-    expect(screen.queryByText('Or')).toBeNull();
-    expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
-  });
-
-  it('shows separator', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: true,
-    });
-
-    expect(screen.queryByText('Or')).toBeDefined();
-    expect(mockViewWithNoPasswordSet).not.toHaveBeenCalled();
-  });
-
   it('buttons match snapshot', async () => {
     renderWith({
       enabled: true,
@@ -173,19 +147,47 @@ describe('ThirdPartyAuthComponent', () => {
     expect(appleButton).toMatchSnapshot('apple');
   });
 
-  describe('emits metrics', () => {
-    it('emits glean metrics loginNoPwView', () => {
-      renderWith({
-        enabled: true,
-        showSeparator: false,
+  describe('box variant', () => {
+    it('renders Google and Apple as box buttons with localized labels', async () => {
+      renderWith({ enabled: true, variant: 'box' });
+
+      const googleButton = await screen.findByRole('button', {
+        name: 'Continue with Google',
       });
-      expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
+      const appleButton = await screen.findByRole('button', {
+        name: 'Continue with Apple',
+      });
+
+      expect(googleButton).toHaveTextContent('Continue with Google');
+      expect(appleButton).toHaveTextContent('Continue with Apple');
+
+      const chevrons = screen.getAllByText('icon_chevron_right.min.svg');
+      expect(chevrons).toHaveLength(2);
     });
 
+    it('still triggers oauth navigation on click', async () => {
+      const user = userEvent.setup();
+      renderWith({
+        enabled: true,
+        variant: 'box',
+        flowQueryParams: { flowId: '123' },
+      });
+
+      const button = await screen.findByRole('button', {
+        name: 'Continue with Google',
+      });
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('emits metrics', () => {
     it('emits glean metrics startGoogleAuthFromIndex', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -197,7 +199,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromIndex', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -208,7 +209,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startGoogleAuthFromLogin', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -220,7 +220,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromLogin', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -231,7 +230,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startGoogleAuthFromReg', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -243,7 +241,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromReg', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Apple');

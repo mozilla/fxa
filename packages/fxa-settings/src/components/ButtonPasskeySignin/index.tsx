@@ -3,40 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LoadingArrowIcon, PasskeyIcon } from '../Icons';
+import { PasskeyIcon } from '../Icons';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import BoxButton from '../BoxButton';
 
 export type ButtonPasskeySigninProps = {
-  loading?: boolean;
+  isLoading?: boolean;
   onClick?: () => void;
 };
 
 const ButtonPasskeySignin = ({
-  loading = false,
+  isLoading = false,
   onClick = () => {},
-}: ButtonPasskeySigninProps) => {
-  const buttonText = loading ? (
-    <>
-      <LoadingArrowIcon className="h-5 w-5 me-4 animate-spin-slow" ariaHidden />
+}: ButtonPasskeySigninProps) => (
+  <BoxButton
+    type="button"
+    leadingIcon={<PasskeyIcon className="w-5 h-5" ariaHidden />}
+    isLoading={isLoading}
+    onClick={onClick}
+  >
+    {isLoading ? (
       <FtlMsg id="button-passkey-signin-loading">Securely signing in…</FtlMsg>
-    </>
-  ) : (
-    <>
-      <PasskeyIcon className="h-5 w-5 me-4" ariaHidden />
+    ) : (
       <FtlMsg id="button-passkey-signin">Sign in with passkey</FtlMsg>
-    </>
-  );
-
-  return (
-    <button
-      type="submit"
-      className="cta-xl w-full justify-center font-header text-grey-900 bg-grey-10 border-grey-200 border text-center inline-flex items-center focus-visible-default outline-offset-2 hover:border-grey-600 active:bg-grey-100 disabled:bg-grey-100 disabled:border-grey-600 disabled:cursor-not-allowed"
-      onClick={onClick}
-      disabled={loading}
-    >
-      {buttonText}
-    </button>
-  );
-};
+    )}
+  </BoxButton>
+);
 
 export default ButtonPasskeySignin;
