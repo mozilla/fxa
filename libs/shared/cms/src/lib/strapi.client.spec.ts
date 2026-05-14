@@ -177,4 +177,48 @@ describe('StrapiClient', () => {
       expect(CacheClear).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe('verifyWebhookSignature', () => {
+    const WEBHOOK_SECRET = 'topsecret';
+
+    beforeEach(() => {
+      (strapiClient as any).strapiClientConfig = {
+        ...(strapiClient as any).strapiClientConfig,
+        webhookSecret: WEBHOOK_SECRET,
+      };
+    });
+
+    it('returns true for the exact "Bearer <secret>" header', () => {
+      expect(
+        strapiClient.verifyWebhookSignature(`Bearer ${WEBHOOK_SECRET}`)
+      ).toBe(true);
+    });
+
+    it('returns false when the secret is not configured', () => {
+      (strapiClient as any).strapiClientConfig.webhookSecret = undefined;
+      expect(
+        strapiClient.verifyWebhookSignature(`Bearer ${WEBHOOK_SECRET}`)
+      ).toBe(false);
+    });
+
+    it('returns false for an empty authorization header without throwing', () => {
+      expect(() => strapiClient.verifyWebhookSignature('')).not.toThrow();
+      expect(strapiClient.verifyWebhookSignature('')).toBe(false);
+    });
+
+    it('returns false for a mismatched-length header without throwing', () => {
+      const longGarbage = 'Bearer ' + 'x'.repeat(WEBHOOK_SECRET.length + 50);
+      expect(() => strapiClient.verifyWebhookSignature(longGarbage)).not.toThrow();
+      expect(strapiClient.verifyWebhookSignature(longGarbage)).toBe(false);
+    });
+
+    it('returns false for the raw secret without the "Bearer " prefix', () => {
+      expect(strapiClient.verifyWebhookSignature(WEBHOOK_SECRET)).toBe(false);
+    });
+
+    it('returns false for a same-length-but-wrong secret', () => {
+      const sameLength = 'Bearer ' + 'x'.repeat(WEBHOOK_SECRET.length);
+      expect(strapiClient.verifyWebhookSignature(sameLength)).toBe(false);
+    });
+  });
 });

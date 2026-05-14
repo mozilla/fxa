@@ -14,12 +14,79 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  AccessMatchersDynamicZoneInput: { input: any; output: any; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any; }
   /** A string used to identify an i18n locale */
   I18NLocaleCode: { input: any; output: any; }
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
+  /** The `BigInt` scalar type represents non-fractional signed whole numeric values. */
+  Long: { input: any; output: any; }
+};
+
+export type Access = {
+  __typename?: 'Access';
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  description: Maybe<Scalars['String']['output']>;
+  documentId: Scalars['ID']['output'];
+  freeAccessProgram: Maybe<FreeAccessProgram>;
+  internalName: Scalars['String']['output'];
+  matchers: Array<Maybe<AccessMatchersDynamicZone>>;
+  offerings: Array<Maybe<Offering>>;
+  offerings_connection: Maybe<OfferingRelationResponseCollection>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type AccessOfferingsArgs = {
+  filters: InputMaybe<OfferingFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type AccessOfferings_ConnectionArgs = {
+  filters: InputMaybe<OfferingFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type AccessEntityResponseCollection = {
+  __typename?: 'AccessEntityResponseCollection';
+  nodes: Array<Access>;
+  pageInfo: Pagination;
+};
+
+export type AccessFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<AccessFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  description: InputMaybe<StringFilterInput>;
+  documentId: InputMaybe<IdFilterInput>;
+  freeAccessProgram: InputMaybe<FreeAccessProgramFiltersInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<AccessFiltersInput>;
+  offerings: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<AccessFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type AccessInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  freeAccessProgram: InputMaybe<Scalars['ID']['input']>;
+  internalName: InputMaybe<Scalars['String']['input']>;
+  matchers: InputMaybe<Array<Scalars['AccessMatchersDynamicZoneInput']['input']>>;
+  offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type AccessMatchersDynamicZone = ComponentMatchersEmailList | Error;
+
+export type AccessRelationResponseCollection = {
+  __typename?: 'AccessRelationResponseCollection';
+  nodes: Array<Access>;
 };
 
 export type BooleanFilterInput = {
@@ -713,6 +780,12 @@ export type ComponentIapStripePlanChoices = {
   stripePlanChoices: Scalars['String']['output'];
 };
 
+export type ComponentMatchersEmailList = {
+  __typename?: 'ComponentMatchersEmailList';
+  emails: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type ComponentStripeStripeLegacyPlans = {
   __typename?: 'ComponentStripeStripeLegacyPlans';
   id: Scalars['ID']['output'];
@@ -920,6 +993,12 @@ export enum Enum_Meter_Window {
   Weekly = 'weekly'
 }
 
+export type Error = {
+  __typename?: 'Error';
+  code: Scalars['String']['output'];
+  message: Maybe<Scalars['String']['output']>;
+};
+
 export type FileInfoInput = {
   alternativeText: InputMaybe<Scalars['String']['input']>;
   caption: InputMaybe<Scalars['String']['input']>;
@@ -949,6 +1028,58 @@ export type FloatFilterInput = {
   null: InputMaybe<Scalars['Boolean']['input']>;
   or: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
   startsWith: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type FreeAccessProgram = {
+  __typename?: 'FreeAccessProgram';
+  accesses: Array<Maybe<Access>>;
+  accesses_connection: Maybe<AccessRelationResponseCollection>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  displayName: Scalars['String']['output'];
+  documentId: Scalars['ID']['output'];
+  internalName: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type FreeAccessProgramAccessesArgs = {
+  filters: InputMaybe<AccessFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type FreeAccessProgramAccesses_ConnectionArgs = {
+  filters: InputMaybe<AccessFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type FreeAccessProgramEntityResponseCollection = {
+  __typename?: 'FreeAccessProgramEntityResponseCollection';
+  nodes: Array<FreeAccessProgram>;
+  pageInfo: Pagination;
+};
+
+export type FreeAccessProgramFiltersInput = {
+  accesses: InputMaybe<AccessFiltersInput>;
+  and: InputMaybe<Array<InputMaybe<FreeAccessProgramFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  displayName: InputMaybe<StringFilterInput>;
+  documentId: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<FreeAccessProgramFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<FreeAccessProgramFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type FreeAccessProgramInput = {
+  accesses: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  displayName: InputMaybe<Scalars['String']['input']>;
+  internalName: InputMaybe<Scalars['String']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type FreeTrial = {
@@ -1017,7 +1148,7 @@ export type FreeTrialRelationResponseCollection = {
   nodes: Array<FreeTrial>;
 };
 
-export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsIllustrationsTheme | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentEntitlementsWebhooks | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | Default | FreeTrial | I18NLocale | Iap | LegalNotice | Meter | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type GenericMorph = Access | CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsIllustrationsTheme | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentEntitlementsWebhooks | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentMatchersEmailList | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | Default | FreeAccessProgram | FreeTrial | I18NLocale | Iap | LegalNotice | Meter | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -1204,17 +1335,42 @@ export type LegalNoticeInput = {
   serviceOrClientId: InputMaybe<Scalars['String']['input']>;
 };
 
+export type LongFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['Long']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['Long']['input']>>>;
+  contains: InputMaybe<Scalars['Long']['input']>;
+  containsi: InputMaybe<Scalars['Long']['input']>;
+  endsWith: InputMaybe<Scalars['Long']['input']>;
+  eq: InputMaybe<Scalars['Long']['input']>;
+  eqi: InputMaybe<Scalars['Long']['input']>;
+  gt: InputMaybe<Scalars['Long']['input']>;
+  gte: InputMaybe<Scalars['Long']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['Long']['input']>>>;
+  lt: InputMaybe<Scalars['Long']['input']>;
+  lte: InputMaybe<Scalars['Long']['input']>;
+  ne: InputMaybe<Scalars['Long']['input']>;
+  nei: InputMaybe<Scalars['Long']['input']>;
+  not: InputMaybe<LongFilterInput>;
+  notContains: InputMaybe<Scalars['Long']['input']>;
+  notContainsi: InputMaybe<Scalars['Long']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['Long']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['Long']['input']>>>;
+  startsWith: InputMaybe<Scalars['Long']['input']>;
+};
+
 export type Meter = {
   __typename?: 'Meter';
   createdAt: Maybe<Scalars['DateTime']['output']>;
   documentId: Scalars['ID']['output'];
-  limit: Scalars['Int']['output'];
-  notificationThresholds: Scalars['String']['output'];
+  limit: Scalars['Long']['output'];
+  notificationThresholds: Maybe<Scalars['String']['output']>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
   slug: Scalars['String']['output'];
   unit: Scalars['String']['output'];
   updatedAt: Maybe<Scalars['DateTime']['output']>;
-  webhooks: Array<Maybe<ComponentEntitlementsWebhooks>>;
+  webhooks: Maybe<Array<Maybe<ComponentEntitlementsWebhooks>>>;
   window: Enum_Meter_Window;
 };
 
@@ -1235,7 +1391,7 @@ export type MeterFiltersInput = {
   and: InputMaybe<Array<InputMaybe<MeterFiltersInput>>>;
   createdAt: InputMaybe<DateTimeFilterInput>;
   documentId: InputMaybe<IdFilterInput>;
-  limit: InputMaybe<IntFilterInput>;
+  limit: InputMaybe<LongFilterInput>;
   not: InputMaybe<MeterFiltersInput>;
   notificationThresholds: InputMaybe<StringFilterInput>;
   or: InputMaybe<Array<InputMaybe<MeterFiltersInput>>>;
@@ -1248,7 +1404,7 @@ export type MeterFiltersInput = {
 };
 
 export type MeterInput = {
-  limit: InputMaybe<Scalars['Int']['input']>;
+  limit: InputMaybe<Scalars['Long']['input']>;
   notificationThresholds: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   slug: InputMaybe<Scalars['String']['input']>;
@@ -1261,11 +1417,13 @@ export type Mutation = {
   __typename?: 'Mutation';
   /** Change user password. Confirm with the current password. */
   changePassword: Maybe<UsersPermissionsLoginPayload>;
+  createAccess: Maybe<Access>;
   createCancelInterstitialOffer: Maybe<CancelInterstitialOffer>;
   createCapability: Maybe<Capability>;
   createChurnIntervention: Maybe<ChurnIntervention>;
   createCommonContent: Maybe<CommonContent>;
   createCouponConfig: Maybe<CouponConfig>;
+  createFreeAccessProgram: Maybe<FreeAccessProgram>;
   createFreeTrial: Maybe<FreeTrial>;
   createIap: Maybe<Iap>;
   createLegalNotice: Maybe<LegalNotice>;
@@ -1282,12 +1440,14 @@ export type Mutation = {
   createUsersPermissionsRole: Maybe<UsersPermissionsCreateRolePayload>;
   /** Create a new user */
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  deleteAccess: Maybe<DeleteMutationResponse>;
   deleteCancelInterstitialOffer: Maybe<DeleteMutationResponse>;
   deleteCapability: Maybe<DeleteMutationResponse>;
   deleteChurnIntervention: Maybe<DeleteMutationResponse>;
   deleteCommonContent: Maybe<DeleteMutationResponse>;
   deleteCouponConfig: Maybe<DeleteMutationResponse>;
   deleteDefault: Maybe<DeleteMutationResponse>;
+  deleteFreeAccessProgram: Maybe<DeleteMutationResponse>;
   deleteFreeTrial: Maybe<DeleteMutationResponse>;
   deleteIap: Maybe<DeleteMutationResponse>;
   deleteLegalNotice: Maybe<DeleteMutationResponse>;
@@ -1314,12 +1474,14 @@ export type Mutation = {
   register: UsersPermissionsLoginPayload;
   /** Reset user password. Confirm with a code (resetToken from forgotPassword) */
   resetPassword: Maybe<UsersPermissionsLoginPayload>;
+  updateAccess: Maybe<Access>;
   updateCancelInterstitialOffer: Maybe<CancelInterstitialOffer>;
   updateCapability: Maybe<Capability>;
   updateChurnIntervention: Maybe<ChurnIntervention>;
   updateCommonContent: Maybe<CommonContent>;
   updateCouponConfig: Maybe<CouponConfig>;
   updateDefault: Maybe<Default>;
+  updateFreeAccessProgram: Maybe<FreeAccessProgram>;
   updateFreeTrial: Maybe<FreeTrial>;
   updateIap: Maybe<Iap>;
   updateLegalNotice: Maybe<LegalNotice>;
@@ -1344,6 +1506,12 @@ export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   password: Scalars['String']['input'];
   passwordConfirmation: Scalars['String']['input'];
+};
+
+
+export type MutationCreateAccessArgs = {
+  data: AccessInput;
+  status?: InputMaybe<PublicationStatus>;
 };
 
 
@@ -1376,6 +1544,12 @@ export type MutationCreateCommonContentArgs = {
 
 export type MutationCreateCouponConfigArgs = {
   data: CouponConfigInput;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationCreateFreeAccessProgramArgs = {
+  data: FreeAccessProgramInput;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -1463,6 +1637,11 @@ export type MutationCreateUsersPermissionsUserArgs = {
 };
 
 
+export type MutationDeleteAccessArgs = {
+  documentId: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteCancelInterstitialOfferArgs = {
   documentId: Scalars['ID']['input'];
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
@@ -1493,6 +1672,11 @@ export type MutationDeleteCouponConfigArgs = {
 
 export type MutationDeleteDefaultArgs = {
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationDeleteFreeAccessProgramArgs = {
+  documentId: Scalars['ID']['input'];
 };
 
 
@@ -1599,6 +1783,13 @@ export type MutationResetPasswordArgs = {
 };
 
 
+export type MutationUpdateAccessArgs = {
+  data: AccessInput;
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
 export type MutationUpdateCancelInterstitialOfferArgs = {
   data: CancelInterstitialOfferInput;
   documentId: Scalars['ID']['input'];
@@ -1640,6 +1831,13 @@ export type MutationUpdateCouponConfigArgs = {
 export type MutationUpdateDefaultArgs = {
   data: DefaultInput;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationUpdateFreeAccessProgramArgs = {
+  data: FreeAccessProgramInput;
+  documentId: Scalars['ID']['input'];
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2063,6 +2261,9 @@ export type PurchaseInput = {
 
 export type Query = {
   __typename?: 'Query';
+  access: Maybe<Access>;
+  accesses: Array<Maybe<Access>>;
+  accesses_connection: Maybe<AccessEntityResponseCollection>;
   cancelInterstitialOffer: Maybe<CancelInterstitialOffer>;
   cancelInterstitialOffers: Array<Maybe<CancelInterstitialOffer>>;
   cancelInterstitialOffers_connection: Maybe<CancelInterstitialOfferEntityResponseCollection>;
@@ -2079,6 +2280,9 @@ export type Query = {
   couponConfigs: Array<Maybe<CouponConfig>>;
   couponConfigs_connection: Maybe<CouponConfigEntityResponseCollection>;
   default: Maybe<Default>;
+  freeAccessProgram: Maybe<FreeAccessProgram>;
+  freeAccessPrograms: Array<Maybe<FreeAccessProgram>>;
+  freeAccessPrograms_connection: Maybe<FreeAccessProgramEntityResponseCollection>;
   freeTrial: Maybe<FreeTrial>;
   freeTrials: Array<Maybe<FreeTrial>>;
   freeTrials_connection: Maybe<FreeTrialEntityResponseCollection>;
@@ -2128,6 +2332,31 @@ export type Query = {
   usersPermissionsUser: Maybe<UsersPermissionsUser>;
   usersPermissionsUsers: Array<Maybe<UsersPermissionsUser>>;
   usersPermissionsUsers_connection: Maybe<UsersPermissionsUserEntityResponseCollection>;
+};
+
+
+export type QueryAccessArgs = {
+  documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryAccessesArgs = {
+  filters: InputMaybe<AccessFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryAccesses_ConnectionArgs = {
+  filters: InputMaybe<AccessFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
 };
 
 
@@ -2268,6 +2497,31 @@ export type QueryCouponConfigs_ConnectionArgs = {
 export type QueryDefaultArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeAccessProgramArgs = {
+  documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeAccessProgramsArgs = {
+  filters: InputMaybe<FreeAccessProgramFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeAccessPrograms_ConnectionArgs = {
+  filters: InputMaybe<FreeAccessProgramFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -3288,6 +3542,11 @@ export type UsersPermissionsUserRelationResponseCollection = {
   nodes: Array<UsersPermissionsUser>;
 };
 
+export type AccessesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AccessesQuery = { __typename?: 'Query', accesses: Array<{ __typename?: 'Access', documentId: string, internalName: string, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, capabilities: Array<{ __typename?: 'Capability', slug: string, services: Array<{ __typename?: 'Service', oauthClientId: string } | null> } | null> } | null>, matchers: Array<{ __typename: 'ComponentMatchersEmailList', emails: any } | { __typename: 'Error' } | null> } | null> };
+
 export type CancelInterstitialOfferQueryVariables = Exact<{
   offeringApiIdentifier: Scalars['String']['input'];
   currentInterval: Scalars['String']['input'];
@@ -3367,7 +3626,7 @@ export type MeterBySlugQueryVariables = Exact<{
 }>;
 
 
-export type MeterBySlugQuery = { __typename?: 'Query', meters: Array<{ __typename?: 'Meter', slug: string, unit: string, limit: number, window: Enum_Meter_Window, notificationThresholds: string, webhooks: Array<{ __typename?: 'ComponentEntitlementsWebhooks', url: string, signingClientId: string } | null> } | null> };
+export type MeterBySlugQuery = { __typename?: 'Query', meters: Array<{ __typename?: 'Meter', slug: string, unit: string, limit: any, window: Enum_Meter_Window, notificationThresholds: string | null, webhooks: Array<{ __typename?: 'ComponentEntitlementsWebhooks', url: string, signingClientId: string } | null> | null } | null> };
 
 export type OfferingQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3470,6 +3729,7 @@ export type ValidationCouponConfigsQueryVariables = Exact<{ [key: string]: never
 export type ValidationCouponConfigsQuery = { __typename?: 'Query', couponConfigs: Array<{ __typename?: 'CouponConfig', internalName: string, stripePromotionCodes: Array<{ __typename?: 'ComponentStripeStripePromoCodes', PromoCode: string } | null> | null } | null> };
 
 
+export const AccessesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Accesses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accesses"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentId"}},{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"capabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oauthClientId"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"matchers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ComponentMatchersEmailList"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emails"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AccessesQuery, AccessesQueryVariables>;
 export const CancelInterstitialOfferDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CancelInterstitialOffer"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"currentInterval"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"upgradeInterval"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelInterstitialOffers"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offeringApiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"currentInterval"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currentInterval"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"upgradeInterval"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"upgradeInterval"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offeringApiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"currentInterval"}},{"kind":"Field","name":{"kind":"Name","value":"upgradeInterval"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading1"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"upgradeButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"upgradeButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"modalHeading1"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"upgradeButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"upgradeButtonUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CancelInterstitialOfferQuery, CancelInterstitialOfferQueryVariables>;
 export const CapabilityServiceByPlanIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CapabilityServiceByPlanIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"capabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oauthClientId"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CapabilityServiceByPlanIdsQuery, CapabilityServiceByPlanIdsQueryVariables>;
 export const ChurnInterventionByProductIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ChurnInterventionByProductId"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"interval"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeProductId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"interval"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"interval"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"churnType"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}}]}}]}}]} as unknown as DocumentNode<ChurnInterventionByProductIdQuery, ChurnInterventionByProductIdQueryVariables>;

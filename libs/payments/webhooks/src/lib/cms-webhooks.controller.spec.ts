@@ -5,7 +5,11 @@
 import { Test } from '@nestjs/testing';
 import { CmsWebhooksController } from './cms-webhooks.controller';
 import { CmsWebhookService } from './cms-webhooks.service';
-import { CmsContentValidationManager, MockStrapiClientConfigProvider, StrapiClient } from '@fxa/shared/cms';
+import {
+  CmsContentValidationManager,
+  MockStrapiClientConfigProvider,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { Logger } from '@nestjs/common';
