@@ -201,13 +201,14 @@ export const PagePasskeyAdd = () => {
         }
 
         // Server error
-        const errno = (error as { errno?: number })?.errno;
-        const isKnownAuthError =
-          typeof errno === 'number' && !!AuthUiErrorNos[errno];
+        const handledError = error as HandledError;
+        const isKnownAuthError = !!(
+          handledError?.errno && AuthUiErrorNos[handledError.errno]
+        );
 
         GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
           event: {
-            reason: isKnownAuthError ? `auth_error_${errno}` : 'server_error',
+            reason: isKnownAuthError ? `auth_error_${handledError.errno}` : 'server_error',
           },
         });
 
@@ -219,8 +220,8 @@ export const PagePasskeyAdd = () => {
           Sentry.captureException(error);
           alertBar.error(
             ftlMsgResolver.getMsg(
-              'page-passkey-add-error-system',
-              'System not available. Try again later.'
+              'page-passkey-add-error-system-v2',
+              'There was a problem creating your passkey. Try again later.'
             )
           );
         }
