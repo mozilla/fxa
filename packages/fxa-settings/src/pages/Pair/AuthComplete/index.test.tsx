@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import AuthComplete, { viewName } from '.';
+import AuthComplete, { PAIR_DEVICE_INFO_PREFIX, viewName } from '.';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -16,8 +16,12 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+const MOCK_CHANNEL_ID = 'test-channel-id';
+const MOCK_DEVICE_INFO_KEY = `${PAIR_DEVICE_INFO_PREFIX}${MOCK_CHANNEL_ID}`;
+
 jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
   PairingAuthorityIntegration: class {
+    channelId = 'test-channel-id';
     getSupplicantMetadata = jest.fn().mockResolvedValue(null);
     complete = jest.fn();
     destroy = jest.fn();
@@ -85,6 +89,7 @@ describe('AuthComplete page', () => {
       );
       mockIntegration = new PAI();
       mockIntegration.data = { entrypoint: undefined };
+      sessionStorage.clear();
     });
 
     it('calls complete() on mount and destroy() on unmount', () => {
@@ -94,6 +99,64 @@ describe('AuthComplete page', () => {
       expect(mockIntegration.complete).toHaveBeenCalled();
       unmount();
       expect(mockIntegration.destroy).toHaveBeenCalled();
+    });
+
+    it('clears cached device info from sessionStorage on unmount', () => {
+      sessionStorage.setItem(
+        MOCK_DEVICE_INFO_KEY,
+        JSON.stringify({
+          deviceFamily: 'Firefox',
+          deviceOS: 'Windows',
+          ipAddress: '1.2.3.4',
+        })
+      );
+
+      const { unmount } = renderWithLocalizationProvider(
+        <AuthComplete integration={mockIntegration as unknown as Integration} />
+      );
+      expect(sessionStorage.getItem(MOCK_DEVICE_INFO_KEY)).not.toBeNull();
+      unmount();
+      expect(sessionStorage.getItem(MOCK_DEVICE_INFO_KEY)).toBeNull();
+    });
+
+    it('restores device info from sessionStorage after refresh', () => {
+      const cachedInfo = {
+        deviceFamily: 'Firefox',
+        deviceOS: 'Windows',
+        ipAddress: '1.2.3.4',
+      };
+      sessionStorage.setItem(MOCK_DEVICE_INFO_KEY, JSON.stringify(cachedInfo));
+
+      renderWithLocalizationProvider(
+        <AuthComplete integration={mockIntegration as unknown as Integration} />
+      );
+
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
+        'You are now syncing with: Firefox on Windows'
+      );
+      expect(mockIntegration.getSupplicantMetadata).not.toHaveBeenCalled();
+    });
+
+    it('persists fetched device info to sessionStorage', async () => {
+      const fetchedInfo = {
+        deviceFamily: 'Firefox',
+        deviceOS: 'Android',
+        ipAddress: '1.2.3.4',
+      };
+      mockIntegration.getSupplicantMetadata.mockResolvedValue(fetchedInfo);
+
+      renderWithLocalizationProvider(
+        <AuthComplete integration={mockIntegration as unknown as Integration} />
+      );
+
+      await waitFor(() =>
+        expect(sessionStorage.getItem(MOCK_DEVICE_INFO_KEY)).toBe(
+          JSON.stringify(fetchedInfo)
+        )
+      );
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
+        'You are now syncing with: Firefox on Android'
+      );
     });
   });
 
