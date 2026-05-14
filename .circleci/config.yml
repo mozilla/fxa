@@ -893,6 +893,9 @@ jobs:
           environment:
             NODE_ENV: test
             MYSQL_CONFIG__HOST: 127.0.0.1
+            STRAPI_CLIENT_CONFIG__GRAPHQL_API_URI: ${STRAPI_CLIENT_GRAPHQL_API_URI}
+            STRAPI_CLIENT_CONFIG__API_KEY: ${STRAPI_CLIENT_API_KEY_PAYMENTS}
+            STRIPE_CONFIG__API_KEY: ${SUBHUB_STRIPE_APIKEY}
           no_output_timeout: 10m
       - run-playwright-tests:
           project: << parameters.project >>
