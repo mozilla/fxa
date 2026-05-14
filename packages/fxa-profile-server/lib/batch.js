@@ -40,6 +40,13 @@ function batch(request, routeFieldsMap) {
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
 
+  // Drop range/conditional headers before fanning out — internal JSON routes
+  // shouldn't honour client byte-range requests, and forwarding `range` triggers
+  // Hapi's 206 partial-content path with an empty body (FXA-13625).
+  const injectHeaders = Object.assign({}, request.headers);
+  delete injectHeaders.range;
+  delete injectHeaders['if-range'];
+
   return P.all(
     routeFieldsKeys.map((url) => {
       return request.server
@@ -47,7 +54,7 @@ function batch(request, routeFieldsMap) {
           allowInternals: true,
           method: 'get',
           url: url,
-          headers: request.headers,
+          headers: injectHeaders,
           auth: {
             credentials: request.auth.credentials,
             // As of Hapi 18: "To use the new format simply wrap the credentials and optional
