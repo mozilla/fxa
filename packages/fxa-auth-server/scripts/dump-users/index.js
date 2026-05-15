@@ -4,7 +4,7 @@
 
 'use strict';
 
-const pick = require('lodash/pick');
+const pick = (obj, keys) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
 
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   const config = require('../../config').default.getProperties();
@@ -59,32 +59,36 @@ function marshallUserRecords(userRecords) {
   return userRecords.map((userRecord) => {
     const filteredRecord = pick(
       userRecord,
-      'createdAt',
-      'devices',
-      'email',
-      'emailVerified',
-      'emails',
-      'locale',
-      'normalizedEmail',
-      'primaryEmail',
-      'profileChangedAt',
-      'uid'
+      [
+        'createdAt',
+        'devices',
+        'email',
+        'emailVerified',
+        'emails',
+        'locale',
+        'normalizedEmail',
+        'primaryEmail',
+        'profileChangedAt',
+        'uid'
+      ]
     );
 
     if (filteredRecord.devices) {
       Object.keys(filteredRecord.devices).forEach((id) => {
         filteredRecord.devices[id] = pick(
           userRecord.devices[id],
-          'callbackIsExpired',
-          'createdAt',
-          'lastAccessTime',
-          'name',
-          'type',
-          'uaBrowser',
-          'uaBrowserVersion',
-          'uaDeviceType',
-          'uaOS',
-          'uaOSVersion'
+          [
+            'callbackIsExpired',
+            'createdAt',
+            'lastAccessTime',
+            'name',
+            'type',
+            'uaBrowser',
+            'uaBrowserVersion',
+            'uaDeviceType',
+            'uaOS',
+            'uaOSVersion'
+          ]
         );
       });
     }

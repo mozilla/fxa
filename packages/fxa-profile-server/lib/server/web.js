@@ -7,7 +7,6 @@ const logger = require('../logging')('server.web');
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const cloneDeep = require('lodash/cloneDeep');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
@@ -264,7 +263,17 @@ exports.create = async function createServer() {
     .map(function (routeDefinition) {
       // create a copy of the route definition to avoid cross-unit test
       // contamination since we make local changes to the definition object.
-      const route = cloneDeep(routeDefinition);
+      // Only route.config.auth.scope is mutated, so shallow-spread those
+      // three levels rather than deep-cloning the whole object (which would
+      // fail on handler functions).
+      const auth = routeDefinition.config.auth;
+      const route = {
+        ...routeDefinition,
+        config: {
+          ...routeDefinition.config,
+          auth: auth ? { ...auth } : auth,
+        },
+      };
       var scope = route.config.auth && route.config.auth.scope;
       if (scope) {
         route.config.auth.scope =

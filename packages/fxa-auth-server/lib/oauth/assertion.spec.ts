@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const cloneDeep = require('lodash/cloneDeep');
 const util = require('util');
 
 const jwt = require('jsonwebtoken');
@@ -167,7 +166,7 @@ describe('JWT verifyAssertion', () => {
   });
 
   it('should accept JWTs with missing `amr` claim', async () => {
-    let claims: any = cloneDeep(GOOD_CLAIMS);
+    let claims: any = structuredClone(GOOD_CLAIMS);
     delete claims['fxa-amr'];
     const assertion = await makeJWT(claims);
     claims = await verifyAssertion(assertion);
@@ -184,7 +183,7 @@ describe('JWT verifyAssertion', () => {
   });
 
   it('should accept assertions with missing `aal` claim', async () => {
-    let claims: any = cloneDeep(GOOD_CLAIMS);
+    let claims: any = structuredClone(GOOD_CLAIMS);
     delete claims['fxa-aal'];
     const assertion = await makeJWT(claims);
     claims = await verifyAssertion(assertion);

@@ -16,7 +16,6 @@ import { CustomerManager, SubscriptionManager } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { ChurnInterventionService } from '@fxa/payments/management';
 import { initSubplat } from '../lib/payments/initSubplat';
-import { parseInt } from 'lodash';
 import { parseBooleanArg } from './lib/args';
 
 const DEFAULT_PLAN_LENGTH = 28;
