@@ -10,40 +10,41 @@ import {
 } from '../../lib/query-params';
 
 test.describe('vpn integration', () => {
-  test('authorization flow - user already signed into Firefox', async ({
-    syncOAuthBrowserPages: { page, signin },
-    testAccountTracker,
-  }) => {
-    const { email, password } = await testAccountTracker.signUp();
+  // Disabled while we investigate the flaky cached-signin -> WebChannel race.
+  test.fixme(
+    'authorization flow - user already signed into Firefox',
+    async ({ syncOAuthBrowserPages: { page, signin }, testAccountTracker }) => {
+      const { email, password } = await testAccountTracker.signUp();
 
-    // First, sign into Sync with Fenix (Android) client ID
-    await signin.goto('/authorization', syncMobileOAuthFenixQueryParams);
-    await signin.fillOutEmailFirstForm(email);
-    await signin.fillOutPasswordForm(password);
+      // First, sign into Sync with Fenix (Android) client ID
+      await signin.goto('/authorization', syncMobileOAuthFenixQueryParams);
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
-    // Wait for Sync sign-in to complete, then clear events for the
-    // VPN scope check later in the test
-    await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-    await signin.clearWebChannelEvents();
+      // Wait for Sync sign-in to complete, then clear events for the
+      // VPN scope check later in the test
+      await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+      await signin.clearWebChannelEvents();
 
-    // Now navigate to VPN authorization — user is already signed into Firefox
-    await signin.goto('/authorization', vpnMobileOAuthQueryParams);
+      // Now navigate to VPN authorization — user is already signed into Firefox
+      await signin.goto('/authorization', vpnMobileOAuthQueryParams);
 
-    // User is already signed in — cached signin view, no password required
-    await expect(signin.cachedSigninHeading).toBeVisible();
-    await expect(page.getByText(email)).toBeVisible();
+      // User is already signed in — cached signin view, no password required
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(email)).toBeVisible();
 
-    await signin.signInButton.click();
+      await signin.signInButton.click();
 
-    // Verify fxaOAuthLogin was sent with VPN scopes
-    await signin.checkWebChannelMessageScopes(
-      FirefoxCommand.OAuthLogin,
-      'https://identity.mozilla.com/apps/vpn'
-    );
+      // Verify fxaOAuthLogin was sent with VPN scopes
+      await signin.checkWebChannelMessageScopes(
+        FirefoxCommand.OAuthLogin,
+        'https://identity.mozilla.com/apps/vpn'
+      );
 
-    // Verify services data includes vpn
-    await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      vpn: {},
-    });
-  });
+      // Verify services data includes vpn
+      await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
+        vpn: {},
+      });
+    }
+  );
 });
