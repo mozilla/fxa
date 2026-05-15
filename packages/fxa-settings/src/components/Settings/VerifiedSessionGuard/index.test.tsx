@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { screen, act } from '@testing-library/react';
 import {
   mockAppContext,
@@ -70,7 +69,10 @@ it('calls onError when session status check is rate limited', async () => {
             session: mockSession(false),
             authClient: {
               sessionStatus: () => {
-                const err = Object.assign(new Error("You've tried too many times. Try again later."), { errno: 114 });
+                const err = Object.assign(
+                  new Error("You've tried too many times. Try again later."),
+                  { errno: 114 }
+                );
                 throw err;
               },
             } as unknown as AuthClient,

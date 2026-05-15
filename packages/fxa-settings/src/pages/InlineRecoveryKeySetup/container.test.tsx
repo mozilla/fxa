@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { render } from '@testing-library/react';
-import React from 'react';
 import InlineRecoveryKeySetupContainer from './container';
 import * as InlineRecoveryKeySetupModule from '.';
 import * as ModelsModule from '../../models';

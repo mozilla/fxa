@@ -5,7 +5,6 @@
 import 'mutationobserver-shim';
 import { act, screen } from '@testing-library/react';
 import { renderWithRouter, mockAppContext } from '../../../models/mocks';
-import React from 'react';
 import PageRecentActivity from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_SECURITY_EVENTS } from './mocks';

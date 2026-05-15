@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FormPhoneNumber from '.';
@@ -12,12 +11,13 @@ const mockSubmit = jest.fn();
 
 describe('FormPhoneNumber', () => {
   async function render() {
-      await act(() => {renderWithLocalizationProvider(
+    await act(() => {
+      renderWithLocalizationProvider(
         <FormPhoneNumber
           localizedCTAText="Send code"
           submitPhoneNumber={mockSubmit}
         />
-      )
+      );
     });
   }
 

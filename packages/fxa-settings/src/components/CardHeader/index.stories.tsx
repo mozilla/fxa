@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { ComponentProps } from 'react';
 import CardHeader from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
@@ -23,7 +23,7 @@ export default {
 } as Meta;
 
 const storyWithProps = (
-  props: React.ComponentProps<typeof CardHeader>,
+  props: ComponentProps<typeof CardHeader>,
   storyName?: string
 ) => {
   const story = () => (

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import SigninRecoveryChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -41,7 +40,7 @@ export const DefaultWithCms = () => (
       lastFourPhoneDigits="1234"
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
-      integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO})}
+      integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })}
     />
   </LocationProvider>
 );

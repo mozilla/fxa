@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SETTINGS_PATH } from '../../../constants';
 import {

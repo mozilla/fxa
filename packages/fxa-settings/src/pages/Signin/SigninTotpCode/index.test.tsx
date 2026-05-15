@@ -4,7 +4,6 @@
 
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';

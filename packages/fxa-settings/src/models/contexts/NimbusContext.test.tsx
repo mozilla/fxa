@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { NimbusProvider, useNimbusContext } from './NimbusContext';
 import { AppContext, AppContextValue } from './AppContext';
@@ -16,17 +15,27 @@ jest.mock('../../lib/nimbus');
 jest.mock('@sentry/react');
 jest.mock('../../lib/hooks/useLocalStorageSync');
 
-const mockUseDynamicLocalization = useDynamicLocalization as jest.MockedFunction<typeof useDynamicLocalization>;
-const mockInitializeNimbus = initializeNimbus as jest.MockedFunction<typeof initializeNimbus>;
-const mockSentryCaptureException = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>;
-const mockUseLocalStorageSync = useLocalStorageSync as jest.MockedFunction<typeof useLocalStorageSync>;
+const mockUseDynamicLocalization =
+  useDynamicLocalization as jest.MockedFunction<typeof useDynamicLocalization>;
+const mockInitializeNimbus = initializeNimbus as jest.MockedFunction<
+  typeof initializeNimbus
+>;
+const mockSentryCaptureException =
+  Sentry.captureException as jest.MockedFunction<
+    typeof Sentry.captureException
+  >;
+const mockUseLocalStorageSync = useLocalStorageSync as jest.MockedFunction<
+  typeof useLocalStorageSync
+>;
 
 const TestComponent = () => {
   const { experiments, loading, error } = useNimbusContext();
   return (
     <div>
       <div data-testid="loading">{loading.toString()}</div>
-      <div data-testid="experiments">{experiments ? 'has-experiments' : 'no-experiments'}</div>
+      <div data-testid="experiments">
+        {experiments ? 'has-experiments' : 'no-experiments'}
+      </div>
       <div data-testid="error">{error ? error.message : 'no-error'}</div>
     </div>
   );
@@ -34,12 +43,14 @@ const TestComponent = () => {
 
 const mockAppContext = {
   config: {
-    nimbus: { enabled: true, preview: false }
+    nimbus: { enabled: true, preview: false },
   } as AppContextValue['config'],
-  uniqueUserId: 'test-user-id'
+  uniqueUserId: 'test-user-id',
 } as Partial<AppContextValue>;
 
-const renderWithProviders = (appContext: Partial<AppContextValue> = mockAppContext) => {
+const renderWithProviders = (
+  appContext: Partial<AppContextValue> = mockAppContext
+) => {
   return render(
     <AppContext.Provider value={appContext as AppContextValue}>
       <NimbusProvider>
@@ -56,7 +67,7 @@ describe('NimbusContext', () => {
       currentLocale: 'en-US',
       switchLanguage: jest.fn(),
       clearLanguagePreference: jest.fn(),
-      isLoading: false
+      isLoading: false,
     });
     // Mock useLocalStorageSync to return undefined by default (no account)
     mockUseLocalStorageSync.mockImplementation((key: string) => {
@@ -70,7 +81,7 @@ describe('NimbusContext', () => {
     });
     Object.defineProperty(window, 'location', {
       value: { search: '' },
-      writable: true
+      writable: true,
     });
   });
 
@@ -79,7 +90,9 @@ describe('NimbusContext', () => {
       render(<TestComponent />);
 
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
-      expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'no-experiments'
+      );
       expect(screen.getByTestId('error')).toHaveTextContent('no-error');
     });
   });
@@ -90,7 +103,9 @@ describe('NimbusContext', () => {
 
       expect(() => {
         render(
-          <AppContext.Provider value={{ uniqueUserId: 'test' } as AppContextValue}>
+          <AppContext.Provider
+            value={{ uniqueUserId: 'test' } as AppContextValue}
+          >
             <NimbusProvider>
               <TestComponent />
             </NimbusProvider>
@@ -104,7 +119,9 @@ describe('NimbusContext', () => {
     it('does not fetch when nimbus is disabled', async () => {
       const disabledConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        config: { nimbus: { enabled: false, preview: false } } as AppContextValue['config']
+        config: {
+          nimbus: { enabled: false, preview: false },
+        } as AppContextValue['config'],
       };
 
       renderWithProviders(disabledConfig);
@@ -116,7 +133,7 @@ describe('NimbusContext', () => {
     it('does not fetch when uniqueUserId is missing', async () => {
       const noUserIdConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        uniqueUserId: undefined
+        uniqueUserId: undefined,
       };
 
       renderWithProviders(noUserIdConfig);
@@ -129,7 +146,8 @@ describe('NimbusContext', () => {
       const accountUid = 'test-account-uid';
       mockUseLocalStorageSync.mockImplementation((key: string) => {
         if (key === 'currentAccountUid') return accountUid;
-        if (key === 'accounts') return { [accountUid]: { metricsEnabled: false } };
+        if (key === 'accounts')
+          return { [accountUid]: { metricsEnabled: false } };
         return undefined;
       });
 
@@ -138,19 +156,22 @@ describe('NimbusContext', () => {
       await waitFor(() => {
         expect(mockInitializeNimbus).not.toHaveBeenCalled();
       });
-      expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'no-experiments'
+      );
     });
 
     it('fetches when metrics are enabled via localStorage', async () => {
       const accountUid = 'test-account-uid';
       mockUseLocalStorageSync.mockImplementation((key: string) => {
         if (key === 'currentAccountUid') return accountUid;
-        if (key === 'accounts') return { [accountUid]: { metricsEnabled: true } };
+        if (key === 'accounts')
+          return { [accountUid]: { metricsEnabled: true } };
         return undefined;
       });
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
-        nimbusUserId: 'test-user-id'
+        nimbusUserId: 'test-user-id',
       });
 
       renderWithProviders();
@@ -158,39 +179,44 @@ describe('NimbusContext', () => {
       await waitFor(() => {
         expect(mockInitializeNimbus).toHaveBeenCalled();
       });
-      expect(screen.getByTestId('experiments')).toHaveTextContent('has-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'has-experiments'
+      );
     });
 
     it('fetches experiments successfully', async () => {
       const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
-        nimbusUserId: 'test-user-id'
+        nimbusUserId: 'test-user-id',
       };
       mockInitializeNimbus.mockResolvedValue(mockExperiments);
 
       renderWithProviders();
 
-      expect(mockInitializeNimbus).toHaveBeenCalledWith(
-        'test-user-id',
-        false,
-        { language: 'en', region: 'us' }
-      );
+      expect(mockInitializeNimbus).toHaveBeenCalledWith('test-user-id', false, {
+        language: 'en',
+        region: 'us',
+      });
 
       await screen.findByTestId('experiments');
-      expect(screen.getByTestId('experiments')).toHaveTextContent('has-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'has-experiments'
+      );
     });
 
     it('handles API response with lowercase features', async () => {
       const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
-        nimbusUserId: 'test-user-id'
+        nimbusUserId: 'test-user-id',
       };
       mockInitializeNimbus.mockResolvedValue(mockExperiments);
 
       renderWithProviders();
 
       await screen.findByTestId('experiments');
-      expect(screen.getByTestId('experiments')).toHaveTextContent('has-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'has-experiments'
+      );
     });
 
     it('handles null response', async () => {
@@ -199,7 +225,9 @@ describe('NimbusContext', () => {
       renderWithProviders();
 
       await screen.findByTestId('experiments');
-      expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent(
+        'no-experiments'
+      );
     });
 
     it('handles fetch error without duplicate error handling', async () => {
@@ -216,7 +244,9 @@ describe('NimbusContext', () => {
     it('handles preview mode from config', async () => {
       const previewConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        config: { nimbus: { enabled: true, preview: true } } as AppContextValue['config']
+        config: {
+          nimbus: { enabled: true, preview: true },
+        } as AppContextValue['config'],
       };
 
       renderWithProviders(previewConfig);
@@ -233,7 +263,7 @@ describe('NimbusContext', () => {
     it('handles preview mode from URL params', async () => {
       Object.defineProperty(window, 'location', {
         value: { search: '?nimbusPreview=true' },
-        writable: true
+        writable: true,
       });
 
       renderWithProviders();
@@ -250,7 +280,7 @@ describe('NimbusContext', () => {
     it('cleans up on unmount', async () => {
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
-        nimbusUserId: 'test-user-id'
+        nimbusUserId: 'test-user-id',
       });
 
       const { unmount } = renderWithProviders();

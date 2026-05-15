@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import SigninRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
-import { createMockSigninWebIntegration, mockSigninLocationState } from '../mocks';
+import {
+  createMockSigninWebIntegration,
+  mockSigninLocationState,
+} from '../mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 
 describe('SigninRecoveryPhone', () => {

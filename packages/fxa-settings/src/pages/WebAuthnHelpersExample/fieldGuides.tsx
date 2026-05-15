@@ -10,8 +10,6 @@
  *   JsonResponseGuide — response field descriptions, shown in JSON mode after a call
  */
 
-import React from 'react';
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type FieldSpec = {
