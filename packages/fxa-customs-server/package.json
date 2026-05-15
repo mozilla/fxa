@@ -29,6 +29,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^4.3.1",
     "@hapi/hapi": "^20.2.1",
+    "@hapi/hawk": "^7.1.2",
     "@hapi/hoek": "^11.0.2",
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.15",
@@ -39,8 +40,7 @@
     "deep-equal": "2.2.0",
     "hapi-swagger": "^17.3.0",
     "hot-shots": "^10.2.1",
-    "ip": "^2.0.1",
-    "ip-reputation-js-client": "^6.0.4"
+    "ip": "^2.0.1"
   },
   "devDependencies": {
     "@types/dedent": "^0",
