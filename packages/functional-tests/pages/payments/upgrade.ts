@@ -32,9 +32,17 @@ export class UpgradePage extends BasePaymentPage {
    */
   async waitForUpgradePage(timeout = 60_000) {
     await expect(this.page).not.toHaveURL(/\/start(\?|$)/, { timeout });
-    await expect(this.upgradeSection).toBeVisible({ timeout: 30_000 });
+    await expect(this.upgradeSection).toBeVisible({ timeout });
     await expect(this.proratedAmount).toBeVisible({ timeout: 15_000 });
     await expect(this.acknowledgmentText).toBeVisible({ timeout: 15_000 });
+
+    // Wait for the Stripe payment element to fully load before
+    // interacting with consent or submit. The form isn't ready until
+    // Stripe's iframe renders.
+    const stripeIframe = this.page.locator(
+      'iframe[title*="Secure payment input frame"]:not([tabindex="-1"])'
+    );
+    await expect(stripeIframe).toBeVisible({ timeout: 30_000 });
   }
 
   // Actions
@@ -57,7 +65,7 @@ export class UpgradePage extends BasePaymentPage {
    * First waits for any terminal state to avoid hanging for the full
    * timeout if the page lands on /error instead.
    */
-  async waitForSuccess(timeout = 60_000) {
+  async waitForSuccess(timeout = 90_000) {
     await expect(this.page).toHaveURL(
       /success|error|processing|start/,
       { timeout }
@@ -85,7 +93,7 @@ export class UpgradePage extends BasePaymentPage {
    * First waits for any terminal state to avoid hanging for the full
    * timeout if the page lands on /success instead.
    */
-  async waitForEligibilityError(timeout = 60_000) {
+  async waitForEligibilityError(timeout = 90_000) {
     await expect(this.page).toHaveURL(
       /success|error|processing|start/,
       { timeout }

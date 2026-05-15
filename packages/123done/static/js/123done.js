@@ -41,6 +41,8 @@ $(document).ready(function () {
       'sp3-6m': '123donepro/halfyearly/landing',
       'sp3-12m': '123donepro/yearly/landing',
       'sp3-1m-gb': 'en-GB/123donepro/monthly/landing',
+      'sp3-plus-daily': '123doneproplus/daily/landing',
+      'sp3-plus-1m': '123doneproplus/monthly/landing',
     },
   };
 

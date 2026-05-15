@@ -79,7 +79,7 @@ test.describe('severity-1 #smoke', () => {
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
-    await relier.clickSubscribeMonthly();
+    await relier.clickSubscribePlusMonthly();
 
     await checkout.handleLocationIfNeeded();
 

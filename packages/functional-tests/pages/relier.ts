@@ -111,6 +111,26 @@ export class RelierPage extends BaseLayout {
     );
   }
 
+  // Uses 123doneproplus offering (no free trial) to test that subscription
+  // appears under "Active subscriptions" on the manage page
+  async clickSubscribePlusMonthly() {
+    await this.page
+      .getByRole('link', { name: 'SP3 - Sub to Pro Plus 1m', exact: true })
+      .click();
+    await this.page.waitForURL(
+      (url) => !url.href.includes(this.target.relierUrl)
+    );
+  }
+
+  async clickSubscribePlusDaily() {
+    await this.page
+      .getByRole('link', { name: 'SP3 - Sub to Pro Plus Daily', exact: true })
+      .click();
+    await this.page.waitForURL(
+      (url) => !url.href.includes(this.target.relierUrl)
+    );
+  }
+
   async clickRequire2FA() {
     await this.page.getByText('Sign In (Require 2FA)').click();
     return this.page.waitForURL(`${this.target.contentServerUrl}/**`);

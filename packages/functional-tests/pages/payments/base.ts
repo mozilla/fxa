@@ -67,11 +67,11 @@ export class BasePaymentPage {
    */
   async waitForSubscriptionProvisioned() {
     await expect(this.successActionButton).toBeVisible({ timeout: 10_000 });
-    // Brief buffer for Stripe webhook to deliver and the server to
-    // persist the subscription. 5s is conservative; webhooks typically
-    // arrive within 1-2s in test environments.
+    // Buffer for Stripe webhook to deliver and the server to persist
+    // the subscription. 10s accounts for CI environments under load
+    // where webhook delivery can be slower.
     // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(5_000);
+    await this.page.waitForTimeout(10_000);
   }
 
   /**

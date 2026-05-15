@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect } from '@playwright/test';
-import { TestCardDefaults } from '../../lib/stripe-test-cards';
+import { TestCardDefaults, StripeTestCards } from '../../lib/stripe-test-cards';
 import { BasePaymentPage } from './base';
+import type { SigninPage } from '../signin';
 
 export class CheckoutPage extends BasePaymentPage {
 
@@ -185,7 +186,10 @@ export class CheckoutPage extends BasePaymentPage {
     locator: ReturnType<typeof this.stripeFrame.locator>,
     value: string
   ) {
-    await locator.click();
+    // Triple-click to select all existing text, then type to replace.
+    // Stripe may auto-fill postal code from geolocation. Stripe iframes
+    // use custom elements where fill('') may not work.
+    await locator.click({ clickCount: 3 });
     await locator.pressSequentially(value, { delay: 50 });
   }
 
@@ -359,5 +363,38 @@ export class CheckoutPage extends BasePaymentPage {
     // Wait for the 3DS completion to propagate — the page should
     // navigate away from /needs_input to /success or /error.
     await expect(this.page).not.toHaveURL(/needs_input/, { timeout: 60_000 });
+  }
+
+  /**
+   * Complete the full checkout flow: sign in, fill card, submit, and
+   * wait for provisioning. Use this in tests that need an active
+   * subscription as a precondition (upgrade, manage, cancel).
+   */
+  async completeCheckoutAs(
+    signin: SigninPage,
+    credentials: { email: string; password: string },
+    card = StripeTestCards.SUCCESS
+  ) {
+    await this.handleLocationIfNeeded();
+
+    await this.emailInput.fill(credentials.email);
+    await this.signInContinueButton.click();
+
+    await expect(this.page).toHaveURL(
+      new RegExp(this.target.contentServerUrl),
+      { timeout: 60_000 }
+    );
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await this.waitForPaymentReady();
+
+    await this.waitForStripeReady();
+    await this.checkConsent();
+    await this.fillCard(card);
+    await this.submit();
+
+    await this.waitForSuccess();
+    await expect(this.successHeading).toBeVisible({ timeout: 10_000 });
+    await this.waitForSubscriptionProvisioned();
   }
 }
