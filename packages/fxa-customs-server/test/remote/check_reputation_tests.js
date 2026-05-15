@@ -42,7 +42,7 @@ var repJSClientConfig = {
   key: 'toor',
   timeout: 25,
 };
-var ipr = require('ip-reputation-js-client');
+var ipr = require('../../lib/ipReputationClient');
 var repJSClient = new ipr(repJSClientConfig);
 
 var testServer = new TestServer(config);
