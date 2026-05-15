@@ -43,6 +43,7 @@ import {
   captureDiagnostics,
   verifyPairChoiceScreen,
   isPairRoutesReact,
+  waitForUrlContaining,
 } from '../../lib/pairing-helpers';
 
 async function approveAuthorityPairing(
@@ -76,6 +77,17 @@ async function approveAuthorityPairing(
     SELECTORS.AUTHORITY_APPROVE
   );
   await client.clickElement(approveBtn);
+
+  // Wait for the authority to navigate to wait_for_supp. This confirms that
+  // pairAuthorize has been dispatched via WebChannel and Firefox has sent
+  // pair:auth:authorize to the channel server. Without this wait, the
+  // supplicant may click Confirm before the channel message arrives, causing
+  // the flow to stall in WaitingForAuthority longer than the timeout allows.
+  await waitForUrlContaining(
+    client,
+    'pair/auth/wait_for_supp',
+    TIMEOUTS.AUTHORITY_COMPLETE
+  );
 }
 
 // Increase timeout — pairing involves launching a separate Firefox + channel negotiation
