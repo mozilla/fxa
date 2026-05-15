@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import zendesk from 'node-zendesk';
 
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
@@ -14,7 +13,6 @@ import { paypalNotificationRoutes } from './paypal-notifications';
 import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
-import { supportRoutes } from './support';
 import { buildTaxAddress, handleAuth } from './utils';
 
 export const createRoutes = (
@@ -25,8 +23,7 @@ export const createRoutes = (
   push: any,
   mailer: any,
   profile: any,
-  stripeHelper: StripeHelper,
-  zendeskClient: zendesk.Client
+  stripeHelper: StripeHelper
 ) => {
   const routes: ServerRoute[] = [];
 
@@ -60,7 +57,6 @@ export const createRoutes = (
         stripeHelper
       )
     );
-    routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
     routes.push(
       ...mozillaSubscriptionRoutes({ log, db, config, customs, stripeHelper })
     );

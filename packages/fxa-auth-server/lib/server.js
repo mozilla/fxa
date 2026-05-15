@@ -497,14 +497,6 @@ async function create(
   );
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
 
-  server.auth.scheme(
-    'supportSecret',
-    sharedSecretAuth.strategy(`Bearer ${config.support.secretBearerToken}`, {
-      throwOnFailure: false,
-    })
-  );
-  server.auth.strategy('supportSecret', 'supportSecret');
-
   server.auth.strategy('pubsub', 'jwt', pubsubAuth.strategy(config));
 
   server.auth.scheme(
