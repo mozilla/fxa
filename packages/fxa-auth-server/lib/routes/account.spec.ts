@@ -4235,6 +4235,37 @@ describe('/account/destroy', () => {
     expect(glean.account.deleteComplete).not.toHaveBeenCalled();
   });
 
+  it('should surface ACCOUNT_UNKNOWN and skip deletion when checkPassword races a concurrent destroy', async () => {
+    // Reproduce FXA-11660: the row is deleted by a concurrent /account/destroy
+    // between accountRecord() and checkPassword(). DB.checkPassword translates
+    // the resulting notFound into ACCOUNT_UNKNOWN; the route must propagate it
+    // without enqueueing follow-up work or claiming success.
+    const accountRoutes = makeRoutes({
+      checkPassword: () => Promise.reject(error.unknownAccount()),
+      config: {
+        subscriptions: { enabled: true, paypalNvpSigCredentials: { enabled: true } },
+        accountDestroy: { requireVerifiedAccount: false },
+        domain: 'wibble',
+      },
+      db: mockDB,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      customs: mockCustoms,
+    });
+    const route = getRoute(accountRoutes, '/account/destroy');
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_UNKNOWN,
+      output: { statusCode: 400 },
+    });
+
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockAccountQuickDelete).not.toHaveBeenCalled();
+    expect(mockAccountTasksDeleteAccount).not.toHaveBeenCalled();
+    expect(glean.account.deleteComplete).not.toHaveBeenCalled();
+  });
+
   it('should delete the passwordless account', () => {
     mockDB = { ...mocks.mockDB({ email, uid, verifierSetAt: 0 }) };
     mockRequest = mocks.mockRequest({
