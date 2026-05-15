@@ -233,7 +233,10 @@ describe('/recovery_phone', () => {
         '/recovery_phone/signin/send_code',
         'POST'
       );
-      expect(route.options.auth.strategy).toBe('sessionToken');
+      expect(route.options.auth.strategies).toEqual([
+        'sessionTokenBearer',
+        'sessionToken',
+      ]);
     });
   });
 
@@ -374,7 +377,10 @@ describe('/recovery_phone', () => {
         '/recovery_phone/reset_password/send_code',
         'POST'
       );
-      expect(route.options.auth.strategy).toBe('passwordForgotToken');
+      expect(route.options.auth.strategies).toEqual([
+        'passwordForgotTokenBearer',
+        'passwordForgotToken',
+      ]);
     });
   });
 
@@ -546,7 +552,10 @@ describe('/recovery_phone', () => {
 
     it('requires verified session authorization', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
-      expect(route.options.auth.strategy).toBe('verifiedSessionToken');
+      expect(route.options.auth.strategies).toEqual([
+        'verifiedSessionTokenBearer',
+        'verifiedSessionToken',
+      ]);
     });
   });
 

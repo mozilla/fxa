@@ -292,5 +292,45 @@ describe.each(testVersions)(
       });
       expect(res.statusCode).toBe(200);
     });
+
+    // Proves the `['sessionTokenBearer', 'sessionToken']` multi-strategy chain
+    // works end-to-end against a real Hapi server: a Bearer header authenticates
+    // on the first strategy, and a Hawk header falls through Bearer (which
+    // returns Boom on a non-matching prefix) and authenticates on the second.
+    describe('Bearer + Hawk multi-strategy fallthrough', () => {
+      it('accepts Bearer fxs_<id> on a sessionToken route', async () => {
+        const client = await Client.createAndVerify(
+          server.publicUrl,
+          server.uniqueEmail(),
+          'allyourbasearebelongtous',
+          server.mailbox,
+          testOptions
+        );
+        const token = await client.api.Token.SessionToken.fromHex(
+          client.sessionToken
+        );
+        const res = await httpGet(`${client.api.baseURL}/account/devices`, {
+          headers: { Authorization: `Bearer fxs_${token.id}` },
+        });
+        expect(res.statusCode).toBe(200);
+      });
+
+      it('accepts Hawk on the same sessionToken route (falls through Bearer)', async () => {
+        const client = await Client.createAndVerify(
+          server.publicUrl,
+          server.uniqueEmail(),
+          'allyourbasearebelongtous',
+          server.mailbox,
+          testOptions
+        );
+        const token = await client.api.Token.SessionToken.fromHex(
+          client.sessionToken
+        );
+        const res = await httpGet(`${client.api.baseURL}/account/devices`, {
+          headers: { Authorization: `Hawk id="${token.id}"` },
+        });
+        expect(res.statusCode).toBe(200);
+      });
+    });
   }
 );

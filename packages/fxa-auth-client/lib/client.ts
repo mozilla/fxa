@@ -4,13 +4,13 @@
 
 import * as crypto from './crypto';
 import { Credentials } from './crypto';
-import * as hawk from './hawk';
+import { deriveTokenCredentials } from './hawk';
+import { bearerHeader, BearerTokenKind } from './bearer';
 import { SaltVersion, createSaltV2 } from './salt';
 import * as Sentry from '@sentry/browser';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 enum ERRORS {
-  INVALID_TIMESTAMP = 111,
   INCORRECT_EMAIL_CASE = 120,
 }
 
@@ -336,7 +336,6 @@ export type AuthClientOptions = {
 export default class AuthClient {
   static VERSION = 'v1';
   private uri: string;
-  private localtimeOffsetMsec: number;
   private timeout: number;
   private keyStretchVersion: SaltVersion;
   private requireHeaders: boolean;
@@ -357,7 +356,6 @@ export default class AuthClient {
       this.uri = `${authServerUri}/${AuthClient.VERSION}`;
     }
     this.keyStretchVersion = options.keyStretchVersion || 1;
-    this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
     this.requireHeaders = options.requireHeaders === true;
     this.errorHandler =
@@ -444,11 +442,11 @@ export default class AuthClient {
     }
   }
 
-  private async hawkRequest(
+  private async authedRequest(
     method: string,
     path: string,
     token: hexstring,
-    kind: tokenType,
+    kind: BearerTokenKind,
     payload: object | null,
     extraHeaders: Headers | undefined
   ) {
@@ -461,29 +459,11 @@ export default class AuthClient {
       }
     }
 
-    const makeHeaders = async () => {
-      const headers = await hawk.header(method, this.url(path), token, kind, {
-        payload: cleanStringify(payload),
-        contentType: 'application/json',
-        localtimeOffsetMsec: this.localtimeOffsetMsec,
-      });
-      if (extraHeaders) {
-        for (const [name, value] of extraHeaders) {
-          headers.set(name, value);
-        }
-      }
-      return headers;
-    };
-    try {
-      return await this.request(method, path, payload, await makeHeaders());
-    } catch (e: any) {
-      if (e.errno === ERRORS.INVALID_TIMESTAMP) {
-        const serverTime = e.serverTime * 1000 || Date.now();
-        this.localtimeOffsetMsec = serverTime - Date.now();
-        return this.request(method, path, payload, await makeHeaders());
-      }
-      throw e;
+    const headers = await bearerHeader(token, kind);
+    for (const [name, value] of extraHeaders) {
+      headers.set(name, value);
     }
+    return this.request(method, path, payload, headers);
   }
 
   private async sessionGet(
@@ -491,7 +471,7 @@ export default class AuthClient {
     sessionToken: hexstring,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       path,
       sessionToken,
@@ -577,7 +557,7 @@ export default class AuthClient {
     payload: object,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       path,
       sessionToken,
@@ -593,7 +573,7 @@ export default class AuthClient {
     payload: object,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'PUT',
       path,
       sessionToken,
@@ -609,7 +589,7 @@ export default class AuthClient {
     payload: object,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'DELETE',
       path,
       sessionToken,
@@ -973,7 +953,7 @@ export default class AuthClient {
       email,
       ...payloadOptions(options),
     };
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/password/forgot/resend_code',
       passwordForgotToken,
@@ -996,7 +976,7 @@ export default class AuthClient {
       code,
       ...options,
     };
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/password/forgot/verify_code',
       passwordForgotToken,
@@ -1007,7 +987,7 @@ export default class AuthClient {
   }
 
   async passwordForgotStatus(passwordForgotToken: string, headers?: Headers) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
@@ -1021,7 +1001,7 @@ export default class AuthClient {
     passwordForgotToken: hexstring,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/recoveryKey/exists',
       passwordForgotToken,
@@ -1061,7 +1041,7 @@ export default class AuthClient {
       ...v2Payload,
       ...payloadOptions(options),
     };
-    const accountData = await this.hawkRequest(
+    const accountData = await this.authedRequest(
       'POST',
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
@@ -1100,7 +1080,7 @@ export default class AuthClient {
       ...v2Payload,
       ...payloadOptions(options),
     };
-    return await this.hawkRequest(
+    return await this.authedRequest(
       'POST',
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
@@ -1230,11 +1210,11 @@ export default class AuthClient {
     kA: hexstring;
     kB: hexstring;
   }> {
-    const credentials = await hawk.deriveHawkCredentials(
+    const credentials = await deriveTokenCredentials(
       keyFetchToken,
       'keyFetchToken'
     );
-    const keyData = await this.hawkRequest(
+    const keyData = await this.authedRequest(
       'GET',
       '/account/keys',
       keyFetchToken,
@@ -1253,11 +1233,11 @@ export default class AuthClient {
   }
 
   async wrappedAccountKeys(keyFetchToken: hexstring, headers?: Headers) {
-    const credentials = await hawk.deriveHawkCredentials(
+    const credentials = await deriveTokenCredentials(
       keyFetchToken,
       'keyFetchToken'
     );
-    const keyData = await this.hawkRequest(
+    const keyData = await this.authedRequest(
       'GET',
       '/account/keys',
       keyFetchToken,
@@ -1590,7 +1570,7 @@ export default class AuthClient {
     );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
-    const { id: sessionTokenId } = await hawk.deriveHawkCredentials(
+    const { id: sessionTokenId } = await deriveTokenCredentials(
       sessionToken,
       'sessionToken'
     );
@@ -1744,7 +1724,7 @@ export default class AuthClient {
     options: { keys?: boolean },
     headers?: Headers
   ) {
-    const response = await this.hawkRequest(
+    const response = await this.authedRequest(
       'POST',
       pathWithKeys('/password/change/finish', options.keys),
       passwordChangeToken,
@@ -2603,7 +2583,7 @@ export default class AuthClient {
     token: hexstring,
     headers?: Headers
   ): Promise<{ exists: boolean; verified: boolean }> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       '/totp/exists',
       token,
@@ -2618,7 +2598,7 @@ export default class AuthClient {
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/totp/verify',
       token,
@@ -2633,7 +2613,7 @@ export default class AuthClient {
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/totp/verify/recoveryCode',
       token,
@@ -2749,7 +2729,7 @@ export default class AuthClient {
     passwordForgotToken: hexstring,
     headers?: Headers
   ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       '/recoveryCodes/exists',
       passwordForgotToken,
@@ -2841,7 +2821,7 @@ export default class AuthClient {
     recoveryKeyId: string,
     headers?: Headers
   ): Promise<RecoveryKeyData> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       `/recoveryKey/${recoveryKeyId}`,
       accountResetToken,
@@ -2912,7 +2892,7 @@ export default class AuthClient {
       recoveryKeyId,
       isFirefoxMobileClient: options.isFirefoxMobileClient,
     };
-    const accountData = await this.hawkRequest(
+    const accountData = await this.authedRequest(
       'POST',
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
@@ -2931,7 +2911,7 @@ export default class AuthClient {
    * @deprecated Use deleteRecoveryKeyWithJwt instead
    */
   async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'DELETE',
       '/recoveryKey',
       sessionToken,
@@ -3300,7 +3280,7 @@ export default class AuthClient {
     passwordForgotToken: string,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/recovery_phone/reset_password/send_code',
       passwordForgotToken,
@@ -3323,7 +3303,7 @@ export default class AuthClient {
     code: string,
     headers?: Headers
   ) {
-    return this.hawkRequest(
+    return this.authedRequest(
       'POST',
       '/recovery_phone/reset_password/confirm',
       passwordForgotToken,
@@ -3374,7 +3354,7 @@ export default class AuthClient {
     phoneNumber?: string;
     nationalFormat?: string;
   }> {
-    return this.hawkRequest(
+    return this.authedRequest(
       'GET',
       '/recovery_phone',
       passwordForgotToken,

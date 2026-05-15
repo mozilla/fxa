@@ -436,7 +436,10 @@ describe('/account/attached_client/destroy', () => {
       accountRoutes,
       '/account/attached_client/destroy'
     );
-    expect(routeConfig.options.auth.strategy).toBe('verifiedSessionToken');
+    expect(routeConfig.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+    ]);
   });
 
   it('can destroy by deviceId', async () => {

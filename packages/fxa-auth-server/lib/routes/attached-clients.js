@@ -25,7 +25,7 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENTS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           query: isA.object({
@@ -122,7 +122,7 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA
@@ -178,7 +178,7 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENT_DESTROY_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {

@@ -71,21 +71,64 @@ function parseAuthorizationHeader(header, keys) {
   return attributes;
 }
 
+function requireOptions(options) {
+  if (!options || typeof options !== 'object') {
+    throw new Error('hawk-fxa-token: options object is required');
+  }
+  if (typeof options.throwOnFailure !== 'boolean') {
+    throw new Error(
+      'hawk-fxa-token: options.throwOnFailure (boolean) is required'
+    );
+  }
+  if (!options.statsd) {
+    throw new Error('hawk-fxa-token: options.statsd is required');
+  }
+  if (!options.kind) {
+    throw new Error('hawk-fxa-token: options.kind is required');
+  }
+}
+
 /**
- * This function defines the authentication strategy for `hawk-fxa-token`.
- * This auth strategy supports Hawk token and FxA token (Session, KeyFetch, PasswordForgotToken) for authentication as a Bearer token.
- * This strategy will be used to slowly phase out the usage of Hawk tokens, see https://github.com/mozilla/fxa/blob/main/docs/adr/0022-deprecate-hawk.md
- * @param {Function} getCredentialsFunc - The function to get the credentials.
- * @returns {Function}
+ * Authentication strategy for Hawk-shaped FxA token headers. Verifies the
+ * scheme is `Hawk`, parses the `id=`, and looks up the credential.
+ *
+ * All three options are required (no implicit defaults) so callers decide
+ * explicitly per registration:
+ *   - `throwOnFailure` — true for single-strategy routes, false for
+ *     multi-strategy chains where Hapi must fall through to the next.
+ *   - `statsd` + `kind` — drive the
+ *     `auth.strategy.used{scheme=hawk,kind=<kind>}` metric that tracks the
+ *     Hawk -> Bearer migration; required so a registration cannot silently
+ *     disappear from the dashboard.
+ *
+ * All failure modes carry `errno=110` ("Token not found") so a final 401
+ * in a multi-strategy chain matches the single-strategy response shape.
+ *
+ * @param {Function} getCredentialsFunc - id lookup, returns token or null
+ * @param {{ throwOnFailure: boolean, statsd: object, kind: string }} options
  */
-function strategy(
-  getCredentialsFunc,
-  authStrategyOptions = { throwOnFailure: true }
-) {
+function strategy(getCredentialsFunc, options) {
+  requireOptions(options);
+  const { throwOnFailure, statsd, kind } = options;
+
   const tokenNotFoundError = () => {
     const error = AppError.unauthorized('Token not found');
     error.isMissing = true;
     return error;
+  };
+
+  // Single-strategy routes throw to short-circuit; multi-strategy chains
+  // return so Hapi tries the next strategy. Both paths carry `errno=110`.
+  const failAuth = () => {
+    const err = tokenNotFoundError();
+    if (throwOnFailure) {
+      throw err;
+    }
+    return err;
+  };
+
+  const recordUsed = () => {
+    statsd.increment('auth.strategy.used', [`scheme:hawk`, `kind:${kind}`]);
   };
 
   return function (server, options) {
@@ -97,54 +140,30 @@ function strategy(
           if (req.auth.mode === 'optional') {
             return h.continue;
           }
-
-          throw tokenNotFoundError();
+          return failAuth();
         }
 
         if (auth.toLowerCase().indexOf('hawk') > -1) {
-          // If a Hawk token is found, lets parse it and get the token's id
           const parsedHeader = parseAuthorizationHeader(auth);
           let token;
-
           try {
             token = await getCredentialsFunc(parsedHeader.id);
           } catch (_) {
-            // we'll handle the empty token case below
+            // empty token case handled below
           }
 
-          // If a token isn't found, this means it doesn't exist or expired and
-          // was removed from database
           if (!token) {
-            if (authStrategyOptions.throwOnFailure) {
-              throw tokenNotFoundError();
-            } else {
-              return Boom.unauthorized(null, 'hawkFxaToken');
-            }
+            return failAuth();
           }
 
-          return h.authenticated({
-            credentials: token,
-          });
+          recordUsed();
+          return h.authenticated({ credentials: token });
         }
 
-        // TODO: Fix in follow up PR, there are conflicts with the refreshToken
-        // ref: https://mozilla-hub.atlassian.net/browse/FXA-9392
-        // strategy that need to also fixed
-        // if (auth.indexOf('Bearer') > -1) {
-        //   const tokenId = auth.split(' ')[1];
-        //   try {
-        //     const token = await getCredentialsFunc(tokenId);
-        //     return h.authenticated({
-        //       credentials: token,
-        //     });
-        //   } catch (err) {}
-        // }
-
-        if (authStrategyOptions.throwOnFailure) {
-          throw tokenNotFoundError();
-        }
-
-        return Boom.unauthorized(null, 'hawkFxaToken');
+        // Header present but not Hawk (e.g. `Bearer fxs_…` from a migrated
+        // client, or `Bearer <refresh-hex>`). Single-strategy routes still
+        // 401; multi-strategy chains fall through to the next strategy.
+        return failAuth();
       },
       payload: async function (req, h) {
         // Since we skip Hawk header validation, we don't need to perform payload validation either...

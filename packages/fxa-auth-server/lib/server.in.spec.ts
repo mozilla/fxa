@@ -112,7 +112,7 @@ describe('lib/server', () => {
       config = getConfig();
       log = mocks.mockLog();
       routes = getRoutes();
-      statsd = { timing: jest.fn() };
+      statsd = { timing: jest.fn(), increment: jest.fn() };
     });
 
     describe('create:', () => {
@@ -844,7 +844,7 @@ describe('lib/server', () => {
           config: {
             auth: {
               mode: 'required',
-              strategy: 'sessionToken',
+              strategies: ['sessionTokenBearer', 'sessionToken'],
             },
           },
           handler() {

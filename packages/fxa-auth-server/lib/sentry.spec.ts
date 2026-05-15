@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import * as Hapi from '@hapi/hapi';
 import * as verror from 'verror';
 
@@ -32,10 +31,7 @@ jest.mock('@sentry/node', () => ({
 
 const { AppError: error } = require('@fxa/accounts/errors');
 const config = require('../config').default.getProperties();
-const {
-  configureSentry,
-  filterExtras,
-} = require('./sentry');
+const { configureSentry, filterExtras } = require('./sentry');
 
 describe('Sentry', () => {
   let server: Hapi.Server;
@@ -107,6 +103,38 @@ describe('Sentry', () => {
         l1: { l2: { l3: { l4: { l5: { l6: { authPW: 'secret123' } } } } } },
       })
     ).toEqual({ l1: { l2: { l3: { l4: { l5: '[Filtered]' } } } } });
+  });
+
+  it('redacts cookie and set-cookie headers', () => {
+    expect(filterExtras({ cookie: 'session=abc; other=def' })).toEqual({
+      cookie: '[Filtered]',
+    });
+    expect(filterExtras({ Cookie: 'session=abc' })).toEqual({
+      Cookie: '[Filtered]',
+    });
+    expect(filterExtras({ 'set-cookie': 'session=abc; HttpOnly' })).toEqual({
+      'set-cookie': '[Filtered]',
+    });
+  });
+
+  it('redacts prefixed bearer token values regardless of key', () => {
+    const hex = 'a'.repeat(64);
+    expect(filterExtras({ harmlessLabel: `fxs_${hex}` })).toEqual({
+      harmlessLabel: '[Filtered]',
+    });
+    expect(filterExtras({ x: { y: `fxkv_${hex}` } })).toEqual({
+      x: { y: '[Filtered]' },
+    });
+    // Non-matching values are untouched.
+    expect(filterExtras({ harmlessLabel: 'not-a-token' })).toEqual({
+      harmlessLabel: 'not-a-token',
+    });
+    // Tokens embedded in a larger string are still redacted: a stack
+    // frame, URL, or error message that pastes a raw token id must not
+    // leak the credential just because it has surrounding text.
+    expect(filterExtras({ harmlessLabel: `Bearer fxs_${hex}` })).toEqual({
+      harmlessLabel: '[Filtered]',
+    });
   });
 
   it('can be set up when sentry is enabled', async () => {
@@ -191,5 +219,4 @@ describe('Sentry', () => {
       expect(mockCaptureException).toHaveBeenCalledTimes(1);
     });
   });
-
 });

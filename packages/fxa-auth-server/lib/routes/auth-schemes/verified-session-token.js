@@ -18,14 +18,10 @@ const { parseAuthorizationHeader } = require('./hawk-fxa-token');
  * @param {Object} db - database interface to fetch account and factors
  * @returns {Function}
  */
-function strategy(getCredentialsFunc, db, config, statsd) {
-  const tokenNotFoundError = () => {
-    const error = AppError.unauthorized('Token not found');
-    error.isMissing = true;
-    return error;
-  };
-
-  // Extract regular expressions to allow for optional skipping of certain routes for certain checks.
+// Exported so the Bearer-backed `verifiedSessionTokenBearer` strategy can
+// reuse the exact same email/token/AAL checks via its `postAuthenticate`
+// hook (see `server.js`).
+function makePostLookupGuard(db, config, statsd) {
   const verifiedSessionTokenConfig =
     config?.authStrategies?.verifiedSessionToken;
 
@@ -43,6 +39,71 @@ function strategy(getCredentialsFunc, db, config, statsd) {
     verifiedSessionTokenConfig?.skipAalCheckForRoutes
       ? new RegExp(verifiedSessionTokenConfig.skipAalCheckForRoutes)
       : null;
+
+  return async function postLookupGuard(req, token) {
+    const account = await db.account(token.uid);
+
+    // 1) account email is verified
+    if (!account?.primaryEmail?.isVerified) {
+      if (skipEmailVerifiedCheckForRoutes?.test(req.route.path)) {
+        // Important! Using req.route.path which has much lower cardinality than req.path
+        statsd?.increment(
+          'verified_session_token.primary_email_not_verified.skipped',
+          [`path:${req.route.path}`]
+        );
+      } else {
+        statsd?.increment(
+          'verified_session_token.primary_email_not_verified.error',
+          [`path:${req.route.path}`]
+        );
+        throw AppError.unverifiedAccount();
+      }
+    }
+
+    // 2) session token is verified
+    if (!token.tokenVerified) {
+      if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
+        statsd?.increment('verified_session_token.token_verified.skipped', [
+          `path:${req.route.path}`,
+        ]);
+      } else {
+        statsd?.increment('verified_session_token.token_verified.error', [
+          `path:${req.route.path}`,
+        ]);
+        throw AppError.unverifiedSession();
+      }
+    }
+
+    // 3) session AAL satisfies account requirements
+    const accountRequiresAal2 = await authMethods.accountRequiresAAL2(
+      db,
+      account
+    );
+    const sessionAal = token.authenticatorAssuranceLevel;
+
+    if (accountRequiresAal2 && sessionAal < 2) {
+      if (skipAalCheckForRoutes?.test(req.route.path)) {
+        statsd?.increment('verified_session_token.aal.skipped', [
+          `path:${req.route.path}`,
+        ]);
+      } else {
+        statsd?.increment('verified_session_token.aal.error', [
+          `path:${req.route.path}`,
+        ]);
+        throw AppError.insufficientAal();
+      }
+    }
+  };
+}
+
+function strategy(getCredentialsFunc, db, config, statsd) {
+  const tokenNotFoundError = () => {
+    const error = AppError.unauthorized('Token not found');
+    error.isMissing = true;
+    return error;
+  };
+
+  const postLookupGuard = makePostLookupGuard(db, config, statsd);
 
   return function (server, options) {
     return {
@@ -65,59 +126,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
           throw tokenNotFoundError();
         }
 
-        // Fetch the account for further checks
-        const account = await db.account(token.uid);
-
-        // 1) account email is verified
-        if (!account?.primaryEmail?.isVerified) {
-          if (skipEmailVerifiedCheckForRoutes?.test(req.route.path)) {
-            // Important! Using req.route.path which has much lower cardinality than req.path
-            statsd?.increment(
-              'verified_session_token.primary_email_not_verified.skipped',
-              [`path:${req.route.path}`]
-            );
-          } else {
-            statsd?.increment(
-              'verified_session_token.primary_email_not_verified.error',
-              [`path:${req.route.path}`]
-            );
-            throw AppError.unverifiedAccount();
-          }
-        }
-
-        // 2) session token is verified
-        if (!token.tokenVerified) {
-          if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
-            statsd?.increment('verified_session_token.token_verified.skipped', [
-              `path:${req.route.path}`,
-            ]);
-          } else {
-            statsd?.increment('verified_session_token.token_verified.error', [
-              `path:${req.route.path}`,
-            ]);
-            throw AppError.unverifiedSession();
-          }
-        }
-
-        // 3) session AAL satisfies account requirements
-        const accountRequiresAal2 = await authMethods.accountRequiresAAL2(
-          db,
-          account
-        );
-        const sessionAal = token.authenticatorAssuranceLevel;
-
-        if (accountRequiresAal2 && sessionAal < 2) {
-          if (skipAalCheckForRoutes?.test(req.route.path)) {
-            statsd?.increment('verified_session_token.aal.skipped', [
-              `path:${req.route.path}`,
-            ]);
-          } else {
-            statsd?.increment('verified_session_token.aal.error', [
-              `path:${req.route.path}`,
-            ]);
-            throw AppError.insufficientAal();
-          }
-        }
+        await postLookupGuard(req, token);
 
         return h.authenticated({
           credentials: token,
@@ -129,4 +138,5 @@ function strategy(getCredentialsFunc, db, config, statsd) {
 
 module.exports = {
   strategy,
+  makePostLookupGuard,
 };

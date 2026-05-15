@@ -632,7 +632,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_STATUS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           query: {
@@ -731,7 +731,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_RESEND_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -1098,7 +1098,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAILS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA.array().items(
@@ -1557,7 +1557,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.EMAILS_REMINDERS_CAD_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
       },
