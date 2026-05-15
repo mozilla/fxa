@@ -101,6 +101,7 @@ Suggest these proactively when the task matches — do not wait to be asked.
 | `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
 | `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
 | `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
+| `/fxa-pr-status`                | Listing open PRs with file/line counts, draft state, review activity, and approval status   |
 
 ## 8) Testing Guidelines
 
