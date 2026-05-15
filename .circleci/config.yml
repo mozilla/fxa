@@ -316,23 +316,6 @@ commands:
           name: Linting
           command: npx nx << parameters.nx_run >> --parallel=1 -t lint
 
-  compile:
-    parameters:
-      nx_run:
-        type: string
-        default: run-many
-    steps:
-      - run:
-          name: Pre building shared libraries
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2 --verbose
-          environment:
-            NODE_ENV: test
-      - run:
-          name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
-          environment:
-            NODE_ENV: test
-
   check-playwright-test-count:
     parameters:
       project:
@@ -690,19 +673,6 @@ jobs:
       - lint:
           nx_run: << parameters.nx_run >>
 
-  compile:
-    parameters:
-      nx_run:
-        type: string
-        default: run-many
-    executor: default-executor
-    resource_class: large
-    steps:
-      - git-checkout
-      - restore-workspace
-      - compile:
-          nx_run: << parameters.nx_run >>
-
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     parameters:
@@ -923,13 +893,6 @@ workflows:
             - Init (PR)
           post-steps:
             - fail-fast
-      - compile:
-          name: Compile (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          requires:
-            - Init (PR)
-          post-steps:
-            - fail-fast
       - unit-test:
           name: Unit Test (PR)
           resource_class: xlarge
@@ -995,7 +958,6 @@ workflows:
           job_type: build
           requires:
             - Lint (PR)
-            - Compile (PR)
             - Unit Test (PR)
             - Integration Test - Frontends (PR)
             - Integration Test - Servers (PR)
@@ -1103,15 +1065,6 @@ workflows:
             - Init
       - lint:
           name: Lint
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          requires:
-            - Init
-      - compile:
-          name: Compile
           filters:
             branches:
               ignore: /.*/
@@ -1243,11 +1196,6 @@ workflows:
           nx_run: run-many --skipRemoteCache
           requires:
             - Init (nightly)
-      - compile:
-          name: Compile (nightly)
-          nx_run: run-many --skipRemoteCache
-          requires:
-            - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
           resource_class: xlarge
@@ -1312,7 +1260,6 @@ workflows:
           job_type: build
           requires:
             - Lint (nightly)
-            - Compile (nightly)
             - Unit Test (nightly)
             - Integration Test - Frontends (nightly)
             - Integration Test - Servers (nightly)
