@@ -405,6 +405,8 @@ export class PasskeyHandler {
         db: this.db,
         request,
       });
+      // Add a failure signal. This can be useful to ban clearly bad actors.
+      await this.customs.checkIpOnly(request, 'passkeyAuthFinishFailed');
       throw err;
     }
 
