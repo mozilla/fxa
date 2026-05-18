@@ -1,0 +1,137 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Fire-and-forget writer for the accountActivity liveness signal (FXA-13662).
+// Each OAuth grant produces one accountActivity row per (userId, clientId,
+// scopeId). scopeId is resolved from the scopes table; a grant with no scopes
+// records one row against the empty-string scope. Consumers identify the RP via
+// the clientId column (JOIN clients.name for the human-readable name) and the
+// scope via scopeId (JOIN scopes.scope).
+
+import { StatsD } from 'hot-shots';
+import { Logger } from 'mozlog';
+
+import { reportSentryError } from '../sentry';
+
+export interface ScopeSetLike {
+  getScopeValues(): Iterable<string>;
+}
+
+export interface AccountActivityOauthDB {
+  recordAccountActivity(
+    userId: Buffer | string,
+    clientId: Buffer | string,
+    scopes: string[],
+    now: number,
+    throttleMs: number
+  ): Promise<{
+    /** Requested scopes absent from the scopes table; no row was written for them. */
+    missingScopes: string[];
+  }>;
+}
+
+export interface AccountActivityDeps {
+  oauthDB: AccountActivityOauthDB;
+  // Only the methods this module uses, picked from the real collaborator types
+  // so a minimal mock satisfies them without re-declaring the contract.
+  statsd?: Pick<StatsD, 'increment'>;
+  log?: Pick<Logger, 'warn'>;
+}
+
+export interface RecordActivityParams {
+  userId: Buffer | string;
+  clientId: Buffer | string;
+  scopeSet: ScopeSetLike | null | undefined;
+  /** Throttle window in ms; lastSeenAt is only updated if the existing row was last touched longer than this ago. */
+  throttleMs: number;
+  /** For metric tagging. */
+  grantType?: string;
+  /** For test determinism. */
+  now?: number;
+}
+
+const hex = (v: Buffer | string): string =>
+  Buffer.isBuffer(v) ? v.toString('hex') : v;
+
+function extractScopes(scopeSet: ScopeSetLike | null | undefined): string[] {
+  if (!scopeSet || typeof scopeSet.getScopeValues !== 'function') return [];
+  return Array.from(scopeSet.getScopeValues()).filter(
+    (scope) => typeof scope === 'string' && scope.length > 0
+  );
+}
+
+/**
+ * Fire-and-forget write of an accountActivity row per resolved scope for a
+ * single OAuth grant.
+ *
+ * Never throws. Never blocks the response. On DB failure, increments
+ * `accountActivity.write_failed` and logs a warning; the grant still succeeds.
+ *
+ * When some requested scopes are not in the scopes table, the scopes that do
+ * resolve are still written, and the missing ones are reported to Sentry plus
+ * `accountActivity.missing_scopes` so the scopes table can be reconciled via
+ * the admin panel.
+ *
+ * Returns the awaited Promise so tests can assert on completion; the OAuth
+ * grant path does not await it.
+ */
+export async function recordActivity(
+  deps: AccountActivityDeps,
+  params: RecordActivityParams
+): Promise<void> {
+  const { oauthDB, statsd, log } = deps;
+  const {
+    userId,
+    clientId,
+    scopeSet,
+    throttleMs,
+    grantType,
+    now = Date.now(),
+  } = params;
+
+  // Grant validation upstream guarantees clientId is in the OAuth clients
+  // table, so the metric tag's cardinality is naturally bounded (matches the
+  // sibling oauth.rp.keys-jwe metric in token.js). No separate allowlist
+  // pass needed.
+  const clientIdHex = hex(clientId);
+  const scopes = extractScopes(scopeSet);
+  const metricTags = {
+    clientId: clientIdHex,
+    grantType: grantType || 'unknown',
+  };
+
+  try {
+    const { missingScopes } = await oauthDB.recordAccountActivity(
+      userId,
+      clientId,
+      scopes,
+      now,
+      throttleMs
+    );
+    statsd?.increment('accountActivity.recorded', metricTags);
+
+    if (missingScopes && missingScopes.length > 0) {
+      statsd?.increment('accountActivity.missing_scopes', metricTags);
+      log?.warn('accountActivity.missing_scopes', {
+        clientId: clientIdHex,
+        grantType,
+        missingScopes,
+      });
+      reportSentryError(
+        new Error(
+          `accountActivity: scope(s) missing from scopes table, activity not recorded for them: ${missingScopes.join(
+            ', '
+          )} (clientId=${clientIdHex}, grantType=${grantType || 'unknown'})`
+        )
+      );
+    }
+  } catch (err) {
+    statsd?.increment('accountActivity.write_failed', metricTags);
+    log?.warn('accountActivity.write_failed', {
+      clientId: clientIdHex,
+      grantType,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}

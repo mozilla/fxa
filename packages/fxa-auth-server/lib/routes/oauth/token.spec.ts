@@ -122,6 +122,7 @@ const tokenRoutesArgMocks = {
           'profile https://identity.mozilla.com/apps/relay https://identity.mozilla.com/apps/oldsync',
       };
     },
+    recordAccountActivity: jest.fn().mockResolvedValue({ missingScopes: [] }),
   },
   db: mockDb,
   mailer: {},
@@ -313,13 +314,12 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
       expect(mockStatsD.increment).toHaveBeenCalledWith('oauth.rp.keys-jwe', {
         clientId: CLIENT_ID,
       });
     });
 
-    it('does not call statsd', async () => {
+    it('does not emit keys-jwe statsd when scope keys are absent', async () => {
       const request = {
         payload: {
           client_id: CLIENT_ID,
@@ -329,7 +329,10 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      expect(mockStatsD.increment).not.toHaveBeenCalled();
+      expect(mockStatsD.increment).not.toHaveBeenCalledWith(
+        'oauth.rp.keys-jwe',
+        expect.anything()
+      );
     });
   });
 
@@ -392,6 +395,80 @@ describe('/token POST', () => {
         reason: 'fxa-credentials',
         scopes: SMARTWINDOW_SCOPES,
       });
+    });
+  });
+
+  describe('accountActivity recording', () => {
+    // The sampleRate gate at the route handler defaults to 0 (off), so the
+    // default-config tests above never invoke recordAccountActivity. Force
+    // sampleRate = 1 here so the wiring is actually exercised and assert on
+    // the args passed through to oauthDB.recordAccountActivity.
+    function buildRouteWithSampleRate(sampleRate: number) {
+      const realConfig = require('../../../config').config;
+      jest.resetModules();
+      jest.doMock('../../../config', () => ({
+        config: {
+          ...realConfig,
+          get: (key: string) => {
+            if (key === 'oauthServer.accountActivity.sampleRate') {
+              return sampleRate;
+            }
+            return realConfig.get(key);
+          },
+        },
+      }));
+      for (const [key, value] of Object.entries(tokenRoutesDepMocks)) {
+        jest.doMock(key, () => value);
+      }
+      const mockRecordAccountActivity = jest
+        .fn()
+        .mockResolvedValue({ missingScopes: [] });
+      const oauthDB = {
+        ...tokenRoutesArgMocks.oauthDB,
+        recordAccountActivity: mockRecordAccountActivity,
+      };
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        oauthDB,
+      });
+      return { route: routes[0], mockRecordAccountActivity };
+    }
+
+    it('invokes oauthDB.recordAccountActivity with the grant userId, clientId, and scopes', async () => {
+      const { route, mockRecordAccountActivity } = buildRouteWithSampleRate(1);
+      const request = {
+        app: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: CODE_WITH_KEYS,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+
+      expect(mockRecordAccountActivity).toHaveBeenCalledTimes(1);
+      const [userId, clientId, scopes] =
+        mockRecordAccountActivity.mock.calls[0];
+      expect(userId).toEqual(buf(UID));
+      expect(clientId).toEqual(buf(CLIENT_ID));
+      expect(Array.isArray(scopes)).toBe(true);
+    });
+
+    it('does not invoke recordAccountActivity when sampleRate is 0', async () => {
+      const { route, mockRecordAccountActivity } = buildRouteWithSampleRate(0);
+      const request = {
+        app: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: CODE_WITH_KEYS,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+
+      expect(mockRecordAccountActivity).not.toHaveBeenCalled();
     });
   });
 });
