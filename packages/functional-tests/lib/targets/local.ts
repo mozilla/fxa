@@ -13,6 +13,9 @@ export class LocalTarget extends BaseTarget {
   static readonly target = 'local';
   readonly name: TargetName = LocalTarget.target;
   readonly contentServerUrl = 'http://localhost:3030';
+  readonly paymentsNextUrl = 'http://localhost:3035';
+  readonly paymentsTestOfferingId = '123donepro';
+  readonly paymentsTestPriceId = 'price_1NSnz3BVqmGyQTMaIkV5wjEc';
   readonly relierUrl = 'http://localhost:8080';
   readonly relierClientID = RELIER_CLIENT_ID;
   readonly rateLimitClient: RateLimitClient;
