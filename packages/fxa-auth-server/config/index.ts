@@ -1443,6 +1443,45 @@ const convictConf = convict({
         env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
       },
     },
+    exchange: {
+      serviceScopes: {
+        doc: 'Map from browser-service name to its authoritative scope URL. Drives token-exchange scope resolution, /authorization service= validation, and the per-RP ToS audit. Adding a new browser service is a config change plus deploy, with no schema migration required.',
+        format: Object,
+        default: {
+          sync: 'https://identity.mozilla.com/apps/oldsync',
+          relay: 'https://identity.mozilla.com/apps/relay',
+          smartwindow: 'https://identity.mozilla.com/apps/smartwindow',
+          vpn: 'https://identity.mozilla.com/apps/vpn',
+        },
+        env: 'OAUTH_EXCHANGE_SERVICE_SCOPES',
+      },
+      denySilentForServices: {
+        doc: 'Services for which silent token-exchange is always rejected, irrespective of accountAuthorizations rows. Wins over bypass. Today: sync, the Sync refresh token is the keys-bearing master credential.',
+        format: Array,
+        default: ['sync'],
+        env: 'OAUTH_EXCHANGE_DENY_SILENT_FOR_SERVICES',
+      },
+      bypassConsentForServices: {
+        doc: 'Services granted at token-exchange without consulting accountAuthorizations. Transitional; remove once application-services ships a 4xx rejection handler in iOS/Android Relay clients.',
+        format: Array,
+        default: ['relay'],
+        env: 'OAUTH_EXCHANGE_BYPASS_CONSENT_FOR_SERVICES',
+      },
+      allowedClientsForService: {
+        doc: 'Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf).',
+        format: Object,
+        default: {
+          vpn: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+          ],
+        },
+        env: 'OAUTH_EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE',
+      },
+    },
     git: {
       commit: {
         doc: 'Commit SHA when in stage/production',

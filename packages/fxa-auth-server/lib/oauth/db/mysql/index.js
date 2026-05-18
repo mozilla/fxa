@@ -176,6 +176,33 @@ const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
 const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
+// First insert sets both timestamps to now. Subsequent /authorization
+// completions for the same PK preserve firstAuthorizedTosAt and bump
+// lastAuthorizedTosAt only, using GREATEST to guard against clock skew
+// or reordered writes producing a backwards-moving lastAuthorizedTosAt.
+const QUERY_ACCOUNT_CONSENT_UPSERT =
+  'INSERT INTO accountAuthorizations ' +
+  '(uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
+  'VALUES (?, ?, ?, ?, ?, ?) ' +
+  'ON DUPLICATE KEY UPDATE ' +
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+// Direct lookup for the token-exchange gate after the caller has
+// resolved scope -> service via config. PK left-prefix on
+// (uid, scope, service); no secondary index required. The scope is
+// part of the WHERE so a consent recorded for one scope under a
+// service cannot silently authorize a different scope under the
+// same service.
+const QUERY_HAS_CONSENT_FOR_SCOPE =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
+  'DELETE FROM accountAuthorizations WHERE uid=?';
+const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'FROM accountAuthorizations WHERE uid=?';
+
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
@@ -605,6 +632,46 @@ class MysqlStore extends MysqlOAuthShared {
 
   _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
+  }
+
+  _upsertAccountConsent(uid, scope, service, clientId, now) {
+    return this._write(QUERY_ACCOUNT_CONSENT_UPSERT, [
+      buf(uid),
+      scope,
+      service,
+      buf(clientId),
+      now,
+      now,
+    ]);
+  }
+
+  async _findAccountConsentForSignIn(uid, scope, service) {
+    const rows = await this._read(QUERY_ACCOUNT_CONSENT_FIND_SIGNIN, [
+      buf(uid),
+      scope,
+      service,
+    ]);
+    return firstRow(rows) || null;
+  }
+
+  // True iff a consent row exists for the exact (uid, scope, service).
+  // Used by the exchange gate after the caller has resolved the
+  // requested scope to a service via config.
+  async _hasConsentForScope(uid, scope, service) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE, [
+      buf(uid),
+      scope,
+      service,
+    ]);
+    return rows.length > 0;
+  }
+
+  _deleteAllAccountConsentsForUser(uid) {
+    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [buf(uid)]);
+  }
+
+  _listAccountConsentsByUid(uid) {
+    return this._read(QUERY_ACCOUNT_CONSENT_LIST_BY_UID, [buf(uid)]);
   }
 
   getEncodingInfo() {

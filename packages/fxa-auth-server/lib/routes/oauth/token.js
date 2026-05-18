@@ -57,6 +57,10 @@ const OAUTH_SERVER_DOCS =
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
+const {
+  EXCHANGE_DECISION,
+  EXCHANGE_DENY_REASON,
+} = require('../../oauth/db');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -86,9 +90,6 @@ const DISABLED_CLIENTS = new Set(config.get('oauthServer.disabledClients'));
 
 const TOKEN_EXCHANGE_ALLOWED_CLIENT_IDS = new Set(
   config.get('oauthServer.tokenExchange.allowedClientIds')
-);
-const TOKEN_EXCHANGE_ALLOWED_SCOPES = ScopeSet.fromArray(
-  config.get('oauthServer.tokenExchange.allowedScopes')
 );
 
 // These scopes are used to request a one-off exchange of claims or credentials,
@@ -430,15 +431,104 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       throw OauthError.unauthorizedTokenExchangeClient(originalClientId);
     }
 
-    // Validate requested scope is in allowlist
+    // Authorize scope-by-scope. The decision matrix lives in
+    // OauthDB.hasConsentForExchange, which resolves scope to service via
+    // the oauthServer.exchange.serviceScopes config map and applies the
+    // deny/bypass policy flags before consulting accountAuthorizations.
     const requestedScope = params.scope;
-    if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
-      log.debug('token_exchange.scope_not_allowed', {
-        requested: requestedScope.toString(),
-        allowed: TOKEN_EXCHANGE_ALLOWED_SCOPES.toString(),
-      });
-      // TODO future auth table checks, FXA-12937
-      throw OauthError.forbidden();
+    const requestedValues =
+      typeof requestedScope === 'string'
+        ? requestedScope.split(/\s+/).filter(Boolean)
+        : requestedScope.getScopeValues();
+
+    function recordOutcome(service, outcome) {
+      statsd.increment('oauth.token_exchange.resolution', { service, outcome });
+    }
+
+    // Lazily loaded for fall-through scopes; null until first use, then a
+    // ScopeSet of the subject_token's client.allowedScopes.
+    let subjectClientAllowedScopes = null;
+    async function getSubjectClientAllowedScopes() {
+      if (subjectClientAllowedScopes === null) {
+        const subjectClient = await oauthDB.getClient(subjectToken.clientId);
+        subjectClientAllowedScopes = ScopeSet.fromString(
+          subjectClient?.allowedScopes || ''
+        );
+      }
+      return subjectClientAllowedScopes;
+    }
+
+    // Dedupe metric/log emissions when several scopes share a service.
+    // 'legacy' is a synthetic service tag for the fall-through arm and is
+    // tracked here too so a multi-scope legacy exchange does not inflate
+    // the metric.
+    const seenServices = new Set();
+    for (const value of requestedValues) {
+      const decision = await oauthDB.hasConsentForExchange(
+        subjectToken.userId,
+        value
+      );
+      if (decision.result === EXCHANGE_DECISION.FALL_THROUGH) {
+        // Unmapped scope: defer to the subject_token client's allowedScopes
+        // so callers can't silently inflate a token's scope beyond what the
+        // issuing client was ever granted.
+        const allowed = await getSubjectClientAllowedScopes();
+        if (!allowed.contains(value)) {
+          log.debug('token_exchange.fall_through_denied', { scope: value });
+          recordOutcome('legacy', 'rejected_not_in_allowed_scopes');
+          throw OauthError.forbidden();
+        }
+        if (!seenServices.has('legacy')) {
+          seenServices.add('legacy');
+          recordOutcome('legacy', 'granted_fall_through');
+        }
+        continue;
+      }
+
+      switch (decision.result) {
+        case EXCHANGE_DECISION.ALLOWED:
+          if (!seenServices.has(decision.service)) {
+            seenServices.add(decision.service);
+            recordOutcome(decision.service, 'granted');
+          }
+          break;
+        case EXCHANGE_DECISION.BYPASS:
+          // Bypass is transitional and Relay-only: mobile Relay clients
+          // check connected services before calling token-exchange, which
+          // gives us enough confidence to skip the consent row. Remove
+          // this path once application-services ships a 4xx handler.
+          if (!seenServices.has(decision.service)) {
+            seenServices.add(decision.service);
+            log.info('token_exchange.relay_bypass', {
+              service: decision.service,
+            });
+            recordOutcome(decision.service, 'granted_relay_bypass');
+          }
+          break;
+        case EXCHANGE_DECISION.DENIED: {
+          const outcome =
+            decision.reason === EXCHANGE_DENY_REASON.SILENT_DISALLOWED
+              ? 'rejected_silent_disallowed'
+              : 'rejected_no_consent';
+          log.debug('token_exchange.denied', {
+            service: decision.service,
+            reason: decision.reason,
+            scope: value,
+          });
+          recordOutcome(decision.service, outcome);
+          throw OauthError.forbidden();
+        }
+        default:
+          // Fail closed on any unknown decision shape so a future variant
+          // cannot silently grant the exchange. Not deduped: every unknown
+          // shape must surface.
+          log.error('token_exchange.unknown_decision', { decision });
+          recordOutcome(
+            decision.service || 'unknown',
+            'rejected_unknown_decision'
+          );
+          throw OauthError.forbidden();
+      }
     }
 
     //  Original scope plus requested scope, e.g. Sync + Relay

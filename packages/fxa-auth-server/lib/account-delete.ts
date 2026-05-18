@@ -33,7 +33,10 @@ import {
   requestForGlean,
 } from './inactive-accounts';
 
-type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'> &
+type OAuthDbDeleteAccount = Pick<
+  typeof OAuthDb,
+  'removeTokensAndCodes' | 'deleteAllConsentsForUser'
+> &
   InactiveStatusOAuthDb;
 type PushboxDeleteAccount = Pick<
   ReturnType<typeof pushboxApi>,
@@ -156,8 +159,8 @@ export class AccountDeleteManager {
     let stage = 'fxaDb';
     try {
       await this.deleteAccountFromDb(uid);
-      stage = 'oauthTokens';
-      await this.deleteOAuthTokens(uid);
+      stage = 'oauthAccountData';
+      await this.deleteOAuthAccountData(uid);
 
       // data eng rely on this to delete the account data from BQ.
       // user self-deletes are logged when the client request was handled
@@ -219,14 +222,15 @@ export class AccountDeleteManager {
     }
 
     // The account row is gone -- from the user's perspective the account
-    // is deleted. OAuth-token cleanup is best-effort here; the cloud task
-    // enqueued by the route runs deleteOAuthTokens again, so a transient
-    // failure now would be retried then. Swallow it to avoid surfacing
-    // "couldn't delete your account" for an account that has been deleted.
+    // is deleted. OAuth cleanup is best-effort here; the cloud task
+    // enqueued by the route runs deleteOAuthAccountData again, so a
+    // transient failure now would be retried then. Swallow it to avoid
+    // surfacing "couldn't delete your account" for an account that has
+    // been deleted.
     try {
-      await this.deleteOAuthTokens(uid);
+      await this.deleteOAuthAccountData(uid);
     } catch (error) {
-      this.log.error('quickDelete.oauthTokens', { uid, error });
+      this.log.error('quickDelete.oauthAccountData', { uid, error });
       reportSentryError(error);
       this.statsd.increment('account.destroy.quick-delete.oauth-failure');
     }
@@ -276,12 +280,11 @@ export class AccountDeleteManager {
     return true;
   }
 
-  /**
-   * Delete the account from the OAuth database. This will remove all tokens and
-   * codes associated with the account.
-   */
-  private async deleteOAuthTokens(uid: string) {
+  // Sweep tokens, codes, and consent. Consent is only swept on the
+  // account-delete path, never on password reset.
+  private async deleteOAuthAccountData(uid: string) {
     await this.oauthDb.removeTokensAndCodes(uid);
+    await this.oauthDb.deleteAllConsentsForUser(uid);
   }
 
   /**

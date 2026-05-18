@@ -35,7 +35,7 @@ const SUBJECT_TOKEN_TYPE_REFRESH =
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
 
 const noop = () => {};
-const mockLog = { debug: noop, warn: noop, info: noop };
+const mockLog = { debug: noop, warn: noop, info: noop, error: noop };
 const mockDb = { touchSessionToken: jest.fn() };
 const mockStatsD = { increment: jest.fn() };
 const mockGlean = { oauth: { tokenCreated: jest.fn() } };
@@ -107,6 +107,20 @@ const tokenRoutesArgMocks = {
     },
     async removeCode() {
       return null;
+    },
+    // Default unit-test stub: every exchanged scope falls through to
+    // clients.allowedScopes. Tests that need a different decision (deny,
+    // bypass, allowed) override on the per-test mock.
+    async hasConsentForExchange() {
+      return { result: 'fall-through' };
+    },
+    // Permissive subject_token client used by the fall-through gate.
+    // Tests that need a restrictive client override on the per-test mock.
+    async getClient() {
+      return {
+        allowedScopes:
+          'profile https://identity.mozilla.com/apps/relay https://identity.mozilla.com/apps/oldsync',
+      };
     },
   },
   db: mockDb,
@@ -472,8 +486,6 @@ describe('token exchange grant_type', () => {
   });
 
   describe('validateTokenExchangeGrant', () => {
-    const ScopeSet = require('fxa-shared').oauth.scopes;
-
     it('rejects non-existent subject_token', async () => {
       resetAndMockDeps();
       const routes = require('./token')({
@@ -531,40 +543,6 @@ describe('token exchange grant_type', () => {
       await expect(routes[0].config.handler(request)).rejects.toMatchObject({
         errno: 111, // Unauthorized
         message: expect.stringContaining('not authorized for token exchange'),
-      });
-    });
-
-    it('rejects unauthorized scopes', async () => {
-      const UNAUTHORIZED_SCOPE =
-        'https://identity.mozilla.com/apps/unauthorized';
-      resetAndMockDeps();
-      const routes = require('./token')({
-        ...tokenRoutesArgMocks,
-        oauthDB: {
-          ...tokenRoutesArgMocks.oauthDB,
-          async getRefreshToken() {
-            return {
-              userId: buf(UID),
-              clientId: buf(FIREFOX_IOS_CLIENT_ID),
-              tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
-              profileChangedAt: Date.now(),
-            };
-          },
-        },
-      });
-      const request = {
-        headers: {},
-        payload: {
-          grant_type: GRANT_TOKEN_EXCHANGE,
-          subject_token: REFRESH_TOKEN,
-          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: UNAUTHORIZED_SCOPE,
-        },
-        emitMetricsEvent: () => {},
-      };
-      await expect(routes[0].config.handler(request)).rejects.toMatchObject({
-        errno: 112, // Forbidden
       });
     });
 
@@ -890,6 +868,345 @@ describe('/oauth/token POST', () => {
           clientId: FIREFOX_IOS_CLIENT_ID,
         }
       );
+    });
+  });
+
+  describe('validateTokenExchangeGrant decision matrix', () => {
+    // Builds a token-exchange route whose oauthDB.hasConsentForExchange
+    // returns a caller-provided decision per scope value, then invokes the
+    // POST handler. The subject refresh token is a Firefox iOS client so
+    // TOKEN_EXCHANGE_ALLOWED_CLIENT_IDS lets the request past the
+    // pre-check and into the decision loop.
+    async function runExchange(decisions: Record<string, any>, scope: string) {
+      mockStatsD.increment.mockClear();
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
+      );
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'at',
+          token_type: 'bearer',
+          scope: grant.scope.toString(),
+          expires_in: 3600,
+          refresh_token: 'rt',
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
+      );
+      jest.doMock('../utils/oauth', () => ({
+        newTokenNotification: async () => {},
+      }));
+      jest.doMock('../../oauth/token', () => ({
+        verify: jest.fn().mockResolvedValue({ user: UID }),
+      }));
+
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(scope),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+          async hasConsentForExchange(_uid: any, value: string) {
+            return decisions[value] ?? { result: 'fall-through' };
+          },
+        },
+      });
+
+      const request = {
+        auth: { credentials: null },
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope,
+        },
+        emitMetricsEvent: async () => {},
+      };
+      return routes[1].handler(request);
+    }
+
+    function resolutionTagsFor(service: string) {
+      return mockStatsD.increment.mock.calls.filter(
+        ([metric, tags]: any) =>
+          metric === 'oauth.token_exchange.resolution' &&
+          tags?.service === service
+      );
+    }
+
+    it('grants and records "granted" when decision is allowed', async () => {
+      const result = await runExchange(
+        { [OAUTH_SCOPE_RELAY]: { result: 'allowed', service: 'relay' } },
+        OAUTH_SCOPE_RELAY
+      );
+      expect(result.access_token).toBe('at');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'relay', outcome: 'granted' }
+      );
+    });
+
+    it('grants and records "granted_relay_bypass" when decision is bypass', async () => {
+      const result = await runExchange(
+        { [OAUTH_SCOPE_RELAY]: { result: 'bypass', service: 'relay' } },
+        OAUTH_SCOPE_RELAY
+      );
+      expect(result.access_token).toBe('at');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'relay', outcome: 'granted_relay_bypass' }
+      );
+    });
+
+    it('rejects with "rejected_silent_disallowed" when service is deny-listed', async () => {
+      await expect(
+        runExchange(
+          {
+            [OAUTH_SCOPE_OLD_SYNC]: {
+              result: 'denied',
+              service: 'sync',
+              reason: 'silent-disallowed',
+            },
+          },
+          OAUTH_SCOPE_OLD_SYNC
+        )
+      ).rejects.toMatchObject({ output: { statusCode: 403 } });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'sync', outcome: 'rejected_silent_disallowed' }
+      );
+    });
+
+    it('rejects with "rejected_no_consent" when mapped service has no consent row', async () => {
+      const SMARTWINDOW = 'https://identity.mozilla.com/apps/smartwindow';
+      await expect(
+        runExchange(
+          {
+            [SMARTWINDOW]: {
+              result: 'denied',
+              service: 'smartwindow',
+              reason: 'no-consent',
+            },
+          },
+          SMARTWINDOW
+        )
+      ).rejects.toMatchObject({ output: { statusCode: 403 } });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'smartwindow', outcome: 'rejected_no_consent' }
+      );
+    });
+
+    it('grants and records "granted_fall_through" when scope is unmapped', async () => {
+      const PROFILE_SCOPE = 'profile';
+      const result = await runExchange(
+        { [PROFILE_SCOPE]: { result: 'fall-through' } },
+        PROFILE_SCOPE
+      );
+      expect(result.access_token).toBe('at');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'legacy', outcome: 'granted_fall_through' }
+      );
+    });
+
+    it('rejects fall-through scopes that are not in the subject_token client allowedScopes', async () => {
+      const UNCONFIGURED = 'https://identity.mozilla.com/apps/never-seen';
+      mockStatsD.increment.mockClear();
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
+      );
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'at',
+          scope: grant.scope.toString(),
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
+      );
+      jest.doMock('../utils/oauth', () => ({
+        newTokenNotification: async () => {},
+      }));
+      jest.doMock('../../oauth/token', () => ({
+        verify: jest.fn().mockResolvedValue({ user: UID }),
+      }));
+
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(UNCONFIGURED),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+          async hasConsentForExchange() {
+            return { result: 'fall-through' };
+          },
+          // Restrictive client: only oldsync is permitted.
+          async getClient() {
+            return {
+              allowedScopes: 'https://identity.mozilla.com/apps/oldsync',
+            };
+          },
+        },
+      });
+
+      await expect(
+        routes[1].handler({
+          auth: { credentials: null },
+          headers: {},
+          payload: {
+            grant_type: GRANT_TOKEN_EXCHANGE,
+            subject_token: REFRESH_TOKEN,
+            subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+            scope: UNCONFIGURED,
+          },
+          emitMetricsEvent: async () => {},
+        })
+      ).rejects.toMatchObject({ output: { statusCode: 403 } });
+
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'legacy', outcome: 'rejected_not_in_allowed_scopes' }
+      );
+    });
+
+    it('fails closed with "rejected_unknown_decision" on an unknown result shape', async () => {
+      await expect(
+        runExchange(
+          { [OAUTH_SCOPE_RELAY]: { result: 'wat', service: 'relay' } },
+          OAUTH_SCOPE_RELAY
+        )
+      ).rejects.toMatchObject({ output: { statusCode: 403 } });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'oauth.token_exchange.resolution',
+        { service: 'relay', outcome: 'rejected_unknown_decision' }
+      );
+    });
+
+    it('emits one resolution metric per service even when several scopes share it', async () => {
+      // Two unrelated mozilla.com scopes that the test stub claims both
+      // resolve to the same service. payload.scope is passed as a
+      // ScopeSet here because validateTokenExchangeGrant calls
+      // subjectToken.scope.union(requestedScope) directly, and the
+      // ScopeSet coerce path does not split a raw whitespace-separated
+      // string. In production the route's Joi schema does the coercion.
+      const scopeSet = ScopeSet.fromString(
+        `${OAUTH_SCOPE_RELAY} ${OAUTH_SCOPE_OLD_SYNC}`
+      );
+      mockStatsD.increment.mockClear();
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
+      );
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'at',
+          token_type: 'bearer',
+          scope: grant.scope.toString(),
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
+      );
+      jest.doMock('../utils/oauth', () => ({
+        newTokenNotification: async () => {},
+      }));
+      jest.doMock('../../oauth/token', () => ({
+        verify: jest.fn().mockResolvedValue({ user: UID }),
+      }));
+
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: scopeSet,
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+          async hasConsentForExchange() {
+            return { result: 'allowed', service: 'relay' };
+          },
+        },
+      });
+
+      await routes[1].handler({
+        auth: { credentials: null },
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: scopeSet,
+        },
+        emitMetricsEvent: async () => {},
+      });
+
+      expect(resolutionTagsFor('relay')).toHaveLength(1);
+    });
+
+    it('passes through to the rest of the handler when all scopes are granted', async () => {
+      // fall-through for an unmapped scope must not short-circuit; the
+      // request still returns a real token from generateTokens.
+      const result = await runExchange(
+        { [OAUTH_SCOPE_RELAY]: { result: 'fall-through' } },
+        OAUTH_SCOPE_RELAY
+      );
+      expect(result.refresh_token).toBe('rt');
     });
   });
 
