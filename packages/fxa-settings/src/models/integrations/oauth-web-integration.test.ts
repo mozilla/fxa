@@ -199,11 +199,13 @@ describe('models/integrations/oauth-relier', function () {
         expect(capturedError).toBeInstanceOf(OAuthError);
         expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
         expect(sentryContext).toEqual({
-          tags: { area: 'OAuthWebIntegration.getPermissions' },
+          tags: {
+            area: 'OAuthWebIntegration.getPermissions',
+            service: 'test-service',
+            clientId: 'a1b2c3d4e5f6789012345678901234567890abcd',
+          },
           extra: {
             scope,
-            clientId: 'a1b2c3d4e5f6789012345678901234567890abcd',
-            service: 'test-service',
             trusted,
             wantsConsent,
           },

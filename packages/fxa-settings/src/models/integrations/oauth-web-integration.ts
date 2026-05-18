@@ -225,14 +225,16 @@ export class OAuthWebIntegration extends GenericIntegration<
       // in app/index. We check the integration type and present
       // an OAuthDataError component.
       Sentry.captureException(err, {
-        tags: { area: 'OAuthWebIntegration.getPermissions' },
+        tags: {
+          area: 'OAuthWebIntegration.getPermissions',
+          clientId: this.data.clientId,
+          service: this.data.service,
+        },
         extra: {
           scope: this.data.scope,
-          clientId: this.data.clientId,
           trusted: this.isTrusted(),
           wantsConsent: this.wantsConsent(),
           clientInfo: this.clientInfo,
-          service: this.data.service,
         },
       });
       throw err;
