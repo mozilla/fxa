@@ -429,9 +429,16 @@ export class Account extends BaseAuthModel {
   }
 
   static async checkPassword(uid: string, verifyHash: string) {
-    let [account] = await Account.query()
+    const [account] = await Account.query()
       .select('verifyHash', 'verifyHashVersion2')
       .where('uid', uuidTransformer.to(uid));
+
+    // The row can disappear between an upstream accountRecord() lookup and
+    // this read when concurrent /account/destroy requests race; surface a
+    // typed not-found instead of letting `account.verifyHash` throw.
+    if (!account) {
+      throw notFound();
+    }
 
     const v1 = account.verifyHash === verifyHash;
     const v2 = account.verifyHashVersion2 === verifyHash;

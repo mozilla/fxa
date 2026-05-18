@@ -239,7 +239,19 @@ export const createDB = (
 
     async checkPassword(uid: string, verifyHash: string) {
       log.trace('DB.checkPassword', { uid, verifyHash });
-      const result = await Account.checkPassword(uid, verifyHash);
+      let result;
+      try {
+        result = await Account.checkPassword(uid, verifyHash);
+      } catch (err) {
+        // Concurrent /account/destroy can delete the row between the route's
+        // accountRecord() and this read. Translate to ACCOUNT_UNKNOWN to
+        // match the pattern in db.account() / db.accountRecord().
+        if (isNotFoundError(err)) {
+          this.metrics?.increment('db.checkPassword.notFound');
+          throw error.unknownAccount();
+        }
+        throw err;
+      }
 
       if (result.v1) {
         this.metrics?.increment('check.password.v1.success');
