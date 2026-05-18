@@ -1,15 +1,20 @@
 #! /bin/bash
 #
-# Tag a patch release on the current train branch and push it to origin.
+# Tag a patch release on the current train branch and push it to a remote. Defaults to 'origin'.
 # Pushing the tag is what kicks off the docker.yml build via
 # `yarn trigger:docker-push <tag>`.
 #
 # Usage:
 #   ./_scripts/trigger-dot-release.sh <tag>
+#   FXA_REMOTE=<remote> ./_scripts/trigger-dot-release.sh <tag>
+#
+# Environment variables:
+#   FXA_REMOTE   Git remote to fetch/push against (default: origin).
 #
 # Examples:
 #   ./_scripts/trigger-dot-release.sh v1.100.5
 #   ./_scripts/trigger-dot-release.sh v1.100.0-rc1
+#   FXA_REMOTE=upstream ./_scripts/trigger-dot-release.sh v1.100.5
 #
 # Pre-flight checklist (run yourself before invoking):
 #   - Patch has been merged into the train branch locally
@@ -20,7 +25,8 @@ set -euo pipefail
 tag="${1:-}"
 
 if [[ -z "${tag}" ]]; then
-  echo "Usage: ${0} <tag>" >&2
+  echo "Usage: [FXA_REMOTE=<remote>] ${0} <tag>" >&2
+  echo "  FXA_REMOTE  Git remote to fetch/push against (default: origin)." >&2
   exit 1
 fi
 
@@ -31,7 +37,7 @@ fi
 
 minor="${BASH_REMATCH[2]}"
 branch="train-${minor}"
-remote="origin"
+remote="${FXA_REMOTE:-origin}"
 
 echo "Fetching latest tags from ${remote}..."
 git fetch "${remote}" --tags
