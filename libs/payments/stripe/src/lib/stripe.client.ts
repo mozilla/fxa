@@ -490,6 +490,18 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
+  async setupIntentUpdate(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentUpdateParams
+  ) {
+    const result = await this.stripe.setupIntents.update(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
   async confirmationTokenRetrieve(confirmationTokenId: string) {
     const result =
       await this.stripe.confirmationTokens.retrieve(confirmationTokenId);

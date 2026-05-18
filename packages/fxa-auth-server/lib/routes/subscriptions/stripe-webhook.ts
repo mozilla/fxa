@@ -15,10 +15,7 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
-import {
-  reportSentryError,
-  reportSentryMessage,
-} from '../../../lib/sentry';
+import { reportSentryError, reportSentryMessage } from '../../../lib/sentry';
 import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import { RefundType } from '@fxa/payments/paypal';
@@ -47,7 +44,7 @@ import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestor
 // replaced Plans, but since it is backwards compatible, we haven't needed to
 // update our plans handling code.  Prices should be treated in the same
 // fashion as plans, so it's on this list.
-const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
+const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product', 'setup_intent'];
 const BYPASS_LATEST_FETCH_EVENTS = [
   'invoice.upcoming',
   'payment_method.detached',
@@ -185,6 +182,9 @@ export class StripeWebhookHandler extends StripeHandler {
         break;
       case 'invoice.paid':
         await this.handleInvoicePaidEvent(request, event);
+        break;
+      case 'setup_intent.succeeded':
+        await this.handleSetupIntentSucceededEvent(request, event);
         break;
       case 'invoice.payment_failed':
         await this.handleInvoicePaymentFailedEvent(request, event);
@@ -456,22 +456,21 @@ export class StripeWebhookHandler extends StripeHandler {
 
       const uid = customer.metadata.userid;
       const account = await Account.findByUid(uid, { include: ['emails'] });
+      const suppressCancellationEmail =
+        subscription.metadata['suppress_cancellation_email'] === 'true';
+      if (suppressCancellationEmail) {
+        this.log.info('subscription.deleted.emailSuppressed', {
+          subscriptionId: subscription.id,
+          customerId: subscription.customer,
+        });
+      }
       if (
-        // When SubPlat cannot collect a PayPal customer's first payment while
-        // attempting to subscribe to a product, the subscription is canceled.
-        // (At the time of writing, this is happening in
-        // `_createPaypalBillingAgreementAndSubscription` of the
-        // `PayPalHandler` route handler.)  We should not send an email in that
-        // case.
-        //
-        // If we can retreive the subscription and customer, but the account record
-        // cannot be retrieved from the db, the user has deleted their Mozilla
-        // account which subsequently deletes their subscription from stripe.
-        !account ||
-        !(
-          subscription.collection_method === 'send_invoice' &&
-          account.verifierSetAt <= 0
-        )
+        !suppressCancellationEmail &&
+        (!account ||
+          !(
+            subscription.collection_method === 'send_invoice' &&
+            account.verifierSetAt <= 0
+          ))
       ) {
         await this.sendSubscriptionDeletedEmail(subscription);
       }
@@ -657,6 +656,144 @@ export class StripeWebhookHandler extends StripeHandler {
     if (invalidCustomer) {
       const err = Object.assign(
         new Error('Invoice paid on invalid customer.'),
+        deletedData
+      );
+      reportSentryError(err, request);
+      return;
+    }
+
+    // invoice.paid fires before the SetupIntent confirms on the Stripe-card
+    // flow; handleSetupIntentSucceededEvent emails after the SetupIntent has
+    // had a chance to fail. PayPal (send_invoice) has no SetupIntent and
+    // still emails from here.
+    if (
+      invoice.amount_due === 0 &&
+      invoice.collection_method !== 'send_invoice'
+    ) {
+      return;
+    }
+
+    try {
+      await this.sendSubscriptionInvoiceEmail(invoice);
+    } catch (err) {
+      reportSentryError(err, request);
+      return;
+    }
+  }
+
+  /**
+   * Handle `setup_intent.succeeded` Stripe webhook events.
+   *
+   * Used to send welcome/first-invoice emails for $0 subscriptions, where
+   * `invoice.paid` fires too early to be a reliable trigger.
+   *
+   * The SetupIntent is stamped with a `subscription_id` metadata key at
+   * creation time in `checkout.service.ts`; we use it to locate the
+   * subscription and its paid invoice, then dispatch the same emails the
+   * `invoice.paid` handler would for non-zero invoices.
+   *
+   * SetupIntents not tied to a checkout subscription (e.g. the
+   * manage-payment-method flow) are silently ignored.
+   */
+  async handleSetupIntentSucceededEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const setupIntent = event.data.object as Stripe.SetupIntent;
+    const subscriptionId = setupIntent.metadata?.['subscription_id'];
+    if (!subscriptionId) {
+      return;
+    }
+
+    const reportUnexpectedState = (reason: string, extra: object = {}) => {
+      Sentry.withScope((scope) => {
+        scope.setContext('setupIntentSucceeded', {
+          eventId: event.id,
+          setupIntentId: setupIntent.id,
+          subscriptionId,
+          reason,
+          ...extra,
+        });
+        reportSentryMessage(
+          `setup_intent.succeeded unexpected state: ${reason}`,
+          'warning' as SeverityLevel
+        );
+      });
+      this.log.warn('handleSetupIntentSucceededEvent.unexpectedState', {
+        eventId: event.id,
+        setupIntentId: setupIntent.id,
+        subscriptionId,
+        reason,
+      });
+    };
+
+    let subscription: Stripe.Subscription;
+    try {
+      subscription =
+        await this.stripeHelper.expandResource<Stripe.Subscription>(
+          subscriptionId,
+          SUBSCRIPTIONS_RESOURCE
+        );
+    } catch (err) {
+      reportUnexpectedState('subscription_not_found', {
+        error: err?.message,
+      });
+      return;
+    }
+    if (!subscription) {
+      reportUnexpectedState('subscription_not_found');
+      return;
+    }
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+      reportUnexpectedState('subscription_not_active', {
+        status: subscription.status,
+      });
+      return;
+    }
+    if (!subscription.latest_invoice) {
+      reportUnexpectedState('subscription_has_no_invoice');
+      return;
+    }
+
+    const invoice = await this.stripeHelper.expandResource<Stripe.Invoice>(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
+    if (!invoice || invoice.status !== 'paid') {
+      reportUnexpectedState('invoice_not_paid', {
+        status: invoice?.status,
+        invoiceId: invoice?.id,
+      });
+      return;
+    }
+
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+    let invalidCustomer = false;
+    const deletedData: Record<string, any> = {
+      customerId: invoice.customer,
+      invoiceId: invoice.id,
+    };
+    if (!customer || customer.deleted) {
+      invalidCustomer = true;
+      deletedData.reason = 'customer_deleted';
+    } else {
+      const uid = customer.metadata?.userid;
+      if (!uid) {
+        invalidCustomer = true;
+        deletedData.reason = 'no_userid';
+      } else {
+        deletedData.userId = uid;
+        deletedData.reason = 'fxa_deleted';
+        const account = await Account.findByUid(uid);
+        invalidCustomer = !account;
+      }
+    }
+    if (invalidCustomer) {
+      const err = Object.assign(
+        new Error('SetupIntent succeeded for invalid customer.'),
         deletedData
       );
       reportSentryError(err, request);
@@ -898,7 +1035,8 @@ export class StripeWebhookHandler extends StripeHandler {
 
   /**
    * Send out the appropriate invoice email, depending on whether it's the
-   * initial or a subsequent invoice.
+   * initial or a subsequent invoice. Callers are responsible for any
+   * zero-total filtering (see handleInvoicePaidEvent).
    */
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =

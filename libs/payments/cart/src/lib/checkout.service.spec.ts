@@ -1055,10 +1055,11 @@ describe('CheckoutService', () => {
           );
         });
 
-        it('calls createAndConfirm', async () => {
+        it('calls createAndConfirm with subscription_id metadata', async () => {
           expect(setupIntentManager.createAndConfirm).toHaveBeenCalledWith(
             mockCustomer.id,
-            mockConfirmationToken.id
+            mockConfirmationToken.id,
+            { subscription_id: mockSubscription.id }
           );
         });
 
@@ -1105,6 +1106,9 @@ describe('CheckoutService', () => {
           jest
             .spyOn(setupIntentManager, 'createAndConfirm')
             .mockResolvedValue(mockSetupIntent);
+          jest
+            .spyOn(setupIntentManager, 'update')
+            .mockResolvedValue(mockSetupIntent);
         });
 
         beforeEach(async () => {
@@ -1122,6 +1126,22 @@ describe('CheckoutService', () => {
             mockPendingSetupIntentId,
             mockConfirmationToken.id
           );
+        });
+
+        it('stamps subscription_id metadata on the pending setup intent before confirming', () => {
+          expect(setupIntentManager.update).toHaveBeenCalledWith(
+            mockPendingSetupIntentId,
+            {
+              metadata: {
+                subscription_id: mockSubscriptionWithPendingSetup.id,
+              },
+            }
+          );
+          const updateOrder = (setupIntentManager.update as jest.Mock).mock
+            .invocationCallOrder[0];
+          const confirmOrder = (setupIntentManager.confirm as jest.Mock).mock
+            .invocationCallOrder[0];
+          expect(updateOrder).toBeLessThan(confirmOrder);
         });
 
         it('does not call createAndConfirm', () => {
@@ -1425,7 +1445,8 @@ describe('CheckoutService', () => {
         it('creates SetupIntent for trial subscription (zero-amount invoice)', () => {
           expect(setupIntentManager.createAndConfirm).toHaveBeenCalledWith(
             mockCustomer.id,
-            mockConfirmationToken.id
+            mockConfirmationToken.id,
+            { subscription_id: mockTrialSubscription.id }
           );
         });
 
