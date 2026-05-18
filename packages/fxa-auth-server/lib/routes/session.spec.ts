@@ -174,6 +174,7 @@ describe('/session/status', () => {
         state: 'unverified',
         details: {
           accountEmailVerified: false,
+
           sessionVerificationMeetsMinimumAAL: true,
           sessionVerificationMethod: 'totp-2fa',
           sessionVerified: false,
@@ -212,6 +213,7 @@ describe('/session/status', () => {
       state: 'unverified',
       details: {
         accountEmailVerified: false,
+        mustVerify: false,
         sessionVerificationMethod: 'email',
         sessionVerified: false,
         verified: false,
@@ -248,6 +250,7 @@ describe('/session/status', () => {
       state: 'unverified',
       details: {
         accountEmailVerified: false,
+        mustVerify: false,
         sessionVerificationMethod: 'email',
         sessionVerified: false,
         verified: false,
@@ -284,6 +287,7 @@ describe('/session/status', () => {
       state: 'unverified',
       details: {
         accountEmailVerified: true,
+        mustVerify: false,
         sessionVerificationMethod: 'email',
         sessionVerified: false,
         verified: false,
@@ -320,6 +324,7 @@ describe('/session/status', () => {
       state: 'verified',
       details: {
         accountEmailVerified: true,
+        mustVerify: false,
         sessionVerificationMethod: 'email',
         sessionVerified: true,
         verified: true,
@@ -355,6 +360,7 @@ describe('/session/status', () => {
       state: 'verified',
       details: {
         accountEmailVerified: true,
+        mustVerify: false,
         sessionVerificationMethod: 'email',
         sessionVerified: true,
         verified: true,
@@ -391,6 +397,7 @@ describe('/session/status', () => {
       state: 'verified',
       details: {
         accountEmailVerified: true,
+        mustVerify: false,
         sessionVerificationMethod: 'totp-2fa',
         sessionVerified: true,
         verified: true,

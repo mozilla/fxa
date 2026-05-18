@@ -172,6 +172,7 @@ export interface CachedSigninHandlerResponse {
     uid: hexstring;
     sessionVerified: boolean;
     emailVerified: boolean;
+    sendVerificationCode?: () => Promise<void>;
   };
   error?: AuthUiError;
 }
@@ -262,6 +263,7 @@ export interface NavigationOptions {
   performNavigation?: boolean;
   isServiceWithEmailVerification?: boolean;
   isPasswordlessFlow?: boolean;
+  sendVerificationCode?: () => Promise<void>;
 }
 
 export interface OAuthSigninResult {

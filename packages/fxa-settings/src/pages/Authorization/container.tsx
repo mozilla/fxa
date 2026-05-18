@@ -80,8 +80,7 @@ const AuthorizationContainer = ({
       const { data, error } = await cachedSignIn(
         account?.sessionToken!,
         authClient,
-        session,
-        isOauthPromptNone
+        session
       );
 
       if (error === AuthUiErrors.SESSION_EXPIRED) {

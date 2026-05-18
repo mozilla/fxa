@@ -137,6 +137,7 @@ export function mockAuthClient() {
     details: {
       verified: true,
       accountEmailVerified: true,
+      mustVerify: false,
       sessionVerified: true,
       sessionVerificationMeetsMinimumAAL: true,
       sessionVerificationMethod: 'email',

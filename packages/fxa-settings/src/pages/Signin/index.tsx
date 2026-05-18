@@ -252,6 +252,7 @@ const Signin = ({
           handleFxaOAuthLogin: !isSync,
           // Redirect passwordless Sync users to set_password after session verification.
           isSignInWithThirdPartyAuth: isSync,
+          sendVerificationCode: data.sendVerificationCode,
         };
         const { error: navError } = await handleNavigation(navigationOptions);
         if (navError) {

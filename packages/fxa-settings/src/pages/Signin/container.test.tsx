@@ -401,7 +401,7 @@ function mockSigninModule() {
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 let mockGetCredentials: jest.SpyInstance;
@@ -1240,7 +1240,7 @@ describe('signin container', () => {
       // doesn't overwrite the initial hasPassword=false from locationState.
       mockAuthClient.accountStatusByEmail = jest
         .fn()
-        .mockReturnValue(new Promise(() => { }));
+        .mockReturnValue(new Promise(() => {}));
       mockLocationState = {
         email: MOCK_ROUTER_STATE_EMAIL,
         hasPassword: false,
@@ -1410,6 +1410,7 @@ describe('signin container', () => {
         details: {
           accountEmailVerified: true,
           sessionVerified: false,
+          mustVerify: true,
         },
       });
 
@@ -1489,6 +1490,7 @@ describe('signin container', () => {
         details: {
           accountEmailVerified: true,
           sessionVerified: false,
+          mustVerify: true,
         },
       });
 
@@ -1506,6 +1508,41 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
+        expect(handlerResult?.data?.sessionVerified).toEqual(false);
+        expect(handlerResult?.data?.emailVerified).toEqual(true);
+      });
+    });
+
+    it('skips verification when mustVerify=false even if session is unverified (FXA-12972 SUMO regression)', async () => {
+      // Mirrors the SUMO-style OAuth RP case: the session is unverified but
+      // the auth-server has decided it does not need verification
+      // (mustVerify=false). cachedSignIn must not send a verifyLoginCode
+      // email and must leave verificationMethod/verificationReason undefined
+      // so the user is not stranded on the confirm-code page.
+      mockSession.sendVerificationCode.mockClear();
+
+      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+        authenticationMethods: ['pwd', 'email'],
+        authenticatorAssuranceLevel: 1,
+      });
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+          mustVerify: false,
+        },
+      });
+
+      mockUseValidateModule();
+      render();
+
+      await waitFor(async () => {
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
+
+        expect(mockSession.sendVerificationCode).not.toHaveBeenCalled();
+        expect(handlerResult?.data?.verificationMethod).toBeUndefined();
+        expect(handlerResult?.data?.verificationReason).toBeUndefined();
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
@@ -1608,7 +1645,7 @@ describe('signin container', () => {
     });
 
     it('calls session.isValid and discards token when session is invalid', async () => {
-      const storedAccount: { sessionToken?: string;[key: string]: any } = {
+      const storedAccount: { sessionToken?: string; [key: string]: any } = {
         ...MOCK_STORED_ACCOUNT,
         email: MOCK_QUERY_PARAM_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,

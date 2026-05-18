@@ -132,8 +132,7 @@ export function getSyncNavigate(
 export const cachedSignIn = async (
   sessionToken: string,
   authClient: ReturnType<typeof useAuthClient>,
-  session: ReturnType<typeof useSession>,
-  isOauthPromptNone = false
+  session: ReturnType<typeof useSession>
 ) => {
   try {
     // retrieves the account's authentication methods only
@@ -160,17 +159,11 @@ export const cachedSignIn = async (
     if (!emailVerified) {
       verificationReason = VerificationReasons.SIGN_UP;
       verificationMethod = VerificationMethods.EMAIL_OTP;
-      !isOauthPromptNone && (await session.sendVerificationCode());
     } else if (!sessionVerified) {
-      // we are inferring verification method and verification reason here
-      // ideally we would check the server directly to allow for more verification reasons
       verificationReason = VerificationReasons.SIGN_IN;
-      if (totpIsActive) {
-        verificationMethod = VerificationMethods.TOTP_2FA;
-      } else {
-        verificationMethod = VerificationMethods.EMAIL_OTP;
-        !isOauthPromptNone && (await session.sendVerificationCode());
-      }
+      verificationMethod = totpIsActive
+        ? VerificationMethods.TOTP_2FA
+        : VerificationMethods.EMAIL_OTP;
     }
 
     const storedLocalAccount = currentAccount();
@@ -185,6 +178,13 @@ export const cachedSignIn = async (
         emailVerified,
         // Return TOTP status for components that need it
         totpIsActive,
+        // Caller passes this to handleNavigation, which fires it only when
+        // actually routing to a confirmation-code page. This avoids sending
+        // a spurious email for OAuth RPs that don't require session verification.
+        sendVerificationCode:
+          verificationMethod === VerificationMethods.EMAIL_OTP
+            ? () => session.sendVerificationCode()
+            : undefined,
       },
     };
   } catch (error) {
@@ -300,6 +300,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       wantsTwoStepAuthentication ||
       wantsKeys
     ) {
+      await navigationOptions.sendVerificationCode?.();
       performNavigation({ to, locationState });
       return { error: undefined };
     }

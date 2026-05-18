@@ -4,11 +4,13 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import AuthenticationMethods from '../../constants/authentication-methods';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_SESSION_TOKEN,
+  MOCK_STORED_ACCOUNT,
   MOCK_UID,
 } from '../mocks';
 import { NavigationOptions } from './interfaces';
@@ -18,14 +20,17 @@ import {
   createMockSigninOAuthIntegration,
 } from './mocks';
 import {
+  cachedSignIn,
   handleNavigation,
   ensureCanLinkAcountOrRedirect,
   getSyncNavigate,
 } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import * as CacheModule from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import config from '../../lib/config';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
 jest.mock('@reach/router', () => ({
@@ -239,6 +244,7 @@ describe('Signin utils', () => {
 
       it('returns early for OAuth integration that isServiceWithEmailVerification', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
+        const sendVerificationCode = jest.fn().mockResolvedValue(undefined);
 
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -250,11 +256,13 @@ describe('Signin utils', () => {
           },
           isServiceWithEmailVerification: true,
           integration: mockOAuthIntegration,
+          sendVerificationCode,
         });
 
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
+        expect(sendVerificationCode).toHaveBeenCalledTimes(1);
         expect(navigateSpy).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
@@ -266,6 +274,7 @@ describe('Signin utils', () => {
         (mockOAuthIntegration as any).wantsKeys = jest
           .fn()
           .mockReturnValue(true);
+        const sendVerificationCode = jest.fn().mockResolvedValue(undefined);
 
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -276,11 +285,13 @@ describe('Signin utils', () => {
             verificationReason: VerificationReasons.SIGN_IN,
           },
           integration: mockOAuthIntegration,
+          sendVerificationCode,
         });
 
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
+        expect(sendVerificationCode).toHaveBeenCalledTimes(1);
         expect(navigateSpy).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
@@ -581,6 +592,158 @@ describe('Signin utils', () => {
         expect(result.to).toBe('/pair');
         expect(result.shouldHardNavigate).toBe(false);
       });
+    });
+  });
+
+  describe('cachedSignIn', () => {
+    type SessionStatusDetails = {
+      accountEmailVerified: boolean;
+      sessionVerified: boolean;
+      sessionVerificationMethod: string | null;
+      sessionVerificationMeetsMinimumAAL: boolean;
+    };
+
+    const createMockAuthClient = ({
+      authenticationMethods = [] as AuthenticationMethods[],
+      details,
+      accountProfileRejection,
+    }: {
+      authenticationMethods?: AuthenticationMethods[];
+      details?: Partial<SessionStatusDetails>;
+      accountProfileRejection?: unknown;
+    } = {}) => {
+      const accountProfile = accountProfileRejection
+        ? jest.fn().mockRejectedValue(accountProfileRejection)
+        : jest.fn().mockResolvedValue({ authenticationMethods });
+      const sessionStatus = jest.fn().mockResolvedValue({
+        state: 'unverified',
+        uid: MOCK_UID,
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+          sessionVerificationMethod: null,
+          sessionVerificationMeetsMinimumAAL: true,
+          ...details,
+        },
+      });
+      return { accountProfile, sessionStatus } as any;
+    };
+
+    const createMockSession = () =>
+      ({
+        sendVerificationCode: jest.fn().mockResolvedValue(undefined),
+      }) as any;
+
+    let currentAccountSpy: jest.SpyInstance;
+    let discardSessionTokenSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      currentAccountSpy = jest
+        .spyOn(CacheModule, 'currentAccount')
+        .mockReturnValue(MOCK_STORED_ACCOUNT);
+      discardSessionTokenSpy = jest
+        .spyOn(CacheModule, 'discardSessionToken')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      currentAccountSpy.mockRestore();
+      discardSessionTokenSpy.mockRestore();
+    });
+
+    it('returns SIGN_IN/EMAIL_OTP with a sendVerificationCode callback when session is unverified', async () => {
+      const authClient = createMockAuthClient({
+        details: { sessionVerified: false },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(result.data?.verificationReason).toBe(VerificationReasons.SIGN_IN);
+      expect(result.data?.verificationMethod).toBe(VerificationMethods.EMAIL_OTP);
+      expect(result.data?.sendVerificationCode).toBeInstanceOf(Function);
+      expect(result.data?.sessionVerified).toBe(false);
+      expect(result.data?.emailVerified).toBe(true);
+      expect(result.data?.totpIsActive).toBe(false);
+      // The code is not sent here — handleNavigation calls the callback only
+      // when actually routing to a confirmation-code page.
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+    });
+
+    it('returns a sendVerificationCode callback for SUMO-like RPs (unverified session, no keys required)', async () => {
+      // Regression test: previously cachedSignIn eagerly called sendVerificationCode
+      // for any unverified session, sending a spurious email to users of OAuth RPs
+      // (e.g. SUMO) that don't require session verification. Now the callback is
+      // returned but handleNavigation only calls it when routing to the code page.
+      const authClient = createMockAuthClient({
+        details: { sessionVerified: false },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+      expect(result.data?.sendVerificationCode).toBeInstanceOf(Function);
+      expect(result.data?.verificationReason).toBe(VerificationReasons.SIGN_IN);
+      expect(result.data?.verificationMethod).toBe(VerificationMethods.EMAIL_OTP);
+    });
+
+    it('returns TOTP_2FA with no sendVerificationCode callback when TOTP is active', async () => {
+      const authClient = createMockAuthClient({
+        authenticationMethods: [AuthenticationMethods.OTP],
+        details: { sessionVerified: false },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+      expect(result.data?.sendVerificationCode).toBeUndefined();
+      expect(result.data?.verificationReason).toBe(VerificationReasons.SIGN_IN);
+      expect(result.data?.verificationMethod).toBe(VerificationMethods.TOTP_2FA);
+      expect(result.data?.totpIsActive).toBe(true);
+    });
+
+    it('returns SIGN_UP/EMAIL_OTP with a sendVerificationCode callback when the primary email is unverified', async () => {
+      const authClient = createMockAuthClient({
+        details: { accountEmailVerified: false, sessionVerified: false },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+      expect(result.data?.sendVerificationCode).toBeInstanceOf(Function);
+      expect(result.data?.verificationReason).toBe(VerificationReasons.SIGN_UP);
+      expect(result.data?.verificationMethod).toBe(VerificationMethods.EMAIL_OTP);
+    });
+
+    it('returns no verification fields and no sendVerificationCode when the session is already verified', async () => {
+      const authClient = createMockAuthClient({
+        details: { sessionVerified: true },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+      expect(result.data?.sendVerificationCode).toBeUndefined();
+      expect(result.data?.verificationReason).toBeUndefined();
+      expect(result.data?.verificationMethod).toBeUndefined();
+      expect(result.data?.sessionVerified).toBe(true);
+    });
+
+    it('discards the session token and returns SESSION_EXPIRED when accountProfile reports an invalid token', async () => {
+      const authClient = createMockAuthClient({
+        accountProfileRejection: { errno: AuthUiErrors.INVALID_TOKEN.errno },
+      });
+      const session = createMockSession();
+
+      const result = await cachedSignIn(MOCK_SESSION_TOKEN, authClient, session);
+
+      expect(discardSessionTokenSpy).toHaveBeenCalledTimes(1);
+      expect(result.error).toBe(AuthUiErrors.SESSION_EXPIRED);
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
     });
   });
 });
