@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React from 'react';
 import { RemoteMetadata } from '../../lib/types';
 
 // Remote metadata is obtained from pairing channel

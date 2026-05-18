@@ -7,7 +7,6 @@ import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import * as utils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ThirdPartyAuthCallback from '.';

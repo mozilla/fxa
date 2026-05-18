@@ -4,7 +4,7 @@
 
 import '../src/styles/tailwind.out.css';
 import './design-guide/design-guide.css';
-import React, { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import type { Decorator } from '@storybook/react';
 import { ThemeProvider, useTheme } from '../src/models/contexts/ThemeContext';
 
@@ -13,7 +13,7 @@ const ThemeSync = ({
   children,
 }: {
   theme: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   const { setThemePreference } = useTheme();
   useEffect(() => {

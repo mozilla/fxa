@@ -8,7 +8,6 @@ import {
   MOCK_ACCOUNT,
   mockSession,
 } from 'fxa-settings/src/models/mocks';
-import React from 'react';
 import { Page2faReplaceBackupCodes } from '.';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';

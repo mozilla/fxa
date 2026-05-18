@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import React from 'react';
 import Subject from './mocks';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '@testing-library/react';

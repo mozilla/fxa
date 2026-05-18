@@ -6,7 +6,6 @@ import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as ModelsModule from '../../../models';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
 import CompleteSigninContainer from './container';

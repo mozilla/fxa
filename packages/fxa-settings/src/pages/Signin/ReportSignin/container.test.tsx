@@ -6,7 +6,6 @@
  * TIP - See signup/container.test.tsx for helpful tips about writing container tests
  */
 
-import React from 'react';
 import * as ReportSigninModule from './index';
 import * as LinkDamagedModule from '../../../components/LinkDamaged';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
