@@ -589,8 +589,10 @@ email:
   first_submit_success:
     type: event
     description: |
-      User clicked on the button to submit an email on the email first page
-      and is navigated onwards to sign in or sign up.
+      An email was submitted on the email first page (either by the user
+      clicking the submit button, or auto-submitted when an email is
+      supplied via query params or a cached account) and the flow is
+      navigated onwards to sign in or sign up.
     send_in_pings:
       - events
     notification_emails:
@@ -606,14 +608,20 @@ email:
       - interaction
     extra_keys:
       reason:
-        description: additional information - 'login' or 'registration'
+        description: |
+          additional information - 'login', 'registration', 'login-auto',
+          or 'registration-auto'. The '-auto' suffix indicates the email
+          was auto-submitted from query params or a cached account rather
+          than via direct user submission.
         type: string
   first_submit_fail:
     type: event
     description: |
-      The user clicked on the button to submit their email on the email-first page
-      but email submission failed, likely due to a failed email domain check.
-      The user is not navigated onwards to sign in or sign up.
+      An email was submitted on the email-first page (either by the user
+      clicking the submit button, or auto-submitted when an email is
+      supplied via query params or a cached account) but email submission
+      failed, likely due to a failed email domain check. The user is not
+      navigated onwards to sign in or sign up.
     send_in_pings:
       - events
     notification_emails:
@@ -629,7 +637,11 @@ email:
       - interaction
     extra_keys:
       reason:
-        description: additional information - 'login' or 'registration'
+        description: |
+          additional information - 'login', 'registration', 'login-auto',
+          or 'registration-auto'. The '-auto' suffix indicates the email
+          was auto-submitted from query params or a cached account rather
+          than via direct user submission.
         type: string
 login:
   email_confirmation_submit:

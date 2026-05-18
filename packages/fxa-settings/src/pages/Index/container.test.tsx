@@ -378,6 +378,10 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
       renderWithLocalizationProvider(
         <IndexContainer
           {...{
@@ -391,12 +395,11 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
-      // Glean event not emitted on automatic redirect, only on successful manual submission
-      const gleanSubmitSuccessSpy = jest.spyOn(
-        GleanMetrics.emailFirst,
-        'submitSuccess'
-      );
-      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+      // Auto-submit emits with the '-auto' reason suffix,
+      // so we can differentiate from manual submission
+      expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+        event: { reason: 'login-auto' },
+      });
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signin$/);
       expect(options).toEqual({
@@ -423,6 +426,10 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
       renderWithLocalizationProvider(
         <IndexContainer
           {...{
@@ -436,12 +443,10 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
-      // Glean event not emitted on automatic redirect, only on successful manual submission
-      const gleanSubmitSuccessSpy = jest.spyOn(
-        GleanMetrics.emailFirst,
-        'submitSuccess'
-      );
-      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+
+      expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+        event: { reason: 'registration-auto' },
+      });
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signup$/);
       expect(options).toEqual({
@@ -1041,6 +1046,152 @@ describe('IndexContainer', () => {
         );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
+        });
+      });
+
+      it('emits submitFail with reason "login" when the user cancels account linking', async () => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+
+      it('emits submitFail with reason "registration-auto" when auto-submit fails domain validation', async () => {
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { email: 'test@example.com' },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+          }),
+        });
+        (checkEmailDomain as jest.Mock).mockRejectedValueOnce(
+          AuthUiErrors.INVALID_EMAIL_DOMAIN
+        );
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+            event: { reason: 'registration-auto' },
+          });
+        });
+      });
+
+      it('does not emit submitFail when accountStatusByEmail rejects before accountExists is known', async () => {
+        // If we reach the catch before accountStatusByEmail resolves we can't
+        // attribute the failure to login vs registration, so the event should
+        // be skipped rather than recording a misleading reason.
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest
+            .fn()
+            .mockRejectedValue(new Error('network error')),
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
+      });
+
+      it('emits submitFail with reason "login-auto" when auto-submit hits a canceled can_link_account', async () => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { email: MOCK_EMAIL },
+          validationError: null,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+            event: { reason: 'login-auto' },
+          });
         });
       });
     });

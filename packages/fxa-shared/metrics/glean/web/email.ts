@@ -55,9 +55,11 @@ export const firstGoogleOauthStart = new EventMetricType(
 );
 
 /**
- * The user clicked on the button to submit their email on the email-first page
- * but email submission failed, likely due to a failed email domain check.
- * The user is not navigated onwards to sign in or sign up.
+ * An email was submitted on the email-first page (either by the user
+ * clicking the submit button, or auto-submitted when an email is
+ * supplied via query params or a cached account) but email submission
+ * failed, likely due to a failed email domain check. The user is not
+ * navigated onwards to sign in or sign up.
  *
  * Generated from `email.first_submit_fail`.
  */
@@ -75,8 +77,10 @@ export const firstSubmitFail = new EventMetricType<{
 );
 
 /**
- * User clicked on the button to submit an email on the email first page
- * and is navigated onwards to sign in or sign up.
+ * An email was submitted on the email first page (either by the user
+ * clicking the submit button, or auto-submitted when an email is
+ * supplied via query params or a cached account) and the flow is
+ * navigated onwards to sign in or sign up.
  *
  * Generated from `email.first_submit_success`.
  */
