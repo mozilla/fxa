@@ -340,6 +340,7 @@ export default class AuthClient {
   private timeout: number;
   private keyStretchVersion: SaltVersion;
   private requireHeaders: boolean;
+  private defaultHeaders: Record<string, string>;
   private errorHandler: (error: unknown) => Promise<void>;
 
   constructor(
@@ -348,6 +349,7 @@ export default class AuthClient {
       timeout?: number;
       keyStretchVersion?: SaltVersion;
       requireHeaders?: boolean;
+      defaultHeaders?: Record<string, string>;
       errorHandler?: (error: unknown) => Promise<void>;
     } = {}
   ) {
@@ -360,6 +362,7 @@ export default class AuthClient {
     this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
     this.requireHeaders = options.requireHeaders === true;
+    this.defaultHeaders = options.defaultHeaders || {};
     this.errorHandler =
       options.errorHandler ||
       (async (e) => {
@@ -394,6 +397,12 @@ export default class AuthClient {
         return;
       } else {
         extraHeaders = new Headers();
+      }
+    }
+
+    for (const [key, value] of Object.entries(this.defaultHeaders)) {
+      if (!extraHeaders.has(key)) {
+        extraHeaders.set(key, value);
       }
     }
 
