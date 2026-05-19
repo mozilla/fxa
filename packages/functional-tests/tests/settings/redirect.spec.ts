@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, Page, test } from '../../lib/fixtures/standard';
+import { expect, Page, test, newPages } from '../../lib/fixtures/standard';
 import { EmailType } from '../../lib/email';
 import { getTotpCode } from '../../lib/totp';
-import { create as createPages } from '../../pages';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -25,14 +24,11 @@ test.describe('severity-2 #smoke', () => {
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const browser = context.browser()!;
-      const secondContext = await browser.newContext();
-      const secondPage = await secondContext.newPage();
-
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await newPages(browser, target);
 
       await signInAccount(
         target,
-        secondPage,
+        secondPages.page,
         secondPages.signin,
         secondPages.settings,
         credentials
@@ -62,7 +58,7 @@ test.describe('severity-2 #smoke', () => {
       // Error alert caused by insufficient AAL error should not linger (see FXA-12707)
       await expect(page.getByText(/Insufficient AAL/)).toBeHidden();
       await settings.disconnectTotp();
-      await secondContext.close();
+      await secondPages.page.context().close();
     });
 
     test('redirects to signin_totp_code when AAL is insufficient on refresh', async ({
@@ -77,14 +73,11 @@ test.describe('severity-2 #smoke', () => {
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const browser = context.browser()!;
-      const secondContext = await browser.newContext();
-      const secondPage = await secondContext.newPage();
-
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await newPages(browser, target);
 
       await signInAccount(
         target,
-        secondPage,
+        secondPages.page,
         secondPages.signin,
         secondPages.settings,
         credentials
@@ -112,7 +105,7 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/settings/);
       await settings.disconnectTotp();
-      await secondContext.close();
+      await secondPages.page.context().close();
     });
 
     test('redirects to email first when not signed in', async ({

@@ -10,16 +10,6 @@ import { TargetNames } from './lib/targets';
 import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
 
 const CI = !!process.env.CI;
-const CI_WAF_TOKEN = process.env.CI_WAF_TOKEN;
-
-/**
- * Returns a header used for WAF bypass.
- *
- * Requires `CI_WAF_TOKEN` set in CircleCI, or local environment, and corresponding WAF condition set for target rule
- */
-function getCIHeader(): Record<string, string> {
-  return CI_WAF_TOKEN ? { 'fxa-ci': CI_WAF_TOKEN } : {};
-}
 
 // If using the CircleCI parallelism feature, assure that the JUNIT XML report
 // has a unique name
@@ -74,7 +64,6 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
 
   use: {
     viewport: { width: 1280, height: 720 },
-    extraHTTPHeaders: getCIHeader(),
   },
   projects: [
     ...TargetNames.map(

@@ -35,6 +35,42 @@ export type TestOptions = {
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
 
+const CI_WAF_TOKEN = process.env.CI_WAF_TOKEN;
+
+/**
+ * Adds a route handler that injects the WAF bypass header on requests to
+ * FXA-owned domains only, leaving third-party origins (Stripe, hCaptcha)
+ * untouched. No-op when CI_WAF_TOKEN is unset.
+ */
+async function addWafBypassHeader(page: Page, target: BaseTarget) {
+  if (!CI_WAF_TOKEN) {
+    if (target.name === 'stage' || target.name === 'production') {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `⚠ CI_WAF_TOKEN is not set for target "${target.name}". Requests may be blocked by the WAF.`
+      );
+    }
+    return;
+  }
+  const fxaDomains = [
+    new URL(target.contentServerUrl).host,
+    new URL(target.authServerUrl).host,
+    new URL(target.paymentsNextUrl).host,
+    new URL(target.relierUrl).host,
+  ];
+  const pattern = new RegExp(
+    fxaDomains.map((d) => d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+  );
+  await page.route(pattern, async (route) => {
+    await route.continue({
+      headers: {
+        ...route.request().headers(),
+        'fxa-ci': CI_WAF_TOKEN,
+      },
+    });
+  });
+}
+
 export const test = base.extend<TestOptions, WorkerOptions>({
   targetName: ['local', { scope: 'worker', option: true }],
 
@@ -46,6 +82,11 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     },
     { scope: 'worker', auto: true },
   ],
+
+  page: async ({ page, target }, use) => {
+    await addWafBypassHeader(page, target);
+    await use(page);
+  },
 
   pages: async ({ target, page }, use) => {
     const pages = createPages(page, target);
@@ -130,6 +171,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 export async function newPages(browser: Browser, target: BaseTarget) {
   const context = await browser.newContext();
   const page = await context.newPage();
+  await addWafBypassHeader(page, target);
   return createPages(page, target);
 }
 

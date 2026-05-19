@@ -70,8 +70,10 @@ export abstract class BaseTarget {
           `${process.env.AUTH_CLIENT_KEY_STRETCH_VERSION}, is it set correctly?`
       );
     }
+    const ciWafToken = process.env.CI_WAF_TOKEN;
     return new AuthClient(this.authServerUrl, {
       keyStretchVersion: keyStretchVersion as SaltVersion,
+      ...(ciWafToken && { defaultHeaders: { 'fxa-ci': ciWafToken } }),
     });
   }
 
