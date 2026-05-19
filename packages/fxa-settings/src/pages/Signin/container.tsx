@@ -4,7 +4,7 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import Signin from '.';
+import SigninDecider from './components/SigninDecider';
 import {
   Integration,
   useAuthClient,
@@ -296,24 +296,10 @@ const SigninContainer = ({
                   },
                 });
               }
-            } else if (
-              passwordlessSupported &&
-              !hasPassword &&
-              !hasLinkedAccount &&
-              !skipPasswordlessRedirect &&
-              !sessionToken
-            ) {
-              // Existing passwordless account — server returns
-              // passwordlessSupported=true regardless of flag/allowlist
-              // Third-party auth accounts (hasLinkedAccount) should use their provider
-              navigateWithQuery('/signin_passwordless_code', {
-                state: {
-                  email,
-                  clientId: integration.getClientId(),
-                },
-              });
             } else {
               // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
+              // Passwordless-redirect for existing accounts is handled in
+              // SigninDecider so all routing decisions live in one place.
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
@@ -695,7 +681,7 @@ const SigninContainer = ({
   }
 
   return (
-    <Signin
+    <SigninDecider
       {...{
         integration,
         serviceName,
@@ -716,6 +702,8 @@ const SigninContainer = ({
         useFxAStatusResult,
         isSignedIntoFirefox,
         setCurrentSplitLayout,
+        passwordlessSupported: accountStatus.passwordlessSupported,
+        skipPasswordlessRedirect,
       }}
     />
   );

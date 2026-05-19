@@ -4,51 +4,42 @@
 
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import classNames from 'classnames';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import InputPassword from '../../components/InputPassword';
-import Avatar from '../../components/Settings/Avatar';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
-import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
-import { usePageViewEvent } from '../../lib/metrics';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
   isWebIntegration,
-  isOAuthIntegration,
   isOAuthNativeIntegration,
-  isOAuthWebIntegration,
-  useConfig,
 } from '../../models';
 import { SigninFormData, SigninProps } from './interfaces';
-import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
+import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import { useConfig } from '../../models';
+import SigninUserLockup from './components/SigninUserLockup';
 
 export const viewName = 'signin';
 
-const avatarClassNames = 'h-12 w-12 desktop:h-22 desktop:w-22';
-
+// Password-input signin. The container only renders this component when the
+// flow needs a password.
 const Signin = ({
   integration,
   email,
-  sessionToken,
-  serviceName,
   hasLinkedAccount,
   beginSigninHandler,
-  cachedSigninHandler,
   sendUnblockEmailHandler,
   hasPassword,
   avatarData,
@@ -63,7 +54,6 @@ const Signin = ({
   setCurrentSplitLayout,
 }: SigninProps & RouteComponentProps) => {
   const config = useConfig();
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -83,68 +73,28 @@ const Signin = ({
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
-  const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);
   const isSync = integration.isSync();
   const clientId = integration.getClientId();
-  const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
   const legalTerms = integration.getLegalTerms();
 
-  // The user is in an authorization flow when they're signed into Firefox,
-  // it's a Firefox client (desktop or mobile), and a specific service is requested.
-  const isAuthorizationFlow =
-    isSignedIntoFirefox &&
-    integration.isFirefoxClient() &&
-    !!integration.getService();
+  // Hide "Use a different account" when the user is signed into Firefox Desktop.
+  // Users cannot choose another account due to the inability to merge
+  // account/sync data (the "merge stop"/warning).
+  const hideAccountSwitchLink =
+    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
 
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
-  const [hasCachedAccount, setHasCachedAccount] =
-    useState<boolean>(!!sessionToken);
-
+  // Passkey signin is an alternative to password entry. The decider only
+  // routes to this component when a password is needed, so we don't need to
+  // gate on `!hasCachedAccount` like the original monolithic Signin did.
   const showPasskeySignin = !!(
     config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled &&
-    !hasCachedAccount
+    config.featureFlags?.passkeyAuthenticationEnabled
   );
-
-  // Relay browser service login launched in Firefox desktop 135, and the "keys optional"
-  // capability (Sync decoupling) launched in Fx desktop 147, meaning all Relay service users
-  // in those Fx versions require a password. This also covers Mobile until Sync has been
-  // decoupled. If the user is already signed into Firefox (authorization flow), they've
-  // already entered their password — skip it.
-  const syncNotDecoupledRequiresPassword =
-    !supportsKeysOptionalLogin &&
-    !isSignedIntoFirefox &&
-    integration.wantsKeysIfPasswordEntered();
-
-  // Redirect-based RPs (OAuthWeb) that request scoped keys always need a password for key
-  // derivation. In practice today, we don't have RPs that need this, but we do support it.
-  const redirectRpRequiresKeys =
-    isOAuthWebIntegration(integration) && integration.wantsKeys();
-
-  const passwordNeeded =
-    !hasCachedAccount ||
-    integration.requiresKeys() ||
-    syncNotDecoupledRequiresPassword ||
-    redirectRpRequiresKeys ||
-    // The password is forced when the RP requests prompt=login
-    (isOAuth && integration.wantsLogin());
-
-  // Do we have a session token, and can we defer the key fetch?
-  const keysOptional = hasCachedAccount && supportsKeysOptionalLogin;
-
-  // Determine whether to show the password input. Keys always require a
-  // password for derivation, but we can skip it when:
-  // - The user is already signed into Firefox (authorization flow) AND the
-  //   service doesn't require keys (Sync always requires them), OR
-  // - The browser supports "keys optional" (Sync decoupled from other services)
-  //
-  // Passwordless users always see cached sign-in and are redirected to set a
-  // password after signing in, if a password is required (e.g. for Sync).
-  const showPasswordInput = hasPassword && passwordNeeded && !keysOptional;
 
   const localizedPasswordFormLabel = ftlMsgResolver.getMsg(
     'signin-password-button-label',
@@ -168,124 +118,16 @@ const Signin = ({
   // requires a PW for scoped keys. Passwordless users signing into Sync will be prompted
   // to create a PW at the end of the flow.
   // - Hide third party auth if it's an oauth native integration without passwordless support
-  // - Hide third party auth for all cached users (simplified UI)
   // Show for all other cases.
-  const hideThirdPartyAuth =
-    hasCachedAccount ||
-    (isSync ? hasPassword : isOAuthNative && !supportsKeysOptionalLogin);
+  const hideThirdPartyAuth = isSync
+    ? hasPassword
+    : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
-    if (!showPasswordInput) {
-      GleanMetrics.cachedLogin.view({
-        event: { thirdPartyLinks: !hideThirdPartyAuth },
-      });
-    } else {
-      GleanMetrics.login.view({
-        event: { thirdPartyLinks: !hideThirdPartyAuth },
-      });
-    }
-  }, [showPasswordInput, hideThirdPartyAuth]);
-
-  useEffect(() => {
-    if (hasLinkedAccountAndNoPassword && !hideThirdPartyAuth) {
-      GleanMetrics.thirdPartyAuth.loginNoPwView();
-    }
-  }, [hasLinkedAccountAndNoPassword, hideThirdPartyAuth]);
-
-  const signInWithCachedAccount = useCallback(
-    async (sessionToken: hexstring) => {
-      setSigninLoading(true);
-      GleanMetrics.cachedLogin.submit();
-
-      const { data, error } = await cachedSigninHandler(sessionToken);
-
-      if (data) {
-        GleanMetrics.cachedLogin.success();
-
-        // Sync merge check for cached signin
-        // Pattern matches SigninPasswordlessCode (line 201-211)
-        if (
-          (integration.isSync() || integration.isFirefoxNonSync()) &&
-          !hasPassword &&
-          !hasLinkedAccount
-        ) {
-          const canLink = await ensureCanLinkAcountOrRedirect({
-            email,
-            uid: data.uid,
-            ftlMsgResolver,
-            navigateWithQuery,
-          });
-          if (!canLink) {
-            // User cancelled the merge - abort signin
-            setSigninLoading(false);
-            return;
-          }
-        }
-
-        const navigationOptions = {
-          email,
-          signinData: {
-            emailVerified: data.emailVerified,
-            sessionVerified: data.sessionVerified,
-            verificationMethod: data.verificationMethod,
-            verificationReason: data.verificationReason,
-            uid: data.uid,
-            sessionToken,
-          },
-          integration,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
-          finishOAuthFlowHandler,
-          queryParams: location.search,
-          // Passwordless Sync accounts (OTP or third-party auth) need to navigate
-          // to set_password within the webview, even on mobile clients. No webchannel
-          // messages are sent (deferred until after password creation), so the webview
-          // must handle navigation internally.
-          performNavigation:
-            (isSync && !hasPassword) || !integration.isFirefoxMobileClient(),
-          isServiceWithEmailVerification,
-          // Sync users in the cached path are passwordless (third-party auth or OTP);
-          // defer web channel messages until after password creation.
-          handleFxaLogin: !isSync,
-          handleFxaOAuthLogin: !isSync,
-          // Redirect passwordless Sync users to set_password after session verification.
-          isSignInWithThirdPartyAuth: isSync,
-        };
-        const { error: navError } = await handleNavigation(navigationOptions);
-        if (navError) {
-          setLocalizedBannerError(
-            getLocalizedErrorMessage(ftlMsgResolver, navError)
-          );
-        }
-      }
-      if (error) {
-        setLocalizedBannerError(
-          getLocalizedErrorMessage(ftlMsgResolver, error)
-        );
-        if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
-          setHasCachedAccount(false);
-        }
-        setSigninLoading(false);
-      }
-    },
-    [
-      cachedSigninHandler,
-      email,
-      ftlMsgResolver,
-      navigateWithQuery,
-      setLocalizedBannerError,
-      integration,
-      finishOAuthFlowHandler,
-      isSync,
-      location.search,
-      webRedirectCheck,
-      isServiceWithEmailVerification,
-      hasLinkedAccount,
-      hasPassword,
-    ]
-  );
+    GleanMetrics.login.view({
+      event: { thirdPartyLinks: !hideThirdPartyAuth },
+    });
+  }, [hideThirdPartyAuth]);
 
   const signInWithPassword = useCallback(
     async (password: string) => {
@@ -426,41 +268,19 @@ const Signin = ({
 
   const onSubmit = useCallback(
     async ({ password }: { password: string }) => {
-      if (showPasswordInput && password === '') {
+      if (password === '') {
         setPasswordTooltipErrorText(localizedValidPasswordError);
         return;
       }
-
-      !showPasswordInput && sessionToken
-        ? signInWithCachedAccount(sessionToken)
-        : signInWithPassword(password);
+      signInWithPassword(password);
     },
-    [
-      signInWithCachedAccount,
-      signInWithPassword,
-      showPasswordInput,
-      localizedValidPasswordError,
-      sessionToken,
-    ]
+    [signInWithPassword, localizedValidPasswordError]
   );
 
   const cmsInfo = integration.getCmsInfo();
-  const cachedPageCms = cmsInfo?.SigninCachedPage;
   const signinPageCms = cmsInfo?.SigninPage;
-  const authorizePageCms = cmsInfo?.AuthorizePage;
-
-  let activePageCms = cachedPageCms;
-  if (showPasswordInput) {
-    activePageCms = signinPageCms;
-  } else if (isAuthorizationFlow) {
-    activePageCms = authorizePageCms || cachedPageCms;
-  }
-  const title = activePageCms?.pageTitle;
-  // If cachedPageCms is the active page but does not have a CMS entry,
-  // we reference the splitLayout property from the signinPageCms.
-  const splitLayout = activePageCms
-    ? activePageCms.splitLayout
-    : signinPageCms?.splitLayout;
+  const title = signinPageCms?.pageTitle;
+  const splitLayout = signinPageCms?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
@@ -475,38 +295,18 @@ const Signin = ({
           }}
         />
       )}
-      {showPasswordInput ? (
-        <CardHeader
-          headingText="Enter your password"
-          headingAndSubheadingFtlId="signin-password-needed-header-2"
-          {...{
-            cmsLogoUrl: cmsInfo?.shared.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: signinPageCms?.headline,
-            cmsDescription: signinPageCms?.description,
-            cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
-            cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
-          }}
-        />
-      ) : (
-        <CardHeader
-          headingText="Sign in"
-          headingTextFtlId="signin-header"
-          subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
-          subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
-          {...{
-            clientId,
-            serviceName,
-            cmsLogoUrl: cmsInfo?.shared.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: activePageCms?.headline || cachedPageCms?.headline,
-            cmsDescription:
-              activePageCms?.description || cachedPageCms?.description,
-            cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
-            cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
-          }}
-        />
-      )}
+      <CardHeader
+        headingText="Enter your password"
+        headingAndSubheadingFtlId="signin-password-needed-header-2"
+        {...{
+          cmsLogoUrl: cmsInfo?.shared.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared.logoAltText,
+          cmsHeadline: signinPageCms?.headline,
+          cmsDescription: signinPageCms?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
+        }}
+      />
       {localizedBannerError && (
         <Banner
           type="error"
@@ -517,101 +317,68 @@ const Signin = ({
           link={localizedBannerErrorLink}
         />
       )}
-      <div className="mt-8 mb-7 desktop:my-6">
-        <div className="flex desktop:flex-col items-center gap-3 desktop:gap-2">
-          {sessionToken && avatarData?.account?.avatar ? (
-            <Avatar
-              className={avatarClassNames}
-              avatar={avatarData.account.avatar}
-            />
-          ) : avatarLoading ? (
-            <div
-              className={classNames(
-                avatarClassNames,
-                'flex justify-center items-center'
-              )}
+      <SigninUserLockup
+        {...{
+          email,
+          avatarData,
+          avatarLoading,
+          additionalAccessibilityInfo,
+        }}
+      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input type="email" className="hidden" value={email} disabled />
+
+        <InputPassword
+          name="password"
+          anchorPosition="start"
+          className="mb-5"
+          label={localizedPasswordFormLabel}
+          errorText={passwordTooltipErrorText}
+          tooltipPosition="bottom"
+          required
+          autoFocus
+          onChange={() => {
+            // Only log the engage event once. Note that this text box is autofocused, so
+            // using autofocus wouldn't be a good way to do this.
+            if (hasEngaged === false) {
+              setHasEngaged(true);
+              GleanMetrics.login.engage();
+            }
+
+            // clear error tooltip if user types in the field
+            if (passwordTooltipErrorText) {
+              setPasswordTooltipErrorText('');
+            }
+            // if the request errored, loading state must be marked as false to reenable submission on input type
+            setSigninLoading(false);
+          }}
+          inputRef={register()}
+        />
+
+        <div className="flex">
+          <FtlMsg id="signin-button">
+            <CmsButtonWithFallback
+              type="submit"
+              disabled={signinLoading}
+              buttonColor={cmsInfo?.shared.buttonColor}
+              buttonText={signinPageCms?.primaryButtonText}
             >
-              <LoadingSpinner />
-            </div>
-          ) : (
-            // There was an error, so just show default avatar
-            <Avatar className={avatarClassNames} />
-          )}
-          <div className="text-base break-all text-start desktop:text-center">
-            {email}
-          </div>
+              Sign in
+            </CmsButtonWithFallback>
+          </FtlMsg>
         </div>
-
-        {additionalAccessibilityInfo && (
-          <p className="mt-6 mb-4 text-sm">{additionalAccessibilityInfo}</p>
-        )}
-      </div>
-      {(hasCachedAccount || !hasLinkedAccountAndNoPassword) && (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input type="email" className="hidden" value={email} disabled />
-
-          {showPasswordInput && (
-            <InputPassword
-              name="password"
-              anchorPosition="start"
-              className="mb-5"
-              label={localizedPasswordFormLabel}
-              errorText={passwordTooltipErrorText}
-              tooltipPosition="bottom"
-              required
-              autoFocus
-              onChange={() => {
-                // Only log the engage event once. Note that this text box is autofocused, so
-                // using autofocus wouldn't be a good way to do this.
-                if (hasEngaged === false) {
-                  setHasEngaged(true);
-                  GleanMetrics.login.engage();
-                }
-
-                // clear error tooltip if user types in the field
-                if (passwordTooltipErrorText) {
-                  setPasswordTooltipErrorText('');
-                }
-                // if the request errored, loading state must be marked as false to reenable submission on input type
-                setSigninLoading(false);
-              }}
-              inputRef={register()}
-            />
-          )}
-          {/* This non-fulfilled input tricks the browser, when trying to
-              sign in with the wrong password, into not showing the doorhanger.
-              TODO: this causes problems with react-hook-form, do we even need it?
-           */}
-          {/* <input className="hidden" required /> */}
-
-          <div className="flex">
-            <FtlMsg id="signin-button">
-              <CmsButtonWithFallback
-                type="submit"
-                disabled={signinLoading}
-                buttonColor={cmsInfo?.shared.buttonColor}
-                buttonText={activePageCms?.primaryButtonText}
-              >
-                Sign in
-              </CmsButtonWithFallback>
-            </FtlMsg>
-          </div>
-        </form>
-      )}
+      </form>
 
       <AlternativeAuthOptions
         showThirdPartyAuth={!hideThirdPartyAuth}
         showPasskeySignin={showPasskeySignin}
-        isStandalone={hasLinkedAccountAndNoPassword}
         {...{ viewName, flowQueryParams }}
       />
 
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
-        {/* Hide the account change link in the authorization flow — the user is
-         * already signed into Firefox and can't switch accounts in this context */}
-        {!isAuthorizationFlow && (
+        {!hideAccountSwitchLink && (
           <FtlMsg id="signin-use-a-different-account-link">
             <a
               href="/"
@@ -638,23 +405,17 @@ const Signin = ({
             </a>
           </FtlMsg>
         )}
-        {showPasswordInput && !hasLinkedAccountAndNoPassword && (
-          <FtlMsg id="signin-forgot-password-link">
-            <Link
-              to={`/reset_password${
-                location?.search ? `/${location?.search}` : ''
-              }`}
-              className="text-sm link-blue mx-auto tablet:mx-0"
-              onClick={() =>
-                !showPasswordInput
-                  ? GleanMetrics.cachedLogin.forgotPassword()
-                  : GleanMetrics.login.forgotPassword()
-              }
-            >
-              Forgot password?
-            </Link>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signin-forgot-password-link">
+          <Link
+            to={`/reset_password${
+              location?.search ? `/${location?.search}` : ''
+            }`}
+            className="text-sm link-blue mx-auto tablet:mx-0"
+            onClick={() => GleanMetrics.login.forgotPassword()}
+          >
+            Forgot password?
+          </Link>
+        </FtlMsg>
       </div>
     </AppLayout>
   );

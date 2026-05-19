@@ -1,0 +1,94 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from 'react';
+import { screen } from '@testing-library/react';
+import { LocationProvider } from '@reach/router';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
+import SigninAlternativeAuthOptions from '.';
+import GleanMetrics from '../../../../lib/glean';
+import { AppContext } from '../../../../models';
+import { mockAppContext } from '../../../../models/mocks';
+import {
+  createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninWebIntegration,
+} from '../../mocks';
+import {
+  MOCK_AVATAR_NON_DEFAULT,
+  MOCK_EMAIL,
+  mockFinishOAuthFlowHandler,
+} from '../../../mocks';
+import { MozServices } from '../../../../lib/types';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    cachedLogin: { view: jest.fn() },
+    thirdPartyAuth: { loginNoPwView: jest.fn() },
+    login: { diffAccountLinkClick: jest.fn() },
+  },
+}));
+
+const renderSigninAlternativeAuthOptions = (
+  props: Partial<React.ComponentProps<typeof SigninAlternativeAuthOptions>> = {}
+) =>
+  renderWithLocalizationProvider(
+    <LocationProvider>
+      <AppContext.Provider value={mockAppContext()}>
+        <SigninAlternativeAuthOptions
+          integration={createMockSigninWebIntegration()}
+          email={MOCK_EMAIL}
+          serviceName={MozServices.Default}
+          hasLinkedAccount={true}
+          hasPassword={false}
+          avatarData={{ account: { avatar: MOCK_AVATAR_NON_DEFAULT } }}
+          avatarLoading={false}
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          {...props}
+        />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+
+describe('SigninAlternativeAuthOptions', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders the third-party signin UI without password input or cached sign-in button', () => {
+    renderSigninAlternativeAuthOptions();
+
+    screen.getByRole('heading', { name: 'Sign in' });
+    screen.getByText(MOCK_EMAIL);
+    screen.getByRole('button', { name: /Continue with Google/ });
+    screen.getByRole('button', { name: /Continue with Apple/ });
+    screen.getByRole('link', { name: /Terms of Service/ });
+    screen.getByRole('link', { name: /Privacy Notice/ });
+    expect(screen.queryByLabelText('Password')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Sign in' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Forgot password?' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders third-party auth options for Sync linked-passwordless users', () => {
+    renderSigninAlternativeAuthOptions({
+      integration: createMockSigninOAuthNativeSyncIntegration(),
+    });
+
+    screen.getByRole('button', { name: /Continue with Google/ });
+    screen.getByRole('button', { name: /Continue with Apple/ });
+  });
+
+  it('emits cachedLogin.view and thirdPartyAuth.loginNoPwView on mount', () => {
+    renderSigninAlternativeAuthOptions();
+    expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+      event: { thirdPartyLinks: true },
+    });
+    expect(GleanMetrics.thirdPartyAuth.loginNoPwView).toHaveBeenCalledTimes(1);
+  });
+});
