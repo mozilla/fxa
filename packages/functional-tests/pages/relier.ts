@@ -88,6 +88,29 @@ export class RelierPage extends BaseLayout {
     return this.page.locator('.ready .prompt-none').click();
   }
 
+  async clickSubscribeMonthly() {
+    await this.page
+      .getByRole('link', { name: 'SP3 - Sub to Pro 1m', exact: true })
+      .click();
+    await this.page.waitForURL(
+      (url) => !url.href.includes(this.target.relierUrl)
+    );
+  }
+
+  async clickSubscribe6Month() {
+    await this.page.getByRole('link', { name: 'SP3 - Sub to Pro 6m' }).click();
+    await this.page.waitForURL(
+      (url) => !url.href.includes(this.target.relierUrl)
+    );
+  }
+
+  async clickSubscribe12Month() {
+    await this.page.getByRole('link', { name: 'SP3 - Sub to Pro 12m' }).click();
+    await this.page.waitForURL(
+      (url) => !url.href.includes(this.target.relierUrl)
+    );
+  }
+
   async clickRequire2FA() {
     await this.page.getByText('Sign In (Require 2FA)').click();
     return this.page.waitForURL(`${this.target.contentServerUrl}/**`);

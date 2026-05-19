@@ -16,6 +16,7 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     --parallel=2 \
     --verbose \
     -p \
+    123done \
     fxa-auth-server \
     fxa-content-server \
     fxa-profile-server \
