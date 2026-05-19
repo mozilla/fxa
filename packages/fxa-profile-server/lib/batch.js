@@ -88,7 +88,10 @@ function batch(request, routeFieldsMap) {
               break;
             default:
               logger.error(url + ':' + res.statusCode, res.result);
-              throw AppError.from(res.result);
+              throw AppError.from(res.result, {
+                batchUrl: url,
+                batchStatusCode: res.statusCode,
+              });
           }
         });
     })

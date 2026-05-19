@@ -78,15 +78,19 @@ module.exports = {
                 logger.info('request.auth_server.fail', body);
                 return reject(new AppError.unauthorized(body.message));
               }
-              // There should be no other 400-level errors, unless we're
-              // sending a badly-formed request of our own.  That warrants
-              // an "Internal Server Error" on our part.
+              // Preserve upstream errno/message instead of collapsing to errno 999.
               logger.error('request.auth_server.fail', body);
               return reject(
-                new AppError({
-                  code: 500,
-                  message: 'error communicating with auth server',
-                })
+                new AppError(
+                  {
+                    code: body.code || body.statusCode || 500,
+                    errno: body.errno,
+                    error: body.error,
+                    message: body.message,
+                    info: body.info,
+                  },
+                  { upstream: body }
+                )
               );
             }
 
