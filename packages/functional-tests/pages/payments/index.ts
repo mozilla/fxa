@@ -5,9 +5,11 @@
 import { Page } from '@playwright/test';
 import { BaseTarget } from '../../lib/targets/base';
 import { CheckoutPage } from './checkout';
+import { UpgradePage } from './upgrade';
 
 export function create(page: Page, target: BaseTarget) {
   return {
     checkout: new CheckoutPage(page, target),
+    upgrade: new UpgradePage(page, target),
   };
 }
