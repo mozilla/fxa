@@ -175,7 +175,7 @@
     "typescript": "5.5.3",
     "webpack": "^5.104.1",
     "webpack-watch-files-plugin": "^1.2.1",
-    "ws": "^8.17.1"
+    "ws": "^8.20.1"
   },
   "nx": {
     "tags": [
