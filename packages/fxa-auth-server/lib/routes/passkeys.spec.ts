@@ -1177,6 +1177,76 @@ describe('passkeys routes', () => {
         expect.anything()
       );
     });
+
+    it('calls checkIpOnly with passkeyAuthFinishFailed when verification fails', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(customs.checkIpOnly).toHaveBeenCalledWith(
+        expect.anything(),
+        'passkeyAuthFinishFailed'
+      );
+    });
+
+    it('rethrows the original verification error after recording the failure signal', async () => {
+      const verificationError = AppError.passkeyAuthenticationFailed();
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(verificationError);
+
+      await expect(
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toBe(verificationError);
+    });
+
+    it('does not call checkIpOnly with passkeyAuthFinishFailed on successful authentication', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      const allCalls = (customs.checkIpOnly as jest.Mock).mock.calls.map(
+        (args: string[]) => args[1]
+      );
+      expect(allCalls).not.toContain('passkeyAuthFinishFailed');
+    });
+
+    // Documents current behavior: if customs throws during the passkeyAuthFinishFailed
+    // signal, the original verification error is masked by the customs error.
+    // Consider wrapping in a try/catch (like the email-send pattern) to preserve
+    // the original error for the caller.
+    it('propagates a customs failure from passkeyAuthFinishFailed instead of the original verification error', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+      const customsError = new Error('customs service unavailable');
+      customs.checkIpOnly = jest
+        .fn()
+        .mockResolvedValueOnce(undefined) // passkeyAuthFinish — succeeds
+        .mockRejectedValueOnce(customsError); // passkeyAuthFinishFailed — fails
+
+      await expect(
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toBe(customsError);
+    });
   });
 
   describe('PasskeyHandler.createPasskeySessionToken', () => {

@@ -158,20 +158,22 @@ mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minu
 mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
 
 #
+# Passkey Authentication
+# More lenient than passwords - passkeys cannot be credential-stuffed or brute-forced.
+# Rate limits are primarily for DoS prevention and to ban clearly malicious IPs when high failure rate is encountered.
+#
+# The passkeyAuthFinishFailed rule is a clear signal of bogus requests. In this case, ban the IP, and block the UID,
+# which will prevent further passkey auth attempts from that account.
+#
+passkeyAuthStart                       : ip                : 100         : 15 minutes      : 15 minutes  : block
+passkeyAuthFinish                      : ip                : 100         : 15 minutes      : 15 minutes  : block
+passkeyAuthFinishFailed                : ip                : 1000        : 24 hours        : 15 minutes  : ban
+#
 # Passkey Registration
 # MFA-protected endpoints for registering new passkeys. Moderate limits since these require existing auth.
 #
 passkeyRegisterStart                   : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
 passkeyRegisterFinish                  : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
-
-#
-# Passkey Authentication
-# More lenient than passwords - passkeys cannot be credential-stuffed or brute-forced.
-# Rate limits are primarily for DoS prevention.
-#
-passkeyAuthenticationStart             : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
-passkeyAuthenticationVerify            : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
-passkeyLogin                           : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
 
 #
 # Passkey Management
