@@ -13,18 +13,48 @@ describe('SigninPasskeyFallback', () => {
     jest.clearAllMocks();
   });
 
-  it('renders as expected', () => {
-    const { container } = renderWithRouter(<SigninPasskeyFallback />);
-    expect(container).toMatchSnapshot();
+  it('renders email, heading, password field, and both buttons', () => {
+    renderWithRouter(<SigninPasskeyFallback email="user@example.com" />);
+    expect(screen.getByText('Enter your password to sync')).toBeInTheDocument();
+    expect(screen.getByTestId('passkey-fallback-email')).toHaveTextContent(
+      'user@example.com'
+    );
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByTestId('continue-button')).toBeInTheDocument();
+    expect(screen.getByTestId('go-to-settings-button')).toBeInTheDocument();
   });
 
-  it('clears password error text on input change', async () => {
+  it('calls onContinue with the entered password', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<SigninPasskeyFallback />);
-    const passwordInput = screen.getByLabelText('Password');
+    const onContinue = jest.fn().mockResolvedValue(undefined);
+    renderWithRouter(
+      <SigninPasskeyFallback email="user@example.com" onContinue={onContinue} />
+    );
+    await user.type(screen.getByLabelText('Password'), 'hunter2-the-sequel');
+    await user.click(screen.getByTestId('continue-button'));
+    expect(onContinue).toHaveBeenCalledWith('hunter2-the-sequel');
+  });
 
-    await user.type(passwordInput, 'newpassword');
+  it('calls onGoToSettings when the user clicks Go to settings', async () => {
+    const user = userEvent.setup();
+    const onGoToSettings = jest.fn();
+    renderWithRouter(
+      <SigninPasskeyFallback
+        email="user@example.com"
+        onGoToSettings={onGoToSettings}
+      />
+    );
+    await user.click(screen.getByTestId('go-to-settings-button'));
+    expect(onGoToSettings).toHaveBeenCalledTimes(1);
+  });
 
-    expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
+  it('shows a banner when localizedErrorMessage is set', () => {
+    renderWithRouter(
+      <SigninPasskeyFallback
+        email="user@example.com"
+        localizedErrorMessage="Incorrect password"
+      />
+    );
+    expect(screen.getByText('Incorrect password')).toBeInTheDocument();
   });
 });

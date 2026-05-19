@@ -6,6 +6,7 @@ import React from 'react';
 import SigninPasskeyFallback from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -14,8 +15,25 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const handlers = {
+  onContinue: async (password: string) => {
+    action('onContinue')(password);
+  },
+  onGoToSettings: () => action('onGoToSettings')(),
+};
+
 export const Default = () => (
   <LocationProvider>
-    <SigninPasskeyFallback />
+    <SigninPasskeyFallback email="user@example.com" {...handlers} />
+  </LocationProvider>
+);
+
+export const WithError = () => (
+  <LocationProvider>
+    <SigninPasskeyFallback
+      email="user@example.com"
+      localizedErrorMessage="Incorrect password"
+      {...handlers}
+    />
   </LocationProvider>
 );

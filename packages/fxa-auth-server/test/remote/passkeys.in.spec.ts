@@ -332,3 +332,84 @@ describe('#integration - remote passkey authentication', () => {
     }).rejects.toBeDefined();
   });
 });
+
+describe('#integration - remote passkey-then-password fallback via /session/reauth', () => {
+  let authEmail: string;
+  let authClient: any;
+  let registeredCred: VirtualCredential;
+
+  async function authenticateWithPasskey(): Promise<string> {
+    const startResult = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/start`,
+      null,
+      {}
+    );
+    const assertionResponse = VirtualAuthenticator.createAssertionResponse(
+      registeredCred,
+      {
+        challenge: startResult.challenge,
+        origin: passkeyOrigin,
+        rpId: passkeyRpId,
+      }
+    );
+    const finishResult = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/finish`,
+      null,
+      { response: assertionResponse, challenge: startResult.challenge }
+    );
+    return finishResult.sessionToken;
+  }
+
+  beforeEach(async () => {
+    authEmail = server.uniqueEmail();
+    authClient = await Client.createAndVerify(
+      server.publicUrl,
+      authEmail,
+      password,
+      server.mailbox,
+      { version: 'V2' }
+    );
+
+    const accessToken = await getMfaAccessTokenForPasskey(authClient);
+    const options = await authClient.api.doRequestWithBearerToken(
+      'POST',
+      `${authClient.api.baseURL}/passkey/registration/start`,
+      accessToken,
+      {}
+    );
+    registeredCred = VirtualAuthenticator.createCredential();
+    const registrationResponse = VirtualAuthenticator.createAttestationResponse(
+      registeredCred,
+      {
+        challenge: options.challenge,
+        origin: passkeyOrigin,
+        rpId: passkeyRpId,
+      }
+    );
+    await authClient.api.doRequestWithBearerToken(
+      'POST',
+      `${authClient.api.baseURL}/passkey/registration/finish`,
+      accessToken,
+      { response: registrationResponse, challenge: options.challenge }
+    );
+  });
+
+  it('passkey-verified session can call /session/reauth?keys=true to obtain a keyFetchToken', async () => {
+    const passkeySessionTokenHex = await authenticateWithPasskey();
+    const reauthClient = await Client.login(
+      server.publicUrl,
+      authEmail,
+      password,
+      { version: 'V2' }
+    );
+    reauthClient.sessionToken = passkeySessionTokenHex;
+
+    await reauthClient.reauth({ keys: true });
+
+    const keyFetchToken =
+      reauthClient.keyFetchTokenVersion2 || reauthClient.keyFetchToken;
+    expect(keyFetchToken).toMatch(/^[0-9a-f]{64}$/);
+  });
+});
