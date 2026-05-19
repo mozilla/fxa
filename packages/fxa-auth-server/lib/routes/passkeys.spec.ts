@@ -132,9 +132,10 @@ describe('passkeys routes', () => {
         emailVerified: true,
         verifierSetAt: 1234567890,
       }),
-      createPasskeyVerifiedSessionToken: jest
-        .fn()
-        .mockResolvedValue({ id: 'new-session-token-id' }),
+      createPasskeyVerifiedSessionToken: jest.fn().mockResolvedValue({
+        id: 'new-session-token-id',
+        data: 'new-session-token-data',
+      }),
       securityEvent: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -1044,7 +1045,7 @@ describe('passkeys routes', () => {
       );
       expect(result).toEqual({
         uid: UID,
-        sessionToken: 'new-session-token-id',
+        sessionToken: 'new-session-token-data',
         verified: true,
         requiresPasswordForSync: false,
         hasPassword: true,
@@ -1238,7 +1239,10 @@ describe('passkeys routes', () => {
         mockRequest as any
       );
 
-      expect(result).toEqual({ id: 'new-session-token-id' });
+      expect(result).toEqual({
+        id: 'new-session-token-id',
+        data: 'new-session-token-data',
+      });
       expect(statsd.increment).toHaveBeenCalledWith(
         'passkeys.createSessionToken.success'
       );

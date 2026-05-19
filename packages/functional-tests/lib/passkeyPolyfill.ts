@@ -139,6 +139,11 @@ export class PasskeyPolyfill {
     }));
   }
 
+  /** Returns raw credentials (with private keys) for signing later assertions. */
+  getCredentialObjects(): VirtualCredential[] {
+    return this.credentials.slice();
+  }
+
   /** Clear all minted credentials and reset to `pending` mode. */
   async cleanup() {
     this.credentials = [];

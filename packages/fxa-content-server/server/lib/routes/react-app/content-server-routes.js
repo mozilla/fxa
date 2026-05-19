@@ -72,8 +72,7 @@ const FRONTEND_ROUTES = [
   'signin_passwordless_code',
   'oauth/signin_passwordless_code',
   'signin_confirmed',
-  // TODO: FXA-13100 - Uncomment when passkey fallback is fully implemented
-  // 'signin_passkey_fallback',
+  'signin_passkey_fallback',
   'signin_permissions',
   'signin_reported',
   'signin_unblock',

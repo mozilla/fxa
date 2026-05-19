@@ -65,7 +65,7 @@ interface DB {
     uaOSVersion?: string;
     uaDeviceType?: string;
     uaFormFactor?: string;
-  }): Promise<{ id: string }>;
+  }): Promise<{ id: string; data: string }>;
   /** Records a security event in the audit log. */
   securityEvent: (arg: any) => Promise<void>;
 }
@@ -429,7 +429,7 @@ export class PasskeyHandler {
 
     return {
       uid,
-      sessionToken: sessionToken.id,
+      sessionToken: sessionToken.data,
       verified: true,
       requiresPasswordForSync,
       hasPassword,

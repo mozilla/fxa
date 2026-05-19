@@ -111,8 +111,8 @@ const SigninBounced = lazy(() => import('../../pages/Signin/SigninBounced'));
 const SigninConfirmed = lazy(
   () => import('../../pages/Signin/SigninConfirmed')
 );
-const SigninPasskeyFallback = lazy(
-  () => import('../../pages/Signin/SigninPasskeyFallback')
+const SigninPasskeyFallbackContainer = lazy(
+  () => import('../../pages/Signin/SigninPasskeyFallback/container')
 );
 const SigninRecoveryCodeContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryCode/container')
@@ -692,7 +692,10 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_confirmed/*"
           {...{ isSignedIn, serviceName, integration }}
         />
-        <SigninPasskeyFallback path="/signin_passkey_fallback/*" />
+        <SigninPasskeyFallbackContainer
+          path="/signin_passkey_fallback/*"
+          {...{ integration }}
+        />
         <SigninRecoveryChoiceContainer
           path="/signin_recovery_choice/*"
           {...{ integration, setCurrentSplitLayout }}
