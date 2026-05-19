@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { default: Container } = require('typedi');
-const cloneDeep = require('lodash/cloneDeep');
 const retry = require('async-retry');
 const { deleteCollection } = require('../../../local/payments/util');
 const {
@@ -184,9 +183,9 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it.skip('registers new/updates plans and products (Fix required as of 2024/02/12 (see FXA-9111))', async () => {
-      const newProduct: any = cloneDeep(productConfig);
+      const newProduct: any = structuredClone(productConfig);
       newProduct.id = randomUUID();
-      const newPlan: any = cloneDeep(planConfig);
+      const newPlan: any = structuredClone(planConfig);
       newPlan.id = randomUUID();
       newPlan.productId = newProduct.id;
 
@@ -269,7 +268,7 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('validateProductConfig', () => {
     it('validates a product config', async () => {
-      const newProduct = cloneDeep(productConfig);
+      const newProduct = structuredClone(productConfig);
       const spy = jest.spyOn(ProductConfig, 'validate');
 
       await paymentConfigManager.validateProductConfig(newProduct);
@@ -278,7 +277,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('throws error on invalid product config', async () => {
-      const newProduct = cloneDeep(productConfig);
+      const newProduct = structuredClone(productConfig);
       delete newProduct.urls;
 
       try {
@@ -292,7 +291,7 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('validatePlanConfig', () => {
     it('validates a plan config', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       const product = (await paymentConfigManager.allProducts())[0];
       const spy = jest.spyOn(PlanConfig, 'validate');
 
@@ -302,7 +301,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('throws error on invalid plan config', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       delete newPlan.active;
 
       try {
@@ -314,7 +313,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('throws error if the plan has an invalid product id', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       const product = (await paymentConfigManager.allProducts())[0];
       delete newPlan.active;
 
@@ -329,14 +328,14 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('storeProductConfig', () => {
     it('stores a product config', async () => {
-      const newProduct = cloneDeep(productConfig);
+      const newProduct = structuredClone(productConfig);
       expect(await paymentConfigManager.allProducts()).toHaveLength(1);
       await paymentConfigManager.storeProductConfig(newProduct, randomUUID());
       expect(await paymentConfigManager.allProducts()).toHaveLength(2);
     });
 
     it('throws if the product is invalid', async () => {
-      const newProduct = cloneDeep(productConfig);
+      const newProduct = structuredClone(productConfig);
       delete newProduct.urls;
       expect(await paymentConfigManager.allProducts()).toHaveLength(1);
       try {
@@ -350,7 +349,7 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('storePlanConfig', () => {
     it('stores a plan config', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       const product = (await paymentConfigManager.allProducts())[0];
       expect(await paymentConfigManager.allPlans()).toHaveLength(1);
       await paymentConfigManager.storePlanConfig(newPlan, product.id);
@@ -358,7 +357,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('throws if the plan has an invalid product id', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       expect(await paymentConfigManager.allPlans()).toHaveLength(1);
       try {
         await paymentConfigManager.storePlanConfig(newPlan, randomUUID());
@@ -370,7 +369,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('throws if the plan is invalid', async () => {
-      const newPlan = cloneDeep(planConfig);
+      const newPlan = structuredClone(planConfig);
       delete newPlan.active;
       expect(await paymentConfigManager.allPlans()).toHaveLength(1);
       try {

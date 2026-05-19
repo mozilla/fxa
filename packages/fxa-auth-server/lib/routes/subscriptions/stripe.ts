@@ -9,7 +9,6 @@ import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
-import omitBy from 'lodash/omitBy';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
@@ -40,8 +39,12 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
       key.toLowerCase() === 'promotioncodes';
     const isOmittable = (value: string, key: string) =>
       isCapabilityKey(value, key) || isPromotionCodes(value, key);
-    plan.plan_metadata = omitBy(plan.plan_metadata, isOmittable);
-    plan.product_metadata = omitBy(plan.product_metadata, isOmittable);
+    plan.plan_metadata = Object.fromEntries(
+      Object.entries(plan.plan_metadata ?? {}).filter(([key, value]) => !isOmittable(value as string, key))
+    );
+    plan.product_metadata = Object.fromEntries(
+      Object.entries(plan.product_metadata ?? {}).filter(([key, value]) => !isOmittable(value as string, key))
+    );
     return plan;
   });
 }

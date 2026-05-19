@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import cloneDeep from 'lodash.clonedeep';
 import { Stripe } from 'stripe';
 
 import {
@@ -27,7 +26,7 @@ export const ClientIdCapabilityMap = {
   ): ClientIdCapabilityMap {
     return Object.entries(b).reduce((acc, [clientId, capabilities]) => {
       if (!acc[clientId]) {
-        acc[clientId] = cloneDeep(capabilities);
+        acc[clientId] = structuredClone(capabilities);
         return acc;
       }
       for (const capability of capabilities) {
@@ -36,7 +35,7 @@ export const ClientIdCapabilityMap = {
         }
       }
       return acc;
-    }, cloneDeep(a));
+    }, structuredClone(a));
   },
 };
 

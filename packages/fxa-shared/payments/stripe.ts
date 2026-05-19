@@ -6,7 +6,6 @@ import cacheManager, { Cacheable } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
-import mapValues from 'lodash/mapValues';
 import { Stripe } from 'stripe';
 import {
   deleteAccountCustomer,
@@ -378,8 +377,8 @@ export abstract class StripeHelper {
         continue;
       }
 
-      item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
-      item.metadata = mapValues(item.metadata, (v) => v.trim());
+      item.product.metadata = Object.fromEntries(Object.entries(item.product.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
+      item.metadata = Object.fromEntries(Object.entries(item.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
 
       plans.push(item);
     }

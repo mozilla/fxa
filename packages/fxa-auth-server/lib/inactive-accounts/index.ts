@@ -4,8 +4,6 @@
 
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
-import isEqual from 'lodash/isEqual';
-
 import {
   CloudTaskOptions,
   EmailTypes,
@@ -443,7 +441,7 @@ export class InactiveAccountsManager {
     // we DO NOT enqueue for deletion because the user could still be notified.
     if (
       bouncedEmails.length === expectedEmails.length &&
-      isEqual(bouncedEmails, expectedEmails)
+      bouncedEmails.every((e, i) => e === expectedEmails[i])
     ) {
       await this.accountTasks.deleteAccount({
         uid: taskPayload.uid,

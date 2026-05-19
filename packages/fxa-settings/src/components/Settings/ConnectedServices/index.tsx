@@ -5,7 +5,6 @@
 import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import groupBy from 'lodash.groupby';
 import React, { forwardRef, useCallback, useState } from 'react';
 import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
@@ -27,7 +26,14 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = groupBy(attachedClients, 'name');
+  const groupedByName = attachedClients.reduce<Record<string, AttachedClient[]>>(
+    (acc, client) => {
+      const key = String(client.name);
+      acc[key] = acc[key] ? [...acc[key], client] : [client];
+      return acc;
+    },
+    {}
+  );
 
   // get a unique (by name) list and sort by time last accessed
   const sortedAndUniqueClients = Object.keys(groupedByName)

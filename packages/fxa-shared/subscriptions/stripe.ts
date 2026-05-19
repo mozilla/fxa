@@ -1,5 +1,4 @@
 import Stripe from 'stripe';
-import omitBy from 'lodash.omitby';
 import {
   Plan,
   SubscriptionStripeError,
@@ -160,7 +159,9 @@ export function filterPrice(item: Stripe.Price) {
     'type',
     'unit_amount'
   );
-  price.metadata = omitBy(price.metadata, isCapabilityKey);
+  price.metadata = Object.fromEntries(
+    Object.entries(price.metadata).filter(([key, value]) => !isCapabilityKey(value as string, key))
+  );
   if (
     typeof price.product !== 'string' &&
     price.product &&
@@ -178,7 +179,9 @@ export function filterPrice(item: Stripe.Price) {
  */
 export function filterProduct(item: Stripe.Product) {
   const product = pick(item, 'id', 'active', 'description', 'metadata', 'name');
-  product.metadata = omitBy(product.metadata, isCapabilityKey);
+  product.metadata = Object.fromEntries(
+    Object.entries(product.metadata).filter(([key, value]) => !isCapabilityKey(value as string, key))
+  );
   return product;
 }
 
