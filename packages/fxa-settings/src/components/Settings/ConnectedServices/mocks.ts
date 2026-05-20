@@ -403,3 +403,63 @@ export const MOCK_SERVICES_WITHOUT_MOBILE = [
   ...DESKTOP_SYNC_MOCKS,
   ...OAUTH_SERVICE_MOCKS,
 ];
+
+const BROWSER_SERVICE_BASE = {
+  sessionTokenId: null,
+  isCurrentSession: false,
+  deviceType: 'mobile',
+  createdTime: 1570100000000,
+  lastAccessTime: 1570100000000,
+  location: { city: null, country: null, state: null, stateCode: null },
+  userAgent: '',
+  os: null,
+  createdTimeFormatted: 'a month ago',
+  lastAccessTimeFormatted: 'a month ago',
+  approximateLastAccessTime: null,
+  approximateLastAccessTimeFormatted: null,
+};
+
+// Scopes are sorted alphabetically to match how fxa-auth-server returns them
+// (see authorized_clients.js#serialize).
+export const MOCK_BROWSER_SERVICES = [
+  {
+    ...BROWSER_SERVICE_BASE,
+    clientId: '1b1a3e44c54fbb58',
+    deviceId: 'a91cc4d7b8e4495fa3c6e2edf8c5132b',
+    refreshTokenId:
+      'c4a8f3b2d1e6a9507f2c4e8b3d1a6f9072e5c8b4a3d7f1e6920b5c8a4d3f7e1',
+    name: 'Firefox for iOS',
+    scope: [
+      'https://identity.mozilla.com/apps/oldsync',
+      'https://identity.mozilla.com/apps/relay',
+      'profile',
+    ],
+  },
+  {
+    ...BROWSER_SERVICE_BASE,
+    clientId: 'a2270f727f45f648',
+    deviceId: 'b14e9f8d2a3b4c5d6e7f8a9b0c1d2e3f',
+    refreshTokenId:
+      'd5b9f4c3e2f7a0617f3d5e9c4e2b7f0183f6d9c5b4e8f2f7031c6d9b5e4f8f2',
+    name: 'Firefox for Android',
+    scope: [
+      'https://identity.mozilla.com/apps/oldsync',
+      'https://identity.mozilla.com/apps/vpn',
+      'profile',
+    ],
+  },
+  {
+    ...BROWSER_SERVICE_BASE,
+    clientId: '1b1a3e44c54fbb58',
+    deviceId: 'c25f0e9d3b4c5d6e7f8a9b0c1d2e3f40',
+    refreshTokenId:
+      'e6c0f5d4f3a8b1728f4e6f0d5f3c8a1294a7e0d6c5f9a3f8142d7e0c6f5a9a3',
+    name: 'Firefox on Foxxy’s iPad',
+    scope: [
+      'https://identity.mozilla.com/apps/oldsync',
+      'https://identity.mozilla.com/apps/relay',
+      'https://identity.mozilla.com/apps/vpn',
+      'profile',
+    ],
+  },
+];

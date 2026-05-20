@@ -683,5 +683,42 @@ describe('Connected Services', () => {
       await screen.findByTestId('settings-connected-service');
       expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
     });
+
+    it('renders VPN scope sub-entry when scope includes vpn and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.Fenix,
+        name: 'Firefox for Android',
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'profile',
+          'https://identity.mozilla.com/apps/vpn',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      const scopeEntry = screen.getByTestId('scope-service');
+      expect(scopeEntry).toBeInTheDocument();
+      expect(scopeEntry).toHaveTextContent('Firefox’s built-in VPN');
+    });
+
+    it('renders both Relay and VPN scope sub-entries when scope includes both and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxIOS,
+        name: 'Firefox for iOS',
+        // Scopes are alphabetized to mirror the order returned by
+        // fxa-auth-server (authorized_clients.js#serialize).
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'https://identity.mozilla.com/apps/relay',
+          'https://identity.mozilla.com/apps/vpn',
+          'profile',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.getAllByTestId('scope-service')).toHaveLength(2);
+      expect(screen.getByText('Firefox Relay')).toBeInTheDocument();
+      expect(screen.getByText('Firefox’s built-in VPN')).toBeInTheDocument();
+    });
   });
 });
