@@ -100,6 +100,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         ({
           name: `${name}-payments-next`,
           testDir: 'tests-payments-next',
+          fullyParallel: false,
           use: {
             browserName: 'chromium',
             targetName: name,
