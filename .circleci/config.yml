@@ -1054,6 +1054,11 @@ workflows:
           requires:
             - Build (PR)
             - Approve Functional Tests (PR)
+      - playwright-payments-tests:
+          name: Payments Functional Tests - Playwright (PR)
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
