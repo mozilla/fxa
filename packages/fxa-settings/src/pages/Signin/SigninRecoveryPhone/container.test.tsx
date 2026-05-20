@@ -105,6 +105,7 @@ function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
 
+  currentPageProps = undefined;
   mockSigninRecoveryPhoneModule();
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
@@ -246,6 +247,34 @@ describe('SigninRecoveryPhoneContainer', () => {
           performNavigation: false,
         })
       );
+    });
+  });
+
+  describe('useOAuthKeysCheck', () => {
+    it('passes isPasswordlessFlow to skip the keys check', () => {
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer();
+      const lastArg = (useOAuthKeysCheck as jest.Mock).mock.calls[0]?.[3];
+      expect(lastArg).toBe(true);
+    });
+
+    it('renders the recovery phone component when keys check is skipped for passwordless flow', () => {
+      (useOAuthKeysCheck as jest.Mock).mockImplementationOnce(
+        (_integration: any, _kft: any, _ubk: any, skipKeysCheck: boolean) => ({
+          oAuthKeysCheckError: skipKeysCheck
+            ? null
+            : { errno: 1, message: 'TRY_AGAIN' },
+        })
+      );
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer();
+      expect(currentPageProps).toBeDefined();
     });
   });
 });

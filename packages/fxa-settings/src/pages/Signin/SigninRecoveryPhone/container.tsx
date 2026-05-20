@@ -70,7 +70,7 @@ const SigninRecoveryPhoneContainer = ({
     integration,
     keyFetchToken,
     unwrapBKey,
-    signinState?.isSignInWithThirdPartyAuth
+    signinState?.isSignInWithThirdPartyAuth || signinState?.isPasswordlessFlow
   );
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
