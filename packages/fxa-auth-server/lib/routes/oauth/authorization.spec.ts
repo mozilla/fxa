@@ -224,7 +224,9 @@ describe('/authorization POST', () => {
     };
 
     it('allows clients that have not been disabled via config', async () => {
-      await expect(configuredRoute.config.handler(request)).rejects.toMatchObject({
+      await expect(
+        configuredRoute.config.handler(request)
+      ).rejects.toMatchObject({
         errno: 104, // Invalid assertion
       });
     });
@@ -330,5 +332,232 @@ describe('/oauth/authorization POST', () => {
       await rejection.toBeDefined();
       await rejection.not.toMatchObject({ errno: 138 });
     });
+  });
+});
+
+describe('/authorization POST consent write', () => {
+  const UID_HEX = 'a'.repeat(32);
+  const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+  const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+
+  function buildOauthDB(overrides: Record<string, any> = {}) {
+    return {
+      getClient: jest.fn(async () => ({
+        canGrant: true,
+        publicClient: false,
+        redirectUri: 'https://example.com/redirect',
+        id: Buffer.from(CLIENT_ID, 'hex'),
+      })),
+      generateCode: jest.fn(async () => 'code-xyz'),
+      isKnownService: jest.fn((s: string) => s === 'sync'),
+      isClientAllowedForService: jest.fn(() => true),
+      getCanonicalScopeForService: jest.fn((s: string) =>
+        s === 'sync' ? SYNC_SCOPE : undefined
+      ),
+      getServiceForCanonicalScope: jest.fn(() => undefined),
+      recordSignInConsent: jest.fn().mockResolvedValue(undefined),
+      ...overrides,
+    };
+  }
+
+  function buildPayload(extra: Record<string, any> = {}) {
+    return {
+      client_id: CLIENT_ID,
+      assertion: BASE64URL_STRING,
+      state: 'foo',
+      scope: 'profile openid',
+      response_type: 'code',
+      redirect_uri: 'https://example.com/redirect',
+      ...extra,
+    };
+  }
+
+  async function runHandler(opts: {
+    oauthDB: any;
+    statsd?: any;
+    log?: any;
+    payload?: Record<string, any>;
+  }) {
+    let routes: any;
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock('../../oauth/assertion', () =>
+        jest.fn(async () => ({ uid: UID_HEX }))
+      );
+      jest.doMock('../../oauth/grant', () => ({
+        validateRequestedGrant: jest.fn(async (_claims, _client, payload) => ({
+          clientId: Buffer.from(CLIENT_ID, 'hex'),
+          userId: Buffer.from(UID_HEX, 'hex'),
+          scope: {
+            getScopeValues: () =>
+              (payload.scope as string).split(/\s+/).filter(Boolean),
+          },
+          offline: payload.access_type !== 'online',
+        })),
+        generateTokens: jest.fn(async () => ({})),
+      }));
+      routes = require('./authorization')({
+        log: opts.log ?? mockLog,
+        oauthDB: opts.oauthDB,
+        config: baseConfig,
+        statsd: opts.statsd,
+      });
+      await routes[1].config.handler({
+        headers: {},
+        payload: buildPayload(opts.payload),
+      });
+    });
+  }
+
+  it('writes one row per requested scope plus the service canonical and consults the allowlist', async () => {
+    const oauthDB = buildOauthDB();
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB,
+      statsd,
+      payload: { service: 'sync', access_type: 'offline' },
+    });
+
+    expect(oauthDB.isClientAllowedForService).toHaveBeenCalledWith(
+      'sync',
+      CLIENT_ID
+    );
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalledTimes(3);
+    const scopes = (oauthDB.recordSignInConsent as jest.Mock).mock.calls
+      .map(([arg]) => arg.scope)
+      .sort();
+    expect(scopes).toEqual([SYNC_SCOPE, 'openid', 'profile']);
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        uid: UID_HEX,
+        service: 'sync',
+        clientId: CLIENT_ID,
+      })
+    );
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.recorded',
+      { service: 'sync', access_type: 'offline' }
+    );
+  });
+
+  it('records service="" when the URL service= is unrecognised', async () => {
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(() => false),
+    });
+
+    await runHandler({
+      oauthDB,
+      payload: { service: 'mystery', scope: 'profile' },
+    });
+
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
+      expect.objectContaining({ scope: 'profile', service: '' })
+    );
+  });
+
+  it('swallows recordSignInConsent failures and emits write_failed', async () => {
+    const oauthDB = buildOauthDB({
+      recordSignInConsent: jest.fn().mockRejectedValue(new Error('db down')),
+    });
+    const log = { ...mockLog, warn: jest.fn() };
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({ oauthDB, log, statsd, payload: { scope: 'profile' } });
+
+    expect(log.warn).toHaveBeenCalledWith(
+      'accountAuthorization.write_failed',
+      expect.objectContaining({ err: 'db down' })
+    );
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.write_failed'
+    );
+  });
+
+  it('prompt=none skips the consent write entirely', async () => {
+    const oauthDB = buildOauthDB();
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB,
+      statsd,
+      payload: { service: 'sync', prompt: 'none' },
+    });
+
+    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.skipped',
+      {
+        reason: 'prompt_none',
+      }
+    );
+    expect(statsd.increment).not.toHaveBeenCalledWith(
+      'accountAuthorization.recorded',
+      expect.anything()
+    );
+  });
+
+  it('skips the consent write when clientId is not allowed for the service', async () => {
+    const oauthDB = buildOauthDB({
+      isClientAllowedForService: jest.fn(() => false),
+    });
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB,
+      statsd,
+      payload: { service: 'sync' },
+    });
+
+    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.skipped',
+      {
+        reason: 'client_not_allowed',
+        service: 'sync',
+      }
+    );
+  });
+
+  it('infers service from a canonical scope when service= URL param is missing', async () => {
+    // Reproduces Desktop VPN cached signin: client_id on the VPN
+    // allowlist, scope=apps/vpn, no service= URL param. The writer
+    // must infer service=vpn so a later token-exchange finds the row.
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(() => false),
+      getServiceForCanonicalScope: jest.fn((s: string) =>
+        s === VPN_SCOPE ? 'vpn' : undefined
+      ),
+    });
+
+    await runHandler({ oauthDB, payload: { scope: VPN_SCOPE } });
+
+    expect(oauthDB.isClientAllowedForService).toHaveBeenCalledWith(
+      'vpn',
+      CLIENT_ID
+    );
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
+      expect.objectContaining({ scope: VPN_SCOPE, service: 'vpn' })
+    );
+  });
+
+  it('inferred service still gates through the clientId allowlist', async () => {
+    // Reproduces 123done -> apps/vpn with no service=. Inference
+    // yields service=vpn; the allowlist gate rejects 123done.
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(() => false),
+      isClientAllowedForService: jest.fn(() => false),
+      getServiceForCanonicalScope: jest.fn((s: string) =>
+        s === VPN_SCOPE ? 'vpn' : undefined
+      ),
+    });
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({ oauthDB, statsd, payload: { scope: VPN_SCOPE } });
+
+    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.skipped',
+      { reason: 'client_not_allowed', service: 'vpn' }
+    );
   });
 });

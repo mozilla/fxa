@@ -31,7 +31,7 @@ function isLocalHost(url) {
   return host === 'localhost' || host === 'localhost';
 }
 
-module.exports = ({ log, oauthDB, config }) => {
+module.exports = ({ log, oauthDB, config, statsd }) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
@@ -162,6 +162,77 @@ module.exports = ({ log, oauthDB, config }) => {
     }
   }
 
+  // Record consent here, not at /oauth/token, so the URL service= is
+  // available. Silent (prompt=none) re-auths and off-allowlist clients
+  // are skipped; the latter guards privileged services like VPN from
+  // a non-Mozilla RP forging consent on the user behalf. Errors are
+  // swallowed; bookkeeping cannot break sign-in.
+  async function recordAuthorizationRows(req, grant) {
+    if (req.payload.prompt === 'none') {
+      statsd?.increment('accountAuthorization.skipped', { reason: 'prompt_none' });
+      return;
+    }
+    const requestedScopes = grant.scope.getScopeValues();
+    if (requestedScopes.length === 0) {
+      return;
+    }
+    const clientIdHex = hex(grant.clientId);
+    // Lowercase the service so a casing variant (service=VPN) does not
+    // silently land as service='' and bypass the allowlist gate.
+    const serviceParam = (req.payload.service || '').toLowerCase();
+    let serviceValue = oauthDB.isKnownService(serviceParam) ? serviceParam : '';
+    // When the URL omits service= (e.g. VPN cached sign-in only sends
+    // client_id + scope=apps/vpn), recover the service from a canonical
+    // scope in the request so the row lands at service=<vpn> rather
+    // than service=''. Only fires when exactly one canonical scope is
+    // present; ambiguous multi-canonical requests fall back to ''.
+    if (!serviceValue) {
+      const inferred = requestedScopes
+        .map((s) => oauthDB.getServiceForCanonicalScope(s))
+        .filter(Boolean);
+      if (inferred.length === 1) {
+        serviceValue = inferred[0];
+      }
+    }
+    if (!oauthDB.isClientAllowedForService(serviceValue, clientIdHex)) {
+      statsd?.increment('accountAuthorization.skipped', {
+        reason: 'client_not_allowed',
+        service: serviceValue,
+      });
+      return;
+    }
+    const scopesToConsent = new Set(requestedScopes);
+    if (serviceValue) {
+      const canonical = oauthDB.getCanonicalScopeForService(serviceValue);
+      if (canonical) {
+        scopesToConsent.add(canonical);
+      }
+    }
+    const now = Date.now();
+    const uidHex = hex(grant.userId);
+    // allSettled so a second sibling rejection does not become an
+    // unhandled rejection after the first failure has been caught upstream.
+    const results = await Promise.allSettled(
+      Array.from(scopesToConsent).map((scope) =>
+        oauthDB.recordSignInConsent({
+          uid: uidHex,
+          scope,
+          service: serviceValue,
+          clientId: clientIdHex,
+          now,
+        })
+      )
+    );
+    const failure = results.find((r) => r.status === 'rejected');
+    if (failure) {
+      throw failure.reason;
+    }
+    statsd?.increment('accountAuthorization.recorded', {
+      service: serviceValue || 'unset',
+      access_type: grant.offline ? 'offline' : 'online',
+    });
+  }
+
   async function authorizationHandler(req) {
     const claims = await verifyAssertion(req.payload.assertion);
 
@@ -174,6 +245,12 @@ module.exports = ({ log, oauthDB, config }) => {
     }
     validateClientDetails(client, req.payload);
     const grant = await validateRequestedGrant(claims, client, req.payload);
+    try {
+      await recordAuthorizationRows(req, grant);
+    } catch (err) {
+      statsd?.increment('accountAuthorization.write_failed');
+      log.warn('accountAuthorization.write_failed', { err: err.message });
+    }
     switch (req.payload.response_type) {
       case RESPONSE_TYPE_CODE:
         return await generateAuthorizationCode(client, req.payload, grant);
@@ -303,6 +380,12 @@ module.exports = ({ log, oauthDB, config }) => {
                 otherwise: Joi.forbidden(),
               })
               .description(DESCRIPTION.resource + DESCRIPTION.resourceOauth),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            prompt: Joi.string()
+              .valid('none', 'login', 'consent')
+              .optional(),
           }),
         },
         response: {
@@ -389,6 +472,12 @@ module.exports = ({ log, oauthDB, config }) => {
               .description(DESCRIPTION.acrValues),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            prompt: Joi.string()
+              .valid('none', 'login', 'consent')
+              .optional(),
           }).and('code_challenge', 'code_challenge_method'),
         },
         response: {

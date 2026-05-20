@@ -3002,6 +3002,8 @@ export default class AuthClient {
       redirect_uri?: string;
       response_type?: string;
       scope?: string;
+      service?: string;
+      prompt?: string;
       code_challenge_method?: string;
       code_challenge?: string;
     } = {},
@@ -3017,9 +3019,11 @@ export default class AuthClient {
         code_challenge: options.code_challenge,
         code_challenge_method: options.code_challenge_method,
         keys_jwe: options.keys_jwe,
+        prompt: options.prompt,
         redirect_uri: options.redirect_uri,
         response_type: options.response_type,
         scope: options.scope,
+        service: options.service,
         state,
       },
       headers

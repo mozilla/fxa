@@ -113,7 +113,7 @@ async function getOAuthData(
   integration: OAuthIntegration,
   sessionToken: string,
   keysJwe?: string
-) {
+): Promise<OAuthData | null> {
   const opts: any = {
     acr_values: integration.data.acrValues,
     code_challenge: integration.data.codeChallenge,
@@ -125,6 +125,14 @@ async function getOAuthData(
   }
   if (integration.data.accessType === 'offline') {
     opts.access_type = integration.data.accessType;
+  }
+  // Drives the per-service accountAuthorizations row on the auth-server.
+  if (integration.data.service) {
+    opts.service = integration.data.service;
+  }
+  // prompt=none must reach the server so silent re-auths skip the row write.
+  if (integration.data.prompt) {
+    opts.prompt = integration.data.prompt;
   }
 
   const result: OAuthData | null = await authClient.createOAuthCode(

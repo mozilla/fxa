@@ -140,6 +140,7 @@ describe('AccountDeleteManager', () => {
     mockOAuthDb = {
       removeTokensAndCodes: jest.fn().mockResolvedValue(undefined),
       removePublicAndCanGrantTokens: jest.fn().mockResolvedValue(undefined),
+      deleteAllConsentsForUser: jest.fn().mockResolvedValue(undefined),
     };
 
     Container.set(StripeHelper, mockStripeHelper);
@@ -218,6 +219,8 @@ describe('AccountDeleteManager', () => {
       expect(mockPushbox.deleteAccount).toHaveBeenCalledWith(uid);
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledTimes(1);
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledWith(uid);
+      expect(mockOAuthDb.deleteAllConsentsForUser).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.deleteAllConsentsForUser).toHaveBeenCalledWith(uid);
       expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
       expect(mockLog.activityEvent).toHaveBeenCalledWith({
         uid,
@@ -363,6 +366,8 @@ describe('AccountDeleteManager', () => {
       );
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledTimes(1);
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledWith(uid);
+      expect(mockOAuthDb.deleteAllConsentsForUser).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.deleteAllConsentsForUser).toHaveBeenCalledWith(uid);
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.destroy.quick-delete'
       );
@@ -418,10 +423,13 @@ describe('AccountDeleteManager', () => {
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
         expect.objectContaining({ uid })
       );
-      expect(mockLog.error).toHaveBeenCalledWith('quickDelete.oauthTokens', {
-        uid,
-        error: oauthError,
-      });
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'quickDelete.oauthAccountData',
+        {
+          uid,
+          error: oauthError,
+        }
+      );
       expect(mockReportSentryError).toHaveBeenCalledWith(oauthError);
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.destroy.quick-delete.oauth-failure'
