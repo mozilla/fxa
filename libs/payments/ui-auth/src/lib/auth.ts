@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import NextAuth from 'next-auth';
+import NextAuth, { customFetch } from 'next-auth';
 import { authConfig } from './auth.config';
 import { AuthError } from './auth.error';
 import { singleton } from './singleton';
@@ -48,6 +48,23 @@ export function setupAuth(opts: UiAuthOptions) {
         clientId: opts.clientId,
         clientSecret: opts.clientSecret,
         token: opts.tokenUrl,
+        // Inject WAF bypass header on server-side requests to the auth
+        // server so CI traffic is not blocked by Fastly's bot detection.
+        // No-op when WAF_BYPASS_TOKEN is not set (local dev / production).
+        ...(() => {
+          const wafToken = process.env.WAF_BYPASS_TOKEN;
+          if (!process.env.CI || !wafToken) return {};
+          return {
+            [customFetch]: async (
+              input: RequestInfo | URL,
+              init?: RequestInit
+            ): Promise<Response> => {
+              const headers = new Headers(init?.headers);
+              headers.set('fxa-ci', wafToken);
+              return fetch(input, { ...init, headers });
+            },
+          };
+        })(),
         profile: (profile) => {
           return {
             id: profile.uid,

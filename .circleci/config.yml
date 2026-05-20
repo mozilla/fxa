@@ -911,7 +911,7 @@ jobs:
     parameters:
       parallelism:
         type: integer
-        default: 4
+        default: 3
       project:
         type: string
         default: stage-payments-next
