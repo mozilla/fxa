@@ -7,7 +7,11 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import { ConnectedServices } from '.';
 
-import { MOCK_SERVICES, MOCK_SERVICES_WITHOUT_MOBILE } from './mocks';
+import {
+  MOCK_BROWSER_SERVICES,
+  MOCK_SERVICES,
+  MOCK_SERVICES_WITHOUT_MOBILE,
+} from './mocks';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
@@ -23,6 +27,10 @@ const accountWithManyServices = {
 
 const accountWithoutMobileDevice = {
   attachedClients: MOCK_SERVICES_WITHOUT_MOBILE,
+} as unknown as Account;
+
+const accountWithBrowserServices = {
+  attachedClients: MOCK_BROWSER_SERVICES,
 } as unknown as Account;
 
 const storyWithContext = (account: Partial<Account>) => {
@@ -42,5 +50,9 @@ export const Default = storyWithContext(accountWithManyServices);
 
 // Shows ConnectAnotherDevicePromo if no mobile devices in the list
 export const NoMobileServices = storyWithContext(accountWithoutMobileDevice);
+
+// Demonstrates the read-only scope sub-entries shown under a refresh-token
+// browser entry when the token's scope includes Relay and/or VPN.
+export const BrowserServices = storyWithContext(accountWithBrowserServices);
 
 // TODO: Add story with advice modal for lost/suspicious devices
