@@ -429,6 +429,7 @@ export default class AuthClient {
       requestOptions.credentials = 'include';
     }
 
+    let errorCaptured = false;
     try {
       const response = await fetchOrTimeout(
         this.url(path),
@@ -437,9 +438,34 @@ export default class AuthClient {
       );
       const result = JSON.parse(await response.text());
       if (result.errno) {
+        // We want to monitor down spikes in known responses from the auth server.
+        errorCaptured = true;
+        Sentry.captureMessage(
+          `Auth client encoutered known error response during a request`,
+          {
+            tags: {
+              path: path,
+              method: requestOptions.method || '',
+              errno: result.errno,
+              code: result.code,
+            }
+          }
+        );
         throw result;
       }
       if (!response.ok) {
+        errorCaptured = true;
+        // We want to monitor spikes in non-ok responses.
+        Sentry.captureMessage(
+          `Auth client encoutered non-ok response during a request`,
+          {
+            tags: {
+              path: path,
+              method: requestOptions.method || '',
+              status: response.status,
+            }
+          }
+        );
         throw new AuthClientError(
           'Unknown error',
           result,
@@ -447,8 +473,24 @@ export default class AuthClient {
           response.status
         );
       }
+
       return result;
     } catch (e) {
+      if (!errorCaptured) {
+        // One more check for unexpected errors that wouldn't have been caught by the above two check.
+        Sentry.captureMessage(
+          `Auth client encoutered unexpected error during request`,
+          {
+            tags: {
+              path: path,
+              method: requestOptions.method || '',
+            },
+            extra: {
+              message: e instanceof Error ? e.message : 'unknown error',
+            }
+          }
+        );
+      }
       await this.errorHandler(e);
     }
   }
