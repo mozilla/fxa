@@ -10,7 +10,11 @@ import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { Integration, useAuthClient, useSensitiveDataClient } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_STORED_ACCOUNT,
@@ -24,6 +28,16 @@ import { mockSigninLocationState } from '../mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+
+jest.mock('../../../lib/oauth/hooks', () => ({
+  __esModule: true,
+  useFinishOAuthFlowHandler: jest.fn(),
+  useOAuthKeysCheck: jest.fn(),
+}));
 
 let integration: Integration;
 function mockWebIntegration() {
@@ -122,6 +136,13 @@ function applyDefaultMocks() {
   mockWebIntegration();
   resetMockSensitiveDataClient();
   resetMockAuthClient();
+  (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
+    finishOAuthFlowHandler: jest.fn(),
+    oAuthDataError: null,
+  }));
+  (useOAuthKeysCheck as jest.Mock).mockImplementation(() => ({
+    oAuthKeysCheckError: null,
+  }));
 }
 
 function render() {
@@ -167,6 +188,36 @@ describe('SigninRecoveryCode container', () => {
       expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
         SensitiveData.Key.Auth
       );
+    });
+  });
+
+  describe('useOAuthKeysCheck', () => {
+    it('passes isPasswordlessFlow to skip the keys check', () => {
+      mockReachRouter('signin_recovery_code', {
+        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+      });
+      render();
+      expect(useOAuthKeysCheck).toHaveBeenCalledWith(
+        integration,
+        MOCK_KEY_FETCH_TOKEN,
+        MOCK_UNWRAP_BKEY,
+        true
+      );
+    });
+
+    it('renders the recovery code component when keys check is skipped for passwordless flow', () => {
+      (useOAuthKeysCheck as jest.Mock).mockImplementationOnce(
+        (_integration: any, _kft: any, _ubk: any, skipKeysCheck: boolean) => ({
+          oAuthKeysCheckError: skipKeysCheck
+            ? null
+            : { errno: 1, message: 'TRY_AGAIN' },
+        })
+      );
+      mockReachRouter('signin_recovery_code', {
+        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+      });
+      render();
+      expect(currentSigninRecoveryCodeProps).toBeDefined();
     });
   });
 
