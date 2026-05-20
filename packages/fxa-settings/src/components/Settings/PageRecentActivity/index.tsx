@@ -6,7 +6,10 @@ import { RouteComponentProps } from '@reach/router';
 
 import FlowContainer from '../FlowContainer';
 import { useAccount, useFtlMsgResolver } from '../../../models';
-import { SecurityEvent as SecurityEventSection } from './SecurityEvent';
+import {
+  HIDDEN_SECURITY_EVENT_NAMES,
+  SecurityEvent as SecurityEventSection,
+} from './SecurityEvent';
 import React, { useState, useEffect } from 'react';
 
 export const PageRecentActivity = (_: RouteComponentProps) => {
@@ -31,15 +34,20 @@ export const PageRecentActivity = (_: RouteComponentProps) => {
     >
       <ol className="mt-5 relative border-s border-gray-100">
         {!!securityEvents &&
-          securityEvents.map((securityEvent) => (
-            <SecurityEventSection
-              key={securityEvent.name + securityEvent.createdAt}
-              {...{
-                name: securityEvent.name,
-                createdAt: securityEvent.createdAt,
-              }}
-            />
-          ))}
+          securityEvents
+            .filter(
+              (securityEvent) =>
+                !HIDDEN_SECURITY_EVENT_NAMES.has(securityEvent.name)
+            )
+            .map((securityEvent) => (
+              <SecurityEventSection
+                key={securityEvent.name + securityEvent.createdAt}
+                {...{
+                  name: securityEvent.name,
+                  createdAt: securityEvent.createdAt,
+                }}
+              />
+            ))}
       </ol>
     </FlowContainer>
   );
