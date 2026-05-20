@@ -1,0 +1,531 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { act, renderHook } from '@testing-library/react-hooks';
+import * as Sentry from '@sentry/browser';
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
+import {
+  usePasskeySignIn,
+  type PasskeySignInAuthClient,
+  type PasskeySignInIntegration,
+} from './signin-flow';
+import { getCredential, isWebAuthnLevel3Supported } from './webauthn';
+import { storeAccountData } from '../storage-utils';
+import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { IntegrationType } from '../../models';
+import {
+  ensureCanLinkAcountOrRedirect,
+  handleNavigation,
+} from '../../pages/Signin/utils';
+
+jest.mock('./webauthn', () => ({
+  __esModule: true,
+  ...jest.requireActual('./webauthn'),
+  isWebAuthnLevel3Supported: jest.fn(),
+  getCredential: jest.fn(),
+}));
+
+jest.mock('../../pages/Signin/utils', () => ({
+  __esModule: true,
+  ensureCanLinkAcountOrRedirect: jest.fn(),
+  handleNavigation: jest.fn(),
+}));
+
+jest.mock('@sentry/browser', () => ({
+  __esModule: true,
+  captureException: jest.fn(),
+}));
+
+jest.mock('../storage-utils', () => ({
+  __esModule: true,
+  storeAccountData: jest.fn(),
+}));
+
+const SESSION_TOKEN = 'session-token';
+const UID = 'uid-123';
+const EMAIL = 'user@example.com';
+const CHALLENGE = 'mock-challenge';
+const MOCK_CREDENTIAL = {
+  id: 'cred-id',
+  rawId: 'cred-raw-id',
+  type: 'public-key',
+  response: {},
+  clientExtensionResults: {},
+};
+
+const buildArgs = (
+  overrides: Partial<Parameters<typeof usePasskeySignIn>[0]> = {}
+) => {
+  const beginPasskeyAuthentication = jest
+    .fn()
+    .mockResolvedValue({ challenge: CHALLENGE, userVerification: 'required' });
+  const completePasskeyAuthentication = jest.fn().mockResolvedValue({
+    uid: UID,
+    sessionToken: SESSION_TOKEN,
+    verified: true,
+    requiresPasswordForSync: false,
+    hasPassword: true,
+  });
+  const account = jest.fn().mockResolvedValue({
+    emails: [{ email: EMAIL, isPrimary: true, verified: true }],
+  });
+
+  const authClient = {
+    beginPasskeyAuthentication,
+    completePasskeyAuthentication,
+    account,
+  } as jest.Mocked<PasskeySignInAuthClient>;
+  const integration = {
+    isSync: () => false,
+    isFirefoxNonSync: () => false,
+    getService: () => 'service-id',
+    type: IntegrationType.OAuthWeb,
+    data: {},
+  } as unknown as PasskeySignInIntegration;
+  const finishOAuthFlowHandler = jest.fn();
+  const ftlMsgResolver = {
+    getMsg: jest.fn((_id: string, fallback: string) => fallback),
+  } as unknown as FtlMsgResolver;
+  const navigateWithQuery = jest.fn();
+
+  return {
+    args: {
+      integration,
+      authClient,
+      finishOAuthFlowHandler,
+      ftlMsgResolver,
+      navigateWithQuery,
+      queryParams: '',
+      ...overrides,
+    },
+    spies: {
+      beginPasskeyAuthentication,
+      completePasskeyAuthentication,
+      account,
+      finishOAuthFlowHandler,
+      ftlMsgResolver,
+      navigateWithQuery,
+    },
+  };
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(true);
+  (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+  (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+  (handleNavigation as jest.Mock).mockResolvedValue({ error: undefined });
+});
+
+describe('usePasskeySignIn', () => {
+  it('shows a banner and skips the ceremony when WebAuthn is unsupported', async () => {
+    (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(false);
+    const { args, spies } = buildArgs();
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      result.current.onClick();
+    });
+
+    expect(spies.beginPasskeyAuthentication).not.toHaveBeenCalled();
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-not-supported-v2',
+      'Your browser or device doesn’t support passkeys.'
+    );
+  });
+
+  it('completes the OAuth flow via handleNavigation when no Sync password is required', async () => {
+    const { args, spies } = buildArgs();
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledTimes(1);
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      { service: 'service-id' }
+    );
+    expect(spies.account).toHaveBeenCalledWith(SESSION_TOKEN);
+    expect(handleNavigation).toHaveBeenCalledWith({
+      email: EMAIL,
+      signinData: {
+        uid: UID,
+        sessionToken: SESSION_TOKEN,
+        emailVerified: true,
+        sessionVerified: true,
+        verificationMethod: undefined,
+        verificationReason: undefined,
+      },
+      integration: args.integration,
+      finishOAuthFlowHandler: spies.finishOAuthFlowHandler,
+      queryParams: '',
+      handleFxaLogin: true,
+      handleFxaOAuthLogin: true,
+      performNavigation: true,
+    });
+    expect(storeAccountData).toHaveBeenCalledWith({
+      email: EMAIL,
+      uid: UID,
+      lastLogin: expect.any(Number),
+      sessionToken: SESSION_TOKEN,
+      verified: true,
+      sessionVerified: true,
+      hasPassword: true,
+    });
+  });
+
+  it('routes non-OAuth Web integrations through handleNavigation', async () => {
+    // Soft-navigate to /settings happens inside handleNavigation (same path
+    // as password sign-in). hardNavigate would cause a cached-signin flash.
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => false,
+        isFirefoxNonSync: () => false,
+        getService: () => 'service-id',
+        type: IntegrationType.Web,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(storeAccountData).toHaveBeenCalled();
+    expect(handleNavigation).toHaveBeenCalledWith({
+      email: EMAIL,
+      signinData: {
+        uid: UID,
+        sessionToken: SESSION_TOKEN,
+        emailVerified: true,
+        sessionVerified: true,
+        verificationMethod: undefined,
+        verificationReason: undefined,
+      },
+      integration: args.integration,
+      finishOAuthFlowHandler: spies.finishOAuthFlowHandler,
+      queryParams: '',
+      handleFxaLogin: true,
+      handleFxaOAuthLogin: true,
+      performNavigation: true,
+    });
+  });
+
+  it('runs the Sync merge gate and aborts when the user cancels', async () => {
+    (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(false);
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+        getService: () => 'sync',
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalled();
+    expect(handleNavigation).not.toHaveBeenCalled();
+    expect(spies.navigateWithQuery).not.toHaveBeenCalled();
+    // Merge gate runs before persistence — cancelling must not leave a
+    // ghost session in localStorage.
+    expect(storeAccountData).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [true, '/signin_passkey_fallback'],
+    [false, '/post_verify/passkey/set_password'],
+  ])(
+    'routes Sync sign-ins (hasPassword=%s) to %s',
+    async (hasPassword, expectedPath) => {
+      const { args, spies } = buildArgs({
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          getService: () => 'sync',
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      spies.completePasskeyAuthentication.mockResolvedValue({
+        uid: UID,
+        sessionToken: SESSION_TOKEN,
+        verified: true,
+        requiresPasswordForSync: true,
+        hasPassword,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(expectedPath);
+      expect(handleNavigation).not.toHaveBeenCalled();
+    }
+  );
+
+  // Locks the contract: each DOMException name maps to its expected FTL id
+  // AND its fallback string. Drift in either lands silently otherwise.
+  // The fallback substrings are stable phrases pulled from webauthn-errors.ts
+  // — robust to minor copy edits, strict on intent.
+  it.each([
+    [
+      'NotAllowedError',
+      'passkey-authentication-error-not-allowed',
+      'Sign-in with passkey failed',
+    ],
+    [
+      'AbortError',
+      'passkey-authentication-error-not-allowed',
+      'Sign-in with passkey failed',
+    ],
+    ['TimeoutError', 'passkey-authentication-error-timeout', 'timed out'],
+    [
+      'NotSupportedError',
+      'passkey-authentication-error-not-supported-v2',
+      'support passkeys',
+    ],
+    ['SecurityError', 'passkey-authentication-error-security', 'this page'],
+    [
+      'InvalidStateError',
+      'passkey-authentication-error-invalid-state',
+      'wrong with your passkey',
+    ],
+    [
+      'NotReadableError',
+      'passkey-authentication-error-not-readable',
+      'access the authenticator',
+    ],
+  ])(
+    'categorises WebAuthn DOMException %s and surfaces %s',
+    async (errorName, expectedFtlId, fallbackSubstring) => {
+      (getCredential as jest.Mock).mockRejectedValue(
+        new DOMException('cancelled', errorName)
+      );
+      const { args, spies } = buildArgs();
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).not.toHaveBeenCalled();
+      expect(result.current.errorBanner).toBeDefined();
+      expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+        expectedFtlId,
+        expect.stringContaining(fallbackSubstring)
+      );
+    }
+  );
+
+  it('treats beginPasskeyAuthentication rejection as a server error', async () => {
+    const { args, spies } = buildArgs();
+    spies.beginPasskeyAuthentication.mockRejectedValue(
+      new Error('network down')
+    );
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.completePasskeyAuthentication).not.toHaveBeenCalled();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'passkey-signin error' }),
+      { tags: { errno: 'none' } }
+    );
+  });
+
+  it('re-throws non-WebAuthn errors from getCredential to the generic handler', async () => {
+    // Non-DOMException/TypeError errors must bubble to the outer catch, not
+    // the WebAuthn categoriser.
+    (getCredential as jest.Mock).mockRejectedValue(
+      new Error('unexpected sync failure')
+    );
+    const { args, spies } = buildArgs();
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.completePasskeyAuthentication).not.toHaveBeenCalled();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'passkey-signin error' }),
+      { tags: { errno: 'none' } }
+    );
+  });
+
+  it('treats unknown thrown errors as a server error', async () => {
+    const { args, spies } = buildArgs();
+    spies.completePasskeyAuthentication.mockRejectedValue(new Error('boom'));
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'passkey-signin error' }),
+      { tags: { errno: 'none' } }
+    );
+  });
+
+  it('treats account rejection as a server error and skips persistence', async () => {
+    const { args, spies } = buildArgs();
+    spies.account.mockRejectedValue(new Error('account fetch failed'));
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(storeAccountData).not.toHaveBeenCalled();
+    expect(handleNavigation).not.toHaveBeenCalled();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'passkey-signin error' }),
+      { tags: { errno: 'none' } }
+    );
+  });
+
+  it('treats an account response with no primary email as a server error', async () => {
+    const { args, spies } = buildArgs();
+    spies.account.mockResolvedValue({ emails: [] });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(storeAccountData).not.toHaveBeenCalled();
+    expect(handleNavigation).not.toHaveBeenCalled();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'passkey-signin error' }),
+      { tags: { errno: 'none' } }
+    );
+  });
+
+  it('surfaces a banner when handleNavigation returns an error', async () => {
+    const navError = new Error('OAuth completion failed');
+    (handleNavigation as jest.Mock).mockResolvedValue({ error: navError });
+    const { args, spies } = buildArgs();
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-unexpected',
+      expect.stringContaining('Something went wrong')
+    );
+    // handleNavigation errors come from an internal helper, not the network,
+    // so no PII-sanitisation wrapper is applied.
+    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(navError);
+  });
+
+  it('shows the "passkey not recognized" banner on errno PASSKEY_NOT_FOUND', async () => {
+    const { args, spies } = buildArgs();
+    spies.completePasskeyAuthentication.mockRejectedValue(
+      Object.assign(new Error('Passkey not found'), {
+        errno: AuthUiErrors.PASSKEY_NOT_FOUND.errno,
+      })
+    );
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(result.current.errorBanner).toBeDefined();
+    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+      'passkey-authentication-error-not-found',
+      expect.stringContaining('Passkey not recognized')
+    );
+    // Should NOT be reported to Sentry — it's an expected divergence between
+    // server state and authenticator state.
+    expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+  });
+
+  it('ignores additional clicks while a ceremony is in flight', async () => {
+    type AccountResponse = {
+      emails: Array<{ email: string; isPrimary: boolean; verified: boolean }>;
+    };
+    let resolveAccount: (v: AccountResponse) => void;
+    const accountPromise = new Promise<AccountResponse>((resolve) => {
+      resolveAccount = resolve;
+    });
+    const { args, spies } = buildArgs();
+    spies.account.mockReturnValue(accountPromise);
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      result.current.onClick();
+      result.current.onClick();
+    });
+
+    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolveAccount!({
+        emails: [{ email: EMAIL, isPrimary: true, verified: true }],
+      });
+      await accountPromise;
+    });
+    // After the in-flight ceremony resolves, downstream side effects must
+    // each fire exactly once — proving the second click was suppressed end
+    // to end, not just at the entry point.
+    expect(storeAccountData).toHaveBeenCalledTimes(1);
+    expect(handleNavigation).toHaveBeenCalledTimes(1);
+  });
+});

@@ -5,7 +5,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { useAlertBar, useAuthClient, useFtlMsgResolver } from '../../../models';
+import {
+  useAlertBar,
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import {
   queryParamsToMetricsContext,
   usePageViewEvent,
@@ -15,8 +20,10 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import AlternativeAuthOptions from '../../../components/AlternativeAuthOptions';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
+import { usePasskeySignIn } from '../../../lib/passkeys/signin-flow';
 import { SigninPasswordlessCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -62,12 +69,32 @@ const SigninPasswordlessCode = ({
 }: SigninPasswordlessCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const authClient = useAuthClient();
+  const config = useConfig();
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  // Passkey signin is offered as an alternative to waiting for an OTP. When
+  // the user has a passkey on this device, the WebAuthn ceremony skips the
+  // email round-trip entirely. Hidden during signup: a brand-new account
+  // can't have a passkey yet.
+  const showPasskeySignin = !!(
+    !isSignup &&
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
+
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+  });
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState('');
@@ -585,6 +612,19 @@ const SigninPasswordlessCode = ({
           </FtlMsg>
         )}
       </div>
+
+      {showPasskeySignin && (
+        <AlternativeAuthOptions
+          showThirdPartyAuth={false}
+          showPasskeySignin={showPasskeySignin}
+          passkeySignIn={{
+            isLoading: passkey.isLoading,
+            onClick: passkey.onClick,
+          }}
+          errorBanner={passkey.errorBanner}
+          {...{ viewName, flowQueryParams }}
+        />
+      )}
     </AppLayout>
   );
 };

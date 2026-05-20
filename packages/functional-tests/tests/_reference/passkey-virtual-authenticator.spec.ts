@@ -5,19 +5,19 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 /**
- * These tests use a demo site at https://passkeys.eu which is a simple
- * webauthn/passkeys registration and authentication demo.
+ * Reference-only suite. The in-house passkey functional tests live at
+ * `tests/settings/passkey.spec.ts` — those are what runs in CI against our
+ * own surfaces.
  *
- * The site allows any origin to register and authenticate passkeys, making it
- * suitable for testing purposes and making sure the `PasskeyVirtualAuthenticator`
- * wrapper works as expected. Much of the logic and complexity here can be moved
- * into the signIn/signUp pages, but for now this keeps things simple and readable
+ * This file exercises the `PasskeyVirtualAuthenticator` wrapper against the
+ * https://passkeys.eu demo site (any-origin registration/authentication).
+ * It cannot run in CI because the third-party site blocks us, so the suite
+ * is skipped wholesale. Kept as a worked example of the CDP /
+ * virtual-authenticator setup pattern.
  */
 
 test.describe('severity-1 #smoke', () => {
-  // Skip all tests in this suite because they cannot run in CI (third party site blocks us).
-  // But, leaving here for reference until we implement Passkey support and tests in our own app.
-  test.skip(true, 'Tests use a demo site and are not part of smoke suite');
+  test.skip(true, 'Reference-only — see tests/settings/passkey.spec.ts');
   /**
    * Passkeys have a potential to collide with other tests due to the use of
    * CDP sessions and virtual authenticators. To avoid this, we run all passkey

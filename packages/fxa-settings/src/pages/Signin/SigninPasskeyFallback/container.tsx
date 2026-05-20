@@ -4,10 +4,17 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useCallback, useEffect, useState } from 'react';
-import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../../lib/oauth';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { AccountAvatar } from '../../../lib/interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import AppLayout from '../../../components/AppLayout';
 import VerificationMethods from '../../../constants/verification-methods';
@@ -19,6 +26,7 @@ const SigninPasskeyFallbackContainer = ({
   integration,
 }: { integration: Integration } & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -36,6 +44,59 @@ const SigninPasskeyFallbackContainer = ({
   const sessionToken = signinState?.sessionToken;
   const email = signinState?.email;
   const uid = signinState?.uid;
+
+  // Mirrors Signin/container.tsx's avatar fetch: mint a profile:avatar-scoped
+  // OAuth token, GET /v1/avatar from the profile server, fall back to default
+  // on any failure.
+  const [avatarData, setAvatarData] = useState<
+    { account: { avatar: AccountAvatar } } | undefined
+  >(undefined);
+  const [avatarLoading, setAvatarLoading] = useState(true);
+
+  useEffect(() => {
+    if (
+      !sessionToken ||
+      !config?.servers?.profile?.url ||
+      !config?.oauth?.clientId
+    ) {
+      setAvatarLoading(false);
+      return;
+    }
+    let cancelled = false;
+    authClient
+      .createOAuthToken(sessionToken, config.oauth.clientId, {
+        scope: 'profile:avatar',
+        ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
+      })
+      .then(({ access_token }) =>
+        fetch(`${config.servers.profile.url}/v1/avatar`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      )
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to fetch avatar');
+        return response.json();
+      })
+      .then((data: { id: string; url: string; avatar?: string }) => {
+        if (cancelled) return;
+        setAvatarData({
+          account: { avatar: { id: data.id, url: data.avatar || data.url } },
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setAvatarData(undefined);
+      })
+      .finally(() => {
+        if (!cancelled) setAvatarLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [authClient, config, sessionToken]);
 
   const onContinue = useCallback(
     async (password: string) => {
@@ -89,11 +150,6 @@ const SigninPasskeyFallbackContainer = ({
     ]
   );
 
-  // User opted out of Sync; account is still signed in (passkey-verified).
-  const onGoToSettings = useCallback(() => {
-    navigateWithQuery('/settings');
-  }, [navigateWithQuery]);
-
   const missingSigninState = !sessionToken || !email || !uid;
 
   useEffect(() => {
@@ -112,7 +168,13 @@ const SigninPasskeyFallbackContainer = ({
 
   return (
     <SigninPasskeyFallback
-      {...{ email, onContinue, onGoToSettings, localizedErrorMessage }}
+      {...{
+        email,
+        onContinue,
+        localizedErrorMessage,
+        avatarData,
+        avatarLoading,
+      }}
     />
   );
 };

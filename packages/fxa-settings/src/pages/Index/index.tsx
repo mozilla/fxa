@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
@@ -14,11 +15,17 @@ import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import { isOAuthNativeIntegration, useConfig } from '../../models';
+import {
+  isOAuthNativeIntegration,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 
 export const Index = ({
   integration,
@@ -35,8 +42,14 @@ export const Index = ({
   isMobile,
   useFxAStatusResult,
   setCurrentSplitLayout,
+  authClient,
+  finishOAuthFlowHandler,
+  disableAutoSubmit,
 }: IndexProps) => {
   const config = useConfig();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
+  const location = useLocation();
   const showPasskeySignin = !!(
     config.featureFlags?.passkeysEnabled &&
     config.featureFlags?.passkeyAuthenticationEnabled
@@ -45,6 +58,21 @@ export const Index = ({
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+  });
+  const handlePasskeyClick = () => {
+    // Cancel any pending suggested-email auto-submit so it can't override
+    // our /settings navigation after the ceremony writes localStorage.
+    disableAutoSubmit();
+    passkey.onClick();
+  };
 
   const legalTerms = integration.getLegalTerms();
 
@@ -192,24 +220,29 @@ export const Index = ({
         </div>
       </form>
 
-      {isSync ? (
+      {isSync && (
         <p className="mt-5 text-xs text-grey-500">
           <FtlMsg id="index-account-info">
             A Mozilla account also unlocks access to more privacy-protecting
             products from Mozilla.
           </FtlMsg>
         </p>
-      ) : (
-        <AlternativeAuthOptions
-          showThirdPartyAuth={
-            !isOAuthNativeIntegration(integration) ||
-            useFxAStatusResult.supportsKeysOptionalLogin
-          }
-          showPasskeySignin={showPasskeySignin}
-          viewName="index"
-          flowQueryParams={flowQueryParams}
-        />
       )}
+      <AlternativeAuthOptions
+        showThirdPartyAuth={
+          !isOAuthNativeIntegration(integration) ||
+          useFxAStatusResult.supportsKeysOptionalLogin
+        }
+        showPasskeySignin={showPasskeySignin}
+        passkeySignIn={
+          showPasskeySignin
+            ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
+            : undefined
+        }
+        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        viewName="index"
+        flowQueryParams={flowQueryParams}
+      />
       <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>
   );

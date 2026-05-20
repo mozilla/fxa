@@ -12,6 +12,7 @@ import {
   OAuthWebIntegration,
   RelierCmsInfo,
 } from '../../models';
+import type AuthClient from 'fxa-auth-client/browser';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
@@ -66,17 +67,28 @@ export function createMockIndexOAuthNativeIntegration({
   return {
     type: IntegrationType.OAuthNative,
     isSync: () => isSync,
+    isDesktopSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     getService: () => MOCK_CLIENT_ID,
+    isFirefoxClient: () => true,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
     isFirefoxClientServiceSmartWindow: () => isFirefoxClientServiceSmartWindow,
     isFirefoxClientServiceVpn: () => isFirefoxClientServiceVpn,
+    isFirefoxDesktopClient: () => false,
+    isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () =>
       isFirefoxClientServiceRelay ||
       isFirefoxClientServiceSmartWindow ||
       isFirefoxClientServiceVpn,
     getCmsInfo: () => cmsInfo,
+    getGrantedScopes: () => undefined,
     getLegalTerms: () => undefined,
+    getWebChannelServices: () => undefined,
+    requiresKeys: () => false,
+    wantsKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
     data: new OAuthIntegrationData(
       new GenericData({
         context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
@@ -89,14 +101,25 @@ export function createMockIndexWebIntegration(): IndexIntegration {
   return {
     type: IntegrationType.Web,
     isSync: () => false,
+    isDesktopSync: () => false,
     getClientId: () => undefined,
     getService: () => undefined,
+    isFirefoxClient: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
+    isFirefoxDesktopClient: () => false,
+    isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
+    getGrantedScopes: () => undefined,
     getLegalTerms: () => undefined,
+    getWebChannelServices: () => undefined,
+    requiresKeys: () => false,
+    wantsKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
     data: new IntegrationData(
       new GenericData({
         context: '',
@@ -138,6 +161,20 @@ export const Subject = ({
     <LocationProvider>
       <Index
         processEmailSubmission={async () => {}}
+        disableAutoSubmit={() => {}}
+        authClient={
+          {
+            beginPasskeyAuthentication: jest.fn(),
+            completePasskeyAuthentication: jest.fn(),
+            accountProfile: jest.fn(),
+          } as unknown as AuthClient
+        }
+        finishOAuthFlowHandler={async () => ({
+          redirect: 'http://example.com',
+          code: 'mock-code',
+          state: 'mock-state',
+          error: undefined,
+        })}
         {...{
           prefillEmail,
           integration,

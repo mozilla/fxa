@@ -15,6 +15,35 @@ import type {
   AuthenticationResponseJSON,
 } from '@simplewebauthn/server';
 
+/**
+ * DOMException names the polyfill passes through unchanged. Mirrors the
+ * `WebAuthnErrorType` enum in
+ * `packages/fxa-settings/src/lib/passkeys/webauthn-errors.ts` — keep in sync
+ * if new error types are added there. Two intentional exclusions:
+ *   - `TypeError`: Playwright surfaces serialisation hiccups as TypeError; we
+ *     deliberately collapse those to NotAllowedError so they categorise as a
+ *     user-cancel rather than landing in the "unexpected" bucket.
+ *   - `AuthenticatorAlreadyRegistered`: synthetic key the categoriser
+ *     fabricates during registration with excludeCredentials. The browser
+ *     never throws this name as a DOMException.
+ * Duplicated here (rather than imported across packages) so the functional
+ * test bundle doesn't depend on fxa-settings source layout.
+ */
+const WEBAUTHN_DOM_EXCEPTION_NAMES = [
+  'NotAllowedError',
+  'AbortError',
+  'TimeoutError',
+  'NotSupportedError',
+  'SecurityError',
+  'InvalidStateError',
+  'NotReadableError',
+  'ConstraintError',
+  'DataError',
+  'EncodingError',
+  'OperationError',
+  'UnknownError',
+];
+
 type Mode = 'pending' | 'success' | 'cancel';
 type Trigger = () => Promise<void>;
 type PostCheck = () => Promise<void>;
@@ -107,6 +136,23 @@ export class PasskeyPolyfill {
       await credentialAdded;
     } finally {
       this.onCredentialAdded = undefined;
+      this.mode = previous;
+    }
+  }
+
+  /**
+   * Simulate a successful assertion ceremony (sign-in). Unlike {@link success},
+   * does not wait for a new credential to be added — assertions reuse existing
+   * credentials minted by prior `success()` calls. The trigger is responsible
+   * for awaiting whatever post-assertion side effect indicates completion
+   * (typically a navigation).
+   */
+  async assertion(trigger: Trigger) {
+    const previous = this.mode;
+    this.mode = 'success';
+    try {
+      await trigger();
+    } finally {
       this.mode = previous;
     }
   }
@@ -288,12 +334,19 @@ const BROWSER_POLYFILL = `(() => {
           'NotAllowedError'
         );
       }
+      // Templated from WEBAUTHN_DOM_EXCEPTION_NAMES at module load —
+      // see that constant for the source-of-truth and exclusions.
+      const WEBAUTHN_ERROR_NAMES = ${JSON.stringify(WEBAUTHN_DOM_EXCEPTION_NAMES)};
       try {
         return await fn(options, window.location.origin);
       } catch (err) {
         // exposeFunction serialises Errors; rebuild a DOMException so the
         // fxa-settings webauthn-errors handler categorises correctly.
-        const errName = (err && err.name) || 'NotAllowedError';
+        const incoming = err && err.name;
+        const errName =
+          incoming && WEBAUTHN_ERROR_NAMES.indexOf(incoming) !== -1
+            ? incoming
+            : 'NotAllowedError';
         const msg = (err && err.message) || 'WebAuthn operation failed';
         throw new DOMException(msg, errName);
       }

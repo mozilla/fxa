@@ -6,15 +6,19 @@ import React, { useCallback, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
+import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
+import { AccountAvatar } from '../../../lib/interfaces';
 
 export type SigninPasskeyFallbackProps = {
   email?: string;
   onContinue?: (password: string) => Promise<void>;
-  onGoToSettings?: () => void;
   localizedErrorMessage?: string;
+  avatarData?: { account: { avatar: AccountAvatar } };
+  avatarLoading?: boolean;
 };
 
 type FormData = {
@@ -26,8 +30,9 @@ export const viewName = 'signin-passkey-fallback';
 const SigninPasskeyFallback = ({
   email,
   onContinue,
-  onGoToSettings,
   localizedErrorMessage,
+  avatarData,
+  avatarLoading,
 }: SigninPasskeyFallbackProps & RouteComponentProps) => {
   const [passwordErrorText, setPasswordErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,17 +70,8 @@ const SigninPasskeyFallback = ({
       </FtlMsg>
 
       <FtlMsg id="signin-passkey-fallback-heading">
-        <h1 className="card-header mb-4">Enter your password to sync</h1>
+        <h1 className="card-header mb-2">Enter your password to sync</h1>
       </FtlMsg>
-
-      {email && (
-        <p
-          className="text-sm mb-2 break-all"
-          data-testid="passkey-fallback-email"
-        >
-          {email}
-        </p>
-      )}
 
       <FtlMsg id="signin-passkey-fallback-body">
         <p className="text-sm mb-6">
@@ -83,6 +79,27 @@ const SigninPasskeyFallback = ({
           this passkey.
         </p>
       </FtlMsg>
+
+      {email && (
+        <div className="flex items-center gap-3 mb-6">
+          {avatarLoading ? (
+            <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <Avatar
+              className="w-10 h-10 flex-shrink-0"
+              avatar={avatarData?.account?.avatar}
+            />
+          )}
+          <span
+            className="text-sm break-all"
+            data-testid="passkey-fallback-email"
+          >
+            {email}
+          </span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(handleContinue)}>
         <FtlMsg
@@ -102,30 +119,16 @@ const SigninPasskeyFallback = ({
           />
         </FtlMsg>
 
-        <div className="flex flex-col tablet:flex-row gap-4">
-          <FtlMsg id="signin-passkey-fallback-go-to-settings">
-            <button
-              type="button"
-              className="cta-neutral cta-base-p tablet:flex-1"
-              onClick={onGoToSettings}
-              data-testid="go-to-settings-button"
-              disabled={isSubmitting}
-            >
-              Go to settings
-            </button>
-          </FtlMsg>
-
-          <FtlMsg id="signin-passkey-fallback-continue">
-            <button
-              type="submit"
-              className="cta-primary cta-base-p tablet:flex-1"
-              data-testid="continue-button"
-              disabled={isSubmitting}
-            >
-              Continue
-            </button>
-          </FtlMsg>
-        </div>
+        <FtlMsg id="signin-passkey-fallback-continue">
+          <button
+            type="submit"
+            className="cta-primary cta-xl w-full"
+            data-testid="continue-button"
+            disabled={isSubmitting}
+          >
+            Continue
+          </button>
+        </FtlMsg>
       </form>
     </AppLayout>
   );

@@ -22,6 +22,7 @@ const OPERATIONS: WebAuthnOperation[] = ['registration', 'authentication'];
 describe('categorizeWebAuthnError — user-action errors (no Sentry)', () => {
   const cases: [string, WebAuthnErrorType][] = [
     ['NotAllowedError', WebAuthnErrorType.NotAllowed],
+    ['AbortError', WebAuthnErrorType.Abort],
     ['TimeoutError', WebAuthnErrorType.Timeout],
   ];
 

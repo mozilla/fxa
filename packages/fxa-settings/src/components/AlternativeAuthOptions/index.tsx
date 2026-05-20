@@ -60,7 +60,11 @@ const AlternativeAuthOptions = ({
   return (
     <div className="flex flex-col">
       {separator && (
-        <div className="text-sm flex items-center justify-center my-6">
+        <div
+          className={`text-sm flex items-center justify-center mt-6 ${
+            errorBanner ? 'mb-3' : 'mb-6'
+          }`}
+        >
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
           <FtlMsg id={separator.ftlId}>
             <div className="mx-4 text-base text-grey-500 dark:text-grey-200 font-extralight">

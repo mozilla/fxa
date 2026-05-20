@@ -9,10 +9,22 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import * as CacheModule from '../../../lib/cache';
 import * as HooksModule from '../../../lib/oauth/hooks';
 import * as SigninUtilsModule from '../utils';
-import { Integration } from '../../../models';
+import { Integration, IntegrationType } from '../../../models';
+import { MozServices } from '../../../lib/types';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
-import { createMockSyncIntegration } from '../SigninPushCode/mocks';
 import SigninPasskeyFallbackContainer from './container';
+
+function createMockSyncIntegration() {
+  return {
+    type: IntegrationType.OAuthNative,
+    getService: () => MozServices.FirefoxSync,
+    isSync: () => true,
+    requiresKeys: () => true,
+    wantsKeys: () => true,
+    getCmsInfo: () => undefined,
+    data: {},
+  };
+}
 
 const MOCK_LOCATION_STATE = {
   email: MOCK_EMAIL,
@@ -186,16 +198,6 @@ describe('SigninPasskeyFallback container', () => {
       const { getByTestId, findByText } = render();
       submitPassword(getByTestId);
       expect(await findByText(/Incorrect password/i)).toBeInTheDocument();
-    });
-  });
-
-  describe('onGoToSettings', () => {
-    it('navigates to /settings', async () => {
-      const { getByTestId } = render();
-      fireEvent.click(getByTestId('go-to-settings-button'));
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/settings');
-      });
     });
   });
 

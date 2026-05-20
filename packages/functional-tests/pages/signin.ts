@@ -78,7 +78,11 @@ export class SigninPage extends PasskeyPage {
   }
 
   get signInButton() {
-    return this.page.getByRole('button', { name: 'Sign in' });
+    return this.page.getByRole('button', { name: 'Sign in', exact: true });
+  }
+
+  get passkeySigninButton() {
+    return this.page.getByRole('button', { name: 'Sign in with passkey' });
   }
 
   get signinBouncedHeading() {

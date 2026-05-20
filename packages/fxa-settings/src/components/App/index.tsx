@@ -572,6 +572,10 @@ const AuthAndAccountSetupRoutes = ({
           path="/post_verify/third_party_auth/set_password/*"
           {...{ flowQueryParams, integration, useFxAStatusResult }}
         />
+        <SetPasswordContainer
+          path="/post_verify/passkey/set_password/*"
+          {...{ flowQueryParams, integration, useFxAStatusResult }}
+        />
         <ServiceWelcome
           path="/post_verify/service_welcome/*"
           {...{ integration }}

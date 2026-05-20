@@ -68,11 +68,9 @@ import {
   StoredAccountData,
 } from '../../lib/storage-utils';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../lib/oauth';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
-
-/** OAuth token TTL in seconds for profile server requests */
-const PROFILE_OAUTH_TOKEN_TTL_SECONDS = 300;
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we

@@ -22,9 +22,7 @@ import config from '../config';
 import { ERRNO } from '@fxa/accounts/errors';
 import * as Sentry from '@sentry/browser';
 import type { Passkey } from 'fxa-auth-client/browser';
-
-/** OAuth token TTL in seconds for profile server requests */
-const PROFILE_OAUTH_TOKEN_TTL_SECONDS = 300;
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../oauth';
 
 /**
  * Error thrown when the session token is invalid (errno 110).

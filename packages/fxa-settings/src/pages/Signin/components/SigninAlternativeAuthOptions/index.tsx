@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useEffect } from 'react';
 import AppLayout from '../../../../components/AppLayout';
@@ -15,14 +15,14 @@ import Banner from '../../../../components/Banner';
 import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
 import SigninUserLockup from '../SigninUserLockup';
 import { useCachedSigninLockup } from '../../useCachedSigninLockup';
-import { useConfig } from '../../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../../models';
+import { usePasskeySignIn } from '../../../../lib/passkeys/signin-flow';
 
 export const viewName = 'signin';
 
 // Signin landing page for linked-passwordless users — their only paths
-// forward are the alternative auth options (third-party providers today,
-// passkeys once the ceremony is wired). Mirrors the `showPasskeySignin`
-// flag-gating used in the password Signin component.
+// forward are the alternative auth options (third-party providers or
+// passkeys).
 const SigninAlternativeAuthOptions = ({
   integration,
   email,
@@ -30,6 +30,7 @@ const SigninAlternativeAuthOptions = ({
   avatarData,
   avatarLoading,
   flowQueryParams,
+  finishOAuthFlowHandler,
   localizedErrorFromLocationState,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
@@ -37,12 +38,24 @@ const SigninAlternativeAuthOptions = ({
   setCurrentSplitLayout,
 }: SigninAlternativeAuthOptionsProps & RouteComponentProps) => {
   const config = useConfig();
+  const authClient = useAuthClient();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
 
   const showPasskeySignin = !!(
     config.featureFlags?.passkeysEnabled &&
     config.featureFlags?.passkeyAuthenticationEnabled
   );
+
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+  });
 
   const {
     clientId,
@@ -121,6 +134,12 @@ const SigninAlternativeAuthOptions = ({
         showThirdPartyAuth={true}
         showPasskeySignin={showPasskeySignin}
         isStandalone={true}
+        passkeySignIn={
+          showPasskeySignin
+            ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
+            : undefined
+        }
+        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
         {...{ viewName, flowQueryParams }}
       />
 

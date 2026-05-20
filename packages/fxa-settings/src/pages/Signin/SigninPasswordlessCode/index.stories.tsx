@@ -10,6 +10,20 @@ import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { createMockSigninOAuthNativeIntegration } from '../mocks';
 
+// Override mockAppContext's config to flip the passkey signin feature flags
+// on. Used by the stories that document the passkey-enabled states.
+const passkeyEnabledContext = () => {
+  const ctx = mockAppContext();
+  if (ctx.config) {
+    ctx.config.featureFlags = {
+      ...ctx.config.featureFlags,
+      passkeysEnabled: true,
+      passkeyAuthenticationEnabled: true,
+    };
+  }
+  return ctx;
+};
+
 export default {
   title: 'Pages/Signin/SigninPasswordlessCode',
   component: Subject,
@@ -88,5 +102,15 @@ export const WithSendError = () => (
         message: 'Something went wrong sending the code',
       }}
     />
+  </AppContext.Provider>
+);
+
+// Passkey signin enabled: the alternative-auth block renders an "or"
+// separator and the passkey button beneath the OTP form. Click the button
+// to drive the WebAuthn ceremony — in Storybook this surfaces the natural
+// "unexpected error" banner (no authenticator wired up).
+export const DefaultSigninWithPasskey = () => (
+  <AppContext.Provider value={passkeyEnabledContext()}>
+    <Subject email="user@example.com" expirationMinutes={5} isSignup={false} />
   </AppContext.Provider>
 );

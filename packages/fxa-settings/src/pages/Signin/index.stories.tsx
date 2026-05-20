@@ -44,7 +44,7 @@ export const NonCachedAccountHasPasswordSettingsAccountLockedError: Story = {
         error: AuthUiErrors.ACCOUNT_RESET as BeginSigninError,
       }),
   }),
-  name: 'Non-Cached > Account has password > Settings, account locked error (click sign in)',
+  name: 'Non-Cached > Account has password > Settings, account locked error (enter a password and click sign in)',
 };
 
 export const NonCachedPasswordlessAccountSettingsOrRelyingParty: Story = {
@@ -270,4 +270,26 @@ export const CmsCachedNoCachedPageConfig: Story = {
     }),
   }),
   name: 'CMS > Regular layout > Cached > No SigninCachedPage config',
+};
+
+// Passkey button is offered as an alternative to entering a password, in
+// addition to the third-party providers. Click the button to drive the
+// WebAuthn ceremony — in Storybook this surfaces the natural "unexpected
+// error" banner (no authenticator wired up).
+export const NonCachedAccountHasPasswordWithPasskey: Story = {
+  ...story({ passkeyEnabled: true }),
+  name: 'Passkey enabled > Non-Cached > Account has password',
+};
+
+// Linked-passwordless account routes through SigninAlternativeAuthOptions —
+// passkey button renders alongside the third-party providers (no password
+// input). Click drives the WebAuthn ceremony; surfaces the natural
+// "unexpected error" banner in Storybook (no authenticator wired up).
+export const NonCachedPasswordlessAccountWithPasskey: Story = {
+  ...story({
+    hasLinkedAccount: true,
+    hasPassword: false,
+    passkeyEnabled: true,
+  }),
+  name: 'Passkey enabled > Non-Cached > Passwordless account',
 };
