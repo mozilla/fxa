@@ -59,7 +59,8 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         !config.featureFlags?.passkeysEnabled ||
-          !config.featureFlags?.passkeyRegistrationEnabled,
+          !config.featureFlags?.passkeyRegistrationEnabled ||
+          !config.featureFlags?.passkeyAuthenticationEnabled,
         'Passkey feature flags are not enabled'
       );
     });
