@@ -58,7 +58,7 @@ export const SigninRecoveryCodeContainer = ({
     integration,
     keyFetchToken,
     unwrapBKey,
-    signinState?.isSignInWithThirdPartyAuth
+    signinState?.isSignInWithThirdPartyAuth || signinState?.isPasswordlessFlow
   );
 
   const submitRecoveryCode: SubmitRecoveryCode = useCallback(
