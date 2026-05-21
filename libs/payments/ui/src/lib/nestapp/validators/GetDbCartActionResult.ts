@@ -4,10 +4,14 @@
 
 import { CartState } from '@fxa/shared/db/mysql/account';
 import {
+  IsBoolean,
   IsEnum,
 } from 'class-validator';
 
-export class GetCartStateActionResult {
+export class GetDbCartActionResult {
   @IsEnum(CartState)
   state!: CartState;
+
+  @IsBoolean()
+  isFreeTrial!: boolean;
 }

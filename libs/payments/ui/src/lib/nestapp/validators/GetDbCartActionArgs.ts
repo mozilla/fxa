@@ -4,7 +4,7 @@
 
 import { IsString } from 'class-validator';
 
-export class GetCartStateActionArgs {
+export class GetDbCartActionArgs {
   @IsString()
   cartId!: string;
 }

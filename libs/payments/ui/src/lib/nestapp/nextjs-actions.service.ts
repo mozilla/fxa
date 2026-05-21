@@ -112,8 +112,8 @@ import {
   StatsDService,
   type StatsD,
 } from '@fxa/shared/metrics/statsd';
-import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
-import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
+import { GetDbCartActionArgs } from './validators/GetDbCartActionArgs';
+import { GetDbCartActionResult } from './validators/GetDbCartActionResult';
 import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 import { ProfileClient } from '@fxa/profile/client';
 import { GetUserinfoResult } from './validators/GetUserinfoResult';
@@ -225,11 +225,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
+  @NextIOValidator(GetDbCartActionArgs, GetDbCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getCartState(args: { cartId: string }) {
-    const cart = await this.cartService.getCartState(args.cartId);
+  async getDbCart(args: { cartId: string }) {
+    const cart = await this.cartService.getDbCart(args.cartId);
 
     return cart;
   }

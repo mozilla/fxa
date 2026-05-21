@@ -49,7 +49,7 @@ export default async function ProcessingPage({
   const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/processing`;
-  await validateCartStateAndRedirectAction(
+  const { isFreeTrial } = await validateCartStateAndRedirectAction(
     resolvedParams.cartId,
     SupportedPages.PROCESSING,
     currentPathname,
@@ -62,7 +62,10 @@ export default async function ProcessingPage({
       aria-labelledby="processing-payment-heading"
     >
       <LoadingSpinner className="w-10 h-10" />
-      <PaymentStateObserver cartId={resolvedParams.cartId} />
+      <PaymentStateObserver
+        cartId={resolvedParams.cartId}
+        isFreeTrial={isFreeTrial}
+      />
       <h2 id="processing-payment-heading">
         {l10n.getString(
           'next-payment-processing-message',

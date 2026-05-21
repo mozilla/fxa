@@ -867,14 +867,17 @@ export class CartService {
   }
 
   /**
-   * Fetch a cart from the database by ID
+   * Fetch a cart from the database by ID, limited to values in the database
    */
   @SanitizeExceptions()
-  async getCartState(cartId: string): Promise<{ state: CartState }> {
+  async getDbCart(
+    cartId: string
+  ): Promise<{ state: CartState; isFreeTrial: boolean }> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
     return {
       state: cart.state,
+      isFreeTrial: cart.isFreeTrial,
     };
   }
 
