@@ -36,6 +36,7 @@ const FRONTEND_ROUTES = [
   'pair/failure',
   'pair/success',
   'pair/supp',
+  'pair/supp/complete',
   'pair/unsupported',
   'post_verify/cad_qr/get_started',
   'post_verify/cad_qr/ready_to_scan',
