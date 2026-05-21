@@ -135,32 +135,7 @@ Focus on `.tsx`, `.ts`, `.jsx`, `.js` files. Read additional context from relate
 
 ### 5. Testing Patterns (React/TSX)
 
-These are the React-specific test concerns to apply on top of the general FXA testing rules in `.claude/skills/fxa-testing-shared/GUIDELINES.md`. Apply both: the shared rules cover assertions, mocking, isolation, and async correctness; this section covers what's unique to component tests.
-
-**Querying by implementation detail**
-- Tests selecting by `className`, CSS selectors, `data-testid` (when a semantic query exists), refs, or component instances
-- Recommendation: prefer Testing Library queries that mirror how users find elements — `getByRole` (with `name` option), `getByLabelText`, `getByText`. `data-testid` is a last resort when no semantic query fits.
-
-**`fireEvent` instead of `userEvent`**
-- `fireEvent.click(...)`, `fireEvent.change(...)` for user interactions
-- Recommendation: use `userEvent` (`@testing-library/user-event`); it dispatches the full event sequence (focus → keydown → input → change → blur) that real interactions produce, surfacing bugs `fireEvent` misses
-
-**Asserting on component internals**
-- Reading `instance()`, `state()`, refs, or private hooks via Enzyme-style or test-only escape hatches
-- Recommendation: assert on rendered output (DOM, accessible names, ARIA states) — the user-visible contract, not the implementation
-
-**Missing or misused `act()`**
-- State updates in tests not wrapped in `act` produce console warnings and can cause flakiness
-- Most async Testing Library helpers (`findBy*`, `waitFor`) wrap `act` internally — reach for them before manually wrapping
-- Recommendation: prefer `findBy*` / `waitFor` for async UI changes; only manually `act(() => ...)` when no helper fits
-
-**Snapshot tests for non-trivial components**
-- Large `toMatchSnapshot()` outputs that get regenerated without scrutiny on every change
-- Recommendation: assert on specific user-observable properties (text content, ARIA attributes, presence of specific elements) instead of whole-tree snapshots; reserve snapshots for small, stable, hard-to-articulate output (e.g., serialized error messages)
-
-**Provider boilerplate duplicated per test**
-- Each test re-wrapping the component in the same chain of `MockedProvider` / `IntlProvider` / Router providers
-- Recommendation: extract a `renderWithProviders(ui, options)` helper in a test util; reuse across the suite
+When reviewing `*.test.tsx` changes, apply the React testing rules in `.claude/rules/testing/react.md` in addition to the general FXA rules in `.claude/rules/testing/base.md`. Both rules auto-load when Claude reads a matching test file; this skill's pre-flight should explicitly `Read` them too so reviews cover test changes consistently. Headline triggers to flag: implementation-detail queries (className/CSS/data-testid where semantic queries fit), `fireEvent` where `userEvent` belongs, asserting on instances/refs/private state, missing or misused `act()`, whole-tree snapshots for non-trivial components, and duplicated provider boilerplate.
 
 ---
 

@@ -11,10 +11,9 @@ context: fork
 
 Draft Jest tests for changed code following FXA conventions and the project testing guidelines. Output is a **draft** — review before committing.
 
-Read the shared testing guidelines before proceeding:
-`.claude/skills/fxa-testing-shared/GUIDELINES.md`
+Read the testing rules before proceeding: `.claude/rules/testing/base.md` (general FXA test rules). These auto-load when Claude reads matching test files, but read them explicitly here so the plan in Step 5 is informed before any test file is opened.
 
-If any of the changed files are React/TSX (`fxa-settings` and similar), also read Section 5 ("Testing Patterns (React/TSX)") of `.claude/skills/fxa-check-react/SKILL.md` and apply those rules to drafted component tests.
+If any of the changed files are React/TSX (`fxa-settings` and similar), also read `.claude/rules/testing/react.md` and apply those component-test rules to drafted tests.
 
 ---
 
@@ -91,7 +90,7 @@ For each changed function or module, identify:
 - Functions doing too many things (test surface too large)
 - Side effects embedded in otherwise pure logic
 - Missing error boundaries
-- **Business rules embedded in route handlers or React components** that should live in pure functions / hooks / services for unit testing (see "Test layers and shift-left" in GUIDELINES.md)
+- **Business rules embedded in route handlers or React components** that should live in pure functions / hooks / services for unit testing (see "Shift-left is a golden goal" in `CLAUDE.md` Section 8)
 
 Do not skip coverage for hard-to-test code — flag it explicitly and suggest a refactor where applicable.
 
