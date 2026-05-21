@@ -5,6 +5,7 @@
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
+import type { SetPasswordLocationState } from '../PostVerify/SetPassword/interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   useSession,
@@ -66,14 +67,19 @@ export function getSyncNavigate(
 ): {
   to: string;
   shouldHardNavigate: boolean;
-  locationState?: Pick<SigninLocationState, 'origin'>;
+  locationState?: Pick<SigninLocationState, 'origin'> &
+    Pick<SetPasswordLocationState, 'passwordCreationReason'>;
 } {
   const searchParams = new URLSearchParams(queryParams);
 
   if (isSignInWithThirdPartyAuth) {
     return {
-      to: `/post_verify/third_party_auth/set_password?${searchParams}`,
+      to: `/post_verify/set_password?${searchParams}`,
       shouldHardNavigate: false,
+      // Explicit so the destination page doesn't have to infer the flow from
+      // a missing field. Mirrors the explicit reason set by the OTP and
+      // passkey callers in SigninPasswordlessCode and signin-flow.
+      locationState: { passwordCreationReason: 'third_party_auth' },
     };
   }
 
@@ -413,7 +419,7 @@ const createSigninLocationState = (
     },
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
-    isPasswordlessFlow,
+    isPasswordlessOtpSignin,
     origin,
   } = navigationOptions;
   return {
@@ -426,7 +432,7 @@ const createSigninLocationState = (
     verificationReason,
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
-    isPasswordlessFlow,
+    isPasswordlessOtpSignin,
     origin,
   };
 };

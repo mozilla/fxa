@@ -70,6 +70,7 @@ const Signin = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    surface: 'login',
   });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(

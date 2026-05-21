@@ -643,6 +643,72 @@ email:
           was auto-submitted from query params or a cached account rather
           than via direct user submission.
         type: string
+  first_passkey_submit:
+    type: event
+    description: |
+      User clicked "Sign in with passkey" on the email-first page; the WebAuthn
+      ceremony is starting and the button is in its loading state.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  first_passkey_submit_frontend_error:
+    type: event
+    description: |
+      Passkey sign-in from the email-first page failed and an error was
+      displayed to the user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Categorized WebAuthn or sign-in error: 'not_allowed' (user
+          dismissed the browser prompt, no credential on device, or biometric
+          failed), 'not_supported' (device/browser lacks WebAuthn support),
+          'security' (non-HTTPS or cross-origin restriction), 'timeout'
+          (ceremony timed out), 'no_passkey_found' (server pre-ceremony
+          check found no matching credential), or 'unexpected' (any other
+          error, including server failures).
+        type: string
+  first_passkey_submit_success:
+    type: event
+    description: |
+      Passkey sign-in from the email-first page completed: the server verified
+      the WebAuthn assertion and a session token was created. An additional
+      password step may follow for Sync users.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 login:
   email_confirmation_submit:
     type: event
@@ -1150,6 +1216,197 @@ login:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13393
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_submit:
+    type: event
+    description: |
+      User clicked "Sign in with passkey" on the login (password) page; the
+      WebAuthn ceremony is starting and the button is in its loading state.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_submit_frontend_error:
+    type: event
+    description: |
+      Passkey sign-in from the login (password) page failed and an error was
+      displayed to the user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
+          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          first_passkey_submit_frontend_error for full definitions.
+        type: string
+  passkey_submit_success:
+    type: event
+    description: |
+      Passkey sign-in from the login (password) page completed: the server
+      verified the WebAuthn assertion and a session token was created. An
+      additional password step may follow for Sync users.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  alternative_auth_passkey_submit:
+    type: event
+    description: |
+      User clicked "Sign in with passkey" on the alternative auth options page
+      (shown to linked-passwordless users — third-party-linked accounts with
+      no password). The WebAuthn ceremony is starting and the button is in
+      its loading state. Distinct from `login.passkey_submit`, which only
+      covers the password sign-in page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  alternative_auth_passkey_submit_frontend_error:
+    type: event
+    description: |
+      Passkey sign-in from the alternative auth options page failed and an
+      error was displayed to the user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
+          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          first_passkey_submit_frontend_error for full definitions.
+        type: string
+  alternative_auth_passkey_submit_success:
+    type: event
+    description: |
+      Passkey sign-in from the alternative auth options page completed: the
+      server verified the WebAuthn assertion and a session token was created.
+      Because alt-auth users are linked-passwordless, an additional
+      password-creation step on /post_verify/set_password always follows for
+      Sync users.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  otp_passkey_submit:
+    type: event
+    description: |
+      User clicked "Sign in with passkey" on the passwordless OTP code page
+      during login; the WebAuthn ceremony is starting.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  otp_passkey_submit_frontend_error:
+    type: event
+    description: |
+      Passkey sign-in from the passwordless OTP code page failed and an error
+      was displayed to the user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
+          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          first_passkey_submit_frontend_error for full definitions.
+        type: string
+  otp_passkey_submit_success:
+    type: event
+    description: |
+      Passkey sign-in from the passwordless OTP code page completed: the server
+      verified the WebAuthn assertion and a session token was created. An
+      additional password step may follow for Sync users.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -2305,11 +2562,14 @@ third_party_auth:
     data_sensitivity:
       - interaction
 
-third_party_auth_set_password:
+post_verify_set_password:
   view:
     type: event
     description: |
-      User viewed the set password screen after authenticating with third party auth or OTP
+      User viewed the PostVerify/SetPassword page.
+      Renamed from `third_party_auth_set_password.view` in FXA-13475 since the
+      page now serves three sign-in flows (third-party-auth, passwordless OTP,
+      passkey). The `reason` extra carries which flow brought the user here.
     send_in_pings:
       - events
     notification_emails:
@@ -2318,6 +2578,7 @@ third_party_auth_set_password:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
       - https://mozilla-hub.atlassian.net/browse/FXA-13429
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -2326,12 +2587,16 @@ third_party_auth_set_password:
       - interaction
     extra_keys:
       reason:
-        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        description: |
+          Which sign-in flow brought the user to the set-password page:
+          'third_party_auth' (Google/Apple OAuth), 'otp' (passwordless OTP
+          code), or 'passkey' (WebAuthn passkey).
         type: string
   engage:
     type: event
     description: |
-      User engaged the set password form after authenticating with third party auth or OTP
+      User engaged the PostVerify/SetPassword form (first keystroke into the
+      password field).
     send_in_pings:
       - events
     notification_emails:
@@ -2340,6 +2605,7 @@ third_party_auth_set_password:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
       - https://mozilla-hub.atlassian.net/browse/FXA-13429
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -2348,12 +2614,14 @@ third_party_auth_set_password:
       - interaction
     extra_keys:
       reason:
-        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        description: |
+          Which sign-in flow brought the user to the set-password page:
+          'third_party_auth', 'otp', or 'passkey'.
         type: string
   submit:
     type: event
     description: |
-      User submitted the set password form after authenticating with third party auth or OTP
+      User submitted the PostVerify/SetPassword form.
     send_in_pings:
       - events
     notification_emails:
@@ -2362,6 +2630,7 @@ third_party_auth_set_password:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
       - https://mozilla-hub.atlassian.net/browse/FXA-13429
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -2370,12 +2639,39 @@ third_party_auth_set_password:
       - interaction
     extra_keys:
       reason:
-        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        description: |
+          Which sign-in flow brought the user to the set-password page:
+          'third_party_auth', 'otp', or 'passkey'.
+        type: string
+  submit_frontend_error:
+    type: event
+    description: |
+      Password creation failed on the PostVerify/SetPassword page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Which sign-in flow brought the user to the set-password page:
+          'third_party_auth', 'otp', or 'passkey'. Client-side validation
+          errors prevent submission rather than emitting this event, so the
+          captured failures are server-side rejections.
         type: string
   success:
     type: event
     description: |
-      User successfully set a password after authenticating with third party auth or OTP
+      User successfully set a password on the PostVerify/SetPassword page.
     send_in_pings:
       - events
     notification_emails:
@@ -2384,6 +2680,7 @@ third_party_auth_set_password:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
       - https://mozilla-hub.atlassian.net/browse/FXA-13429
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -2392,8 +2689,168 @@ third_party_auth_set_password:
       - interaction
     extra_keys:
       reason:
-        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        description: |
+          Which sign-in flow brought the user to the set-password page:
+          'third_party_auth', 'otp', or 'passkey'.
         type: string
+
+passkey_enter_password:
+  view:
+    type: event
+    description: |
+      User viewed the enter-password page after signing in with a passkey for
+      an existing Sync user (password required to derive sync keys).
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the user came from before this page: 'emailfirst'
+          (email-first page or passwordless OTP code page) or 'login' (login
+          page with password).
+        type: string
+  engage:
+    type: event
+    description: |
+      User began typing in the password field on the enter-password page after
+      signing in with a passkey.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the user came from: 'emailfirst' or 'login'.
+        type: string
+  submit:
+    type: event
+    description: |
+      User submitted the password form on the enter-password page after
+      signing in with a passkey.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the user came from: 'emailfirst' or 'login'.
+        type: string
+  submit_frontend_error:
+    type: event
+    description: |
+      Password entry failed on the enter-password page after signing in with
+      a passkey.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Reason the password entry failed: 'incorrect_password' (sessionReauth
+          rejected the password) or 'server_error' (the request failed for any
+          other reason).
+        type: string
+  success:
+    type: event
+    description: |
+      User successfully verified their password on the enter-password page
+      after signing in with a passkey.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the user came from: 'emailfirst' or 'login'.
+        type: string
+
+passkey:
+  auth_success:
+    type: event
+    description: |
+      Passkey sign-in completed end-to-end on the frontend. Fires after the
+      WebAuthn ceremony succeeds AND any subsequent Sync password step
+      (creating a new password or entering an existing one) completes. Does
+      not fire if the user abandons during a password step. Distinct from
+      the per-surface `*_passkey_submit_success` events, which fire at
+      ceremony-verified time and don't reflect the full journey outcome.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13475
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in entry surface paired with the post-auth Sync outcome.
+          One of: 'emailfirst_nopassword' (came from email-first or the
+          passwordless OTP page, no Sync password step required),
+          'emailfirst_withpassword' (existing Sync password entered after
+          passkey), 'emailfirst_createdpassword' (new Sync password created
+          after passkey), 'signin_nopassword' (came from the signin/login
+          page, no Sync password step required), 'signin_withpassword'
+          (existing Sync password entered after passkey).
+        type: string
+
 account_pref:
   view:
     type: event

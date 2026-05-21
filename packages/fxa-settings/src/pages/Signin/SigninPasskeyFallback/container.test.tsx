@@ -11,8 +11,26 @@ import * as HooksModule from '../../../lib/oauth/hooks';
 import * as SigninUtilsModule from '../utils';
 import { Integration, IntegrationType } from '../../../models';
 import { MozServices } from '../../../lib/types';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
 import SigninPasskeyFallbackContainer from './container';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passkeyEnterPassword: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      submitFrontendError: jest.fn(),
+      success: jest.fn(),
+    },
+    passkey: {
+      authSuccess: jest.fn(),
+    },
+  },
+}));
 
 function createMockSyncIntegration() {
   return {
@@ -213,6 +231,109 @@ describe('SigninPasskeyFallback container', () => {
       const { queryByTestId, getByText } = render();
       expect(getByText('Bad Request')).toBeInTheDocument();
       expect(queryByTestId('passkey-fallback-email')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Glean events', () => {
+    function submitPassword(getByTestId: (id: string) => HTMLElement) {
+      fireEvent.change(getByTestId('password-input-field'), {
+        target: { value: 'pa55word' },
+      });
+      fireEvent.click(getByTestId('continue-button'));
+    }
+
+    it('fires success with the passkeySurface reason after sessionReauth resolves', async () => {
+      mockLocationState = {
+        ...MOCK_LOCATION_STATE,
+        passkeySurface: 'login',
+      };
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+      await waitFor(() => {
+        expect(GleanMetrics.passkeyEnterPassword.success).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+      expect(
+        GleanMetrics.passkeyEnterPassword.submitFrontendError
+      ).not.toHaveBeenCalled();
+    });
+
+    it('fires submit_frontend_error with reason=incorrect_password on INCORRECT_PASSWORD errno', async () => {
+      mockSessionReauth.mockRejectedValueOnce({
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        message: 'Incorrect password',
+      });
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+      await waitFor(() => {
+        expect(
+          GleanMetrics.passkeyEnterPassword.submitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: 'incorrect_password' } });
+      });
+      expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
+    });
+
+    it('fires submit_frontend_error with reason=server_error on other errnos', async () => {
+      mockSessionReauth.mockRejectedValueOnce({
+        errno: 999,
+        message: 'Other',
+      });
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+      await waitFor(() => {
+        expect(
+          GleanMetrics.passkeyEnterPassword.submitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: 'server_error' } });
+      });
+    });
+
+    it('fires submit_frontend_error with reason=server_error when handleNavigation returns an error', async () => {
+      mockHandleNavigation.mockResolvedValueOnce({
+        error: { errno: 999, message: 'Nav broke' },
+      });
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+      await waitFor(() => {
+        expect(
+          GleanMetrics.passkeyEnterPassword.submitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: 'server_error' } });
+      });
+      expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['emailfirst' as const, 'emailfirst_withpassword'],
+      ['login' as const, 'signin_withpassword'],
+    ])(
+      'fires passkey.auth_success with reason=%s on successful reauth (passkeySurface=%s)',
+      async (surface, expectedReason) => {
+        mockLocationState = {
+          ...MOCK_LOCATION_STATE,
+          passkeySurface: surface,
+        };
+        const { getByTestId } = render();
+        submitPassword(getByTestId);
+        await waitFor(() => {
+          expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
+            event: { reason: expectedReason },
+          });
+        });
+      }
+    );
+
+    it('does NOT fire passkey.auth_success when reauth fails', async () => {
+      mockSessionReauth.mockRejectedValueOnce({
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+      });
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+      await waitFor(() => {
+        expect(
+          GleanMetrics.passkeyEnterPassword.submitFrontendError
+        ).toHaveBeenCalled();
+      });
+      expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
     });
   });
 });

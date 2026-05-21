@@ -124,6 +124,9 @@ describe('passkeys routes', () => {
         deleteSuccess: jest.fn(),
         renameSuccess: jest.fn(),
       },
+      login: {
+        complete: jest.fn(),
+      },
     };
     db = {
       account: jest.fn().mockResolvedValue({
@@ -1090,6 +1093,36 @@ describe('passkeys routes', () => {
         'account.passkey.authentication_success',
         expect.anything()
       );
+    });
+
+    it('emits glean.login.complete with reason "passkey"', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(glean.login.complete).toHaveBeenCalledTimes(1);
+      expect(glean.login.complete).toHaveBeenCalledWith(expect.anything(), {
+        uid: UID,
+        reason: 'passkey',
+      });
+    });
+
+    it('does not emit glean.login.complete when verification fails', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(glean.login.complete).not.toHaveBeenCalled();
     });
 
     it('enforces rate limiting via customs.checkIpOnly', async () => {

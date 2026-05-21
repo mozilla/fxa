@@ -2,10 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
 import SigninPasskeyFallback from '.';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passkeyEnterPassword: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      submitFrontendError: jest.fn(),
+      success: jest.fn(),
+    },
+  },
+}));
 
 describe('SigninPasskeyFallback', () => {
   beforeEach(() => {
@@ -41,5 +55,67 @@ describe('SigninPasskeyFallback', () => {
       />
     );
     expect(screen.getByText('Incorrect password')).toBeInTheDocument();
+  });
+
+  describe('Glean events', () => {
+    it('fires view with the default surface reason on mount', () => {
+      renderWithRouter(<SigninPasskeyFallback email="user@example.com" />);
+      expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
+        event: { reason: 'emailfirst' },
+      });
+    });
+
+    it('fires view with the provided surface reason', () => {
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          passkeySurface="login"
+        />
+      );
+      expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
+        event: { reason: 'login' },
+      });
+    });
+
+    it('fires engage on the first keystroke and not again', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          passkeySurface="login"
+        />
+      );
+      await user.type(screen.getByLabelText('Password'), 'a');
+      await waitFor(() => {
+        expect(GleanMetrics.passkeyEnterPassword.engage).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+      const callsBefore = (
+        GleanMetrics.passkeyEnterPassword.engage as jest.Mock
+      ).mock.calls.length;
+      await user.type(screen.getByLabelText('Password'), 'b');
+      expect(
+        (GleanMetrics.passkeyEnterPassword.engage as jest.Mock).mock.calls
+          .length
+      ).toBe(callsBefore);
+    });
+
+    it('fires submit with the surface reason on form submission', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(undefined);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+          passkeySurface="emailfirst"
+        />
+      );
+      await user.type(screen.getByLabelText('Password'), 'shhh');
+      await user.click(screen.getByTestId('continue-button'));
+      expect(GleanMetrics.passkeyEnterPassword.submit).toHaveBeenCalledWith({
+        event: { reason: 'emailfirst' },
+      });
+    });
   });
 });

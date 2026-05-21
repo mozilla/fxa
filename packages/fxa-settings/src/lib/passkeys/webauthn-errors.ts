@@ -36,18 +36,40 @@ export enum WebAuthnErrorType {
   Unknown = 'UnknownError',
 }
 
+/**
+ * Reason value reported in Glean `*_submit_frontend_error` events. The
+ * taxonomy in FXA-13475 collapses the larger DOMException set to five
+ * buckets, so error-shape changes inside the same bucket don't fragment
+ * the metric.
+ */
+export type WebAuthnGleanReason =
+  | 'not_allowed'
+  | 'not_supported'
+  | 'security'
+  | 'timeout'
+  | 'unexpected';
+
+/**
+ * Superset of `WebAuthnGleanReason` used by the passkey sign-in submit
+ * events. Adds `no_passkey_found` for the server-side errno path that
+ * never reaches a WebAuthn ceremony.
+ */
+export type PasskeySignInGleanReason = WebAuthnGleanReason | 'no_passkey_found';
+
 export interface CategorizedWebAuthnError {
   category: WebAuthnErrorCategory;
   errorType: WebAuthnErrorType;
   ftlId: string;
   fallbackText: string;
   logToSentry: boolean;
+  gleanReason: WebAuthnGleanReason;
 }
 
 interface ErrorEntry {
   category: WebAuthnErrorCategory;
   errorType: WebAuthnErrorType;
   logToSentry: boolean;
+  gleanReason: WebAuthnGleanReason;
   ftlId: Record<WebAuthnOperation, string>;
   fallbackText: Record<WebAuthnOperation, string>;
 }
@@ -84,6 +106,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotAllowed,
     logToSentry: false,
+    gleanReason: 'not_allowed',
     ftlId: {
       registration: 'passkey-registration-error-not-allowed',
       authentication: 'passkey-authentication-error-not-allowed',
@@ -100,6 +123,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.Abort,
     logToSentry: false,
+    gleanReason: 'not_allowed',
     ftlId: {
       registration: 'passkey-registration-error-not-allowed',
       authentication: 'passkey-authentication-error-not-allowed',
@@ -115,6 +139,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.Timeout,
     logToSentry: false,
+    gleanReason: 'timeout',
     ftlId: {
       registration: 'passkey-registration-error-timeout',
       authentication: 'passkey-authentication-error-timeout',
@@ -129,6 +154,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotSupported,
     logToSentry: false,
+    gleanReason: 'not_supported',
     ftlId: {
       registration: 'passkey-registration-error-not-supported-v2',
       authentication: 'passkey-authentication-error-not-supported-v2',
@@ -142,6 +168,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.Security,
     logToSentry: false,
+    gleanReason: 'security',
     ftlId: {
       registration: 'passkey-registration-error-security',
       authentication: 'passkey-authentication-error-security',
@@ -155,6 +182,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.InvalidState,
     logToSentry: false,
+    gleanReason: 'unexpected',
     ftlId: {
       registration: 'passkey-registration-error-invalid-state',
       authentication: 'passkey-authentication-error-invalid-state',
@@ -170,6 +198,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotReadable,
     logToSentry: false,
+    gleanReason: 'unexpected',
     ftlId: {
       registration: 'passkey-registration-error-not-readable',
       authentication: 'passkey-authentication-error-not-readable',
@@ -184,6 +213,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Type,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
@@ -191,6 +221,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Data,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
@@ -198,6 +229,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Encoding,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
@@ -205,6 +237,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Constraint,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: {
       registration: 'passkey-registration-error-constraint',
       authentication: 'passkey-authentication-error-unexpected',
@@ -218,6 +251,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Operation,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
@@ -225,6 +259,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Unknown,
     logToSentry: true,
+    gleanReason: 'unexpected',
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
@@ -232,6 +267,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotSupported,
     logToSentry: true,
+    gleanReason: 'not_supported',
     ftlId: AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID,
     fallbackText: AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK,
   },
@@ -289,6 +325,7 @@ export function categorizeWebAuthnError(
         ftlId: entry.ftlId[operation],
         fallbackText: entry.fallbackText[operation],
         logToSentry: entry.logToSentry,
+        gleanReason: entry.gleanReason,
       };
     }
   }
@@ -299,6 +336,7 @@ export function categorizeWebAuthnError(
     ftlId: UNEXPECTED_FTL_ID[operation],
     fallbackText: UNEXPECTED_FALLBACK[operation],
     logToSentry: true,
+    gleanReason: 'unexpected',
   };
 }
 

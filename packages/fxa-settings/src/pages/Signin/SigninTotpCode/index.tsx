@@ -139,11 +139,17 @@ export const SigninTotpCode = ({
       // /password/create (which requires verifiedSessionToken) will work.
       // Only redirect to set_password for Sync integrations, non-Sync
       // OAuth flows (e.g. Relay) should continue through handleNavigation.
-      if (signinState.isPasswordlessFlow && integration.isSync()) {
-        navigateWithQuery('/post_verify/third_party_auth/set_password', {
+      //
+      // The inbound `isPasswordlessOtpSignin` lives on SigninLocationState;
+      // the outbound `passwordCreationReason` lives on SetPasswordLocationState.
+      // They look related but belong to different state objects on different
+      // routes — the boolean gates the redirect, the enum tags the Glean
+      // reason on the destination page.
+      if (signinState.isPasswordlessOtpSignin && integration.isSync()) {
+        navigateWithQuery('/post_verify/set_password', {
           replace: true,
           state: {
-            isPasswordlessFlow: true,
+            passwordCreationReason: 'otp',
           },
         });
         return;

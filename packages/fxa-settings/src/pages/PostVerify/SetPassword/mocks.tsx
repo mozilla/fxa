@@ -6,6 +6,7 @@ import SetPassword from '.';
 import { LocationProvider } from '@reach/router';
 import {
   CreatePasswordHandler,
+  PasswordCreationReason,
   PostVerifySetPasswordIntegration,
 } from './interfaces';
 import { MOCK_EMAIL } from '../../mocks';
@@ -24,12 +25,12 @@ export const Subject = ({
   email = MOCK_EMAIL,
   createPasswordHandler = () => Promise.resolve({ error: null }),
   integration,
-  isPasswordlessFlow = false,
+  passwordCreationReason,
 }: {
   email?: string;
   createPasswordHandler?: CreatePasswordHandler;
   integration?: PostVerifySetPasswordIntegration;
-  isPasswordlessFlow?: boolean;
+  passwordCreationReason?: PasswordCreationReason;
 }) => {
   const { offeredSyncEngineConfigs } = mockUseFxAStatus();
   return (
@@ -40,7 +41,7 @@ export const Subject = ({
           createPasswordHandler,
           offeredSyncEngineConfigs,
           integration,
-          isPasswordlessFlow,
+          passwordCreationReason,
         }}
       />
     </LocationProvider>
