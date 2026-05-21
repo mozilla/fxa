@@ -51,6 +51,9 @@ export const eventsMap = {
     engage: 'email_first_engage',
     submitSuccess: 'email_first_submit_success',
     submitFail: 'email_first_submit_fail',
+    passkeySubmit: 'email_first_passkey_submit',
+    passkeySubmitFrontendError: 'email_first_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'email_first_passkey_submit_success',
   },
 
   registration: {
@@ -81,6 +84,14 @@ export const eventsMap = {
     backupChoiceSubmit: 'login_backup_choice_submit',
     recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
     lockedAccountBannerView: 'login_locked_account_banner_view',
+    passkeySubmit: 'login_passkey_submit',
+    passkeySubmitFrontendError: 'login_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'login_passkey_submit_success',
+    alternativeAuthPasskeySubmit: 'login_alternative_auth_passkey_submit',
+    alternativeAuthPasskeySubmitFrontendError:
+      'login_alternative_auth_passkey_submit_frontend_error',
+    alternativeAuthPasskeySubmitSuccess:
+      'login_alternative_auth_passkey_submit_success',
   },
 
   cachedLogin: {
@@ -150,11 +161,16 @@ export const eventsMap = {
     loginNoPwView: 'third_party_auth_login_no_pw_view',
   },
 
-  thirdPartyAuthSetPassword: {
-    view: 'third_party_auth_set_password_view',
-    engage: 'third_party_auth_set_password_engage',
-    submit: 'third_party_auth_set_password_submit',
-    success: 'third_party_auth_set_password_success',
+  postVerifySetPassword: {
+    view: 'post_verify_set_password_view',
+    engage: 'post_verify_set_password_engage',
+    submit: 'post_verify_set_password_submit',
+    submitFrontendError: 'post_verify_set_password_submit_frontend_error',
+    success: 'post_verify_set_password_success',
+  },
+
+  passkey: {
+    authSuccess: 'passkey_auth_success',
   },
 
   cad: {
@@ -288,6 +304,17 @@ export const eventsMap = {
     error: 'login_otp_submit_frontend_error',
     resendCode: 'login_otp_email_confirmation_resend_code',
     changeEmail: 'login_otp_change_email',
+    passkeySubmit: 'login_otp_passkey_submit',
+    passkeySubmitFrontendError: 'login_otp_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'login_otp_passkey_submit_success',
+  },
+
+  passkeyEnterPassword: {
+    view: 'passkey_enter_password_view',
+    engage: 'passkey_enter_password_engage',
+    submit: 'passkey_enter_password_submit',
+    submitFrontendError: 'passkey_enter_password_submit_frontend_error',
+    success: 'passkey_enter_password_success',
   },
 
   error: {

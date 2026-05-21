@@ -13,6 +13,7 @@ import {
 import { getCredential, isWebAuthnLevel3Supported } from './webauthn';
 import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import GleanMetrics from '../glean';
 import { IntegrationType } from '../../models';
 import {
   ensureCanLinkAcountOrRedirect,
@@ -41,6 +42,62 @@ jest.mock('../storage-utils', () => ({
   __esModule: true,
   storeAccountData: jest.fn(),
 }));
+
+jest.mock('../glean', () => ({
+  __esModule: true,
+  default: {
+    emailFirst: {
+      passkeySubmit: jest.fn(),
+      passkeySubmitFrontendError: jest.fn(),
+      passkeySubmitSuccess: jest.fn(),
+    },
+    login: {
+      passkeySubmit: jest.fn(),
+      passkeySubmitFrontendError: jest.fn(),
+      passkeySubmitSuccess: jest.fn(),
+      alternativeAuthPasskeySubmit: jest.fn(),
+      alternativeAuthPasskeySubmitFrontendError: jest.fn(),
+      alternativeAuthPasskeySubmitSuccess: jest.fn(),
+    },
+    passwordlessLogin: {
+      passkeySubmit: jest.fn(),
+      passkeySubmitFrontendError: jest.fn(),
+      passkeySubmitSuccess: jest.fn(),
+    },
+    passkey: {
+      authSuccess: jest.fn(),
+    },
+  },
+}));
+
+type PasskeyEventMocks = {
+  passkeySubmit: jest.Mock;
+  passkeySubmitFrontendError: jest.Mock;
+  passkeySubmitSuccess: jest.Mock;
+};
+
+const gleanForSurface = (
+  surface: 'emailfirst' | 'login' | 'login_otp' | 'alternative_auth'
+): PasskeyEventMocks => {
+  if (surface === 'emailfirst')
+    return GleanMetrics.emailFirst as unknown as PasskeyEventMocks;
+  if (surface === 'login')
+    return GleanMetrics.login as unknown as PasskeyEventMocks;
+  if (surface === 'alternative_auth') {
+    const loginMocks = GleanMetrics.login as unknown as {
+      alternativeAuthPasskeySubmit: jest.Mock;
+      alternativeAuthPasskeySubmitFrontendError: jest.Mock;
+      alternativeAuthPasskeySubmitSuccess: jest.Mock;
+    };
+    return {
+      passkeySubmit: loginMocks.alternativeAuthPasskeySubmit,
+      passkeySubmitFrontendError:
+        loginMocks.alternativeAuthPasskeySubmitFrontendError,
+      passkeySubmitSuccess: loginMocks.alternativeAuthPasskeySubmitSuccess,
+    };
+  }
+  return GleanMetrics.passwordlessLogin as unknown as PasskeyEventMocks;
+};
 
 const SESSION_TOKEN = 'session-token';
 const UID = 'uid-123';
@@ -99,6 +156,7 @@ const buildArgs = (
       ftlMsgResolver,
       navigateWithQuery,
       queryParams: '',
+      surface: 'emailfirst' as const,
       ...overrides,
     },
     spies: {
@@ -253,11 +311,24 @@ describe('usePasskeySignIn', () => {
   });
 
   it.each([
-    [true, '/signin_passkey_fallback'],
-    [false, '/post_verify/passkey/set_password'],
+    [
+      true,
+      '/signin_passkey_fallback',
+      { state: { passkeySurface: 'emailfirst' } },
+    ],
+    [
+      false,
+      '/post_verify/set_password',
+      {
+        state: {
+          passwordCreationReason: 'passkey',
+          passkeySurface: 'emailfirst',
+        },
+      },
+    ],
   ])(
-    'routes Sync sign-ins (hasPassword=%s) to %s',
-    async (hasPassword, expectedPath) => {
+    'routes Sync sign-ins (hasPassword=%s) to %s with surface-aware state',
+    async (hasPassword, expectedPath, expectedOptions) => {
       const { args, spies } = buildArgs({
         integration: {
           isSync: () => true,
@@ -281,7 +352,10 @@ describe('usePasskeySignIn', () => {
         await result.current.onClick();
       });
 
-      expect(spies.navigateWithQuery).toHaveBeenCalledWith(expectedPath);
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        expectedPath,
+        expectedOptions
+      );
       expect(handleNavigation).not.toHaveBeenCalled();
     }
   );
@@ -501,6 +575,140 @@ describe('usePasskeySignIn', () => {
     // Should NOT be reported to Sentry — it's an expected divergence between
     // server state and authenticator state.
     expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+  });
+
+  describe('Glean metrics', () => {
+    it.each([
+      ['emailfirst' as const],
+      ['login' as const],
+      ['login_otp' as const],
+      ['alternative_auth' as const],
+    ])('fires submit + submit_success for surface=%s', async (surface) => {
+      const { args } = buildArgs({ surface });
+      const events = gleanForSurface(surface);
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(events.passkeySubmit).toHaveBeenCalledTimes(1);
+      expect(events.passkeySubmitSuccess).toHaveBeenCalledTimes(1);
+      expect(events.passkeySubmitFrontendError).not.toHaveBeenCalled();
+    });
+
+    it('fires submit_frontend_error with categorized reason on WebAuthn error', async () => {
+      const { args } = buildArgs({ surface: 'login' });
+      (getCredential as jest.Mock).mockRejectedValueOnce(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(
+        GleanMetrics.login.passkeySubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'not_allowed' } });
+      expect(GleanMetrics.login.passkeySubmitSuccess).not.toHaveBeenCalled();
+    });
+
+    it('fires submit_frontend_error with reason=no_passkey_found on server PASSKEY_NOT_FOUND', async () => {
+      const { args, spies } = buildArgs({ surface: 'login' });
+      spies.completePasskeyAuthentication.mockRejectedValueOnce({
+        errno: AuthUiErrors.PASSKEY_NOT_FOUND.errno,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(
+        GleanMetrics.login.passkeySubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'no_passkey_found' } });
+    });
+
+    it('fires submit_frontend_error with reason=not_supported when WebAuthn L3 missing', async () => {
+      (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(false);
+      const { args } = buildArgs({ surface: 'emailfirst' });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(
+        GleanMetrics.emailFirst.passkeySubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'not_supported' } });
+      expect(GleanMetrics.emailFirst.passkeySubmit).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['emailfirst' as const, 'emailfirst_nopassword'],
+      ['login' as const, 'signin_nopassword'],
+      ['login_otp' as const, 'emailfirst_nopassword'],
+      ['alternative_auth' as const, 'signin_nopassword'],
+    ])(
+      'fires passkey.auth_success with reason=%s on the no-Sync-password branch (surface=%s)',
+      async (surface, expectedReason) => {
+        const { args } = buildArgs({ surface });
+        const { result } = renderHook(() => usePasskeySignIn(args));
+        await act(async () => {
+          await result.current.onClick();
+        });
+
+        expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
+          event: { reason: expectedReason },
+        });
+      }
+    );
+
+    it('does NOT fire passkey.auth_success when Sync requires a password (deferred to destination page)', async () => {
+      const { args, spies } = buildArgs({
+        surface: 'emailfirst',
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          getService: () => 'sync',
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      spies.completePasskeyAuthentication.mockResolvedValue({
+        uid: UID,
+        sessionToken: SESSION_TOKEN,
+        verified: true,
+        requiresPasswordForSync: true,
+        hasPassword: true,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        { state: { passkeySurface: 'emailfirst' } }
+      );
+      expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
+    });
+
+    it('does NOT fire passkey.auth_success when handleNavigation returns an error', async () => {
+      (handleNavigation as jest.Mock).mockResolvedValueOnce({
+        error: { errno: 999 },
+      });
+      const { args } = buildArgs({ surface: 'login' });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
+    });
   });
 
   it('ignores additional clicks while a ceremony is in flight', async () => {

@@ -1078,17 +1078,15 @@ test.describe('severity-2', () => {
         page.getByRole('heading', { name: 'Sync is turned on' })
       ).toBeVisible();
 
-      // Verify every third_party_auth_set_password event emitted during the
+      // Verify every post_verify_set_password event emitted during the
       // OTP flow carries reason='otp' so telemetry can distinguish this
-      // flow from the third-party-auth set-password path.
-      await gleanEventsHelper.waitForEvent(
-        'third_party_auth_set_password_success'
-      );
+      // flow from the third-party-auth and passkey set-password paths.
+      await gleanEventsHelper.waitForEvent('post_verify_set_password_success');
       for (const eventName of [
-        'third_party_auth_set_password_view',
-        'third_party_auth_set_password_engage',
-        'third_party_auth_set_password_submit',
-        'third_party_auth_set_password_success',
+        'post_verify_set_password_view',
+        'post_verify_set_password_engage',
+        'post_verify_set_password_submit',
+        'post_verify_set_password_success',
       ]) {
         const pings = gleanEventsHelper.getEventsByName(eventName);
         expect(pings.length).toBeGreaterThan(0);

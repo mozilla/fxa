@@ -565,6 +565,16 @@ describe('Signin utils', () => {
   });
 
   describe('getSyncNavigate', () => {
+    it('returns /post_verify/set_password with explicit passwordCreationReason when isSignInWithThirdPartyAuth is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        isSignInWithThirdPartyAuth: true,
+      });
+      expect(result.to).toContain('/post_verify/set_password?');
+      expect(result.locationState).toEqual({
+        passwordCreationReason: 'third_party_auth',
+      });
+    });
+
     it('returns /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', () => {
       const result = getSyncNavigate('?service=sync', {
         showInlineRecoveryKeySetup: true,

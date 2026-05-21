@@ -22,25 +22,23 @@ export const SetPassword = ({
   createPasswordHandler,
   offeredSyncEngineConfigs,
   integration,
-  isPasswordlessFlow = false,
+  passwordCreationReason = 'third_party_auth',
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
     useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
-  const gleanReason = isPasswordlessFlow ? 'otp' : 'third_party_auth';
-
   useEffect(() => {
-    GleanMetrics.thirdPartyAuthSetPassword.view({
-      event: { reason: gleanReason },
+    GleanMetrics.postVerifySetPassword.view({
+      event: { reason: passwordCreationReason },
     });
-  }, [gleanReason]);
+  }, [passwordCreationReason]);
 
   const onSubmit = useCallback(
     async ({ newPassword }: SetPasswordFormData) => {
-      GleanMetrics.thirdPartyAuthSetPassword.submit({
-        event: { reason: gleanReason },
+      GleanMetrics.postVerifySetPassword.submit({
+        event: { reason: passwordCreationReason },
       });
       setCreatePasswordLoading(true);
       setBannerErrorText('');
@@ -52,13 +50,16 @@ export const SetPassword = ({
           ftlMsgResolver,
           error
         );
+        GleanMetrics.postVerifySetPassword.submitFrontendError({
+          event: { reason: passwordCreationReason },
+        });
         setBannerErrorText(localizedErrorMessage);
         // if the request errored, loading state must be marked as false to reenable submission
         setCreatePasswordLoading(false);
         return;
       }
     },
-    [createPasswordHandler, ftlMsgResolver, gleanReason]
+    [createPasswordHandler, ftlMsgResolver, passwordCreationReason]
   );
 
   const {
@@ -87,11 +88,11 @@ export const SetPassword = ({
   useEffect(() => {
     if (hasEngaged === false && newPasswordValue) {
       setHasEngaged(true);
-      GleanMetrics.thirdPartyAuthSetPassword.engage({
-        event: { reason: gleanReason },
+      GleanMetrics.postVerifySetPassword.engage({
+        event: { reason: passwordCreationReason },
       });
     }
-  }, [hasEngaged, newPasswordValue, gleanReason]);
+  }, [hasEngaged, newPasswordValue, passwordCreationReason]);
 
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsPage = cmsInfo?.PostVerifySetPasswordPage;
@@ -122,19 +123,21 @@ export const SetPassword = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      {isPasswordlessFlow ? (
+      {passwordCreationReason === 'third_party_auth' ? (
+        cmsDescription ? (
+          <p className="text-sm mt-6 mb-5">{cmsDescription}</p>
+        ) : (
+          <FtlMsg id="set-password-info-v2">
+            <p className="text-sm mt-6 mb-5">
+              This encrypts your data. It needs to be different from your Google
+              or Apple account password.
+            </p>
+          </FtlMsg>
+        )
+      ) : (
         <FtlMsg id="set-password-passwordless-info">
           <p className="text-sm mt-6 mb-5">
             This password encrypts your synced data and keeps it secure.
-          </p>
-        </FtlMsg>
-      ) : cmsDescription ? (
-        <p className="text-sm mt-6 mb-5">{cmsDescription}</p>
-      ) : (
-        <FtlMsg id="set-password-info-v2">
-          <p className="text-sm mt-6 mb-5">
-            This encrypts your data. It needs to be different from your Google
-            or Apple account password.
           </p>
         </FtlMsg>
       )}

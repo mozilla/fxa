@@ -19,6 +19,7 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
+import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
 import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
@@ -49,7 +50,19 @@ const SetPasswordContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SetPasswordLocationState;
   };
-  const isPasswordlessFlow = location.state?.isPasswordlessFlow ?? false;
+  // All known navigation paths set this explicitly (`getSyncNavigate` for
+  // third-party-auth, `SigninPasswordlessCode` for OTP, `signin-flow` for
+  // passkey). The default is a safety net for direct URL hits or page
+  // refreshes that drop router state.
+  //
+  // Known metric attribution bias: a refresh while on this page after an
+  // OTP or passkey flow will tag the success event as `third_party_auth`
+  // since router state is gone. Third-party-auth is the highest-volume
+  // path through this page, so the default biases toward the historically
+  // dominant flow. Refresh on this page is rare in practice.
+  const passwordCreationReason =
+    location.state?.passwordCreationReason ?? 'third_party_auth';
+  const passkeySurface = location.state?.passkeySurface;
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
@@ -135,9 +148,25 @@ const SetPasswordContainer = ({
           );
           persistAccount({ uid, hasPassword: true });
 
-          GleanMetrics.thirdPartyAuthSetPassword.success({
-            event: { reason: isPasswordlessFlow ? 'otp' : 'third_party_auth' },
+          GleanMetrics.postVerifySetPassword.success({
+            event: { reason: passwordCreationReason },
           });
+
+          // For passkey flow, fire the consolidated terminal-success event
+          // so Looker funnels can attribute this end-state directly without
+          // joining across the per-surface ceremony event and this one.
+          // `passkeySurface` is set by signin-flow.ts when it routes here;
+          // defaults to 'emailfirst' for refresh / direct-URL hits.
+          if (passwordCreationReason === 'passkey') {
+            GleanMetrics.passkey.authSuccess({
+              event: {
+                reason: buildPasskeyAuthSuccessReason(
+                  passkeySurface ?? 'emailfirst',
+                  'createdpassword'
+                ),
+              },
+            });
+          }
 
           const navigationOptions: NavigationOptions = {
             email,
@@ -182,7 +211,8 @@ const SetPasswordContainer = ({
       integration,
       finishOAuthFlowHandler,
       getKeyFetchToken,
-      isPasswordlessFlow,
+      passwordCreationReason,
+      passkeySurface,
       offeredSyncEngines,
       location.search,
     ]
@@ -223,7 +253,7 @@ const SetPasswordContainer = ({
         createPasswordHandler,
         offeredSyncEngineConfigs,
         integration,
-        isPasswordlessFlow,
+        passwordCreationReason,
       }}
     />
   );

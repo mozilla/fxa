@@ -48,6 +48,7 @@ const FRONTEND_ROUTES = [
   'post_verify/secondary_email/confirm_secondary_email',
   'post_verify/secondary_email/verified_secondary_email',
   'post_verify/service_welcome',
+  'post_verify/set_password',
   'post_verify/third_party_auth/callback',
   'post_verify/third_party_auth/set_password',
   'primary_email_verified',
