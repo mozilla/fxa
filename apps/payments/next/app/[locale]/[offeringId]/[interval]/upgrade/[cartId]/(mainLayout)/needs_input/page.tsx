@@ -97,7 +97,10 @@ export default async function NeedsInputPage({
         locale={locale}
         cart={cart}
       >
-        <PaymentInputHandler cartId={resolvedParams.cartId} />
+        <PaymentInputHandler
+          cartId={resolvedParams.cartId}
+          isFreeTrial={cart.isFreeTrial}
+        />
       </StripeWrapper>
       <h2 id="processing-payment-heading">
         {l10n.getString(

@@ -13,11 +13,9 @@ import { recordEmitterEventAction } from '../../actions/recordEmitterEvent';
 export function MetricsWrapper({
   cart,
   children,
-  isFreeTrial,
 }: {
   cart?: CartDTO;
   children: React.ReactNode;
-  isFreeTrial?: boolean;
 }) {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -27,7 +25,7 @@ export function MetricsWrapper({
     // Log the view event only once
     // If this is added to the Start page, it will log everytime the page is reloaded/revalidated,
     // which includes when a PromoCode is applied
-    if (!viewEventLogged && cart?.state === 'start') {
+    if (!viewEventLogged && cart && cart.state === 'start') {
       setViewEventLogged(true);
       recordEmitterEventAction(
         'checkoutView',
@@ -35,7 +33,7 @@ export function MetricsWrapper({
         Object.fromEntries(searchParams),
         undefined,
         undefined,
-        isFreeTrial
+        cart.isFreeTrial
       );
     }
   }, []);
