@@ -164,9 +164,9 @@ export const Subject = ({
         disableAutoSubmit={() => {}}
         authClient={
           {
-            beginPasskeyAuthentication: jest.fn(),
-            completePasskeyAuthentication: jest.fn(),
-            accountProfile: jest.fn(),
+            beginPasskeyAuthentication: async () => {},
+            completePasskeyAuthentication: async () => {},
+            accountProfile: async () => {},
           } as unknown as AuthClient
         }
         finishOAuthFlowHandler={async () => ({
