@@ -1759,8 +1759,8 @@ describe('CartService', () => {
     });
   });
 
-  describe('getCartState', () => {
-    it('returns cart state', async () => {
+  describe('getDbCart', () => {
+    it('returns cart state and isFreeTrial', async () => {
       const mockCart = ResultCartFactory({
         state: CartState.START,
         stripeSubscriptionId: null,
@@ -1769,9 +1769,10 @@ describe('CartService', () => {
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
 
-      const result = await cartService.getCartState(mockCart.id);
+      const result = await cartService.getDbCart(mockCart.id);
       expect(result).toEqual({
         state: mockCart.state,
+        isFreeTrial: mockCart.isFreeTrial,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);

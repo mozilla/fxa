@@ -27,14 +27,14 @@ async function validateCartStateAndRedirectAction(
 ) {
   const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
-  const { state } = await getApp().getActionsService().getCartState({
+  const { state, isFreeTrial } = await getApp().getActionsService().getDbCart({
     cartId,
   });
 
   if (!validateCartState(state, page)) {
     // Sanitize pathname to prevent open redirect vulnerabilities
     const safePath = sanitizePathname(currentPathname);
-    
+
     // Replace the last segment with the redirect path to maintain the full path structure
     const pathSegments = safePath.split('/');
     pathSegments[pathSegments.length - 1] = getRedirect(state);
@@ -46,11 +46,12 @@ async function validateCartStateAndRedirectAction(
       return {
         redirectToUrl,
         state,
+        isFreeTrial,
       };
     }
   }
 
-  return;
+  return { state, isFreeTrial };
 }
 
 export { validateCartStateAndRedirectAction };
