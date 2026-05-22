@@ -10570,6 +10570,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openmeter/sdk@npm:1.0.0-beta.227":
+  version: 1.0.0-beta.227
+  resolution: "@openmeter/sdk@npm:1.0.0-beta.227"
+  dependencies:
+    openapi-fetch: "npm:0.15.0"
+    openapi-typescript-helpers: "npm:0.0.15"
+  peerDependencies:
+    react: ">=18.0.0"
+  checksum: 10c0/e5b6b3a25adb4340e4af53a6c58876fdfeef45c7515ef85809a28e45de3d82cd1e49f8b45dd43a6139a709d175ba8e3a4bf4f54db5eccfe13067ecc5a78b9985
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/api-logs@npm:0.200.0, @opentelemetry/api-logs@npm:^0.200.0":
   version: 0.200.0
   resolution: "@opentelemetry/api-logs@npm:0.200.0"
@@ -31745,6 +31757,7 @@ __metadata:
     "@nx/web": "npm:21.2.4"
     "@nx/webpack": "npm:21.2.4"
     "@nx/workspace": "npm:21.2.4"
+    "@openmeter/sdk": "npm:1.0.0-beta.227"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-node": "npm:^0.58.0"
     "@opentelemetry/sdk-trace-base": "npm:^2.0.0"
@@ -42129,6 +42142,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"openapi-fetch@npm:0.15.0":
+  version: 0.15.0
+  resolution: "openapi-fetch@npm:0.15.0"
+  dependencies:
+    openapi-typescript-helpers: "npm:^0.0.15"
+  checksum: 10c0/f6b90276569fbe33c8eac3f235617e5c5cbf99d5ac1bb49deecb279babb3ae411b5c7a39262416154e9a7d3c332f215cab410f28e94ecad6390e09c4a70d96dd
+  languageName: node
+  linkType: hard
+
 "openapi-fetch@npm:^0.13.5":
   version: 0.13.8
   resolution: "openapi-fetch@npm:0.13.8"
@@ -42138,7 +42160,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-typescript-helpers@npm:^0.0.15":
+"openapi-typescript-helpers@npm:0.0.15, openapi-typescript-helpers@npm:^0.0.15":
   version: 0.0.15
   resolution: "openapi-typescript-helpers@npm:0.0.15"
   checksum: 10c0/5eb68d487b787e3e31266470b1a310726549dd45a1079655ab18066ab291b0b3c343fdf629991013706a2329b86964f8798d56ef0272b94b931fe6c19abd7a88

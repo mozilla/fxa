@@ -9,6 +9,23 @@ import {
 } from '@fxa/payments/api-server';
 import { AuthModule } from '@fxa/payments/auth';
 import {
+  MeteringCloudTaskGuard,
+  MeteringConfig,
+  UsageController,
+  MeteringIngestBufferManager,
+  MeteringManager,
+  UsageService,
+  MeteringConfigurationManager,
+  MeteringCloudTasksController,
+  MeteringThresholdService,
+  MeteringThresholdTasksManager,
+  MeteringWebhookManager,
+  OpenMeterClient,
+  requireMeteringCloudTasksConfig,
+} from '@fxa/entitlements/metering';
+import { CloudTasksClient } from '@google-cloud/tasks';
+import { CloudTaskClientFactory } from '@fxa/shared/cloud-tasks';
+import {
   CmsWebhooksController,
   CmsWebhookService,
   FxaWebhooksController,
@@ -78,6 +95,8 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     BillingAndSubscriptionsController,
     CmsWebhooksController,
     FxaWebhooksController,
+    UsageController,
+    MeteringCloudTasksController,
     StripeWebhooksController,
   ],
   providers: [
@@ -123,6 +142,24 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusManagerConfig,
     NimbusClient,
     NimbusClientConfig,
+    MeteringCloudTaskGuard,
+    MeteringConfig,
+    MeteringIngestBufferManager,
+    MeteringManager,
+    UsageService,
+    MeteringConfigurationManager,
+    MeteringThresholdService,
+    {
+      provide: CloudTasksClient,
+      useFactory: (meteringConfig: MeteringConfig) =>
+        CloudTaskClientFactory({
+          cloudTasks: requireMeteringCloudTasksConfig(meteringConfig),
+        }),
+      inject: [MeteringConfig],
+    },
+    MeteringThresholdTasksManager,
+    MeteringWebhookManager,
+    OpenMeterClient,
   ],
 })
 export class AppModule {}

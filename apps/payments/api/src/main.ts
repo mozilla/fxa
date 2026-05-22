@@ -11,6 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
   });
+  // Required so providers implementing OnApplicationShutdown (e.g.
+  // MeteringIngestBufferManager) get a chance to drain in-flight work on SIGTERM /
+  // SIGINT during a rolling deploy. Without this, Nest never invokes the
+  // lifecycle hook and queued events are dropped silently.
+  app.enableShutdownHooks();
   const port = process.env.PORT || 3037;
   await app.listen(port);
   Logger.log(

@@ -1,4 +1,5 @@
 export * from './lib/cloud-tasks';
+export * from './lib/cloud-tasks.config';
 export * from './lib/cloud-tasks.factories';
 export * from './lib/cloud-tasks.types';
 

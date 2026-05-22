@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsDefined, ValidateNested } from 'class-validator';
 
 import { CurrencyConfig } from '@fxa/payments/currency';
+import { MeteringConfig } from '@fxa/entitlements/metering';
 import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 import { PaypalClientConfig } from '@fxa/payments/paypal';
@@ -78,4 +79,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
+
+  @Type(() => MeteringConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly meteringConfig!: Partial<MeteringConfig>;
 }
