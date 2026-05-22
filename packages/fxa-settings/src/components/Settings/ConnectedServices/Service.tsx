@@ -24,10 +24,12 @@ import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 
 const SCOPE_RELAY = 'https://identity.mozilla.com/apps/relay';
+const SCOPE_VPN = 'https://identity.mozilla.com/apps/vpn';
 
 interface ScopeService {
   name: string;
   icon: React.ReactNode;
+  ftlId?: string;
 }
 
 function getScopeServices(scope: string[] | null): ScopeService[] {
@@ -36,12 +38,19 @@ function getScopeServices(scope: string[] | null): ScopeService[] {
   for (const individualScope of scope) {
     // TODO: We will add other `service=` flows here when they have
     // switched to refresh tokens and we will allow revoking
-    // scope later. For now, just display Relay read-only.
+    // scope later. For now, just display Relay and VPN read-only.
     switch (individualScope) {
       case SCOPE_RELAY:
         services.push({
           name: 'Firefox Relay',
           icon: <RelayIcon data-testid="scope-relay-icon" />,
+        });
+        break;
+      case SCOPE_VPN:
+        services.push({
+          name: 'Firefox’s built-in VPN',
+          icon: <FPNIcon data-testid="scope-vpn-icon" />,
+          ftlId: 'cs-scope-firefox-vpn',
         });
         break;
     }
@@ -188,18 +197,29 @@ export function Service({
             </Localized>
           </div>
         </div>
-        {scopeServices.map((scopeService) => (
+        {scopeServices.map((scopeService, index) => (
           <div
             key={scopeService.name}
-            className="px-4 py-2 bg-grey-50 dark:bg-grey-600 flex items-center"
+            className={classNames(
+              'px-4 py-2 bg-grey-50 dark:bg-grey-600 flex items-center',
+              index > 0 && 'border-t border-grey-100 dark:border-grey-500'
+            )}
             data-testid="scope-service"
           >
             <span className={classNames(iconClasses, 'px-3')}>
               {scopeService.icon}
             </span>
-            <p className="text-sm text-grey-600 dark:text-grey-200">
-              {scopeService.name}
-            </p>
+            {scopeService.ftlId ? (
+              <Localized id={scopeService.ftlId}>
+                <p className="text-sm text-grey-600 dark:text-grey-200">
+                  {scopeService.name}
+                </p>
+              </Localized>
+            ) : (
+              <p className="text-sm text-grey-600 dark:text-grey-200">
+                {scopeService.name}
+              </p>
+            )}
           </div>
         ))}
       </div>

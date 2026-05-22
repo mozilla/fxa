@@ -50,3 +50,12 @@ cs-disconnect-suspicious-advice-content-2 = If the disconnected device is indeed
 cs-sign-out-button = Sign out
 
 ##
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }’s built-in VPN
