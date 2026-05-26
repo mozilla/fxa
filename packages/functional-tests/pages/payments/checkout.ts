@@ -39,8 +39,10 @@ export class CheckoutPage extends BasePaymentPage {
   // Stripe PaymentElement (iframe matched by URL, same approach as legacy tests)
 
   private get stripeFrame() {
+    // Stripe renders multiple iframes with similar titles; the hidden
+    // helper iframe has tabindex="-1". Target only the interactive one.
     return this.page.frameLocator(
-      'iframe[title*="Secure payment input frame"]'
+      'iframe[title*="Secure payment input frame"]:not([tabindex="-1"])'
     );
   }
 
@@ -66,9 +68,6 @@ export class CheckoutPage extends BasePaymentPage {
     return this.stripeFrame.getByText(/Save (?:my )?information for/i);
   }
 
-  get linkPhoneInput() {
-    return this.stripeFrame.locator('[name="linkMobilePhone"]');
-  }
 
   // Processing page
 
@@ -139,14 +138,25 @@ export class CheckoutPage extends BasePaymentPage {
     const locationOrSignin = this.locationHeading.or(this.signinHeading);
     await expect(locationOrSignin).toBeVisible({ timeout: 90_000 });
 
-    // If on the location page, fill it out
-    if (await this.locationHeading.isVisible()) {
+    // Use URL to determine which page we're on — avoids a race between
+    // the .or() resolution and a concurrent redirect swapping the page.
+    if (this.page.url().includes('/location')) {
       await this.countrySelect.selectOption(country);
       await this.locationPostalCodeInput.fill(postalCode);
       await this.locationSaveButton.click();
       // After location submit, wait for redirect to checkout with sign-in
       await expect(this.signinHeading).toBeVisible({ timeout: 30_000 });
     }
+  }
+
+  /**
+   * Wait for the payment page to be fully loaded after an auth redirect.
+   * Ensures the redirect chain (FXA → OAuth → payments) has settled and
+   * the page has finished loading before interacting with payment elements.
+   */
+  async waitForPaymentReady(timeout = 60_000) {
+    await expect(this.paymentHeading).toBeVisible({ timeout });
+    await this.page.waitForLoadState('load');
   }
 
   // Actions
@@ -157,7 +167,7 @@ export class CheckoutPage extends BasePaymentPage {
    */
   async waitForStripeReady() {
     const stripeIframe = this.page.locator(
-      'iframe[title*="Secure payment input frame"]'
+      'iframe[title*="Secure payment input frame"]:not([tabindex="-1"])'
     );
     await expect(stripeIframe).toBeVisible({ timeout: 30_000 });
     await stripeIframe.scrollIntoViewIfNeeded();
@@ -195,38 +205,23 @@ export class CheckoutPage extends BasePaymentPage {
     // the consent checkbox toggles the PaymentElement out of readOnly)
     await this.waitForStripeReady();
 
-    await this.typeInStripeField(this.cardNumberInput, number);
-    await this.typeInStripeField(this.cardExpiryInput, exp);
-    await this.typeInStripeField(this.cardCvcInput, cvc);
-    await this.typeInStripeField(this.postalCodeInput, zip);
-
-    // Link always auto-checks after card fill — uncheck it
-    await expect(this.stripeLinkCheckbox).toBeVisible({ timeout: 5_000 });
-    await this.stripeLinkCheckbox.click();
-  }
-
-  /**
-   * Fill card fields and complete Stripe Link sign-up.
-   * Keeps the "Save my information" checkbox checked and fills the
-   * email and phone fields that Link requires.
-   */
-  async fillCardWithLink(
-    number: string,
-    phone = '2015550123',
-    exp = `${TestCardDefaults.EXP_MONTH}/${String(TestCardDefaults.EXP_YEAR).slice(-2)}`,
-    cvc = TestCardDefaults.CVC,
-    zip = '10001'
-  ) {
-    await this.waitForStripeReady();
+    // Wait for the card number field to be editable — Stripe's internal
+    // JS may still be wiring up event handlers after the iframe appears.
+    await expect(this.cardNumberInput).toBeEditable({ timeout: 10_000 });
 
     await this.typeInStripeField(this.cardNumberInput, number);
     await this.typeInStripeField(this.cardExpiryInput, exp);
     await this.typeInStripeField(this.cardCvcInput, cvc);
     await this.typeInStripeField(this.postalCodeInput, zip);
 
-    // Link always auto-checks — email is auto-filled, just fill phone
-    await expect(this.linkPhoneInput).toBeVisible({ timeout: 10_000 });
-    await this.typeInStripeField(this.linkPhoneInput, phone);
+    // Link may auto-check after card fill — uncheck if present.
+    // Stripe A/B tests this feature so it may not always appear.
+    try {
+      await this.stripeLinkCheckbox.waitFor({ state: 'visible', timeout: 5_000 });
+      await this.stripeLinkCheckbox.click();
+    } catch {
+      // Stripe Link checkbox not shown — no action needed
+    }
   }
 
   /**
@@ -255,10 +250,29 @@ export class CheckoutPage extends BasePaymentPage {
    * then asserts we landed on success specifically.
    */
   async waitForSuccess(timeout = 90_000) {
-    await expect(this.page).toHaveURL(/success|error|needs_input/, {
-      timeout,
-    });
-    await expect(this.page).toHaveURL(/success/);
+    // Wait for any post-submit state. Include "processing" so we don't
+    // burn the full timeout when the page is visibly stuck there.
+    await expect(this.page).toHaveURL(
+      /success|error|needs_input|processing/,
+      { timeout }
+    );
+    const url = this.page.url();
+    if (/error/.test(url)) {
+      throw new Error(`Expected success but landed on error page: ${url}`);
+    }
+    // If still on /processing, give it more time to transition
+    if (/processing/.test(url)) {
+      await expect(this.page).toHaveURL(/success|error|needs_input/, {
+        timeout,
+      });
+      const resolvedUrl = this.page.url();
+      if (/error/.test(resolvedUrl)) {
+        throw new Error(
+          `Expected success but landed on error page: ${resolvedUrl}`
+        );
+      }
+    }
+    await expect(this.page).toHaveURL(/success/, { timeout: 30_000 });
     await expect(this.successHeading).toBeVisible({ timeout: 30_000 });
   }
 
@@ -268,67 +282,82 @@ export class CheckoutPage extends BasePaymentPage {
    * then asserts we landed on error specifically.
    */
   async waitForError(timeout = 90_000) {
-    await expect(this.page).toHaveURL(/success|error|needs_input/, {
-      timeout,
-    });
-    await expect(this.page).toHaveURL(/error/);
+    await expect(this.page).toHaveURL(
+      /success|error|needs_input|processing/,
+      { timeout }
+    );
+    const url = this.page.url();
+    if (/success/.test(url)) {
+      throw new Error(`Expected error but landed on success page: ${url}`);
+    }
+    if (/processing/.test(url)) {
+      await expect(this.page).toHaveURL(/success|error|needs_input/, {
+        timeout,
+      });
+      const resolvedUrl = this.page.url();
+      if (/success/.test(resolvedUrl)) {
+        throw new Error(
+          `Expected error but landed on success page: ${resolvedUrl}`
+        );
+      }
+    }
+    await expect(this.page).toHaveURL(/error/, { timeout: 30_000 });
     await expect(this.errorBanner).toBeVisible({ timeout: 10_000 });
   }
 
   /**
    * Handle Stripe 3D Secure authentication challenge.
    * The test card 4000000000003220 shows a Stripe-hosted 3DS dialog.
+   *
+   * The 3DS dialog lives in nested cross-origin iframes that
+   * Playwright's frameLocator can't reliably interact with, so we
+   * use page.frames() + evaluate to find and click the button.
+   * `expect.toPass()` handles the retry/polling automatically.
    */
   async handle3dsChallenge() {
     // After submit, the page navigates: /start -> /processing -> /needs_input
-    // The 3DS dialog is in nested iframes inside a top-layer overlay:
+    // Include "processing" so we detect slow transitions early.
+    await expect(this.page).toHaveURL(
+      /success|error|needs_input|processing/,
+      { timeout: 90_000 }
+    );
+    // If still on /processing, wait for it to resolve
+    if (/processing/.test(this.page.url())) {
+      await expect(this.page).toHaveURL(/success|error|needs_input/, {
+        timeout: 90_000,
+      });
+    }
+    const url = this.page.url();
+    if (/error/.test(url)) {
+      throw new Error(`3DS challenge expected /needs_input but landed on error: ${url}`);
+    }
+    if (/success/.test(url)) {
+      // 3DS was auto-completed or skipped — no challenge to handle
+      return;
+    }
+
+    // Retry clicking the 3DS Complete button until it works.
+    // The button is inside:
     //   div[data-react-aria-top-layer] >
     //     iframe[name*="__privateStripeFrame"] >
     //       iframe[name="stripe-challenge-frame"] >
     //         button#test-source-authorize-3ds ("COMPLETE")
-    await expect(this.page).toHaveURL(/success|error|needs_input/, {
-      timeout: 90_000,
-    });
-    await expect(this.page).toHaveURL(/needs_input/);
+    await expect(async () => {
+      const challengeFrame = this.page
+        .frames()
+        .find((f) => f.url().includes('3d_secure_2_test'));
+      if (!challengeFrame) throw new Error('3DS challenge frame not found');
+      await challengeFrame.evaluate(() => {
+        const btn = document.querySelector(
+          '#test-source-authorize-3ds'
+        ) as HTMLButtonElement;
+        if (!btn) throw new Error('3DS button not found');
+        btn.click();
+      });
+    }).toPass({ intervals: [1_000], timeout: 30_000 });
 
-    // The 3DS Complete button is in nested cross-origin iframes that
-    // Playwright's frameLocator can't reliably click. Use CDP to
-    // find the frame by URL and dispatch the click via evaluate.
-    // Retry in a loop and verify the page actually navigates away.
-    // Find and click the 3DS Complete button, then wait for the
-    // challenge frame to disappear (confirming 3DS was completed).
-    // eslint-disable-next-line playwright/no-wait-for-timeout -- 3DS
-    // challenge is in nested cross-origin iframes that Playwright's
-    // frameLocator can't reliably interact with. We use page.frames()
-    // + evaluate to click the button, with polling since there are no
-    // reliable DOM signals for cross-origin iframe availability.
-    let clicked = false;
-    for (let i = 0; i < 30; i++) {
-      const frames = this.page.frames();
-      const challengeFrame = frames.find((f) =>
-        f.url().includes('3d_secure_2_test')
-      );
-      if (!challengeFrame) {
-        if (clicked) return; // Frame gone after click = success
-        await this.page.waitForTimeout(1000); // eslint-disable-line playwright/no-wait-for-timeout
-        continue;
-      }
-      try {
-        await challengeFrame.waitForLoadState('domcontentloaded');
-        await challengeFrame.evaluate(() => {
-          const btn = document.querySelector(
-            '#test-source-authorize-3ds'
-          ) as HTMLButtonElement;
-          btn?.click();
-        });
-        clicked = true;
-        // Wait for the 3DS completion to propagate
-        await this.page.waitForTimeout(2000); // eslint-disable-line playwright/no-wait-for-timeout
-      } catch {
-        // Frame detached during interaction = click worked
-        if (clicked) return;
-      }
-    }
-    throw new Error('Failed to complete 3DS challenge');
+    // Wait for the 3DS completion to propagate — the page should
+    // navigate away from /needs_input to /success or /error.
+    await expect(this.page).not.toHaveURL(/needs_input/, { timeout: 60_000 });
   }
 }

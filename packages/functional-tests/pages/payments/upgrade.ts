@@ -24,6 +24,19 @@ export class UpgradePage extends BasePaymentPage {
     return this.page.getByRole('button', { name: /Subscribe Now/i });
   }
 
+  /**
+   * Wait for the upgrade page to resolve eligibility and fully render.
+   * Waits for the URL to leave /start, the upgrade section to appear,
+   * and all content (prorated amount, acknowledgment) to be visible
+   * before the caller interacts with the page.
+   */
+  async waitForUpgradePage(timeout = 60_000) {
+    await expect(this.page).not.toHaveURL(/\/start(\?|$)/, { timeout });
+    await expect(this.upgradeSection).toBeVisible({ timeout: 30_000 });
+    await expect(this.proratedAmount).toBeVisible({ timeout: 15_000 });
+    await expect(this.acknowledgmentText).toBeVisible({ timeout: 15_000 });
+  }
+
   // Actions
 
   /**
@@ -45,8 +58,25 @@ export class UpgradePage extends BasePaymentPage {
    * timeout if the page lands on /error instead.
    */
   async waitForSuccess(timeout = 60_000) {
-    await expect(this.page).toHaveURL(/success|error/, { timeout });
-    await expect(this.page).toHaveURL(/success/, { timeout: 15_000 });
+    await expect(this.page).toHaveURL(
+      /success|error|processing|start/,
+      { timeout }
+    );
+    const url = this.page.url();
+    if (/error/.test(url)) {
+      throw new Error(`Expected success but landed on error page: ${url}`);
+    }
+    // If still on /processing or /start, wait for a real terminal state
+    if (/processing|\/start/.test(url)) {
+      await expect(this.page).toHaveURL(/success|error/, { timeout });
+      const resolvedUrl = this.page.url();
+      if (/error/.test(resolvedUrl)) {
+        throw new Error(
+          `Expected success but landed on error page: ${resolvedUrl}`
+        );
+      }
+    }
+    await expect(this.page).toHaveURL(/success/, { timeout: 30_000 });
     await expect(this.successHeading).toBeVisible({ timeout: 30_000 });
   }
 
@@ -56,8 +86,24 @@ export class UpgradePage extends BasePaymentPage {
    * timeout if the page lands on /success instead.
    */
   async waitForEligibilityError(timeout = 60_000) {
-    await expect(this.page).toHaveURL(/success|error/, { timeout });
-    await expect(this.page).toHaveURL(/error/, { timeout: 15_000 });
-    await expect(this.errorHeading).toBeVisible({ timeout: 10_000 });
+    await expect(this.page).toHaveURL(
+      /success|error|processing|start/,
+      { timeout }
+    );
+    const url = this.page.url();
+    if (/success/.test(url)) {
+      throw new Error(`Expected error but landed on success page: ${url}`);
+    }
+    if (/processing|\/start/.test(url)) {
+      await expect(this.page).toHaveURL(/success|error/, { timeout });
+      const resolvedUrl = this.page.url();
+      if (/success/.test(resolvedUrl)) {
+        throw new Error(
+          `Expected error but landed on success page: ${resolvedUrl}`
+        );
+      }
+    }
+    await expect(this.page).toHaveURL(/error/, { timeout: 30_000 });
+    await expect(this.errorHeading).toBeVisible({ timeout: 30_000 });
   }
 }

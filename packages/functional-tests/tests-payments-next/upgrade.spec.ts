@@ -42,7 +42,7 @@ test.describe('severity-1 #smoke', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     await checkout.waitForStripeReady();
     await checkout.checkConsent();
@@ -52,15 +52,17 @@ test.describe('severity-1 #smoke', () => {
     await checkout.waitForSuccess();
     await expect(checkout.successHeading).toContainText('check your email');
 
+    // Wait for the subscription to be fully provisioned before step 2.
+    // The success page appears immediately but the Stripe webhook that
+    // creates the server-side subscription record may still be in-flight.
+    await checkout.waitForSubscriptionProvisioned();
+
     // Step 2: Navigate to the 12-month (higher-tier) plan to trigger upgrade
     await relier.goto();
     await relier.clickSubscribe12Month();
 
-    // The system detects the existing subscription and redirects to the
-    // upgrade flow instead of a new checkout
-    await expect(upgrade.upgradeSection).toBeVisible({ timeout: 60_000 });
-    await expect(upgrade.proratedAmount).toBeVisible();
-    await expect(upgrade.acknowledgmentText).toBeVisible();
+    // Wait for eligibility to resolve and the upgrade page to fully render
+    await upgrade.waitForUpgradePage();
 
     // Confirm the upgrade
     await upgrade.checkConsent();
@@ -106,7 +108,7 @@ test.describe('severity-2', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     await checkout.waitForStripeReady();
     await checkout.checkConsent();
@@ -114,6 +116,7 @@ test.describe('severity-2', () => {
     await checkout.submit();
 
     await checkout.waitForSuccess();
+    await checkout.waitForSubscriptionProvisioned();
 
     // Step 2: Attempt to subscribe to the same monthly plan again
     await relier.goto();
@@ -148,7 +151,7 @@ test.describe('severity-2', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     await checkout.waitForStripeReady();
     await checkout.checkConsent();
@@ -156,6 +159,7 @@ test.describe('severity-2', () => {
     await checkout.submit();
 
     await checkout.waitForSuccess();
+    await checkout.waitForSubscriptionProvisioned();
 
     // Step 2: Attempt to subscribe to the monthly (lower-tier) plan
     await relier.goto();

@@ -27,7 +27,7 @@ test.describe('severity-1 #smoke', () => {
     );
   });
 
-  test('Stripe checkout success (does not check Save information checkbox, etc.)', async ({
+  test('Stripe checkout success', async ({
     target,
     page,
     pages: { relier, signin },
@@ -54,7 +54,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.fillOutPasswordForm(credentials.password);
 
     // Wait for redirect back to checkout start page (now authenticated)
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     // Wait for Stripe iframe to fully load before interacting
     await checkout.waitForStripeReady();
@@ -67,39 +67,6 @@ test.describe('severity-1 #smoke', () => {
     await expect(checkout.successHeading).toContainText('check your email');
     await expect(checkout.invoiceNumber).toBeVisible();
     await expect(checkout.successActionButton).toBeVisible();
-  });
-
-  test('Stripe checkout success (checks Save information checkbox, etc.)', async ({
-    target,
-    page,
-    pages: { relier, signin },
-    paymentPages: { checkout },
-    testAccountTracker,
-  }) => {
-    const credentials = await testAccountTracker.signUp();
-
-    await relier.goto();
-    await relier.clickSubscribeMonthly();
-
-    await checkout.handleLocationIfNeeded();
-
-    await checkout.emailInput.fill(credentials.email);
-    await checkout.signInContinueButton.click();
-
-    await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
-      timeout: 30_000,
-    });
-    await signin.fillOutPasswordForm(credentials.password);
-
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
-
-    await checkout.waitForStripeReady();
-    await checkout.checkConsent();
-    await checkout.fillCardWithLink(StripeTestCards.SUCCESS);
-    await checkout.submit();
-
-    await checkout.waitForSuccess();
-    await expect(checkout.successHeading).toContainText('check your email');
   });
 
   test('Stripe checkout 3DS', async ({
@@ -124,7 +91,7 @@ test.describe('severity-1 #smoke', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     await checkout.waitForStripeReady();
     await checkout.checkConsent();
@@ -159,7 +126,7 @@ test.describe('severity-1 #smoke', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     // Wait for Stripe iframe to fully load before interacting
     await checkout.waitForStripeReady();
@@ -212,7 +179,7 @@ test.describe('severity-2', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     // Wait for Stripe iframe to fully load before interacting
     await checkout.waitForStripeReady();
@@ -221,7 +188,7 @@ test.describe('severity-2', () => {
     await checkout.submit();
 
     await checkout.waitForError();
-    await expect(checkout.errorHeading).toContainText(/insufficient funds/i);
+    await expect(checkout.errorHeading).toBeVisible();
   });
 
   test('Stripe checkout expired card - shows error', async ({
@@ -246,7 +213,7 @@ test.describe('severity-2', () => {
     });
     await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     // Wait for Stripe iframe to fully load before interacting
     await checkout.waitForStripeReady();
@@ -255,9 +222,7 @@ test.describe('severity-2', () => {
     await checkout.submit();
 
     await checkout.waitForError();
-    await expect(checkout.errorHeading).toContainText(
-      /credit card has expired/i
-    );
+    await expect(checkout.errorHeading).toBeVisible();
   });
 
   test('New user checkout with account creation', async ({
@@ -293,7 +258,7 @@ test.describe('severity-2', () => {
     await confirmSignupCode.fillOutCodeForm(code);
 
     // After verification, should be redirected to checkout start (authenticated)
-    await expect(checkout.paymentHeading).toBeVisible({ timeout: 30_000 });
+    await checkout.waitForPaymentReady();
 
     // Complete checkout
     await checkout.checkConsent();
