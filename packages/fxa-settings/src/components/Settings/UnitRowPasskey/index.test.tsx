@@ -113,7 +113,7 @@ describe('UnitRowPasskey', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/kb/placeholder-article'
+      'https://support.mozilla.org/kb/use-passkey-mozilla-account'
     );
   });
 
@@ -178,7 +178,7 @@ describe('UnitRowPasskey', () => {
       within(container).getByRole('link', { name: /Learn more/ })
     ).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/kb/placeholder-article'
+      'https://support.mozilla.org/kb/troubleshoot-passkey-mozilla-account'
     );
   });
 

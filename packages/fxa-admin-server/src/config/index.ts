@@ -730,12 +730,11 @@ const conf = convict({
       default:
         'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
     },
-    // TODO: Replace with dedicated passkeys support article URL when available
     passkeySupportUrl: {
       doc: 'url to support article about passkeys and Firefox Sync',
       format: String,
       env: 'PASSKEY_SUPPORT_URL',
-      default: 'https://support.mozilla.org',
+      default: 'https://support.mozilla.org/kb/use-passkey-mozilla-account',
     },
     reviewActivitySupportUrl: {
       doc: 'url to support article about reviewing Mozilla account activity',
