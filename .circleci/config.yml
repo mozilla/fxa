@@ -1202,7 +1202,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1216,7 +1216,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1229,7 +1229,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1244,7 +1244,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1258,7 +1258,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1271,7 +1271,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1282,7 +1282,17 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
+          requires:
+            - Build
+      - playwright-payments-tests:
+          name: Payments Functional Tests - Playwright
+          workflow: test_and_deploy_tag
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^subplat-v\d+\.\d+\.\d+(-rc\d+)?$/
           requires:
             - Build
 
