@@ -44,7 +44,11 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   };
 
   beforeEach(() => {
-    config = { oauth: {} };
+    config = {
+      oauth: {
+        deviceManagementClientIds: [OAUTH_CLIENT_ID],
+      },
+    };
 
     db = {
       deviceFromRefreshTokenId: jest.fn(() =>
@@ -127,6 +131,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     oauthDB.getRefreshToken.mockResolvedValue({
       scope: ScopeSet.fromString('https://identity.mozilla.com/apps/oldsync'),
       userId: USER_ID,
+      clientId: Buffer.from(OAUTH_CLIENT_ID, 'hex'),
     });
 
     const scheme = schemeRefreshToken(config, db);
@@ -177,10 +182,11 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     });
   });
 
-  it('requires an approved scope to authenticate', async () => {
+  it('rejects refresh tokens from non-allowlisted client_ids', async () => {
     oauthDB.getRefreshToken.mockResolvedValue({
-      scope: ScopeSet.fromString('profile'),
+      scope: ScopeSet.fromString('https://identity.mozilla.com/apps/oldsync'),
       userId: USER_ID,
+      clientId: Buffer.from('0123456789abcdef', 'hex'),
     });
 
     const scheme = schemeRefreshToken(config, db);
@@ -196,10 +202,33 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
 
     expect(response.unauthenticated).toHaveBeenCalledTimes(1);
     const args = response.unauthenticated.mock.calls[0][0];
-    expect(args.output.statusCode).toBe(400);
-    expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_SCOPES);
+    expect(args.output.statusCode).toBe(401);
+    expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_TOKEN);
 
     expect(response.authenticated).not.toHaveBeenCalled();
+  });
+
+  it('allows non-Sync scope from an allowlisted client_id', async () => {
+    oauthDB.getRefreshToken.mockResolvedValue({
+      scope: ScopeSet.fromString('profile'),
+      userId: USER_ID,
+      clientId: Buffer.from(OAUTH_CLIENT_ID, 'hex'),
+    });
+
+    const scheme = schemeRefreshToken(config, db);
+    await scheme().authenticate(
+      {
+        headers: {
+          authorization:
+            'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
+        },
+        app,
+      },
+      response
+    );
+
+    expect(response.unauthenticated).not.toHaveBeenCalled();
+    expect(response.authenticated).toHaveBeenCalledTimes(1);
   });
 
   it('requires an known refresh token to authenticate', async () => {

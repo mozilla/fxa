@@ -1199,10 +1199,22 @@ const convictConf = convict({
       env: 'OAUTH_CLIENT_IDS',
     },
     oldSyncClientIds: {
-      doc: 'Client IDs of sync clients that migrated to OAuth.',
+      doc: 'Client IDs of sync clients that migrated to OAuth. Used only by routes/oauth/token.js to label the account.signed metrics event service as "sync" for continuity with the retired BrowserID /certificate/sign flow',
       format: Array,
       default: ['5882386c6d801776', '1b1a3e44c54fbb58'],
       env: 'OAUTH_OLD_SYNC_CLIENT_IDS',
+    },
+    deviceManagementClientIds: {
+      doc: 'OAuth client_ids whose refresh tokens may register, read, destroy, notify, read own commands, and invoke commands for devices. Replaces the legacy oldsync-scope-only gate so Firefox sign-ins without Sync can still manage devices.',
+      format: Array,
+      default: [
+        '5882386c6d801776', // Firefox Desktop
+        '1b1a3e44c54fbb58', // Firefox iOS
+        '3332a18d142636cb', // Firefox Android (Fennec)
+        'a2270f727f45f648', // Firefox Android (Fenix)
+        '3c49430b43dfba77', // Android Components Reference Browser
+      ],
+      env: 'OAUTH_DEVICE_MANAGEMENT_CLIENT_IDS',
     },
     // A safety switch for disabling new signins/signups from particular clients,
     // as a hedge against unexpected client behaviour.
