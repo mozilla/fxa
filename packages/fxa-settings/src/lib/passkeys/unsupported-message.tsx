@@ -5,7 +5,7 @@
 import React, { ReactNode } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { PASSKEY_SUPPORT_URL } from './constants';
+import { PASSKEY_TROUBLESHOOT_URL } from './constants';
 
 export const unsupportedPasskeyMessage = (): ReactNode => (
   <>
@@ -13,7 +13,7 @@ export const unsupportedPasskeyMessage = (): ReactNode => (
       <span>Your browser or device doesn’t support passkeys.</span>
     </FtlMsg>{' '}
     <FtlMsg id="passkey-registration-error-not-supported-link">
-      <LinkExternal href={PASSKEY_SUPPORT_URL} className="link-blue">
+      <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
         Learn more
       </LinkExternal>
     </FtlMsg>

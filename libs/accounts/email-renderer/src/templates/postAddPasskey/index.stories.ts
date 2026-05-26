@@ -17,7 +17,8 @@ const baseData = {
   securitySettingsLink: 'http://localhost:3030/settings#security',
   reviewActivitySupportUrl:
     'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
-  passkeySupportUrl: 'https://support.mozilla.org',
+  passkeySupportUrl:
+    'https://support.mozilla.org/kb/use-passkey-mozilla-account',
 };
 
 const createStory = storyWithProps<TemplateData>(
