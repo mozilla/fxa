@@ -51,7 +51,6 @@ export type ConfirmSignupCodeBaseIntegration = Pick<
   | 'isFirefoxNonSync'
   | 'isSync'
   | 'requiresKeys'
-  | 'getGrantedScopes'
   | 'getCmsInfo'
 >;
 
@@ -70,7 +69,6 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'isFirefoxClientServiceSmartWindow'
   | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
-  | 'getGrantedScopes'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;

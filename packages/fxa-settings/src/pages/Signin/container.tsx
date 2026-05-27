@@ -21,6 +21,7 @@ import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
   SigninQueryParams,
+  OAuthNativeQueryParameters,
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
 } from '../../models/pages/signin';
@@ -162,11 +163,21 @@ const SigninContainer = ({
     true
   );
 
-  // Validates that query parameters are valid for an oauth integration
+  // Validates that query parameters are valid for an oauth web (non-native)
+  // RP integration. scope is required per RFC 6749 §3.3.
   useValidatedQueryParams(
     OAuthQueryParams,
     true,
-    !isOAuthIntegration(integration)
+    !isOAuthIntegration(integration) || isOAuthNativeIntegration(integration)
+  );
+
+  // Validates that query parameters are valid for an OAuthNative (Firefox)
+  // integration. Scope is optional — auth-server resolves from service=
+  // at /oauth/authorization when omitted.
+  useValidatedQueryParams(
+    OAuthNativeQueryParameters,
+    true,
+    !isOAuthNativeIntegration(integration)
   );
 
   // Validates that query parameters are valid for a sync oauth integration

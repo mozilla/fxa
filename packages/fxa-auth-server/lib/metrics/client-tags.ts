@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/node';
-import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
+import {
+  OAUTH_NATIVE_CLIENT_IDS,
+  OAuthNativeServices,
+} from '@fxa/accounts/oauth';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 export type ClientTagsRequest = {
@@ -16,7 +19,6 @@ export type ClientTagsRequest = {
   query: any;
 };
 
-const nativeClientIds = new Set<string>(Object.values(OAuthNativeClients));
 const validServices = new Set<string>(Object.values(OAuthNativeServices));
 
 /**
@@ -48,7 +50,7 @@ export async function resolveClientTags(
 
       // service only applies to native clients and can come from payload,
       // query, or stashed metricsContext
-      if (nativeClientIds.has(rawClientId)) {
+      if (OAUTH_NATIVE_CLIENT_IDS.has(rawClientId)) {
         const rawService =
           request.payload?.service ||
           request.query?.service ||

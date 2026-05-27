@@ -184,7 +184,6 @@ function mockOAuthNativeIntegration(
     isSync: () => true,
     requiresKeys: () => true,
     wantsKeys: () => true,
-    getGrantedScopes: () => undefined,
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
@@ -307,8 +306,10 @@ describe('SetPassword-container', () => {
       });
       expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
         action: 'signin',
-        ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-        scopes: undefined,
+        code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+        redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+        state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+        scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
       });
     });
 

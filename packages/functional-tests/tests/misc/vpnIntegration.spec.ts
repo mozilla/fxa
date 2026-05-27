@@ -8,6 +8,7 @@ import {
   syncMobileOAuthFenixQueryParams,
   vpnMobileOAuthQueryParams,
 } from '../../lib/query-params';
+import { PROFILE_SCOPE, VPN_SCOPE } from '../../lib/scopes';
 
 test.describe('vpn integration', () => {
   // Disabled while we investigate the flaky cached-signin -> WebChannel race.
@@ -41,10 +42,9 @@ test.describe('vpn integration', () => {
 
       await signin.signInButton.click();
 
-      // Verify fxaOAuthLogin was sent with VPN scopes
-      await signin.checkWebChannelMessageScopes(
+      await signin.checkWebChannelMessageScope(
         FirefoxCommand.OAuthLogin,
-        'https://identity.mozilla.com/apps/vpn'
+        `${VPN_SCOPE} ${PROFILE_SCOPE}`
       );
 
       // Verify services data includes vpn

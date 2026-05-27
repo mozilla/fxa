@@ -8,6 +8,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { enableTotpOnAccount } from '../../lib/pairing-helpers';
+import { OLDSYNC_SCOPE } from '../../lib/scopes';
 import { getTotpCode } from '../../lib/totp';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 
@@ -63,9 +64,9 @@ test.describe('severity-1 #smoke', () => {
       await page.getByLabel('Repeat password').fill(password);
       await page.getByRole('button', { name: 'Start syncing' }).click();
 
-      await signin.checkWebChannelMessageScopes(
+      await signin.checkWebChannelMessageScope(
         FirefoxCommand.OAuthLogin,
-        'https://identity.mozilla.com/apps/oldsync'
+        OLDSYNC_SCOPE
       );
     });
 
@@ -120,9 +121,9 @@ test.describe('severity-1 #smoke', () => {
       await page.getByLabel('Repeat password').fill(password);
       await page.getByRole('button', { name: 'Start syncing' }).click();
 
-      await signin.checkWebChannelMessageScopes(
+      await signin.checkWebChannelMessageScope(
         FirefoxCommand.OAuthLogin,
-        'https://identity.mozilla.com/apps/oldsync'
+        OLDSYNC_SCOPE
       );
       expect(page.url()).not.toContain('/signin_totp_code');
       expect(page.url()).not.toContain('/inline_totp_setup');

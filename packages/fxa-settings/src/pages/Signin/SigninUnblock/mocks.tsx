@@ -76,7 +76,6 @@ export function createMockSigninWebSyncIntegration() {
     requiresKeys: () => true,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => true,
-    getGrantedScopes: () => undefined,
     wantsTwoStepAuthentication: () => false,
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,

@@ -26,6 +26,9 @@ const proto = BaseAuthenticationBroker.prototype;
 const OAUTH_CODE_RESPONSE_SCHEMA = {
   code: Vat.oauthCode().required(),
   state: Vat.string(),
+  // Added with server-side scope resolution for React; unused in
+  // Backbone but accepted so Vat's strict schema doesn't reject it.
+  scope: Vat.string(),
 };
 /**
  * Invoke `brokerMethod` on the broker and finish the OAuth flow by

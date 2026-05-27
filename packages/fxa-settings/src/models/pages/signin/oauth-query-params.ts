@@ -24,9 +24,14 @@ import {
 import { IsFxaRedirectUri, IsEmailOrEmpty } from '../../../lib/validation';
 
 /**
- *  Note: class-validator logic was ported from Vat rules in content-server.
+ * Shared base for OAuth URL validators. Subclasses add the appropriate
+ * `scope` constraint: `OAuthQueryParams` (web RPs) requires it per
+ * RFC 6749 §3.3; `OAuthNativeQueryParameters` (Firefox) makes it
+ * optional per ADR 0049.
+ *
+ * Note: class-validator logic was ported from Vat rules in content-server.
  */
-export class OAuthQueryParams extends ModelDataProvider {
+class OAuthQueryParamsBase extends ModelDataProvider {
   @IsOptional()
   @IsIn(['online', 'offline'])
   @bind(T.snakeCase)
@@ -103,7 +108,12 @@ export class OAuthQueryParams extends ModelDataProvider {
   @IsBoolean()
   @bind(T.snakeCase)
   returnOnError!: boolean;
+}
 
+/**
+ * OAuth web (non-native) RP flows. `scope` is required per RFC 6749 §3.3.
+ */
+export class OAuthQueryParams extends OAuthQueryParamsBase {
   // REQUIRED!
   @IsString()
   @MinLength(1)
@@ -112,9 +122,22 @@ export class OAuthQueryParams extends ModelDataProvider {
 }
 
 /**
+ * OAuthNative (Firefox) flows. ADR 0049: `scope` is optional — when
+ * omitted, the auth-server resolves it from `service=` at
+ * /oauth/authorization. Explicit URL scope still wins.
+ */
+export class OAuthNativeQueryParameters extends OAuthQueryParamsBase {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @bind()
+  scope: string | undefined;
+}
+
+/**
  * For sync clients the state must be provided!
  */
-export class OAuthNativeSyncQueryParameters extends OAuthQueryParams {
+export class OAuthNativeSyncQueryParameters extends OAuthNativeQueryParameters {
   // REQUIRED!
   @IsString()
   @MinLength(1)

@@ -52,6 +52,7 @@ import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import {
+  OAuthNativeQueryParameters,
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
   SigninQueryParams,
@@ -1706,6 +1707,11 @@ describe('signin container', () => {
         true
       );
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
+        OAuthNativeQueryParameters,
+        true,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthNativeSyncQueryParameters,
         true,
         true
@@ -1722,10 +1728,17 @@ describe('signin container', () => {
         SigninQueryParams,
         true
       );
+      // OAuth web RP: scope-required validator runs.
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthQueryParams,
         true,
         false
+      );
+      // OAuth web RP is not native → native scope-optional validator skipped.
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
+        OAuthNativeQueryParameters,
+        true,
+        true
       );
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthNativeSyncQueryParameters,
@@ -1744,8 +1757,15 @@ describe('signin container', () => {
         SigninQueryParams,
         true
       );
+      // Native integrations skip the scope-required web validator and
+      // use the native one (scope optional) instead.
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthQueryParams,
+        true,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
+        OAuthNativeQueryParameters,
         true,
         false
       );

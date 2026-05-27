@@ -125,9 +125,13 @@ export abstract class BaseLayout {
 
   /**
    * Asserts that a web channel message with the given command was sent
-   * and contains the expected scope string in its data.
+   * and that its `scope` field (space-separated tokens per OAuth
+   * RFC 6749 §3.3) contains each token in `expectedScope`. Token-
+   * membership rather than substring matching so ordering and
+   * surrounding scopes don't affect the assertion. `expectedScope` may
+   * be a single token or a space-separated set.
    */
-  async checkWebChannelMessageScopes(
+  async checkWebChannelMessageScope(
     command: FirefoxCommand,
     expectedScope: string
   ) {
@@ -137,11 +141,15 @@ export abstract class BaseLayout {
     if (!event) {
       throw new Error(`No web channel event found for command: ${command}`);
     }
-    const scopes = (event.data as { scopes?: string })?.scopes;
-    if (!scopes?.includes(expectedScope)) {
-      throw new Error(
-        `Expected scopes to contain "${expectedScope}" but got "${scopes}"`
-      );
+    const scope = (event.data as { scope?: string })?.scope ?? '';
+    const grantedTokens = new Set(scope.split(/\s+/).filter(Boolean));
+    const expectedTokens = expectedScope.split(/\s+/).filter(Boolean);
+    for (const token of expectedTokens) {
+      if (!grantedTokens.has(token)) {
+        throw new Error(
+          `Expected scope to contain "${token}" but got "${scope}"`
+        );
+      }
     }
   }
 

@@ -22,3 +22,7 @@ export enum OAuthNativeServices {
   SmartWindow = 'smartwindow',
   Vpn = 'vpn',
 }
+
+export const OAUTH_NATIVE_CLIENT_IDS: ReadonlySet<string> = new Set(
+  Object.values(OAuthNativeClients)
+);

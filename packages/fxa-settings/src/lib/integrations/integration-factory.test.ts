@@ -315,12 +315,6 @@ describe('lib/integrations/integration-factory', () => {
         expect(integration.requiresKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
-
-      it('getGrantedScopes returns undefined for non-native integration', () => {
-        // This setup produces OAuthWeb (not OAuthNative) since
-        // isOAuthWebChannelContext is not set. Base class returns undefined.
-        expect(integration.getGrantedScopes()).toBeUndefined();
-      });
     });
 
     describe('with sync', () => {

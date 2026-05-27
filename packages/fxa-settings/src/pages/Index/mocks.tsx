@@ -81,7 +81,6 @@ export function createMockIndexOAuthNativeIntegration({
       isFirefoxClientServiceSmartWindow ||
       isFirefoxClientServiceVpn,
     getCmsInfo: () => cmsInfo,
-    getGrantedScopes: () => undefined,
     getLegalTerms: () => undefined,
     getWebChannelServices: () => undefined,
     requiresKeys: () => false,
@@ -112,7 +111,6 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
-    getGrantedScopes: () => undefined,
     getLegalTerms: () => undefined,
     getWebChannelServices: () => undefined,
     requiresKeys: () => false,
@@ -173,6 +171,7 @@ export const Subject = ({
           redirect: 'http://example.com',
           code: 'mock-code',
           state: 'mock-state',
+          scope: 'profile',
           error: undefined,
         })}
         {...{

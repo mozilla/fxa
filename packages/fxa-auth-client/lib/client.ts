@@ -448,7 +448,7 @@ export default class AuthClient {
               method: requestOptions.method || '',
               errno: result.errno,
               code: result.code,
-            }
+            },
           }
         );
         throw result;
@@ -463,7 +463,7 @@ export default class AuthClient {
               path: path,
               method: requestOptions.method || '',
               status: response.status,
-            }
+            },
           }
         );
         throw new AuthClientError(
@@ -487,7 +487,7 @@ export default class AuthClient {
             },
             extra: {
               message: e instanceof Error ? e.message : 'unknown error',
-            }
+            },
           }
         );
       }
@@ -3050,7 +3050,16 @@ export default class AuthClient {
       code_challenge?: string;
     } = {},
     headers?: Headers
-  ) {
+  ): Promise<{
+    code: string;
+    state: string;
+    redirect: string;
+    // Granted scope, returned even when the client passed `scope`
+    // explicitly so the caller has a single source of truth for what
+    // was actually authorized. Currently only Firefox (via fxaOAuthLogin)
+    // consumes this field downstream; other RPs may ignore it.
+    scope: string;
+  }> {
     return this.sessionPost(
       '/oauth/authorization',
       sessionToken,
