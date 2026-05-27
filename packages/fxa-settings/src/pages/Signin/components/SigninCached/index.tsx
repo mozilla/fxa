@@ -250,8 +250,8 @@ const SigninCached = ({
 
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 
-      <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
-        {!hideAccountSwitchLink && (
+      {!hideAccountSwitchLink && (
+        <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
           <FtlMsg id="signin-use-a-different-account-link">
             <a
               href="/"
@@ -277,8 +277,8 @@ const SigninCached = ({
               Use a different account
             </a>
           </FtlMsg>
-        )}
-      </div>
+        </div>
+      )}
     </AppLayout>
   );
 };
