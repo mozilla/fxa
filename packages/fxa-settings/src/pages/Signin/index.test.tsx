@@ -110,6 +110,10 @@ jest.mock('../../models', () => {
     }),
     useConfig: () => ({
       servicesWithEmailVerification: ['123456'],
+      featureFlags: {
+        passkeysEnabled: true,
+        passkeyAuthenticationEnabled: true,
+      },
     }),
   };
 });
@@ -978,7 +982,6 @@ describe('Signin component', () => {
       expect(
         screen.queryByRole('link', { name: 'Forgot password?' })
       ).not.toBeInTheDocument();
-      expect(screen.queryByText('or')).not.toBeInTheDocument();
       passwordInputNotRendered();
     });
 
