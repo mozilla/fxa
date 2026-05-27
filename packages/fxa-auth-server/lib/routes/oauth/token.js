@@ -232,7 +232,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 });
 
 module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
-  async function validateGrantParameters(client, params) {
+  async function validateGrantParameters(client, params, req) {
     let requestedGrant;
     switch (params.grant_type) {
       case GRANT_AUTHORIZATION_CODE:
@@ -245,7 +245,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         requestedGrant = await validateAssertionGrant(client, params);
         break;
       case GRANT_TOKEN_EXCHANGE:
-        requestedGrant = await validateTokenExchangeGrant(params);
+        requestedGrant = await validateTokenExchangeGrant(params, req);
         break;
       default:
         // Joi validation means this should never happen.
@@ -413,7 +413,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
    * This check happens on their side, and for now we will grant the request.
    * See FXA-12925
    */
-  async function validateTokenExchangeGrant(params) {
+  async function validateTokenExchangeGrant(params, req) {
     const subjectToken = await oauthDB.getRefreshToken(
       encrypt.hash(params.subject_token)
     );
@@ -441,8 +441,14 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         ? requestedScope.split(/\s+/).filter(Boolean)
         : requestedScope.getScopeValues();
 
+    const { clientId: clientIdTag } = getClientServiceTags(req);
+    const clientTag = clientIdTag ? { clientId: clientIdTag } : {};
     function recordOutcome(service, outcome) {
-      statsd.increment('oauth.token_exchange.resolution', { service, outcome });
+      statsd.increment('oauth.token_exchange.resolution', {
+        service,
+        outcome,
+        ...clientTag,
+      });
     }
 
     // Lazily loaded for fall-through scopes; null until first use, then a
@@ -583,7 +589,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         throw OauthError.disabledClient(hex(client.id));
       }
     }
-    const grant = await validateGrantParameters(client, params);
+    const grant = await validateGrantParameters(client, params, req);
 
     const tokens = await generateTokens(grant);
 

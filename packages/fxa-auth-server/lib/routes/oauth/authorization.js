@@ -11,6 +11,7 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const { getClientServiceTags } = require('../../metrics/client-tags');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -168,8 +169,13 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
   // a non-Mozilla RP forging consent on the user behalf. Errors are
   // swallowed; bookkeeping cannot break sign-in.
   async function recordAuthorizationRows(req, grant) {
+    const { clientId: clientIdTag } = getClientServiceTags(req);
+    const clientTag = clientIdTag ? { clientId: clientIdTag } : {};
     if (req.payload.prompt === 'none') {
-      statsd?.increment('accountAuthorization.skipped', { reason: 'prompt_none' });
+      statsd?.increment('accountAuthorization.skipped', {
+        reason: 'prompt_none',
+        ...clientTag,
+      });
       return;
     }
     const requestedScopes = grant.scope.getScopeValues();
@@ -198,6 +204,7 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
       statsd?.increment('accountAuthorization.skipped', {
         reason: 'client_not_allowed',
         service: serviceValue,
+        ...clientTag,
       });
       return;
     }
@@ -230,6 +237,7 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     statsd?.increment('accountAuthorization.recorded', {
       service: serviceValue || 'unset',
       access_type: grant.offline ? 'offline' : 'online',
+      ...clientTag,
     });
   }
 
@@ -248,7 +256,11 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     try {
       await recordAuthorizationRows(req, grant);
     } catch (err) {
-      statsd?.increment('accountAuthorization.write_failed');
+      const { clientId: clientIdTag } = getClientServiceTags(req);
+      statsd?.increment(
+        'accountAuthorization.write_failed',
+        clientIdTag ? { clientId: clientIdTag } : {}
+      );
       log.warn('accountAuthorization.write_failed', { err: err.message });
     }
     switch (req.payload.response_type) {
