@@ -28,6 +28,7 @@ import { SigninPasswordlessCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import TermsPrivacyAgreement from '../../../components/TermsPrivacyAgreement';
 import { currentAccount } from '../../../lib/cache';
 import {
   setCurrentAccount,
@@ -577,10 +578,26 @@ const SigninPasswordlessCode = ({
               gleanOtp.engage();
             }
           },
+          className: `flex flex-col gap-4 mt-6 ${showPasskeySignin ? 'mb-2' : 'mb-6'}`,
         }}
       />
 
-      <div className="text-grey-500 text-sm inline-flex gap-1">
+      {showPasskeySignin && (
+        <AlternativeAuthOptions
+          showThirdPartyAuth={false}
+          showPasskeySignin={showPasskeySignin}
+          passkeySignIn={{
+            isLoading: passkey.isLoading,
+            onClick: passkey.onClick,
+          }}
+          errorBanner={passkey.errorBanner}
+          {...{ viewName, flowQueryParams }}
+        />
+      )}
+
+      <TermsPrivacyAgreement legalTerms={integration.getLegalTerms()} />
+
+      <div className="mt-6 text-grey-500 text-sm inline-flex gap-1">
         <FtlMsg id="signin-passwordless-code-expired">
           <p>Code expired?</p>
         </FtlMsg>
@@ -612,19 +629,6 @@ const SigninPasswordlessCode = ({
           </FtlMsg>
         )}
       </div>
-
-      {showPasskeySignin && (
-        <AlternativeAuthOptions
-          showThirdPartyAuth={false}
-          showPasskeySignin={showPasskeySignin}
-          passkeySignIn={{
-            isLoading: passkey.isLoading,
-            onClick: passkey.onClick,
-          }}
-          errorBanner={passkey.errorBanner}
-          {...{ viewName, flowQueryParams }}
-        />
-      )}
     </AppLayout>
   );
 };

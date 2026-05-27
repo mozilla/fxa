@@ -5,16 +5,10 @@
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-
-export interface LegalTerms {
-  label: string;
-  termsOfServiceLink: string;
-  privacyNoticeLink: string;
-  fontSize: 'default' | 'medium' | 'large';
-}
+import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
 
 export type TermsPrivacyAgreementProps = {
-  legalTerms?: LegalTerms | null;
+  legalTerms?: RelierLegalTerms | null;
 };
 
 const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
