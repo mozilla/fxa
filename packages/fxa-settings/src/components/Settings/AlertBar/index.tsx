@@ -7,7 +7,6 @@ import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '../../../lib/reactive-var';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 
@@ -27,18 +26,45 @@ export const AlertBar = () => {
   const visible = useReactiveVar(alertVisible);
   const content = useReactiveVar(alertContent);
   const type = useReactiveVar(alertType);
-  const insideRef = useClickOutsideEffect<HTMLDivElement>(() => {
-    // TODO: cleanup Portal component and references, FXA-2463
-    // We don't want to automatically close the alert bar if a modal
-    // is also open. There's at least one case where a modal could be
-    // opened at the same time as the alert bar, and because the modal
-    // takes precedence, we want to allow the user to see and read the
-    // alert bar instead of closing them at the same time. We have to check
-    // for `innerHTML` because when a modal is closed it is still in the DOM.
-    if (!document.getElementById('modal')?.innerHTML) {
-      alertVisible(false);
-    }
-  });
+  const insideRef = useRef<HTMLDivElement>(null);
+
+  // Arm the click-outside-to-close behaviour one macrotask after `visible`
+  // flips to true. Without the delay, the click event that triggered
+  // alertBar.error/success (e.g. a "Cancel" button) bubbles to <body> in the
+  // same task as the React commit that mounted the alert — the listener then
+  // sees the now-attached ref, treats the click as "outside", and closes the
+  // alert before the user can see it.
+  useEffect(() => {
+    if (!visible) return;
+    let armed = false;
+    const armId = window.setTimeout(() => {
+      armed = true;
+    }, 0);
+
+    const onBodyClick = (ev: MouseEvent) => {
+      if (!armed) return;
+      // TODO: cleanup Portal component and references, FXA-2463
+      // We don't want to automatically close the alert bar if a modal
+      // is also open. There's at least one case where a modal could be
+      // opened at the same time as the alert bar, and because the modal
+      // takes precedence, we want to allow the user to see and read the
+      // alert bar instead of closing them at the same time. We have to check
+      // for `innerHTML` because when a modal is closed it is still in the DOM.
+      if (
+        insideRef.current instanceof HTMLElement &&
+        ev.target instanceof HTMLElement &&
+        !insideRef.current.contains(ev.target) &&
+        !document.getElementById('modal')?.innerHTML
+      ) {
+        alertVisible(false);
+      }
+    };
+    document.body.addEventListener('click', onBodyClick);
+    return () => {
+      window.clearTimeout(armId);
+      document.body.removeEventListener('click', onBodyClick);
+    };
+  }, [visible]);
 
   // Although `role="alert" is usually sufficient to trigger a screenreader
   // without having to reset focus, if this component is rerendered before
