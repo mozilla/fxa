@@ -18,7 +18,9 @@ import { createMockPasswordlessLocationState } from './mocks';
 let integration: Integration;
 
 function mockWebIntegration() {
-  integration = createMockWebIntegration({ clientIdFallback: MOCK_CLIENT_ID }) as Integration;
+  integration = createMockWebIntegration({
+    clientIdFallback: MOCK_CLIENT_ID,
+  }) as Integration;
 }
 
 function applyDefaultMocks() {
@@ -68,7 +70,7 @@ function mockSigninPasswordlessCodeModule() {
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 function resetMockAuthClient() {
@@ -84,7 +86,7 @@ async function render() {
         {...{
           integration,
           serviceName: 'sync',
-          flowQueryParams: {}
+          flowQueryParams: {},
         }}
       />
     </LocationProvider>
@@ -104,11 +106,15 @@ describe('SigninPasswordlessCode container', () => {
         await render();
 
         await waitFor(() =>
-          expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument()
+          expect(
+            screen.getByText('signin passwordless code mock')
+          ).toBeInTheDocument()
         );
 
         expect(currentSigninPasswordlessCodeProps?.email).toBe(MOCK_EMAIL);
-        expect(currentSigninPasswordlessCodeProps?.integration).toBe(integration);
+        expect(currentSigninPasswordlessCodeProps?.integration).toBe(
+          integration
+        );
         expect(SigninPasswordlessCodeModule.default).toHaveBeenCalled();
       });
 
@@ -127,14 +133,18 @@ describe('SigninPasswordlessCode container', () => {
         mockLocationState = createMockPasswordlessLocationState();
 
         // Make passwordlessSendCode slow to simulate loading
-        mockAuthClient.passwordlessSendCode = jest.fn().mockImplementation(
-          () => new Promise((resolve) => setTimeout(resolve, 100))
-        );
+        mockAuthClient.passwordlessSendCode = jest
+          .fn()
+          .mockImplementation(
+            () => new Promise((resolve) => setTimeout(resolve, 100))
+          );
 
         await render();
 
         // Should show loading initially
-        expect(screen.queryByText('signin passwordless code mock')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('signin passwordless code mock')
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -149,7 +159,11 @@ describe('SigninPasswordlessCode container', () => {
         await waitFor(() => {
           expect(mockAuthClient.passwordlessSendCode).toHaveBeenCalledWith(
             MOCK_EMAIL,
-            { clientId: MOCK_CLIENT_ID, service: 'sync', metricsContext: { clientId: MOCK_CLIENT_ID } }
+            {
+              clientId: MOCK_CLIENT_ID,
+              service: 'sync',
+              metricsContext: { clientId: MOCK_CLIENT_ID },
+            }
           );
         });
       });
@@ -175,7 +189,9 @@ describe('SigninPasswordlessCode container', () => {
         await render();
 
         await waitFor(() => {
-          expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+          expect(
+            screen.getByText('signin passwordless code mock')
+          ).toBeInTheDocument();
         });
 
         // Should NOT send code because location state has codeSent: true
@@ -233,7 +249,9 @@ describe('SigninPasswordlessCode container', () => {
       await render();
 
       await waitFor(() => {
-        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+        expect(
+          screen.getByText('signin passwordless code mock')
+        ).toBeInTheDocument();
       });
 
       expect(currentSigninPasswordlessCodeProps?.sendError).toBeNull();
@@ -242,12 +260,16 @@ describe('SigninPasswordlessCode container', () => {
     it('passes sendError when code send fails', async () => {
       const mockError = new Error('Network error');
       (mockError as any).errno = 999;
-      mockAuthClient.passwordlessSendCode = jest.fn().mockRejectedValue(mockError);
+      mockAuthClient.passwordlessSendCode = jest
+        .fn()
+        .mockRejectedValue(mockError);
 
       await render();
 
       await waitFor(() => {
-        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+        expect(
+          screen.getByText('signin passwordless code mock')
+        ).toBeInTheDocument();
       });
 
       expect(currentSigninPasswordlessCodeProps?.sendError).toBeDefined();
@@ -255,26 +277,34 @@ describe('SigninPasswordlessCode container', () => {
     });
 
     it('does not render SigninPasswordlessCode component while code is sending', async () => {
-      mockAuthClient.passwordlessSendCode = jest.fn().mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
-      );
+      mockAuthClient.passwordlessSendCode = jest
+        .fn()
+        .mockImplementation(
+          () => new Promise((resolve) => setTimeout(resolve, 100))
+        );
 
       await render();
 
       // Should not render the component while loading
-      expect(screen.queryByText('signin passwordless code mock')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('signin passwordless code mock')
+      ).not.toBeInTheDocument();
       expect(SigninPasswordlessCodeModule.default).not.toHaveBeenCalled();
     });
 
     it('renders SigninPasswordlessCode component after sendError is set', async () => {
       const mockError = new Error('Throttled');
       (mockError as any).errno = 114;
-      mockAuthClient.passwordlessSendCode = jest.fn().mockRejectedValue(mockError);
+      mockAuthClient.passwordlessSendCode = jest
+        .fn()
+        .mockRejectedValue(mockError);
 
       await render();
 
       await waitFor(() => {
-        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+        expect(
+          screen.getByText('signin passwordless code mock')
+        ).toBeInTheDocument();
       });
 
       expect(SigninPasswordlessCodeModule.default).toHaveBeenCalled();

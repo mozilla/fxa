@@ -272,24 +272,39 @@ export const CmsCachedNoCachedPageConfig: Story = {
   name: 'CMS > Regular layout > Cached > No SigninCachedPage config',
 };
 
-// Passkey button is offered as an alternative to entering a password, in
-// addition to the third-party providers. Click the button to drive the
-// WebAuthn ceremony — in Storybook this surfaces the natural "unexpected
-// error" banner (no authenticator wired up).
+// Passkey button alongside third-party providers, alternative to password entry.
 export const NonCachedAccountHasPasswordWithPasskey: Story = {
   ...story({ passkeyEnabled: true }),
   name: 'Passkey enabled > Non-Cached > Account has password',
 };
 
-// Linked-passwordless account routes through SigninAlternativeAuthOptions —
-// passkey button renders alongside the third-party providers (no password
-// input). Click drives the WebAuthn ceremony; surfaces the natural
-// "unexpected error" banner in Storybook (no authenticator wired up).
-export const NonCachedPasswordlessAccountWithPasskey: Story = {
+// Sync passkey signin routes to /signin_passkey_fallback for key derivation.
+export const NonCachedSyncWithPasskey: Story = {
   ...story({
+    passkeyEnabled: true,
+    serviceName: MozServices.FirefoxSync,
+    hasLinkedAccount: true,
+    hasPassword: true,
+    integration: createMockSigninOAuthNativeSyncIntegration(),
+  }),
+  name: 'Passkey enabled > Non-Cached > Sync browser service > Account has password',
+};
+
+// SigninDecider routes linked-passwordless users to SigninAlternativeAuthOptions.
+export const NonCachedPasswordlessWithPasskey: Story = {
+  ...story({
+    passkeyEnabled: true,
     hasLinkedAccount: true,
     hasPassword: false,
-    passkeyEnabled: true,
   }),
-  name: 'Passkey enabled > Non-Cached > Passwordless account',
+  name: 'Passkey enabled > Non-Cached > Passwordless account (routes through SigninAlternativeAuthOptions)',
+};
+
+// Cached re-auth (SigninCached) hides the passkey button regardless of flags.
+export const CachedWithPasskeyFlagOn: Story = {
+  ...story({
+    passkeyEnabled: true,
+    sessionToken: MOCK_SESSION_TOKEN,
+  }),
+  name: 'Passkey enabled > Cached > passkey button correctly hidden (SigninCached path)',
 };

@@ -558,6 +558,20 @@ const getOAuthNavigationTarget = async (
     };
   }
 
+  // Profile-level AMR omits webauthn, so AAL2 RPs (AMO) reject passkey-only
+  // grants. Force TOTP enrollment first when no TOTP is set.
+  if (
+    navigationOptions.isPasskeySession &&
+    isOAuthWebIntegration(navigationOptions.integration) &&
+    navigationOptions.integration.wantsTwoStepAuthentication() &&
+    navigationOptions.accountHasTotp === false
+  ) {
+    return {
+      to: `/inline_totp_setup${navigationOptions.queryParams || ''}`,
+      locationState,
+    };
+  }
+
   const { error, redirect, code, state } =
     await navigationOptions.finishOAuthFlowHandler(
       navigationOptions.signinData.uid,
