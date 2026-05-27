@@ -208,6 +208,16 @@ describe('SigninPasswordlessCode page', () => {
       screen.getByLabelText('Enter 6-digit code');
       screen.getByRole('button', { name: 'Confirm' });
       screen.getByText('Code expired?');
+
+      expect(
+        screen.getByTestId('terms-privacy-agreement-default')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: 'Terms of Service' })
+      ).toHaveAttribute('href', '/legal/terms');
+      expect(
+        screen.getByRole('link', { name: 'Privacy Notice' })
+      ).toHaveAttribute('href', '/legal/privacy');
     });
 
     it('renders signup flow with correct heading and instructions', () => {

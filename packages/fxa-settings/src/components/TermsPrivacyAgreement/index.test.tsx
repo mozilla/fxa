@@ -4,9 +4,10 @@
 
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import TermsPrivacyAgreement, { LegalTerms } from '.';
+import TermsPrivacyAgreement from '.';
+import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
 
-const mockLegalTerms: LegalTerms = {
+const mockLegalTerms: RelierLegalTerms = {
   label: 'Mozilla Subscription Services',
   termsOfServiceLink:
     'https://www.mozilla.org/about/legal/terms/subscription-services/',
@@ -81,7 +82,7 @@ describe('TermsPrivacyAgreement', () => {
     });
 
     it('renders custom label correctly', () => {
-      const customTerms: LegalTerms = {
+      const customTerms: RelierLegalTerms = {
         label: 'Custom Service Name',
         termsOfServiceLink: 'https://example.com/terms',
         privacyNoticeLink: 'https://example.com/privacy',
