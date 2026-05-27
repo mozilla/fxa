@@ -50,6 +50,7 @@ export type FormVerifyCodeProps = {
   cmsButton?: CmsButtonType;
   onEngageCb?: () => void;
   onChangeCb?: () => void;
+  className?: string;
 };
 
 type FormData = {
@@ -69,6 +70,7 @@ const FormVerifyCode = ({
   cmsButton,
   onEngageCb,
   onChangeCb,
+  className = 'flex flex-col gap-4 my-6',
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -142,11 +144,7 @@ const FormVerifyCode = ({
   }, [codeValue, formAttributes.pattern]);
 
   return (
-    <form
-      noValidate
-      className="flex flex-col gap-4 my-6"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form noValidate {...{ className }} onSubmit={handleSubmit(onSubmit)}>
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
