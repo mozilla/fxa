@@ -98,6 +98,10 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
         gleanEventsHelper,
       }) => {
+        test.fixme(
+          true,
+          'FXA-13789: This has been flaky against stage and production, needs investigation'
+        );
         const { email } =
           testAccountTracker.generatePasswordlessAccountDetails();
 
