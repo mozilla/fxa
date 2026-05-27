@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
@@ -99,14 +100,18 @@ const WafTokenRow = ({
   );
 };
 
+type CreateTokenPrefill = { clientId?: string; name?: string };
+
 const CreateTokenForm = ({
   rps,
   usedClientIds,
+  initial,
   onCreated,
   onCancel,
 }: {
   rps: RelyingPartyDto[];
   usedClientIds: Set<string>;
+  initial?: CreateTokenPrefill;
   onCreated: (token: WafBypassTokenDto) => void;
   onCancel: () => void;
 }) => {
@@ -163,19 +168,32 @@ const CreateTokenForm = ({
     >
       <h3 className="font-bold mb-3">Generate new token</h3>
 
-      <label className="block mb-1">Name:</label>
+      <label className="block mb-1" htmlFor="waf-token-name">
+        Name:
+      </label>
       <input
+        id="waf-token-name"
         className="bg-grey-50 rounded w-full py-2 px-3 mb-3"
         type="text"
         name="name"
         placeholder="e.g. FxA Functional Tests, Mozilla VPN"
+        defaultValue={initial?.name ?? ''}
         required
       />
 
-      <label className="block mb-1">Linked relying party (optional):</label>
+      <label className="block mb-1" htmlFor="waf-token-client-id">
+        Linked relying party (optional):
+      </label>
       <select
+        id="waf-token-client-id"
         className="bg-grey-50 rounded w-full py-2 px-3 mb-3"
         name="clientId"
+        defaultValue={
+          initial?.clientId &&
+          availableRps.some((rp) => rp.id === initial.clientId)
+            ? initial.clientId
+            : ''
+        }
       >
         <option value="">— None (standalone token) —</option>
         {availableRps.map((rp) => (
@@ -204,6 +222,11 @@ export const PageWafTokens = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [exportCopied, setExportCopied] = useState(false);
   const [newTokenId, setNewTokenId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Snapshot of prefill params at the moment we open the form. Captured into a
+  // ref so clearing the URL afterwards doesn't reset the form's defaultValues.
+  const prefillRef = useRef<CreateTokenPrefill | undefined>(undefined);
+  const prefillConsumedRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -225,6 +248,22 @@ export const PageWafTokens = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Runs once after load completes. setSearchParams below triggers a re-run,
+  // but the consumed-ref + empty-params early returns make it a no-op.
+  useEffect(() => {
+    if (prefillConsumedRef.current || loading) return;
+    const clientId = searchParams.get('createForClientId') ?? undefined;
+    const name = searchParams.get('name') ?? undefined;
+    if (!clientId && !name) return;
+    prefillConsumedRef.current = true;
+    prefillRef.current = { clientId, name };
+    setShowCreate(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('createForClientId');
+    next.delete('name');
+    setSearchParams(next, { replace: true });
+  }, [loading, searchParams, setSearchParams]);
 
   const rpById = Object.fromEntries(rps.map((rp) => [rp.id, rp.name]));
   const usedClientIds = new Set(
@@ -299,7 +338,14 @@ export const PageWafTokens = () => {
 
       <Guard features={[AdminPanelFeature.ManageWafTokens]}>
         <div className="mt-4 mb-4 flex gap-2">
-          <button className={btnClass} onClick={() => setShowCreate((v) => !v)}>
+          <button
+            className={btnClass}
+            disabled={loading}
+            onClick={() => {
+              if (showCreate) prefillRef.current = undefined;
+              setShowCreate(!showCreate);
+            }}
+          >
             {showCreate ? 'Cancel' : 'Generate new token'}
           </button>
           {tokens.length > 0 && (
@@ -313,10 +359,14 @@ export const PageWafTokens = () => {
           <CreateTokenForm
             rps={rps}
             usedClientIds={usedClientIds}
+            initial={prefillRef.current}
             onCreated={(token) => {
               handleCreated(token);
             }}
-            onCancel={() => setShowCreate(false)}
+            onCancel={() => {
+              prefillRef.current = undefined;
+              setShowCreate(false);
+            }}
           />
         )}
       </Guard>

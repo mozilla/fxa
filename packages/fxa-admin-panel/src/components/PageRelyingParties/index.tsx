@@ -762,8 +762,13 @@ const RelyingPartyRow = ({
               ) : canManageWafTokens ? (
                 <span className="result-grey">
                   None —{' '}
-                  <NavLink to="/waf-tokens" className="underline text-blue-700">
-                    manage in WAF Bypass Tokens
+                  <NavLink
+                    to={`/waf-tokens?createForClientId=${encodeURIComponent(
+                      id
+                    )}&name=${encodeURIComponent(name)}`}
+                    className="underline text-blue-700"
+                  >
+                    Add one via WAF Bypass Tokens panel
                   </NavLink>
                 </span>
               ) : (
