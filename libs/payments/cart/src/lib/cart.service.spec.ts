@@ -107,6 +107,7 @@ import {
   CartVersionMismatchError,
   CartSetupInvalidPromoCodeError,
   CartRestartInvalidPromoCodeError,
+  SetupCartAccountNotFoundError,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
@@ -732,6 +733,7 @@ describe('CartService', () => {
     };
 
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+    const mockAccount = AccountFactory();
     const mockAccountCustomer = ResultAccountCustomerFactory({
       stripeCustomerId: mockCustomer.id,
     });
@@ -743,6 +745,9 @@ describe('CartService', () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
       jest
@@ -770,7 +775,6 @@ describe('CartService', () => {
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
 
       const result = await cartService.setupCart(args);
 
@@ -791,16 +795,12 @@ describe('CartService', () => {
     });
 
     it('throws an error when couponCode is invalid', async () => {
-      const mockAccount = AccountFactory();
       const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
-      jest
-        .spyOn(accountManager, 'getAccounts')
-        .mockResolvedValue([mockAccount]);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
@@ -835,7 +835,6 @@ describe('CartService', () => {
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromOfferingConfigId: mockFromOfferingId,
@@ -902,7 +901,6 @@ describe('CartService', () => {
       jest
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue(
         SubscriptionEligibilityResultFactory({
           subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
@@ -945,7 +943,6 @@ describe('CartService', () => {
       jest
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue(
         SubscriptionEligibilityUpgradeDowngradeResultFactory({
           subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
@@ -988,7 +985,6 @@ describe('CartService', () => {
       jest
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.INVALID,
       });
@@ -1029,7 +1025,6 @@ describe('CartService', () => {
       jest
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.SAME,
       });
@@ -1053,6 +1048,54 @@ describe('CartService', () => {
         CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
       expect(result).toEqual(mockErrorCart);
+    });
+
+    it('throws SetupCartAccountNotFoundError when account does not exist for uid', async () => {
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
+
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+
+      await expect(cartService.setupCart(args)).rejects.toThrow(
+        SetupCartAccountNotFoundError
+      );
+
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([args.uid]);
+      expect(cartManager.createCart).not.toHaveBeenCalled();
+    });
+
+    it('skips account validation when uid is not provided', async () => {
+      const anonArgs = { ...args, uid: undefined };
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+
+      const result = await cartService.setupCart(anonArgs);
+
+      expect(accountManager.getAccounts).not.toHaveBeenCalled();
+      expect(cartManager.createCart).toHaveBeenCalledWith({
+        interval: anonArgs.interval,
+        offeringConfigId: anonArgs.offeringConfigId,
+        amount: mockInvoicePreview.subtotal,
+        uid: undefined,
+        stripeCustomerId: undefined,
+        experiment: anonArgs.experiment,
+        taxAddress,
+        currency: mockResolvedCurrency,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+        couponCode: anonArgs.promoCode,
+        isFreeTrial: false,
+      });
+      expect(result).toEqual(mockResultCart);
     });
   });
 

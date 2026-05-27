@@ -272,6 +272,13 @@ export class CartAccountNotFoundError extends CartError {
   }
 }
 
+export class SetupCartAccountNotFoundError extends CartError {
+  constructor(uid: string) {
+    super('Cart setup account not found', { uid });
+    this.name = 'SetupCartAccountNotFoundError';
+  }
+}
+
 export class CartUidNotFoundError extends CartError {
   constructor(cartId: string) {
     super('Cart uid not found', {
