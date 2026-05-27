@@ -10,8 +10,7 @@ import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { createMockSigninOAuthNativeIntegration } from '../mocks';
 
-// Override mockAppContext's config to flip the passkey signin feature flags
-// on. Used by the stories that document the passkey-enabled states.
+// Flips passkey feature flags on for the passkey-enabled story variants.
 const passkeyEnabledContext = () => {
   const ctx = mockAppContext();
   if (ctx.config) {
@@ -105,12 +104,47 @@ export const WithSendError = () => (
   </AppContext.Provider>
 );
 
-// Passkey signin enabled: the alternative-auth block renders an "or"
-// separator and the passkey button beneath the OTP form. Click the button
-// to drive the WebAuthn ceremony — in Storybook this surfaces the natural
-// "unexpected error" banner (no authenticator wired up).
+// Passkey button stacks beneath the OTP form with an "or" separator.
 export const DefaultSigninWithPasskey = () => (
   <AppContext.Provider value={passkeyEnabledContext()}>
     <Subject email="user@example.com" expirationMinutes={5} isSignup={false} />
+  </AppContext.Provider>
+);
+
+// Signup flow: passkey button hidden (brand-new account has no passkey).
+export const DefaultSignupWithPasskey = () => (
+  <AppContext.Provider value={passkeyEnabledContext()}>
+    <Subject
+      email="newuser@example.com"
+      expirationMinutes={5}
+      isSignup={true}
+    />
+  </AppContext.Provider>
+);
+
+// Passkey + CMS info: branded layout variant.
+export const WithCmsInfoAndPasskey = () => (
+  <AppContext.Provider value={passkeyEnabledContext()}>
+    <Subject
+      email="user@example.com"
+      expirationMinutes={5}
+      integration={createMockWebIntegration(MOCK_CMS_INFO)}
+      isSignup={false}
+    />
+  </AppContext.Provider>
+);
+
+// Passkey + send error: OTP error banner coexists with the passkey block.
+export const WithSendErrorAndPasskey = () => (
+  <AppContext.Provider value={passkeyEnabledContext()}>
+    <Subject
+      email="user@example.com"
+      expirationMinutes={5}
+      isSignup={false}
+      sendError={{
+        errno: 999,
+        message: 'Something went wrong sending the code',
+      }}
+    />
   </AppContext.Provider>
 );

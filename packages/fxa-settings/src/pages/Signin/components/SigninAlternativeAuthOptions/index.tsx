@@ -15,7 +15,11 @@ import Banner from '../../../../components/Banner';
 import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
 import SigninUserLockup from '../SigninUserLockup';
 import { useCachedSigninLockup } from '../../useCachedSigninLockup';
-import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../../models';
+import {
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../../models';
 import { usePasskeySignIn } from '../../../../lib/passkeys/signin-flow';
 
 export const viewName = 'signin';

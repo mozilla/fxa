@@ -210,15 +210,15 @@ export function usePasskeySignIn({
         return;
       }
 
+      const accountHasTotp = !!account?.totp?.verified;
+
       // Delegate to handleNavigation (same path as password sign-in).
-      // hardNavigate here would briefly render the cached-signin view
-      // between storeAccountData and the deferred window.location assignment.
       const { error: navError } = await handleNavigation({
         email,
         signinData: {
           uid: completion.uid,
           sessionToken: completion.sessionToken,
-          // AAL2 by definition; email had to be verified to register a passkey.
+          // Passkey assertion is AAL2; email was verified at registration.
           emailVerified: true,
           sessionVerified: completion.verified,
           verificationMethod: undefined,
@@ -230,6 +230,8 @@ export function usePasskeySignIn({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: true,
+        isPasskeySession: true,
+        accountHasTotp,
       });
 
       if (navError) {

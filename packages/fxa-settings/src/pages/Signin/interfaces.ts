@@ -271,6 +271,10 @@ export interface NavigationOptions {
   performNavigation?: boolean;
   isServiceWithEmailVerification?: boolean;
   isPasswordlessFlow?: boolean;
+  // True when the session was established by a passkey assertion; pairs
+  // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
+  isPasskeySession?: boolean;
+  accountHasTotp?: boolean;
 }
 
 export interface OAuthSigninResult {

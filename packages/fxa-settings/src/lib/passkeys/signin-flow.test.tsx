@@ -69,6 +69,7 @@ const buildArgs = (
   });
   const account = jest.fn().mockResolvedValue({
     emails: [{ email: EMAIL, isPrimary: true, verified: true }],
+    totp: { exists: false, verified: false },
   });
 
   const authClient = {
@@ -82,6 +83,7 @@ const buildArgs = (
     getService: () => 'service-id',
     type: IntegrationType.OAuthWeb,
     data: {},
+    wantsTwoStepAuthentication: () => false,
   } as unknown as PasskeySignInIntegration;
   const finishOAuthFlowHandler = jest.fn();
   const ftlMsgResolver = {
@@ -169,6 +171,8 @@ describe('usePasskeySignIn', () => {
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
       performNavigation: true,
+      isPasskeySession: true,
+      accountHasTotp: false,
     });
     expect(storeAccountData).toHaveBeenCalledWith({
       email: EMAIL,
@@ -217,6 +221,8 @@ describe('usePasskeySignIn', () => {
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
       performNavigation: true,
+      isPasskeySession: true,
+      accountHasTotp: false,
     });
   });
 
@@ -527,5 +533,121 @@ describe('usePasskeySignIn', () => {
     // to end, not just at the entry point.
     expect(storeAccountData).toHaveBeenCalledTimes(1);
     expect(handleNavigation).toHaveBeenCalledTimes(1);
+  });
+
+  describe('AAL2 RP TOTP status', () => {
+    const buildAAL2Args = (
+      totp: { exists: boolean; verified: boolean } | undefined,
+      overrides: Record<string, unknown> = {}
+    ) => {
+      const integration = {
+        isSync: () => false,
+        isFirefoxNonSync: () => false,
+        getService: () => 'service-id',
+        type: IntegrationType.OAuthWeb,
+        data: {},
+        wantsTwoStepAuthentication: () => true,
+      } as unknown as PasskeySignInIntegration;
+      const { args, spies } = buildArgs({ integration, ...overrides });
+      (args.authClient.account as jest.Mock).mockResolvedValue({
+        emails: [{ email: EMAIL, isPrimary: true, verified: true }],
+        ...(totp !== undefined && { totp }),
+      });
+      return { args, spies };
+    };
+
+    it('passes accountHasTotp=false when the account has no TOTP enrolled', async () => {
+      const { args } = buildAAL2Args({ exists: false, verified: false });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isPasskeySession: true,
+          accountHasTotp: false,
+        })
+      );
+    });
+
+    it('passes accountHasTotp=true when the account has TOTP enrolled', async () => {
+      const { args } = buildAAL2Args({ exists: true, verified: true });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isPasskeySession: true,
+          accountHasTotp: true,
+        })
+      );
+    });
+
+    it('passes accountHasTotp=false when TOTP record exists but is unverified', async () => {
+      // Must read `verified`, not `exists`, to gate on completed enrolment.
+      const { args } = buildAAL2Args({ exists: true, verified: false });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isPasskeySession: true,
+          accountHasTotp: false,
+        })
+      );
+    });
+
+    it('treats a missing totp field as not-enrolled', async () => {
+      const { args } = buildAAL2Args(undefined);
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isPasskeySession: true,
+          accountHasTotp: false,
+        })
+      );
+    });
+
+    it('still passes accountHasTotp even when the RP does not require AAL2', async () => {
+      // utils.ts gates on wantsTwoStepAuthentication() before reading it.
+      const { args } = buildAAL2Args(
+        { exists: true, verified: true },
+        {
+          integration: {
+            isSync: () => false,
+            isFirefoxNonSync: () => false,
+            getService: () => 'service-id',
+            type: IntegrationType.OAuthWeb,
+            data: {},
+            wantsTwoStepAuthentication: () => false,
+          } as unknown as PasskeySignInIntegration,
+        }
+      );
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isPasskeySession: true,
+          accountHasTotp: true,
+        })
+      );
+    });
   });
 });

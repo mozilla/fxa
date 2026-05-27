@@ -362,6 +362,82 @@ describe('Signin utils', () => {
       });
     });
 
+    describe('passkey-session AAL2 gate', () => {
+      const buildPasskeyOAuthOptions = (
+        overrides: Partial<NavigationOptions> = {}
+      ) => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
+        return createBaseNavigationOptions({
+          integration,
+          isPasskeySession: true,
+          queryParams: '?client_id=abc',
+          ...overrides,
+        });
+      };
+
+      it('diverts to /inline_totp_setup when the account has no TOTP', async () => {
+        const finishOAuthFlowHandler = jest.fn();
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
+      it('continues to OAuth redirect when the account already has TOTP', async () => {
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: true,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          undefined,
+          undefined,
+          true
+        );
+      });
+
+      it('continues to OAuth redirect when the RP does not require AAL2', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(false);
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          isPasskeySession: true,
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+
     describe('handleNavigation with send-tab entrypoints', () => {
       const createSendTabNavigationOptions = (
         overrides: Partial<NavigationOptions> = {}

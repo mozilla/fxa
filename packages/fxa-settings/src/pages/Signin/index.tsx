@@ -100,9 +100,7 @@ const Signin = ({
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
-  // Passkey signin is an alternative to password entry. The decider only
-  // routes to this component when a password is needed, so we don't need to
-  // gate on `!hasCachedAccount` like the original monolithic Signin did.
+  // Button stays visible without WebAuthn support; the hook surfaces an error.
   const showPasskeySignin = !!(
     config.featureFlags?.passkeysEnabled &&
     config.featureFlags?.passkeyAuthenticationEnabled
