@@ -19,6 +19,7 @@ import { firefox } from '../../../lib/channels/firefox';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getBasicAccountData } from '../../../lib/account-storage';
 import { getPairingErrorMessage } from '../../../lib/utilities';
+import AuthenticationMethods from '../../../constants/authentication-methods';
 
 // pair/auth/allow is the authority approval page.
 // When the user clicks "Yes, approve device", it sends the PAIR_AUTHORIZE
@@ -82,13 +83,15 @@ const AuthAllow = ({
 
     (async () => {
       try {
-        const status = await authClient.checkTotpTokenExists(sessionToken);
-        if (status.exists) {
+        // Mirror Backbone: 'otp' is in AMR only when TOTP is verified AND enabled.
+        const { authenticationMethods } =
+          await authClient.accountProfile(sessionToken);
+        if (authenticationMethods?.includes(AuthenticationMethods.OTP)) {
           navigateWithQuery('/pair/auth/totp');
           return;
         }
       } catch {
-        // If the check fails, allow the user to proceed (non-blocking)
+        // Non-blocking: fall through and render the approval page on profile errors.
       }
       setTotpChecked(true);
     })();

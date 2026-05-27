@@ -54,16 +54,27 @@ jest.mock('../../../lib/glean', () => ({
   default: { cadApproveDevice: { view: jest.fn(), submit: jest.fn() } },
 }));
 
-// Mock getBasicAccountData to return null so TOTP check is skipped
+// Default to no session token; tests override via mockGetBasicAccountData.
 jest.mock('../../../lib/account-storage', () => ({
   getBasicAccountData: jest.fn().mockReturnValue(null),
 }));
+const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
+  '../../../lib/account-storage'
+);
 
 const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 
 // Helper to render with AppContext (authClient) and LocationProvider (useLocation)
-function renderWithAppContext(ui: React.ReactElement) {
+function renderWithAppContext(
+  ui: React.ReactElement,
+  authClientOverrides: Partial<{
+    accountProfile: jest.Mock;
+  }> = {}
+) {
   const appCtx = mockAppContext();
+  if (appCtx.authClient) {
+    Object.assign(appCtx.authClient as object, authClientOverrides);
+  }
   const history = createHistory(createMemorySource('/pair/auth/allow'));
   return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>
@@ -198,6 +209,59 @@ describe('Pair/AuthAllow page', () => {
       );
       await waitFor(() => {
         expect(screen.getByText('Firefox on macOS')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('TOTP gate', () => {
+    beforeEach(() => {
+      mockNavigateWithQuery.mockClear();
+      mockGetBasicAccountData.mockReturnValue({
+        sessionToken: 'deadbeef',
+        uid: 'uid-123',
+      });
+    });
+
+    afterEach(() => {
+      mockGetBasicAccountData.mockReturnValue(null);
+    });
+
+    it('does not redirect when "otp" is not in authenticationMethods', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email'] });
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile }
+      );
+
+      await waitFor(() => {
+        expect(accountProfile).toHaveBeenCalledWith('deadbeef');
+      });
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: 'Yes, approve device' })
+        ).toBeInTheDocument();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/pair/auth/totp');
+    });
+
+    it('redirects to /pair/auth/totp when "otp" is an available AMR', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email', 'otp'] });
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile }
+      );
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/totp');
       });
     });
   });
