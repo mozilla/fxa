@@ -23,11 +23,11 @@ export function buildRedirectUrl(
   const baseUrl = optional?.baseUrl ? optional?.baseUrl : '';
 
   const startUrl = baseUrl === '/' ? baseUrl : `${baseUrl}/`;
-  const pageTypeUrl = ['landing', 'new', 'location', 'page-not-found'].includes(
-    page
-  )
-    ? ''
-    : `${pageType}/`;
+  const pageTypeUrl =
+    ['landing', 'new', 'location', 'page-not-found'].includes(page) ||
+    (page === 'error' && !optional?.cartId)
+      ? ''
+      : `${pageType}/`;
   const endUrl = optional?.cartId ? `${optional?.cartId}/${page}` : page;
 
   const searchParamsString = optional?.searchParams

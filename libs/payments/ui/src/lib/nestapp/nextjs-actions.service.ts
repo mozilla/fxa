@@ -102,6 +102,7 @@ import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import {
   CartVersionMismatchError,
   InvalidPromoCodeCartError,
+  SetupCartAccountNotFoundError,
 } from 'libs/payments/cart/src/lib/cart.error';
 import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
 import { ValidateLocationActionResult } from './validators/ValidateLocationActionResult';
@@ -511,6 +512,7 @@ export class NextJSActionsService {
       CouponErrorCannotRedeem,
       InvalidPromoCodeCartError,
       ProductConfigError,
+      SetupCartAccountNotFoundError,
     ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)

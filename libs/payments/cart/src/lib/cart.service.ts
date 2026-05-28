@@ -67,6 +67,7 @@ import {
   CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError,
   GetCartSubscriptionIdCartError,
   SetupCartCurrencyNotFoundError,
+  SetupCartAccountNotFoundError,
   UpdateCartCurrencyNotFoundError,
   FinalizeWithoutSubscriptionIdCartError,
   FinalizeWithoutSubscriptionCartError,
@@ -376,6 +377,7 @@ export class CartService {
       CouponErrorCannotRedeem,
       InvalidPromoCodeCartError,
       ProductConfigError,
+      SetupCartAccountNotFoundError,
     ],
   })
   async setupCart(args: {
@@ -394,6 +396,13 @@ export class CartService {
         currency,
         args.taxAddress.countryCode
       );
+    }
+
+    if (args.uid) {
+      const accounts = await this.accountManager.getAccounts([args.uid]);
+      if (accounts.length === 0) {
+        throw new SetupCartAccountNotFoundError(args.uid);
+      }
     }
 
     let accountCustomer;

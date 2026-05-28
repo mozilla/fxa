@@ -146,6 +146,23 @@ export default async function New({
       error.name === 'RetrieveStripePriceNotFoundError'
     ) {
       notFound();
+    } else if (error.name === 'SetupCartAccountNotFoundError') {
+      const searchParams = { ...resolvedSearchParams };
+      delete searchParams.cartId;
+      delete searchParams.cartVersion;
+      searchParams.reason = 'account-not-found';
+      redirect(
+        buildRedirectUrl(
+          resolvedParams.offeringId,
+          resolvedParams.interval,
+          'error',
+          'checkout',
+          {
+            locale: resolvedParams.locale,
+            searchParams,
+          }
+        )
+      );
     } else {
       throw error;
     }
