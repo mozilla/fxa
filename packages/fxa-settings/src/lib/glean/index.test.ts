@@ -16,7 +16,7 @@ import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
+import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -391,6 +391,35 @@ describe('lib/glean', () => {
           'email_first_apple_oauth_start'
         );
       });
+
+      it('submits a ping with the email_first_passkey_submit event name', async () => {
+        GleanMetrics.emailFirst.passkeySubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_passkey_submit');
+      });
+
+      it('submits a ping with the email_first_passkey_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.emailFirst.passkeySubmitFrontendError({
+          event: { reason: 'not_allowed' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'email_first_passkey_submit_frontend_error'
+        );
+      });
+
+      it('submits a ping with the email_first_passkey_submit_success event name', async () => {
+        GleanMetrics.emailFirst.passkeySubmitSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'email_first_passkey_submit_success'
+        );
+      });
     });
 
     describe('registration', () => {
@@ -573,6 +602,181 @@ describe('lib/glean', () => {
           'login_locked_account_banner_view'
         );
       });
+
+      it('submits a ping with the login_passkey_submit event name', async () => {
+        GleanMetrics.login.passkeySubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_passkey_submit');
+      });
+
+      it('submits a ping with the login_passkey_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.login.passkeySubmitFrontendError({
+          event: { reason: 'timeout' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_passkey_submit_frontend_error'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'timeout');
+      });
+
+      it('submits a ping with the login_passkey_submit_success event name', async () => {
+        GleanMetrics.login.passkeySubmitSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_passkey_submit_success'
+        );
+      });
+
+      it('submits a ping with the login_alternative_auth_passkey_submit event name', async () => {
+        GleanMetrics.login.alternativeAuthPasskeySubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_passkey_submit'
+        );
+      });
+
+      it('submits a ping with the login_alternative_auth_passkey_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.login.alternativeAuthPasskeySubmitFrontendError({
+          event: { reason: 'not_allowed' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_passkey_submit_frontend_error'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'not_allowed');
+      });
+
+      it('submits a ping with the login_alternative_auth_passkey_submit_success event name', async () => {
+        GleanMetrics.login.alternativeAuthPasskeySubmitSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_passkey_submit_success'
+        );
+      });
+
+      it('submits a ping with the login_otp_passkey_submit event name', async () => {
+        GleanMetrics.passwordlessLogin.passkeySubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_otp_passkey_submit');
+      });
+
+      it('submits a ping with the login_otp_passkey_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.passwordlessLogin.passkeySubmitFrontendError({
+          event: { reason: 'security' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_otp_passkey_submit_frontend_error'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'security');
+      });
+
+      it('submits a ping with the login_otp_passkey_submit_success event name', async () => {
+        GleanMetrics.passwordlessLogin.passkeySubmitSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_otp_passkey_submit_success'
+        );
+      });
+    });
+
+    describe('passkeyEnterPassword', () => {
+      it('submits a ping with the passkey_enter_password_view event name and a reason', async () => {
+        GleanMetrics.passkeyEnterPassword.view({
+          event: { reason: 'emailfirst' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_view'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'emailfirst');
+      });
+
+      it('submits a ping with the passkey_enter_password_engage event name and a reason', async () => {
+        GleanMetrics.passkeyEnterPassword.engage({
+          event: { reason: 'login' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_engage'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'login');
+      });
+
+      it('submits a ping with the passkey_enter_password_submit event name and a reason', async () => {
+        GleanMetrics.passkeyEnterPassword.submit({
+          event: { reason: 'emailfirst' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_submit'
+        );
+      });
+
+      it('submits a ping with the passkey_enter_password_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.passkeyEnterPassword.submitFrontendError({
+          event: { reason: 'incorrect_password' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_submit_frontend_error'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'incorrect_password');
+      });
+
+      it('submits a ping with the passkey_enter_password_success event name and a reason', async () => {
+        GleanMetrics.passkeyEnterPassword.success({
+          event: { reason: 'login' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_success'
+        );
+      });
+    });
+
+    describe('passkey', () => {
+      it.each([
+        'emailfirst_nopassword',
+        'emailfirst_withpassword',
+        'emailfirst_createdpassword',
+        'signin_nopassword',
+        'signin_withpassword',
+      ])('submits passkey_auth_success with reason=%s', async (reason) => {
+        GleanMetrics.passkey.authSuccess({ event: { reason } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'passkey_auth_success');
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, reason);
+      });
     });
 
     describe('loginTotpBackup', () => {
@@ -692,32 +896,36 @@ describe('lib/glean', () => {
       });
     });
 
-    describe('thirdPartyAuthSetPassword', () => {
-      // Each event is recorded with a `reason` extra key that distinguishes
-      // OTP/passwordless flows ('otp') from third-party auth flows
-      // ('third_party_auth'). Both values are asserted below so the bridge
-      // between GleanMetrics and the generated event metric stays in sync.
+    describe('postVerifySetPassword', () => {
+      // Every event in this category carries a `reason` extra key identifying
+      // which sign-in flow brought the user to the page: 'third_party_auth',
+      // 'otp', or 'passkey'. All three values are asserted across all events
+      // so the bridge between GleanMetrics and the generated event metric
+      // stays in sync.
       const cases: Array<{
-        method: 'view' | 'engage' | 'submit' | 'success';
+        method:
+          | 'view'
+          | 'engage'
+          | 'submit'
+          | 'submitFrontendError'
+          | 'success';
         eventName: string;
       }> = [
-        { method: 'view', eventName: 'third_party_auth_set_password_view' },
-        { method: 'engage', eventName: 'third_party_auth_set_password_engage' },
-        { method: 'submit', eventName: 'third_party_auth_set_password_submit' },
+        { method: 'view', eventName: 'post_verify_set_password_view' },
+        { method: 'engage', eventName: 'post_verify_set_password_engage' },
+        { method: 'submit', eventName: 'post_verify_set_password_submit' },
         {
-          method: 'success',
-          eventName: 'third_party_auth_set_password_success',
+          method: 'submitFrontendError',
+          eventName: 'post_verify_set_password_submit_frontend_error',
         },
+        { method: 'success', eventName: 'post_verify_set_password_success' },
       ];
 
       for (const { method, eventName } of cases) {
-        for (const reason of ['otp', 'third_party_auth'] as const) {
+        for (const reason of ['otp', 'third_party_auth', 'passkey'] as const) {
           it(`submits ${eventName} with reason='${reason}'`, async () => {
-            const spy = sandbox.spy(
-              thirdPartyAuthSetPassword[method],
-              'record'
-            );
-            GleanMetrics.thirdPartyAuthSetPassword[method]({
+            const spy = sandbox.spy(postVerifySetPassword[method], 'record');
+            GleanMetrics.postVerifySetPassword[method]({
               event: { reason },
             });
             await GleanMetrics.isDone();

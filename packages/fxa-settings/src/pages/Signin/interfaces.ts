@@ -8,6 +8,7 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import { PasskeyFallbackSurface } from '../../lib/passkeys/signin-flow';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
@@ -270,7 +271,10 @@ export interface NavigationOptions {
   // If false, skip actually navigating. Still sends web channel messages etc.
   performNavigation?: boolean;
   isServiceWithEmailVerification?: boolean;
-  isPasswordlessFlow?: boolean;
+  // Set by passwordless OTP signin. Flows into SigninLocationState so
+  // downstream 2FA / recovery pages skip the OAuth keys check — no
+  // password yet means no unwrapBKey to derive.
+  isPasswordlessOtpSignin?: boolean;
   // True when the session was established by a passkey assertion; pairs
   // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
   isPasskeySession?: boolean;
@@ -294,5 +298,11 @@ export interface SigninLocationState {
   showInlineRecoveryKeySetup?: boolean;
   isSessionAALUpgrade?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
-  isPasswordlessFlow?: boolean;
+  isPasswordlessOtpSignin?: boolean;
+  /**
+   * Sign-in surface the user came from before reaching SigninPasskeyFallback.
+   * Used to populate the `reason` extra on `passkey_enter_password.*` Glean
+   * events.
+   */
+  passkeySurface?: PasskeyFallbackSurface;
 }

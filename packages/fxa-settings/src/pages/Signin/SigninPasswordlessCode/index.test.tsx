@@ -528,7 +528,7 @@ describe('SigninPasswordlessCode page', () => {
               sessionVerified: false,
               verificationMethod: 'totp-2fa',
               verificationReason: 'login',
-              isPasswordlessFlow: true,
+              isPasswordlessOtpSignin: true,
             }),
           })
         );
@@ -632,11 +632,11 @@ describe('SigninPasswordlessCode page', () => {
 
         await waitFor(() => {
           expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-            '/post_verify/third_party_auth/set_password',
+            '/post_verify/set_password',
             expect.objectContaining({
               replace: true,
               state: {
-                isPasswordlessFlow: true,
+                passwordCreationReason: 'otp',
               },
             })
           );
@@ -659,7 +659,7 @@ describe('SigninPasswordlessCode page', () => {
 
         // Should not navigate to set password page when user rejects merge
         expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
-          '/post_verify/third_party_auth/set_password',
+          '/post_verify/set_password',
           expect.anything()
         );
       });
@@ -676,11 +676,11 @@ describe('SigninPasswordlessCode page', () => {
         // ensureCanLinkAcountOrRedirect should NOT be called for signup flows
         await waitFor(() => {
           expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-            '/post_verify/third_party_auth/set_password',
+            '/post_verify/set_password',
             expect.objectContaining({
               replace: true,
               state: {
-                isPasswordlessFlow: true,
+                passwordCreationReason: 'otp',
               },
             })
           );

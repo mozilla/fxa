@@ -59,6 +59,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'reset_password',
         'complete_reset_password',
         'confirm_reset_password',
+        'confirm_totp_reset_password',
+        'confirm_backup_code_reset_password',
+        'reset_password_recovery_phone',
+        'reset_password_totp_recovery_choice',
         'reset_password_verified',
         'reset_password_with_recovery_key_verified',
         'account_recovery_confirm_key',
@@ -125,6 +129,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/supp',
         'pair/supp/allow',
         'pair/supp/wait_for_auth',
+        'pair/supp/complete',
         'pair/success',
         'pair/auth/allow',
         'pair/auth/wait_for_supp',
@@ -153,10 +158,16 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
+        // Canonical SetPassword URL going forward (FXA-13475). The legacy
+        // `post_verify/third_party_auth/set_password` URL below is kept
+        // registered so in-flight bookmarks and redirects continue to
+        // resolve through Express to the React app.
+        'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
-        // NOTE: This is not a third party auth route, but it must be added
-        // to a react-app.index.js list so if users refresh on the page,
-        // Express points to React.
+        // Both set-password routes plus service-welcome ride the
+        // third-party-auth feature flag because they share the post-verify
+        // React app surface, even though they are not strictly third-party
+        // auth flows.
         'post_verify/service_welcome',
       ]),
       fullProdRollout: true,

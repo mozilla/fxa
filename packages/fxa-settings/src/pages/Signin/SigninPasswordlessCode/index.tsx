@@ -95,6 +95,7 @@ const SigninPasswordlessCode = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    surface: 'login_otp',
   });
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -287,7 +288,7 @@ const SigninPasswordlessCode = ({
         performNavigation: !(
           integration.isFirefoxMobileClient() && isSessionVerified
         ),
-        isPasswordlessFlow: true,
+        isPasswordlessOtpSignin: true,
       };
 
       // For existing users signing into Sync (signin flow), show merge warning
@@ -333,14 +334,14 @@ const SigninPasswordlessCode = ({
               sessionVerified: false,
               verificationMethod: result.verificationMethod,
               verificationReason: result.verificationReason || 'login',
-              isPasswordlessFlow: true,
+              isPasswordlessOtpSignin: true,
             },
           });
         } else {
-          navigateWithQuery('/post_verify/third_party_auth/set_password', {
+          navigateWithQuery('/post_verify/set_password', {
             replace: true,
             state: {
-              isPasswordlessFlow: true,
+              passwordCreationReason: 'otp',
             },
           });
         }

@@ -251,9 +251,12 @@ describe('SigninRecoveryPhoneContainer', () => {
   });
 
   describe('useOAuthKeysCheck', () => {
-    it('passes isPasswordlessFlow to skip the keys check', () => {
+    it('skips the keys check when the sign-in is passwordless OTP', () => {
       mockReachRouter('/signin_recovery_phone', {
-        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
         lastFourPhoneDigits: '1234',
       });
       renderSigninRecoveryPhoneContainer();
@@ -270,7 +273,10 @@ describe('SigninRecoveryPhoneContainer', () => {
         })
       );
       mockReachRouter('/signin_recovery_phone', {
-        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
         lastFourPhoneDigits: '1234',
       });
       renderSigninRecoveryPhoneContainer();

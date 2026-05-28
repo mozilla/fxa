@@ -66,6 +66,7 @@ export const Index = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    surface: 'emailfirst',
   });
   const handlePasskeyClick = () => {
     // Cancel any pending suggested-email auto-submit so it can't override

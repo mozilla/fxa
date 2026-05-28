@@ -569,11 +569,14 @@ const AuthAndAccountSetupRoutes = ({
           {...{ flowQueryParams, integration }}
         />
         <SetPasswordContainer
-          path="/post_verify/third_party_auth/set_password/*"
+          path="/post_verify/set_password/*"
           {...{ flowQueryParams, integration, useFxAStatusResult }}
         />
+        {/* Legacy URL kept alive for in-flight redirects and bookmarks from
+            the third-party-auth flow; all new navigations target
+            /post_verify/set_password (FXA-13475). */}
         <SetPasswordContainer
-          path="/post_verify/passkey/set_password/*"
+          path="/post_verify/third_party_auth/set_password/*"
           {...{ flowQueryParams, integration, useFxAStatusResult }}
         />
         <ServiceWelcome

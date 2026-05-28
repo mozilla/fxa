@@ -423,8 +423,9 @@ export class PasskeyHandler {
       account: { uid },
     });
 
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.authenticationSuccess(request);
+    // Shared completion signal across sign-in surfaces; mirrors passwordless
+    // (reason: 'otp') and linked-accounts (reason: 'google'|'apple').
+    this.glean.login.complete(request, { uid, reason: 'passkey' });
 
     const requiresPasswordForSync = service === 'sync';
     const hasPassword = account.verifierSetAt > 0;

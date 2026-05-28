@@ -44,8 +44,11 @@ jest.mock('../../../models', () => ({
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    thirdPartyAuthSetPassword: {
+    postVerifySetPassword: {
       success: jest.fn(),
+    },
+    passkey: {
+      authSuccess: jest.fn(),
     },
   },
 }));
@@ -65,10 +68,19 @@ const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockNavigate = jest.fn();
+const mockLocation = {
+  state: undefined as Record<string, unknown> | undefined,
+};
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   navigate: jest.fn(),
   useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/post_verify/set_password',
+    search: '',
+    hash: '',
+    state: mockLocation.state,
+  }),
 }));
 function mockModelsModule() {
   mockAuthClient.createPassword = jest.fn().mockResolvedValue({
@@ -190,6 +202,7 @@ describe('SetPassword-container', () => {
 
   beforeEach(() => {
     applyDefaultMocks();
+    mockLocation.state = undefined;
   });
 
   it('navigates to signin when local storage values are missing', async () => {
@@ -251,9 +264,9 @@ describe('SetPassword-container', () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
 
-      expect(
-        GleanMetrics.thirdPartyAuthSetPassword.success
-      ).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.postVerifySetPassword.success).toHaveBeenCalledWith({
+        event: { reason: 'third_party_auth' },
+      });
       expect(fxaLoginSpy).toHaveBeenCalledWith({
         email: MOCK_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
@@ -313,6 +326,76 @@ describe('SetPassword-container', () => {
       expect(handleNavigationSpy).toHaveBeenCalledWith(
         expect.objectContaining({ performNavigation: false })
       );
+    });
+
+    it.each(['otp' as const, 'passkey' as const])(
+      'fires postVerifySetPassword.success with reason="%s" when passwordCreationReason matches',
+      async (reason) => {
+        mockLocation.state = { passwordCreationReason: reason };
+        render();
+
+        await waitFor(() => {
+          expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        });
+        await act(async () => {
+          await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+        });
+
+        expect(GleanMetrics.postVerifySetPassword.success).toHaveBeenCalledWith(
+          { event: { reason } }
+        );
+      }
+    );
+
+    it.each([
+      ['emailfirst' as const, 'emailfirst_createdpassword'],
+      ['login' as const, 'signin_createdpassword'],
+    ])(
+      'fires passkey.auth_success with reason="%s" on the passkey-flow createPassword success (passkeySurface=%s)',
+      async (passkeySurface, expectedReason) => {
+        mockLocation.state = {
+          passwordCreationReason: 'passkey',
+          passkeySurface,
+        };
+        render();
+
+        await waitFor(() => {
+          expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        });
+        await act(async () => {
+          await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+        });
+
+        expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
+          event: { reason: expectedReason },
+        });
+      }
+    );
+
+    it('defaults passkeySurface to emailfirst when missing from router state', async () => {
+      mockLocation.state = { passwordCreationReason: 'passkey' };
+      render();
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
+      await act(async () => {
+        await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+      });
+      expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
+        event: { reason: 'emailfirst_createdpassword' },
+      });
+    });
+
+    it('does NOT fire passkey.auth_success for non-passkey flows', async () => {
+      mockLocation.state = { passwordCreationReason: 'otp' };
+      render();
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
+      await act(async () => {
+        await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+      });
+      expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
     });
   });
 });

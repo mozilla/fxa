@@ -70,7 +70,8 @@ export const SigninTotpCodeContainer = ({
     integration,
     keyFetchToken,
     unwrapBKey,
-    signinState?.isSignInWithThirdPartyAuth || signinState?.isPasswordlessFlow
+    signinState?.isSignInWithThirdPartyAuth ||
+      signinState?.isPasswordlessOtpSignin
   );
 
   const redirectTo =

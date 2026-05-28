@@ -192,9 +192,12 @@ describe('SigninRecoveryCode container', () => {
   });
 
   describe('useOAuthKeysCheck', () => {
-    it('passes isPasswordlessFlow to skip the keys check', () => {
+    it('skips the keys check when the sign-in is passwordless OTP', () => {
       mockReachRouter('signin_recovery_code', {
-        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
       });
       render();
       expect(useOAuthKeysCheck).toHaveBeenCalledWith(
@@ -214,7 +217,10 @@ describe('SigninRecoveryCode container', () => {
         })
       );
       mockReachRouter('signin_recovery_code', {
-        signinState: { ...mockSigninLocationState, isPasswordlessFlow: true },
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
       });
       render();
       expect(currentSigninRecoveryCodeProps).toBeDefined();

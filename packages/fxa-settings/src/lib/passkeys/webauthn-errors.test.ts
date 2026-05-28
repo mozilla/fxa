@@ -246,3 +246,57 @@ describe('handleWebAuthnError', () => {
     );
   });
 });
+
+describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
+  // Locks the DOMException → Glean reason bucket mapping documented on
+  // first_passkey_submit_frontend_error / login.passkey_submit_frontend_error
+  // / login.otp_passkey_submit_frontend_error. Drift would mis-bucket the
+  // signal in dashboards.
+  const cases: [
+    string,
+    'not_allowed' | 'not_supported' | 'security' | 'timeout' | 'unexpected',
+  ][] = [
+    ['NotAllowedError', 'not_allowed'],
+    ['AbortError', 'not_allowed'],
+    ['TimeoutError', 'timeout'],
+    ['NotSupportedError', 'not_supported'],
+    ['SecurityError', 'security'],
+    ['InvalidStateError', 'unexpected'],
+    ['NotReadableError', 'unexpected'],
+    ['DataError', 'unexpected'],
+    ['EncodingError', 'unexpected'],
+    ['ConstraintError', 'unexpected'],
+    ['OperationError', 'unexpected'],
+    ['UnknownError', 'unexpected'],
+  ];
+
+  it.each(cases)('%s maps to gleanReason=%s', (name, expected) => {
+    const result = categorizeWebAuthnError(dom(name), 'authentication');
+    expect(result.gleanReason).toBe(expected);
+  });
+
+  it('TypeError maps to gleanReason=unexpected', () => {
+    const result = categorizeWebAuthnError(
+      new TypeError('boom'),
+      'authentication'
+    );
+    expect(result.gleanReason).toBe('unexpected');
+  });
+
+  it('AuthenticatorAlreadyRegistered maps to gleanReason=not_supported', () => {
+    const result = categorizeWebAuthnError(
+      dom('NotAllowedError'),
+      'registration',
+      { hadExcludeCredentials: true }
+    );
+    expect(result.gleanReason).toBe('not_supported');
+  });
+
+  it('falls back to gleanReason=unexpected for unrecognized errors', () => {
+    const result = categorizeWebAuthnError(
+      new Error('not a DOMException'),
+      'authentication'
+    );
+    expect(result.gleanReason).toBe('unexpected');
+  });
+});

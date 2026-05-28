@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -11,7 +11,9 @@ import AppLayout from '../../../components/AppLayout';
 import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
+import GleanMetrics from '../../../lib/glean';
 import { AccountAvatar } from '../../../lib/interfaces';
+import { PasskeyFallbackSurface } from '../../../lib/passkeys/signin-flow';
 
 export type SigninPasskeyFallbackProps = {
   email?: string;
@@ -19,6 +21,7 @@ export type SigninPasskeyFallbackProps = {
   localizedErrorMessage?: string;
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
+  passkeySurface?: PasskeyFallbackSurface;
 };
 
 type FormData = {
@@ -33,19 +36,42 @@ const SigninPasskeyFallback = ({
   localizedErrorMessage,
   avatarData,
   avatarLoading,
+  passkeySurface = 'emailfirst',
 }: SigninPasskeyFallbackProps & RouteComponentProps) => {
   const [passwordErrorText, setPasswordErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { handleSubmit, register } = useForm<FormData>({
+  const { handleSubmit, register, watch } = useForm<FormData>({
     mode: 'onTouched',
     criteriaMode: 'all',
     defaultValues: { password: '' },
   });
 
+  useEffect(() => {
+    GleanMetrics.passkeyEnterPassword.view({
+      event: { reason: passkeySurface },
+    });
+  }, [passkeySurface]);
+
+  // Fire engage on the first keystroke into the password field. Mirrors the
+  // pattern used in PostVerify/SetPassword.
+  const [hasEngaged, setHasEngaged] = useState(false);
+  const passwordValue = watch('password');
+  useEffect(() => {
+    if (!hasEngaged && passwordValue) {
+      setHasEngaged(true);
+      GleanMetrics.passkeyEnterPassword.engage({
+        event: { reason: passkeySurface },
+      });
+    }
+  }, [hasEngaged, passwordValue, passkeySurface]);
+
   const handleContinue = useCallback(
     async (data: FormData) => {
       if (!onContinue) return;
+      GleanMetrics.passkeyEnterPassword.submit({
+        event: { reason: passkeySurface },
+      });
       setIsSubmitting(true);
       try {
         await onContinue(data.password);
@@ -53,7 +79,7 @@ const SigninPasskeyFallback = ({
         setIsSubmitting(false);
       }
     },
-    [onContinue]
+    [onContinue, passkeySurface]
   );
 
   return (

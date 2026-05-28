@@ -10,16 +10,19 @@ import {
   useConfig,
   useFtlMsgResolver,
 } from '../../../models';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../../lib/oauth';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
 import { AccountAvatar } from '../../../lib/interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import AppLayout from '../../../components/AppLayout';
 import VerificationMethods from '../../../constants/verification-methods';
 import { getSigninState, handleNavigation } from '../utils';
 import { SigninLocationState } from '../interfaces';
+import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
 import SigninPasskeyFallback from '.';
 
 const SigninPasskeyFallbackContainer = ({
@@ -44,6 +47,7 @@ const SigninPasskeyFallbackContainer = ({
   const sessionToken = signinState?.sessionToken;
   const email = signinState?.email;
   const uid = signinState?.uid;
+  const passkeySurface = signinState?.passkeySurface ?? 'emailfirst';
 
   // Mirrors Signin/container.tsx's avatar fetch: mint a profile:avatar-scoped
   // OAuth token, GET /v1/avatar from the profile server, fall back to default
@@ -104,38 +108,69 @@ const SigninPasskeyFallbackContainer = ({
         navigateWithQuery('/');
         return;
       }
+      // Narrow try around sessionReauth only so a throw from
+      // handleNavigation can't be misattributed as an incorrect-password
+      // reauth failure.
+      let keyFetchToken: string | undefined;
+      let unwrapBKey: string | undefined;
       try {
-        const { keyFetchToken, unwrapBKey } = await authClient.sessionReauth(
+        ({ keyFetchToken, unwrapBKey } = await authClient.sessionReauth(
           sessionToken,
           email,
           password,
           { keys: true }
-        );
-        const { error: navError } = await handleNavigation({
-          email,
-          signinData: {
-            uid,
-            sessionToken,
-            emailVerified: true,
-            sessionVerified: true,
-            verificationMethod: VerificationMethods.PASSKEY,
-            keyFetchToken,
-          },
-          unwrapBKey,
-          integration,
-          finishOAuthFlowHandler,
-          queryParams: location.search,
-          handleFxaLogin: true,
-          handleFxaOAuthLogin: true,
-        });
-        if (navError) {
-          setLocalizedErrorMessage(
-            getLocalizedErrorMessage(ftlMsgResolver, navError)
-          );
-        }
+        ));
       } catch (err) {
+        const errno = (err as { errno?: number })?.errno;
+        const isIncorrectPassword =
+          errno === AuthUiErrors.INCORRECT_PASSWORD.errno;
+        GleanMetrics.passkeyEnterPassword.submitFrontendError({
+          event: {
+            reason: isIncorrectPassword ? 'incorrect_password' : 'server_error',
+          },
+        });
         setLocalizedErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, err));
+        return;
       }
+
+      const { error: navError } = await handleNavigation({
+        email,
+        signinData: {
+          uid,
+          sessionToken,
+          emailVerified: true,
+          sessionVerified: true,
+          verificationMethod: VerificationMethods.PASSKEY,
+          keyFetchToken,
+        },
+        unwrapBKey,
+        integration,
+        finishOAuthFlowHandler,
+        queryParams: location.search,
+        handleFxaLogin: true,
+        handleFxaOAuthLogin: true,
+      });
+      if (navError) {
+        GleanMetrics.passkeyEnterPassword.submitFrontendError({
+          event: { reason: 'server_error' },
+        });
+        setLocalizedErrorMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, navError)
+        );
+        return;
+      }
+
+      GleanMetrics.passkeyEnterPassword.success({
+        event: { reason: passkeySurface },
+      });
+      // Consolidated terminal-success signal for Looker funnels — fires
+      // only once the full Sync sign-in (passkey + existing-password
+      // reauth) has completed without error.
+      GleanMetrics.passkey.authSuccess({
+        event: {
+          reason: buildPasskeyAuthSuccessReason(passkeySurface, 'withpassword'),
+        },
+      });
     },
     [
       authClient,
@@ -147,6 +182,7 @@ const SigninPasskeyFallbackContainer = ({
       sessionToken,
       email,
       uid,
+      passkeySurface,
     ]
   );
 
@@ -174,6 +210,7 @@ const SigninPasskeyFallbackContainer = ({
         localizedErrorMessage,
         avatarData,
         avatarLoading,
+        passkeySurface,
       }}
     />
   );

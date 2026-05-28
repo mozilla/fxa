@@ -504,7 +504,7 @@ login:
     extra_keys:
       reason:
         description: |
-          Indicates how the user completed login. Values include "email" (traditional email/password), "otp" (passwordless OTP code), "google" (third-party login via Google), "apple" (third-party login via Apple).
+          Indicates how the user completed login. Values include "email" (traditional email/password), "otp" (passwordless OTP code), "google" (third-party login via Google), "apple" (third-party login via Apple), "passkey" (WebAuthn passkey).
         type: string
   email_confirmation_sent:
     type: event

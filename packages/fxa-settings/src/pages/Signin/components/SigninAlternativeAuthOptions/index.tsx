@@ -59,6 +59,7 @@ const SigninAlternativeAuthOptions = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    surface: 'alternative_auth',
   });
 
   const {
