@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const encrypt = require('fxa-shared/auth/encrypt');
@@ -62,7 +65,12 @@ describe.each(testVersions)(
     beforeEach(async () => {
       email = server.uniqueEmail();
       password = 'test password';
-      client = await Client.create(server.publicUrl, email, password, testOptions);
+      client = await Client.create(
+        server.publicUrl,
+        email,
+        password,
+        testOptions
+      );
     });
 
     it('device registration with unknown refresh token', async () => {
@@ -76,7 +84,10 @@ describe.each(testVersions)(
       };
 
       try {
-        await client.updateDeviceWithRefreshToken(UNKNOWN_REFRESH_TOKEN, deviceInfo);
+        await client.updateDeviceWithRefreshToken(
+          UNKNOWN_REFRESH_TOKEN,
+          deviceInfo
+        );
         throw new Error('should have failed');
       } catch (err: any) {
         expect(err.code).toBe(401);
@@ -106,7 +117,11 @@ describe.each(testVersions)(
 
     it('deviceCommandsWithRefreshToken fails with unknown refresh token', async () => {
       try {
-        await client.deviceCommandsWithRefreshToken(UNKNOWN_REFRESH_TOKEN, 0, 50);
+        await client.deviceCommandsWithRefreshToken(
+          UNKNOWN_REFRESH_TOKEN,
+          0,
+          50
+        );
         throw new Error('should have failed');
       } catch (err: any) {
         expect(err.code).toBe(401);
@@ -117,7 +132,11 @@ describe.each(testVersions)(
     it('devicesInvokeCommandWithRefreshToken fails with unknown refresh token', async () => {
       try {
         await client.devicesInvokeCommandWithRefreshToken(
-          UNKNOWN_REFRESH_TOKEN, 'target', 'command', {}, 5
+          UNKNOWN_REFRESH_TOKEN,
+          'target',
+          'command',
+          {},
+          5
         );
         throw new Error('should have failed');
       } catch (err: any) {
@@ -128,7 +147,10 @@ describe.each(testVersions)(
 
     it('devicesNotifyWithRefreshToken fails with unknown refresh token', async () => {
       try {
-        await client.devicesNotifyWithRefreshToken(UNKNOWN_REFRESH_TOKEN, '123');
+        await client.devicesNotifyWithRefreshToken(
+          UNKNOWN_REFRESH_TOKEN,
+          '123'
+        );
         throw new Error('should have failed');
       } catch (err: any) {
         expect(err.code).toBe(401);
@@ -157,7 +179,10 @@ describe.each(testVersions)(
       let devices = await client.devicesWithRefreshToken(refreshToken);
       expect(devices.length).toBe(0);
 
-      const device = await client.updateDeviceWithRefreshToken(refreshToken, deviceInfo);
+      const device = await client.updateDeviceWithRefreshToken(
+        refreshToken,
+        deviceInfo
+      );
       expect(device.id).toBeTruthy();
       expect(device.createdAt).toBeGreaterThan(0);
       expect(device.name).toBe(deviceInfo.name);
@@ -172,11 +197,42 @@ describe.each(testVersions)(
       expect(devices.length).toBe(1);
       expect(devices[0].name).toBe(deviceInfo.name);
       expect(devices[0].type).toBe(deviceInfo.type);
-      expect(devices[0].availableCommands).toEqual(deviceInfo.availableCommands);
+      expect(devices[0].availableCommands).toEqual(
+        deviceInfo.availableCommands
+      );
       expect(devices[0].pushCallback).toBe(deviceInfo.pushCallback);
       expect(devices[0].pushPublicKey).toBe(deviceInfo.pushPublicKey);
       expect(devices[0].pushAuthKey).toBe(deviceInfo.pushAuthKey);
       expect(devices[0].pushEndpointExpired).toBeFalsy();
+
+      await client.destroyDeviceWithRefreshToken(refreshToken, devices[0].id);
+    });
+
+    it('device registration succeeds without the oldsync scope', async () => {
+      const refresh = await oauthServerDb.generateRefreshToken({
+        clientId: buf(PUBLIC_CLIENT_ID),
+        userId: buf(client.uid),
+        email: client.email,
+        scope: 'profile',
+      });
+      refreshToken = refresh.token.toString('hex');
+
+      const deviceInfo = {
+        name: 'firefox sign-in without sync',
+        type: 'desktop',
+      };
+
+      const device = await client.updateDeviceWithRefreshToken(
+        refreshToken,
+        deviceInfo
+      );
+      expect(device.id).toBeTruthy();
+      expect(device.name).toBe(deviceInfo.name);
+      expect(device.type).toBe(deviceInfo.type);
+
+      const devices = await client.devicesWithRefreshToken(refreshToken);
+      expect(devices.length).toBe(1);
+      expect(devices[0].name).toBe(deviceInfo.name);
 
       await client.destroyDeviceWithRefreshToken(refreshToken, devices[0].id);
     });
@@ -198,7 +254,10 @@ describe.each(testVersions)(
       let devices = await client.devicesWithRefreshToken(refreshToken);
       expect(devices.length).toBe(0);
 
-      const device = await client.updateDeviceWithRefreshToken(refreshToken, deviceInfo);
+      const device = await client.updateDeviceWithRefreshToken(
+        refreshToken,
+        deviceInfo
+      );
       expect(device.id).toBeTruthy();
       expect(device.createdAt).toBeGreaterThan(0);
       expect(device.name).toBe(deviceInfo.name);
@@ -218,12 +277,16 @@ describe.each(testVersions)(
       expect(devices[0].pushAuthKey == null).toBe(true);
       expect(devices[0].pushEndpointExpired).toBe(false);
 
-      const tokenObj = await oauthServerDb.getRefreshToken(encrypt.hash(refreshToken));
+      const tokenObj = await oauthServerDb.getRefreshToken(
+        encrypt.hash(refreshToken)
+      );
       expect(tokenObj).toBeTruthy();
 
       await client.destroyDeviceWithRefreshToken(refreshToken, deviceId);
 
-      const tokenObjAfter = await oauthServerDb.getRefreshToken(encrypt.hash(refreshToken));
+      const tokenObjAfter = await oauthServerDb.getRefreshToken(
+        encrypt.hash(refreshToken)
+      );
       expect(tokenObjAfter).toBeFalsy();
     });
 
@@ -247,7 +310,10 @@ describe.each(testVersions)(
       let devices = await client.devicesWithRefreshToken(refreshToken);
       expect(devices.length).toBe(0);
 
-      const device = await client.updateDeviceWithRefreshToken(refreshToken, {});
+      const device = await client.updateDeviceWithRefreshToken(
+        refreshToken,
+        {}
+      );
       expect(device.id).toBeTruthy();
       expect(device.createdAt).toBeGreaterThan(0);
       expect(device.name).toBe(OAUTH_CLIENT_NAME);
@@ -299,7 +365,9 @@ describe.each(testVersions)(
         name: 'second device',
       });
 
-      const devices = await client.devicesWithRefreshToken(rt1.token.toString('hex'));
+      const devices = await client.devicesWithRefreshToken(
+        rt1.token.toString('hex')
+      );
       expect(devices.length).toBe(2);
 
       if (devices[0].name === 'first device') {
@@ -317,7 +385,11 @@ describe.each(testVersions)(
       expect(devices[1].name).toBe('first device');
     });
 
-    it('does not allow non-public clients', async () => {
+    it('does not allow non-allowlisted clients', async () => {
+      // After FXA-13704 the refresh-token scheme rejects any client_id not in
+      // the deviceManagementClientIds allowlist before reaching the
+      // publicClient check, so this also covers the prior "non-public client"
+      // case using NON_PUBLIC_CLIENT_ID (not in the allowlist either).
       const refresh = await oauthServerDb.generateRefreshToken({
         clientId: buf(NON_PUBLIC_CLIENT_ID),
         userId: buf(client.uid),
@@ -327,11 +399,13 @@ describe.each(testVersions)(
       refreshToken = refresh.token.toString('hex');
 
       try {
-        await client.updateDeviceWithRefreshToken(refreshToken, { type: 'mobile' });
+        await client.updateDeviceWithRefreshToken(refreshToken, {
+          type: 'mobile',
+        });
         throw new Error('must fail');
       } catch (err: any) {
-        expect(err.message).toBe('Not a public client');
-        expect(err.errno).toBe(166);
+        expect(err.code).toBe(401);
+        expect(err.errno).toBe(110);
       }
     });
 
@@ -357,7 +431,9 @@ describe.each(testVersions)(
         await db.createDevice(client.uid, conflictingDeviceInfo);
         throw new Error('must fail');
       } catch (err: any) {
-        expect(err.message).toBe('Session already registered by another device');
+        expect(err.message).toBe(
+          'Session already registered by another device'
+        );
       }
     });
   }
