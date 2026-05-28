@@ -16,6 +16,7 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import Subscription from '../Subscription';
 import { ConnectedServices } from '../ConnectedServices';
+import { AccountAuthorizations } from '../AccountAuthorizations';
 import { TableRowYHeader, TableYHeaders } from '../../TableYHeaders';
 import { TableRowXHeader, TableXHeaders } from '../../TableXHeaders';
 import EmailBounces from '../EmailBounces';
@@ -94,6 +95,7 @@ export const Account = ({
   backupCodes,
   recoveryPhone,
   passkeys,
+  accountAuthorizations,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -417,6 +419,17 @@ export const Account = ({
         <Guard features={[AdminPanelFeature.ConnectedServices]}>
           <h3 className="header-lg">Connected Services</h3>
           <ConnectedServices services={attachedClients} />
+
+          <h3 className="header-lg">Authorized Browser Services</h3>
+          <p className="mb-2">
+            OAuth consent records, not a record of active usage. A row means the
+            account has authorized the service through a Firefox flow at some
+            point. Note: a Sync row can appear for any browser-service sign-in
+            (Smart Window, Relay, VPN), because Firefox Desktop currently mints
+            a Sync-scoped refresh token on every flow even when the user did not
+            sign in to Sync.
+          </p>
+          <AccountAuthorizations authorizations={accountAuthorizations} />
         </Guard>
 
         <h3 className="header-lg">Account History</h3>

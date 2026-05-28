@@ -33,6 +33,8 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import { Knex, knex } from 'knex';
 import { AppConfig } from '../config';
+import { AccountAuthorization } from '../types';
+import { uuidTransformer } from './transformers';
 
 function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
@@ -135,6 +137,42 @@ export class DatabaseService implements OnModuleDestroy {
     const cachedSessionTokens =
       await this.connectedServicesDb.cache.getSessionTokens(uid);
     return mergeCachedSessionTokens(dbSessionTokens, cachedSessionTokens, true);
+  }
+
+  public async accountAuthorizations(
+    uid: string
+  ): Promise<AccountAuthorization[]> {
+    const uidBuffer = uuidTransformer.to(uid);
+    const rows = await this.knexOauth('accountAuthorizations')
+      .select(
+        'scope',
+        'service',
+        'clientId',
+        'firstAuthorizedTosAt',
+        'lastAuthorizedTosAt'
+      )
+      .where('uid', uidBuffer)
+      .orderBy([
+        { column: 'lastAuthorizedTosAt', order: 'desc' },
+        { column: 'service', order: 'asc' },
+        { column: 'clientId', order: 'asc' },
+      ])
+      .limit(50);
+    return rows.map(
+      (row: {
+        scope: string;
+        service: string;
+        clientId: Buffer;
+        firstAuthorizedTosAt: number | string;
+        lastAuthorizedTosAt: number | string;
+      }) => ({
+        scope: row.scope,
+        service: row.service,
+        clientId: row.clientId.toString('hex'),
+        firstAuthorizedTosAt: Number(row.firstAuthorizedTosAt),
+        lastAuthorizedTosAt: Number(row.lastAuthorizedTosAt),
+      })
+    );
   }
 
   public async attachedDevices(uid: string) {

@@ -58,6 +58,7 @@ import { BasketService } from '../../newsletters/basket.service';
 import { FidoMdsService } from '../../backend/fido-mds.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
+  AccountAuthorization,
   AccountDeleteResponse,
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
@@ -187,6 +188,7 @@ export class AccountController {
       linkedAccounts,
       attachedClients,
       passkeys,
+      accountAuthorizations,
     ] = await Promise.all([
       this.emails(account),
       this.emailBounces(account),
@@ -201,6 +203,7 @@ export class AccountController {
       this.linkedAccounts(account),
       this.attachedClients(account),
       this.passkeys(account),
+      this.accountAuthorizations(account),
     ]);
 
     return {
@@ -218,6 +221,7 @@ export class AccountController {
       linkedAccounts,
       attachedClients,
       passkeys,
+      accountAuthorizations,
     };
   }
 
@@ -917,6 +921,13 @@ export class AccountController {
         }
       )
     );
+  }
+
+  @Features(AdminPanelFeature.ConnectedServices)
+  public async accountAuthorizations(
+    account: Account
+  ): Promise<AccountAuthorization[]> {
+    return this.db.accountAuthorizations(account.uid);
   }
 
   @Features(AdminPanelFeature.ConnectedServices)
