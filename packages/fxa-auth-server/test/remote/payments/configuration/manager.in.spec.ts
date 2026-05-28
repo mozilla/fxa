@@ -162,7 +162,6 @@ describe('#integration - PaymentConfigManager', () => {
       planConfigDbRef,
       100
     );
-    jest.clearAllMocks();
     Container.reset();
   });
 

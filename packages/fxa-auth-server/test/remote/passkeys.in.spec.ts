@@ -90,10 +90,6 @@ afterAll(async () => {
   Container.remove(PasskeyService);
 });
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
-
 const password = 'pssssst';
 
 async function getMfaAccessTokenForPasskey(clientInstance: any) {

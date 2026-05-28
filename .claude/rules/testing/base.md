@@ -205,6 +205,16 @@ No shared mutable state between tests. Each test owns its setup; use `beforeEach
 
 **Mid-test mock resets are a smell.** Calling `mockClear()`, `mockReset()`, `jest.clearAllMocks()`, or `jest.resetAllMocks()` inside an `it()` body is almost always a band-aid hiding state leakage from a prior test or from shared setup — fix the leak (scope the mock per-test, move it into `beforeEach`, stop sharing module-level mocks across describes) instead of clearing inline. The narrow legitimate case is asserting "no further calls happened after this point" in a multi-phase test; in that case, leave a comment explaining why.
 
+**TypeDI Container cleanup is conditional**, not mechanical. Pair `Container.set()` with cleanup *when leakage could change another test's observable behavior*:
+
+- **`afterEach` reset required** when the consumer resolves from Container at test execution time — most unit tests, route handlers tested directly, and lazy `mocks.js`-style factory helpers. A leaked set in test A is observable in test B.
+- **`afterAll` cleanup sufficient** when the consumer captures deps at construction (server-boot integration tests). The running server holds its own captured references; per-test reset has no effect on its behavior. File-level cleanup still matters for cross-file isolation.
+- **Cleanup optional** for empty-stub "satisfy DI" sets (`Container.set(Token, {})`) and intentionally global tokens (file-wide loggers, configs) — both lack test-observable meaning to leak. Prefer fixing the consumer to tolerate the absent dep over leaving the unpaired set.
+
+When in doubt, default to `afterEach` + `Container.reset()` — cheap, complete, and catches tokens you'd otherwise forget.
+
+**Container reference identity matters across `jest.resetModules()`.** A fresh `require('typedi')` after a module reset hands back a different Container; calling `remove()` on it silently no-ops because the entry was set on the prior instance. Capture `const { Container } = require('typedi')` at module or describe scope so both hooks reference the same instance.
+
 ```ts
 // Violation — shared mutable state, order-dependent
 let account: Account;

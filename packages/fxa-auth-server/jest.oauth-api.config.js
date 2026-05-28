@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Standalone config for oauth_api.in.spec.ts which manages its own
-// in-process server via test/lib/server.js (server.inject).  It must
+// in-process server via test/lib/server.ts (server.inject).  It must
 // NOT share the jest-global-setup shared server because both sync
 // different client configs to the same database, causing race conditions.
 

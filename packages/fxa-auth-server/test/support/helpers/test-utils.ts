@@ -14,8 +14,7 @@ export interface AuthServerError extends Error {
 }
 
 function getFlowIdKey(): string {
-  const configPath = require.resolve('../../../config');
-  delete require.cache[configPath];
+  jest.resetModules();
   const config = require('../../../config').default.getProperties();
   return config.metrics.flow_id_key;
 }

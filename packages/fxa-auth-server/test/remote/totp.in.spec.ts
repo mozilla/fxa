@@ -57,6 +57,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.stop();
+  Container.remove(PlaySubscriptions);
+  Container.remove(AppStoreSubscriptions);
 });
 
 const testVersions = [

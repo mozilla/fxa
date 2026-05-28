@@ -229,8 +229,7 @@ export async function createTestServer(
   const ports = await allocatePorts();
   const publicUrl = `http://localhost:${ports.authServerPort}`;
 
-  const baseConfigPath = require.resolve('../../../config');
-  delete require.cache[baseConfigPath];
+  jest.resetModules();
   const baseConfig = require('../../../config').default.getProperties();
   const mailHelperConfig = getMailHelperConfig(baseConfig);
 
@@ -386,8 +385,7 @@ export async function getSharedTestServer(): Promise<TestServerInstance> {
   // Verify the shared server is running
   await waitForServer(publicUrl, 5, 500);
 
-  const baseConfigPath = require.resolve('../../../config');
-  delete require.cache[baseConfigPath];
+  jest.resetModules();
   const baseConfig = require('../../../config').default.getProperties();
   const mailHelperConfig = getMailHelperConfig(baseConfig);
 

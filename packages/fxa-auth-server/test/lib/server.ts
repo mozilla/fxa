@@ -68,6 +68,7 @@ function wrapServer(server: any, close: () => Promise<void>) {
 }
 
 export async function start() {
+  let didSetCapabilityService = false;
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {
       subscriptionCapabilities: jest.fn().mockResolvedValue([]),
@@ -75,9 +76,16 @@ export async function start() {
         .fn()
         .mockResolvedValue(''),
     });
+    didSetCapabilityService = true;
   }
   const { server, close } = await createServer(testConfig);
-  return wrapServer(server, close);
+  const wrappedClose = async () => {
+    await close();
+    if (didSetCapabilityService) {
+      Container.remove(CapabilityService);
+    }
+  };
+  return wrapServer(server, wrappedClose);
 }
 
 export { config };
