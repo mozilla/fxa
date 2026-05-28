@@ -367,6 +367,36 @@ export class CartService {
     };
   }
 
+  private async evaluateIsFreeTrial(args: {
+    uid?: string;
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    cartEligibilityStatus: CartEligibilityStatus;
+  }): Promise<boolean> {
+    if (args.cartEligibilityStatus !== CartEligibilityStatus.CREATE) {
+      return false;
+    }
+
+    if (!args.uid) {
+      return !!(await this.checkoutService.getProductFreeTrialOffer({
+        offeringConfigId: args.offeringConfigId,
+        countryCode: args.countryCode,
+        interval: args.interval,
+      }));
+    } else {
+      const { offer, userEligible } =
+        await this.checkoutService.getFreeTrialEligibility({
+          uid: args.uid,
+          offeringConfigId: args.offeringConfigId,
+          countryCode: args.countryCode,
+          interval: args.interval,
+          eligibilityStatus: EligibilityStatus.CREATE,
+        });
+      return !!offer && !!userEligible;
+    }
+  }
+
   /**
    * Initialize a brand new cart
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
@@ -459,15 +489,13 @@ export class CartService {
       }
     }
 
-    const freeTrialResult = args.uid
-      ? await this.checkoutService.getFreeTrialEligibility({
-          uid: args.uid,
-          offeringConfigId: args.offeringConfigId,
-          countryCode: args.taxAddress.countryCode,
-          interval: args.interval,
-          eligibilityStatus: eligibility.subscriptionEligibilityResult,
-        })
-      : { offer: null, userEligible: false };
+    const isFreeTrial = await this.evaluateIsFreeTrial({
+      uid: args.uid,
+      offeringConfigId: args.offeringConfigId,
+      countryCode: args.taxAddress.countryCode,
+      interval: args.interval,
+      cartEligibilityStatus,
+    });
 
     const createCartParams: SetupCart = {
       interval: args.interval,
@@ -480,7 +508,7 @@ export class CartService {
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode,
-      isFreeTrial: !!freeTrialResult.offer && !!freeTrialResult.userEligible,
+      isFreeTrial,
     };
 
     if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
@@ -852,26 +880,16 @@ export class CartService {
           );
         }
 
-        const effectiveUid = cartDetailsInput.uid ?? oldCart.uid;
-        if (
-          effectiveUid &&
-          oldCart.eligibilityStatus === CartEligibilityStatus.CREATE
-        ) {
-          const freeTrialResult =
-            await this.checkoutService.getFreeTrialEligibility({
-              uid: effectiveUid,
-              offeringConfigId: oldCart.offeringConfigId,
-              countryCode:
-                cartDetailsInput.taxAddress?.countryCode ??
-                oldCart.taxAddress?.countryCode ??
-                '',
-              interval: oldCart.interval as SubplatInterval,
-              eligibilityStatus: EligibilityStatus.CREATE,
-            });
-          cartDetails.isFreeTrial = !!freeTrialResult.offer && !!freeTrialResult.userEligible;
-        } else {
-          cartDetails.isFreeTrial = false;
-        }
+        cartDetails.isFreeTrial = await this.evaluateIsFreeTrial({
+          uid: cartDetailsInput.uid ?? oldCart.uid,
+          offeringConfigId: oldCart.offeringConfigId,
+          countryCode:
+            cartDetailsInput.taxAddress?.countryCode ??
+            oldCart.taxAddress?.countryCode ??
+            '',
+          interval: oldCart.interval as SubplatInterval,
+          cartEligibilityStatus: oldCart.eligibilityStatus,
+        });
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
 
