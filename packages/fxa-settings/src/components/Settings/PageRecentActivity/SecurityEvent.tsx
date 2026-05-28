@@ -4,7 +4,7 @@
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-enum SecurityEventName {
+export enum SecurityEventName {
   Create = 'account.create',
   Disable = 'account.disable',
   Enable = 'account.enable',
@@ -42,7 +42,40 @@ enum SecurityEventName {
   MustReset = 'account.must_reset',
   RecoveryPhoneResetPasswordComplete = 'account.recovery_phone_reset_password_complete',
   RecoveryPhoneResetPasswordFailed = 'account.recovery_phone_reset_password_failed',
+  RecoveryPhoneReplaceComplete = 'account.recovery_phone_replace_complete',
+  RecoveryPhoneReplaceFailure = 'account.recovery_phone_replace_failure',
+  TwoFactorReplaceSuccess = 'account.two_factor_replace_success',
+  TwoFactorReplaceFailure = 'account.two_factor_replace_failure',
+  PasswordUpgradeSuccess = 'account.password_upgrade_success',
+  RecoveryPhoneSetupFailed = 'account.recovery_phone_setup_failed',
+  MfaOtpSent = 'account.mfa_send_otp_code',
+  MfaOtpVerifySuccess = 'account.mfa_verify_otp_code_success',
+  MfaOtpVerifyFailed = 'account.mfa_verify_otp_code_failed',
+  SigninConfirmBypassKnownIp = 'account.signin_confirm_bypass_known_ip',
+  SigninConfirmBypassNewAccount = 'account.signin_confirm_bypass_new_account',
+  SigninConfirmBypassKnownDevice = 'account.signin_confirm_bypass_known_device',
+  PasskeyRegistrationSuccess = 'account.passkey.registration_success',
+  PasskeyRegistrationFailure = 'account.passkey.registration_failure',
+  PasskeyRemoved = 'account.passkey.removed',
+  PasskeyAuthenticationSuccess = 'account.passkey.authentication_success',
+  PasskeyAuthenticationFailure = 'account.passkey.authentication_failure',
+  PasswordlessLoginOtpSent = 'account.passwordless_login_otp_sent',
+  PasswordlessLoginOtpFailed = 'account.passwordless_login_otp_failed',
+  PasswordlessLoginOtpVerified = 'account.passwordless_login_otp_verified',
+  PasswordlessRegistrationComplete = 'account.passwordless_registration_complete',
+  RecoveryCodesSet = 'account.recovery_codes_set',
 }
+
+// Internal server decisions, not user-triggered actions. Filtered before
+// rendering so they don't clutter the security audit log or duplicate
+// account.login (the signin_confirm_bypass_* trio fires on every login
+// where confirmation was skipped).
+export const HIDDEN_SECURITY_EVENT_NAMES: ReadonlySet<string> = new Set([
+  SecurityEventName.PasswordUpgradeSuccess,
+  SecurityEventName.SigninConfirmBypassKnownIp,
+  SecurityEventName.SigninConfirmBypassNewAccount,
+  SecurityEventName.SigninConfirmBypassKnownDevice,
+]);
 
 const getSecurityEventNameL10n = (name: string) => {
   switch (name) {
@@ -138,13 +171,13 @@ const getSecurityEventNameL10n = (name: string) => {
     }
     case SecurityEventName.RecoveryKeyChallengeFailure: {
       return {
-        ftlId: 'recent-activity-account-recovery-key-challenge-failure',
+        ftlId: 'recent-activity-account-recovery-key-verification-failure',
         fallbackText: 'Account recovery key verification failed',
       };
     }
     case SecurityEventName.RecoveryKeyChallengeSuccess: {
       return {
-        ftlId: 'recent-activity-account-recovery-key-challenge-success',
+        ftlId: 'recent-activity-account-recovery-key-verification-success',
         fallbackText: 'Account recovery key verification successful',
       };
     }
@@ -258,14 +291,122 @@ const getSecurityEventNameL10n = (name: string) => {
     }
     case SecurityEventName.RecoveryPhoneResetPasswordComplete: {
       return {
-        ftlId: 'recent-activity-recovery-phone-reset-password-complete',
+        ftlId: 'recent-activity-account-recovery-phone-reset-password-complete',
         fallbackText: 'Password reset with recovery phone completed',
       };
     }
     case SecurityEventName.RecoveryPhoneResetPasswordFailed: {
       return {
-        ftlId: 'recent-activity-recovery-phone-reset-password-failed',
+        ftlId: 'recent-activity-account-recovery-phone-reset-password-failed',
         fallbackText: 'Password reset with recovery phone failed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneReplaceComplete: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-replace-complete',
+        fallbackText: 'Recovery phone replaced',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneReplaceFailure: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-replace-failure',
+        fallbackText: 'Recovery phone replacement failed',
+      };
+    }
+    case SecurityEventName.TwoFactorReplaceSuccess: {
+      return {
+        ftlId: 'recent-activity-account-two-factor-replace-success',
+        fallbackText: 'Two-step authentication replaced',
+      };
+    }
+    case SecurityEventName.TwoFactorReplaceFailure: {
+      return {
+        ftlId: 'recent-activity-account-two-factor-replace-failure',
+        fallbackText: 'Two-step authentication replacement failed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneSetupFailed: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-setup-failed',
+        fallbackText: 'Recovery phone setup failed',
+      };
+    }
+    case SecurityEventName.MfaOtpSent: {
+      return {
+        ftlId: 'recent-activity-account-mfa-otp-sent',
+        fallbackText: 'Account change authorization requested',
+      };
+    }
+    case SecurityEventName.MfaOtpVerifySuccess: {
+      return {
+        ftlId: 'recent-activity-account-mfa-otp-verified',
+        fallbackText: 'Account change authorized',
+      };
+    }
+    case SecurityEventName.MfaOtpVerifyFailed: {
+      return {
+        ftlId: 'recent-activity-account-mfa-otp-failed',
+        fallbackText: 'Account change authorization failed',
+      };
+    }
+    case SecurityEventName.PasskeyRegistrationSuccess: {
+      return {
+        ftlId: 'recent-activity-account-passkey-registration-success',
+        fallbackText: 'Passkey added',
+      };
+    }
+    case SecurityEventName.PasskeyRegistrationFailure: {
+      return {
+        ftlId: 'recent-activity-account-passkey-registration-failure',
+        fallbackText: 'Passkey registration failed',
+      };
+    }
+    case SecurityEventName.PasskeyRemoved: {
+      return {
+        ftlId: 'recent-activity-account-passkey-removed',
+        fallbackText: 'Passkey removed',
+      };
+    }
+    case SecurityEventName.PasskeyAuthenticationSuccess: {
+      return {
+        ftlId: 'recent-activity-account-passkey-authentication-success',
+        fallbackText: 'Sign-in with passkey completed',
+      };
+    }
+    case SecurityEventName.PasskeyAuthenticationFailure: {
+      return {
+        ftlId: 'recent-activity-account-passkey-authentication-failure',
+        fallbackText: 'Sign-in with passkey failed',
+      };
+    }
+    case SecurityEventName.PasswordlessLoginOtpSent: {
+      return {
+        ftlId: 'recent-activity-account-passwordless-login-otp-sent',
+        fallbackText: 'Passwordless sign-in code sent',
+      };
+    }
+    case SecurityEventName.PasswordlessLoginOtpFailed: {
+      return {
+        ftlId: 'recent-activity-account-passwordless-login-otp-failed',
+        fallbackText: 'Passwordless sign-in code failed',
+      };
+    }
+    case SecurityEventName.PasswordlessLoginOtpVerified: {
+      return {
+        ftlId: 'recent-activity-account-passwordless-login-otp-verified',
+        fallbackText: 'Passwordless sign-in code verified',
+      };
+    }
+    case SecurityEventName.PasswordlessRegistrationComplete: {
+      return {
+        ftlId: 'recent-activity-account-passwordless-registration-complete',
+        fallbackText: 'Passwordless account registration completed',
+      };
+    }
+    case SecurityEventName.RecoveryCodesSet: {
+      return {
+        ftlId: 'recent-activity-account-recovery-codes-set',
+        fallbackText: 'Recovery codes set',
       };
     }
     default: {

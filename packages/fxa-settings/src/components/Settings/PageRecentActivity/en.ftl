@@ -41,6 +41,29 @@ recent-activity-account-recovery-codes-signin-complete = Sign-in with recovery c
 recent-activity-password-reset-otp-sent = Reset password confirmation code sent
 recent-activity-password-reset-otp-verified = Reset password confirmation code verified
 recent-activity-must-reset-password = Password reset required
+recent-activity-account-recovery-phone-replace-complete = Recovery phone replaced
+recent-activity-account-recovery-phone-replace-failure = Recovery phone replacement failed
+recent-activity-account-two-factor-replace-success = Two-step authentication replaced
+recent-activity-account-two-factor-replace-failure = Two-step authentication replacement failed
+recent-activity-account-recovery-phone-setup-failed = Recovery phone setup failed
+recent-activity-account-recovery-phone-reset-password-complete = Password reset with recovery phone completed
+recent-activity-account-recovery-phone-reset-password-failed = Password reset with recovery phone failed
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Account change authorization requested
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Account change authorized
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Account change authorization failed
+recent-activity-account-passkey-registration-success = Passkey added
+recent-activity-account-passkey-registration-failure = Passkey registration failed
+recent-activity-account-passkey-removed = Passkey removed
+recent-activity-account-passkey-authentication-success = Sign-in with passkey completed
+recent-activity-account-passkey-authentication-failure = Sign-in with passkey failed
+recent-activity-account-passwordless-login-otp-sent = Passwordless sign-in code sent
+recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in code failed
+recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
+recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
+recent-activity-account-recovery-codes-set = Recovery codes set
 
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Other account activity
