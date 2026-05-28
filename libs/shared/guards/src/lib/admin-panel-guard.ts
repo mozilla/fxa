@@ -53,6 +53,9 @@ export enum AdminPanelFeature {
   WafTokens = 'WafTokens',
   ManageWafTokens = 'ManageWafTokens',
   DomainBlocklist = 'DomainBlocklist',
+  OAuthScopes = 'OAuthScopes',
+  CreateOAuthScope = 'CreateOAuthScope',
+  DeleteOAuthScope = 'DeleteOAuthScope',
 }
 
 /** Enum of known user groups */
@@ -227,6 +230,18 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DomainBlocklist]: {
     name: 'Manage Domain Blocklist',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.OAuthScopes]: {
+    name: 'View OAuth Scopes',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.CreateOAuthScope]: {
+    name: 'Create OAuth Scopes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DeleteOAuthScope]: {
+    name: 'Delete OAuth Scopes',
     level: PermissionLevel.Admin,
   },
 };

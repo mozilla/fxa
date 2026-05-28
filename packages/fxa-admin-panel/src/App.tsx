@@ -18,6 +18,7 @@ import PageAccountReset from './components/PageAccountReset';
 import PageEmailBlocklist from './components/PageEmailBlocklist';
 import PageWafTokens from './components/PageWafTokens';
 import PageDomainBlocklist from './components/PageDomainBlocklist';
+import PageOAuthScopes from './components/PageOAuthScopes';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -63,6 +64,9 @@ const App = ({ config }: { config: IClientConfig }) => {
                   path="/domain-blocklist"
                   element={<PageDomainBlocklist />}
                 />
+              )}
+              {guard.allow(AdminPanelFeature.OAuthScopes, user.group) && (
+                <Route path="/oauth-scopes" element={<PageOAuthScopes />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

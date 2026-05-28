@@ -18,6 +18,8 @@ import type {
   WafBypassTokenDto,
   WafBypassTokenCreateDto,
   DomainBlocklistEntry,
+  OAuthScopeDto,
+  OAuthScopeCreateDto,
 } from 'fxa-admin-server/src/types';
 
 function baseUrl() {
@@ -325,5 +327,24 @@ export const adminApi = {
 
   deleteAllDomainBlocklistEntries(): Promise<{ ok: boolean }> {
     return apiFetch('/api/domain-blocklist/all', { method: 'DELETE' });
+  },
+
+  // ---- OAuth scopes ----
+
+  getOAuthScopes(): Promise<OAuthScopeDto[]> {
+    return apiFetch('/api/oauth-scopes');
+  },
+
+  createOAuthScope(data: OAuthScopeCreateDto): Promise<OAuthScopeDto> {
+    return apiFetch('/api/oauth-scopes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteOAuthScope(id: number): Promise<boolean> {
+    return apiFetch(`/api/oauth-scopes/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
   },
 };

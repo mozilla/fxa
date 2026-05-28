@@ -144,6 +144,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.OAuthScopes]}>
+          <li>
+            <NavLink
+              to="/oauth-scopes"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={keyIcon}
+                alt="key icon"
+              />
+              OAuth Scopes
+            </NavLink>
+          </li>
+        </Guard>
         <li>
           <NavLink
             to="/permissions"

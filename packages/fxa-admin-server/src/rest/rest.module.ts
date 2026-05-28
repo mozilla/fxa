@@ -21,6 +21,7 @@ import { RateLimitingController } from './rate-limiting/rate-limiting.controller
 import { EmailBlocklistController } from './email-blocklist/email-blocklist.controller';
 import { WafTokensController } from './waf-tokens/waf-tokens.controller';
 import { DomainBlocklistController } from './domain-blocklist/domain-blocklist.controller';
+import { OAuthScopesController } from './oauth-scopes/oauth-scopes.controller';
 import {
   RateLimitProvider,
   RateLimitRedisProvider,
@@ -45,6 +46,7 @@ import { CartModule } from './cart.module';
     EmailBlocklistController,
     WafTokensController,
     DomainBlocklistController,
+    OAuthScopesController,
   ],
   providers: [
     RateLimitProvider,
