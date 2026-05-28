@@ -762,6 +762,9 @@ describe('CartService', () => {
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
         .mockResolvedValue({ offer: null, userEligible: false });
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(null);
     });
 
     it('calls createCart with expected parameters', async () => {
@@ -1096,6 +1099,55 @@ describe('CartService', () => {
         isFreeTrial: false,
       });
       expect(result).toEqual(mockResultCart);
+    });
+
+    it('persists isFreeTrial=true for anonymous cart when product has a free-trial offer', async () => {
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
+      const mockOffer = FreeTrialFactory();
+      const anonymousArgs = { ...args, uid: undefined };
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(mockOffer);
+
+      await cartService.setupCart(anonymousArgs);
+
+      expect(checkoutService.getProductFreeTrialOffer).toHaveBeenCalledWith({
+        offeringConfigId: anonymousArgs.offeringConfigId,
+        countryCode: taxAddress.countryCode,
+        interval: anonymousArgs.interval,
+      });
+      expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
+      expect(cartManager.createCart).toHaveBeenCalledWith(
+        expect.objectContaining({ uid: undefined, isFreeTrial: true })
+      );
+    });
+
+    it('persists isFreeTrial=false for anonymous cart when product has no free-trial offer', async () => {
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
+      const anonymousArgs = { ...args, uid: undefined };
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+
+      await cartService.setupCart(anonymousArgs);
+
+      expect(checkoutService.getProductFreeTrialOffer).toHaveBeenCalled();
+      expect(cartManager.createCart).toHaveBeenCalledWith(
+        expect.objectContaining({ uid: undefined, isFreeTrial: false })
+      );
     });
   });
 
@@ -1521,6 +1573,9 @@ describe('CartService', () => {
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
           .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
       });
 
       it('calls cartManager.updateFreshCart with no currency change', async () => {
@@ -1642,6 +1697,9 @@ describe('CartService', () => {
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
           .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
       });
 
       it('success if coupon is valid for new customer', async () => {
@@ -1797,6 +1855,171 @@ describe('CartService', () => {
           mockPrice,
           mockCart.currency,
           mockCustomer
+        );
+      });
+    });
+
+    describe('isFreeTrial recomputation', () => {
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockTaxAddress = TaxAddressFactory();
+      const mockOffer = FreeTrialFactory();
+
+      beforeEach(() => {
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(productConfigurationManager, 'retrieveStripePrice')
+          .mockResolvedValue(StripePriceFactory());
+        jest
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+          .mockResolvedValue(undefined);
+      });
+
+      it('preserves isFreeTrial=true on coupon apply for signed-in CREATE cart with an offer', async () => {
+        const mockCart = ResultCartFactory({
+          uid: mockUid,
+          taxAddress: mockTaxAddress,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          isFreeTrial: true,
+          stripeCustomerId: undefined,
+          stripeSubscriptionId: undefined,
+        });
+        const mockInput = UpdateCartInputFactory({
+          couponCode: faker.word.noun(),
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: mockOffer, userEligible: true });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(checkoutService.getFreeTrialEligibility).toHaveBeenCalledWith({
+          uid: mockUid,
+          offeringConfigId: mockCart.offeringConfigId,
+          countryCode: mockTaxAddress.countryCode,
+          interval: mockCart.interval,
+          eligibilityStatus: EligibilityStatus.CREATE,
+        });
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({ isFreeTrial: true })
+        );
+      });
+
+      it('flips isFreeTrial to false when new country has no free-trial offer', async () => {
+        const newTaxAddress = TaxAddressFactory();
+        const mockCart = ResultCartFactory({
+          uid: mockUid,
+          taxAddress: mockTaxAddress,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          isFreeTrial: true,
+          stripeCustomerId: undefined,
+          stripeSubscriptionId: undefined,
+        });
+        const mockInput = UpdateCartInputFactory({
+          taxAddress: newTaxAddress,
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(currencyManager, 'getCurrencyForCountry')
+          .mockReturnValue(mockCart.currency);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockResolvedValue(InvoicePreviewFactory());
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(checkoutService.getFreeTrialEligibility).toHaveBeenCalledWith(
+          expect.objectContaining({ countryCode: newTaxAddress.countryCode })
+        );
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({ isFreeTrial: false })
+        );
+      });
+
+      it('preserves isFreeTrial=true for anonymous cart when product still has an offer', async () => {
+        const mockCart = ResultCartFactory({
+          uid: undefined,
+          taxAddress: mockTaxAddress,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          isFreeTrial: true,
+          stripeCustomerId: undefined,
+          stripeSubscriptionId: undefined,
+        });
+        const mockInput = UpdateCartInputFactory({
+          couponCode: faker.word.noun(),
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(mockOffer);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
+        expect(checkoutService.getProductFreeTrialOffer).toHaveBeenCalledWith({
+          offeringConfigId: mockCart.offeringConfigId,
+          countryCode: mockTaxAddress.countryCode,
+          interval: mockCart.interval,
+        });
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({ isFreeTrial: true })
+        );
+      });
+
+      it('returns isFreeTrial=false when signed-in cart eligibility is not CREATE', async () => {
+        const mockCart = ResultCartFactory({
+          uid: mockUid,
+          taxAddress: mockTaxAddress,
+          eligibilityStatus: CartEligibilityStatus.UPGRADE,
+          isFreeTrial: false,
+          stripeCustomerId: undefined,
+          stripeSubscriptionId: undefined,
+        });
+        const mockInput = UpdateCartInputFactory({
+          couponCode: faker.word.noun(),
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: mockOffer, userEligible: true });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(mockOffer);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
+        expect(checkoutService.getProductFreeTrialOffer).not.toHaveBeenCalled();
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({ isFreeTrial: false })
         );
       });
     });
