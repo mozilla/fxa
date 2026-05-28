@@ -24,6 +24,17 @@ import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { reportSentryError } from '../sentry';
 
+// Without these, malformed base64url values throw inside SimpleWebAuthn /
+// `base64urlToBuffer` and Hapi surfaces a 500. Route-boundary validation
+// turns probes into 400s and keeps them out of Sentry. CredentialId max
+// matches the WebAuthn L2 ceiling (1023 bytes → 1364 base64url chars),
+// aligning with `passkeys.credentialId VARBINARY(1023)`.
+const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+const base64urlString = (maxLen: number) =>
+  isA.string().max(maxLen).regex(BASE64URL_PATTERN);
+const base64urlCredentialId = () => base64urlString(1364);
+const base64urlChallenge = () => base64urlString(64);
+
 /** Subset of the Customs service used by passkey routes. */
 interface Customs {
   /**
@@ -662,8 +673,24 @@ export const passkeyRoutes = (
         },
         validate: {
           payload: isA.object({
-            response: isA.object().required(),
-            challenge: isA.string().required(),
+            response: isA
+              .object({
+                id: base64urlCredentialId().required(),
+                rawId: base64urlCredentialId().optional(),
+                type: isA.string().valid('public-key').required(),
+                response: isA
+                  .object({
+                    clientDataJSON: base64urlString(2048).required(),
+                    attestationObject: base64urlString(32768).required(),
+                    authenticatorData: base64urlString(16384).optional(),
+                    publicKey: base64urlString(1024).optional(),
+                  })
+                  .unknown(true)
+                  .required(),
+              })
+              .unknown(true)
+              .required(),
+            challenge: base64urlChallenge().required(),
           }),
         },
         response: {
@@ -730,7 +757,7 @@ export const passkeyRoutes = (
         },
         validate: {
           params: isA.object({
-            credentialId: isA.string().required(),
+            credentialId: base64urlCredentialId().required(),
           }),
         },
         response: {
@@ -785,16 +812,22 @@ export const passkeyRoutes = (
           payload: isA.object({
             response: isA
               .object({
-                id: isA.string().required(),
+                id: base64urlCredentialId().required(),
+                rawId: base64urlCredentialId().optional(),
                 type: isA.string().valid('public-key').required(),
+                response: isA
+                  .object({
+                    clientDataJSON: base64urlString(2048).required(),
+                    authenticatorData: base64urlString(16384).required(),
+                    signature: base64urlString(1024).required(),
+                    userHandle: base64urlString(128).optional(),
+                  })
+                  .unknown(true)
+                  .required(),
               })
               .unknown(true)
               .required(),
-            challenge: isA
-              .string()
-              .max(64)
-              .regex(/^[A-Za-z0-9_-]+$/)
-              .required(),
+            challenge: base64urlChallenge().required(),
             service: validators.service.optional(),
           }),
         },
@@ -826,7 +859,7 @@ export const passkeyRoutes = (
         },
         validate: {
           params: isA.object({
-            credentialId: isA.string().required(),
+            credentialId: base64urlCredentialId().required(),
           }),
           payload: isA.object({
             name: isA.string().min(1).max(255).required(),
