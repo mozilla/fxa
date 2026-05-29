@@ -192,8 +192,8 @@ describe('usePasskeySignIn', () => {
     expect(spies.beginPasskeyAuthentication).not.toHaveBeenCalled();
     expect(result.current.errorBanner).toBeDefined();
     expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
-      'passkey-authentication-error-not-supported-v2',
-      'Your browser or device doesn’t support passkeys.'
+      'passkey-authentication-error-not-supported-v3',
+      'This device couldn’t complete sign-in with a passkey. Try another sign-in method.'
     );
   });
 
@@ -378,10 +378,14 @@ describe('usePasskeySignIn', () => {
     ['TimeoutError', 'passkey-authentication-error-timeout', 'timed out'],
     [
       'NotSupportedError',
-      'passkey-authentication-error-not-supported-v2',
-      'support passkeys',
+      'passkey-authentication-error-not-supported-v3',
+      'sign-in with a passkey',
     ],
-    ['SecurityError', 'passkey-authentication-error-security', 'this page'],
+    [
+      'SecurityError',
+      'passkey-authentication-error-security-v2',
+      'secure setup',
+    ],
     [
       'InvalidStateError',
       'passkey-authentication-error-invalid-state',

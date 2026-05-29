@@ -50,6 +50,11 @@ export interface PublicKeyCredentialCreationOptionsJSON {
   };
   challenge: Base64URLString;
   pubKeyCredParams: PublicKeyCredentialParameters[];
+  /**
+   * UA hint for ceremony timeout in milliseconds. Browsers may clamp this
+   * to per-vendor min/max ranges or ignore it. Ceremony validity is
+   * enforced server-side via the challenge expiry, not by this field.
+   */
   timeout?: number;
   excludeCredentials?: PublicKeyCredentialDescriptorJSON[];
   authenticatorSelection?: {
@@ -65,6 +70,11 @@ export interface PublicKeyCredentialCreationOptionsJSON {
 /** JSON shape sent by the backend for credential assertion (authentication). */
 export interface PublicKeyCredentialRequestOptionsJSON {
   challenge: Base64URLString;
+  /**
+   * UA hint for ceremony timeout in milliseconds. Browsers may clamp this
+   * to per-vendor min/max ranges or ignore it. Ceremony validity is
+   * enforced server-side via the challenge expiry, not by this field.
+   */
   timeout?: number;
   rpId?: string;
   allowCredentials?: PublicKeyCredentialDescriptorJSON[];
@@ -217,8 +227,6 @@ function toCredentialJSON(
 
 // ─── Wrapper functions ────────────────────────────────────────────────────────
 
-const DEFAULT_TIMEOUT_MS = 60_000;
-
 /**
  * Wraps navigator.credentials.create() for passkey registration.
  *
@@ -227,18 +235,17 @@ const DEFAULT_TIMEOUT_MS = 60_000;
  * browser prompt, and returns the serialized credential via toJSON().
  *
  * Pass `externalSignal` to actively cancel the ceremony from outside (e.g.
- * a Cancel button); aborting it propagates as the underlying AbortError so
- * callers can distinguish it from the internal timeout (TimeoutError).
+ * a Cancel button). The ceremony timeout itself is driven by the browser
+ * from the `timeout` field on `options`, set server-side.
  *
  * Throws:
  * - DOMException('NotSupportedError') when required WebAuthn APIs are absent
- * - DOMException('TimeoutError') when the operation exceeds timeoutMs
  * - DOMException('AbortError') when externalSignal aborts before completion
- * - Any DOMException thrown by the browser (propagated as-is)
+ * - Any DOMException thrown by the browser (propagated as-is, including
+ *   TimeoutError from the browser-driven ceremony timeout)
  */
 export async function createCredential(
   options: PublicKeyCredentialCreationOptionsJSON,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
   externalSignal?: AbortSignal
 ): Promise<PublicKeyCredentialJSON> {
   if (!isWebAuthnLevel3Supported()) {
@@ -248,41 +255,15 @@ export async function createCredential(
     );
   }
 
-  const controller = new AbortController();
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, timeoutMs);
+  const parsedOptions = (
+    PublicKeyCredential as PublicKeyCredentialLevel3
+  ).parseCreationOptionsFromJSON(options);
+  const rawCredential = await navigator.credentials.create({
+    publicKey: parsedOptions,
+    signal: externalSignal,
+  });
 
-  const onExternalAbort = () => controller.abort();
-  if (externalSignal) {
-    if (externalSignal.aborted) {
-      controller.abort();
-    } else {
-      externalSignal.addEventListener('abort', onExternalAbort, { once: true });
-    }
-  }
-
-  try {
-    const parsedOptions = (
-      PublicKeyCredential as PublicKeyCredentialLevel3
-    ).parseCreationOptionsFromJSON(options);
-    const rawCredential = await navigator.credentials.create({
-      publicKey: parsedOptions,
-      signal: controller.signal,
-    });
-
-    return toCredentialJSON(rawCredential, 'navigator.credentials.create');
-  } catch (e) {
-    if (timedOut) {
-      throw new DOMException('WebAuthn operation timed out', 'TimeoutError');
-    }
-    throw e;
-  } finally {
-    clearTimeout(timer);
-    externalSignal?.removeEventListener('abort', onExternalAbort);
-  }
+  return toCredentialJSON(rawCredential, 'navigator.credentials.create');
 }
 
 /**
@@ -290,16 +271,17 @@ export async function createCredential(
  *
  * Accepts JSON-serializable request options (backend wire format), converts
  * them via PublicKeyCredential.parseRequestOptionsFromJSON(), invokes the
- * browser prompt, and returns the serialized credential via toJSON().
+ * browser prompt, and returns the serialized credential via toJSON(). The
+ * ceremony timeout is driven by the browser from the `timeout` field on
+ * `options`, set server-side.
  *
  * Throws:
  * - DOMException('NotSupportedError') when required WebAuthn APIs are absent
- * - DOMException('TimeoutError') when the operation exceeds timeoutMs
- * - Any DOMException thrown by the browser (propagated as-is)
+ * - Any DOMException thrown by the browser (propagated as-is, including
+ *   TimeoutError from the browser-driven ceremony timeout)
  */
 export async function getCredential(
-  options: PublicKeyCredentialRequestOptionsJSON,
-  timeoutMs = DEFAULT_TIMEOUT_MS
+  options: PublicKeyCredentialRequestOptionsJSON
 ): Promise<PublicKeyCredentialJSON> {
   if (!isWebAuthnLevel3Supported()) {
     throw new DOMException(
@@ -308,29 +290,12 @@ export async function getCredential(
     );
   }
 
-  const controller = new AbortController();
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, timeoutMs);
+  const parsedOptions = (
+    PublicKeyCredential as PublicKeyCredentialLevel3
+  ).parseRequestOptionsFromJSON(options);
+  const rawCredential = await navigator.credentials.get({
+    publicKey: parsedOptions,
+  });
 
-  try {
-    const parsedOptions = (
-      PublicKeyCredential as PublicKeyCredentialLevel3
-    ).parseRequestOptionsFromJSON(options);
-    const rawCredential = await navigator.credentials.get({
-      publicKey: parsedOptions,
-      signal: controller.signal,
-    });
-
-    return toCredentialJSON(rawCredential, 'navigator.credentials.get');
-  } catch (e) {
-    if (timedOut) {
-      throw new DOMException('WebAuthn operation timed out', 'TimeoutError');
-    }
-    throw e;
-  } finally {
-    clearTimeout(timer);
-  }
+  return toCredentialJSON(rawCredential, 'navigator.credentials.get');
 }

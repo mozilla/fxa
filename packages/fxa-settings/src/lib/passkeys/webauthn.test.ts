@@ -111,17 +111,14 @@ describe('isWebAuthnLevel3Supported', () => {
 });
 
 describe('createCredential', () => {
-  let mockPKC: Record<string, jest.Mock>;
   let mockCreate: jest.Mock;
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    mockPKC = setupMockPKC();
+    setupMockPKC();
     ({ mockCreate } = setupMockCredentials(mockCredentialJSON));
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     (global as any).PublicKeyCredential = undefined;
   });
 
@@ -130,14 +127,11 @@ describe('createCredential', () => {
     expect(result).toEqual(mockCredentialJSON);
   });
 
-  it('passes parsed options and AbortSignal to navigator.credentials.create', async () => {
-    await createCredential(mockCreationOptions);
-    expect(mockPKC['parseCreationOptionsFromJSON']).toHaveBeenCalledWith(
-      mockCreationOptions
-    );
+  it('forwards an external AbortSignal to navigator.credentials.create', async () => {
+    const externalController = new AbortController();
+    await createCredential(mockCreationOptions, externalController.signal);
     const callArg = mockCreate.mock.calls[0][0];
-    expect(callArg).toHaveProperty('publicKey');
-    expect(callArg.signal).toBeInstanceOf(AbortSignal);
+    expect(callArg.signal).toBe(externalController.signal);
   });
 
   it('throws NotSupportedError when WebAuthn APIs are absent', async () => {
@@ -153,18 +147,10 @@ describe('createCredential', () => {
     await expect(createCredential(mockCreationOptions)).rejects.toBe(err);
   });
 
-  it('throws TimeoutError when the timeout elapses', async () => {
-    mockCreate.mockImplementation(({ signal }: { signal: AbortSignal }) => {
-      return new Promise((_, reject) => {
-        signal.addEventListener('abort', () =>
-          reject(new DOMException('Aborted', 'AbortError'))
-        );
-      });
-    });
-
-    const promise = createCredential(mockCreationOptions, 1_000);
-    jest.advanceTimersByTime(1_000);
-    await expect(promise).rejects.toMatchObject({ name: 'TimeoutError' });
+  it('propagates a browser-driven TimeoutError from navigator.credentials.create', async () => {
+    const err = new DOMException('Operation timed out', 'TimeoutError');
+    mockCreate.mockRejectedValue(err);
+    await expect(createCredential(mockCreationOptions)).rejects.toBe(err);
   });
 
   it('propagates AbortError when an external signal aborts before completion', async () => {
@@ -179,51 +165,10 @@ describe('createCredential', () => {
     const externalController = new AbortController();
     const promise = createCredential(
       mockCreationOptions,
-      undefined,
       externalController.signal
     );
     externalController.abort();
     await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
-  });
-
-  it('rejects immediately when the external signal is already aborted', async () => {
-    // Real browsers reject navigator.credentials.create() synchronously when
-    // passed an already-aborted signal; mirror that behaviour in the mock.
-    mockCreate.mockImplementation(({ signal }: { signal: AbortSignal }) => {
-      if (signal.aborted) {
-        return Promise.reject(new DOMException('Aborted', 'AbortError'));
-      }
-      return new Promise((_, reject) => {
-        signal.addEventListener('abort', () =>
-          reject(new DOMException('Aborted', 'AbortError'))
-        );
-      });
-    });
-
-    const externalController = new AbortController();
-    externalController.abort();
-    await expect(
-      createCredential(
-        mockCreationOptions,
-        undefined,
-        externalController.signal
-      )
-    ).rejects.toMatchObject({ name: 'AbortError' });
-  });
-
-  it('clears the timeout after successful credential creation', async () => {
-    const spy = jest.spyOn(global, 'clearTimeout');
-    await createCredential(mockCreationOptions);
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
-  });
-
-  it('clears the timeout after a failed credential creation', async () => {
-    const spy = jest.spyOn(global, 'clearTimeout');
-    mockCreate.mockRejectedValue(new DOMException('Fail', 'NotAllowedError'));
-    await expect(createCredential(mockCreationOptions)).rejects.toBeDefined();
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
   });
 
   it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {
@@ -255,33 +200,20 @@ describe('createCredential', () => {
 });
 
 describe('getCredential', () => {
-  let mockPKC: Record<string, jest.Mock>;
   let mockGet: jest.Mock;
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    mockPKC = setupMockPKC();
+    setupMockPKC();
     ({ mockGet } = setupMockCredentials(mockCredentialJSON));
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     (global as any).PublicKeyCredential = undefined;
   });
 
   it('resolves with credential JSON on success', async () => {
     const result = await getCredential(mockRequestOptions);
     expect(result).toEqual(mockCredentialJSON);
-  });
-
-  it('passes parsed options and AbortSignal to navigator.credentials.get', async () => {
-    await getCredential(mockRequestOptions);
-    expect(mockPKC['parseRequestOptionsFromJSON']).toHaveBeenCalledWith(
-      mockRequestOptions
-    );
-    const callArg = mockGet.mock.calls[0][0];
-    expect(callArg).toHaveProperty('publicKey');
-    expect(callArg.signal).toBeInstanceOf(AbortSignal);
   });
 
   it('throws NotSupportedError when WebAuthn APIs are absent', async () => {
@@ -297,33 +229,10 @@ describe('getCredential', () => {
     await expect(getCredential(mockRequestOptions)).rejects.toBe(err);
   });
 
-  it('throws TimeoutError when the timeout elapses', async () => {
-    mockGet.mockImplementation(({ signal }: { signal: AbortSignal }) => {
-      return new Promise((_, reject) => {
-        signal.addEventListener('abort', () =>
-          reject(new DOMException('Aborted', 'AbortError'))
-        );
-      });
-    });
-
-    const promise = getCredential(mockRequestOptions, 1_000);
-    jest.advanceTimersByTime(1_000);
-    await expect(promise).rejects.toMatchObject({ name: 'TimeoutError' });
-  });
-
-  it('clears the timeout after successful credential retrieval', async () => {
-    const spy = jest.spyOn(global, 'clearTimeout');
-    await getCredential(mockRequestOptions);
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
-  });
-
-  it('clears the timeout after a failed credential retrieval', async () => {
-    const spy = jest.spyOn(global, 'clearTimeout');
-    mockGet.mockRejectedValue(new DOMException('Fail', 'NotAllowedError'));
-    await expect(getCredential(mockRequestOptions)).rejects.toBeDefined();
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
+  it('propagates a browser-driven TimeoutError from navigator.credentials.get', async () => {
+    const err = new DOMException('Operation timed out', 'TimeoutError');
+    mockGet.mockRejectedValue(err);
+    await expect(getCredential(mockRequestOptions)).rejects.toBe(err);
   });
 
   it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {

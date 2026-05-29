@@ -228,8 +228,8 @@ export function usePasskeySignIn({
     if (!isWebAuthnLevel3Supported()) {
       gleanEvents.submitFrontendError('not_supported');
       setLocalizedError(
-        'passkey-authentication-error-not-supported-v2',
-        'Your browser or device doesn’t support passkeys.'
+        'passkey-authentication-error-not-supported-v3',
+        'This device couldn’t complete sign-in with a passkey. Try another sign-in method.'
       );
       return;
     }

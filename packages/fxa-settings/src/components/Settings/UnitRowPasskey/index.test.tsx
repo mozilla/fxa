@@ -171,7 +171,7 @@ describe('UnitRowPasskey', () => {
     const { container } = renderWithLocalizationProvider(<>{alertContent}</>);
     expect(
       within(container).getByText(
-        'Your browser or device doesn’t support passkeys.'
+        'This device couldn’t complete the passkey setup. Try another device or method.'
       )
     ).toBeInTheDocument();
     expect(
