@@ -1,6 +1,6 @@
 # Use esbuild for production builds
 
-- Status: TBD
+- Status: REJECTED
 - Deciders: Ben Bangert, Wil Clouser, Dan Schomburg, Barry Chen, Julian Poyourow, Lauren Zugai, Vijay Budhram
 - Date: 2023-03-29
 
