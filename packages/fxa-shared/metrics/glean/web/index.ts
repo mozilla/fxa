@@ -84,6 +84,9 @@ export const eventsMap = {
     backupChoiceSubmit: 'login_backup_choice_submit',
     recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
     lockedAccountBannerView: 'login_locked_account_banner_view',
+    alternativeAuthView: 'login_alternative_auth_view',
+    alternativeAuthGoogleStart: 'login_alternative_auth_google_start',
+    alternativeAuthAppleStart: 'login_alternative_auth_apple_start',
     passkeySubmit: 'login_passkey_submit',
     passkeySubmitFrontendError: 'login_passkey_submit_frontend_error',
     passkeySubmitSuccess: 'login_passkey_submit_success',
@@ -158,7 +161,6 @@ export const eventsMap = {
     startAppleAuthFromReg: 'third_party_auth_apple_reg_start',
     startGoogleAuthFromLogin: 'third_party_auth_google_login_start',
     startAppleAuthFromLogin: 'third_party_auth_apple_login_start',
-    loginNoPwView: 'third_party_auth_login_no_pw_view',
   },
 
   postVerifySetPassword: {

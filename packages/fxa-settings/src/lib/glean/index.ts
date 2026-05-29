@@ -326,6 +326,15 @@ const recordEventMetric = (
     case 'login_locked_account_banner_view':
       login.lockedAccountBannerView.record();
       break;
+    case 'login_alternative_auth_view':
+      login.alternativeAuthView.record();
+      break;
+    case 'login_alternative_auth_google_start':
+      login.alternativeAuthGoogleStart.record();
+      break;
+    case 'login_alternative_auth_apple_start':
+      login.alternativeAuthAppleStart.record();
+      break;
     case 'login_passkey_submit':
       login.passkeySubmit.record();
       break;
@@ -466,9 +475,6 @@ const recordEventMetric = (
       break;
     case 'third_party_auth_apple_reg_start':
       thirdPartyAuth.appleRegStart.record();
-      break;
-    case 'third_party_auth_login_no_pw_view':
-      thirdPartyAuth.loginNoPwView.record();
       break;
     case 'third_party_auth_google_login_start':
       thirdPartyAuth.googleLoginStart.record();

@@ -22,7 +22,7 @@ import {
 } from '../../../../models';
 import { usePasskeySignIn } from '../../../../lib/passkeys/signin-flow';
 
-export const viewName = 'signin';
+export const viewName = 'signin-alternative-auth';
 
 // Signin landing page for linked-passwordless users — their only paths
 // forward are the alternative auth options (third-party providers or
@@ -83,14 +83,11 @@ const SigninAlternativeAuthOptions = ({
     isSignedIntoFirefox && integration.isFirefoxDesktopClient();
 
   useEffect(() => {
-    // NOTE: linked-passwordless users were historically tracked under
-    // cachedLogin.view because they share similarities, so that is
-    // preserved here.
-    GleanMetrics.cachedLogin.view({ event: { thirdPartyLinks: true } });
-    // Linked-passwordless is the only render path where third-party auth is
-    // the user's only option. Track this separately from the generic TPA
-    // view so we can size the impact of the linked-no-password cohort.
-    GleanMetrics.thirdPartyAuth.loginNoPwView();
+    // Linked-passwordless is the only render path where third-party auth /
+    // passkey are the user's only options. Tracked under `login.alternative_auth_*`
+    // so the view→click funnel for this cohort lives under one category and
+    // is distinct from generic signin/TPA events.
+    GleanMetrics.login.alternativeAuthView();
   }, []);
 
   return (
