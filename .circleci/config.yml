@@ -759,9 +759,16 @@ jobs:
       - run:
           name: Run API Integration Tests
           command: |
+            mkdir -p artifacts
             NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
+            # DISCOVERY (nshirley/nx-profile-integration): capture a per-task Nx profile
+            # (Chrome trace) for this step so we can break down cache-restore vs build-ts vs
+            # test time inside the long "Run API Integration Tests" step. The file lands in
+            # artifacts/ and is uploaded by store-artifacts as a downloadable CircleCI artifact.
+            # Load it in chrome://tracing or https://ui.perfetto.dev. REMOVE before merge.
+            NX_PROFILE: artifacts/nx-profile-integration.json
           no_output_timeout: 20m
       - store-artifacts
       - upload_to_gcs:

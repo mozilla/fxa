@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// DISCOVERY (nshirley/nx-profile-integration): trivial edit to bust the
+// fxa-auth-server build/test cache so the integration job takes the full
+// cache-miss path and NX_PROFILE captures a representative trace. REMOVE before merge.
+
 export function startOfMinute(date: Date) {
   const year = date.getUTCFullYear();
   const month = date.getUTCMonth() + 1;
