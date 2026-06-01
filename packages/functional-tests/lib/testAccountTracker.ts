@@ -247,15 +247,15 @@ export class TestAccountTracker {
 
   /**
    * Creates a passwordless account via API (verifierSetAt: 0, no password).
-   * Used for testing signin to existing passwordless accounts.
-   * Note: The account is created WITHOUT a password to remain passwordless-eligible.
-   * Cleanup will set a password before destroying the account.
-   * @returns Partial credentials with email, uid, and sessionToken
+   * The returned `password` is generated for tests that subsequently drive
+   * the set-password flow, and is also used by cleanup to plant a password
+   * before destroying the account.
    */
   async signUpPasswordless(): Promise<{
     email: string;
     uid: string;
     sessionToken: string;
+    password: string;
   }> {
     const email = this.generateEmail(EmailPrefix.PASSWORDLESS);
     const password = this.generatePassword();
@@ -291,6 +291,7 @@ export class TestAccountTracker {
       email,
       uid: result.uid,
       sessionToken: result.sessionToken,
+      password,
     };
   }
 

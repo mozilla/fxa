@@ -812,6 +812,134 @@ test.describe('severity-1 #smoke', () => {
         }
       });
     });
+
+    test.describe('RP requires 2FA setup', () => {
+      test('passwordless signin to an RP requiring 2FA navigates to inline TOTP setup', async ({
+        target,
+        pages: {
+          page,
+          signin,
+          relier,
+          signinPasswordlessCode,
+          totp,
+          inlineTotpSetup,
+        },
+        testAccountTracker,
+      }) => {
+        // A passwordless account without TOTP signing in to an RP that requires
+        // two-step authentication must be diverted to inline TOTP setup after
+        // the OTP step, not looped back onto the confirmation-code screen.
+
+        const { email, sessionToken } =
+          await testAccountTracker.signUpPasswordless();
+        const account: any = testAccountTracker.accounts.find(
+          (a) => a.email === email
+        );
+        if (!account) {
+          throw new Error(
+            `Account for email ${email} not found in testAccountTracker.accounts`
+          );
+        }
+
+        // Recovery phone availability (auth-server config + region) decides
+        // whether the inline flow shows the recovery-method chooser.
+        const { available: recoveryPhoneAvailable } =
+          await target.authClient.recoveryPhoneAvailable(sessionToken);
+
+        await signin.clearCache();
+
+        // 123done "Sign In (Require AAL2 Session)" forces an AAL2 OAuth flow. Existing
+        // passwordless accounts are always redirected to OTP, so no
+        // force_passwordless flag is needed here.
+        await relier.goto();
+        await relier.clickRequire2FA();
+        await signin.fillOutEmailFirstForm(email);
+
+        // Passwordless OTP step.
+        await page.waitForURL(/signin_passwordless_code/);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
+        await signinPasswordlessCode.fillOutCodeForm(code);
+
+        // The account has no TOTP yet, so the RP's 2FA requirement must divert
+        // to inline TOTP setup rather than re-rendering the code screen. The
+        // tracker tears down the now-TOTP-enabled passwordless account using the
+        // secret completeInlineSetupWithBackupCodes records on `account`.
+        await totp.completeInlineSetupWithBackupCodes(
+          inlineTotpSetup,
+          account,
+          recoveryPhoneAvailable
+        );
+
+        // Should complete the OAuth flow back to the RP.
+        expect(await relier.isLoggedIn()).toBe(true);
+      });
+
+      test('passwordless signin to an RP requiring an AAL2 session (profile AAL2) diverts to inline TOTP setup', async ({
+        target,
+        pages: {
+          page,
+          signin,
+          relier,
+          signinPasswordlessCode,
+          totp,
+          inlineTotpSetup,
+        },
+        testAccountTracker,
+      }) => {
+        test.skip(
+          target.name !== 'local',
+          'requires the local 123done /api/profile_aal2 toggle'
+        );
+
+        // AMO-style enforcement: the RP requires both an AAL2 session and
+        // profile-level 2FA. A passwordless account without TOTP must be
+        // diverted to inline TOTP setup after the OTP step. Without the divert,
+        // 123done's post-grant profile check bounces the flow back and the user
+        // is stuck looping on the confirmation-code screen.
+
+        const { email, sessionToken } =
+          await testAccountTracker.signUpPasswordless();
+        const account: any = testAccountTracker.accounts.find(
+          (a) => a.email === email
+        );
+        if (!account) {
+          throw new Error(
+            `Account for email ${email} not found in testAccountTracker.accounts`
+          );
+        }
+
+        // Recovery phone availability (auth-server config + region) decides
+        // whether the inline flow shows the recovery-method chooser.
+        const { available: recoveryPhoneAvailable } =
+          await target.authClient.recoveryPhoneAvailable(sessionToken);
+
+        await signin.clearCache();
+
+        await relier.goto();
+        await relier.clickRequireProfileAAL2();
+        await signin.fillOutEmailFirstForm(email);
+
+        await page.waitForURL(/signin_passwordless_code/);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
+        await signinPasswordlessCode.fillOutCodeForm(code);
+
+        // The divert must route to inline TOTP setup rather than bouncing back.
+        // The tracker tears down the now-TOTP-enabled passwordless account using
+        // the secret completeInlineSetupWithBackupCodes records on `account`.
+        await totp.completeInlineSetupWithBackupCodes(
+          inlineTotpSetup,
+          account,
+          recoveryPhoneAvailable
+        );
+
+        // Both badges must be set: session AAL2 from TOTP verification, account
+        // AAL2 from the divert-triggered enrolment. A divert regression leaves
+        // account_aal2 false and trips 123done's bounce loop.
+        expect(await relier.isLoggedIn()).toBe(true);
+        expect(await relier.hasSessionAAL2Badge()).toBe(true);
+        expect(await relier.hasAccountAAL2Badge()).toBe(true);
+      });
+    });
   });
 });
 

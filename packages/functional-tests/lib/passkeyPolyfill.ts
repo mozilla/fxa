@@ -44,7 +44,7 @@ const WEBAUTHN_DOM_EXCEPTION_NAMES = [
   'UnknownError',
 ];
 
-type Mode = 'pending' | 'success' | 'cancel';
+type Mode = 'pending' | 'success' | 'cancel' | 'corrupt';
 type Trigger = () => Promise<void>;
 type PostCheck = () => Promise<void>;
 
@@ -173,6 +173,18 @@ export class PasskeyPolyfill {
     }
   }
 
+  /** Return an assertion with a tampered signature so the server rejects it. */
+  async corrupt(trigger: Trigger, postCheck: PostCheck) {
+    const previous = this.mode;
+    this.mode = 'corrupt';
+    try {
+      await trigger();
+      await postCheck();
+    } finally {
+      this.mode = previous;
+    }
+  }
+
   /**
    * Number of credentials the VirtualAuthenticator has minted during the
    * lifetime of this polyfill. Tests use this to assert registration happened
@@ -233,11 +245,18 @@ export class PasskeyPolyfill {
     }
 
     const rpId = options.rpId ?? new URL(origin).hostname;
-    return VirtualAuthenticator.createAssertionResponse(cred, {
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
       challenge: options.challenge,
       origin,
       rpId,
     });
+
+    if (this.mode === 'corrupt') {
+      assertion.response.signature = tamperBase64UrlByte(
+        assertion.response.signature
+      );
+    }
+    return assertion;
   }
 
   private pickCredential(allow?: Array<{ id: string }>) {
@@ -273,6 +292,13 @@ function makeDomExceptionLike(name: string, message: string) {
   const err = new Error(message);
   err.name = name;
   return err;
+}
+
+/** Flip a byte of a base64url-encoded buffer to produce an invalid signature. */
+function tamperBase64UrlByte(b64url: string): string {
+  const buf = Buffer.from(b64url, 'base64url');
+  buf[0] ^= 0xff;
+  return buf.toString('base64url');
 }
 
 /**

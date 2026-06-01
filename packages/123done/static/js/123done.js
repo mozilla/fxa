@@ -129,6 +129,10 @@ $(document).ready(function () {
     if (loggedInState.acr === 'AAL2') {
       loggedInEmail += ' ' + String.fromCodePoint(0x1f512);
     }
+    // Account-level AAL2 marker, distinct from the session AAL2 lock icon.
+    if (loggedInState.account_aal2) {
+      loggedInEmail += ' ' + String.fromCodePoint(0x1f6e1);
+    }
 
     function updateUI(email) {
       $('ul.loginarea li').css('display', 'none');
@@ -237,6 +241,10 @@ $(document).ready(function () {
 
     $('button.two-step-authentication').click(function (ev) {
       authenticate('two_step_authentication');
+    });
+
+    $('button.profile-aal2').click(function (ev) {
+      authenticate('profile_aal2');
     });
 
     $('button.third-party').click(function (ev) {

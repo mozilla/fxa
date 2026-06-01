@@ -112,7 +112,22 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickRequire2FA() {
-    await this.page.getByText('Sign In (Require 2FA)').click();
+    await this.page.getByText('Sign In (Require AAL2 Session)').click();
     return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+  }
+
+  async clickRequireProfileAAL2() {
+    await this.page.getByText('Sign In (Require Profile AAL2)').click();
+    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+  }
+
+  async hasAccountAAL2Badge() {
+    const text = await this.page.locator('#loggedin span').innerText();
+    return text.includes(String.fromCodePoint(0x1f6e1));
+  }
+
+  async hasSessionAAL2Badge() {
+    const text = await this.page.locator('#loggedin span').innerText();
+    return text.includes(String.fromCodePoint(0x1f512));
   }
 }
