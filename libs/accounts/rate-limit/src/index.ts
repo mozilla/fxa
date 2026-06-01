@@ -4,6 +4,7 @@
 
 export * from './lib/rate-limit';
 export * from './lib/rate-limit.provider';
+export * from './lib/bq-writer';
 export * from './lib/config';
 export * from './lib/error';
 export * from './lib/models';

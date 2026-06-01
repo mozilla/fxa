@@ -144,12 +144,12 @@ describe('rate-limit', () => {
       statsd
     );
 
-    expect(rateLimit.skip({ email: 'foo@mozilla.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@mozilla.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@mozilla.com ' })).toBeFalsy();
-    expect(rateLimit.skip({ email: 'foo@firefox.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@firefox.com ' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(rateLimit.skip('test', { email: 'foo@mozilla.com' })).toBeTruthy();
+    expect(rateLimit.skip('test', { email: 'bar@mozilla.com' })).toBeTruthy();
+    expect(rateLimit.skip('test', { email: 'bar@mozilla.com ' })).toBeFalsy();
+    expect(rateLimit.skip('test', { email: 'foo@firefox.com' })).toBeTruthy();
+    expect(rateLimit.skip('test', { email: 'bar@firefox.com ' })).toBeFalsy();
+    expect(rateLimit.skip('test', {})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.email');
   });
 
@@ -163,9 +163,9 @@ describe('rate-limit', () => {
       statsd
     );
 
-    expect(rateLimit.skip({ ip: '127.0.0.1' })).toBeTruthy();
-    expect(rateLimit.skip({ ip: '0.0.0.0' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(rateLimit.skip('test', { ip: '127.0.0.1' })).toBeTruthy();
+    expect(rateLimit.skip('test', { ip: '0.0.0.0' })).toBeFalsy();
+    expect(rateLimit.skip('test', {})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.ip');
   });
 
@@ -179,9 +179,9 @@ describe('rate-limit', () => {
       statsd
     );
 
-    expect(rateLimit.skip({ uid: '000-000-000' })).toBeTruthy();
-    expect(rateLimit.skip({ uid: '000-000-001' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(rateLimit.skip('test', { uid: '000-000-000' })).toBeTruthy();
+    expect(rateLimit.skip('test', { uid: '000-000-001' })).toBeFalsy();
+    expect(rateLimit.skip('test', {})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.uid');
   });
 
@@ -766,6 +766,96 @@ describe('rate-limit', () => {
 
       expect(result).toBe(2);
       expect(mockDel).toHaveBeenCalledTimes(4);
+    });
+  });
+
+  describe('bqWriter integration', () => {
+    let mockWrite: jest.Mock;
+    let mockIncr: jest.Mock;
+    let mockExpire: jest.Mock;
+    let mockGet: jest.Mock;
+
+    beforeEach(() => {
+      mockWrite = jest.fn();
+      mockIncr = jest.fn().mockResolvedValue(1);
+      mockExpire = jest.fn().mockResolvedValue(1);
+      mockGet = jest.fn().mockResolvedValue(null);
+      redis.incr = mockIncr;
+      redis.expire = mockExpire;
+      redis.get = mockGet;
+    });
+
+    afterEach(() => {
+      mockWrite.mockReset();
+      mockIncr.mockReset();
+      mockExpire.mockReset();
+      mockGet.mockReset();
+    });
+
+    it('reports wasBlocked true when block is triggered', async () => {
+      mockIncr.mockResolvedValue(6); // exceeds maxAttempts of 5
+      redis.set = jest.fn().mockResolvedValue('OK');
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: true,
+          blockPolicy: 'block',
+        })
+      );
+    });
+
+    it('calls bqWriter.write on skip() with wasSkipped true', () => {
+      rateLimit = new RateLimit(
+        { rules: {}, ignoreIPs: ['127.0.0.1'] },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      rateLimit.skip('test', { ip: '127.0.0.1' });
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'test',
+          ip: '127.0.0.1',
+          wasBlocked: false,
+          wasSkipped: true,
+        })
+      );
+    });
+
+    it('does not call bqWriter.write on skip() when not skipped', () => {
+      rateLimit = new RateLimit(
+        { rules: {}, ignoreIPs: ['127.0.0.1'] },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      rateLimit.skip('test', { ip: '0.0.0.0' });
+
+      expect(mockWrite).not.toHaveBeenCalled();
+    });
+
+    it('works without bqWriter (undefined)', async () => {
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd
+      );
+
+      // Should not throw
+      const result = await rateLimit.check('test', { ip: '1.2.3.4' });
+      expect(result).toBeNull();
     });
   });
 });

@@ -535,7 +535,7 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      expect(mockRateLimit.skip).toHaveBeenCalledWith({ ip, email, ip_email });
+      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', { ip, email, ip_email });
       expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
     });
 

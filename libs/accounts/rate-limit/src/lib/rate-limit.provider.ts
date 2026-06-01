@@ -5,6 +5,7 @@
 import { ConfigService } from '@nestjs/config';
 import { parseConfigRules, RateLimitConfig } from './config';
 import { RateLimit } from './rate-limit';
+import { RateLimitBqWriter, BqWriterConfig } from './bq-writer';
 import Redis, { RedisOptions } from 'ioredis';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { Provider } from '@nestjs/common';
@@ -42,6 +43,13 @@ export const RateLimitProvider = {
     }
 
     const rules = parseConfigRules(rateLimitConfig.rules);
+
+    const bqConfig = config.get<BqWriterConfig & { enabled?: boolean }>(
+      'rateLimit.bigquery'
+    );
+    const bqWriter =
+      bqConfig && bqConfig.enabled ? new RateLimitBqWriter(bqConfig) : undefined;
+
     return new RateLimit(
       {
         rules,
@@ -50,7 +58,8 @@ export const RateLimitProvider = {
         ignoreUIDs: rateLimitConfig.ignoreUIDs,
       },
       redis,
-      statsd
+      statsd,
+      bqWriter
     );
   },
   inject: [ConfigService, RateLimitRedisClient, StatsDService],
