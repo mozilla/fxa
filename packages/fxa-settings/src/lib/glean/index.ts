@@ -470,6 +470,9 @@ const recordEventMetric = (
     case 'cad_approve_device_submit':
       cadApproveDevice.submit.record();
       break;
+    case 'cad_mobile_pair_view':
+      cadMobilePair.view.record();
+      break;
     case 'cad_mobile_pair_submit':
       cadMobilePair.submit.record();
       break;
