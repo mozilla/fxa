@@ -5,7 +5,7 @@ var config = require('./config').getProperties();
 var crypto = require('crypto');
 var request = require('request');
 var querystring = require('querystring');
-var { JWTool } = require('@fxa/vendored/jwtool');
+var { JWTool } = require('./lib/jwtool');
 
 // oauth flows are stored in memory
 var oauthFlows = {};

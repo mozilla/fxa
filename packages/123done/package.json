@@ -19,6 +19,9 @@
     "url": "https://github.com/mozilla/fxa.git"
   },
   "private": true,
+  "engines": {
+    "node": "^22.15.1"
+  },
   "dependencies": {
     "convict": "^6.2.5",
     "convict-format-with-validator": "^6.2.0",
