@@ -19,7 +19,7 @@ jobs:
     steps:
       - id: determine
         run: |
-          if [[ ! "${GIT_TAG}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
+          if [[ ! "${GIT_TAG}" =~ ^(subplat-)?v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
             echo "Invalid tag: ${GIT_TAG}"
             echo "Invalid tag format: ${GIT_TAG}" >> "$GITHUB_STEP_SUMMARY"
             exit 1

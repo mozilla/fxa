@@ -1,0 +1,83 @@
+name: Tag Release SubPlat
+on:
+  workflow_dispatch: {}
+permissions: {}
+jobs:
+  tagrelease:
+    permissions:
+      contents: write # To create a branch and tags
+    runs-on: ubuntu-latest
+    outputs:
+      TAG: ${{ steps.echo.outputs.tag }}
+    steps:
+      - name: Show GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        shell: bash
+
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Fetch all git tags
+        run: git fetch --tags origin
+
+      - name: Resolve latest FxA train tag
+        run: |
+          set -euo pipefail
+          latest_fxa_tag=$(git tag -l 'v1.*.0' --sort=version:refname | tail -1)
+          if [[ -z "${latest_fxa_tag}" ]]; then
+            echo "ERROR: no v1.*.0 FxA train tag found in this repo." >&2
+            exit 1
+          fi
+          if [[ ! "${latest_fxa_tag}" =~ ^v1\.([0-9]+)\.0$ ]]; then
+            echo "ERROR: latest FxA train tag '${latest_fxa_tag}' did not parse as v1.<TRAIN>.0." >&2
+            exit 1
+          fi
+          train="${BASH_REMATCH[1]}"
+          sha=$(git rev-list -n 1 "${latest_fxa_tag}")
+          {
+            echo "TRAIN=${train}"
+            echo "SUBPLAT_TAG=subplat-v1.${train}.0"
+            echo "SUBPLAT_BRANCH=subplat-train-${train}"
+            echo "SUBPLAT_SHA=${sha}"
+          } >> "$GITHUB_ENV"
+          echo "Resolved ${latest_fxa_tag} (sha ${sha}); preparing subplat-v1.${train}.0 / subplat-train-${train}"
+
+      - name: Pre-flight - SubPlat tag must not already exist
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --tags origin "refs/tags/${SUBPLAT_TAG}" >/dev/null 2>&1; then
+            echo "Refusing to create ${SUBPLAT_TAG} - tag already exists on origin." >&2
+            exit 1
+          fi
+
+      - name: Pre-flight - SubPlat branch must not already exist
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "refs/heads/${SUBPLAT_BRANCH}" >/dev/null 2>&1; then
+            echo "Refusing to create ${SUBPLAT_BRANCH} - branch already exists on origin." >&2
+            exit 1
+          fi
+
+      - name: Add git tag to output
+        id: echo
+        run: |
+          echo "tag=${SUBPLAT_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create release branch
+        run: git checkout -b "${SUBPLAT_BRANCH}" "${SUBPLAT_SHA}"
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "${GITHUB_TRIGGERING_ACTOR}"
+          git config user.email "noreply@github.com"
+
+      - name: Push branch
+        run: |
+          git push origin "${SUBPLAT_BRANCH}"
+
+      - name: Make a new tag
+        run: |
+          git tag -a "${SUBPLAT_TAG}" -m "SubPlat train release ${SUBPLAT_TAG}"
+          git push origin "${SUBPLAT_TAG}"
