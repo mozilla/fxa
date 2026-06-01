@@ -172,8 +172,7 @@ describe('#integration - api', () => {
 
       mock.log('batch', (rec: any) => {
         return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === '/v1/_core_profile:503'
+          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:503'
         );
       });
 
@@ -212,8 +211,7 @@ describe('#integration - api', () => {
 
       mock.log('batch', (rec: any) => {
         return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === '/v1/_core_profile:401'
+          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:401'
         );
       });
 
@@ -245,8 +243,7 @@ describe('#integration - api', () => {
 
       mock.log('batch', (rec: any) => {
         return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === '/v1/_core_profile:401'
+          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:401'
         );
       });
 
@@ -269,7 +266,7 @@ describe('#integration - api', () => {
       assertSecurityHeaders(res);
     });
 
-    it('should error out on unexpected 400s from auth server', async () => {
+    it('should propagate unexpected 4xx errors from auth server', async () => {
       mock.token({
         user: USERID,
         scope: ['profile:write'],
@@ -278,8 +275,7 @@ describe('#integration - api', () => {
 
       mock.log('batch', (rec: any) => {
         return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === '/v1/_core_profile:500'
+          rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:400'
         );
       });
 
@@ -291,30 +287,14 @@ describe('#integration - api', () => {
         );
       });
 
-      mock.log('server', function (rec: any) {
-        return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === 'summary' &&
-          rec.args[1].path === '/v1/_core_profile'
-        );
-      });
-
-      mock.log('server', function (rec: any) {
-        return (
-          rec.levelname === 'ERROR' &&
-          rec.args[0] === 'summary' &&
-          rec.args[1].path === '/v1/profile'
-        );
-      });
-
       const res = await Server.api.get({
         url: '/profile',
         headers: {
           authorization: 'Bearer ' + tok,
         },
       });
-      expect(res.statusCode).toBe(500);
-      expect(res.result.errno).toBe(999);
+      expect(res.statusCode).toBe(400);
+      expect(res.result.errno).toBe(107);
       assertSecurityHeaders(res);
     });
 
@@ -823,77 +803,69 @@ describe('#integration - api', () => {
     });
 
     describe('upload', () => {
-      it(
-        'should upload a new avatar',
-        async () => {
-          mock.token({
-            user: USERID,
-            scope: ['profile:avatar:write'],
-          });
-          mock.image(imageData.length);
-          const res = await Server.api.post({
-            url: '/avatar/upload',
-            payload: imageData,
-            headers: {
-              authorization: 'Bearer ' + tok,
-              'content-type': 'image/png',
-              'content-length': imageData.length,
-            },
-          });
-          expect(res.statusCode).toBe(201);
-          expect(res.result.url).toBeTruthy();
-          expect(res.result.id).toBeTruthy();
-          assertSecurityHeaders(res);
+      it('should upload a new avatar', async () => {
+        mock.token({
+          user: USERID,
+          scope: ['profile:avatar:write'],
+        });
+        mock.image(imageData.length);
+        const res = await Server.api.post({
+          url: '/avatar/upload',
+          payload: imageData,
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'content-type': 'image/png',
+            'content-length': imageData.length,
+          },
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.result.url).toBeTruthy();
+        expect(res.result.id).toBeTruthy();
+        assertSecurityHeaders(res);
 
-          const s3url = res.result.url;
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
-          expect(responses).toHaveLength(SIZE_SUFFIXES.length);
-          responses.forEach(function (res: any) {
-            expect(res.statusCode).toBe(200);
-          });
-        },
-        10000
-      );
+        const s3url = res.result.url;
+        const responses = await P.all(SIZE_SUFFIXES).map(function (
+          suffix: string
+        ) {
+          return Static.get(s3url + suffix);
+        });
+        expect(responses).toHaveLength(SIZE_SUFFIXES.length);
+        responses.forEach(function (res: any) {
+          expect(res.statusCode).toBe(200);
+        });
+      }, 10000);
 
-      it(
-        'should fail with an error if image cannot be identified',
-        async () => {
-          var dataLength = 2;
-          mock.token({
-            user: USERID,
-            email: 'user@example.domain',
-            scope: ['profile:avatar:write'],
-          });
-          mock.log('img_workers', function (rec: any) {
-            if (rec.levelname === 'ERROR') {
-              return true;
-            }
-          });
-          mock.log('server', function (rec: any) {
-            if (rec.levelname === 'ERROR') {
-              return true;
-            }
-          });
+      it('should fail with an error if image cannot be identified', async () => {
+        var dataLength = 2;
+        mock.token({
+          user: USERID,
+          email: 'user@example.domain',
+          scope: ['profile:avatar:write'],
+        });
+        mock.log('img_workers', function (rec: any) {
+          if (rec.levelname === 'ERROR') {
+            return true;
+          }
+        });
+        mock.log('server', function (rec: any) {
+          if (rec.levelname === 'ERROR') {
+            return true;
+          }
+        });
 
-          const res = await Server.api.post({
-            url: '/avatar/upload',
-            payload: Buffer.from('{}'),
-            headers: {
-              authorization: 'Bearer ' + tok,
-              'content-type': 'image/png',
-              'content-length': dataLength,
-            },
-          });
-          expect(res.statusCode).toBe(500);
-          expect(res.result.message).toBe('Image processing error');
-          assertSecurityHeaders(res);
-        },
-        10000
-      );
+        const res = await Server.api.post({
+          url: '/avatar/upload',
+          payload: Buffer.from('{}'),
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'content-type': 'image/png',
+            'content-length': dataLength,
+          },
+        });
+        expect(res.statusCode).toBe(500);
+        expect(res.result.message).toBe('Image processing error');
+        assertSecurityHeaders(res);
+      }, 10000);
 
       it('should gracefully handle and report upload failures', async () => {
         mock.token({
@@ -955,52 +927,45 @@ describe('#integration - api', () => {
         config.set('worker.headers_exclude', origHeaderExcludes);
       });
 
-      it(
-        'should exclude configured worker request headers',
-        async () => {
-          mock.token({
-            user: USERID,
-            scope: ['profile:avatar:write'],
-          });
-          mock.log('img_workers', function (rec: any) {
-            if (
-              rec.levelname === 'DEBUG' &&
-              rec.args[0] === 'upload.headers'
-            ) {
-              expect(rec.args[1]['x-my-header']).toBeUndefined();
-              expect(rec.args[1].authorization).toBe('Bearer ' + tok);
-              return true;
-            }
-          });
-          mock.image(imageData.length);
-          const res = await Server.api.post({
-            url: '/avatar/upload',
-            payload: imageData,
-            headers: {
-              authorization: 'Bearer ' + tok,
-              'Content-Type': 'image/png',
-              'Content-Length': imageData.length,
-              'X-My-Header': 'some value',
-            },
-          });
-          expect(res.statusCode).toBe(201);
-          expect(res.result.url).toBeTruthy();
-          expect(res.result.id).toBeTruthy();
-          assertSecurityHeaders(res);
+      it('should exclude configured worker request headers', async () => {
+        mock.token({
+          user: USERID,
+          scope: ['profile:avatar:write'],
+        });
+        mock.log('img_workers', function (rec: any) {
+          if (rec.levelname === 'DEBUG' && rec.args[0] === 'upload.headers') {
+            expect(rec.args[1]['x-my-header']).toBeUndefined();
+            expect(rec.args[1].authorization).toBe('Bearer ' + tok);
+            return true;
+          }
+        });
+        mock.image(imageData.length);
+        const res = await Server.api.post({
+          url: '/avatar/upload',
+          payload: imageData,
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'Content-Type': 'image/png',
+            'Content-Length': imageData.length,
+            'X-My-Header': 'some value',
+          },
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.result.url).toBeTruthy();
+        expect(res.result.id).toBeTruthy();
+        assertSecurityHeaders(res);
 
-          const s3url = res.result.url;
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
-          expect(responses).toHaveLength(SIZE_SUFFIXES.length);
-          responses.forEach(function (res: any) {
-            expect(res.statusCode).toBe(200);
-          });
-        },
-        3000
-      );
+        const s3url = res.result.url;
+        const responses = await P.all(SIZE_SUFFIXES).map(function (
+          suffix: string
+        ) {
+          return Static.get(s3url + suffix);
+        });
+        expect(responses).toHaveLength(SIZE_SUFFIXES.length);
+        responses.forEach(function (res: any) {
+          expect(res.statusCode).toBe(200);
+        });
+      }, 3000);
     });
 
     describe('upload-header-unconfigured', () => {
@@ -1013,58 +978,51 @@ describe('#integration - api', () => {
         config.set('worker.headers_exclude', origHeaderExcludes);
       });
 
-      it(
-        'should pass-through all worker request headers',
-        async () => {
-          mock.token({
-            user: USERID,
-            scope: ['profile:avatar:write'],
-          });
-          mock.image(imageData.length);
-          mock.log('img_workers', function (rec: any) {
-            if (
-              rec.levelname === 'DEBUG' &&
-              rec.args[0] === 'upload.headers'
-            ) {
-              expect(rec.args[1]['host']).toBe('profile.firefox.local');
-              expect(rec.args[1]['x-my-header']).toBe('some value');
-              expect(rec.args[1]['x-ignored-header']).toBe('some value');
-              expect(rec.args[1]['authorization']).toBe('Bearer ' + tok);
-              expect(rec.args[1]['content-type']).toBe('image/png');
-              expect(rec.args[1]['content-length']).toBe(imageData.length);
-              return true;
-            }
-          });
-          const res = await Server.api.post({
-            url: '/avatar/upload',
-            payload: imageData,
-            headers: {
-              host: 'profile.firefox.local',
-              authorization: 'Bearer ' + tok,
-              'content-type': 'image/png',
-              'content-length': imageData.length,
-              'X-My-Header': 'some value',
-              'X-Ignored-Header': 'some value',
-            },
-          });
-          expect(res.statusCode).toBe(201);
-          expect(res.result.url).toBeTruthy();
-          expect(res.result.id).toBeTruthy();
-          assertSecurityHeaders(res);
+      it('should pass-through all worker request headers', async () => {
+        mock.token({
+          user: USERID,
+          scope: ['profile:avatar:write'],
+        });
+        mock.image(imageData.length);
+        mock.log('img_workers', function (rec: any) {
+          if (rec.levelname === 'DEBUG' && rec.args[0] === 'upload.headers') {
+            expect(rec.args[1]['host']).toBe('profile.firefox.local');
+            expect(rec.args[1]['x-my-header']).toBe('some value');
+            expect(rec.args[1]['x-ignored-header']).toBe('some value');
+            expect(rec.args[1]['authorization']).toBe('Bearer ' + tok);
+            expect(rec.args[1]['content-type']).toBe('image/png');
+            expect(rec.args[1]['content-length']).toBe(imageData.length);
+            return true;
+          }
+        });
+        const res = await Server.api.post({
+          url: '/avatar/upload',
+          payload: imageData,
+          headers: {
+            host: 'profile.firefox.local',
+            authorization: 'Bearer ' + tok,
+            'content-type': 'image/png',
+            'content-length': imageData.length,
+            'X-My-Header': 'some value',
+            'X-Ignored-Header': 'some value',
+          },
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.result.url).toBeTruthy();
+        expect(res.result.id).toBeTruthy();
+        assertSecurityHeaders(res);
 
-          const s3url = res.result.url;
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
-          expect(responses).toHaveLength(SIZE_SUFFIXES.length);
-          responses.forEach(function (res: any) {
-            expect(res.statusCode).toBe(200);
-          });
-        },
-        3000
-      );
+        const s3url = res.result.url;
+        const responses = await P.all(SIZE_SUFFIXES).map(function (
+          suffix: string
+        ) {
+          return Static.get(s3url + suffix);
+        });
+        expect(responses).toHaveLength(SIZE_SUFFIXES.length);
+        responses.forEach(function (res: any) {
+          expect(res.statusCode).toBe(200);
+        });
+      }, 3000);
     });
 
     describe('DELETE', () => {

@@ -13,11 +13,9 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test": "scripts/test-local.sh",
-    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert && NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='spec\\.ts$' --testPathIgnorePatterns='in\\.spec\\.ts$'",
-    "test-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-integration-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
-    "test-jest-unit": "NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='spec\\.ts$' --testPathIgnorePatterns='in\\.spec\\.ts$'",
-    "test-integration-jest": "NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='in\\.spec\\.ts$'",
+    "test": "yarn test-unit && yarn test-integration",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-jest-unit-results.xml NODE_ENV=test npx jest --coverage --forceExit --testPathPattern='spec\\.ts$' --testPathIgnorePatterns='in\\.spec\\.ts$' --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-jest-integration-results.xml NODE_ENV=test npx jest --coverage --forceExit --runInBand --testPathPattern='in\\.spec\\.ts$' --reporters=default --reporters=jest-junit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
@@ -47,11 +45,8 @@
     "audit-filter": "^0.5.0",
     "commander": "9.3.0",
     "eslint": "^8.18.0",
-    "insist": "1.0.1",
-    "mocha": "^10.4.0",
-    "mocha-text-cov": "0.1.1",
+    "jest-junit": "^16.0.0",
     "nock": "^13.5.1",
-    "nyc": "^17.1.0",
     "pm2": "^6.0.14",
     "pngparse": "2.0.1",
     "prettier": "^3.5.3",
@@ -68,10 +63,6 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
   "license": "MPL-2.0",
-  "mocha": {
-    "reporter": "mocha-multi",
-    "reporterOptions": "spec=-,mocha-junit-reporter=-"
-  },
   "nx": {
     "tags": [
       "scope:server",

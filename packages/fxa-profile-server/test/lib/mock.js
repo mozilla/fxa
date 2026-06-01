@@ -110,10 +110,15 @@ module.exports = async function mock(options) {
 
   return {
     done: function done() {
-      outstandingMocks.forEach(function (mock) {
-        mock.done();
-      });
-      outstandingMocks = [];
+      // Reset even if a mock assertion throws, so one failing test cannot
+      // leave stale mocks that cascade into every later test's teardown.
+      try {
+        outstandingMocks.forEach(function (mock) {
+          mock.done();
+        });
+      } finally {
+        outstandingMocks = [];
+      }
     },
 
     tokenGood: function tokenGood() {

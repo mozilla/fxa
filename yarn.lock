@@ -31385,14 +31385,11 @@ __metadata:
     convict-format-with-validator: "npm:^6.2.0"
     eslint: "npm:^8.18.0"
     fxa-shared: "workspace:*"
-    insist: "npm:1.0.1"
+    jest-junit: "npm:^16.0.0"
     joi: "npm:^17.13.3"
-    mocha: "npm:^10.4.0"
-    mocha-text-cov: "npm:0.1.1"
     mozlog: "npm:^3.0.2"
     mysql: "npm:^2.18.1"
     nock: "npm:^13.5.1"
-    nyc: "npm:^17.1.0"
     pm2: "npm:^6.0.14"
     pngparse: "npm:2.0.1"
     poolee: "npm:^1.0.1"
@@ -34538,16 +34535,6 @@ __metadata:
     through: "npm:^2.3.6"
     wrap-ansi: "npm:^6.0.1"
   checksum: 10c0/eb5724de1778265323f3a68c80acfa899378cb43c24cdcb58661386500e5696b6b0b6c700e046b7aa767fe7b4823c6f04e6ddc268173e3f84116112529016296
-  languageName: node
-  linkType: hard
-
-"insist@npm:1.0.1":
-  version: 1.0.1
-  resolution: "insist@npm:1.0.1"
-  dependencies:
-    esprima: "npm:^4.0.0"
-    stack-trace: "npm:^0.0.10"
-  checksum: 10c0/085cf0d4082ad44505c533bc18e99dbb86bad8a7cc2c9fe60a0b8d87f072fe19d6e97f58ff21732b28578fe6f658f8e244b8904c11e404b88168a1b846d5a8d2
   languageName: node
   linkType: hard
 
@@ -40339,13 +40326,6 @@ __metadata:
   peerDependencies:
     mocha: ">=2.2.0 <7 || >=9"
   checksum: 10c0/152a42c31dbb6ac70e5c0948156a9ee44f5bb4dc8b359e2c63deb4a2e34d2f8a64d581effa35042d74b5c77168a678aa8627ea4b91bbf9b9ef80541d2d598fad
-  languageName: node
-  linkType: hard
-
-"mocha-text-cov@npm:0.1.1":
-  version: 0.1.1
-  resolution: "mocha-text-cov@npm:0.1.1"
-  checksum: 10c0/6502ebb630b958307329d3c4b077d4839af6fa1c08032ff314b5b62f3a999a7e48eba88878a386c1be840d5d004001b9e36b71f43a93ce671d333e4775808db7
   languageName: node
   linkType: hard
 
@@ -49296,7 +49276,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stack-trace@npm:0.0.x, stack-trace@npm:^0.0.10, stack-trace@npm:~0.0.9":
+"stack-trace@npm:0.0.x, stack-trace@npm:~0.0.9":
   version: 0.0.10
   resolution: "stack-trace@npm:0.0.10"
   checksum: 10c0/9ff3dabfad4049b635a85456f927a075c9d0c210e3ea336412d18220b2a86cbb9b13ec46d6c37b70a302a4ea4d49e30e5d4944dd60ae784073f1cde778ac8f4b
