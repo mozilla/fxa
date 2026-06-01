@@ -9,6 +9,7 @@ import { SettingsLayout } from './layout';
 import { getTotpCode } from '../../lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
 import { Credentials } from '../../lib/targets/base';
+import { InlineTotpSetupPage } from '../inlineTotpSetup';
 
 export type TotpCredentials = {
   secret: string;
@@ -219,5 +220,33 @@ export class TotpPage extends SettingsLayout {
     const secret = await this.setUp2faAppWithManualCode(credentials);
     await this.chooseRecoveryPhoneOption();
     return { secret };
+  }
+
+  // Walks the inline TOTP setup an AAL2-requiring RP triggers after a divert to
+  // /inline_totp_setup: confirm intro, enrol via manual code, then backup codes.
+  // Stores the secret on `credentials` (via setUp2faAppWithManualCode) so the
+  // account tracker can elevate AAL during teardown.
+  //
+  // `recoveryPhoneAvailable` is the auth-server-determined availability
+  // (recoveryPhone.enabled + an allowed region) the caller reads from
+  // authClient.recoveryPhoneAvailable; the recovery-method chooser only renders
+  // when it is true, otherwise the flow goes straight to backup codes.
+  async completeInlineSetupWithBackupCodes(
+    inlineTotpSetup: InlineTotpSetupPage,
+    credentials: Credentials,
+    recoveryPhoneAvailable: boolean
+  ): Promise<string> {
+    await this.page.waitForURL(/inline_totp_setup/);
+    await expect(inlineTotpSetup.introHeading).toBeVisible();
+    await inlineTotpSetup.continueButton.click();
+    const secret = await this.setUp2faAppWithManualCode(credentials);
+    await this.page.waitForURL(/inline_recovery_setup/);
+    if (recoveryPhoneAvailable) {
+      await this.chooseBackupCodesOption();
+    }
+    const recoveryCodes = await this.backupCodesDownloadStep();
+    await this.confirmBackupCodeStep(recoveryCodes[0]);
+    await this.page.getByRole('button', { name: /Continue/ }).click();
+    return secret;
   }
 }

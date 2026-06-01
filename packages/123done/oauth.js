@@ -88,6 +88,10 @@ function setupOAuthFlow(req, action, options = {}, cb) {
       req.session.state = params.state;
       oauthFlows[params.state] = { params: params, config: config };
 
+      // Clear stale profile-AAL2 enforcement so an abandoned flow can't leak.
+      req.session.profileAal2Required = null;
+      req.session.profileAal2Bounced = null;
+
       return cb(
         null,
         {
@@ -160,6 +164,29 @@ module.exports = function (app, db) {
         return res.redirect(redirectUrl(params, oauthConfig));
       }
     );
+  });
+
+  // AMO-style enforcement: session AAL2 plus a post-grant
+  // profile.twoFactorAuthentication check. Passkey-only accounts satisfy
+  // session AAL2 but not profile AAL2, so the RP bounces back unless the
+  // FxA-side divert to /inline_totp_setup runs.
+  app.get('/api/profile_aal2', function (req, res) {
+    const wasBounced = !!req.session.profileAal2Bounced;
+    const opts = { acrValues: 'AAL2' };
+    if (wasBounced) {
+      // Skip the cached-session short-circuit so the divert can re-run.
+      opts.prompt = 'login';
+      opts.max_age = 0;
+    }
+    setupOAuthFlow(req, 'email', opts, function (err, params, oauthConfig) {
+      if (err) {
+        return res.send(400, err);
+      }
+      req.session.profileAal2Required = true;
+      // Restore the bounce flag that setupOAuthFlow cleared, to cap at one pass.
+      req.session.profileAal2Bounced = wasBounced;
+      return res.redirect(redirectUrl(params, oauthConfig));
+    });
   });
 
   // begin a force auth flow
@@ -282,8 +309,26 @@ module.exports = function (app, db) {
                     return res.send(r ? r.status : 400, err || body);
                   }
                   var profile = JSON.parse(body);
+                  var accountAal2 = !!profile.twoFactorAuthentication;
+
+                  // Passkey-only account with required profile AAL2: bounce
+                  // once to FxA to force TOTP enrolment. The bounced flag
+                  // caps it at one pass if the FxA divert is broken.
+                  if (
+                    req.session.profileAal2Required &&
+                    !accountAal2 &&
+                    !req.session.profileAal2Bounced
+                  ) {
+                    req.session.profileAal2Bounced = true;
+                    return res.redirect('/api/profile_aal2');
+                  }
+
                   req.session.email = profile.email;
                   req.session.subscriptions = profile.subscriptions;
+                  req.session.account_aal2 = accountAal2;
+                  req.session.profileAal2Required = null;
+                  req.session.profileAal2Bounced = null;
+
                   // ensure the redirect goes to the correct place for either
                   // the redirect or iframe OAuth flows.
                   var referrer = req.get('referrer') || '';
