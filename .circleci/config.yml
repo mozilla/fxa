@@ -692,6 +692,13 @@ jobs:
       resource_class:
         type: string
         default: large
+      # Git ref the affected-spec narrowing diffs against (see fxa-auth-server's
+      # test-ci.sh, which feeds the changed files to Jest's --findRelatedTests).
+      # Set on PR workflows only so honoring suites run just the related specs;
+      # left empty on tag/nightly so they run the full suite as a regression guard.
+      jest_affected_base:
+        type: string
+        default: ''
       workflow:
         type: string
     executor: default-executor
@@ -708,6 +715,7 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
+            JEST_AFFECTED_BASE: << parameters.jest_affected_base >>
       - store-artifacts
       - upload_to_gcs:
           workflow: << parameters.workflow >>
@@ -733,6 +741,12 @@ jobs:
         type: string
         default: large
       start_customs:
+        type: boolean
+        default: false
+      # Run the (slow, rate-limited) Stripe test-customer sweep. Housekeeping that
+      # only needs to happen periodically, so it's enabled on nightly only; PR and
+      # tag workflows leave it false so they don't pay the cost on every run.
+      run_stripe_cleanup:
         type: boolean
         default: false
       test_suite:
@@ -762,6 +776,7 @@ jobs:
             NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
+            RUN_STRIPE_CLEANUP: << parameters.run_stripe_cleanup >>
           no_output_timeout: 20m
       - store-artifacts
       - upload_to_gcs:
@@ -989,6 +1004,7 @@ workflows:
           name: Unit Test (PR)
           resource_class: xlarge
           nx_run: affected --base=main --head=$CIRCLE_SHA1
+          jest_affected_base: main
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -1362,6 +1378,7 @@ workflows:
           test_suite: servers-auth-integration
           workflow: nightly
           nx_run: run-many --skipRemoteCache
+          run_stripe_cleanup: true
           requires:
             - Build (nightly)
       - integration-test:
