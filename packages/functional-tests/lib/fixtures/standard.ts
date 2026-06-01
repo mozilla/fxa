@@ -42,7 +42,7 @@ const CI_WAF_TOKEN = process.env.CI_WAF_TOKEN;
  * FXA-owned domains only, leaving third-party origins (Stripe, hCaptcha)
  * untouched. No-op when CI_WAF_TOKEN is unset.
  */
-async function addWafBypassHeader(page: Page, target: BaseTarget) {
+export async function addWafBypassHeader(page: Page, target: BaseTarget) {
   if (!CI_WAF_TOKEN) {
     if (target.name === 'stage' || target.name === 'production') {
       // eslint-disable-next-line no-console
