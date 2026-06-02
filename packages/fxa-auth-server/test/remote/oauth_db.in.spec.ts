@@ -324,7 +324,7 @@ describe('db', () => {
       const notFound = await db.getScope(notFoundScope);
       expect(notFound).toBeFalsy();
       const result = await db.getScope(scopeName);
-      expect(result).toEqual(newScope);
+      expect(result).toMatchObject(newScope);
     });
   });
 

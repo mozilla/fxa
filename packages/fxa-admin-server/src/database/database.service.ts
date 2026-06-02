@@ -22,6 +22,7 @@ import {
   RecoveryKey,
   RecoveryPhones,
   RelyingParty,
+  Scope,
   SecurityEvent,
   SessionToken,
   TotpToken,
@@ -56,6 +57,7 @@ export class DatabaseService implements OnModuleDestroy {
   public sessionTokens: typeof SessionToken;
   public device: typeof Device;
   public relyingParty: typeof RelyingParty;
+  public scope: typeof Scope;
   public wafBypassTokens: typeof WafBypassToken;
   public linkedAccounts: typeof LinkedAccount;
 
@@ -106,6 +108,8 @@ export class DatabaseService implements OnModuleDestroy {
     // Rebind for oauth db
     RelyingParty.knex(this.knexOauth);
     this.relyingParty = RelyingParty;
+    Scope.knex(this.knexOauth);
+    this.scope = Scope;
     WafBypassToken.knex(this.knexOauth);
     this.wafBypassTokens = WafBypassToken;
 

@@ -24,6 +24,7 @@ import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
 import { PruneTokens } from './prune-tokens';
 import { RelyingParty } from './relying-party';
+import { Scope } from './scope';
 import { SignInCodes } from './sign-in-codes';
 import { UnblockCodes } from './unblock-codes';
 import { RecoveryCodes } from './recovery-codes';
@@ -264,6 +265,7 @@ export {
   SessionToken,
   TotpToken,
   RelyingParty,
+  Scope,
   SignInCodes,
   UnblockCodes,
   RecoveryCodes,

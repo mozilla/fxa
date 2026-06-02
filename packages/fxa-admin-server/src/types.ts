@@ -309,3 +309,14 @@ export interface DomainBlocklistEntry {
   domain: string;
   createdAt: number;
 }
+
+export interface OAuthScopeDto {
+  id: number;
+  scope: string;
+  hasScopedKeys: boolean;
+}
+
+export type OAuthScopeCreateDto = Pick<
+  OAuthScopeDto,
+  'scope' | 'hasScopedKeys'
+>;
