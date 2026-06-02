@@ -139,6 +139,12 @@ function generateVersionJsonIfNeeded(): void {
 }
 
 export default async function globalSetup(): Promise<void> {
+  // DISCOVERY (nshirley/nx-profile-integration): time each setup phase to quantify
+  // server-boot vs the rest of the integration step. REMOVE before merge.
+  const __gsStart = Date.now();
+  const __phase = (label: string, since: number) =>
+    console.log(`[GS timing] ${label}: ${Date.now() - since}ms`);
+
   if (!process.env.CORS_ORIGIN) {
     process.env.CORS_ORIGIN = 'http://foo,http://bar';
   }
@@ -158,7 +164,9 @@ export default async function globalSetup(): Promise<void> {
 
   const printLogs = process.env.MAIL_HELPER_LOGS === 'true';
 
+  const __k0 = Date.now();
   generateKeysIfNeeded();
+  __phase('generateKeys', __k0);
   generateVersionJsonIfNeeded();
 
   // Kill stale auth servers from previous runs before starting new ones
@@ -219,7 +227,9 @@ export default async function globalSetup(): Promise<void> {
     SHARED_PROFILE_PORT,
     '...'
   );
+  const __p0 = Date.now();
   const sharedProfileHelper = await createProfileHelper(SHARED_PROFILE_PORT);
+  __phase('profile helper start', __p0);
   (global as any).__sharedProfileHelper = sharedProfileHelper;
   console.log(
     '[Jest Global Setup] Shared profile helper started on port',
@@ -235,6 +245,7 @@ export default async function globalSetup(): Promise<void> {
 
   killExistingProcess(SHARED_SERVER_PID_FILE, 'shared_server');
 
+  const __srv0 = Date.now();
   const sharedPublicUrl = `http://localhost:${SHARED_SERVER_PORT}`;
   const sharedProfileUrl = `http://${PROFILE_HELPER_HOST}:${SHARED_PROFILE_PORT}`;
   const sharedPrintLogs = process.env.REMOTE_TEST_LOGS === 'true';
@@ -276,6 +287,8 @@ export default async function globalSetup(): Promise<void> {
 
   try {
     await waitForServer(sharedPublicUrl);
+    __phase('shared auth server boot', __srv0);
+    __phase('TOTAL globalSetup', __gsStart);
     console.log(
       '[Jest Global Setup] Shared auth server started (PID:',
       sharedSpawned.process.pid,
