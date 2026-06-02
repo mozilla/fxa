@@ -270,6 +270,20 @@ async function run(config) {
     ...config.redis,
     ...config.redis.ratelimit,
   });
+
+  // Create BigQuery writer for rate limit check logging (if enabled)
+  const { RateLimitBqWriter } = require('@fxa/accounts/rate-limit');
+  const bqWriter =
+    config.rateLimit.bigquery && config.rateLimit.bigquery.enabled
+      ? new RateLimitBqWriter({
+          projectId: config.rateLimit.bigquery.projectId,
+          dataset: config.rateLimit.bigquery.dataset,
+          table: config.rateLimit.bigquery.table,
+          flushIntervalMs: config.rateLimit.bigquery.flushIntervalMs,
+          batchSize: config.rateLimit.bigquery.batchSize,
+        })
+      : undefined;
+
   const rateLimit = new RateLimit(
     {
       rules,
@@ -278,7 +292,8 @@ async function run(config) {
       ignoreUIDs: config.rateLimit.ignoreUIDs,
     },
     rateLimitRedis,
-    statsd
+    statsd,
+    bqWriter
   );
   Container.set(RateLimit, rateLimit);
 

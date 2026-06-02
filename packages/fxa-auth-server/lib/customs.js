@@ -345,7 +345,7 @@ class CustomsClient {
 
     // The config can specify that certain ips, emails, or uids should be excluded
     // from rate limit checks.
-    const skip = this.rateLimit.skip(opts);
+    const skip = this.rateLimit.skip(action, opts);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
         opts.ip_email ? 'ip_email' : '',

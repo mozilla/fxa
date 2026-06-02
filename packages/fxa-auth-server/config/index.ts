@@ -2509,6 +2509,44 @@ const convictConf = convict({
       env: 'RATE_LIMIT__EMAIL_ALIAS_NORMALIZATION',
       format: String,
     },
+    bigquery: {
+      enabled: {
+        default: false,
+        doc: 'Enable logging rate limit checks to BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__ENABLED',
+        format: Boolean,
+      },
+      projectId: {
+        default: '',
+        doc: 'GCP project ID for BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__PROJECT_ID',
+        format: String,
+      },
+      dataset: {
+        default: 'fxa',
+        doc: 'BigQuery dataset name',
+        env: 'RATE_LIMIT__BIGQUERY__DATASET',
+        format: String,
+      },
+      table: {
+        default: 'rate_limit_checks',
+        doc: 'BigQuery table name',
+        env: 'RATE_LIMIT__BIGQUERY__TABLE',
+        format: String,
+      },
+      flushIntervalMs: {
+        default: 5000,
+        doc: 'How often to flush buffered events to BigQuery (ms)',
+        env: 'RATE_LIMIT__BIGQUERY__FLUSH_INTERVAL_MS',
+        format: Number,
+      },
+      batchSize: {
+        default: 100,
+        doc: 'Max events to buffer before flushing to BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__BATCH_SIZE',
+        format: Number,
+      },
+    },
   },
   recoveryPhone: {
     enabled: {
