@@ -35,7 +35,10 @@ elif [ "$TEST_TYPE" == 'integration' ]; then
   npx jest --config jest.oauth-api.config.js --forceExit --ci --reporters=default --reporters=jest-junit
   echo "[test-ci timing] oauth-api jest run: $((SECONDS - __t))s"
 
+  echo -e "\n\nRunning customer clean up"
+  __t=$SECONDS
   yarn run clean-up-old-ci-stripe-customers
+  echo "[test-ci timing] clean-up-old-ci-stripe-customers: $((SECONDS - __t))s"
 
 else
   echo -e "\n\nRunning all Jest tests"
