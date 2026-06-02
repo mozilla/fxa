@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Firefox Accounts monorepo",
   "scripts": {
-    "preinstall": "_scripts/check-package-manager.sh",
+    "preinstall": "_scripts/check-package-manager.sh && _scripts/check-node-version.sh",
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "start": "nps --prefix=start",
     "stop": "nps --prefix=stop",
@@ -154,7 +154,7 @@
     "zod": "^4.3.6"
   },
   "engines": {
-    "node": "^22.15.1"
+    "node": "^24.15.0"
   },
   "lint-staged": {
     "*": [
@@ -312,7 +312,8 @@
     "nest-typed-config/class-validator": "0.14.1",
     "plist": "^3.0.6",
     "sha.js": "^2.4.12",
-    "underscore": ">=1.13.2"
+    "underscore": ">=1.13.2",
+    "intel@npm:^1.2.0": "patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch"
   },
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)"

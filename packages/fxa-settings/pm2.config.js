@@ -18,7 +18,7 @@ apps.push({
   env: {
     SKIP_PREFLIGHT_CHECK: 'true',
     NODE_ENV: 'development',
-    NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
     BROWSER: 'NONE',
     PORT: '3000',
     PATH,

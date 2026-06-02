@@ -34567,7 +34567,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"intel@npm:^1.2.0":
+"intel@npm:1.2.0":
   version: 1.2.0
   resolution: "intel@npm:1.2.0"
   dependencies:
@@ -34578,6 +34578,20 @@ __metadata:
     symbol: "npm:~0.3.1"
     utcstring: "npm:~0.1.0"
   checksum: 10c0/d2ff76377d3f7d9c653448906b303394ed3cca6bd576adcf761ad5f6174a86d17cd32a5c5fd3a72beeb51ba97f6176eb216c5cd3345ecf94007a1da44e2d0184
+  languageName: node
+  linkType: hard
+
+"intel@patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch":
+  version: 1.2.0
+  resolution: "intel@patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch::version=1.2.0&hash=61cdac"
+  dependencies:
+    chalk: "npm:^1.1.0"
+    dbug: "npm:~0.4.2"
+    stack-trace: "npm:~0.0.9"
+    strftime: "npm:~0.10.0"
+    symbol: "npm:~0.3.1"
+    utcstring: "npm:~0.1.0"
+  checksum: 10c0/be19e590172b9397b5345780ee3ecd0d82a983b2255adb8c99a495f1e9cd7ab18cc07615629186a38492377c40ebdf41d308cd8d250f55afa68ab4f94559e8cc
   languageName: node
   linkType: hard
 

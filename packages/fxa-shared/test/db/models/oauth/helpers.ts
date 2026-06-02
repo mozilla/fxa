@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export async function testOauthDatabaseSetup(instance: Knex): Promise<void> {
   // TODO: Setup DTOs for oauth. Once in place, we can do something like this:

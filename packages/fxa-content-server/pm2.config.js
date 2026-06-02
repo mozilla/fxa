@@ -17,7 +17,7 @@ apps.push({
   watch: ['server/**/*.js', 'server/**/*.html', 'server/**/*.json'],
   env: {
     NODE_ENV: 'development',
-    NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
     CONFIG_FILES: 'server/config/local.json',
     PORT: 3030,
     PATH,
