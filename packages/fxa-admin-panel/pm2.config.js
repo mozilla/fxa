@@ -19,7 +19,7 @@ module.exports = {
       env: {
         LOGGING_FORMAT: 'pretty',
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9140 --dns-result-order=ipv4first',
+        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --inspect=9140 --dns-result-order=ipv4first`.trim(),
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:8092',
         CONFIG_FILES: '../config/secrets.json',
         PORT: '8091',
@@ -41,7 +41,7 @@ module.exports = {
       env: {
         SKIP_PREFLIGHT_CHECK: 'true',
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--openssl-legacy-provider',
+        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider`.trim(),
         PUBLIC_URL: 'http://localhost:8091',
         BROWSER: 'NONE',
         PORT: '8092',

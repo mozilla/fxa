@@ -4,7 +4,7 @@
 
 # Runs tests and common CI operations. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:22.15.1 AS test-runner
+FROM cimg/node:24.15.0 AS test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
     python3-venv \
     python3-pip
@@ -32,15 +32,15 @@ RUN yarn install --immutable
 # Acts as an intermediate stage for adding the firefox install. Note,
 # that a yarn install must happen first to ensure the correct version
 # of firefox is installed. Also note that the functional-test-runner
-# must based on cimg/node:22.15.1-browsers, which is why this stage
+# must based on cimg/node:24.15.0-browsers, which is why this stage
 # is necessary.
 FROM builder AS playwright-install
-RUN npx playwright install --with-deps firefox chromium webkit;
+RUN npx playwright install firefox chromium webkit;
 
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:22.15.1-browsers AS functional-test-runner
+FROM cimg/node:24.15.0-browsers AS functional-test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
     python3-venv \
     python3-pip

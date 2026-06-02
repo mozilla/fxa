@@ -31,9 +31,9 @@ describe('pii-filters', () => {
   });
 
   describe('Deals with Bad Filter', () => {
-    let mockLogger = <ILogger>{
+    let mockLogger = {
       error: () => {},
-    };
+    } as ILogger;
     let sandbox = sinon.createSandbox();
 
     afterEach(() => {

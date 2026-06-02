@@ -53,7 +53,7 @@ executors:
   tiny-executor:
     resource_class: small
     docker:
-      - image: cimg/node:22.15.1
+      - image: cimg/node:24.15.0
     environment:
       HUSKY_SKIP_INSTALL: 1
 
@@ -65,7 +65,7 @@ executors:
         default: medium+
       image:
         type: string
-        default: cimg/node:22.15.1
+        default: cimg/node:24.15.0
     resource_class: << parameters.resource_class >>
     docker:
       - image: << parameters.image >>
@@ -83,7 +83,7 @@ executors:
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder-v8
+      - image: mozilla/fxa-circleci:ci-builder-v9
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -99,7 +99,7 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v8
+      - image: mozilla/fxa-circleci:ci-test-runner-v9
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -115,7 +115,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v8
+      - image: mozilla/fxa-circleci:ci-test-runner-v9
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -138,7 +138,7 @@ executors:
         default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v8
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v9
       - image: redis
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
@@ -193,7 +193,7 @@ executors:
         default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v8
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v9
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
@@ -370,7 +370,7 @@ commands:
             cd ..
 
             echo $TEST_FILES | circleci tests run \
-              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT" \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT --pass-with-no-tests" \
               --verbose \
               --split-by=timings \
               --timings-type=classname
@@ -518,7 +518,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v8
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v9
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -547,10 +547,10 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v8
-            docker push mozilla/fxa-circleci:ci-test-runner-v8
-            docker push mozilla/fxa-circleci:ci-functional-test-runner-v8
-            docker push mozilla/fxa-circleci:ci-builder-v8
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v9
+            docker push mozilla/fxa-circleci:ci-test-runner-v9
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-v9
+            docker push mozilla/fxa-circleci:ci-builder-v9
             wait
 
   upload_to_gcs:
@@ -1023,6 +1023,7 @@ workflows:
           name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
+          resource_class: xlarge
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: test_pull_request
@@ -1142,7 +1143,7 @@ workflows:
           name: Deploy CI Images
           executor:
             name: docker-build-executor
-            image: cimg/node:22.15.1-browsers
+            image: cimg/node:24.15.0-browsers
           filters:
             branches:
               only:
@@ -1396,7 +1397,7 @@ workflows:
           name: Deploy CI Images (nightly)
           executor:
             name: docker-build-executor
-            image: cimg/node:22.15.1-browsers
+            image: cimg/node:24.15.0-browsers
           # Note, setting force-deploy as true will result in rebuilding the images regardless
           # of whether or not there are package modifications.
           force-deploy: true

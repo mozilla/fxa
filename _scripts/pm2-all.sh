@@ -8,22 +8,7 @@ PROJECTS=$2
 cd "$DIR/.."
 
 echo -e "\nChecking Node version compatibility..."
-
-REQUIRED_NODE_VERSION=$(cat .nvmrc 2>/dev/null | tr -d 'v' || echo "")
-CURRENT_NODE_VERSION=$(node -v 2>/dev/null | tr -d 'v')
-
-if [[ -z "$REQUIRED_NODE_VERSION" || -z "$CURRENT_NODE_VERSION" ]]; then
-  echo "❌ Could not determine required or current Node version"
-  exit 1
-fi
-
-if node -e "const s = require('semver'); console.log(s.satisfies('$CURRENT_NODE_VERSION', s.validRange('$REQUIRED_NODE_VERSION') || s.coerce('$REQUIRED_NODE_VERSION')))" | grep -q true; then
-  echo "✅ Node version is compatible (v$CURRENT_NODE_VERSION)"
-else
-  echo "❌ Incompatible Node version: expected $REQUIRED_NODE_VERSION, got v$CURRENT_NODE_VERSION"
-  echo "   To fix: run 'nvm use'"
-  exit 1
-fi
+"$DIR/check-node-version.sh"
 
 mkdir -p artifacts
 
