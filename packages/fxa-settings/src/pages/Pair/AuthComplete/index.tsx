@@ -19,6 +19,8 @@ import { isSendTabEntrypoint } from '../../../lib/utilities';
 
 export const viewName = 'pair.auth.complete';
 
+export const PAIR_DEVICE_INFO_PREFIX = 'pair.supp.device-info.';
+
 type AuthCompleteProps = {
   suppDeviceInfo?: RemoteMetadata;
   supportsFirefoxView?: boolean;
@@ -36,37 +38,66 @@ const AuthComplete = ({
 }: AuthCompleteProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
-  const [deviceInfo, setDeviceInfo] = useState<RemoteMetadata | undefined>(
-    suppDeviceInfoProp
-  );
-
   const authorityIntegration =
     integration instanceof PairingAuthorityIntegration
       ? integration
       : undefined;
 
+  // Namespace the cache by pairing channel so a different pairing session in
+  // the same tab cannot restore the previous supplicant's metadata.
+  const deviceInfoKey = authorityIntegration
+    ? `${PAIR_DEVICE_INFO_PREFIX}${authorityIntegration.channelId}`
+    : undefined;
+
+  const [deviceInfo, setDeviceInfo] = useState<RemoteMetadata | undefined>(
+    () => {
+      if (suppDeviceInfoProp) return suppDeviceInfoProp;
+      if (!deviceInfoKey) return undefined;
+      try {
+        const cached = sessionStorage.getItem(deviceInfoKey);
+        return cached ? (JSON.parse(cached) as RemoteMetadata) : undefined;
+      } catch {
+        return undefined;
+      }
+    }
+  );
+
   const deviceFamily = deviceInfo?.deviceFamily || 'Unknown';
   const deviceOS = deviceInfo?.deviceOS || 'Unknown';
   const isSendTab = isSendTabEntrypoint(integration?.data.entrypoint);
 
-  // Fetch supplicant metadata if not provided via props
+  // Fetch supplicant metadata if not already available from props or sessionStorage
   useEffect(() => {
-    if (suppDeviceInfoProp) {
+    if (suppDeviceInfoProp || deviceInfo) {
       return;
     }
     authorityIntegration
       ?.getSupplicantMetadata()
-      .then(setDeviceInfo)
+      .then((info) => {
+        try {
+          if (deviceInfoKey) {
+            sessionStorage.setItem(deviceInfoKey, JSON.stringify(info));
+          }
+        } catch {}
+        setDeviceInfo(info);
+      })
       .catch(() => {});
-  }, [authorityIntegration, suppDeviceInfoProp]);
+  }, [authorityIntegration, suppDeviceInfoProp, deviceInfo, deviceInfoKey]);
 
-  // Signal pairing complete to Firefox on mount
+  // Signal pairing complete to Firefox on mount. On teardown, drop the
+  // cached metadata so a fresh pairing in the same tab doesn't reuse the
+  // previous supplicant's browser/OS.
   useEffect(() => {
     authorityIntegration?.complete();
     return () => {
       authorityIntegration?.destroy();
+      try {
+        if (deviceInfoKey) {
+          sessionStorage.removeItem(deviceInfoKey);
+        }
+      } catch {}
     };
-  }, [authorityIntegration]);
+  }, [authorityIntegration, deviceInfoKey]);
 
   const handleSeeTabsButtonClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
