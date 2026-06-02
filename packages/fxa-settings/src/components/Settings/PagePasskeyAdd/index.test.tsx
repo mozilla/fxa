@@ -31,6 +31,14 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
   <div data-testid="loading-spinner">Loading…</div>
 ));
 
+// Mock the alert helpers so the dispatcher tests below can assert which
+// one was invoked.
+jest.mock('../../../lib/passkeys/passkey-custom-error-messages', () => ({
+  notAllowedPasskeyMessage: () => 'mock-not-allowed-message',
+  timeoutPasskeyMessage: () => 'mock-timeout-message',
+  unsupportedPasskeyMessage: () => 'mock-unsupported-message',
+}));
+
 // Mock Sentry
 const mockCaptureException = jest.fn();
 jest.mock('@sentry/browser', () => ({
@@ -206,8 +214,7 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
+    expect(mockAlertError).toHaveBeenCalledWith('mock-not-allowed-message');
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
@@ -240,8 +247,7 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
+    expect(mockAlertError).toHaveBeenCalledWith('mock-not-allowed-message');
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
@@ -292,7 +298,7 @@ describe('PagePasskeyAdd', () => {
     });
   });
 
-  it('renders the unsupported-passkey alert (with Learn more link) on NotSupportedError', async () => {
+  it('shows the unsupported alert and navigates to settings on NotSupportedError', async () => {
     const notSupportedError = new DOMException(
       'not supported',
       'NotSupportedError'
@@ -312,12 +318,10 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
-    // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
-    // primary handler. If we reach here (race), don't auto-redirect — the user
-    // can use Cancel to navigate away.
-    expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    expect(mockAlertError).toHaveBeenCalledWith('mock-unsupported-message');
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
   });
 
   it('shows the timeout-specific alert and navigates to settings on TimeoutError', async () => {
@@ -336,8 +340,7 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalled();
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
+    expect(mockAlertError).toHaveBeenCalledWith('mock-timeout-message');
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({

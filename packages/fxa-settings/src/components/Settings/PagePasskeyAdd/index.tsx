@@ -183,11 +183,10 @@ export const PagePasskeyAdd = () => {
             event: { reason: categorized.gleanReason },
           });
           if (categorized.errorType === WebAuthnErrorType.NotSupported) {
-            // Defensive: MfaGuardPagePasskeyAdd should have caught this before
-            // MFA, so we only reach here if detection raced. Push the alert and
-            // leave the user on the page — they can use Cancel to navigate
-            // away themselves.
+            // MfaGuard's pre-check only covers API surface; runtime refusals
+            // (FXA-13777: Bitwarden + macOS) still land here.
             alertBar.error(unsupportedPasskeyMessage());
+            navigateToSettings();
             return;
           }
           if (categorized.errorType === WebAuthnErrorType.Timeout) {
