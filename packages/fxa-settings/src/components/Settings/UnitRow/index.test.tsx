@@ -3,12 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import UnitRow from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    handleClickEvent: jest.fn(),
+  },
+}));
 
 describe('UnitRow', () => {
+  beforeEach(() => {
+    (GleanMetrics.handleClickEvent as jest.Mock).mockClear();
+  });
+
   it('renders as expected with minimal required attributes', () => {
     renderWithRouter(<UnitRow header="Foxy" />);
 
@@ -113,6 +126,54 @@ describe('UnitRow', () => {
     expect(
       screen.getByTestId('secondary-button-unit-row-modal-button').textContent
     ).toContain('Disable');
+  });
+
+  // Regression (FXA-13881): ModalButton calls event.stopPropagation() to keep the
+  // opening click from closing the modal, which also stops the click from reaching
+  // Glean's document-level auto-element-click listener. When glean data attrs are
+  // present, the click must be recorded explicitly so the event reaches Looker.
+  describe('Glean click recording', () => {
+    it('records the primary modal-button click when ctaGleanDataAttrs is set', async () => {
+      renderWithRouter(
+        <UnitRow
+          header="Two-step authentication"
+          revealModal={() => {}}
+          ctaGleanDataAttrs={{ id: 'account_pref_two_step_auth_add_click' }}
+        />
+      );
+
+      await userEvent.click(screen.getByTestId('unit-row-modal-button'));
+
+      expect(GleanMetrics.handleClickEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it('records the secondary modal-button click when secondaryButtonGleanDataAttrs is set', async () => {
+      renderWithRouter(
+        <UnitRow
+          header="Two-step authentication"
+          headerValue="Enabled"
+          route="/two_step_authentication"
+          revealSecondaryModal={() => {}}
+          secondaryButtonGleanDataAttrs={{ id: 'two_step_auth_disable_click' }}
+        />
+      );
+
+      await userEvent.click(
+        screen.getByTestId('secondary-button-unit-row-modal-button')
+      );
+
+      expect(GleanMetrics.handleClickEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not record a modal-button click when no glean data attrs are set', async () => {
+      renderWithRouter(
+        <UnitRow header="Display name" revealModal={() => {}} />
+      );
+
+      await userEvent.click(screen.getByTestId('unit-row-modal-button'));
+
+      expect(GleanMetrics.handleClickEvent).not.toHaveBeenCalled();
+    });
   });
 
   it('renders as expected with the default avatar', () => {

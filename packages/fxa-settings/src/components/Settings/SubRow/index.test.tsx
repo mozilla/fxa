@@ -39,6 +39,7 @@ let mockAccount = {
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
+    handleClickEvent: jest.fn(),
     accountPref: {
       passkeyDeleteView: jest.fn(),
       passkeyDeleteSuccessView: jest.fn(),
@@ -323,6 +324,7 @@ describe('PasskeySubRow', () => {
     (
       GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError as jest.Mock
     ).mockClear();
+    (GleanMetrics.handleClickEvent as jest.Mock).mockClear();
     mockHasJwt = true;
     mockJwtSnapshot = { hasToken: true };
     mockJwtListeners.clear();
@@ -369,6 +371,19 @@ describe('PasskeySubRow', () => {
       screen.getByTestId('confirm-delete-passkey-button')
     ).toBeInTheDocument();
     expect(GleanMetrics.accountPref.passkeyDeleteView).toHaveBeenCalledTimes(1);
+  });
+
+  // Regression (FXA-13881): the delete handler calls event.stopPropagation()
+  // to keep the opening click from closing the modal, which also prevents the
+  // click from reaching Glean's document-level auto-element-click listener.
+  // The handler must record the click explicitly so
+  // account_pref_passkey_delete_submit still reaches Looker.
+  it('records the delete-button click via Glean when the delete button is clicked', async () => {
+    renderPasskeySubRow();
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(GleanMetrics.handleClickEvent).toHaveBeenCalledTimes(1);
   });
 
   it('closes modal when cancel button is clicked', async () => {
