@@ -179,17 +179,8 @@ export const PagePasskeyAdd = () => {
             Sentry.captureException,
             { hadExcludeCredentials }
           );
-          const reasonMap: Record<string, string> = {
-            [WebAuthnErrorType.NotAllowed]: 'not_allowed',
-            [WebAuthnErrorType.Abort]: 'not_allowed',
-            [WebAuthnErrorType.Timeout]: 'timeout',
-            [WebAuthnErrorType.NotSupported]: 'not_supported',
-            [WebAuthnErrorType.Security]: 'security',
-          };
           GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
-            event: {
-              reason: reasonMap[categorized.errorType] || 'webauthn_unknown',
-            },
+            event: { reason: categorized.gleanReason },
           });
           if (categorized.errorType === WebAuthnErrorType.NotSupported) {
             // Defensive: MfaGuardPagePasskeyAdd should have caught this before

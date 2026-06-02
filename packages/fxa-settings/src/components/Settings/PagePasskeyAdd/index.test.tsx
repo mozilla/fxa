@@ -199,6 +199,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-not-allowed-v2',
       fallbackText: 'Passkey setup couldn’t be completed.',
       logToSentry: false,
+      gleanReason: 'not_allowed',
     });
 
     renderPage();
@@ -232,6 +233,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-not-allowed-v2',
       fallbackText: 'Passkey setup couldn’t be completed.',
       logToSentry: false,
+      gleanReason: 'abort',
     });
 
     renderPage();
@@ -243,14 +245,14 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'not_allowed' },
+      event: { reason: 'abort' },
     });
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
   });
 
-  it('forwards hadExcludeCredentials=true when the server-sent options listed existing passkeys', async () => {
+  it('shows the duplicate-credential alert when NotAllowedError fires with hadExcludeCredentials', async () => {
     mockBeginPasskeyRegistration.mockResolvedValue({
       ...mockCreationOptions,
       excludeCredentials: [
@@ -259,16 +261,20 @@ describe('PagePasskeyAdd', () => {
     });
     const cancelError = new DOMException('not allowed', 'NotAllowedError');
     mockCreateCredential.mockRejectedValue(cancelError);
+    const alreadyRegisteredFallback =
+      'Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.';
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
-      errorType: WebAuthnErrorType.NotAllowed,
-      userMessageKey: 'passkey-registration-error-not-allowed-existing',
+      errorType: WebAuthnErrorType.AlreadyRegistered,
+      ftlId: 'passkey-registration-error-not-allowed-existing',
+      fallbackText: alreadyRegisteredFallback,
       logToSentry: false,
+      gleanReason: 'already_registered',
     });
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalled();
+      expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
     expect(mockHandleWebAuthnError).toHaveBeenCalledWith(
       cancelError,
@@ -276,6 +282,14 @@ describe('PagePasskeyAdd', () => {
       expect.any(Function),
       { hadExcludeCredentials: true }
     );
+    const [alertContent] = mockAlertError.mock.calls[0];
+    expect(typeof alertContent).toBe('string');
+    expect(alertContent).toMatch(/already been registered/);
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'already_registered' },
+    });
   });
 
   it('renders the unsupported-passkey alert (with Learn more link) on NotSupportedError', async () => {
@@ -291,6 +305,7 @@ describe('PagePasskeyAdd', () => {
       fallbackText:
         'This device couldn’t complete the passkey setup. Try another device or method.',
       logToSentry: true,
+      gleanReason: 'not_supported',
     });
 
     renderPage();
@@ -314,6 +329,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-timeout-v2',
       fallbackText: 'Passkey setup timed out.',
       logToSentry: false,
+      gleanReason: 'timeout',
     });
 
     renderPage();

@@ -684,11 +684,13 @@ email:
         description: |
           Categorized WebAuthn or sign-in error: 'not_allowed' (user
           dismissed the browser prompt, no credential on device, or biometric
-          failed), 'not_supported' (device/browser lacks WebAuthn support),
-          'security' (non-HTTPS or cross-origin restriction), 'timeout'
-          (ceremony timed out), 'no_passkey_found' (server pre-ceremony
-          check found no matching credential), or 'unexpected' (any other
-          error, including server failures).
+          failed), 'abort' (ceremony aborted via AbortController — extension
+          interference, tab close, etc.), 'not_supported' (authenticator
+          couldn't satisfy the requested algorithms), 'security' (rp.id or
+          effective domain mismatch), 'timeout' (ceremony timed out),
+          'not_readable' (authenticator I/O failure), 'no_passkey_found'
+          (server pre-ceremony check found no matching credential), or
+          'unexpected' (any other error, including server failures).
         type: string
   first_passkey_submit_success:
     type: event
@@ -1261,8 +1263,9 @@ login:
     extra_keys:
       reason:
         description: |
-          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'abort',
+          'not_supported', 'security', 'timeout', 'not_readable',
+          'no_passkey_found', or 'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   passkey_submit_success:
@@ -1326,8 +1329,9 @@ login:
     extra_keys:
       reason:
         description: |
-          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'abort',
+          'not_supported', 'security', 'timeout', 'not_readable',
+          'no_passkey_found', or 'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   alternative_auth_passkey_submit_success:
@@ -1390,8 +1394,9 @@ login:
     extra_keys:
       reason:
         description: |
-          Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          Categorized WebAuthn or sign-in error: 'not_allowed', 'abort',
+          'not_supported', 'security', 'timeout', 'not_readable',
+          'no_passkey_found', or 'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   otp_passkey_submit_success:
@@ -3673,7 +3678,12 @@ account_pref:
       - interaction
     extra_keys:
       reason:
-        description: Error type - not_allowed, not_supported, security, timeout, webauthn_unknown, auth_error_{errno}, or server_error
+        description: |
+          Categorized error: 'not_allowed', 'abort', 'not_supported',
+          'security', 'timeout', 'not_readable', 'already_registered',
+          'unexpected' (WebAuthn ceremony failures from the categorizer),
+          'auth_error_{errno}' (known server auth errors), or 'server_error'
+          (unhandled server failures).
         type: string
   passkey_create_success_view:
     type: event

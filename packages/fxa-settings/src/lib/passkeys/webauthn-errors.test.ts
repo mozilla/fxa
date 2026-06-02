@@ -10,6 +10,7 @@ import {
   handleWebAuthnError,
   WebAuthnErrorCategory,
   WebAuthnErrorType,
+  WebAuthnGleanReason,
   WebAuthnOperation,
 } from './webauthn-errors';
 
@@ -264,6 +265,28 @@ describe('handleWebAuthnError', () => {
       'passkey-registration-error-not-allowed-existing'
     );
   });
+
+  it('categorizes NotAllowedError with hadExcludeCredentials as AlreadyRegistered', () => {
+    const captureException = jest.fn();
+    const result = handleWebAuthnError(
+      dom('NotAllowedError'),
+      'registration',
+      captureException,
+      { hadExcludeCredentials: true }
+    );
+    expect(result.errorType).toBe(WebAuthnErrorType.AlreadyRegistered);
+  });
+
+  it('categorizes NotAllowedError without hadExcludeCredentials as NotAllowed', () => {
+    const captureException = jest.fn();
+    const result = handleWebAuthnError(
+      dom('NotAllowedError'),
+      'registration',
+      captureException,
+      { hadExcludeCredentials: false }
+    );
+    expect(result.errorType).toBe(WebAuthnErrorType.NotAllowed);
+  });
 });
 
 describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
@@ -271,17 +294,16 @@ describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
   // first_passkey_submit_frontend_error / login.passkey_submit_frontend_error
   // / login.otp_passkey_submit_frontend_error. Drift would mis-bucket the
   // signal in dashboards.
-  const cases: [
-    string,
-    'not_allowed' | 'not_supported' | 'security' | 'timeout' | 'unexpected',
-  ][] = [
+  const cases: [string, WebAuthnGleanReason][] = [
     ['NotAllowedError', 'not_allowed'],
-    ['AbortError', 'not_allowed'],
+    ['AbortError', 'abort'],
     ['TimeoutError', 'timeout'],
     ['NotSupportedError', 'not_supported'],
     ['SecurityError', 'security'],
+    // InvalidStateError on authentication is unexpected; registration is
+    // 'already_registered' (asserted in a separate test).
     ['InvalidStateError', 'unexpected'],
-    ['NotReadableError', 'unexpected'],
+    ['NotReadableError', 'not_readable'],
     ['DataError', 'unexpected'],
     ['EncodingError', 'unexpected'],
     ['ConstraintError', 'unexpected'],
@@ -302,13 +324,21 @@ describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
     expect(result.gleanReason).toBe('unexpected');
   });
 
-  it('AuthenticatorAlreadyRegistered maps to gleanReason=not_supported', () => {
+  it('InvalidStateError on registration maps to gleanReason=already_registered', () => {
+    const result = categorizeWebAuthnError(
+      dom('InvalidStateError'),
+      'registration'
+    );
+    expect(result.gleanReason).toBe('already_registered');
+  });
+
+  it('AuthenticatorAlreadyRegistered maps to gleanReason=already_registered', () => {
     const result = categorizeWebAuthnError(
       dom('NotAllowedError'),
       'registration',
       { hadExcludeCredentials: true }
     );
-    expect(result.gleanReason).toBe('not_supported');
+    expect(result.gleanReason).toBe('already_registered');
   });
 
   it('falls back to gleanReason=unexpected for unrecognized errors', () => {
