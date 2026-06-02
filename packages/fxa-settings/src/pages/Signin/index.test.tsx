@@ -74,6 +74,7 @@ jest.mock('../../lib/glean', () => ({
       diffAccountLinkClick: jest.fn(),
       engage: jest.fn(),
       lockedAccountBannerView: jest.fn(),
+      alternativeAuthView: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -82,7 +83,6 @@ jest.mock('../../lib/glean', () => ({
       success: jest.fn(),
     },
     thirdPartyAuth: {
-      loginNoPwView: jest.fn(),
       startGoogleAuthFromLogin: jest.fn(),
       startAppleAuthFromLogin: jest.fn(),
       appleDeeplink: jest.fn(),
@@ -957,9 +957,9 @@ describe('Signin component', () => {
       });
     });
 
-    it('does not fire thirdPartyAuth.loginNoPwView (owned by SigninAlternativeAuthOptions)', () => {
+    it('does not fire login.alternativeAuthView (owned by SigninAlternativeAuthOptions)', () => {
       render({ hasPassword: true, hasLinkedAccount: true });
-      expect(GleanMetrics.thirdPartyAuth.loginNoPwView).not.toHaveBeenCalled();
+      expect(GleanMetrics.login.alternativeAuthView).not.toHaveBeenCalled();
     });
   });
 

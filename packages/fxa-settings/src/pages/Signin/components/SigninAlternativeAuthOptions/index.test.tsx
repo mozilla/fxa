@@ -25,9 +25,10 @@ import { MozServices } from '../../../../lib/types';
 jest.mock('../../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    cachedLogin: { view: jest.fn() },
-    thirdPartyAuth: { loginNoPwView: jest.fn() },
-    login: { diffAccountLinkClick: jest.fn() },
+    login: {
+      alternativeAuthView: jest.fn(),
+      diffAccountLinkClick: jest.fn(),
+    },
   },
 }));
 
@@ -84,11 +85,8 @@ describe('SigninAlternativeAuthOptions', () => {
     screen.getByRole('button', { name: /Continue with Apple/ });
   });
 
-  it('emits cachedLogin.view and thirdPartyAuth.loginNoPwView on mount', () => {
+  it('emits login.alternativeAuthView on mount', () => {
     renderSigninAlternativeAuthOptions();
-    expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-      event: { thirdPartyLinks: true },
-    });
-    expect(GleanMetrics.thirdPartyAuth.loginNoPwView).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.login.alternativeAuthView).toHaveBeenCalledTimes(1);
   });
 });

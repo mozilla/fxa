@@ -14,6 +14,8 @@ const mockStartGoogleAuthFromLogin = jest.fn();
 const mockStartAppleAuthFromLogin = jest.fn();
 const mockStartGoogleAuthFromReg = jest.fn();
 const mockStartAppleAuthFromReg = jest.fn();
+const mockAlternativeAuthGoogleStart = jest.fn();
+const mockAlternativeAuthAppleStart = jest.fn();
 const mockGleanIsDone = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../lib/glean', () => {
@@ -43,6 +45,14 @@ jest.mock('../../lib/glean', () => {
         },
         startAppleAuthFromReg: () => {
           mockStartAppleAuthFromReg();
+        },
+      },
+      login: {
+        alternativeAuthGoogleStart: () => {
+          mockAlternativeAuthGoogleStart();
+        },
+        alternativeAuthAppleStart: () => {
+          mockAlternativeAuthAppleStart();
         },
       },
     },
@@ -245,6 +255,30 @@ describe('ThirdPartyAuthComponent', () => {
       const button = await screen.findByLabelText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromReg).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
+    });
+
+    it('emits glean metrics alternativeAuthGoogleStart for the signin-alternative-auth view', async () => {
+      renderWith({
+        enabled: true,
+        viewName: 'signin-alternative-auth',
+      });
+      const button = await screen.findByLabelText('Continue with Google');
+      button.click();
+      expect(mockAlternativeAuthGoogleStart).toHaveBeenCalled();
+      expect(mockStartGoogleAuthFromLogin).not.toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
+    });
+
+    it('emits glean metrics alternativeAuthAppleStart for the signin-alternative-auth view', async () => {
+      renderWith({
+        enabled: true,
+        viewName: 'signin-alternative-auth',
+      });
+      const button = await screen.findByLabelText('Continue with Apple');
+      button.click();
+      expect(mockAlternativeAuthAppleStart).toHaveBeenCalled();
+      expect(mockStartAppleAuthFromLogin).not.toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
     });
   });

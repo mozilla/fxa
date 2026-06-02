@@ -603,6 +603,42 @@ describe('lib/glean', () => {
         );
       });
 
+      it('submits a ping with the login_alternative_auth_view event name', async () => {
+        const spy = sandbox.spy(login.alternativeAuthView, 'record');
+        GleanMetrics.login.alternativeAuthView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the login_alternative_auth_google_start event name', async () => {
+        const spy = sandbox.spy(login.alternativeAuthGoogleStart, 'record');
+        GleanMetrics.login.alternativeAuthGoogleStart();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_google_start'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the login_alternative_auth_apple_start event name', async () => {
+        const spy = sandbox.spy(login.alternativeAuthAppleStart, 'record');
+        GleanMetrics.login.alternativeAuthAppleStart();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_alternative_auth_apple_start'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
       it('submits a ping with the login_passkey_submit event name', async () => {
         GleanMetrics.login.passkeySubmit();
         await GleanMetrics.isDone();
@@ -855,18 +891,6 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(
           setEventNameStub,
           'third_party_auth_google_reg_start'
-        );
-        sinon.assert.calledOnce(spy);
-      });
-
-      it('submits a ping with the login_third_party_auth_no_pw_view event name', async () => {
-        const spy = sandbox.spy(thirdPartyAuth.loginNoPwView, 'record');
-        GleanMetrics.thirdPartyAuth.loginNoPwView();
-        await GleanMetrics.isDone();
-        sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(
-          setEventNameStub,
-          'third_party_auth_login_no_pw_view'
         );
         sinon.assert.calledOnce(spy);
       });

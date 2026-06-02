@@ -154,6 +154,12 @@ const ThirdPartySignInButton = ({
       case 'apple-signin':
         GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
         break;
+      case 'google-signin-alternative-auth':
+        GleanMetrics.login.alternativeAuthGoogleStart();
+        break;
+      case 'apple-signin-alternative-auth':
+        GleanMetrics.login.alternativeAuthAppleStart();
+        break;
       case 'google-signup':
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         break;
