@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page } from '@playwright/test';
-import { test as standardTest, expect } from './standard';
+import { test as standardTest, expect, addWafBypassHeader } from './standard';
 import { create as createPaymentPages } from '../../pages/payments';
 import { BaseTarget } from '../targets/base';
 
@@ -37,6 +37,7 @@ export const test = standardTest.extend<{
   paymentPages: PaymentPOMS;
 }>({
   page: async ({ page, target }, use) => {
+    await addWafBypassHeader(page, target);
     await addPaymentsWafBypassHeader(page, target);
     await use(page);
   },
