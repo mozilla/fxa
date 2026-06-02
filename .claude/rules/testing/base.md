@@ -1,48 +1,17 @@
-# FXA Testing Guidelines
+---
+paths:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+---
 
-Shared reference for `fxa-test-draft`, `fxa-test-repair`, `fxa-test-independence`, and the FXA review skills (`fxa-review`, `fxa-review-quick`). This document is the single source of truth for FXA test rules; the bullets in `CLAUDE.md` Section 8 mirror the rule set and ordering here. If the two diverge, treat this file as authoritative and update `CLAUDE.md`.
+# FXA Testing Rules
 
-For React/TSX tests in `fxa-settings`, also apply the React-specific testing patterns in `.claude/skills/fxa-check-react/SKILL.md` (querying by role, `userEvent` over `fireEvent`, avoiding refs/instances in assertions). The rules below apply to all FXA tests; the React skill covers the additional concerns specific to component tests.
+Applies whenever you read or edit a Jest test file in FXA. These are the same rules the testing skills (`/fxa-test-draft`, `/fxa-test-repair`, `/fxa-test-independence`) and the review skills (`/fxa-review`, `/fxa-review-quick`) enforce — load them on every test-file touch so they apply to ad-hoc edits, not only skill-invoked workflows.
 
-## Test layers and shift-left
+For React component tests (`*.test.tsx`), additional React-specific rules load from `.claude/rules/testing/react.md`.
 
-FXA has three test layers, each costlier than the last:
-
-- **Unit** (`*.spec.ts` / `*.test.ts` / `*.test.tsx`, `nx test-unit`) — pure functions, services, hooks, components in isolation. Milliseconds per test, no real I/O. The default place to test business rules.
-- **Integration** (`nx test-integration`) — wiring across units, often hitting real infrastructure (MySQL, Redis). Reserve for verifying the integration itself, not for branching business logic.
-- **Functional / E2E** (Playwright in `packages/functional-tests`) — user-facing flows end-to-end. Slowest and most brittle; reserve for critical happy paths and regressions.
-
-**Shift left.** When code has nuanced business rules — validation, calculation, normalization, decision logic — extract it into a pure function or service and test it directly. Route handlers and React components should be thin shells; their tests cover wiring (auth, request/response shape, error propagation), not every branch of the underlying rule. Each branch tested at the route/component level multiplies the cost (Hapi harness, mocked DB/Redis, React provider tree); the same branch as a unit test runs in milliseconds with no harness.
-
-```ts
-// Rule extracted into a pure function; cheap and exhaustive to unit-test
-export function calculateDiscount(plan: Plan, account: Account): number {
-  if (account.delinquentSince) return 0;
-  return plan.tier === 'enterprise' ? 0.2 : 0.1;
-}
-
-it.each([
-  { tier: 'free', expected: 0.1 },
-  { tier: 'enterprise', expected: 0.2 },
-])('returns a $expected discount for the $tier tier', ({ tier, expected }) => {...});
-it('returns 0 when the account is delinquent', () => {...});
-
-// Route handler is a thin shell; route tests cover wiring only
-async function getDiscountHandler(request) {
-  const account = await db.getAccount(request.auth.credentials.uid);
-  return { discount: calculateDiscount(account.plan, account) };
-}
-
-it('returns 401 without a session token', () => {...});
-it('returns the discount in the response body', () => {...});
-```
-
-**Anti-patterns.**
-- Hapi route tests covering every business-logic branch via per-fixture `server.inject()` calls — extract the rule and unit-test it.
-- Component tests building provider trees to verify validation or formatters that could be pure-function / hook unit tests.
-- Playwright tests asserting on copy or branch outcomes outside a critical user flow.
-
-**Signal to extract.** When a single route or component has more than ~3 tests differing only in input shape, the underlying logic should likely be extracted and unit-tested directly.
+**Shift-left is a golden goal**, not a hard rule. The full guidance — which layer to test at, when to extract business logic into a pure function or hook — lives in `CLAUDE.md` Section 8 and loads at session start. While editing a test file, the practical heuristic to keep in mind: when a route or component has more than ~3 tests differing only in input shape, flag the opportunity to extract the rule and unit-test it directly.
 
 ---
 
@@ -128,7 +97,7 @@ it('throws NotFound when the account does not exist', async () => {
 it('wraps a DB connection failure in AppError.backendServiceFailure', async () => {
   db.getAccountByEmail.mockRejectedValue(new Error('ECONNREFUSED'));
   await expect(getAccount('user@example.com')).rejects.toThrow(
-    AppError.backendServiceFailure() // Leverage the actual AppError thrown instead of recreating the error object
+    AppError.backendServiceFailure()
   );
 });
 ```
@@ -251,7 +220,7 @@ beforeEach(() => { account = { ...MOCK_ACCOUNT }; });
 
 // Violation — band-aid mid-test reset hides state leaking in from another test
 it('sends one email per signup', () => {
-  jest.clearAllMocks(); // ⚠ why is this needed here? root cause is elsewhere
+  jest.clearAllMocks(); // why is this needed here? root cause is elsewhere
   signup(MOCK_ACCOUNT);
   expect(mailer.send).toHaveBeenCalledTimes(1);
 });
@@ -375,7 +344,7 @@ When adding tests to an existing file, write new tests to these standards. Don't
 
 **Focused tests must never be committed.** `it.only`, `describe.only`, `fit`, and `fdescribe` cause Jest to silently skip everything else in the file or suite, shrinking the safety net to a single test. A passing CI run on one focused test gives false confidence. These are debugging tools — strip them before commit.
 
-**Skipped tests are acceptable when justified.** `it.skip`, `xit`, `xdescribe`, and `it.todo` are fine in committed code *only* when accompanied by a comment explaining **why** the test is skipped. Prefer a follow-up reference (Jira ticket, GitHub issue) so the skip is trackable; at minimum, a short rationale that lets a future reader decide whether the skip is still warranted. An unjustified `.skip` rots into permanent dead weight — if there's no plan to re-enable it and no reason worth recording, delete the test instead.
+**Skipped tests are acceptable when justified.** `it.skip`, `xit`, `xdescribe`, and `it.todo` are fine in committed code *only* when accompanied by a comment explaining **why** the test is skipped. Prefer a follow-up reference (Jira ticket, GitHub issue) so the skip is trackable; at minimum, a short rationale that lets a future reader decide whether the skip is still warranted. An unjustified `.skip` rots into permanent dead weight — if there's no plan to re-enable it and no reason worth recording, delete the test instead. Suggest creating a ticket to track the work if there is no existing one.
 
 ```ts
 // Violation — focused tests, never commit

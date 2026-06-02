@@ -13,10 +13,9 @@ Review a test file for violations of the FXA testing guidelines and produce a pr
 
 If scope of changes is large, suggest a reasonable subset of repairs to implement in a single pass to avoid overwhelming diffs and code review. Always prioritize correctness and test value over style — if a repair improves readability but risks changing test behavior, flag it as Medium severity and note the risk.
 
-Read the shared testing guidelines before proceeding:
-`.claude/skills/fxa-testing-shared/GUIDELINES.md`
+Read the testing rules before proceeding: `.claude/rules/testing/base.md` (general FXA test rules). The rule also auto-loads when Claude reads the target test file, but reading it explicitly here ensures the audit covers every rule even before the file is opened.
 
-If the target file is a React component test (`*.test.tsx`), also read Section 5 ("Testing Patterns (React/TSX)") of `.claude/skills/fxa-check-react/SKILL.md` and audit against those rules in addition to the shared rules.
+If the target file is a React component test (`*.test.tsx`), also read `.claude/rules/testing/react.md` and audit against those component-test rules in addition.
 
 ---
 

@@ -105,7 +105,7 @@ Output JSON array with fields: severity, category ("Logic/Bugs"), subcategory, f
 - model: opus
 - description: FXA test quality review
 
-Tell this agent it is a QA engineer who understands FXA's testing patterns and common flakiness causes. Tell it to read `.claude/skills/fxa-testing-shared/GUIDELINES.md` before reviewing — that file is the authoritative rule set; the bullets below are the FXA-specific triggers to apply on top of it.
+Tell this agent it is a QA engineer who understands FXA's testing patterns and common flakiness causes. Tell it to read `.claude/rules/testing/base.md` before reviewing (and `.claude/rules/testing/react.md` if reviewing any `*.test.tsx`) — those rules are the authoritative rule set; the bullets below are the FXA-specific triggers to apply on top of them.
 
 - Check new auth-server source files have co-located `*.spec.ts`; fxa-settings uses `*.test.tsx` convention
 - Flag new Mocha tests — all new tests must be Jest
@@ -125,8 +125,8 @@ Tell this agent it is a QA engineer who understands FXA's testing patterns and c
 - Flag `forEach` / `for` loops with `expect` calls inside a single `it()` body — use `it.each` so each case is named and independently reported
 - Flag committed `it.only`, `describe.only`, `fit`, `fdescribe` (silently skips the rest of the suite — CRITICAL/HIGH if it lands in CI). For `it.skip`, `xit`, `xdescribe`, `it.todo`: only flag when there is no adjacent comment explaining the skip — a justified skip with a Jira/issue reference is acceptable per the guidelines
 - Flag when there is a jira ticket number in a test name. We do not put tickets in test names.
-- For `*.test.tsx` files in `fxa-settings` and other React packages: also apply the React testing patterns in `.claude/skills/fxa-check-react/SKILL.md` Section 5 (queries by role, `userEvent` over `fireEvent`, no asserting on instances/refs, snapshot scope).
-- **Layer / shift-left:** flag route handler tests or React component tests that branch-cover business logic via repeated fixtures (more than ~3 tests differing only in input shape). The right fix is to extract the rule into a pure function/service and unit-test it directly; route/component tests should cover wiring (auth, request/response shape, error propagation, rendering), not internal business branching. See "Test layers and shift-left" in `.claude/skills/fxa-testing-shared/GUIDELINES.md`.
+- For `*.test.tsx` files in `fxa-settings` and other React packages: also apply the React testing rules in `.claude/rules/testing/react.md` (queries by role, `userEvent` over `fireEvent`, no asserting on instances/refs, snapshot scope).
+- **Layer / shift-left (golden goal):** flag route handler tests or React component tests that branch-cover business logic via repeated fixtures (more than ~3 tests differing only in input shape). The preferred fix is to extract the rule into a pure function/service and unit-test it directly; route/component tests should cover wiring (auth, request/response shape, error propagation, rendering), not internal business branching. Shifting left isn't required for every change, but always flag the opportunity. See "Shift-left is a golden goal" in `CLAUDE.md` Section 8.
 
 Output JSON array with fields: severity, category ("Test Quality"), subcategory, file, line, issue, recommendation.
 
