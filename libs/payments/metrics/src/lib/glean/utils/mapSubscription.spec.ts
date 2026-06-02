@@ -50,13 +50,12 @@ describe('mapSubscription', () => {
     const mockCommonData = CommonMetricsFactory({
       params: CheckoutParamsFactory(),
     });
-    const mockCartData = CartMetricsFactory();
+    const mockCartData = CartMetricsFactory({ isFreeTrial: true });
     const mockCmsMetricsData = CmsMetricsDataFactory();
     const result = mapSubscription({
       commonMetricsData: mockCommonData,
       cartMetricsData: mockCartData,
       cmsMetricsData: mockCmsMetricsData,
-      isFreeTrial: true,
     });
     expect(result.subscription_is_free_trial).toBe('true');
   });
@@ -65,13 +64,12 @@ describe('mapSubscription', () => {
     const mockCommonData = CommonMetricsFactory({
       params: CheckoutParamsFactory(),
     });
-    const mockCartData = CartMetricsFactory();
+    const mockCartData = CartMetricsFactory({ isFreeTrial: false });
     const mockCmsMetricsData = CmsMetricsDataFactory();
     const result = mapSubscription({
       commonMetricsData: mockCommonData,
       cartMetricsData: mockCartData,
       cmsMetricsData: mockCmsMetricsData,
-      isFreeTrial: false,
     });
     expect(result.subscription_is_free_trial).toBe('');
   });

@@ -7,3 +7,4 @@ export * from './lib/glean/glean.manager';
 export * from './lib/glean/glean.config';
 export * from './lib/glean/glean.factory';
 export * from './lib/glean/glean.test-provider';
+export * from './lib/checkout-event-emitter';

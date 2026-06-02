@@ -107,6 +107,7 @@ import {
 } from './cart.error';
 import { AccountCustomerAlreadyExistsError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
+import { CHECKOUT_EVENT_EMITTER_TOKEN } from '@fxa/payments/metrics';
 import { PrePayStepsResultFactory } from './checkout.factories';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CurrencyManager } from '@fxa/payments/currency';
@@ -190,6 +191,10 @@ describe('CheckoutService', () => {
         CartManager,
         CartService,
         CheckoutService,
+        {
+          provide: CHECKOUT_EVENT_EMITTER_TOKEN,
+          useValue: { emit: jest.fn().mockResolvedValue(undefined) },
+        },
         ConfirmationTokenManager,
         CustomerManager,
         CustomerSessionManager,

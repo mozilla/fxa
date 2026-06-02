@@ -5,6 +5,8 @@
 import {
   CancellationReason,
   CartMetrics,
+  type CheckoutFailPayload,
+  type CheckoutSuccessPayload,
   CmsMetricsData,
   CommonMetrics,
   type GenericGleanSubManageEvent,
@@ -59,8 +61,6 @@ export const PaymentsEmitterEventsKeys = [
   'checkoutView',
   'checkoutEngage',
   'checkoutSubmit',
-  'checkoutSuccess',
-  'checkoutFail',
 ] as const;
 export type PaymentsEmitterEventsKeysType =
   (typeof PaymentsEmitterEventsKeys)[number];
@@ -86,8 +86,11 @@ export type PaymentsEmitterEvents = {
   checkoutView: CheckoutEvents;
   checkoutEngage: CheckoutEvents;
   checkoutSubmit: CheckoutPaymentEvents;
-  checkoutSuccess: CheckoutPaymentEvents;
-  checkoutFail: CheckoutPaymentEvents;
+  // Backend-triggered events emitted at the cart state transition rather
+  // than from frontend polling. See @fxa/payments/metrics for the typed
+  // payloads consumed by cart-side code via CHECKOUT_EVENT_EMITTER_TOKEN.
+  checkoutSuccess: CheckoutSuccessPayload;
+  checkoutFail: CheckoutFailPayload;
   genericGleanEvent: GenericGleanEvent;
   genericGleanSubManageEvent: GenericGleanSubManageEvent;
   subscriptionEnded: SubscriptionEndedEvents;

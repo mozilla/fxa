@@ -51,7 +51,11 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import type { CommonMetrics } from '@fxa/payments/metrics';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  type CheckoutEventEmitter,
+  type CommonMetrics,
+} from '@fxa/payments/metrics';
 
 import {
   PaidInvoiceOnFailedCartError,
@@ -122,7 +126,15 @@ import type { CartStore } from './cart-als.types';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
-  errorAllowList: Constructor<Error>[];
+  errorAllowList?: Constructor<Error>[];
+  // Invoked after the cart is finalized to FAIL. Only the submit-attempt call
+  // sites (checkoutCartWithStripe, checkoutCartWithPaypal, submitNeedsInput)
+  // pass this so that pay_setup.fail Glean telemetry fires for genuine
+  // checkout failures and not for incidental wrapWithCartCatch failures in
+  // other cart operations (updateCart, restartCart, getNeedsInput, …).
+  // The cart has its errorReasonId already set by finishErrorCart, so the
+  // callback can read it from the cart record itself.
+  onCheckoutFail?: (cart: ResultCart) => Promise<void>;
 }
 
 const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
@@ -140,6 +152,8 @@ export class CartService {
     private asyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
+    @Inject(CHECKOUT_EVENT_EMITTER_TOKEN)
+    private checkoutEmitter: CheckoutEventEmitter,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
@@ -214,6 +228,15 @@ export class CartService {
         const store = this.asyncLocalStorage.getStore();
         const subscriptionId =
           cart.stripeSubscriptionId || store?.checkout.subscriptionId;
+
+        // Gated emission: pay_setup.fail fires only when the caller opts
+        // in via onCheckoutFail. Submit-attempt call sites do; cart-edit
+        // / read-only paths (updateCart, restartCart, getNeedsInput) do
+        // not, so an incidental error in those paths does not skew the
+        // checkout conversion numbers.
+        if (options?.onCheckoutFail) {
+          await options.onCheckoutFail(cart);
+        }
 
         if (subscriptionId) {
           const subscription =
@@ -624,7 +647,18 @@ export class CartService {
     requestArgs: CommonMetrics,
     sessionUid?: string
   ) {
-    return this.wrapWithCartCatch(cartId, async () => {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       let updatedCart: ResultCart | null = null;
       try {
         //Ensure that the cart version matches the value passed in from FE
@@ -645,7 +679,7 @@ export class CartService {
         { checkout: { subscriptionId: undefined } },
         () => {
           // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, async () => {
+          this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
             await this.checkoutService.payWithStripe(
               updatedCart,
               confirmationTokenId,
@@ -677,7 +711,18 @@ export class CartService {
     sessionUid?: string,
     token?: string
   ) {
-    return this.wrapWithCartCatch(cartId, async () => {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       let updatedCart: ResultCart | null = null;
       try {
         //Ensure that the cart version matches the value passed in from FE
@@ -698,7 +743,7 @@ export class CartService {
         { checkout: { subscriptionId: undefined } },
         () => {
           // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, async () => {
+          this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
             await this.checkoutService.payWithPaypal(
               updatedCart,
               attribution,
@@ -1244,8 +1289,19 @@ export class CartService {
   }
 
   @SanitizeExceptions()
-  async submitNeedsInput(cartId: string) {
-    return this.wrapWithCartCatch(cartId, async () => {
+  async submitNeedsInput(cartId: string, requestArgs: CommonMetrics) {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
       assert(
         cart.stripeCustomerId,
@@ -1297,6 +1353,7 @@ export class CartService {
             this.subscriptionManager.getPaymentProvider(subscription),
           paymentForm,
           isCancelInterstitialOffer: false,
+          requestArgs,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)

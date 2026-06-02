@@ -6,7 +6,6 @@
 
 import {
   getNeedsInputAction,
-  recordEmitterEventAction,
   submitNeedsInputAndRedirectAction,
   validateCartStateAndRedirectAction,
 } from '@fxa/payments/ui/actions';
@@ -14,13 +13,7 @@ import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
-export function PaymentInputHandler({
-  cartId,
-  isFreeTrial,
-}: {
-  cartId: string;
-  isFreeTrial?: boolean;
-}) {
+export function PaymentInputHandler({ cartId }: { cartId: string }) {
   const stripe = useStripe();
   const params = useParams();
   const pathname = usePathname();
@@ -42,7 +35,7 @@ export function PaymentInputHandler({
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId, params, pathname, searchParamsRecord, isFreeTrial);
+            await submitNeedsInputAndRedirectAction(cartId, params, pathname, searchParamsRecord);
             break;
           case 'notRequired':
             const redirectResponse = await validateCartStateAndRedirectAction(
@@ -53,28 +46,6 @@ export function PaymentInputHandler({
             );
 
             if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
-              if (redirectResponse.state === 'success') {
-                await recordEmitterEventAction(
-                  'checkoutSuccess',
-                  { ...params },
-                  searchParamsRecord,
-                  undefined,
-                  undefined,
-                  isFreeTrial
-                );
-              }
-
-              if (redirectResponse.state === 'fail') {
-                await recordEmitterEventAction(
-                  'checkoutFail',
-                  { ...params },
-                  searchParamsRecord,
-                  undefined,
-                  undefined,
-                  isFreeTrial
-                );
-              }
-
               router.push(redirectResponse.redirectToUrl);
             }
             break;

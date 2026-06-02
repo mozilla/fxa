@@ -5,22 +5,14 @@
 'use client';
 
 import { SupportedPages } from '@fxa/payments/ui';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { validateCartStateAndRedirectAction } from '../../../actions/validateCartStateAndRedirect';
-import { recordEmitterEventAction } from '../../../actions';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export function PaymentStateObserver({
-  cartId,
-  isFreeTrial,
-}: {
-  cartId: string;
-  isFreeTrial?: boolean;
-}) {
+export function PaymentStateObserver({ cartId }: { cartId: string }) {
   const searchParams = useSearchParams();
-  const params = useParams();
   const pathname = usePathname();
   const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
@@ -43,28 +35,6 @@ export function PaymentStateObserver({
       );
 
       if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
-        if (redirectResponse.state === 'success') {
-          await recordEmitterEventAction(
-            'checkoutSuccess',
-            { ...params },
-            searchParamsRecord,
-            undefined,
-            undefined,
-            isFreeTrial
-          );
-        }
-
-        if (redirectResponse.state === 'fail') {
-          await recordEmitterEventAction(
-            'checkoutFail',
-            { ...params },
-            searchParamsRecord,
-            undefined,
-            undefined,
-            isFreeTrial
-          );
-        }
-
         isPolling = false;
         router.push(redirectResponse.redirectToUrl);
 

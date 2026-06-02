@@ -56,6 +56,7 @@ export async function retrieveAdditionalMetricsData(
           currency: cartData.value.currency,
           stripeCustomerId: cartData.value.stripeCustomerId,
           taxAddress: cartData.value.taxAddress,
+          isFreeTrial: cartData.value.isFreeTrial,
         }
       : {
           uid: '',
@@ -64,6 +65,7 @@ export async function retrieveAdditionalMetricsData(
           currency: '',
           stripeCustomerId: '',
           taxAddress: { countryCode: '', postalCode: '' },
+          isFreeTrial: false,
         };
 
   return {

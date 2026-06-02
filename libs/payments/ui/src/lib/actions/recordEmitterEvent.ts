@@ -25,32 +25,24 @@ async function recordEmitterEventAction(
   params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string | string[] | undefined>,
   paymentProvider: PaymentProvidersType,
-  paymentMethod: string,
-  isFreeTrial?: boolean
+  paymentMethod: string
 ): Promise<void>;
 async function recordEmitterEventAction(
-  eventName:
-    | 'checkoutView'
-    | 'checkoutEngage'
-    | 'checkoutSuccess'
-    | 'checkoutFail',
+  eventName: 'checkoutView' | 'checkoutEngage',
   params: Record<string, string | string[] | undefined>,
-  searchParams: Record<string, string | string[] | undefined>,
-  paymentProvider?: undefined,
-  paymentMethod?: undefined,
-  isFreeTrial?: boolean
+  searchParams: Record<string, string | string[] | undefined>
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
   params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string | string[] | undefined>,
   paymentProvider?: PaymentProvidersType,
-  paymentMethod?: string,
-  isFreeTrial?: boolean
+  paymentMethod?: string
 ) {
+  // isFreeTrial is resolved cart-side in populateCommonMetrics, so the FE
+  // no longer needs to thread it through.
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
-    isFreeTrial: isFreeTrial ?? false,
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };

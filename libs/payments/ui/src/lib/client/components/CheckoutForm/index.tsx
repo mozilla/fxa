@@ -170,10 +170,7 @@ export function CheckoutForm({
     recordEmitterEventAction(
       'checkoutEngage',
       { ...params },
-      Object.fromEntries(searchParams),
-      undefined,
-      undefined,
-      isFreeTrial
+      Object.fromEntries(searchParams)
     );
 
     if (interstitialOfferBase) {
@@ -239,8 +236,7 @@ export function CheckoutForm({
         { ...params },
         Object.fromEntries(searchParams),
         'paypal',
-        'external_paypal',
-        isFreeTrial
+        'external_paypal'
       );
       if (interstitialOfferBase) {
         glean.recordInterstitialOfferSubmit({
@@ -321,8 +317,7 @@ export function CheckoutForm({
       { ...params },
       Object.fromEntries(searchParams),
       paymentProvider,
-      selectedPaymentMethod,
-      isFreeTrial
+      selectedPaymentMethod
     );
     if (interstitialOfferBase) {
       glean.recordInterstitialOfferSubmit({
