@@ -95,7 +95,10 @@ describe('lib/client', () => {
     let httpClient: AuthClient;
     let originalFetch: typeof globalThis.fetch;
     let originalCaptureMessage: (...args: any[]) => any;
-    let capturedMessages: Array<{ message: string; context: Record<string, any> }>;
+    let capturedMessages: Array<{
+      message: string;
+      context: Record<string, any>;
+    }>;
 
     before(() => {
       httpClient = new AuthClient('http://localhost:9000');
@@ -130,7 +133,11 @@ describe('lib/client', () => {
       beforeEach(() => {
         globalThis.fetch = async () =>
           new Response(
-            JSON.stringify({ errno: 102, code: 400, message: 'Unknown account' }),
+            JSON.stringify({
+              errno: 102,
+              code: 400,
+              message: 'Unknown account',
+            }),
             { status: 400 }
           );
       });
@@ -170,8 +177,7 @@ describe('lib/client', () => {
 
     describe('non-ok response without errno', () => {
       beforeEach(() => {
-        globalThis.fetch = async () =>
-          new Response('{}', { status: 500 });
+        globalThis.fetch = async () => new Response('{}', { status: 500 });
       });
 
       it('calls captureMessage with the non-ok message', async () => {
@@ -228,7 +234,10 @@ describe('lib/client', () => {
         try {
           await httpClient.accountStatus('0123456789abcdef');
         } catch {}
-        assert.equal(capturedMessages[0].context.extra.message, 'Network failure');
+        assert.equal(
+          capturedMessages[0].context.extra.message,
+          'Network failure'
+        );
       });
 
       it('uses "unknown error" in extra when fetch throws a non-Error value', async () => {
@@ -239,7 +248,10 @@ describe('lib/client', () => {
         try {
           await httpClient.accountStatus('0123456789abcdef');
         } catch {}
-        assert.equal(capturedMessages[0].context.extra.message, 'unknown error');
+        assert.equal(
+          capturedMessages[0].context.extra.message,
+          'unknown error'
+        );
       });
 
       it('tags the capture with path and method', async () => {
@@ -255,6 +267,70 @@ describe('lib/client', () => {
           `expected path to include /account/status, got "${tags.path}"`
         );
         assert.equal(typeof tags.method, 'string');
+      });
+    });
+
+    describe('WAF-blocked response (406/429 with non-JSON body)', () => {
+      it('throws errno 125 with status 406 when body is not JSON', async () => {
+        globalThis.fetch = async () =>
+          new Response('<html>Blocked</html>', { status: 406 });
+        let caught: any;
+        try {
+          await httpClient.accountStatus('0123456789abcdef');
+        } catch (e) {
+          caught = e;
+        }
+        assert.equal(caught?.errno, 125);
+        assert.equal(caught?.code, 406);
+      });
+
+      it('throws errno 114 with status 429 when body is not JSON', async () => {
+        globalThis.fetch = async () =>
+          new Response('rate limited', { status: 429 });
+        let caught: any;
+        try {
+          await httpClient.accountStatus('0123456789abcdef');
+        } catch (e) {
+          caught = e;
+        }
+        assert.equal(caught?.errno, 114);
+        assert.equal(caught?.code, 429);
+      });
+
+      it('still rethrows the parse error on non-2xx with non-JSON body and a non-WAF status', async () => {
+        globalThis.fetch = async () =>
+          new Response('<html>Server Error</html>', { status: 500 });
+        let caught: any;
+        try {
+          await httpClient.accountStatus('0123456789abcdef');
+        } catch (e) {
+          caught = e;
+        }
+        // Falls through to the catch block as an unexpected error — preserves prior behavior.
+        assert.ok(caught instanceof SyntaxError);
+      });
+
+      it('preserves auth server errno when 429 response has a JSON body with errno', async () => {
+        // The auth server itself can return 429 with errno 114 and a retryAfter.
+        // We must not override that with our synthesized WAF mapping.
+        globalThis.fetch = async () =>
+          new Response(
+            JSON.stringify({
+              errno: 114,
+              code: 429,
+              message: 'Client has sent too many requests',
+              retryAfter: 30,
+            }),
+            { status: 429 }
+          );
+        let caught: any;
+        try {
+          await httpClient.accountStatus('0123456789abcdef');
+        } catch (e) {
+          caught = e;
+        }
+        assert.equal(caught?.errno, 114);
+        assert.equal(caught?.retryAfter, 30);
       });
     });
   });
