@@ -10,9 +10,10 @@ import classNames from 'classnames';
 import countries from 'i18n-iso-countries';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
+import { CartMutationContext } from '../../providers/CartMutationProvider';
 import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
@@ -96,6 +97,8 @@ interface ExpandedProps {
     label: string;
   };
   showNewTaxRateInfoMessage?: boolean;
+  onSubmitStart?: () => void;
+  onSubmitFailed?: () => void;
 }
 
 const Expanded = ({
@@ -110,6 +113,8 @@ const Expanded = ({
   cancelAction,
   buttonContent,
   showNewTaxRateInfoMessage = false,
+  onSubmitStart = () => {},
+  onSubmitFailed = () => {},
 }: ExpandedProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [countryCodes, setCountryCodes] = useState<
@@ -189,6 +194,7 @@ const Expanded = ({
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    onSubmitStart();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -210,6 +216,7 @@ const Expanded = ({
         if (!isValid) {
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
           setIsLoading(false);
+          onSubmitFailed();
         } else {
           const result = await saveAction(
             formCountryCode,
@@ -235,12 +242,17 @@ const Expanded = ({
               }));
             }
             setIsLoading(false);
+            onSubmitFailed();
           }
         }
+      } else {
+        setIsLoading(false);
+        onSubmitFailed();
       }
     } catch (err) {
       setServerErrors((prev) => ({ ...prev, locationNotUpdated: true }));
       setIsLoading(false);
+      onSubmitFailed();
     }
   };
 
@@ -553,6 +565,7 @@ interface SelectTaxLocationProps {
   countryCode: string | undefined;
   postalCode: string | undefined;
   currentCurrency: string;
+  cartVersion: number;
   buttonContent?: {
     ftlId: string;
     label: string;
@@ -569,6 +582,7 @@ export function SelectTaxLocation({
   countryCode,
   postalCode,
   currentCurrency,
+  cartVersion,
   buttonContent,
   showNewTaxRateInfoMessage = false,
 }: SelectTaxLocationProps) {
@@ -587,6 +601,24 @@ export function SelectTaxLocation({
   }, [countryCode, postalCode]);
 
   const [alertStatus, setAlertStatus] = useState<boolean>(false);
+  const pendingFromVersion = useRef<number | null>(null);
+  const { registerPending } = useContext(CartMutationContext);
+
+  useEffect(() => {
+    if (
+      pendingFromVersion.current !== null &&
+      cartVersion > pendingFromVersion.current
+    ) {
+      pendingFromVersion.current = null;
+      setAlertStatus(true);
+      registerPending('select-tax-location', false);
+    }
+  }, [cartVersion, registerPending]);
+
+  useEffect(() => {
+    return () => registerPending('select-tax-location', false);
+  }, [registerPending]);
+
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
 
   return expanded ? (
@@ -598,11 +630,18 @@ export function SelectTaxLocation({
       initialCountryCode={countryCode}
       initialPostalCode={postalCode}
       currentCurrency={currentCurrency}
+      onSubmitStart={() => {
+        pendingFromVersion.current = cartVersion;
+        registerPending('select-tax-location', true);
+      }}
+      onSubmitFailed={() => {
+        pendingFromVersion.current = null;
+        registerPending('select-tax-location', false);
+      }}
       saveAction={async (countryCode: string, postalCode: string) => {
         const result = await saveAction(countryCode, postalCode);
         if (result && result.ok) {
           setExpanded(false);
-          setAlertStatus(true);
           setLocalLocation({
             countryCode: result.data.countryCode,
             postalCode: result.data.postalCode,
@@ -638,7 +677,7 @@ export function IsolatedSelectTaxLocation({
   currentCurrency,
 }: Omit<
   SelectTaxLocationProps,
-  'countryCode' | 'postalCode' | 'currentCurrency'
+  'countryCode' | 'postalCode' | 'currentCurrency' | 'cartVersion'
 > & {
   currentCurrency?: string;
 }) {

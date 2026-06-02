@@ -25,11 +25,17 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+} from 'react';
 
 import type { Interval } from '@fxa/payments/metrics/client';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
+import { CartMutationContext } from '../../providers/CartMutationProvider';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
 import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 import {
@@ -125,6 +131,8 @@ export function CheckoutForm({
   for (const [key, value] of searchParams.entries()) {
     searchParamsRecord[key] = value;
   }
+
+  const { isPending: cartMutationPending } = useContext(CartMutationContext);
 
   const [formEnabled, setFormEnabled] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
@@ -225,8 +233,8 @@ export function CheckoutForm({
   ) => {
     event.preventDefault();
 
-    if (!stripe || !elements || loading) {
-      // Stripe.js hasn't yet loaded.
+    if (!stripe || !elements || loading || cartMutationPending) {
+      // Stripe.js hasn't yet loaded, or a cart mutation is in progress.
       // Make sure to disable form submission until Stripe.js has loaded.
       return;
     }
@@ -443,7 +451,7 @@ export function CheckoutForm({
                 cartVersion={cart.version}
                 cartCurrency={cart.currency}
                 searchParams={searchParams}
-                disabled={loading || !formEnabled}
+                disabled={loading || cartMutationPending || !formEnabled}
               />
             ) : (
               <BaseButton
@@ -451,7 +459,10 @@ export function CheckoutForm({
                 type="submit"
                 variant={ButtonVariant.Primary}
                 aria-disabled={
-                  !formEnabled || (isStripe && !stripeFieldsComplete) || loading
+                  !formEnabled ||
+                  (isStripe && !stripeFieldsComplete) ||
+                  loading ||
+                  cartMutationPending
                 }
               >
                 {loading ? (

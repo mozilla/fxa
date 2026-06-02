@@ -115,6 +115,7 @@ const baseProps = {
   countryCode: undefined,
   postalCode: undefined,
   currentCurrency: 'usd',
+  cartVersion: 0,
   showNewTaxRateInfoMessage: false,
 };
 
@@ -159,7 +160,7 @@ describe('SelectTaxLocation', () => {
   });
 
   describe('Successful save', () => {
-    it('calls saveAction, collapses to the updated location, and shows the success alert', async () => {
+    it('calls saveAction, collapses to the updated location, and shows the success alert once cart.version advances', async () => {
       mockValidateAndFormatPostalCode.mockResolvedValue({
         isValid: true,
         formattedPostalCode: 'A1B 2C3',
@@ -169,7 +170,7 @@ describe('SelectTaxLocation', () => {
         data: { countryCode: 'CA', postalCode: 'A1B 2C3' },
       });
 
-      render(<SelectTaxLocation {...baseProps} />);
+      const { rerender } = render(<SelectTaxLocation {...baseProps} />);
 
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Canada' })).toBeInTheDocument();
@@ -195,8 +196,16 @@ describe('SelectTaxLocation', () => {
       });
       expect(screen.getByText('CA, A1B 2C3')).toBeInTheDocument();
       expect(
-        screen.getByText(/Your location has been updated/i)
-      ).toBeInTheDocument();
+        screen.queryByText(/Your location has been updated/i)
+      ).not.toBeInTheDocument();
+
+      rerender(<SelectTaxLocation {...baseProps} cartVersion={1} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Your location has been updated/i)
+        ).toBeInTheDocument();
+      });
     });
   });
 
