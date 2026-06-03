@@ -3,89 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <title>123done - your tasks, simplified</title>
-    <meta type="description" content="" />
+    <meta type="description" content="What 123done is, in a couple of notes." />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
       content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=2,user-scalable=yes"
     />
-    <link type="text/css" rel="stylesheet" href="/en/drsugiyama/fonts.css" />
-    <link rel="stylesheet" href="css/styles.css" type="text/css" />
-    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
-    <link
-      rel="stylesheet"
-      href="css/bootstrap-responsive.css"
-      type="text/css"
-    />
-
-    <script src="modernizr.min.js"></script>
+    <link rel="stylesheet" href="/fonts/fonts.css" type="text/css" />
+    <link rel="stylesheet" href="/components/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="/css/main.css" type="text/css" />
+    <style>
+      /* about page is a single column of prose on the board */
+      body { min-height: 100vh; display: flex; flex-direction: column; }
+      .about { flex: 1; max-width: 820px; padding-block: 64px 80px; }
+      .about .ds-display { font-size: clamp(44px, 7vw, 72px); }
+      .about-lede { font-size: 22px; font-weight: 500; line-height: 1.4; margin: 24px 0 0; max-width: 60ch; }
+      .about-notes { margin: 48px 0; }
+      .about-notes .note { min-height: 0; }
+      .about-notes .note p { font-family: var(--font-hand); font-size: 24px; line-height: 1.2; color: var(--on-note); margin: 0; }
+      .about-prose p { font-size: 18px; line-height: 1.6; color: var(--ink); max-width: 64ch; margin: 0 0 18px; }
+      .about-back { margin-top: 40px; }
+    </style>
   </head>
+
   <body>
-    <div id="container">
-      <header>
-        <h1>
-          <a href="/index.html" style="text-decoration: none; color: #000;"
-            >123done</a
-          >
-          <span>your tasks - simplified</span>
-        </h1>
-        <nav>
-          <ul class="loginarea" style="vertical-align: center;">
-            <li id="loggedout">
-              <button class="btn btn-small btn-persona" type="submit">
-                <i class="icon-persona"></i> &nbsp;Sign In
-              </button>
-            </li>
-            <li id="loggedin">
-              <p>Hi, <span></span></p>
-              <p><a href="#">logout</a></p>
-            </li>
-            <li class="loading"><img src="img/loading.gif" /></li>
-          </ul>
-          <div id="dataState">
-            <div class="saved">
-              <img
-                src="img/sync_saved.png"
-                title="Your todolist is saved on the server, you can access it anywhere!"
-              />
-            </div>
-            <div class="outofdate">
-              <img
-                src="img/sync_alert.png"
-                title="Your todo list isn't saved, sign in with persona to save it!"
-              />
-            </div>
-            <div class="inprogress">
-              <img
-                src="img/sync_progress.png"
-                title="One sec, we're saving your todolist items to the server..."
-              />
-            </div>
-          </div>
-        </nav>
-      </header>
-      <section id="info">
-        <header><h1>So what is all this then?</h1></header>
+    <!-- ============ TOP NAV ============ -->
+    <header class="nav">
+      <a href="/index.html" style="text-decoration: none;">
+        <h1 class="logo-chip">123done</h1>
+      </a>
+      <div class="nav-right">
+        <a href="/index.html" class="btn btn-sm">Back to the board</a>
+      </div>
+    </header>
+
+    <!-- ============ ABOUT ============ -->
+    <main class="container about">
+      <span class="ds-eyebrow">About</span>
+      <div class="ds-display">So what is<br />all this then?</div>
+      <p class="about-lede">
+        123done is a very simple todo list application. Jot a task, slap it on
+        the board, and click it to knock it down. That’s the whole trick.
+      </p>
+
+      <div class="grid about-notes" style="--cols: 3;">
+        <div class="note note--yellow">
+          <span class="tape"></span>
+          <p>Type a task and add it to your board.</p>
+        </div>
+        <div class="note note--pink">
+          <p>Click a note to mark it done.</p>
+        </div>
+        <div class="note note--blue">
+          <span class="tape"></span>
+          <p>Click a finished note again to clear it.</p>
+        </div>
+      </div>
+
+      <div class="about-prose">
         <p>
-          123done.org is a very simple to-do list application. Simply enter your
-          to-do list item above and add it to your tasks. Click the tasks to
-          mark them as done. Clicking an already finished task will remove it
-          from the list.
+          Your task list is stored on your device so you can use it right away.
+          If you want to sync 123done across devices, sign in with your Firefox
+          account, and your notes follow you everywhere.
         </p>
         <p>
-          Your task list is stored on the computer for you to use. If you want
-          to sync 123done across devices, log in with Mozilla Persona.
+          123done is a demo of Firefox Accounts OAuth: a small relying-party app
+          used to exercise sign-in, subscription, and account flows end to end.
         </p>
-      </section>
-      <footer>
-        <p>
-          <strong>123done</strong> is a simple todo list application!
-          <a href="/about.html">Learn more!</a>
-        </p>
-      </footer>
-    </div>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/state.js"></script>
-    <script src="js/123done.js"></script>
+      </div>
+
+      <div class="about-back">
+        <a href="/index.html" class="btn btn-primary">Back to the board</a>
+      </div>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="foot-base">
+      <div class="container">
+        <span>© 2026 <b>123done</b>. All notes reserved.</span>
+        <span>A simple todo list application.</span>
+      </div>
+    </footer>
   </body>
 </html>

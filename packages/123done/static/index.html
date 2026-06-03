@@ -2,14 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>123done + Do Stuff</title>
-    <meta type="description" content="" />
+    <title>123done - Stick ’em up. Knock ’em down.</title>
+    <meta type="description" content="A simple todo list application." />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
       content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=2,user-scalable=yes"
     />
     <meta name="firefox-accounts" content="supported" />
+    <link rel="stylesheet" href="/fonts/fonts.css" type="text/css" />
     <link rel="stylesheet" href="/components/normalize.css" type="text/css" />
     <link rel="stylesheet" href="/css/main.css" type="text/css" />
     <script src="/components/modernizr.js"></script>
@@ -17,211 +18,295 @@
   </head>
 
   <body>
-    <div class="banner">
-      <div>
-      <button class="btn btn-persona sign-choose" type="submit">
-        Choose my sign-in flow for me
-      </button>
+    <!-- ============ TOP NAV (persistent on every surface) ============ -->
+    <header class="nav">
+      <h1 class="logo-chip">123done<span class="pro-status">Pro!</span></h1>
 
-      <button
-        class="btn btn-large btn-info btn-persona signin-pkce"
-        type="submit"
-      >
-        Sign In with PKCE
-      </button>
-      <div class="pkce-data"></div>
-      <button
-        class="btn btn-large btn-info btn-persona email-first-button email-first"
-        type="submit"
-      >
-        Email first
-      </button>
-      <button
-        class="btn btn-large btn-info btn-persona two-step-authentication"
-        type="submit"
-      >
-        Sign In (Require AAL2 Session)
-      </button>
-      <button
-        class="btn btn-large btn-info btn-persona profile-aal2"
-        type="submit"
-      >
-        Sign In (Require Profile AAL2)
-      </button>
-      <button
-        class="btn btn-large btn-info btn-persona third-party"
-        type="submit"
-      >
-        Sign In (Google)
-      </button>
-      <button
-        class="btn btn-large btn-info btn-persona prompt-none"
-        type="submit"
-      >
-        Sign In (prompt=none)
-      </button>
-        <button
-          class="btn btn-large btn-info btn-persona prompt-login"
-          type="submit"
-        >
-          Sign In (prompt=login)
-        </button>
-        <button
-          class="btn btn-large btn-info btn-persona scope-keys"
-          type="submit"
-        >
-          Sign In (scopeKeys)
-        </button>
-      <button
-        class="btn btn-large btn-info btn-persona force-auth"
-        type="submit"
-      >
-        Force auth
-      </button>
-      </div>
-      <div>
-        <a class="btn btn-persona btn-subscribe" data-sp3="sp3-1m">
-          SP3 - Sub to Pro 1m
-        </a>
-        <a class="btn btn-persona btn-subscribe" data-sp3="sp3-6m">
-          SP3 - Sub to Pro 6m
-        </a>
-        <a class="btn btn-persona btn-subscribe" data-sp3="sp3-12m">
-          SP3 - Sub to Pro 12m
-        </a>
-        <a class="btn btn-persona btn-subscribe" data-sp3="sp3-1m-gb">
-          SP3 - Sub to Pro 1m (EN GB)
-        </a>
-      </div>
-    </div>
+      <div class="nav-right">
+        <!--
+          Test Flows dropdown. 123done is an OAuth test harness, so every QA and
+          subscription button stays mounted here. The panel is closed by default
+          for people; under browser automation qa-menu.js opens it on load so
+          the functional tests reach the buttons by their existing selectors
+          with no test changes.
+        -->
+        <div class="qam" id="qam">
+          <button
+            type="button"
+            class="qam-trigger"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="qam-panel"
+            id="qam-trigger"
+          >
+            <span class="qam-flask" aria-hidden="true">⚑</span
+            ><span class="qam-label">Test flows</span
+            ><span class="qam-caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="qam-panel" id="qam-panel" aria-label="Test flows">
+            <div class="qam-head">QA &amp; automated testing</div>
+            <div class="qam-groups">
+              <div class="qam-group qam-group--signin">
+                <div class="qam-grouplabel">Sign-in flows</div>
+                <div class="qam-btns">
+                  <button class="qam-btn sign-choose" type="button">
+                    Choose my sign-in flow for me
+                  </button>
+                  <button class="qam-btn signin-pkce" type="button">
+                    Sign In with PKCE
+                  </button>
+                  <button
+                    class="qam-btn email-first-button email-first"
+                    type="button"
+                  >
+                    Email first
+                  </button>
+                  <button class="qam-btn two-step-authentication" type="button">
+                    Sign In (Require AAL2 Session)
+                  </button>
+                  <button class="qam-btn profile-aal2" type="button">
+                    Sign In (Require Profile AAL2)
+                  </button>
+                  <button class="qam-btn third-party" type="button">
+                    Sign In (Google)
+                  </button>
+                  <button class="qam-btn prompt-none" type="button">
+                    Sign In (prompt=none)
+                  </button>
+                  <button class="qam-btn prompt-login" type="button">
+                    Sign In (prompt=login)
+                  </button>
+                  <button class="qam-btn scope-keys" type="button">
+                    Sign In (scopeKeys)
+                  </button>
+                  <button class="qam-btn force-auth" type="button">
+                    Force auth
+                  </button>
+                </div>
+              </div>
 
+              <div class="qam-group qam-group--sp3">
+                <div class="qam-grouplabel">SP3</div>
+                <div class="qam-btns">
+                  <a class="qam-btn btn-subscribe" data-sp3="sp3-1m">
+                    SP3 - Sub to Pro 1m
+                  </a>
+                  <a class="qam-btn btn-subscribe" data-sp3="sp3-6m">
+                    SP3 - Sub to Pro 6m
+                  </a>
+                  <a class="qam-btn btn-subscribe" data-sp3="sp3-12m">
+                    SP3 - Sub to Pro 12m
+                  </a>
+                  <a class="qam-btn btn-subscribe" data-sp3="sp3-1m-gb">
+                    SP3 - Sub to Pro 1m (EN GB)
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="pkce-data"></div>
+          </div>
+        </div>
+
+        <!-- logged-out actions -->
+        <div class="nav-anon">
+          <button class="btn btn-sm sign-in-button signin" type="submit">
+            Sign In
+          </button>
+          <button
+            class="btn btn-primary btn-sm sign-in-button signup"
+            type="submit"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <!-- logged-in actions -->
+        <div class="nav-authed">
+          <span class="nav-user" id="loggedin"><span></span></span>
+          <button id="logout" class="btn btn-sm" type="button">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ SPLASH (logged-out landing) ============ -->
     <div id="splash">
-      <header>
-        <img
-          src="/img/transparent-logo.png"
-          id="splash-logo"
-          alt="123done-logo"
-          width="72"
-          height="70"
-        />
-        <h1>123done</h1>
+      <section class="container hero">
+        <div>
+          <span class="ds-eyebrow">A simple todo list application</span>
+          <div class="hero-headline">
+            <span class="ds-display">Stick&nbsp;’em up.</span
+            ><span class="ds-display blue">Knock&nbsp;’em&nbsp;down.</span>
+          </div>
+          <p class="hero-sub">
+            With 123done you make and manage beautiful, world-class todo lists.
+            Jot a note, slap it on the board, cross it off. That’s the whole
+            trick.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary signup" type="submit">
+              Sign Up Free
+            </button>
+            <a href="#how" class="btn">See how it works</a>
+          </div>
+        </div>
+        <div class="cluster" aria-hidden="true">
+          <div class="note note--yellow c1">
+            <span class="tape"></span><div class="task">buy oat milk</div>
+          </div>
+          <div class="note note--pink c2">
+            <div class="task">finish Q report</div>
+            <div class="meta">due friday</div>
+          </div>
+          <div class="note note--blue c3">
+            <span class="tape"></span>
+            <div class="task strike">water the plants</div>
+          </div>
+          <div class="note note--green c4">
+            <div class="task">do the impossible</div>
+            <div class="meta">no rush</div>
+          </div>
+        </div>
+      </section>
 
-        <button
-          class="btn btn-large btn-info btn-persona sign-in-button signup"
-          type="submit"
-        >
-          Sign Up
-        </button>
-        <button
-          class="btn btn-large btn-info btn-persona sign-in-button signin"
-          type="submit"
-        >
-          Sign In
-        </button>
-      </header>
-      <section>
-        <div class="container">
-          <div class="two-col clearfix">
-            <div class="left-col">
-              <h3>Make Todo Lists</h3>
-              <p>
-                With 123done, you can make and manage beautiful, world-class
-                todo lists.
-              </p>
-            </div>
-            <div class="right-col">
-              <img src="/img/list@2x.png" alt="list-logo" />
+      <!-- features (notes - accent) -->
+      <section class="container section" id="features">
+        <div class="head">
+          <span class="ds-eyebrow">What you get</span>
+          <h2>Three notes to a better day</h2>
+          <p>The whole app is a board and a marker. Here’s what that gets you.</p>
+        </div>
+        <div class="grid" style="--cols: 3;">
+          <div class="note note--yellow feat">
+            <span class="tape"></span><div class="num">01</div>
+            <h3>Make Todo Lists</h3>
+            <p>Make and manage beautiful, world-class todo lists.</p>
+          </div>
+          <div class="note note--pink feat">
+            <div class="num">02</div>
+            <h3>Discover Yourself</h3>
+            <p>Explore patterns in the way you work and improve your routines.</p>
+          </div>
+          <div class="note note--blue feat">
+            <span class="tape"></span><div class="num">03</div>
+            <h3>Do The Impossible</h3>
+            <p>Achieve your dreams. One note at a time.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- how it works (plain chrome - restraint) -->
+      <section class="container section section--tight" id="how">
+        <div class="head">
+          <span class="ds-eyebrow">How it works</span>
+          <h2>Jot. Stick. Knock down.</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="n">1</div>
+            <div>
+              <h3>Jot a new note</h3>
+              <p>Type a task into the compose bar and hit Add. It lands on the board in the next post-it color.</p>
             </div>
           </div>
-          <div class="two-col clearfix">
-            <div class="left-col">
-              <img src="/img/growth@2x.png" alt="growth-logo" />
-            </div>
-            <div class="right-col">
-              <h3>Discover Yourself</h3>
-              <p>
-                Explore patterns in the way you work and improve your routines.
-              </p>
+          <div class="step">
+            <div class="n">2</div>
+            <div>
+              <h3>Stick it on the board</h3>
+              <p>Your notes scatter across the grid, each pinned at a friendly hand-placed angle.</p>
             </div>
           </div>
-          <div class="two-col clearfix">
-            <div class="right-col">
-              <h3>Do The Impossible</h3>
-              <p>Achieve your dreams.</p>
-            </div>
-            <div class="right-col">
-              <img src="/img/rocket@2x.png" alt="rocket-logo" />
+          <div class="step">
+            <div class="n">3</div>
+            <div>
+              <h3>Knock it down</h3>
+              <p>Click a note when it’s done, and it gets a red strike, a red pin, and a rotated “DONE” stamp.</p>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- CTA band -->
+      <section class="cta-band section">
+        <div class="note note--yellow cta-g1" aria-hidden="true">
+          <span class="tape"></span><div class="task">start today</div>
+        </div>
+        <div class="note note--pink cta-g2" aria-hidden="true">
+          <div class="task">do the impossible</div>
+        </div>
+        <div class="container">
+          <h2>Stick ’em up. Knock ’em down.</h2>
+          <p>Make your first list in about nine seconds.</p>
+          <button class="btn btn-primary signup" type="submit">Sign Up Free</button>
+        </div>
+      </section>
     </div>
 
+    <!-- ============ LISTS (logged-in todo board) ============ -->
     <div id="lists">
-      <header id="header-main">
-        <div class="container">
-          <h1>
-            <span class="logo"></span
-            ><span class="title"
-              >123done <span class="pro-status">Pro!</span></span
-            >
-          </h1>
-          <button id="logout">logout</button>
-          <div id="loggedin"><span></span></div>
+      <main class="container board">
+        <div class="board-head">
+          <h2>To Do</h2>
+          <span class="date">your tasks, simplified</span>
         </div>
-      </header>
-      <section class="todo">
-        <div class="container">
+
+        <section class="todo">
           <div class="preroll">
-            <ul id="signinhere" style="font-size: 15pt;">
+            <ul id="signinhere">
               <p>Sign in to get started making todo lists!</p>
             </ul>
           </div>
 
-          <h3>To Do:</h3>
-          <form
-            class="form-inline clearfix"
-            id="addform"
-            action="#"
-            method="post"
-          >
+          <form class="form-inline" id="addform" action="#" method="post">
             <div>
               <input
                 class="input-xxlarge"
                 type="text"
                 name="newitem"
                 id="newitem"
-                placeholder="new item"
+                placeholder="jot a new note…"
                 required
                 autocomplete="off"
               />
-              <input class="btn" id="addtask" type="submit" value="Add" />
+              <input
+                class="btn btn-primary"
+                id="addtask"
+                type="submit"
+                value="Add"
+              />
             </div>
           </form>
-          <ul id="todolist">
-            <div id="donelistwrapper">
-              <h3>Done:</h3>
-              <ul id="donelist"></ul>
-            </div>
-          </ul>
-        </div>
+
+          <ul id="todolist"></ul>
+
+          <div id="donelistwrapper">
+            <h3>Done:</h3>
+            <ul id="donelist"></ul>
+          </div>
+        </section>
+      </main>
+
+      <section class="keys-data">
+        <div id="keys"></div>
       </section>
     </div>
 
-    <section class="keys-data">
-      <div id="keys"></div>
-    </section>
-
-    <footer id="footer-main">
+    <!-- ============ FOOTER ============ -->
+    <footer class="foot">
       <div class="container">
-        <div class="logo"></div>
-        <p>
-          <strong>123done</strong> is a simple todo list application!
-          <a href="/about.html">Learn more!</a>
+        <span class="logo-chip">123done</span>
+        <p class="blurb">
+          A simple todo list application. Stick ’em up, knock ’em down.
         </p>
+      </div>
+      <div class="foot-base">
+        <div class="container">
+          <span>© 2026 <b>123done</b>. All notes reserved.</span>
+          <span>Privacy · Terms</span>
+        </div>
       </div>
     </footer>
 
+    <script src="/js/qa-menu.js"></script>
     <script src="/js/state.js"></script>
     <script src="/js/123done.js"></script>
     <script src="/js/pkce.js"></script>

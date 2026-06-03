@@ -1,0 +1,49 @@
+/* ============================================================
+   123done — self-hosted Sticky fonts (latin subset)
+   Archivo · Space Grotesk · Caveat · Space Mono
+   Bundled from Google Fonts (all OFL-licensed) so the app stays
+   fully self-contained with no external font requests.
+   Archivo, Space Grotesk and Caveat ship as single variable
+   files spanning their weight ranges; Space Mono is static.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/fonts/archivo.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(/fonts/space-grotesk.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(/fonts/caveat.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/space-mono-400.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/space-mono-700.woff2) format('woff2');
+}
