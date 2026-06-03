@@ -31,6 +31,14 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
   <div data-testid="loading-spinner">Loading…</div>
 ));
 
+// Mock the alert helpers so the dispatcher tests below can assert which
+// one was invoked.
+jest.mock('../../../lib/passkeys/passkey-custom-error-messages', () => ({
+  notAllowedPasskeyMessage: () => 'mock-not-allowed-message',
+  timeoutPasskeyMessage: () => 'mock-timeout-message',
+  unsupportedPasskeyMessage: () => 'mock-unsupported-message',
+}));
+
 // Mock Sentry
 const mockCaptureException = jest.fn();
 jest.mock('@sentry/browser', () => ({
@@ -181,7 +189,6 @@ describe('PagePasskeyAdd', () => {
     expect(mockBeginPasskeyRegistration).toHaveBeenCalledWith('mock-jwt');
     expect(mockCreateCredential).toHaveBeenCalledWith(
       mockCreationOptions,
-      undefined,
       expect.any(AbortSignal)
     );
     expect(mockCompletePasskeyRegistration).toHaveBeenCalledWith(
@@ -191,22 +198,22 @@ describe('PagePasskeyAdd', () => {
     );
   });
 
-  it('handles user cancel (NotAllowedError)', async () => {
+  it('shows the not-allowed message and navigates to settings on NotAllowedError', async () => {
     const cancelError = new DOMException('User cancelled', 'NotAllowedError');
     mockCreateCredential.mockRejectedValue(cancelError);
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
       errorType: WebAuthnErrorType.NotAllowed,
-      ftlId: 'passkey-registration-error-not-allowed',
-      fallbackText:
-        'Passkey setup failed or is unavailable. Try again or choose another method.',
+      ftlId: 'passkey-registration-error-not-allowed-v2',
+      fallbackText: 'Passkey setup couldn’t be completed.',
       logToSentry: false,
     });
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalled();
+      expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
+    expect(mockAlertError).toHaveBeenCalledWith('mock-not-allowed-message');
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
@@ -218,6 +225,32 @@ describe('PagePasskeyAdd', () => {
       expect.any(Function),
       { hadExcludeCredentials: false }
     );
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('shows the not-allowed message and navigates to settings on AbortError', async () => {
+    const abortError = new DOMException('Aborted externally', 'AbortError');
+    mockCreateCredential.mockRejectedValue(abortError);
+    mockHandleWebAuthnError.mockReturnValue({
+      category: WebAuthnErrorCategory.UserAction,
+      errorType: WebAuthnErrorType.Abort,
+      ftlId: 'passkey-registration-error-not-allowed-v2',
+      fallbackText: 'Passkey setup couldn’t be completed.',
+      logToSentry: false,
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledTimes(1);
+    });
+    expect(mockAlertError).toHaveBeenCalledWith('mock-not-allowed-message');
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'not_allowed' },
+    });
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
@@ -260,31 +293,31 @@ describe('PagePasskeyAdd', () => {
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.DevicePlatform,
       errorType: WebAuthnErrorType.NotSupported,
-      ftlId: 'passkey-registration-error-not-supported-v2',
-      fallbackText: 'Your browser or device doesn’t support passkeys.',
-      logToSentry: false,
+      ftlId: 'passkey-registration-error-not-supported-v3',
+      fallbackText:
+        'This device couldn’t complete the passkey setup. Try another device or method.',
+      logToSentry: true,
     });
 
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
+    expect(mockAlertError).toHaveBeenCalledWith('mock-unsupported-message');
     // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
     // primary handler. If we reach here (race), don't auto-redirect — the user
     // can use Cancel to navigate away.
     expect(mockNavigateWithQuery).not.toHaveBeenCalled();
   });
 
-  it('handles timeout error', async () => {
+  it('shows the timeout-specific alert and navigates to settings on TimeoutError', async () => {
     const timeoutError = new DOMException('Timeout', 'TimeoutError');
     mockCreateCredential.mockRejectedValue(timeoutError);
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
       errorType: WebAuthnErrorType.Timeout,
-      ftlId: 'passkey-registration-error-timeout',
-      fallbackText: 'Passkey setup was canceled. Try again.',
+      ftlId: 'passkey-registration-error-timeout-v2',
+      fallbackText: 'Passkey setup timed out.',
       logToSentry: false,
     });
 
@@ -292,6 +325,7 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalled();
     });
+    expect(mockAlertError).toHaveBeenCalledWith('mock-timeout-message');
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
@@ -429,7 +463,6 @@ describe('PagePasskeyAdd', () => {
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-
   it('shows localized message for a known non-throttle auth error', async () => {
     // errno 226 (PASSKEY_LIMIT_REACHED) is a known auth error.
     mockBeginPasskeyRegistration.mockRejectedValue({
@@ -468,7 +501,7 @@ describe('PagePasskeyAdd', () => {
 
   it('cancel button aborts the in-flight WebAuthn ceremony', async () => {
     let capturedSignal: AbortSignal | undefined;
-    mockCreateCredential.mockImplementation((_opts, _timeoutMs, signal) => {
+    mockCreateCredential.mockImplementation((_opts, signal) => {
       capturedSignal = signal;
       return new Promise(() => {});
     });
@@ -505,7 +538,7 @@ describe('PagePasskeyAdd', () => {
 
   it('cancel does not double-fire alerts when the AbortError surfaces in the catch block', async () => {
     mockCreateCredential.mockImplementation(
-      (_opts, _timeoutMs, signal) =>
+      (_opts, signal) =>
         new Promise<typeof mockCredential>((_resolve, reject) => {
           signal?.addEventListener('abort', () => {
             reject(new DOMException('Aborted', 'AbortError'));

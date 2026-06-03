@@ -3,27 +3,30 @@
 
 # Registration errors
 
-# User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
-passkey-registration-error-not-allowed = Passkey setup failed or is unavailable. Try again or choose another method.
-
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
 passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
 
-# The ceremony timed out before the user responded
-passkey-registration-error-timeout = Passkey setup was canceled. Try again.
+# NotAllowedError catch-all: cancel, dismiss, UV failure, no suitable authenticator, etc.
+# Also surfaced for AbortError on non-spec-compliant browsers.
+passkey-registration-error-not-allowed-v2 = Passkey setup couldn’t be completed.
+passkey-registration-error-not-allowed-link = Learn more
+
+# TimeoutError, on browsers that surface it distinctly from NotAllowedError.
+passkey-registration-error-timeout-v2 = Passkey setup timed out.
+passkey-registration-error-timeout-link = Learn more
 
 # User clicked the in-page Cancel link while the ceremony was still pending
 passkey-registration-canceled = Passkey setup was canceled. Try again.
 
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
-passkey-registration-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
-# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-v3 = This device couldn’t complete the passkey setup. Try another device or method.
+# Link label appended after passkey-registration-error-not-supported-v3, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Learn more
 
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
-passkey-registration-error-security = Passkeys can’t be set up on this page. Use the secure site and try again.
+passkey-registration-error-security-v2 = There’s a problem with the secure setup of this page. Try again later.
 
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
 passkey-registration-error-invalid-state = This passkey is already registered. Use it to sign in or add a different passkey.
@@ -49,10 +52,10 @@ passkey-authentication-error-not-allowed-existing = Passkey setup isn’t availa
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
 
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
+passkey-authentication-error-not-supported-v3 = This device couldn’t complete sign-in with a passkey. Try another sign-in method.
 
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
-passkey-authentication-error-security = Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.
+passkey-authentication-error-security-v2 = There’s a problem with the secure setup of this page. Try again later.
 
 # Unexpected credential state during authentication
 passkey-authentication-error-invalid-state = Something went wrong with your passkey. Try again or use another sign-in method.

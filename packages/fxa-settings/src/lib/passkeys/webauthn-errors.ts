@@ -5,14 +5,15 @@
 export type WebAuthnOperation = 'registration' | 'authentication';
 
 /**
- * High-level grouping that drives Sentry logging and UI messaging strategy.
+ * High-level grouping that informs UI messaging strategy. Sentry logging is
+ * decided per-entry on `ERROR_MAP[*].logToSentry`, not by category — within
+ * `device_platform`, NotSupported and Security are logged (likely deployment
+ * misconfiguration), while InvalidState and NotReadable are not (user
+ * hardware/state, not actionable).
  *
  *   user_action     — User cancelled, dismissed, or let the prompt time out.
- *                     Expected outcomes; do not log to Sentry.
  *   device_platform — Browser or authenticator cannot satisfy the request.
- *                     Do not log to Sentry.
  *   unexpected      — Error we do not expect in a correct integration.
- *                     Log to Sentry for investigation.
  */
 export enum WebAuthnErrorCategory {
   UserAction = 'user_action',
@@ -21,15 +22,25 @@ export enum WebAuthnErrorCategory {
 }
 
 export enum WebAuthnErrorType {
+  /** WebAuthn L3 §5.1.3.1, §5.1.4.3 — anti-fingerprinting catch-all. */
   NotAllowed = 'NotAllowedError',
+  /** WebAuthn L3 §5.6, §5.1.4.3 — ceremony cancelled via AbortController. */
   Abort = 'AbortError',
+  /** Not in WebAuthn L3 exceptions list; some browsers surface it distinctly. */
   Timeout = 'TimeoutError',
+  /** WebAuthn L3 §5.1.3.1 — pubKeyCredParams unsupported by authenticator. */
   NotSupported = 'NotSupportedError',
+  /** WebAuthn L3 §5.1.3.1, §5.1.4.3 — effective domain / rp.id invalid. */
   Security = 'SecurityError',
+  /** WebAuthn L3 §5.1.3.1 — registration only: excludeCredentials match. */
   InvalidState = 'InvalidStateError',
+  /** Not in WebAuthn L3 exceptions list; authenticator I/O failure. */
   NotReadable = 'NotReadableError',
+  /** WebAuthn L3 §5.1.3 — invalid options. Developer/integration bug. */
   Type = 'TypeError',
+  /** Authenticator constraint failure (attestation / device restrictions). */
   Constraint = 'ConstraintError',
+  /** Catch-all DOMException for unexpected ceremony failures. */
   Data = 'DataError',
   Encoding = 'EncodingError',
   Operation = 'OperationError',
@@ -102,82 +113,102 @@ const AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK: Record<
 };
 
 export const ERROR_MAP: Record<string, ErrorEntry> = {
+  // WebAuthn L3 §5.1.3.1, §5.1.4.3 — anti-fingerprinting catch-all:
+  // cancel, dismiss, UV failure, no suitable authenticator, etc.
+  // TimeoutError is keyed separately when surfaced distinctly.
   NotAllowedError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotAllowed,
     logToSentry: false,
     gleanReason: 'not_allowed',
     ftlId: {
-      registration: 'passkey-registration-error-not-allowed',
+      registration: 'passkey-registration-error-not-allowed-v2',
       authentication: 'passkey-authentication-error-not-allowed',
     },
     fallbackText: {
-      registration:
-        'Passkey setup failed or is unavailable. Try again or choose another method.',
+      registration: 'Passkey setup couldn’t be completed.',
       authentication:
         'Sign-in with passkey failed or is unavailable. Try again or choose another method.',
     },
   },
-  // Shares NotAllowedError wording — both mean the ceremony was cancelled.
+  // WebAuthn L3 §5.6, §5.1.4.3 — ceremony cancelled via AbortController.
+  // The in-page Cancel button is filtered upstream by PagePasskeyAdd's
+  // wasCanceled guard. Causes reaching here are nebulous: tab close,
+  // extensions or other code injecting their own AbortController, a
+  // concurrent ceremony aborting the in-flight one, or older Safari/iOS
+  // throwing AbortError where modern browsers throw NotAllowedError.
+  // Route to the same broad copy as NotAllowed.
   AbortError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.Abort,
     logToSentry: false,
     gleanReason: 'not_allowed',
     ftlId: {
-      registration: 'passkey-registration-error-not-allowed',
+      registration: 'passkey-registration-error-not-allowed-v2',
       authentication: 'passkey-authentication-error-not-allowed',
     },
     fallbackText: {
-      registration:
-        'Passkey setup failed or is unavailable. Try again or choose another method.',
+      registration: 'Passkey setup couldn’t be completed.',
       authentication:
         'Sign-in with passkey failed or is unavailable. Try again or choose another method.',
     },
   },
+  // Not in WebAuthn L3 exceptions list. Only surfaces on browsers that
+  // distinguish TimeoutError from NotAllowedError; when it fires the
+  // cause is unambiguous, so we use timeout-specific copy.
   TimeoutError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.Timeout,
     logToSentry: false,
     gleanReason: 'timeout',
     ftlId: {
-      registration: 'passkey-registration-error-timeout',
+      registration: 'passkey-registration-error-timeout-v2',
       authentication: 'passkey-authentication-error-timeout',
     },
     fallbackText: {
-      registration: 'Passkey setup was canceled. Try again.',
+      registration: 'Passkey setup timed out.',
       authentication: 'Passkey request timed out. Please try again.',
     },
   },
 
+  // WebAuthn L3 §5.1.3.1 — pubKeyCredParams unsupported by authenticator
+  // (no public-key type entry, or no supported signature algorithm).
   NotSupportedError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotSupported,
-    logToSentry: false,
+    // Logged to Sentry — could indicate a config bug (wrong pubKeyCredParams)
+    // rather than a genuine runtime authenticator limitation.
+    logToSentry: true,
     gleanReason: 'not_supported',
     ftlId: {
-      registration: 'passkey-registration-error-not-supported-v2',
-      authentication: 'passkey-authentication-error-not-supported-v2',
+      registration: 'passkey-registration-error-not-supported-v3',
+      authentication: 'passkey-authentication-error-not-supported-v3',
     },
     fallbackText: {
-      registration: `Your browser or device doesn’t support passkeys.`,
-      authentication: `Your browser or device doesn’t support passkeys.`,
+      registration: `This device couldn’t complete the passkey setup. Try another device or method.`,
+      authentication: `This device couldn’t complete sign-in with a passkey. Try another sign-in method.`,
     },
   },
+  // WebAuthn L3 §5.1.3.1, §5.1.4.3 — effective domain / rp.id invalid.
   SecurityError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.Security,
-    logToSentry: false,
+    // Logged to Sentry — almost always a deployment misconfiguration
+    // (rp.id or effective domain mismatch).
+    logToSentry: true,
     gleanReason: 'security',
     ftlId: {
-      registration: 'passkey-registration-error-security',
-      authentication: 'passkey-authentication-error-security',
+      registration: 'passkey-registration-error-security-v2',
+      authentication: 'passkey-authentication-error-security-v2',
     },
     fallbackText: {
-      registration: `Passkeys can’t be set up on this page. Use the secure site and try again.`,
-      authentication: `Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.`,
+      registration: `There’s a problem with the secure setup of this page. Try again later.`,
+      authentication: `There’s a problem with the secure setup of this page. Try again later.`,
     },
   },
+  // WebAuthn L3 §5.1.3.1 — registration only: authenticator recognized
+  // an excludeCredentials entry (duplicate-credential). Authentication
+  // context isn't spec-defined for this error name.
   InvalidStateError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.InvalidState,
@@ -194,6 +225,8 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
         'Something went wrong with your passkey. Try again or use another sign-in method.',
     },
   },
+  // Not in WebAuthn L3 exceptions list. Authenticator I/O failure
+  // (e.g. security key disconnected mid-ceremony).
   NotReadableError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotReadable,
@@ -291,7 +324,7 @@ export interface WebAuthnErrorContext {
 export function categorizeWebAuthnError(
   error: unknown,
   operation: WebAuthnOperation,
-  context?: { hadExcludeCredentials: boolean }
+  context?: WebAuthnErrorContext
 ): CategorizedWebAuthnError {
   const name = (() => {
     if (error instanceof TypeError) {
@@ -308,7 +341,7 @@ export function categorizeWebAuthnError(
       return 'AuthenticatorAlreadyRegistered';
     }
 
-    // Otherise, just return the name of the name dom exception for look up.
+    // Otherwise, return the DOMException name for lookup.
     if (error instanceof DOMException) {
       return error.name;
     }
@@ -345,7 +378,7 @@ export function handleWebAuthnError(
   error: unknown,
   operation: WebAuthnOperation,
   captureException: (error: unknown) => void,
-  context?: { hadExcludeCredentials: boolean }
+  context?: WebAuthnErrorContext
 ): CategorizedWebAuthnError {
   const categorized = categorizeWebAuthnError(error, operation, context);
   if (categorized.logToSentry) {

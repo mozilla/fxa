@@ -59,6 +59,9 @@ export async function generateWebauthnRegistrationOptions(
   config: PasskeyConfig,
   input: RegistrationOptionsInput
 ): Promise<PublicKeyCredentialCreationOptionsJSON> {
+  // timeout omitted; we use @simplewebauthn's default. Server-side
+  // challenge expiry (PASSKEYS__CHALLENGE_TIMEOUT) must remain >= this
+  // plus network round-trip.
   return generateRegistrationOptions({
     // rpName is deprecated field kept for backward compatibility;
     // spec recommends using rpId as a safe default.
@@ -187,6 +190,9 @@ export async function generateWebauthnAuthenticationOptions(
   config: PasskeyConfig,
   input: AuthenticationOptionsInput
 ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+  // timeout omitted; we use @simplewebauthn's default. Server-side
+  // challenge expiry (PASSKEYS__CHALLENGE_TIMEOUT) must remain >= this
+  // plus network round-trip.
   return generateAuthenticationOptions({
     rpID: config.rpId,
     userVerification: config.userVerification,

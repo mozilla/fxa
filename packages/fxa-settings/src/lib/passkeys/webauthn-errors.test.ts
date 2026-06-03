@@ -54,25 +54,28 @@ describe('categorizeWebAuthnError — user-action errors (no Sentry)', () => {
   });
 });
 
-describe('categorizeWebAuthnError — device/platform errors (no Sentry)', () => {
-  const cases: [string, WebAuthnErrorType][] = [
-    ['NotSupportedError', WebAuthnErrorType.NotSupported],
-    ['SecurityError', WebAuthnErrorType.Security],
-    ['InvalidStateError', WebAuthnErrorType.InvalidState],
-    ['NotReadableError', WebAuthnErrorType.NotReadable],
+describe('categorizeWebAuthnError — device/platform errors', () => {
+  // logToSentry varies per error: NotSupported/Security indicate likely
+  // config or deployment bugs (Sentry'd); InvalidState/NotReadable are
+  // user/hardware scenarios (not Sentry'd).
+  const cases: [string, WebAuthnErrorType, boolean][] = [
+    ['NotSupportedError', WebAuthnErrorType.NotSupported, true],
+    ['SecurityError', WebAuthnErrorType.Security, true],
+    ['InvalidStateError', WebAuthnErrorType.InvalidState, false],
+    ['NotReadableError', WebAuthnErrorType.NotReadable, false],
   ];
 
   describe.each(OPERATIONS)('operation: %s', (operation) => {
     test.each(cases)(
-      '%s → DevicePlatform, logToSentry false',
-      (name, errorType) => {
+      '%s → DevicePlatform, logToSentry=%s',
+      (name, errorType, logToSentry) => {
         const result = categorizeWebAuthnError(dom(name), operation);
         expect(result.category).toBe(WebAuthnErrorCategory.DevicePlatform);
         expect(result.errorType).toBe(errorType);
-        expect(result.logToSentry).toBe(false);
+        expect(result.logToSentry).toBe(logToSentry);
         expect(result.fallbackText.length).toBeGreaterThan(0);
         expect(result.fallbackText).toMatch(
-          /passkey|authenticator|secure site/i
+          /passkey|authenticator|secure setup|this device/i
         );
       }
     );
@@ -216,14 +219,30 @@ describe('handleWebAuthnError', () => {
     expect(captureException).not.toHaveBeenCalled();
   });
 
-  it('does not call captureException for device/platform errors', () => {
+  it('does not call captureException for non-Sentry device/platform errors', () => {
+    const captureException = jest.fn();
+    handleWebAuthnError(
+      dom('InvalidStateError'),
+      'registration',
+      captureException
+    );
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it('calls captureException for NotSupportedError (likely config bug)', () => {
     const captureException = jest.fn();
     handleWebAuthnError(
       dom('NotSupportedError'),
       'registration',
       captureException
     );
-    expect(captureException).not.toHaveBeenCalled();
+    expect(captureException).toHaveBeenCalled();
+  });
+
+  it('calls captureException for SecurityError (likely deployment misconfiguration)', () => {
+    const captureException = jest.fn();
+    handleWebAuthnError(dom('SecurityError'), 'registration', captureException);
+    expect(captureException).toHaveBeenCalled();
   });
 
   it('passes the original error to captureException, not the categorized result', () => {

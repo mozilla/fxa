@@ -32,7 +32,11 @@ import {
   HandledError,
 } from '../../../lib/error-utils';
 import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
-import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
+import {
+  notAllowedPasskeyMessage,
+  timeoutPasskeyMessage,
+  unsupportedPasskeyMessage,
+} from '../../../lib/passkeys/passkey-custom-error-messages';
 
 export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -133,7 +137,6 @@ export const PagePasskeyAdd = () => {
         // Step 2: Browser WebAuthn prompt
         const credential = await createCredential(
           creationOptions,
-          undefined,
           controller.signal
         );
 
@@ -160,7 +163,9 @@ export const PagePasskeyAdd = () => {
         navigateToSettings();
       } catch (error) {
         // handleCancel already showed the cancellation banner and navigated;
-        // suppress the AbortError side effects so they don't double-fire.
+        // suppress our own AbortError so it doesn't double-fire. Anything
+        // that gets past this guard is NOT our in-page Cancel — see
+        // webauthn-errors.ts ERROR_MAP[AbortError] for what else lands there.
         if (!isMounted.current || wasCanceled.current) return;
 
         // Check if MFA JWT expired
@@ -176,6 +181,7 @@ export const PagePasskeyAdd = () => {
           );
           const reasonMap: Record<string, string> = {
             [WebAuthnErrorType.NotAllowed]: 'not_allowed',
+            [WebAuthnErrorType.Abort]: 'not_allowed',
             [WebAuthnErrorType.Timeout]: 'timeout',
             [WebAuthnErrorType.NotSupported]: 'not_supported',
             [WebAuthnErrorType.Security]: 'security',
@@ -193,6 +199,19 @@ export const PagePasskeyAdd = () => {
             alertBar.error(unsupportedPasskeyMessage());
             return;
           }
+          if (categorized.errorType === WebAuthnErrorType.Timeout) {
+            alertBar.error(timeoutPasskeyMessage());
+            navigateToSettings();
+            return;
+          }
+          if (
+            categorized.errorType === WebAuthnErrorType.NotAllowed ||
+            categorized.errorType === WebAuthnErrorType.Abort
+          ) {
+            alertBar.error(notAllowedPasskeyMessage());
+            navigateToSettings();
+            return;
+          }
           alertBar.error(
             ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
           );
@@ -208,7 +227,9 @@ export const PagePasskeyAdd = () => {
 
         GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
           event: {
-            reason: isKnownAuthError ? `auth_error_${handledError.errno}` : 'server_error',
+            reason: isKnownAuthError
+              ? `auth_error_${handledError.errno}`
+              : 'server_error',
           },
         });
 

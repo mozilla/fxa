@@ -14,7 +14,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { PasskeySubRow } from '../SubRow';
 import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
 import { PASSKEY_SUPPORT_URL } from '../../../lib/passkeys/constants';
-import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
+import { unsupportedPasskeyMessage } from '../../../lib/passkeys/passkey-custom-error-messages';
 import { Banner } from '../../Banner';
 
 export const UnitRowPasskey = () => {

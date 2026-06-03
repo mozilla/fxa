@@ -3,6 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './constants';
-export * from './unsupported-message';
+export * from './passkey-custom-error-messages';
 export * from './webauthn';
 export * from './webauthn-errors';
