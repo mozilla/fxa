@@ -31,6 +31,12 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
   <div data-testid="loading-spinner">Loading…</div>
 ));
 
+// Mock the alert helpers so the dispatcher tests can assert which one was invoked.
+jest.mock('../../../lib/passkeys/unsupported-message', () => ({
+  unsupportedPasskeyMessage: () => 'mock-unsupported-message',
+  passkeyCanceledOrTimedOutMessage: () => 'mock-canceled-or-timed-out-message',
+}));
+
 // Mock Sentry
 const mockCaptureException = jest.fn();
 jest.mock('@sentry/browser', () => ({
@@ -191,7 +197,11 @@ describe('PagePasskeyAdd', () => {
     );
   });
 
-  it('handles user cancel (NotAllowedError)', async () => {
+  it('shows the generic categorizer fallback and navigates to settings on NotAllowedError', async () => {
+    // NotAllowedError is the WebAuthn anti-fingerprinting catch-all: cancel,
+    // UV failure, no-suitable-authenticator, and other denials are all
+    // indistinguishable behind it. We deliberately do NOT route it through
+    // the cancel/timeout banner — see PagePasskeyAdd dispatcher comment.
     const cancelError = new DOMException('User cancelled', 'NotAllowedError');
     mockCreateCredential.mockRejectedValue(cancelError);
     mockHandleWebAuthnError.mockReturnValue({
@@ -205,7 +215,9 @@ describe('PagePasskeyAdd', () => {
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalled();
+      expect(mockAlertError).toHaveBeenCalledWith(
+        'Passkey setup failed or is unavailable. Try again or choose another method.'
+      );
     });
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
@@ -269,15 +281,14 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
-    const [alertContent] = mockAlertError.mock.calls[0];
-    expect(React.isValidElement(alertContent)).toBe(true);
+    expect(mockAlertError).toHaveBeenCalledWith('mock-unsupported-message');
     // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
     // primary handler. If we reach here (race), don't auto-redirect — the user
     // can use Cancel to navigate away.
     expect(mockNavigateWithQuery).not.toHaveBeenCalled();
   });
 
-  it('handles timeout error', async () => {
+  it('shows the cancel/timeout banner and navigates to settings on TimeoutError', async () => {
     const timeoutError = new DOMException('Timeout', 'TimeoutError');
     mockCreateCredential.mockRejectedValue(timeoutError);
     mockHandleWebAuthnError.mockReturnValue({
@@ -290,7 +301,9 @@ describe('PagePasskeyAdd', () => {
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalled();
+      expect(mockAlertError).toHaveBeenCalledWith(
+        'mock-canceled-or-timed-out-message'
+      );
     });
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
@@ -429,7 +442,6 @@ describe('PagePasskeyAdd', () => {
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-
   it('shows localized message for a known non-throttle auth error', async () => {
     // errno 226 (PASSKEY_LIMIT_REACHED) is a known auth error.
     mockBeginPasskeyRegistration.mockRejectedValue({
@@ -459,7 +471,7 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     fireEvent.click(screen.getByTestId('passkey-add-cancel'));
     expect(mockAlertError).toHaveBeenCalledWith(
-      'Passkey setup was canceled. Try again.'
+      'mock-canceled-or-timed-out-message'
     );
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
@@ -499,7 +511,7 @@ describe('PagePasskeyAdd', () => {
     expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
     expect(mockAlertSuccess).not.toHaveBeenCalled();
     expect(mockAlertError).toHaveBeenCalledWith(
-      'Passkey setup was canceled. Try again.'
+      'mock-canceled-or-timed-out-message'
     );
   });
 
@@ -520,7 +532,7 @@ describe('PagePasskeyAdd', () => {
     // Only the cancel banner — the catch block must not fire its own banner.
     expect(mockAlertError).toHaveBeenCalledTimes(1);
     expect(mockAlertError).toHaveBeenCalledWith(
-      'Passkey setup was canceled. Try again.'
+      'mock-canceled-or-timed-out-message'
     );
     expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
   });
