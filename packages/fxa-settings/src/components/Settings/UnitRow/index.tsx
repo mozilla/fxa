@@ -11,6 +11,7 @@ import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useLocalization } from '@fluent/react';
 import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 type ModalButtonProps = {
   ctaText: string;
@@ -58,6 +59,11 @@ export const ModalButton = ({
         // Prevent the click that opens the modal from immediately
         // bubbling to the overlay “outside click” handler and closing it.
         e.stopPropagation();
+        // stopPropagation also keeps this click from reaching Glean's
+        // document-level auto-element-click listener, so record it explicitly.
+        if (gleanDataAttrs) {
+          GleanMetrics.handleClickEvent(e.nativeEvent);
+        }
         revealModal();
       }}
       {...(gleanDataAttrs && {
@@ -256,6 +262,7 @@ export const UnitRow = ({
                             alertBarRevealed,
                             prefixDataTestId,
                           }}
+                          gleanDataAttrs={ctaGleanDataAttrs}
                         />
                       )}
                     </>

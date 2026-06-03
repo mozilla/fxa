@@ -515,6 +515,9 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
         // TODO (passkeys phase 2): show upgrade prompt when passkey.prfEnabled
         onDeleteClick={(event) => {
           event.stopPropagation();
+          // stopPropagation keeps this click from reaching Glean's document-level
+          // auto-element-click listener, so record it explicitly.
+          GleanMetrics.handleClickEvent(event.nativeEvent);
           revealDeleteModal();
         }}
         localizedDeleteIconTitle={ftlMsgResolver.getMsg(
