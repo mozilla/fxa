@@ -62,6 +62,7 @@ export type CartMetrics = {
   currency?: string | null;
   stripeCustomerId?: string | null;
   taxAddress?: TaxAddress | null;
+  isFreeTrial: boolean;
 };
 
 export type ExperimentationData = {

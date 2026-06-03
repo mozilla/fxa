@@ -68,6 +68,7 @@ export const CartMetricsFactory = (
   currency: faker.finance.currencyCode().toLowerCase(),
   stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
   taxAddress: undefined,
+  isFreeTrial: false,
   ...override,
 });
 

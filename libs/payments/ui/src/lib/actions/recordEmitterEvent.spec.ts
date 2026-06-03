@@ -36,63 +36,38 @@ describe('recordEmitterEventAction', () => {
     mockRecordEmitterEvent.mockReset();
   });
 
-  it('forwards isFreeTrial=true through requestArgs', async () => {
+  it('forwards requestArgs with route params and search params', async () => {
     await recordEmitterEventAction(
       'checkoutView',
-      { offeringId: 'foo' },
-      {},
-      undefined,
-      undefined,
-      true
+      { offeringId: 'foo', cartId: 'cart-1' },
+      { utm_source: 'newsletter' }
     );
 
-    expect(mockRecordEmitterEvent).toHaveBeenCalledTimes(1);
     expect(mockRecordEmitterEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         eventName: 'checkoutView',
-        requestArgs: expect.objectContaining({ isFreeTrial: true }),
+        requestArgs: expect.objectContaining({
+          params: expect.objectContaining({ offeringId: 'foo', cartId: 'cart-1' }),
+          searchParams: expect.objectContaining({ utm_source: 'newsletter' }),
+        }),
       })
     );
   });
 
-  it('defaults isFreeTrial to false when omitted', async () => {
-    await recordEmitterEventAction('checkoutView', { offeringId: 'foo' }, {});
-
-    expect(mockRecordEmitterEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        requestArgs: expect.objectContaining({ isFreeTrial: false }),
-      })
-    );
-  });
-
-  it('defaults isFreeTrial to false when explicitly undefined', async () => {
+  it('forwards paymentProvider and paymentMethod for checkoutSubmit', async () => {
     await recordEmitterEventAction(
-      'checkoutSuccess',
+      'checkoutSubmit',
+      { cartId: 'cart-1' },
       {},
-      {},
-      undefined,
-      undefined,
-      undefined
+      'stripe',
+      'card'
     );
 
     expect(mockRecordEmitterEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestArgs: expect.objectContaining({ isFreeTrial: false }),
+        eventName: 'checkoutSubmit',
+        paymentProvider: 'stripe',
       })
     );
-  });
-
-  it('overrides the isFreeTrial default from getAdditionalRequestArgs', async () => {
-    await recordEmitterEventAction(
-      'checkoutFail',
-      {},
-      {},
-      undefined,
-      undefined,
-      true
-    );
-
-    const call = mockRecordEmitterEvent.mock.calls[0][0];
-    expect(call.requestArgs.isFreeTrial).toBe(true);
   });
 });

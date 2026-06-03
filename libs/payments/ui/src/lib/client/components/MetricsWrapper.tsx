@@ -31,9 +31,6 @@ export function MetricsWrapper({
         'checkoutView',
         { ...params },
         Object.fromEntries(searchParams),
-        undefined,
-        undefined,
-        cart.isFreeTrial
       );
     }
   }, []);

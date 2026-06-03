@@ -93,7 +93,11 @@ import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
-import { type CommonMetrics } from '@fxa/payments/metrics';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  type CheckoutEventEmitter,
+  type CommonMetrics,
+} from '@fxa/payments/metrics';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
 import { FreeTrialManager } from './free-trial.manager';
@@ -127,6 +131,8 @@ export class CheckoutService {
     private freeTrialManager: FreeTrialManager,
     private nimbusManager: NimbusManager,
     private gleanService: PaymentsMetricsAggregatorService,
+    @Inject(CHECKOUT_EVENT_EMITTER_TOKEN)
+    private checkoutEmitter: CheckoutEventEmitter,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 
@@ -358,6 +364,34 @@ export class CheckoutService {
       payment_form: paymentForm,
       offering_id: cart.offeringConfigId,
       interval: cart.interval,
+    });
+
+    // Emit the Glean conversion event server-side so it fires even when the
+    // user has already navigated away from the checkout page. The frontend
+    // PaymentStateObserver no longer emits this event. The emitter handler
+    // in PaymentsEmitterService enriches via retrieveAdditionalMetricsData,
+    // so we merge cart-derived params (cartId/offeringId/interval) onto the
+    // request CommonMetrics — guarantees the handler can look up the cart
+    // even when args.requestArgs is undefined (e.g. cron-driven finalize).
+    const baseMetrics: CommonMetrics = args.requestArgs ?? {
+      ipAddress: '',
+      deviceType: '',
+      userAgent: '',
+      experimentationId: '',
+      isFreeTrial: false,
+      params: {},
+      searchParams: {},
+    };
+    await this.checkoutEmitter.emit('checkoutSuccess', {
+      ...baseMetrics,
+      params: {
+        ...baseMetrics.params,
+        cartId: cart.id,
+        offeringId: cart.offeringConfigId,
+        interval: cart.interval,
+      },
+      paymentProvider,
+      paymentMethod: paymentForm,
     });
   }
 

@@ -15,10 +15,8 @@ import {
 import {
   MockStripeConfigProvider,
   StripeClient,
-  StripeCustomerFactory,
   StripePriceFactory,
   StripeResponseFactory,
-  StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import {
   MockStatsDProvider,
@@ -32,7 +30,6 @@ import {
   PaymentMethodManager,
   PaymentProvider,
   SubPlatPaymentMethodType,
-  StripePaymentMethodTypeResponseFactory,
 } from '@fxa/payments/customer';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
@@ -92,15 +89,12 @@ jest.mock('@sentry/nestjs', () => ({
 describe('PaymentsEmitterService', () => {
   let accountManager: AccountManager;
   let cartManager: CartManager;
-  let customerManager: CustomerManager;
   let paymentsEmitterService: PaymentsEmitterService;
   let paymentsGleanManager: PaymentsGleanManager;
-  let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
   let nimbusManager: NimbusManager;
   let statsd: StatsD;
   let logger: Logger;
-  let subscriptionManager: SubscriptionManager;
   let paymentsGleanService: PaymentsMetricsAggregatorService;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
@@ -156,16 +150,13 @@ describe('PaymentsEmitterService', () => {
     }).compile();
 
     accountManager = moduleRef.get(AccountManager);
-    customerManager = moduleRef.get(CustomerManager);
     paymentsEmitterService = moduleRef.get(PaymentsEmitterService);
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
-    paymentMethodManager = moduleRef.get(PaymentMethodManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     nimbusManager = moduleRef.get(NimbusManager);
     cartManager = moduleRef.get(CartManager);
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
-    subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentsGleanService = moduleRef.get(PaymentsMetricsAggregatorService);
   });
 
@@ -409,32 +400,17 @@ describe('PaymentsEmitterService', () => {
   });
 
   describe('handleCheckoutSuccess', () => {
-    const mockCustomer = StripeCustomerFactory();
-    const mockSubscription = StripeSubscriptionFactory();
-    const mockPaymentMethod = StripePaymentMethodTypeResponseFactory();
     beforeEach(() => {
-      jest
-        .spyOn(customerManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(mockCustomer));
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue(StripeResponseFactory([mockSubscription]));
-      jest
-        .spyOn(paymentMethodManager, 'determineType')
-        .mockResolvedValue(mockPaymentMethod);
       jest
         .spyOn(paymentsGleanManager, 'recordFxaPaySetupSuccess')
         .mockReturnValue();
     });
 
-    it('should call manager record method', async () => {
+    it('enriches via retrieveAdditionalMetricsData and calls recordFxaPaySetupSuccess', async () => {
       await paymentsEmitterService.handleCheckoutSuccess(
         mockCheckoutPaymentEvents
       );
 
-      expect(customerManager.retrieve).toHaveBeenCalled();
-      expect(subscriptionManager.listForCustomer).toHaveBeenCalled();
-      expect(paymentMethodManager.determineType).toHaveBeenCalled();
       expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
         productConfigurationManager,
         cartManager,
@@ -448,26 +424,32 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockPaymentMethod.provider,
-        mockPaymentMethod.type
+        mockCheckoutPaymentEvents.paymentProvider,
+        mockCheckoutPaymentEvents.paymentMethod
       );
     });
 
-    it('should not record glean event if user opts out', async () => {
-      jest
-        .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
-        .mockResolvedValue(true);
+    it('skips emission when the account has opted out', async () => {
+      retrieveOptOutMock.mockResolvedValue(true);
+
       await paymentsEmitterService.handleCheckoutSuccess(
         mockCheckoutPaymentEvents
       );
-      expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
-        productConfigurationManager,
-        cartManager,
-        mockCommonMetricsData.params
-      );
+
       expect(
         paymentsGleanManager.recordFxaPaySetupSuccess
       ).not.toHaveBeenCalled();
+    });
+
+    it('swallows errors so telemetry failures cannot break checkout', async () => {
+      mockedRetrieveAdditionalMetricsData.mockRejectedValue(
+        new Error('db down')
+      );
+
+      await expect(
+        paymentsEmitterService.handleCheckoutSuccess(mockCheckoutPaymentEvents)
+      ).resolves.toBeUndefined();
+      expect(Sentry.captureException).toHaveBeenCalled();
     });
   });
 
@@ -478,10 +460,8 @@ describe('PaymentsEmitterService', () => {
         .mockReturnValue();
     });
 
-    it('should call manager record method', async () => {
-      await paymentsEmitterService.handleCheckoutFail(
-        mockCheckoutPaymentEvents
-      );
+    it('enriches via retrieveAdditionalMetricsData and calls recordFxaPaySetupFail', async () => {
+      await paymentsEmitterService.handleCheckoutFail(mockCommonMetricsData);
 
       expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
         productConfigurationManager,
@@ -489,25 +469,20 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupFail).toHaveBeenCalledWith({
-        commonMetricsData: mockCheckoutPaymentEvents,
+        commonMetricsData: mockCommonMetricsData,
         experimentationData: { nimbusUserId },
         ...additionalMetricsData,
       });
     });
 
-    it('should not record glean event if user opts out', async () => {
-      jest
-        .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
-        .mockResolvedValue(true);
-      await paymentsEmitterService.handleCheckoutFail(
-        mockCheckoutPaymentEvents
-      );
-      expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
-        productConfigurationManager,
-        cartManager,
-        mockCommonMetricsData.params
-      );
-      expect(paymentsGleanManager.recordFxaPaySetupFail).not.toHaveBeenCalled();
+    it('skips emission when the account has opted out', async () => {
+      retrieveOptOutMock.mockResolvedValue(true);
+
+      await paymentsEmitterService.handleCheckoutFail(mockCommonMetricsData);
+
+      expect(
+        paymentsGleanManager.recordFxaPaySetupFail
+      ).not.toHaveBeenCalled();
     });
   });
 

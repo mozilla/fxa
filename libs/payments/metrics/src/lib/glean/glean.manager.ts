@@ -95,8 +95,7 @@ export class PaymentsGleanManager {
         ...this.populateCommonMetrics(metrics, paymentProvider, paymentMethod),
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
-        subscription_payment_method:
-          normalizeGleanFalsyValues(paymentMethod),
+        subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -111,15 +110,18 @@ export class PaymentsGleanManager {
     paymentProvider?: PaymentProvidersType,
     paymentMethod?: SubPlatPaymentMethodType
   ) {
-    const commonMetrics = this.populateCommonMetrics(metrics, paymentProvider, paymentMethod);
+    const commonMetrics = this.populateCommonMetrics(
+      metrics,
+      paymentProvider,
+      paymentMethod
+    );
 
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
         ...commonMetrics,
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
-        subscription_payment_method:
-          normalizeGleanFalsyValues(paymentMethod),
+        subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -182,8 +184,7 @@ export class PaymentsGleanManager {
         subscription_provider_event_id: normalizeGleanFalsyValues(
           metrics.trialConversionData.providerEventId
         ),
-        trial_conversion_status:
-          metrics.trialConversionData.conversionStatus,
+        trial_conversion_status: metrics.trialConversionData.conversionStatus,
         subscription_billing_country: normalizeGleanFalsyValues(
           metrics.trialConversionData.billingCountry
         ),
@@ -259,9 +260,7 @@ export class PaymentsGleanManager {
         subscriptionCancellationData?.cancellationReason ?? '',
       subscription_provider_event_id:
         subscriptionCancellationData?.providerEventId ?? '',
-      subscription_is_free_trial: commonMetricsData.isFreeTrial
-        ? 'true'
-        : '',
+      subscription_is_free_trial: commonMetricsData.isFreeTrial ? 'true' : '',
       trial_conversion_status: '',
       subscription_billing_country: '',
       utm_campaign: searchParams['utm_campaign'] ?? '',
@@ -301,6 +300,7 @@ export class PaymentsGleanManager {
       couponCode: '',
       currency: '',
       taxAddress: { countryCode: '', postalCode: '' },
+      isFreeTrial: false,
     };
     const emptyCmsMetricsData: CmsMetricsData = {
       priceId: '',
@@ -339,7 +339,6 @@ export class PaymentsGleanManager {
         subscriptionCancellationData,
         paymentProvider,
         paymentMethod,
-        isFreeTrial: commonMetricsData.isFreeTrial,
       }),
       ...mapUtm(commonMetricsData.searchParams),
       nimbus_user_id: experimentationData.nimbusUserId,

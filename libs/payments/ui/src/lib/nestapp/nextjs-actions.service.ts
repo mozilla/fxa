@@ -747,9 +747,7 @@ export class NextJSActionsService {
         });
         break;
       }
-      case 'checkoutSubmit':
-      case 'checkoutSuccess':
-      case 'checkoutFail': {
+      case 'checkoutSubmit': {
         this.emitterService.getEmitter().emit(eventName, {
           ...requestArgs,
           paymentProvider,
@@ -775,8 +773,8 @@ export class NextJSActionsService {
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async submitNeedsInput(args: { cartId: string }) {
-    await this.cartService.submitNeedsInput(args.cartId);
+  async submitNeedsInput(args: { cartId: string; requestArgs: CommonMetrics }) {
+    await this.cartService.submitNeedsInput(args.cartId, args.requestArgs);
   }
 
   @SanitizeExceptions()

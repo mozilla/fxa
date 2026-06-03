@@ -20,15 +20,12 @@ import {
   TrialConvertedEvents,
   type AuthEvents,
 } from './emitter.types';
+import type {
+  CheckoutFailPayload,
+  CheckoutSuccessPayload,
+} from '@fxa/payments/metrics';
 import { AccountManager } from '@fxa/shared/account/account';
-import {
-  getSubplatInterval,
-  CustomerManager,
-  SubscriptionManager,
-  PaymentMethodManager,
-  PaymentProvidersType,
-  type SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+import { getSubplatInterval } from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { EmitterServiceHandleAuthError } from './emitter.error';
@@ -42,15 +39,12 @@ export class PaymentsEmitterService {
   constructor(
     private accountManager: AccountManager,
     private cartManager: CartManager,
-    private customerManager: CustomerManager,
     private log: Logger,
     private nimbusManager: NimbusManager,
     private paymentsGleanManager: PaymentsGleanManager,
     private paymentsGleanService: PaymentsMetricsAggregatorService,
-    private paymentMethodManager: PaymentMethodManager,
     private productConfigurationManager: ProductConfigurationManager,
-    @Inject(StatsDService) public statsd: StatsD,
-    private subscriptionManager: SubscriptionManager
+    @Inject(StatsDService) public statsd: StatsD
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -212,18 +206,27 @@ export class PaymentsEmitterService {
     }
   }
 
-  async handleCheckoutSuccess(eventData: CheckoutPaymentEvents) {
-    const additionalData = await retrieveAdditionalMetricsData(
-      this.productConfigurationManager,
-      this.cartManager,
-      eventData.params
-    );
+  /**
+   * Backend-triggered: cart-side code emits this after a cart transitions
+   * to terminal SUCCESS. Mirrors handleCheckoutSubmit — eventData carries
+   * the request CommonMetrics and the handler uses retrieveAdditionalMetricsData
+   * to look up the cart and CMS data.
+   */
+  async handleCheckoutSuccess(eventData: CheckoutSuccessPayload) {
+    try {
+      const additionalData = await retrieveAdditionalMetricsData(
+        this.productConfigurationManager,
+        this.cartManager,
+        eventData.params
+      );
 
-    const metricsOptOut = await this.retrieveOptOut(
-      additionalData.cartMetricsData.uid
-    );
+      const metricsOptOut = await this.retrieveOptOut(
+        additionalData.cartMetricsData.uid
+      );
+      if (metricsOptOut) {
+        return;
+      }
 
-    if (!metricsOptOut) {
       const nimbusUserId = await this.getNimbusUserId({
         uid: additionalData.cartMetricsData.uid,
         language: additionalData.locale,
@@ -233,55 +236,41 @@ export class PaymentsEmitterService {
           eventData?.searchParams?.['experimentationPreview'] === 'true',
       });
 
-      // Determine payment provider and method
-      let paymentProvider: PaymentProvidersType | undefined;
-      let paymentMethod: SubPlatPaymentMethodType | undefined;
-      if (additionalData.cartMetricsData.stripeCustomerId) {
-        const { stripeCustomerId } = additionalData.cartMetricsData;
-        const customer = await this.customerManager.retrieve(stripeCustomerId);
-        const subscriptions =
-          await this.subscriptionManager.listForCustomer(stripeCustomerId);
-        const paymentMethodTypeResponse =
-          await this.paymentMethodManager.determineType(
-            customer,
-            subscriptions
-          );
-
-        if (paymentMethodTypeResponse?.type) {
-          paymentProvider = paymentMethodTypeResponse.provider;
-          paymentMethod = paymentMethodTypeResponse.type;
-        }
-      }
-
       this.paymentsGleanManager.recordFxaPaySetupSuccess(
         {
           commonMetricsData: eventData,
           ...additionalData,
           experimentationData: { nimbusUserId },
         },
-        paymentProvider,
-        paymentMethod
+        eventData.paymentProvider,
+        eventData.paymentMethod
       );
+    } catch (error) {
+      Sentry.captureException(error);
     }
   }
 
-  async handleGenericSubManageGleanEvent(
-    eventData: GenericGleanSubManageEvent
-  ) {
-    await this.paymentsGleanService.recordGenericSubManageEvent(eventData);
-  }
+  /**
+   * Backend-triggered: cart-side code emits this after a cart transitions
+   * to terminal FAIL via a checkout-submit path (gated by onCheckoutFail).
+   * The errorReasonId is read from the cart record (finishErrorCart wrote
+   * it before this emit), surfaced via retrieveAdditionalMetricsData.
+   */
+  async handleCheckoutFail(eventData: CheckoutFailPayload) {
+    try {
+      const additionalData = await retrieveAdditionalMetricsData(
+        this.productConfigurationManager,
+        this.cartManager,
+        eventData.params
+      );
 
-  async handleCheckoutFail(eventData: CheckoutPaymentEvents) {
-    const additionalData = await retrieveAdditionalMetricsData(
-      this.productConfigurationManager,
-      this.cartManager,
-      eventData.params
-    );
+      const metricsOptOut = await this.retrieveOptOut(
+        additionalData.cartMetricsData.uid
+      );
+      if (metricsOptOut) {
+        return;
+      }
 
-    const metricsOptOut = await this.retrieveOptOut(
-      additionalData.cartMetricsData.uid
-    );
-    if (!metricsOptOut) {
       const nimbusUserId = await this.getNimbusUserId({
         uid: additionalData.cartMetricsData.uid,
         language: additionalData.locale,
@@ -296,7 +285,15 @@ export class PaymentsEmitterService {
         ...additionalData,
         experimentationData: { nimbusUserId },
       });
+    } catch (error) {
+      Sentry.captureException(error);
     }
+  }
+
+  async handleGenericSubManageGleanEvent(
+    eventData: GenericGleanSubManageEvent
+  ) {
+    await this.paymentsGleanService.recordGenericSubManageEvent(eventData);
   }
 
   async handleSubscriptionEnded(eventData: SubscriptionEndedEvents) {

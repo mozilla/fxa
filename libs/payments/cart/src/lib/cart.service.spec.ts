@@ -96,6 +96,8 @@ import {
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
+import { CHECKOUT_EVENT_EMITTER_TOKEN } from '@fxa/payments/metrics';
+import type { CheckoutEventEmitter } from '@fxa/payments/metrics';
 import { FreeTrialManager } from './free-trial.manager';
 import { MockFreeTrialConfigProvider } from './free-trial.config';
 import {
@@ -169,6 +171,7 @@ describe('CartService', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
+  let checkoutEmitter: CheckoutEventEmitter;
   let customerManager: CustomerManager;
   let customerSessionManager: CustomerSessionManager;
   let currencyManager: CurrencyManager;
@@ -200,6 +203,10 @@ describe('CartService', () => {
         CartManager,
         CartService,
         CheckoutService,
+        {
+          provide: CHECKOUT_EVENT_EMITTER_TOKEN,
+          useValue: { emit: jest.fn().mockResolvedValue(undefined) },
+        },
         ConfirmationTokenManager,
         CustomerManager,
         CustomerSessionManager,
@@ -267,6 +274,7 @@ describe('CartService', () => {
     cartManager = moduleRef.get(CartManager);
     cartService = moduleRef.get(CartService);
     checkoutService = moduleRef.get(CheckoutService);
+    checkoutEmitter = moduleRef.get(CHECKOUT_EVENT_EMITTER_TOKEN);
     customerManager = moduleRef.get(CustomerManager);
     customerSessionManager = moduleRef.get(CustomerSessionManager);
     currencyManager = moduleRef.get(CurrencyManager);
@@ -311,6 +319,30 @@ describe('CartService', () => {
       ).rejects.toThrow(Error);
 
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
+    });
+
+    it('does not emit pay_setup.fail for non-submit failures', async () => {
+      // finalizeProcessingCart wraps with wrapWithCartCatch but does NOT
+      // pass onCheckoutFail, so a failure during its body must not be
+      // counted as a checkout submit failure in Glean conversion numbers.
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: null,
+        stripeCustomerId: null,
+      });
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      const emitSpy = jest.spyOn(checkoutEmitter, 'emit');
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(cartManager.finishErrorCart).toHaveBeenCalled();
+      expect(emitSpy).not.toHaveBeenCalledWith('checkoutFail', expect.anything());
     });
 
     it('cancels and stamps suppression metadata for a created subscription with paid zero-cost invoice', async () => {
@@ -1324,6 +1356,42 @@ describe('CartService', () => {
 
       expect(checkoutService.payWithStripe).not.toHaveBeenCalled();
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
+    });
+
+    it('emits pay_setup.fail when checkout fails', async () => {
+      const mockCart = ResultCartFactory();
+      const mockPaymentMethodId = faker.string.uuid();
+
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockRejectedValue(new Error('boom'));
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      const emitSpy = jest.spyOn(checkoutEmitter, 'emit');
+
+      await expect(
+        cartService.checkoutCartWithStripe(
+          mockCart.id,
+          mockCart.version,
+          mockPaymentMethodId,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        )
+      ).rejects.toBeInstanceOf(CartStateProcessingError);
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'checkoutFail',
+        expect.objectContaining({
+          ipAddress: mockRequestArgs.ipAddress,
+          userAgent: mockRequestArgs.userAgent,
+          params: expect.objectContaining({
+            cartId: mockCart.id,
+            offeringId: mockCart.offeringConfigId,
+            interval: mockCart.interval,
+          }),
+        })
+      );
     });
   });
 
@@ -3150,6 +3218,7 @@ describe('CartService', () => {
         casing: 'lower',
       }),
     });
+    const mockRequestArgs = CommonMetricsFactory();
     const mockPaymentMethod = StripeResponseFactory(
       StripePaymentMethodFactory()
     );
@@ -3189,7 +3258,7 @@ describe('CartService', () => {
     });
 
     it('changes the cart state and calls postPaySteps', async () => {
-      await cartService.submitNeedsInput(mockCart.id);
+      await cartService.submitNeedsInput(mockCart.id, mockRequestArgs);
 
       expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(
         mockCart.stripeIntentId
@@ -3210,6 +3279,7 @@ describe('CartService', () => {
         paymentProvider: 'stripe',
         paymentForm: SubPlatPaymentMethodType.Card,
         isCancelInterstitialOffer: false,
+        requestArgs: mockRequestArgs,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -3223,7 +3293,7 @@ describe('CartService', () => {
         .spyOn(cartManager, 'fetchCartById')
         .mockResolvedValue(mockCartWithSetupIntent);
 
-      await cartService.submitNeedsInput(mockCart.id);
+      await cartService.submitNeedsInput(mockCart.id, mockRequestArgs);
 
       expect(setupIntentManager.retrieve).toHaveBeenCalledWith(
         mockCartWithSetupIntent.stripeIntentId
@@ -3244,6 +3314,7 @@ describe('CartService', () => {
         paymentProvider: 'stripe',
         paymentForm: SubPlatPaymentMethodType.Card,
         isCancelInterstitialOffer: false,
+        requestArgs: mockRequestArgs,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -3255,7 +3326,7 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
         /SubmitNeedsInputCustomerIdMissingError/
       );
     });
@@ -3266,7 +3337,7 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
         /SubmitNeedsInputSubscriptionIdMissingError/
       );
     });
@@ -3277,7 +3348,7 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
         /SubmitNeedsInputUidMissingError/
       );
     });

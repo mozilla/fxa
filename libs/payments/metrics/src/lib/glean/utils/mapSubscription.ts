@@ -27,7 +27,6 @@ export function mapSubscription({
   subscriptionCancellationData,
   paymentProvider,
   paymentMethod,
-  isFreeTrial,
 }: {
   commonMetricsData: CommonMetrics;
   cartMetricsData: CartMetrics;
@@ -35,7 +34,6 @@ export function mapSubscription({
   subscriptionCancellationData?: SubscriptionCancellationData;
   paymentProvider?: PaymentProvidersType;
   paymentMethod?: SubPlatPaymentMethodType;
-  isFreeTrial?: boolean;
 }) {
   const mappedParams = mapParams(commonMetricsData.params);
   return {
@@ -69,6 +67,6 @@ export function mapSubscription({
     subscription_provider_event_id: normalizeGleanFalsyValues(
       subscriptionCancellationData?.providerEventId
     ),
-    subscription_is_free_trial: isFreeTrial ? 'true' : '',
+    subscription_is_free_trial: cartMetricsData.isFreeTrial ? 'true' : '',
   };
 }

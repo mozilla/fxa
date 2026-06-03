@@ -42,7 +42,10 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
 } from '@fxa/payments/customer';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  PaymentsGleanManager,
+} from '@fxa/payments/metrics';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
@@ -156,6 +159,12 @@ import { NimbusManager } from '@fxa/payments/experiments';
     PaymentsGleanManager,
     PaymentsMetricsAggregatorService,
     PaymentsEmitterService,
+    {
+      provide: CHECKOUT_EVENT_EMITTER_TOKEN,
+      useFactory: (emitterService: PaymentsEmitterService) =>
+        emitterService.getEmitter(),
+      inject: [PaymentsEmitterService],
+    },
     StripeEventManager,
     SubscriptionEventsService,
     StripeWebhookService,
