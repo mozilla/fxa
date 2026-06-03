@@ -86,13 +86,20 @@ describe('RateLimitBqWriter', () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
-  it('catches errors and never throws', async () => {
+  it('catches errors, emits statsd metric, and never throws', async () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const mockIncrement = jest.fn();
+    const statsd = { increment: mockIncrement } as any;
     mockInsert.mockRejectedValue(new Error('BQ unavailable'));
+
+    // Recreate writer with statsd
+    await writer.shutdown();
+    writer = new RateLimitBqWriter(config, mockBq, statsd);
 
     writer.write(createEvent());
     await writer.flush();
 
+    expect(mockIncrement).toHaveBeenCalledWith('rate_limit.bq_writer.flush_error');
     expect(consoleSpy).toHaveBeenCalledWith(
       'rate_limit.bq_writer.flush_error',
       expect.any(Error)

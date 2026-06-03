@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BigQuery, Table } from '@google-cloud/bigquery';
+import { StatsD } from '@fxa/shared/metrics/statsd';
 import { RateLimitCheckEvent } from './models';
 
 export interface BqWriterConfig {
@@ -26,7 +27,8 @@ export class RateLimitBqWriter {
 
   constructor(
     private readonly config: BqWriterConfig,
-    bq?: BigQuery
+    bq?: BigQuery,
+    private readonly statsd?: StatsD
   ) {
     const client = bq ?? new BigQuery({ projectId: config.projectId });
     this.tableRef = client.dataset(config.dataset).table(config.table);
@@ -52,6 +54,7 @@ export class RateLimitBqWriter {
       await this.tableRef.insert(batch);
     } catch (err) {
       // Log but never throw — BQ failures must not affect auth
+      this.statsd?.increment('rate_limit.bq_writer.flush_error');
       console.error('rate_limit.bq_writer.flush_error', err);
     }
   }
