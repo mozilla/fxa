@@ -244,7 +244,7 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
 
     await expect(
       staleWhileRevalidateWithFallbackStrategy.handle(context)
-    ).rejects.toThrowError('method error');
+    ).rejects.toThrow('method error');
 
     expect(targetMethod).toHaveBeenCalled();
     expect(onRequestFinished).toHaveBeenCalledWith(

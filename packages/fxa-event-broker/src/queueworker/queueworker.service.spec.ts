@@ -250,8 +250,8 @@ describe('QueueworkerService', () => {
     it('stores on valid login message', async () => {
       const msg = updateStubMessage(baseLoginMessage);
       await (service as any).handleMessage(msg);
-      expect(firestore.storeLogin).toBeCalledTimes(1);
-      expect(firestore.storeLogin).toBeCalledWith(
+      expect(firestore.storeLogin).toHaveBeenCalledTimes(1);
+      expect(firestore.storeLogin).toHaveBeenCalledWith(
         baseLoginMessage.uid,
         baseLoginMessage.clientId
       );
@@ -262,8 +262,8 @@ describe('QueueworkerService', () => {
       message.clientId = message.clientId.toUpperCase();
       const msg = updateStubMessage(message);
       await (service as any).handleMessage(msg);
-      expect(firestore.storeLogin).toBeCalledTimes(1);
-      expect(firestore.storeLogin).toBeCalledWith(
+      expect(firestore.storeLogin).toHaveBeenCalledTimes(1);
+      expect(firestore.storeLogin).toHaveBeenCalledWith(
         baseLoginMessage.uid,
         baseLoginMessage.clientId
       );
@@ -306,8 +306,8 @@ describe('QueueworkerService', () => {
     async function checkFetchesOnValid(value: any) {
       const msg = updateStubMessage(value);
       await (service as any).handleMessage(msg);
-      expect(firestore.fetchClientIds).toBeCalledTimes(1);
-      expect(logger.debug).toBeCalledTimes(2);
+      expect(firestore.fetchClientIds).toHaveBeenCalledTimes(1);
+      expect(logger.debug).toHaveBeenCalledTimes(2);
     }
     for (const [key, value] of Object.entries(fetchOnValidMessage)) {
       it(`fetches on valid ${key}`, async () => {
@@ -353,9 +353,9 @@ describe('QueueworkerService', () => {
     async function logsErrorOnInvalid(value: any) {
       const msg = updateStubMessage(value);
       await (service as any).handleMessage(msg);
-      expect(logger.error).toBeCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledTimes(1);
       expect(logger.error.mock.calls[0][0]).toBe('from.sqsMessage');
-      expect(Sentry.captureException).toBeCalledTimes(1);
+      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     }
 
     for (const [key, value] of Object.entries(invalidMessages)) {
@@ -370,7 +370,7 @@ describe('QueueworkerService', () => {
         clientId: undefined,
       });
       await (service as any).handleMessage(msg);
-      expect(logger.debug).toBeCalledTimes(2);
+      expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug.mock.calls[1][0]).toBe('unwantedMessage');
     });
 
@@ -379,7 +379,7 @@ describe('QueueworkerService', () => {
         Object.assign({}, { ...baseLoginMessage, event: 'logout' })
       );
       await (service as any).handleMessage(msg);
-      expect(logger.debug).toBeCalledTimes(1);
+      expect(logger.debug).toHaveBeenCalledTimes(1);
       expect(logger.debug.mock.calls[0][0]).toBe('unwantedMessage');
     });
 

@@ -242,5 +242,6 @@
     "ciMode": "read-write",
     "region": "us-east-1",
     "endpoint": "https://storage.googleapis.com"
-  }
+  },
+  "analytics": true
 }

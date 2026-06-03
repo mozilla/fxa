@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/assets/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "dependsOn": ["build-ts"],
@@ -35,6 +36,5 @@
         "jestConfig": "libs/shared/assets/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

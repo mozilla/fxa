@@ -46,7 +46,7 @@ describe('NotifierSnsFactory', () => {
 
   it('should provide statsd', async () => {
     expect(sns).toBeDefined();
-    expect(mockSNS).toBeCalledWith({
+    expect(mockSNS).toHaveBeenCalledWith({
       endpoint: MockNotifierSnsConfig.snsTopicEndpoint,
       region: 'us-west-2',
     });

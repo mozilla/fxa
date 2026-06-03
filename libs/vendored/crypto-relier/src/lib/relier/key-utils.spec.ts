@@ -27,7 +27,7 @@ describe('KeyUtils', function () {
     it('fails with no key store', async () => {
       const keyUtils = new KeyUtils();
 
-      return expect(keyUtils.decryptBundle('bundle')).rejects.toThrowError(
+      return expect(keyUtils.decryptBundle('bundle')).rejects.toThrow(
         'No Key Store. Use .createApplicationKeyPair() to create it first.'
       );
     });

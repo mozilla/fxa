@@ -342,7 +342,10 @@ describe('CartService', () => {
       ).rejects.toThrow(Error);
 
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalledWith('checkoutFail', expect.anything());
+      expect(emitSpy).not.toHaveBeenCalledWith(
+        'checkoutFail',
+        expect.anything()
+      );
     });
 
     it('cancels and stamps suppression metadata for a created subscription with paid zero-cost invoice', async () => {
@@ -914,7 +917,7 @@ describe('CartService', () => {
         .spyOn(accountManager, 'getAccounts')
         .mockResolvedValue([mockAccount]);
 
-      await expect(() => cartService.setupCart(args)).rejects.toThrowError(
+      await expect(() => cartService.setupCart(args)).rejects.toThrow(
         CartCurrencyNotFoundError
       );
 
@@ -1285,7 +1288,7 @@ describe('CartService', () => {
 
       await expect(() =>
         cartService.restartCart(mockOldCart.id)
-      ).rejects.toThrowError(CartRestartInvalidPromoCodeError);
+      ).rejects.toThrow(CartRestartInvalidPromoCodeError);
 
       expect(
         promotionCodeManager.assertValidPromotionCodeNameForPrice
@@ -1473,7 +1476,7 @@ describe('CartService', () => {
 
       await expect(
         cartService.finalizeProcessingCart(mockCart.id)
-      ).rejects.toThrowError(CartError);
+      ).rejects.toThrow(CartError);
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
     it('throws a CartSubscriptionNotFoundError', async () => {
@@ -1492,7 +1495,7 @@ describe('CartService', () => {
 
       await expect(
         cartService.finalizeProcessingCart(mockCart.id)
-      ).rejects.toThrowError(CartSubscriptionNotFoundError);
+      ).rejects.toThrow(CartSubscriptionNotFoundError);
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
     it('calls checkoutService.postPaySteps', async () => {
@@ -3326,9 +3329,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputCustomerIdMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputCustomerIdMissingError/);
     });
     it('throws assertion error for missing stripeSubscriptionId', async () => {
       const localMockCart = {
@@ -3337,9 +3340,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputSubscriptionIdMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputSubscriptionIdMissingError/);
     });
     it('throws assertion error for missing uid', async () => {
       const localMockCart = {
@@ -3348,9 +3351,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputUidMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputUidMissingError/);
     });
   });
 });

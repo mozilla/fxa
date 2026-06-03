@@ -1,4 +1,4 @@
-import { Config } from 'jest';
+const { Config } = require('jest');
 
 /* eslint-disable */
 const config: Config = {
@@ -30,4 +30,4 @@ const config: Config = {
     : {}),
 };
 
-export default config;
+module.exports = config;

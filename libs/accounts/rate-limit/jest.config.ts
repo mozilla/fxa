@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'accounts-rate-limit',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',

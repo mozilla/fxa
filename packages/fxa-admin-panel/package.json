@@ -73,7 +73,7 @@
     "fxa-shared": "workspace:*",
     "jest": "27.5.1",
     "jest-watch-typeahead": "0.6.5",
-    "nx": "21.2.4",
+    "nx": "^22.7.5",
     "pm2": "^6.0.14",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",

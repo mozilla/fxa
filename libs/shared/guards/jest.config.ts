@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'guards',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',

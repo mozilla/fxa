@@ -1,7 +1,7 @@
-export default {
+module.exports = {
   testEnvironment: 'node',
   rootDir: '.',
-  testMatch: ['<rootDir>/lib/**/*.spec.ts', '<rootDir>/test/**/*.spec.ts'],
+  testMatch: ['<rootDir>/test/**/*.spec.ts', '<rootDir>/test/**/*.in.spec.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
     '^.+\\.tsx?$': [
