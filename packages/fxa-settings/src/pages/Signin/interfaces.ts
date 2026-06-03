@@ -182,6 +182,7 @@ export interface CachedSigninHandlerResponse {
     uid: hexstring;
     sessionVerified: boolean;
     emailVerified: boolean;
+    totpIsActive: boolean;
   };
   error?: AuthUiError;
 }

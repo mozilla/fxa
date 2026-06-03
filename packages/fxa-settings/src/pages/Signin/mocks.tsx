@@ -316,6 +316,7 @@ export const CACHED_SIGNIN_HANDLER_RESPONSE = {
     sessionVerified: true,
     emailVerified: true,
     uid: MOCK_UID,
+    totpIsActive: false,
     ...MOCK_VERIFICATION,
   },
 };

@@ -564,10 +564,9 @@ const getOAuthNavigationTarget = async (
     };
   }
 
-  // Profile-level AMR omits webauthn, so AAL2 RPs (AMO) reject passkey-only
-  // grants. Force TOTP enrollment first when no TOTP is set.
+  // A passkey/passwordless session is session-AAL2 but has no account 2FA, so
+  // an AAL2 RP (AMO) loops unless we force TOTP enrollment when none is set.
   if (
-    navigationOptions.isPasskeySession &&
     isOAuthWebIntegration(navigationOptions.integration) &&
     navigationOptions.integration.wantsTwoStepAuthentication() &&
     navigationOptions.accountHasTotp === false
