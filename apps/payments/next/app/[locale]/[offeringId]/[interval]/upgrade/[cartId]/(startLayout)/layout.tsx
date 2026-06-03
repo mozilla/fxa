@@ -13,6 +13,7 @@ import {
   TermsAndPrivacy,
   UpgradePurchaseDetails,
 } from '@fxa/payments/ui/server';
+import { CartState } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
 import { auth } from 'apps/payments/next/auth';
 import {
@@ -44,17 +45,20 @@ export default async function UpgradeLayout({
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
 
-  if (!cart.fromOfferingConfigId) {
-    throw new UpgradeCartFromOfferingConfigIdMissingError(resolvedParams.cartId);
+  let currentPurchaseDetails;
+  if (cart.state === CartState.START) {
+    if (!cart.fromOfferingConfigId) {
+      throw new UpgradeCartFromOfferingConfigIdMissingError(resolvedParams.cartId);
+    }
+    if (!cart.fromPrice) {
+      throw new UpgradeCartFromPriceMissingError(resolvedParams.cartId);
+    }
+    const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
+    const currentCms = await currentCmsDataPromise;
+    currentPurchaseDetails =
+      currentCms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+      currentCms.defaultPurchase.purchaseDetails;
   }
-  if (!cart.fromPrice) {
-    throw new UpgradeCartFromPriceMissingError(resolvedParams.cartId);
-  }
-  const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
-  const currentCms = await currentCmsDataPromise;
-  const currentPurchaseDetails =
-    currentCms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-    currentCms.defaultPurchase.purchaseDetails;
 
   return (
     <MetricsWrapper cart={cart}>
@@ -79,16 +83,19 @@ export default async function UpgradeLayout({
           <SubscriptionTitle cart={cart} l10n={l10n} />
 
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
-            <UpgradePurchaseDetails
-              l10n={l10n}
-              interval={cart.interval}
-              invoice={cart.upcomingInvoicePreview}
-              fromPrice={cart.fromPrice}
-              fromPurchaseDetails={currentPurchaseDetails}
-              offeringPrice={cart.offeringPrice}
-              purchaseDetails={purchaseDetails}
-              locale={locale}
-            />
+            {cart.fromPrice &&
+              currentPurchaseDetails && (
+              <UpgradePurchaseDetails
+                l10n={l10n}
+                interval={cart.interval}
+                invoice={cart.upcomingInvoicePreview}
+                fromPrice={cart.fromPrice}
+                fromPurchaseDetails={currentPurchaseDetails}
+                offeringPrice={cart.offeringPrice}
+                purchaseDetails={purchaseDetails}
+                locale={locale}
+              />
+            )}
           </div>
 
           <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
