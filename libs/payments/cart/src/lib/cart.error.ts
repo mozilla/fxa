@@ -179,6 +179,17 @@ export class DeleteCartFailedError extends CartError {
   }
 }
 
+export class CartProcessingConflictError extends CartError {
+  constructor(cartId: string, uid: string, conflictingCartId: string) {
+    super('Account already has a cart in a processing state', {
+      cartId,
+      uid,
+      conflictingCartId,
+    });
+    this.name = 'CartProcessingConflictError';
+  }
+}
+
 export class CartStateProcessingError extends CartError {
   constructor(message: string, cartId: string, cause: Error) {
     super(message, { cartId }, cause);
@@ -597,10 +608,14 @@ export class PaidPaymentIntendOnFailedCartError extends CartError {
 
 export class CartSubscriptionDeletionFailedError extends CartError {
   constructor(cartId: string, subscriptionId: string, cause: Error) {
-    super('Subscription deletion failed during cart cleanup', {
-      cartId,
-      subscriptionId,
-    }, cause);
+    super(
+      'Subscription deletion failed during cart cleanup',
+      {
+        cartId,
+        subscriptionId,
+      },
+      cause
+    );
     this.name = 'CartSubscriptionDeletionFailedError';
   }
 }

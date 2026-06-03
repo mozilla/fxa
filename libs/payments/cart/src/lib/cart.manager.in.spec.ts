@@ -16,6 +16,7 @@ import {
   CartInvalidStateForActionError,
   CartNotCreatedError,
   CartNotFoundError,
+  CartProcessingConflictError,
   CartVersionMismatchError,
   DeleteCartFailedError,
 } from './cart.error';
@@ -40,6 +41,7 @@ function fail(reason = 'fail was called in a test.') {
 const CART_ID = '8730e0d5939c450286e6e6cc1bbeeab2';
 const RANDOM_ID = uuidv4({}, Buffer.alloc(16)).toString('hex');
 const RANDOM_VERSION = 1234;
+const TEST_TIMESTAMP = 1700000000000;
 
 async function directUpdate(
   db: AccountDatabase,
@@ -268,7 +270,7 @@ describe('CartManager', () => {
     });
   });
 
-  describe('updateProcessingCart', () => {
+  describe('dangerouslyUpdateProcessingCart', () => {
     it('succeeds', async () => {
       const updateItems = UpdateProcessingCartFactory({
         stripeSubscriptionId: 'sub_test123',
@@ -276,7 +278,7 @@ describe('CartManager', () => {
       await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
       testCart = await cartManager.fetchCartById(testCart.id);
 
-      await cartManager.updateProcessingCart(
+      await cartManager.dangerouslyUpdateProcessingCart(
         testCart.id,
         testCart.version,
         updateItems
@@ -288,12 +290,12 @@ describe('CartManager', () => {
 
     it('fails - rejects START state', async () => {
       try {
-        await cartManager.updateProcessingCart(
+        await cartManager.dangerouslyUpdateProcessingCart(
           testCart.id,
           testCart.version,
           UpdateProcessingCartFactory()
         );
-        fail('Error in updateProcessingCart');
+        fail('Error in dangerouslyUpdateProcessingCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
       }
@@ -306,12 +308,12 @@ describe('CartManager', () => {
         testCart.id
       );
       try {
-        await cartManager.updateProcessingCart(
+        await cartManager.dangerouslyUpdateProcessingCart(
           testCart.id,
           testCart.version,
           UpdateProcessingCartFactory()
         );
-        fail('Error in updateProcessingCart');
+        fail('Error in dangerouslyUpdateProcessingCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartVersionMismatchError);
       }
@@ -363,6 +365,196 @@ describe('CartManager', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
       }
+    });
+  });
+
+  describe('setProcessingCart', () => {
+    const FIRST_UID = '11111111111111111111111111111111';
+    const CONFLICT_PROCESSING_UID = '22222222222222222222222222222222';
+    const ALLOW_NEEDS_INPUT_UID = '33333333333333333333333333333333';
+    const SEPARATE_UID_A = '44444444444444444444444444444444';
+    const SEPARATE_UID_B = '55555555555555555555555555555555';
+    const INVALID_STATE_UID = '66666666666666666666666666666666';
+    const STALE_PROCESSING_UID = '77777777777777777777777777777777';
+    const CONCURRENT_UID = '88888888888888888888888888888888';
+    const TERMINAL_SIBLING_UID = '99999999999999999999999999999999';
+
+    async function seedAccount(db: AccountDatabase, uidHex: string) {
+      await db
+        .insertInto('accounts')
+        .values({
+          uid: Buffer.from(uidHex, 'hex'),
+          email: `${uidHex}@example.com`,
+          normalizedEmail: `${uidHex}@example.com`,
+          emailCode: Buffer.alloc(16),
+          emailVerified: 1,
+          kA: Buffer.alloc(32),
+          wrapWrapKb: Buffer.alloc(32),
+          authSalt: Buffer.alloc(32),
+          verifyHash: Buffer.alloc(32),
+          verifierVersion: 1,
+          verifierSetAt: TEST_TIMESTAMP,
+          createdAt: TEST_TIMESTAMP,
+        })
+        .execute();
+    }
+
+    it('succeeds - transitions a cart to processing', async () => {
+      await seedAccount(db, FIRST_UID);
+      const cart = await cartManager.createCart(
+        SetupCartFactory({ uid: FIRST_UID })
+      );
+
+      await cartManager.setProcessingCart(cart.id);
+      const updated = await cartManager.fetchCartById(cart.id);
+
+      expect(updated.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('fails - another cart for the same uid is already processing', async () => {
+      await seedAccount(db, CONFLICT_PROCESSING_UID);
+      const firstCart = await cartManager.createCart(
+        SetupCartFactory({ uid: CONFLICT_PROCESSING_UID })
+      );
+      const secondCart = await cartManager.createCart(
+        SetupCartFactory({ uid: CONFLICT_PROCESSING_UID })
+      );
+      await cartManager.setProcessingCart(firstCart.id);
+
+      try {
+        await cartManager.setProcessingCart(secondCart.id);
+        fail('Error in setProcessingCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartProcessingConflictError);
+      }
+
+      const secondCartAfter = await cartManager.fetchCartById(secondCart.id);
+      expect(secondCartAfter.state).toEqual(CartState.START);
+    });
+
+    it('succeeds - allows processing when another cart for the same uid has been processing past the stale timeout', async () => {
+      await seedAccount(db, STALE_PROCESSING_UID);
+      const staleCart = await cartManager.createCart(
+        SetupCartFactory({ uid: STALE_PROCESSING_UID })
+      );
+      const secondCart = await cartManager.createCart(
+        SetupCartFactory({ uid: STALE_PROCESSING_UID })
+      );
+      await directUpdate(
+        db,
+        { state: CartState.PROCESSING, updatedAt: TEST_TIMESTAMP },
+        staleCart.id
+      );
+
+      await cartManager.setProcessingCart(secondCart.id);
+      const updated = await cartManager.fetchCartById(secondCart.id);
+
+      expect(updated.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('succeeds - allows processing when another cart for the same uid needs input', async () => {
+      await seedAccount(db, ALLOW_NEEDS_INPUT_UID);
+      const firstCart = await cartManager.createCart(
+        SetupCartFactory({ uid: ALLOW_NEEDS_INPUT_UID })
+      );
+      const secondCart = await cartManager.createCart(
+        SetupCartFactory({ uid: ALLOW_NEEDS_INPUT_UID })
+      );
+      await directUpdate(db, { state: CartState.NEEDS_INPUT }, firstCart.id);
+
+      await cartManager.setProcessingCart(secondCart.id);
+      const updated = await cartManager.fetchCartById(secondCart.id);
+
+      expect(updated.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('succeeds - ignores processing carts belonging to a different uid', async () => {
+      await seedAccount(db, SEPARATE_UID_A);
+      await seedAccount(db, SEPARATE_UID_B);
+      const cartA = await cartManager.createCart(
+        SetupCartFactory({ uid: SEPARATE_UID_A })
+      );
+      const cartB = await cartManager.createCart(
+        SetupCartFactory({ uid: SEPARATE_UID_B })
+      );
+      await cartManager.setProcessingCart(cartA.id);
+
+      await cartManager.setProcessingCart(cartB.id);
+      const updatedB = await cartManager.fetchCartById(cartB.id);
+
+      expect(updatedB.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('fails - rejects invalid state', async () => {
+      await seedAccount(db, INVALID_STATE_UID);
+      const cart = await cartManager.createCart(
+        SetupCartFactory({ uid: INVALID_STATE_UID })
+      );
+      await directUpdate(db, { state: CartState.SUCCESS }, cart.id);
+
+      try {
+        await cartManager.setProcessingCart(cart.id);
+        fail('Error in setProcessingCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartInvalidStateForActionError);
+      }
+    });
+
+    it('succeeds - transitions a cart with no uid to processing', async () => {
+      const cart = await cartManager.createCart(SetupCartFactory());
+
+      await cartManager.setProcessingCart(cart.id);
+      const updated = await cartManager.fetchCartById(cart.id);
+
+      expect(updated.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('succeeds - ignores a terminal (failed) cart for the same uid', async () => {
+      await seedAccount(db, TERMINAL_SIBLING_UID);
+      const failedCart = await cartManager.createCart(
+        SetupCartFactory({ uid: TERMINAL_SIBLING_UID })
+      );
+      const secondCart = await cartManager.createCart(
+        SetupCartFactory({ uid: TERMINAL_SIBLING_UID })
+      );
+      await directUpdate(db, { state: CartState.FAIL }, failedCart.id);
+
+      await cartManager.setProcessingCart(secondCart.id);
+      const updated = await cartManager.fetchCartById(secondCart.id);
+
+      expect(updated.state).toEqual(CartState.PROCESSING);
+    });
+
+    it('allows only one of two concurrent checkouts for the same uid to enter processing', async () => {
+      await seedAccount(db, CONCURRENT_UID);
+      const cartA = await cartManager.createCart(
+        SetupCartFactory({ uid: CONCURRENT_UID })
+      );
+      const cartB = await cartManager.createCart(
+        SetupCartFactory({ uid: CONCURRENT_UID })
+      );
+
+      const results = await Promise.allSettled([
+        cartManager.setProcessingCart(cartA.id),
+        cartManager.setProcessingCart(cartB.id),
+      ]);
+
+      const fulfillments = results.filter((r) => r.status === 'fulfilled');
+      const rejectionReasons = results.flatMap((r) =>
+        r.status === 'rejected' ? [r.reason] : []
+      );
+      expect(fulfillments).toHaveLength(1);
+      expect(rejectionReasons).toHaveLength(1);
+      expect(rejectionReasons[0]).toBeInstanceOf(CartProcessingConflictError);
+
+      const [updatedA, updatedB] = await Promise.all([
+        cartManager.fetchCartById(cartA.id),
+        cartManager.fetchCartById(cartB.id),
+      ]);
+      const processingCount = [updatedA, updatedB].filter(
+        (cart) => cart.state === CartState.PROCESSING
+      ).length;
+      expect(processingCount).toEqual(1);
     });
   });
 

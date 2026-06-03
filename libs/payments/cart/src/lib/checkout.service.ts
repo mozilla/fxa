@@ -227,10 +227,14 @@ export class CheckoutService {
         stripeCustomerId,
       });
 
-      await this.cartManager.updateProcessingCart(cart.id, cart.version, {
-        uid,
-        stripeCustomerId,
-      });
+      await this.cartManager.dangerouslyUpdateProcessingCart(
+        cart.id,
+        cart.version,
+        {
+          uid,
+          stripeCustomerId,
+        }
+      );
       version += 1;
     }
 
@@ -545,13 +549,15 @@ export class CheckoutService {
           }
         );
       } else if (subscription.pending_setup_intent) {
-
         // Subscription metadata is required by welcome email dispatcher for zero-cost subscriptions
-        await this.setupIntentManager.update(subscription.pending_setup_intent, {
-          metadata: {
-            [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
-          },
-        });
+        await this.setupIntentManager.update(
+          subscription.pending_setup_intent,
+          {
+            metadata: {
+              [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
+            },
+          }
+        );
 
         intent = await this.setupIntentManager.confirm(
           subscription.pending_setup_intent,
@@ -583,14 +589,18 @@ export class CheckoutService {
 
       if (!intent) {
         // At least update the cart with the subscription ID before throwing
-        await this.cartManager.updateProcessingCart(cart.id, version, {
-          stripeSubscriptionId: subscription.id,
-        });
+        await this.cartManager.dangerouslyUpdateProcessingCart(
+          cart.id,
+          version,
+          {
+            stripeSubscriptionId: subscription.id,
+          }
+        );
         throw error;
       }
     }
 
-    await this.cartManager.updateProcessingCart(cart.id, version, {
+    await this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
       stripeIntentId: intent.id,
     });
@@ -778,7 +788,7 @@ export class CheckoutService {
           [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
         },
       }),
-      this.cartManager.updateProcessingCart(cart.id, version, {
+      this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
         stripeSubscriptionId: subscription.id,
       }),
     ]);
