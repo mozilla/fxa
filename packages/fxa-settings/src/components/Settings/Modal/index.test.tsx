@@ -105,7 +105,7 @@ it('accepts an alternate className', () => {
   );
 });
 
-it('calls onDismiss on click outside', () => {
+it('calls onDismiss on mousedown outside', () => {
   const ariaLabelledBy = 'some-modal-header';
   const ariaDescribedBy = 'some-modal-description';
   const onDismiss = jest.fn();
@@ -121,9 +121,9 @@ it('calls onDismiss on click outside', () => {
       </div>
     </Modal>
   );
-  fireEvent.click(screen.getByTestId('modal-content-container'));
+  fireEvent.mouseDown(screen.getByTestId('modal-content-container'));
   expect(onDismiss).not.toHaveBeenCalled();
-  fireEvent.click(container);
+  fireEvent.mouseDown(container);
   expect(onDismiss).toHaveBeenCalled();
 });
 
