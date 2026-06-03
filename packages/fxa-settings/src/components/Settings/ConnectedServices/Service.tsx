@@ -5,7 +5,7 @@
 import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../../models/Account';
-import { OAuthNativeClients } from '@fxa/accounts/oauth';
+import { OAUTH_NATIVE_CLIENT_IDS } from '@fxa/accounts/oauth';
 import { ReactComponent as WebIcon } from './web.svg';
 import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';
@@ -80,9 +80,7 @@ export function Service({
 }) {
   const { city, stateCode, country } = location;
   const locationProvided = Boolean(city && stateCode && country);
-  const isNativeClient = Object.values(OAuthNativeClients).includes(
-    clientId as OAuthNativeClients
-  );
+  const isNativeClient = OAUTH_NATIVE_CLIENT_IDS.has(clientId);
   const scopeServices = isNativeClient ? getScopeServices(scope) : [];
 
   let serviceLink, Icon;

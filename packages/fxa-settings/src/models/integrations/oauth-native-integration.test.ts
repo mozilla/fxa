@@ -419,4 +419,162 @@ describe('OAuthNativeIntegration', function () {
       expect(model.getWebChannelServices()).toEqual({ vpn: {} });
     });
   });
+
+  describe('scope tolerance (no URL scope)', () => {
+    const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+
+    function buildModel(opts: {
+      scope?: string;
+      service?: OAuthNativeServices;
+      clientId?: OAuthNativeClients;
+      scopedKeysEnabled?: boolean;
+      scopedKeysValidation?: Record<string, { redirectUris: string[] }>;
+      keysJwk?: string;
+    }) {
+      const clientId = opts.clientId ?? OAuthNativeClients.FirefoxDesktop;
+      const freshData = new GenericData({ clientId });
+      const freshOauthData = new GenericData({});
+      const m = new OAuthNativeIntegration(freshData, freshOauthData, {
+        scopedKeysEnabled: opts.scopedKeysEnabled ?? true,
+        scopedKeysValidation: opts.scopedKeysValidation ?? {},
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      m.clientInfo = mockClientInfo(clientId);
+      if (opts.service !== undefined) {
+        m.data.service = opts.service;
+      }
+      // Bind-decorated `scope` validates non-empty; omit when the test
+      // wants to mirror the runtime "URL has no scope" state.
+      if (opts.scope !== undefined) {
+        m.data.scope = opts.scope;
+      }
+      if (opts.keysJwk !== undefined) {
+        m.data.keysJwk = opts.keysJwk;
+      }
+      return m;
+    }
+
+    describe('getNormalizedScope', () => {
+      it('returns "" when URL scope is missing (server resolves from service=)', () => {
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.getNormalizedScope()).toBe('');
+      });
+
+      it('returns the URL scope when present (explicit scope wins)', () => {
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.getNormalizedScope()).toBe(SYNC_SCOPE);
+      });
+    });
+
+    describe('getPermissions', () => {
+      it('returns [] when URL scope is missing (no client-side permissions to enumerate)', () => {
+        // Without this override, super.getPermissions() throws
+        // INVALID_PARAMETER(scope) on an empty scope, which breaks any
+        // call site that enumerates the permission set (e.g. verifySession
+        // in ConfirmSignupCode).
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.getPermissions()).toEqual([]);
+      });
+
+      it('defers to super.getPermissions() when URL scope is present', () => {
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.getPermissions()).toEqual([SYNC_SCOPE]);
+      });
+    });
+
+    describe('_scopeRequestsKeys (via requiresKeys / wantsKeysIfPasswordEntered)', () => {
+      it('Sync without URL scope requires keys when keysJwk is present', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+        });
+        expect(m.requiresKeys()).toBe(true);
+        expect(m.wantsKeys()).toBe(true);
+      });
+
+      it('VPN without URL scope wants keys opportunistically (with keysJwk)', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Vpn,
+          keysJwk: 'mock',
+        });
+        expect(m.wantsKeysIfPasswordEntered()).toBe(true);
+        expect(m.requiresKeys()).toBe(false);
+      });
+
+      it('Relay and SmartWindow without URL scope want keys on password too', () => {
+        const relay = buildModel({
+          service: OAuthNativeServices.Relay,
+          keysJwk: 'mock',
+        });
+        const sw = buildModel({
+          service: OAuthNativeServices.SmartWindow,
+          keysJwk: 'mock',
+        });
+        expect(relay.wantsKeysIfPasswordEntered()).toBe(true);
+        expect(sw.wantsKeysIfPasswordEntered()).toBe(true);
+      });
+
+      it('returns false without keysJwk (no wrapped keys → no Sync grant possible)', () => {
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.requiresKeys()).toBe(false);
+        expect(m.wantsKeysIfPasswordEntered()).toBe(false);
+      });
+
+      it('returns false when scopedKeysEnabled is false', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+          scopedKeysEnabled: false,
+        });
+        expect(m.requiresKeys()).toBe(false);
+      });
+
+      it('explicit URL scope that DOES carry keys still works via super', () => {
+        // Today's flow: Firefox includes apps/oldsync in the URL scope,
+        // super._scopeRequestsKeys matches the scopedKeysValidation entry,
+        // requiresKeys=true. This path is preserved byte-for-byte.
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.requiresKeys()).toBe(true);
+      });
+
+      it('explicit URL scope that does NOT carry keys returns false via super', () => {
+        // Realistic non-keys VPN URL: scope=apps/vpn profile (no oldsync),
+        // keysJwk present, scopedKeysValidation only configured for
+        // apps/oldsync. The override delegates to super, which iterates
+        // the URL scopes against validation and finds no match → false.
+        // Confirms wantsKeysIfPasswordEntered=false in this case.
+        const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+        const m = buildModel({
+          scope: `${VPN_SCOPE} profile`,
+          service: OAuthNativeServices.Vpn,
+          keysJwk: 'mock',
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.wantsKeysIfPasswordEntered()).toBe(false);
+        expect(m.requiresKeys()).toBe(false);
+      });
+    });
+  });
 });

@@ -25,7 +25,6 @@ export type IndexIntegration = Pick<
   | 'isFirefoxNonSync'
   | 'data'
   | 'getCmsInfo'
-  | 'getGrantedScopes'
   | 'getLegalTerms'
   | 'getWebChannelServices'
   | 'requiresKeys'

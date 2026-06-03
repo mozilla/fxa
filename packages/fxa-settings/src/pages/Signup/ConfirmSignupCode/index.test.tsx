@@ -370,7 +370,10 @@ describe('ConfirmSignupCode page', () => {
           declinedSyncEngines,
           offeredSyncEngines,
           action: 'signup',
-          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
       });
     });
@@ -387,7 +390,10 @@ describe('ConfirmSignupCode page', () => {
       await waitFor(() => {
         expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
           action: 'signup',
-          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
       });
     });

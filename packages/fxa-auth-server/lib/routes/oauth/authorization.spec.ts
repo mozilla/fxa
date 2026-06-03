@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const CLIENT_ID = '98e6508e88680e1b';
 const BASE64URL_STRING =
@@ -559,5 +560,284 @@ describe('/authorization POST consent write', () => {
       'accountAuthorization.skipped',
       { reason: 'client_not_allowed', service: 'vpn' }
     );
+  });
+
+  // FXA-13874: today every row carries the URL `service=` value, even when
+  // the grant contains a scope whose canonical owner is a different
+  // service (e.g. apps/oldsync added under service=vpn via the keys_jwe
+  // path, or apps/vpn added under service=sync once we ship a
+  // multi-product opt-in checkbox). This test pins the current behavior
+  // so a future change to key each row by its canonical service has an
+  // explicit signal to update here.
+  it('writes the multi-scope grant under the URL service= (incl. cross-service apps/oldsync row)', async () => {
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn((s: string) => s === 'vpn'),
+      getCanonicalScopeForService: jest.fn((s: string) =>
+        s === 'vpn' ? VPN_SCOPE : undefined
+      ),
+      getServiceForCanonicalScope: jest.fn((s: string) => {
+        if (s === VPN_SCOPE) return 'vpn';
+        if (s === SYNC_SCOPE) return 'sync';
+        return undefined;
+      }),
+    });
+
+    // Simulates the gate output for `service=vpn` + keys_jwe:
+    // grant.scope = [apps/vpn, profile, apps/oldsync].
+    await runHandler({
+      oauthDB,
+      payload: {
+        service: 'vpn',
+        scope: `${VPN_SCOPE} profile ${SYNC_SCOPE}`,
+      },
+    });
+
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalledTimes(3);
+    const calls = (oauthDB.recordSignInConsent as jest.Mock).mock.calls.map(
+      ([arg]) => ({ scope: arg.scope, service: arg.service })
+    );
+    expect(calls).toEqual(
+      expect.arrayContaining([
+        { scope: VPN_SCOPE, service: 'vpn' },
+        { scope: 'profile', service: 'vpn' },
+        // apps/oldsync's canonical owner is 'sync', but the row is
+        // currently keyed to the URL service='vpn'. FXA-13874 tracks
+        // changing this so it's keyed to 'sync' instead.
+        { scope: SYNC_SCOPE, service: 'vpn' },
+      ])
+    );
+  });
+});
+
+// Server-side scope resolution from `service=` for OAuthNative (Firefox)
+// clients. These tests assert the gating logic at the route entrypoint;
+// downstream assertion verification is expected to fail and is not
+// asserted here.
+describe('/oauth/authorization service-driven scope resolution', () => {
+  const FIREFOX_DESKTOP = '5882386c6d801776';
+  const FIREFOX_IOS = '1b1a3e44c54fbb58';
+  const NON_NATIVE_CLIENT = '0123456789abcdef';
+  const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+  const OLDSYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+  const OAUTH_INVALID_PARAMETER_ERRNO = 109;
+
+  function makeRoute(oauthDB: Record<string, any>) {
+    return require('./authorization')({
+      log: { ...mockLog, notifyAttachedServices: noop },
+      oauthDB,
+      config: baseConfig,
+    })[2];
+  }
+
+  function makeRequest(payload: Record<string, unknown>) {
+    return {
+      headers: {},
+      auth: {
+        credentials: {
+          tokenVerified: true,
+          uid: 'abc123',
+          email: 'test@example.com',
+          emailVerified: true,
+          verifierSetAt: Date.now(),
+          lastAuthAt: () => Date.now(),
+          authenticationMethods: new Set(['pwd']),
+          authenticatorAssuranceLevel: 1,
+          profileChangedAt: Date.now(),
+          keysChangedAt: Date.now(),
+          id: 'sessionTokenId',
+          mustVerify: false,
+        },
+      },
+      payload: { state: 'foo', ...payload },
+    };
+  }
+
+  it('rejects with invalid_request_parameter(scope) for a non-OAuthNative client when service is provided without scope', async () => {
+    // Gate rejects before any oauthDB call, so empty mock is fine.
+    const route = makeRoute({});
+    await expect(
+      route.handler(
+        makeRequest({ client_id: NON_NATIVE_CLIENT, service: 'vpn' })
+      )
+    ).rejects.toMatchObject({
+      errno: OAUTH_INVALID_PARAMETER_ERRNO,
+      output: expect.objectContaining({
+        payload: expect.objectContaining({
+          validation: expect.objectContaining({ keys: ['scope'] }),
+        }),
+      }),
+    });
+  });
+
+  it('rejects with invalid_request_parameter(service) for an OAuthNative client when service is unknown', async () => {
+    const route = makeRoute({
+      isClientAllowedForService: () => true,
+      resolveScopesForService: () => undefined,
+    });
+    await expect(
+      route.handler(
+        makeRequest({ client_id: FIREFOX_IOS, service: 'totally-unknown' })
+      )
+    ).rejects.toMatchObject({
+      errno: OAUTH_INVALID_PARAMETER_ERRNO,
+      output: expect.objectContaining({
+        payload: expect.objectContaining({
+          validation: expect.objectContaining({ keys: ['service'] }),
+        }),
+      }),
+    });
+  });
+
+  it('rejects with invalid_request_parameter(service) when an OAuthNative client is not registered for the service', async () => {
+    const route = makeRoute({
+      // Mobile (iOS) is not in smartwindow.clientIds.
+      isClientAllowedForService: () => false,
+      resolveScopesForService: () => [
+        'https://identity.mozilla.com/apps/smartwindow',
+        'profile:uid',
+      ],
+    });
+    await expect(
+      route.handler(
+        makeRequest({ client_id: FIREFOX_IOS, service: 'smartwindow' })
+      )
+    ).rejects.toMatchObject({
+      errno: OAUTH_INVALID_PARAMETER_ERRNO,
+      output: expect.objectContaining({
+        payload: expect.objectContaining({
+          validation: expect.objectContaining({ keys: ['service'] }),
+        }),
+      }),
+    });
+  });
+
+  it('passes the gate for an OAuthNative + recognised service (no scope), failing later in the pipeline', async () => {
+    // The gate resolves scope and proceeds; the handler will then fail
+    // downstream (assertion verification, no oauthDB.getClient stub,
+    // etc.). We just confirm we did not throw an INVALID_PARAMETER
+    // error citing scope or service.
+    const resolveScopesForService = jest.fn((s: string) =>
+      s === 'vpn' ? [VPN_SCOPE, 'profile'] : undefined
+    );
+    const route = makeRoute({
+      isClientAllowedForService: () => true,
+      resolveScopesForService,
+    });
+    try {
+      await route.handler(
+        makeRequest({ client_id: FIREFOX_DESKTOP, service: 'vpn' })
+      );
+    } catch (err: any) {
+      if (err.errno === OAUTH_INVALID_PARAMETER_ERRNO) {
+        const keys = err.output?.payload?.validation?.keys;
+        expect(keys).not.toEqual(['scope']);
+        expect(keys).not.toEqual(['service']);
+      }
+    }
+    // Resolver invoked with withKeys=false when keys_jwe is absent.
+    expect(resolveScopesForService).toHaveBeenCalledWith('vpn', false);
+  });
+
+  it('passes withKeys=true to the resolver when keys_jwe is in the payload', async () => {
+    // Conditional Sync grant: user entered a password (client computed
+    // keys_jwe), so the resolver should return the multi-scope set plus
+    // the keys-conditional scope.
+    const resolveScopesForService = jest.fn((s: string, withKeys: boolean) => {
+      if (s !== 'vpn') return undefined;
+      return withKeys
+        ? [VPN_SCOPE, 'profile', OLDSYNC_SCOPE]
+        : [VPN_SCOPE, 'profile'];
+    });
+    const route = makeRoute({
+      isClientAllowedForService: () => true,
+      resolveScopesForService,
+    });
+    try {
+      await route.handler(
+        makeRequest({
+          client_id: FIREFOX_DESKTOP,
+          service: 'vpn',
+          keys_jwe: 'mock.jwe.payload',
+        })
+      );
+    } catch (err: any) {
+      if (err.errno === OAUTH_INVALID_PARAMETER_ERRNO) {
+        const keys = err.output?.payload?.validation?.keys;
+        expect(keys).not.toEqual(['scope']);
+        expect(keys).not.toEqual(['service']);
+      }
+    }
+    expect(resolveScopesForService).toHaveBeenCalledWith('vpn', true);
+  });
+
+  it('skips the gate when scope is explicitly provided, even with service for an OAuthNative client', async () => {
+    // Explicit scope wins: the gate must not call any oauthDB service
+    // method, and must not throw INVALID_PARAMETER for scope/service.
+    const oauthDB = {
+      isClientAllowedForService: jest.fn(),
+      resolveScopesForService: jest.fn(),
+    };
+    const route = makeRoute(oauthDB);
+    try {
+      await route.handler(
+        makeRequest({
+          client_id: FIREFOX_DESKTOP,
+          service: 'vpn',
+          scope: ScopeSet.fromString('profile'),
+        })
+      );
+    } catch (err: any) {
+      if (err.errno === OAUTH_INVALID_PARAMETER_ERRNO) {
+        const keys = err.output?.payload?.validation?.keys;
+        expect(keys).not.toEqual(['scope']);
+        expect(keys).not.toEqual(['service']);
+      }
+    }
+    expect(oauthDB.isClientAllowedForService).not.toHaveBeenCalled();
+    expect(oauthDB.resolveScopesForService).not.toHaveBeenCalled();
+  });
+
+  // Regression: "is this service known?" must come from
+  // resolveScopesForService (oauthServer.authorization.serviceScopes),
+  // not isKnownService (oauthServer.exchange.serviceScopes). The two
+  // configs are separate and can drift.
+  it('passes the gate when resolveScopesForService returns a scope, even if isKnownService says otherwise', async () => {
+    const resolveScopesForService = jest.fn(() => [
+      'https://identity.mozilla.com/apps/imaginary',
+      'profile',
+    ]);
+    const isKnownService = jest.fn(() => false);
+    const route = makeRoute({
+      isKnownService,
+      isClientAllowedForService: () => true,
+      resolveScopesForService,
+    });
+    try {
+      await route.handler(
+        makeRequest({ client_id: FIREFOX_DESKTOP, service: 'imaginary' })
+      );
+    } catch (err: any) {
+      if (err.errno === OAUTH_INVALID_PARAMETER_ERRNO) {
+        const keys = err.output?.payload?.validation?.keys;
+        expect(keys).not.toEqual(['scope']);
+        expect(keys).not.toEqual(['service']);
+      }
+    }
+    expect(resolveScopesForService).toHaveBeenCalledWith('imaginary', false);
+    expect(isKnownService).not.toHaveBeenCalled();
+  });
+
+  it('rejects with invalid_request_parameter(scope) when both scope and service are absent', async () => {
+    const route = makeRoute({});
+    await expect(
+      route.handler(makeRequest({ client_id: FIREFOX_DESKTOP }))
+    ).rejects.toMatchObject({
+      errno: OAUTH_INVALID_PARAMETER_ERRNO,
+      output: expect.objectContaining({
+        payload: expect.objectContaining({
+          validation: expect.objectContaining({ keys: ['scope'] }),
+        }),
+      }),
+    });
   });
 });

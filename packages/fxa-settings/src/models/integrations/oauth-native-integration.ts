@@ -134,6 +134,50 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return this.isFirefoxNonSync() && this._scopeRequestsKeys();
   }
 
+  // When the URL omits `scope=`, there's no client-side permission set
+  // to enumerate — the server resolves the granted scope from `service=`
+  // at /oauth/authorization. Return [] instead of letting super throw
+  // INVALID_PARAMETER(scope) on empty scope. Explicit URL scope still
+  // wins (parent path).
+  override getPermissions(): string[] {
+    if (!this.data.scope) {
+      return [];
+    }
+    return super.getPermissions();
+  }
+
+  // When the URL omits `scope=`, send empty so the server's
+  // /oauth/authorization gate resolves it from `service=`. Bypasses
+  // super.getPermissions() which would otherwise throw on empty scope.
+  // Explicit URL scope still wins (parent path).
+  override getNormalizedScope(): string {
+    if (!this.data.scope) {
+      return '';
+    }
+    return super.getNormalizedScope();
+  }
+
+  // When the URL omits `scope=`, decide based on the service. Sync
+  // flows force password (requiresKeys); non-Sync Firefox flows offer
+  // keys opportunistically (wantsKeysIfPasswordEntered). When the user
+  // enters a password, the client wraps keysJwe and sends it; the
+  // server then adds apps/oldsync to the resolved scope set.
+  //
+  // The redirectUri-vs-scope check that super._scopeRequestsKeys does
+  // is skipped here — there is no URL scope to validate, and
+  // OAuthNative clientIds are already gated by the
+  // OAUTH_NATIVE_CLIENT_IDS allowlist on the auth-server side.
+  protected override _scopeRequestsKeys(): boolean {
+    if (this.data.scope) {
+      return super._scopeRequestsKeys();
+    }
+    return (
+      this.opts.scopedKeysEnabled &&
+      this.data.keysJwk != null &&
+      this.isFirefoxClient()
+    );
+  }
+
   getWebChannelServices(syncEngines?: SyncEngines) {
     if (this.isFirefoxClientServiceRelay()) {
       return { relay: {} };
@@ -148,13 +192,6 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
       return { sync: syncEngines || {} };
     }
     return undefined;
-  }
-
-  // TODO: When server-side scope resolution (ADR 0049) is implemented,
-  // granted scopes may differ from requested scopes. Update this to return
-  // the actual granted scopes from the server response.
-  getGrantedScopes(): string | undefined {
-    return this.data.scope;
   }
 
   getServiceName() {

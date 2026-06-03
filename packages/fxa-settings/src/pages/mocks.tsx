@@ -47,6 +47,7 @@ export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
   redirect: 'someUri',
   code: 'someCode',
   state: 'someState',
+  scope: 'profile',
   error: undefined,
 };
 export const mockFinishOAuthFlowHandler = () =>

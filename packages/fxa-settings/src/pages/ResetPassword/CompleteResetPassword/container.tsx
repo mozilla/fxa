@@ -247,12 +247,15 @@ const CompleteResetPasswordContainer = ({
       });
 
       if (isOAuth) {
-        const { error, redirect, code, state } = await finishOAuthFlowHandler(
-          accountResetData.uid,
-          accountResetData.sessionToken,
-          accountResetData.keyFetchToken,
-          accountResetData.unwrapBKey
-        );
+        // `scope` is the server-resolved scope per ADR 0049, only
+        // forwarded to Firefox via fxaOAuthLogin; ignored otherwise.
+        const { error, redirect, code, state, scope } =
+          await finishOAuthFlowHandler(
+            accountResetData.uid,
+            accountResetData.sessionToken,
+            accountResetData.keyFetchToken,
+            accountResetData.unwrapBKey
+          );
 
         if (error) {
           const localizedBannerMessage = getLocalizedErrorMessage(
@@ -268,6 +271,7 @@ const CompleteResetPasswordContainer = ({
           code,
           redirect,
           state,
+          scope,
         });
       }
     }

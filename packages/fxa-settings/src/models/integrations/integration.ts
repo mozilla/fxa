@@ -199,14 +199,6 @@ export class GenericIntegration<
     return this.requiresKeys() || this.wantsKeysIfPasswordEntered();
   }
 
-  /**
-   * Returns the scopes that were granted for this integration.
-   * Overridden in OAuthNativeIntegration; returns undefined for all other types.
-   */
-  getGrantedScopes(): string | undefined {
-    return undefined;
-  }
-
   wantsLogin(): boolean {
     return false;
   }

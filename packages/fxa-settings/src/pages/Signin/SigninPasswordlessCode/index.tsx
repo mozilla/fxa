@@ -371,7 +371,9 @@ const SigninPasswordlessCode = ({
             });
             return;
           } else {
-            const { redirect, code, state, error } =
+            // `scope` is the server-resolved scope per ADR 0049, only
+            // forwarded to Firefox via fxaOAuthLogin; ignored otherwise.
+            const { redirect, code, state, scope, error } =
               await finishOAuthFlowHandler(
                 result.uid,
                 result.sessionToken,
@@ -391,6 +393,7 @@ const SigninPasswordlessCode = ({
                 code,
                 redirect,
                 state,
+                scope,
               });
               const { error: navError } =
                 await handleNavigation(navigationOptions);

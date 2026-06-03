@@ -331,6 +331,7 @@ describe('Signin utils', () => {
           code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
           redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
         expect(navigateSpy).toHaveBeenCalledWith('/settings', {
           replace: true,

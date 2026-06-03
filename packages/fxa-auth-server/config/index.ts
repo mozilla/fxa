@@ -1507,6 +1507,28 @@ const convictConf = convict({
         env: 'OAUTH_EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE',
       },
     },
+    authorization: {
+      serviceScopes: {
+        doc: 'Per-service scope set granted by the /oauth/authorization gate when the client omits scope= and provides service= (ADR 0049). The full array is granted unconditionally. The keysConditionalScope below is added when keysJwe is present in the request, so non-Sync browser-service flows can opt into Sync once the user enters a password.',
+        format: Object,
+        default: {
+          sync: ['https://identity.mozilla.com/apps/oldsync', 'profile'],
+          relay: ['https://identity.mozilla.com/apps/relay', 'profile'],
+          smartwindow: [
+            'https://identity.mozilla.com/apps/smartwindow',
+            'profile:uid',
+          ],
+          vpn: ['https://identity.mozilla.com/apps/vpn', 'profile'],
+        },
+        env: 'OAUTH_AUTHORIZATION_SERVICE_SCOPES',
+      },
+      keysConditionalScope: {
+        doc: 'Scope added to ADR 0049 resolutions when keysJwe is present in the /oauth/authorization request (i.e. the user entered a password and the client computed wrapped keys). Lets non-Sync Firefox-service flows opt into Sync without each per-service serviceScopes entry having to duplicate apps/oldsync.',
+        format: 'String',
+        default: 'https://identity.mozilla.com/apps/oldsync',
+        env: 'OAUTH_AUTHORIZATION_KEYS_CONDITIONAL_SCOPE',
+      },
+    },
     git: {
       commit: {
         doc: 'Commit SHA when in stage/production',
