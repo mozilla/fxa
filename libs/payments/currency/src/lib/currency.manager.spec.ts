@@ -22,6 +22,24 @@ describe('CurrencyManager', () => {
     mockCurrencyConfig = module.get(CurrencyConfig);
   });
 
+  describe('getCurrencyForCountry', () => {
+    it('returns usd for US country code', () => {
+      const result = currencyManager.getCurrencyForCountry('US');
+      expect(result).toEqual('usd');
+    });
+
+    it('returns eur for EU country codes', () => {
+      expect(currencyManager.getCurrencyForCountry('FR')).toEqual('eur');
+      expect(currencyManager.getCurrencyForCountry('DE')).toEqual('eur');
+      expect(currencyManager.getCurrencyForCountry('NL')).toEqual('eur');
+    });
+
+    it('returns undefined for unknown country code', () => {
+      const result = currencyManager.getCurrencyForCountry('ZZ');
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('getTaxId', () => {
     it('returns the correct tax id for currency', async () => {
       const mockCurrency = Object.entries(mockCurrencyConfig.taxIds)[0];

@@ -131,7 +131,10 @@ jest.mock('@fxa/shared/react', () => ({
     href: string;
     [key: string]: unknown;
   }) => (
-    <a href={href} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+    <a
+      href={href}
+      {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+    >
       {children}
     </a>
   ),
@@ -147,26 +150,20 @@ jest.mock(
   () => 'alert-yellow.svg',
   { virtual: true }
 );
-jest.mock(
-  '@fxa/shared/assets/images/arrow-down.svg',
-  () => 'arrow-down.svg',
-  { virtual: true }
-);
-jest.mock(
-  '@fxa/shared/assets/images/apple-logo.svg',
-  () => 'apple-logo.svg',
-  { virtual: true }
-);
+jest.mock('@fxa/shared/assets/images/arrow-down.svg', () => 'arrow-down.svg', {
+  virtual: true,
+});
+jest.mock('@fxa/shared/assets/images/apple-logo.svg', () => 'apple-logo.svg', {
+  virtual: true,
+});
 jest.mock(
   '@fxa/shared/assets/images/google-logo.svg',
   () => 'google-logo.svg',
   { virtual: true }
 );
-jest.mock(
-  '@fxa/shared/assets/images/new-window.svg',
-  () => 'new-window.svg',
-  { virtual: true }
-);
+jest.mock('@fxa/shared/assets/images/new-window.svg', () => 'new-window.svg', {
+  virtual: true,
+});
 jest.mock('@fxa/shared/assets/images/error.svg', () => 'error.svg', {
   virtual: true,
 });
@@ -293,6 +290,73 @@ describe('Manage page — payment method error banner', () => {
     expect(bannerLink).toHaveAttribute(
       'href',
       'https://payments.example.com/en/subscriptions/payments/paypal'
+    );
+  });
+
+  it('renders the credit balance section when balance is positive', async () => {
+    mockGetL10n.mockReturnValue({
+      ...mockL10n,
+      getLocalizedCurrencyString: () => '$5.00',
+    });
+    mockGetSubManPageContentAction.mockResolvedValue({
+      ...basePageContent,
+      accountCreditBalance: { balance: 500, currency: 'usd' },
+      subscriptions: [SubscriptionContentFactory()],
+    });
+
+    await renderPage();
+
+    expect(screen.getByText('Credit balance')).toBeInTheDocument();
+    expect(screen.getByText('$5.00')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Credit will automatically be applied to future invoices'
+      )
+    ).toBeInTheDocument();
+  });
+
+  it('does not render the credit balance section when balance is zero', async () => {
+    mockGetSubManPageContentAction.mockResolvedValue({
+      ...basePageContent,
+      accountCreditBalance: { balance: 0, currency: null },
+      subscriptions: [SubscriptionContentFactory()],
+    });
+
+    await renderPage();
+
+    expect(screen.queryByText('Credit balance')).not.toBeInTheDocument();
+  });
+
+  it('does not render payment method section when user is not a Stripe customer', async () => {
+    mockGetSubManPageContentAction.mockResolvedValue({
+      ...basePageContent,
+      isStripeCustomer: false,
+      subscriptions: [],
+    });
+
+    await renderPage();
+
+    expect(screen.queryByText('Payment method')).not.toBeInTheDocument();
+  });
+
+  it('renders "Get help" link with the subscription supportUrl', async () => {
+    const sub = SubscriptionContentFactory({
+      productName: 'Mozilla VPN',
+      supportUrl: 'https://support.mozilla.org/vpn',
+    });
+    mockGetSubManPageContentAction.mockResolvedValue({
+      ...basePageContent,
+      subscriptions: [sub],
+    });
+
+    await renderPage();
+
+    const helpLink = screen.getByRole('link', {
+      name: /Get help for Mozilla VPN/,
+    });
+    expect(helpLink).toHaveAttribute(
+      'href',
+      'https://support.mozilla.org/vpn'
     );
   });
 

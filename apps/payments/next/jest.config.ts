@@ -13,6 +13,7 @@ const config: Config = {
     '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/next/babel'] }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],
   reporters: [
     'default',
     [

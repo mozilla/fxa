@@ -8,9 +8,11 @@ import {
   AppleIapPurchase,
   AppleIapPurchaseResult,
   AppleIapSubscriptionContent,
+  CancelFlowResult,
   GoogleIapPurchase,
   GoogleIapPurchaseResult,
   GoogleIapSubscriptionContent,
+  StaySubscribedFlowResult,
   SubscriptionContent,
   TrialSubscriptionContent,
 } from '../types';
@@ -90,10 +92,47 @@ export const SubscriptionContentFactory = (
   nextInvoiceDate: faker.date.future().getDate(),
   nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
   nextInvoiceTotal: faker.number.int({ min: 1, max: 1000 }),
+  currentInvoiceUrl: faker.internet.url(),
+  nextPromotionName: null,
+  promotionName: null,
   isEligibleForChurnCancel: faker.datatype.boolean(),
   isEligibleForChurnStaySubscribed: faker.datatype.boolean(),
   isEligibleForOffer: faker.datatype.boolean(),
   churnStaySubscribedCtaMessage: faker.string.sample(),
+  ...override,
+});
+
+type CancelFlowContent = Extract<CancelFlowResult, { flowType: 'cancel' }>;
+
+export const CancelFlowContentFactory = (
+  override?: Partial<CancelFlowContent>
+): CancelFlowContent => ({
+  flowType: 'cancel',
+  active: true,
+  cancelAtPeriodEnd: false,
+  currency: faker.finance.currencyCode().toLowerCase(),
+  currentPeriodEnd: faker.date.future().getDate(),
+  productName: faker.string.sample(),
+  supportUrl: faker.internet.url(),
+  webIcon: faker.internet.url(),
+  ...override,
+});
+
+type StaySubscribedFlowContent = Extract<
+  StaySubscribedFlowResult,
+  { flowType: 'stay_subscribed' }
+>;
+
+export const StaySubscribedFlowContentFactory = (
+  override?: Partial<StaySubscribedFlowContent>
+): StaySubscribedFlowContent => ({
+  flowType: 'stay_subscribed',
+  active: true,
+  cancelAtPeriodEnd: true,
+  currency: faker.finance.currencyCode().toLowerCase(),
+  currentPeriodEnd: faker.date.future().getDate(),
+  productName: faker.string.sample(),
+  webIcon: faker.internet.url(),
   ...override,
 });
 
