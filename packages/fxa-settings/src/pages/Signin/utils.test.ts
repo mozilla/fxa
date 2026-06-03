@@ -395,6 +395,26 @@ describe('Signin utils', () => {
         );
       });
 
+      it('diverts a cached session (not a fresh passkey ceremony) when the account has no TOTP', async () => {
+        // A cached passkey session is session-AAL2 without isPasskeySession set.
+        // The divert must still fire so an AAL2 RP does not bounce indefinitely.
+        const finishOAuthFlowHandler = jest.fn();
+        const navigationOptions = buildPasskeyOAuthOptions({
+          isPasskeySession: false,
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
       it('continues to OAuth redirect when the account already has TOTP', async () => {
         const finishOAuthFlowHandler = jest
           .fn()

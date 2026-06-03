@@ -417,6 +417,96 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.hasAccountAAL2Badge()).toBe(true);
     });
 
+    test('AMO-style profile AAL2: cached passkey session (no fresh ceremony) without TOTP is diverted to inline TOTP setup, not looped', async ({
+      target,
+      pages: { page, relier, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+    }) => {
+      test.skip(
+        target.name !== 'local',
+        'requires the local 123done /api/profile_aal2 toggle'
+      );
+
+      // Establish an active session-AAL2 session by signing in WITH the
+      // passkey (AMR {pwd, webauthn}). The account has no TOTP.
+      const credentials = await setUpAccountWithPasskey({
+        target,
+        page,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        testAccountTracker,
+      });
+      await settings.signOut();
+      await signInWithRegisteredPasskey({
+        target,
+        page,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        email: credentials.email,
+      });
+
+      // Reuse the existing passkey session (cached-signin path, not a fresh
+      // ceremony). The cached grant satisfies session AAL2, so without the
+      // divert the RP bounces and the user loops on the cached-signin screen.
+      await relier.goto();
+      await relier.clickRequireProfileAAL2();
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
+
+      // No TOTP on the account, so FxA must divert to inline TOTP setup.
+      await page.waitForURL(/inline_totp_setup/);
+    });
+
+    test('AMO-style profile AAL2: cached passkey session with TOTP already enabled completes without the divert', async ({
+      target,
+      pages: { page, relier, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+    }) => {
+      test.skip(
+        target.name !== 'local',
+        'requires the local 123done /api/profile_aal2 toggle'
+      );
+
+      // Account with a passkey AND TOTP already enrolled.
+      const credentials = await setUpAccountWithPasskey({
+        target,
+        page,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        testAccountTracker,
+      });
+      credentials.secret = await enableTotpOnAccount(
+        target.authClient,
+        credentials.sessionToken
+      );
+      await settings.signOut();
+      await signInWithRegisteredPasskey({
+        target,
+        page,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        email: credentials.email,
+      });
+
+      // Cached signin into the profile-AAL2 RP. Account 2FA is already
+      // satisfied (TOTP enrolled), so the user skips enrollment (no divert)
+      // and the grant completes.
+      await relier.goto();
+      await relier.clickRequireProfileAAL2();
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
+      await page.waitForURL((url) => url.href.startsWith(target.relierUrl));
+
+      expect(page.url()).not.toContain('/inline_totp_setup');
+      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.hasSessionAAL2Badge()).toBe(true);
+      expect(await relier.hasAccountAAL2Badge()).toBe(true);
+    });
+
     test('shows the "passkey not recognized" banner when the server no longer knows the credential', async ({
       target,
       pages: { page, settings, settingsPasskeyAdd, signin },
@@ -560,6 +650,35 @@ async function setUpAccountWithPasskey({
   await settingsPasskeyAdd.registerNewPasskey(settings, credentials.email);
 
   return credentials;
+}
+
+/**
+ * Signs in with a previously registered passkey (assumes the user is signed
+ * out but the polyfill credential is still discoverable). Leaves the user on
+ * Settings with an active session-AAL2 session (AMR {pwd, webauthn}).
+ */
+async function signInWithRegisteredPasskey({
+  target,
+  page,
+  settings,
+  settingsPasskeyAdd,
+  signin,
+  email,
+}: {
+  target: BaseTarget;
+  page: Page;
+  settings: SettingsPage;
+  settingsPasskeyAdd: SettingsPasskeyAddPage;
+  signin: SigninPage;
+  email: string;
+}) {
+  await page.goto(target.contentServerUrl);
+  await signin.fillOutEmailFirstForm(email);
+  await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
+    await signin.passkeySigninButton.click();
+    await page.waitForURL(/settings/);
+  });
+  await expect(settings.settingsHeading).toBeVisible();
 }
 
 // Signs out without clearing the polyfill installed via `addInitScript`,

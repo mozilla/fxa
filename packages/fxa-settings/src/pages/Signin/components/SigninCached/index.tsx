@@ -130,6 +130,9 @@ const SigninCached = ({
           uid: data.uid,
           sessionToken,
         },
+        // Lets handleNavigation divert an AAL2 RP to inline TOTP setup; without
+        // it a passkey-AAL2 cached session with no TOTP would loop.
+        accountHasTotp: data.totpIsActive,
         integration,
         redirectTo:
           isWebIntegration(integration) && webRedirectCheck?.isValid
