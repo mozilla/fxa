@@ -15,7 +15,7 @@ module.exports = (log, db, config) => {
       options: {
         ...SECURITY_EVENTS_DOCS.SECURITYEVENTS_GET,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
       },

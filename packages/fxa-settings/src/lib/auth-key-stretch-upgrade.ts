@@ -11,7 +11,7 @@ import {
   unwrapKB,
 } from 'fxa-auth-client/lib/crypto';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { deriveHawkCredentials } from 'fxa-auth-client/lib/hawk';
+import { deriveTokenCredentials } from 'fxa-auth-client/lib/hawk';
 import { getHandledError } from './error-utils';
 import { SensitiveDataClient } from './sensitive-data-client';
 import { ERRNO } from '@fxa/accounts/errors';
@@ -191,7 +191,9 @@ export class AuthKeyStretchUpgrade {
       } else if (errno === ERRNO.SESSION_UNVERIFIED) {
         console.info('Key stretch upgrade deferred: session not verified');
       } else {
-        console.info(`Key stretch upgrade deferred: unexpected error (errno: ${errno})`);
+        console.info(
+          `Key stretch upgrade deferred: unexpected error (errno: ${errno})`
+        );
       }
 
       Sentry.captureMessage(
@@ -239,7 +241,7 @@ export class AuthKeyStretchUpgrade {
       v2: v2Credentials,
     });
     try {
-      const credentials = await deriveHawkCredentials(
+      const credentials = await deriveTokenCredentials(
         sessionToken,
         'sessionToken'
       );

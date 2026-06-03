@@ -10,14 +10,24 @@ const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 
-// Anything with these keys containing these strings will be redacted.
-const SENSITIVE_KEY_TERMS = new Set(['auth', 'pw', 'kb', 'key']);
+// Case-insensitive substrings: any key containing one of these is redacted
+// before reaching Sentry. Covers `authorization`, `set-cookie`, `authPW`,
+// `kB`, `keyFetchToken`, etc.
+const REDACTED_KEY_FRAGMENTS = ['auth', 'cookie', 'pw', 'kb', 'key'];
+
+// Unanchored so a token id embedded in a larger string (stack frame, URL,
+// error message) is still redacted. Under Bearer the raw id is a replay
+// credential.
+const TOKEN_VALUE_RE = /\bfx[a-z]+_[0-9a-f]{64}\b/;
 
 function filterExtras(obj, depth = 0) {
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => {
       const lower = k.toLowerCase();
-      if ([...SENSITIVE_KEY_TERMS].some((term) => lower.includes(term))) {
+      if (REDACTED_KEY_FRAGMENTS.some((term) => lower.includes(term))) {
+        return [k, '[Filtered]'];
+      }
+      if (typeof v === 'string' && TOKEN_VALUE_RE.test(v)) {
         return [k, '[Filtered]'];
       }
       if (v && typeof v === 'object' && !Array.isArray(v)) {

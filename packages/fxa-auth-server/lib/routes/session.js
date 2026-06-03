@@ -57,7 +57,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           // since payload is allowed to be empty we do not
           // do hawk payload validation otherwise we may break existing clients
         },
@@ -121,7 +121,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_REAUTH_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -305,7 +305,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_STATUS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA.object({
@@ -370,7 +370,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_DUPLICATE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -452,7 +452,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -576,7 +576,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_RESEND_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: async function (request) {

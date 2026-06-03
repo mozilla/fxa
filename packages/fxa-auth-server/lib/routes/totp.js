@@ -398,7 +398,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_CREATE_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -513,7 +513,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_SETUP_VERIFY_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -650,7 +650,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_SETUP_COMPLETE_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -840,6 +840,8 @@ module.exports = (
         ...TOTP_DOCS.TOTP_EXISTS_GET,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
@@ -880,7 +882,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
           payload: 'required',
         },
         validate: {
@@ -960,7 +962,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_RECOVERY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
         validate: {
           payload: isA.object({
@@ -1074,7 +1076,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.SESSION_VERIFY_TOTP_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {

@@ -90,7 +90,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -203,7 +203,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_FINISH_POST,
         auth: {
-          strategy: 'passwordChangeToken',
+          strategies: ['passwordChangeTokenBearer', 'passwordChangeToken'],
           payload: 'required',
         },
         validate: {
@@ -1201,7 +1201,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_FORGOT_VERIFY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
           payload: 'required',
         },
         validate: {
@@ -1334,7 +1334,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CREATE_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {

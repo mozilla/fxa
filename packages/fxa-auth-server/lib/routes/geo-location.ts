@@ -52,7 +52,9 @@ export class GeoLocationHandler {
   ) {
     const rulesFromConfig = (config.geoEligibility?.rules ??
       {}) as GeoEligibilityRules;
-    this.geoEligibilityCheckService = new GeoEligibilityCheckService(rulesFromConfig);
+    this.geoEligibilityCheckService = new GeoEligibilityCheckService(
+      rulesFromConfig
+    );
   }
 
   geoEligibilityCheck = (request: AuthRequest) => {
@@ -69,7 +71,10 @@ export class GeoLocationHandler {
     }
 
     const country = request.app.geo?.location?.countryCode ?? null;
-    const eligible = this.geoEligibilityCheckService.isAllowed(feature, country);
+    const eligible = this.geoEligibilityCheckService.isAllowed(
+      feature,
+      country
+    );
 
     this.log.info('geo.eligibility.checked', {
       feature,
@@ -93,7 +98,7 @@ export const geoRoutes = (config: ConfigType, log: AuthLogger) => {
       options: {
         ...MISC_DOCS.GEO_ELIGIBILITY_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           mode: 'required',
         },
         validate: {

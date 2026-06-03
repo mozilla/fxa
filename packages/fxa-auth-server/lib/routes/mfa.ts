@@ -285,7 +285,7 @@ export const mfaRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -307,7 +307,7 @@ export const mfaRoutes = (
       path: '/mfa/otp/verify',
       options: {
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
