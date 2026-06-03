@@ -9,10 +9,13 @@ import path from 'path';
 // suspenders for re-exports, string builders, or vendored copies.
 
 const BANNED = /hawk\.header\(|\bhawkHeader\(|\bcalculateMac\(/;
+// path.resolve() against CWD instead of __dirname so the file works whether
+// loaded as CJS (ts-node/register) or ESM (Node's native loader). Mocha is
+// invoked from the package root via `mocha test/*` so CWD is stable.
 const ROOTS = [
-  path.join(__dirname, '..', 'lib'),
-  path.join(__dirname, '..', 'server.ts'),
-  path.join(__dirname, '..', 'browser.ts'),
+  path.resolve('lib'),
+  path.resolve('server.ts'),
+  path.resolve('browser.ts'),
 ];
 
 function* walk(p: string): Generator<string> {
@@ -31,7 +34,10 @@ describe('no-hawk-signing guard', () => {
   it('fxa-auth-client source is free of Hawk signing calls', () => {
     const offenders: string[] = [];
     for (const root of ROOTS) {
-      if (!fs.existsSync(root)) continue;
+      assert.ok(
+        fs.existsSync(root),
+        `Expected root ${root} not found — run from package root`
+      );
       for (const file of walk(root)) {
         if (!/\.(ts|js)$/.test(file)) continue;
         const text = fs.readFileSync(file, 'utf8');
