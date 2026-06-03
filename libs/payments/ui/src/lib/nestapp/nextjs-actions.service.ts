@@ -934,7 +934,9 @@ export class NextJSActionsService {
     };
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError],
+  })
   @NextIOValidator(
     DetermineCurrencyForCustomerActionArgs,
     DetermineCurrencyForCustomerActionResult

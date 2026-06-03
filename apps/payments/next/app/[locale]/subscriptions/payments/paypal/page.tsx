@@ -33,10 +33,23 @@ export default async function PaypalPaymentManagementPage({
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }
-  const [paypalBillingAgreementId, currency] = await Promise.all([
-    getPayPalBillingAgreementId(),
-    determineCurrencyForCustomerAction(),
-  ]);
+  let paypalBillingAgreementId;
+  let currency;
+  try {
+    [paypalBillingAgreementId, currency] = await Promise.all([
+      getPayPalBillingAgreementId(),
+      determineCurrencyForCustomerAction(),
+    ]);
+  } catch (error) {
+    if (
+      error.name === 'AccountCustomerNotFoundError') {
+      redirect(
+        `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
+      );
+    } else {
+      throw error;
+    }
+  }
 
   if (paypalBillingAgreementId || !currency) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
