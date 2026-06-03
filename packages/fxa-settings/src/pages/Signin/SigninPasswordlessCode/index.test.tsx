@@ -12,8 +12,13 @@ import { mockAppContext } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AppContext } from '../../../models';
 import { SigninPasswordlessCodeProps } from './interfaces';
-import { Subject, MOCK_PASSWORDLESS_CODE } from './mocks';
 import {
+  Subject,
+  MOCK_PASSWORDLESS_CODE,
+  createOAuthNativeIntegration,
+} from './mocks';
+import {
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_SESSION_TOKEN,
@@ -243,6 +248,23 @@ describe('SigninPasswordlessCode page', () => {
       render({ isSignup: false });
 
       screen.getByRole('link', { name: 'Use a different account' });
+    });
+
+    it('renders additional accessibility info from CMS', () => {
+      const integration = createOAuthNativeIntegration(true, MOCK_CMS_INFO);
+      render({ integration, isSignup: false });
+
+      expect(
+        screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+      ).toBeInTheDocument();
+    });
+
+    it('does not render additional accessibility info when CMS info is absent', () => {
+      render({ isSignup: false });
+
+      expect(
+        screen.queryByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+      ).not.toBeInTheDocument();
     });
   });
 
