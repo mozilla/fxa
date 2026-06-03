@@ -234,7 +234,6 @@ describe('#integration - convert', () => {
       100
     );
     Container.reset();
-    jest.clearAllMocks();
   });
 
   it('processes new products and plans', async () => {

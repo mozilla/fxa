@@ -78,10 +78,14 @@ const tokenRoutesArgMocks = {
   glean: mockGlean,
 };
 
+// Captured at module scope so beforeAll's set and afterAll's remove use the
+// same Container instance; beforeAll calls jest.resetModules() after the set,
+// and a fresh require would otherwise hand back a different Container.
+const { Container } = require('typedi');
+
 let tokenRoutes: any;
 
 beforeAll(() => {
-  const { Container } = require('typedi');
   Container.set('OAuthClientInfo', {
     async fetch() {
       return 'sync';
@@ -113,6 +117,10 @@ beforeAll(() => {
   );
   const tokenRouteFactory = require('../../lib/routes/oauth/token');
   tokenRoutes = tokenRouteFactory(tokenRoutesArgMocks);
+});
+
+afterAll(() => {
+  Container.remove('OAuthClientInfo');
 });
 
 describe('/token POST (integration)', () => {

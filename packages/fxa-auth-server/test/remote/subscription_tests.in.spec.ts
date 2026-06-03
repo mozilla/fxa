@@ -55,8 +55,7 @@ interface OAuthClient {
 }
 
 // Load config to extract client IDs and constants
-const configPath = require.resolve('../../config');
-delete require.cache[configPath];
+jest.resetModules();
 const localConfig = require('../../config').default.getProperties();
 
 const validClients: OAuthClient[] = localConfig.oauthServer.clients.filter(
@@ -100,36 +99,30 @@ describe('#integration - remote subscriptions (enabled)', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { default: Container } = require('typedi');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { CapabilityService } = require('../../lib/payments/capability');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { AuthLogger, AppConfig } = require('../../lib/types');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { ProfileClient } = require('@fxa/profile/client');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const {
-    PlaySubscriptions,
-  } = require('../../lib/payments/iap/google-play/subscriptions');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const {
-    AppStoreSubscriptions,
-  } = require('../../lib/payments/iap/apple-app-store/subscriptions');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { CapabilityManager } = require('@fxa/payments/capability');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { BackupCodeManager } = require('@fxa/accounts/two-factor');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PriceManager } = require('@fxa/payments/customer');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { ProductConfigurationManager } = require('@fxa/shared/cms');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { AppError: error } = require('@fxa/accounts/errors');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const EventEmitter = require('events');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+
+  // Container and its token classes are required INSIDE beforeAll after
+  // jest.resetModules() so they share module identity with key_server's
+  // runtime view of the same modules. Requiring them here at describe scope
+  // (before any resetModules) would let the Container.set token classes
+  // drift out of sync with what key_server re-requires after the reset,
+  // making Container.get() silently miss on class identity.
+  // See GUIDELINES.md Rule 7.
+  let Container: any;
+  let CapabilityService: any;
+  let StripeHelper: any;
+  let AuthLogger: any;
+  let AppConfig: any;
+  let ProfileClient: any;
+  let PlaySubscriptions: any;
+  let AppStoreSubscriptions: any;
+  let CapabilityManager: any;
+  let BackupCodeManager: any;
+  let RecoveryPhoneService: any;
+  let PriceManager: any;
+  let ProductConfigurationManager: any;
 
   let server: any;
   let serverUrl: string;
@@ -162,8 +155,29 @@ describe('#integration - remote subscriptions (enabled)', () => {
   const mockProfileClient: Record<string, any> = {};
 
   beforeAll(async () => {
-    // Fresh config for the in-process server
-    delete require.cache[require.resolve('../../config')];
+    // Fresh config for the in-process server. resetModules() before any
+    // typedi or token-class requires ensures the modules we capture here
+    // share identity with what key_server re-requires below — Container.set
+    // tokens line up with Container.get inside the in-process server.
+    jest.resetModules();
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    ({ default: Container } = require('typedi'));
+    ({ CapabilityService } = require('../../lib/payments/capability'));
+    ({ StripeHelper } = require('../../lib/payments/stripe'));
+    ({ AuthLogger, AppConfig } = require('../../lib/types'));
+    ({ ProfileClient } = require('@fxa/profile/client'));
+    ({
+      PlaySubscriptions,
+    } = require('../../lib/payments/iap/google-play/subscriptions'));
+    ({
+      AppStoreSubscriptions,
+    } = require('../../lib/payments/iap/apple-app-store/subscriptions'));
+    ({ CapabilityManager } = require('@fxa/payments/capability'));
+    ({ BackupCodeManager } = require('@fxa/accounts/two-factor'));
+    ({ RecoveryPhoneService } = require('@fxa/accounts/recovery-phone'));
+    ({ PriceManager } = require('@fxa/payments/customer'));
+    ({ ProductConfigurationManager } = require('@fxa/shared/cms'));
+    /* eslint-enable @typescript-eslint/no-require-imports */
     const config = require('../../config').default.getProperties();
 
     // Override specific subscription properties (preserve defaults)
@@ -256,8 +270,6 @@ describe('#integration - remote subscriptions (enabled)', () => {
     // Register mocks in Container.
     // StripeHelper must be set BEFORE creating CapabilityService, since the
     // CapabilityService constructor reads it from the Container.
-    // With jest.mock, StripeHelper export === mockStripeHelper (the token IS the mock object).
-    const { StripeHelper } = require('../../lib/payments/stripe');
     Container.set(AppConfig, config);
     Container.set(AuthLogger, { error: () => {} });
     Container.set(StripeHelper, mockStripeHelper);
@@ -302,9 +314,10 @@ describe('#integration - remote subscriptions (enabled)', () => {
 
     serverUrl = `http://localhost:${port}`;
 
-    // Load key_server — jest.mock above ensures the stripe module returns our mock.
-    // Clear cache to get a fresh load.
-    delete require.cache[require.resolve('../../bin/key_server')];
+    // Load key_server. jest.mock at module scope ensures stripe-module
+    // requires return our mock. No resetModules here: key_server's deps
+    // share the module graph established at the top of beforeAll, so their
+    // token classes line up with the ones we registered in Container.
     const createAuthServer = require('../../bin/key_server');
     server = await createAuthServer(config);
 
@@ -319,6 +332,18 @@ describe('#integration - remote subscriptions (enabled)', () => {
     if (profileServer) {
       await profileServer.close();
     }
+    Container.remove(AppConfig);
+    Container.remove(AuthLogger);
+    Container.remove(StripeHelper);
+    Container.remove(PlaySubscriptions);
+    Container.remove(AppStoreSubscriptions);
+    Container.remove(ProfileClient);
+    Container.remove(CapabilityManager);
+    Container.remove(BackupCodeManager);
+    Container.remove(RecoveryPhoneService);
+    Container.remove(PriceManager);
+    Container.remove(ProductConfigurationManager);
+    Container.remove(CapabilityService);
   });
 
   const testVersions = [
