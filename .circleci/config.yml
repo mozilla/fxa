@@ -1056,15 +1056,13 @@ workflows:
           workflow: test_pull_request
           requires:
             - Build (PR)
-      # Functional tests are heavy and expensive, so they're gated behind this
-      # manual approval. Approve the "Approve Functional Tests (PR)" job in
-      # the CircleCI UI, use the script under _scripts, or use the Claude skill
-      # to run them against the PR's already-built workspace.
+      # Approval step is to reduce how often we run the functional tests
+      # but still allow them to be run on demand.
+      # No `requires` on this job so it can be approved as soon as a PR
+      # is opened.
       - approve-functional-tests:
           name: Approve Functional Tests (PR)
           type: approval
-          requires:
-            - Build (PR)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
