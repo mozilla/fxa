@@ -104,6 +104,18 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
       marionetteAuthority,
     }) => {
+      // TODO(FXA-13687): pair:auth:authorize is never delivered to the
+      // supplicant in CI. Firefox's FxAccountsPairingFlow processes both
+      // pairAuthorize and pair:supp:authorize but does not send the auth code
+      // via the channel server WebSocket in this environment. Root cause is
+      // believed to be an environment-specific interaction between Playwright's
+      // bundled Firefox and the production channel server. Un-fixme once a
+      // local channel server is available in the CI executor or the root cause
+      // is identified.
+      test.fixme(
+        true,
+        'FXA-13687: pair:auth:authorize never delivered in CI'
+      );
       const client = marionetteAuthority.client;
 
       const credentials = await test.step('Create test account', async () => {
@@ -176,6 +188,8 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
       marionetteAuthority,
     }) => {
+      // TODO(FXA-13687): same root cause as the happy-path test — see comment above.
+      test.fixme(true, 'FXA-13687: pair:auth:authorize never delivered in CI');
       const client = marionetteAuthority.client;
 
       const { credentials, secret } =
