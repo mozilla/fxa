@@ -71,3 +71,29 @@ export const ResendError: Story = {
     </LocationProvider>
   ),
 };
+
+const ErrorBlockedAppCtx = mockAppContext({
+  account: {
+    ...mockAppContext().account,
+    loading: false,
+    resendSecondaryEmailCodeWithJwt: async () => {
+      const err: any = { errno: 125 };
+      throw err;
+    },
+    verifySecondaryEmail: async () => Promise.resolve(),
+  } as any,
+});
+
+export const ResendErrorBlocked: Story = {
+  render: () => (
+    <LocationProvider>
+      <AppContext.Provider value={ErrorBlockedAppCtx}>
+        <SettingsLayout>
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailVerify location={mockLocation} />
+          </MfaContext.Provider>
+        </SettingsLayout>
+      </AppContext.Provider>
+    </LocationProvider>
+  ),
+};

@@ -11,7 +11,9 @@ import * as Sentry from '@sentry/browser';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 enum ERRORS {
+  THROTTLED = 114,
   INCORRECT_EMAIL_CASE = 120,
+  REQUEST_BLOCKED = 125,
 }
 
 enum tokenType {
@@ -434,7 +436,30 @@ export default class AuthClient {
         requestOptions,
         this.timeout
       );
-      const result = JSON.parse(await response.text());
+      const responseText = await response.text();
+      let result: any;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        // The WAF (Fastly) returns 406/429 directly with non-JSON bodies when
+        // it blocks a request, bypassing the auth server. Map to known errnos
+        // so the UI renders a localized message instead of "Unexpected error".
+        let errno: number;
+        if (response.status === 429) {
+          errno = ERRORS.THROTTLED;
+        } else if (response.status === 406) {
+          errno = ERRORS.REQUEST_BLOCKED;
+        } else {
+          throw parseError;
+        }
+        errorCaptured = true;
+        throw new AuthClientError(
+          'WAF blocked',
+          'Request blocked by WAF',
+          errno,
+          response.status
+        );
+      }
       if (result.errno) {
         // We want to monitor down spikes in known responses from the auth server.
         errorCaptured = true;
