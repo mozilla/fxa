@@ -5,7 +5,8 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 const ADMIN_PANEL_URL = process.env.ADMIN_PANEL_URL ?? 'http://localhost:8091';
-const ADMIN_SERVER_URL = process.env.ADMIN_SERVER_URL ?? 'http://localhost:8095';
+const ADMIN_SERVER_URL =
+  process.env.ADMIN_SERVER_URL ?? 'http://localhost:8095';
 
 // Admin panel tests only run locally (stage/prod require SSO)
 test.skip(({ target }) => target.name !== 'local');
