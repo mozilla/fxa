@@ -288,6 +288,22 @@ class OauthDB extends ConnectedServicesDb {
     await this.mysql._removeTokensAndCodes(uid);
   }
 
+  async recordAccountActivity(userId, clientId, scopes, now, throttleMs) {
+    await this.ready();
+    return await this.mysql._recordAccountActivity(
+      userId,
+      clientId,
+      scopes,
+      now,
+      throttleMs
+    );
+  }
+
+  async listAccountActivity(userId, clientId) {
+    await this.ready();
+    return await this.mysql._listAccountActivity(userId, clientId);
+  }
+
   async pruneAuthorizationCodes(ttlInMs) {
     return await this.mysql._pruneAuthorizationCodes(
       ttlInMs || config.get('oauthServer.expiration.code')

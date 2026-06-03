@@ -57,10 +57,8 @@ const OAUTH_SERVER_DOCS =
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
-const {
-  EXCHANGE_DECISION,
-  EXCHANGE_DENY_REASON,
-} = require('../../oauth/db');
+const { EXCHANGE_DECISION, EXCHANGE_DENY_REASON } = require('../../oauth/db');
+const accountActivity = require('../../oauth/account-activity');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -90,6 +88,13 @@ const DISABLED_CLIENTS = new Set(config.get('oauthServer.disabledClients'));
 
 const TOKEN_EXCHANGE_ALLOWED_CLIENT_IDS = new Set(
   config.get('oauthServer.tokenExchange.allowedClientIds')
+);
+
+const FXA_ACCOUNT_ACTIVITY_SAMPLE_RATE = config.get(
+  'oauthServer.accountActivity.sampleRate'
+);
+const ACCOUNT_ACTIVITY_UPDATE_AFTER_MS = config.get(
+  'oauthServer.accountActivity.updateAfter'
 );
 
 // These scopes are used to request a one-off exchange of claims or credentials,
@@ -632,6 +637,25 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         clientId: oauthClientId,
         ...(serviceTags.service && { service: serviceTags.service }),
       });
+    }
+
+    // Per-(userId, clientId, scope) liveness signal. Sample-gated by
+    // FXA_ACCOUNT_ACTIVITY_SAMPLE_RATE (default 0) so the writer can be
+    // ramped per environment. One accountActivity row is written per resolved
+    // scope; scopes missing from the scopes table are reported to Sentry.
+    // Fire-and-forget: errors are caught inside recordActivity and never block
+    // the response.
+    if (Math.random() < FXA_ACCOUNT_ACTIVITY_SAMPLE_RATE) {
+      accountActivity.recordActivity(
+        { oauthDB, statsd, log },
+        {
+          userId: grant.userId,
+          clientId: grant.clientId,
+          scopeSet: grant.scope,
+          throttleMs: ACCOUNT_ACTIVITY_UPDATE_AFTER_MS,
+          grantType: params.grant_type,
+        }
+      );
     }
 
     // Include grant properties needed by the /oauth/token handler for newTokenNotification.

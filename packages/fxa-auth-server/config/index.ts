@@ -1435,6 +1435,20 @@ const convictConf = convict({
         env: 'FXA_REFRESH_TOKEN_UPDATE_AFTER',
       },
     },
+    accountActivity: {
+      sampleRate: {
+        doc: 'Decimal value between 0 & 1 representing the percentage of account activity events that should be recorded. For example, 0.25 means 25% of events will be recorded.',
+        format: Number,
+        default: 0,
+        env: 'FXA_ACCOUNT_ACTIVITY_SAMPLE_RATE',
+      },
+      updateAfter: {
+        doc: 'lastSeenAt in accountActivity is only updated in MySQL after this delay per (userId, clientId). Mirrors refreshToken.updateAfter.',
+        format: 'duration',
+        default: '24 hours',
+        env: 'FXA_ACCOUNT_ACTIVITY_UPDATE_AFTER',
+      },
+    },
     tokenExchange: {
       allowedClientIds: {
         doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',

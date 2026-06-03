@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "pm2-node",
       "request": "attach",
       "name": "Attach to PM2",
-      "processId": "${command:PickProcess}"
+      "service": "${command:PickProcess}"
     },
     {
       "type": "firefox",
@@ -24,9 +24,13 @@
         "NODE_OPTIONS": "--dns-result-order=ipv4first"
       },
       "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
-      "args": ["test","--config=${workspaceFolder}/packages/functional-tests/playwright.config.ts", "--project=local"],
+      "args": [
+        "test",
+        "--config=${workspaceFolder}/packages/functional-tests/playwright.config.ts",
+        "--project=local"
+      ],
       "autoAttachChildProcesses": true,
-      "cwd":"${workspaceFolder}/packages/functional-tests",
+      "cwd": "${workspaceFolder}/packages/functional-tests",
       "request": "launch"
     }
   ]

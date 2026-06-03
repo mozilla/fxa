@@ -116,6 +116,29 @@ const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS =
 const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
+// SQL-side throttle: ON DUPLICATE KEY UPDATE skips the lastSeenAt write
+// when the existing row was touched within the throttle window. `> lastSeenAt + ?`
+// (instead of subtraction) avoids BIGINT UNSIGNED underflow on stale `now`.
+// firstSeenAt is set on INSERT only.
+// Bulk upsert for accountActivity. The VALUES list is built at call time so
+// every resolved scope for a grant lands in one round-trip. firstSeenAt is set
+// on INSERT only. `> lastSeenAt + ?` (instead of subtraction) avoids BIGINT
+// UNSIGNED underflow on a stale `now`.
+const QUERY_ACCOUNT_ACTIVITY_UPSERT_PREFIX =
+  'INSERT INTO accountActivity ' +
+  '  (userId, clientId, scopeId, firstSeenAt, lastSeenAt) VALUES ';
+const QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX =
+  ' ON DUPLICATE KEY UPDATE ' +
+  '  lastSeenAt = IF(VALUES(lastSeenAt) > lastSeenAt + ?, VALUES(lastSeenAt), lastSeenAt)';
+const QUERY_ACCOUNT_ACTIVITY_DELETE_USER =
+  'DELETE FROM accountActivity WHERE userId=?';
+// Read back a (userId, clientId)'s activity with the scope string resolved from
+// the scopes table. Used by support tooling and tests.
+const QUERY_ACCOUNT_ACTIVITY_LIST =
+  'SELECT s.scope AS scope, a.scopeId, a.firstSeenAt, a.lastSeenAt ' +
+  'FROM accountActivity a JOIN scopes s ON s.id = a.scopeId ' +
+  'WHERE a.userId=? AND a.clientId=? ' +
+  'ORDER BY s.scope';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE =
   'DELETE developers, clientDevelopers ' +
@@ -700,7 +723,81 @@ class MysqlStore extends MysqlOAuthShared {
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
-      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
+      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]))
+      .then(this._write.bind(this, QUERY_ACCOUNT_ACTIVITY_DELETE_USER, [id]));
+  }
+
+  /**
+   * Record per-(userId, clientId, scopeId) liveness for the OAuth grant path.
+   *
+   * scopeId is resolved from the scopes table by scope string. A
+   * token-exchange grant can carry no scopes; since the empty-string scope is a
+   * valid scopes row, an empty `scopes` is normalised to [''] so we still
+   * record one row. Scopes absent from the scopes table cannot be written (the
+   * scopeId FK) and are returned in `missingScopes` for the caller to report;
+   * the scopes that do resolve are still written in a single bulk upsert.
+   *
+   * One read (resolve scope ids) plus one write (bulk upsert). The write uses
+   * the SQL throttle in QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX so each scope's
+   * `lastSeenAt` advances independently.
+   *
+   * Caller is responsible for fire-and-forget semantics.
+   *
+   * @param {Buffer | string} userId
+   * @param {Buffer | string} clientId
+   * @param {string[]}        scopes      raw scope strings requested/granted on this activity
+   * @param {number}          now         current timestamp in ms; used for both firstSeenAt and lastSeenAt
+   * @param {number}          throttleMs  skip the lastSeenAt update if the existing row was touched within this window
+   * @returns {Promise<{ missingScopes: string[] }>} scopes not present in the scopes table (no row written for them)
+   */
+  async _recordAccountActivity(userId, clientId, scopes, now, throttleMs) {
+    const userIdBuf = buf(userId);
+    const clientIdBuf = buf(clientId);
+    const requested = scopes && scopes.length > 0 ? scopes : [''];
+
+    const inPlaceholders = requested.map(() => '?').join(', ');
+    const scopeRows = await this._read(
+      `SELECT id, scope FROM scopes WHERE scope IN (${inPlaceholders})`,
+      requested
+    );
+    const scopeById = new Map(scopeRows.map((r) => [r.scope, r.id]));
+    const missingScopes = requested.filter((scope) => !scopeById.has(scope));
+    const resolvedScopes = requested.filter((scope) => scopeById.has(scope));
+
+    if (resolvedScopes.length > 0) {
+      const placeholders = resolvedScopes
+        .map(() => '(?, ?, ?, ?, ?)')
+        .join(', ');
+      const params = [];
+      for (const scope of resolvedScopes) {
+        params.push(userIdBuf, clientIdBuf, scopeById.get(scope), now, now);
+      }
+      params.push(throttleMs);
+      await this._write(
+        QUERY_ACCOUNT_ACTIVITY_UPSERT_PREFIX +
+          placeholders +
+          QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX,
+        params
+      );
+    }
+
+    return { missingScopes };
+  }
+
+  /**
+   * List the accountActivity rows for a (userId, clientId), with the scope
+   * string resolved from the scopes table, ordered by scope. Used by support
+   * tooling and tests.
+   *
+   * @param {Buffer | string} userId
+   * @param {Buffer | string} clientId
+   * @returns {Promise<object[]>}
+   */
+  _listAccountActivity(userId, clientId) {
+    return this._read(QUERY_ACCOUNT_ACTIVITY_LIST, [
+      buf(userId),
+      buf(clientId),
+    ]);
   }
 
   /**
