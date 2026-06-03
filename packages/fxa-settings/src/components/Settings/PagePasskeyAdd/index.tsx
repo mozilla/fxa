@@ -33,6 +33,7 @@ import {
 } from '../../../lib/error-utils';
 import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
 import {
+  notAllowedExistingPasskeyMessage,
   notAllowedPasskeyMessage,
   timeoutPasskeyMessage,
   unsupportedPasskeyMessage,
@@ -179,24 +180,14 @@ export const PagePasskeyAdd = () => {
             Sentry.captureException,
             { hadExcludeCredentials }
           );
-          const reasonMap: Record<string, string> = {
-            [WebAuthnErrorType.NotAllowed]: 'not_allowed',
-            [WebAuthnErrorType.Abort]: 'not_allowed',
-            [WebAuthnErrorType.Timeout]: 'timeout',
-            [WebAuthnErrorType.NotSupported]: 'not_supported',
-            [WebAuthnErrorType.Security]: 'security',
-          };
           GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
-            event: {
-              reason: reasonMap[categorized.errorType] || 'webauthn_unknown',
-            },
+            event: { reason: categorized.gleanReason },
           });
           if (categorized.errorType === WebAuthnErrorType.NotSupported) {
-            // Defensive: MfaGuardPagePasskeyAdd should have caught this before
-            // MFA, so we only reach here if detection raced. Push the alert and
-            // leave the user on the page — they can use Cancel to navigate
-            // away themselves.
+            // MfaGuard's pre-check only covers API surface; runtime refusals
+            // (FXA-13777: Bitwarden + macOS) still land here.
             alertBar.error(unsupportedPasskeyMessage());
+            navigateToSettings();
             return;
           }
           if (categorized.errorType === WebAuthnErrorType.Timeout) {
@@ -209,6 +200,14 @@ export const PagePasskeyAdd = () => {
             categorized.errorType === WebAuthnErrorType.Abort
           ) {
             alertBar.error(notAllowedPasskeyMessage());
+            navigateToSettings();
+            return;
+          }
+          if (categorized.errorType === WebAuthnErrorType.AlreadyRegistered) {
+            // Firefox-only path: NotAllowedError + excludeCredentials. Chrome
+            // surfaces the same case as InvalidStateError and falls through to
+            // the resolver default below.
+            alertBar.error(notAllowedExistingPasskeyMessage());
             navigateToSettings();
             return;
           }

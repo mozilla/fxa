@@ -67,3 +67,19 @@ export const timeoutPasskeyMessage = (): ReactNode =>
     linkFtlId: 'passkey-registration-error-timeout-link',
     gleanId: 'account_pref_passkey_create_help_timeout',
   });
+
+/**
+ * Firefox-only path: `NotAllowedError` raised after `excludeCredentials` was
+ * sent. Firefox collapses user-cancel and duplicate-credential into the same
+ * DOMException; when the account already has passkeys we lean toward the
+ * duplicate interpretation. Chrome surfaces the same case as
+ * `InvalidStateError`, which routes to `passkey-registration-error-invalid-state`.
+ */
+export const notAllowedExistingPasskeyMessage = (): ReactNode =>
+  renderPasskeyErrorMessage({
+    ftlId: 'passkey-registration-error-not-allowed-existing-v2',
+    fallbackText:
+      'Passkey setup couldn’t be completed. The passkey may already be registered. Try another device or method.',
+    linkFtlId: 'passkey-registration-error-not-allowed-existing-link',
+    gleanId: 'account_pref_passkey_create_help_already_registered',
+  });

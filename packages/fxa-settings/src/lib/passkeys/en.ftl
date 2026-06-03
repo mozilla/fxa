@@ -4,9 +4,12 @@
 # Registration errors
 
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
-# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
-# the far more likely cause when the user has existing passkeys, so we state it plainly.
-passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
+# Firefox collapses user-cancel and duplicate-credential into the same error; when existing
+# passkeys are present we lean toward the duplicate interpretation. Chrome surfaces the same
+# case as InvalidStateError, which uses passkey-registration-error-invalid-state.
+passkey-registration-error-not-allowed-existing-v2 = Passkey setup couldn’t be completed. The passkey may already be registered. Try another device or method.
+# Link label appended after passkey-registration-error-not-allowed-existing-v2, opens a SUMO support article.
+passkey-registration-error-not-allowed-existing-link = Learn more
 
 # NotAllowedError catch-all: cancel, dismiss, UV failure, no suitable authenticator, etc.
 # Also surfaced for AbortError on non-spec-compliant browsers.
@@ -22,7 +25,7 @@ passkey-registration-canceled = Passkey setup was canceled. Try again.
 
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v3 = This device couldn’t complete the passkey setup. Try another device or method.
-# Link label appended after passkey-registration-error-not-supported-v3, opens a SUMO support article.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Learn more
 
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)

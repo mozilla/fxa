@@ -35,6 +35,7 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
 // one was invoked.
 jest.mock('../../../lib/passkeys/passkey-custom-error-messages', () => ({
   notAllowedPasskeyMessage: () => 'mock-not-allowed-message',
+  notAllowedExistingPasskeyMessage: () => 'mock-already-registered-message',
   timeoutPasskeyMessage: () => 'mock-timeout-message',
   unsupportedPasskeyMessage: () => 'mock-unsupported-message',
 }));
@@ -207,6 +208,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-not-allowed-v2',
       fallbackText: 'Passkey setup couldn’t be completed.',
       logToSentry: false,
+      gleanReason: 'not_allowed',
     });
 
     renderPage();
@@ -239,6 +241,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-not-allowed-v2',
       fallbackText: 'Passkey setup couldn’t be completed.',
       logToSentry: false,
+      gleanReason: 'abort',
     });
 
     renderPage();
@@ -249,14 +252,14 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'not_allowed' },
+      event: { reason: 'abort' },
     });
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
   });
 
-  it('forwards hadExcludeCredentials=true when the server-sent options listed existing passkeys', async () => {
+  it('shows the duplicate-credential alert when NotAllowedError fires with hadExcludeCredentials', async () => {
     mockBeginPasskeyRegistration.mockResolvedValue({
       ...mockCreationOptions,
       excludeCredentials: [
@@ -267,14 +270,17 @@ describe('PagePasskeyAdd', () => {
     mockCreateCredential.mockRejectedValue(cancelError);
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
-      errorType: WebAuthnErrorType.NotAllowed,
-      userMessageKey: 'passkey-registration-error-not-allowed-existing',
+      errorType: WebAuthnErrorType.AlreadyRegistered,
+      ftlId: 'passkey-registration-error-not-allowed-existing-v2',
+      fallbackText:
+        'Passkey setup couldn’t be completed. The passkey may already be registered. Try another device or method.',
       logToSentry: false,
+      gleanReason: 'already_registered',
     });
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalled();
+      expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
     expect(mockHandleWebAuthnError).toHaveBeenCalledWith(
       cancelError,
@@ -282,9 +288,20 @@ describe('PagePasskeyAdd', () => {
       expect.any(Function),
       { hadExcludeCredentials: true }
     );
+    expect(mockAlertError).toHaveBeenCalledWith(
+      'mock-already-registered-message'
+    );
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'already_registered' },
+    });
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
   });
 
-  it('renders the unsupported-passkey alert (with Learn more link) on NotSupportedError', async () => {
+  it('shows the unsupported alert and navigates to settings on NotSupportedError', async () => {
     const notSupportedError = new DOMException(
       'not supported',
       'NotSupportedError'
@@ -297,6 +314,7 @@ describe('PagePasskeyAdd', () => {
       fallbackText:
         'This device couldn’t complete the passkey setup. Try another device or method.',
       logToSentry: true,
+      gleanReason: 'not_supported',
     });
 
     renderPage();
@@ -304,10 +322,9 @@ describe('PagePasskeyAdd', () => {
       expect(mockAlertError).toHaveBeenCalledTimes(1);
     });
     expect(mockAlertError).toHaveBeenCalledWith('mock-unsupported-message');
-    // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
-    // primary handler. If we reach here (race), don't auto-redirect — the user
-    // can use Cancel to navigate away.
-    expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
   });
 
   it('shows the timeout-specific alert and navigates to settings on TimeoutError', async () => {
@@ -319,6 +336,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-timeout-v2',
       fallbackText: 'Passkey setup timed out.',
       logToSentry: false,
+      gleanReason: 'timeout',
     });
 
     renderPage();
