@@ -13,6 +13,7 @@ import {
   CartNotDeletedError,
   CartNotFoundError,
   CartNotUpdatedError,
+  CartProcessingConflictError,
   CartVersionMismatchError,
   DeleteCartFailedError,
   ErrorCartNotCreatedError,
@@ -28,6 +29,7 @@ import {
   deleteCart,
   fetchCartById,
   fetchCartsByUid,
+  setCartProcessing,
   updateCart,
 } from './cart.repository';
 import type {
@@ -53,7 +55,7 @@ import {
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
   updateFreshCart: [CartState.START],
-  updateProcessingCart: [CartState.PROCESSING],
+  dangerouslyUpdateProcessingCart: [CartState.PROCESSING],
   finishCart: [CartState.PROCESSING, CartState.NEEDS_INPUT],
   finishErrorCart: [
     CartState.START,
@@ -239,18 +241,18 @@ export class CartManager {
   }
 
   /**
-    * It is highly recommended to use updateFreshCart instead, adjusting your order of operations.
-    * Mutating a cart once it is already processing risks bugs that change the amount a customer may be charged.
+   * It is highly recommended to use updateFreshCart instead, adjusting your order of operations.
+   * Mutating a cart once it is already processing risks bugs that change the amount a customer may be charged.
    */
   @CaptureTimingWithStatsD()
-  public async updateProcessingCart(
+  public async dangerouslyUpdateProcessingCart(
     cartId: string,
     version: number,
     items: UpdateProcessingCart
   ) {
     const cart = await this.fetchAndValidateCartVersion(cartId, version);
 
-    this.checkActionForValidCartState(cart, 'updateProcessingCart');
+    this.checkActionForValidCartState(cart, 'dangerouslyUpdateProcessingCart');
 
     try {
       await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
@@ -319,10 +321,16 @@ export class CartManager {
     this.checkActionForValidCartState(cart, 'setProcessingCart');
 
     try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
-        state: CartState.PROCESSING,
-      });
+      await setCartProcessing(
+        this.db,
+        Buffer.from(cartId, 'hex'),
+        cart.uid ? Buffer.from(cart.uid, 'hex') : undefined,
+        cart.version
+      );
     } catch (error) {
+      if (error instanceof CartProcessingConflictError) {
+        throw error;
+      }
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new SetProcessingCartFailedError(cart.id, cause);
     }
