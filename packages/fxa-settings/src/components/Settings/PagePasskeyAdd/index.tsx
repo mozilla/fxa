@@ -211,7 +211,10 @@ export const PagePasskeyAdd = () => {
           return;
         }
 
-        // Server error
+        // Server error. Also catches the plain `Error` that some
+        // password-manager extensions (e.g. Bitwarden)
+        // throw on cancel instead of a DOMException — those bypass
+        // the WebAuthn branch above.
         const handledError = error as HandledError;
         const isKnownAuthError = !!(
           handledError?.errno && AuthUiErrorNos[handledError.errno]

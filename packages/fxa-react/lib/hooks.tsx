@@ -15,12 +15,12 @@ export function useBooleanState(
 }
 
 /**
- * Effect hook to react to clicks outside of a given DOM node.
+ * Effect hook to react to pointer presses (mousedown) outside of a given DOM node.
  *
- * @param onClickOutside {Function} a function to be called when a click occurs outside the given node
+ * @param onClickOutside {Function} a function to be called when a mousedown occurs outside the given node
  * @return {React.RefObject} when used as a ref prop, the given node and children are considered inside
  * @example
- *   // This function will be called for clicks on elements outside of dialogInsideRef
+ *   // This function will be called for mousedowns on elements outside of dialogInsideRef
  *   const onClickoutside => () => window.alert("Clicked outside!")
  *   const dialogInsideRef = useClickOutsideEffect<HTMLDivElement>(onClickOutside);
  *   return (
@@ -33,7 +33,9 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
   const insideEl = useRef<T>(null);
 
   useEffect(() => {
-    const onBodyClick = (ev: MouseEvent) => {
+    // FXA-13681: mousedown fires before React's onClick, so a button handler
+    // opening the watched element doesn't immediately self-dismiss it.
+    const onBodyMouseDown = (ev: MouseEvent) => {
       if (
         insideEl.current instanceof HTMLElement &&
         ev.target instanceof HTMLElement &&
@@ -42,8 +44,9 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
         onClickOutside();
       }
     };
-    document.body.addEventListener('click', onBodyClick);
-    return () => document.body?.removeEventListener('click', onBodyClick);
+    document.body.addEventListener('mousedown', onBodyMouseDown);
+    return () =>
+      document.body?.removeEventListener('mousedown', onBodyMouseDown);
   }, [onClickOutside]);
 
   return insideEl;
@@ -107,7 +110,7 @@ export const resetPromiseState = () => ({
 export function useAwait<
   TFactoryArgs extends Array<any>,
   TResult = any,
-  TError = any
+  TError = any,
 >(
   factory: (...args: TFactoryArgs) => Promise<TResult>,
   {
@@ -123,7 +126,7 @@ export function useAwait<
 ): [
   PromiseState<TResult | undefined, TError>,
   (...args: TFactoryArgs) => Promise<TResult | undefined>,
-  () => void
+  () => void,
 ] {
   const [state, setState] = useState<PromiseState<TResult | undefined, TError>>(
     initialState || resetPromiseState()
