@@ -106,7 +106,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
     });
 
-    test('can change 2fa and use existing recovery phone to sign in', async ({
+    test('can change 2fa and use existing recovery phone to sign in #phone', async ({
       page,
       target,
       testAccountTracker,

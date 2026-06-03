@@ -14,12 +14,15 @@ import { RecoveryPhoneSetupPage } from '../../pages/settings/recoveryPhone';
 import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
+import { phoneTestMode } from '../../lib/phoneTestMode';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery phone #phone', () => {
-    // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
-    // the same test phone number, and we cannot determine the order in which the messages were received.
-    test.describe.configure({ mode: 'serial' });
+    // These tests share a single test phone number. Against the Twilio API
+    // (stage/prod smoke) they must run serially because codes can't be
+    // attributed to a specific test; locally codes are read from Redis per-uid
+    // so they can run in parallel when PLAYWRIGHT_PHONE_PARALLEL is set.
+    test.describe.configure({ mode: phoneTestMode() });
 
     let testNumber: string;
 
