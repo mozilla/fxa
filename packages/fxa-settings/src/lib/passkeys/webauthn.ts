@@ -217,7 +217,12 @@ function toCredentialJSON(
 
 // ─── Wrapper functions ────────────────────────────────────────────────────────
 
-const DEFAULT_TIMEOUT_MS = 60_000;
+// Aligned with the server-side challenge TTL (`PASSKEYS__CHALLENGE_TIMEOUT`,
+// 5 min). Keeping the client wrapper at 60s while the server gives the user
+// 5 min meant users who stepped away briefly were cut off long before the
+// request expired. On Safari/WebKit (which ignores `options.timeout` per spec)
+// this wrapper is the only timeout in play.
+const DEFAULT_TIMEOUT_MS = 300_000;
 
 /**
  * Wraps navigator.credentials.create() for passkey registration.
