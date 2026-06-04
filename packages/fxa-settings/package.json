@@ -268,8 +268,12 @@
         "inputs": [
           "production",
           "^production",
-          { "env": "BUILD_TARGETS" },
-          { "env": "PUBLIC_URL" }
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
         ],
         "outputs": [
           "{projectRoot}/build/dev"
@@ -280,8 +284,12 @@
         "inputs": [
           "production",
           "^production",
-          { "env": "BUILD_TARGETS" },
-          { "env": "PUBLIC_URL" }
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
         ],
         "outputs": [
           "{projectRoot}/build/stage"
@@ -292,8 +300,12 @@
         "inputs": [
           "production",
           "^production",
-          { "env": "BUILD_TARGETS" },
-          { "env": "PUBLIC_URL" }
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
         ],
         "outputs": [
           "{projectRoot}/build/prod"
@@ -304,8 +316,12 @@
         "inputs": [
           "production",
           "^production",
-          { "env": "BUILD_TARGETS" },
-          { "env": "PUBLIC_URL" }
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
         ],
         "outputs": [
           "{projectRoot}/build/dev",
