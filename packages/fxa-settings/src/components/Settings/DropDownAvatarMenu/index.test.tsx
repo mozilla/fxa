@@ -111,7 +111,7 @@ describe('DropDownAvatarMenu', () => {
     expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
-  it('closes on click outside', () => {
+  it('closes on mousedown outside', () => {
     const { container } = renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
         <div className="w-full flex justify-end">
@@ -124,7 +124,7 @@ describe('DropDownAvatarMenu', () => {
 
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
     expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
-    fireEvent.click(container);
+    fireEvent.mouseDown(container);
     expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 

@@ -32,7 +32,10 @@ import {
   HandledError,
 } from '../../../lib/error-utils';
 import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
-import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
+import {
+  passkeyCanceledOrTimedOutMessage,
+  unsupportedPasskeyMessage,
+} from '../../../lib/passkeys/unsupported-message';
 
 export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -85,14 +88,9 @@ export const PagePasskeyAdd = () => {
     // alert/navigate.
     wasCanceled.current = true;
     abortController.current?.abort();
-    alertBar.error(
-      ftlMsgResolver.getMsg(
-        'passkey-registration-canceled',
-        'Passkey setup was canceled. Try again.'
-      )
-    );
+    alertBar.error(passkeyCanceledOrTimedOutMessage());
     navigateToSettings();
-  }, [alertBar, ftlMsgResolver, navigateToSettings]);
+  }, [alertBar, navigateToSettings]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -176,6 +174,7 @@ export const PagePasskeyAdd = () => {
           );
           const reasonMap: Record<string, string> = {
             [WebAuthnErrorType.NotAllowed]: 'not_allowed',
+            [WebAuthnErrorType.Abort]: 'abort',
             [WebAuthnErrorType.Timeout]: 'timeout',
             [WebAuthnErrorType.NotSupported]: 'not_supported',
             [WebAuthnErrorType.Security]: 'security',
@@ -193,6 +192,18 @@ export const PagePasskeyAdd = () => {
             alertBar.error(unsupportedPasskeyMessage());
             return;
           }
+          if (
+            categorized.errorType === WebAuthnErrorType.Abort ||
+            categorized.errorType === WebAuthnErrorType.Timeout
+          ) {
+            // FXA-13805/13806: timeouts and aborts share the cancel/timeout
+            // banner (per Figma). NotAllowedError is excluded — WebAuthn
+            // conflates cancel with UV failure under that name, so it falls
+            // through to the generic categorizer below.
+            alertBar.error(passkeyCanceledOrTimedOutMessage());
+            navigateToSettings();
+            return;
+          }
           alertBar.error(
             ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
           );
@@ -200,7 +211,10 @@ export const PagePasskeyAdd = () => {
           return;
         }
 
-        // Server error
+        // Server error. Also catches the plain `Error` that some
+        // password-manager extensions (e.g. Bitwarden)
+        // throw on cancel instead of a DOMException — those bypass
+        // the WebAuthn branch above.
         const handledError = error as HandledError;
         const isKnownAuthError = !!(
           handledError?.errno && AuthUiErrorNos[handledError.errno]
@@ -208,7 +222,9 @@ export const PagePasskeyAdd = () => {
 
         GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
           event: {
-            reason: isKnownAuthError ? `auth_error_${handledError.errno}` : 'server_error',
+            reason: isKnownAuthError
+              ? `auth_error_${handledError.errno}`
+              : 'server_error',
           },
         });
 

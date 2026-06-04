@@ -100,7 +100,7 @@ describe('BentoMenu', () => {
     expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
-  it('closes on click outside', () => {
+  it('closes on mousedown outside', () => {
     const { container } = renderWithLocalizationProvider(
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
@@ -111,7 +111,7 @@ describe('BentoMenu', () => {
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
     expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
-    fireEvent.click(container);
+    fireEvent.mouseDown(container);
     expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
