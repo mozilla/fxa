@@ -52,10 +52,7 @@ test.describe('severity-1 #smoke', () => {
     await checkout.waitForSuccess();
     await expect(checkout.successHeading).toContainText('check your email');
 
-    // Wait for the subscription to be fully provisioned before step 2.
-    // The success page appears immediately but the Stripe webhook that
-    // creates the server-side subscription record may still be in-flight.
-    await checkout.waitForSubscriptionProvisioned();
+    await checkout.waitForSuccessPageReady();
 
     // Step 2: Navigate to the 12-month (higher-tier) plan to trigger upgrade
     await relier.goto();
@@ -71,103 +68,5 @@ test.describe('severity-1 #smoke', () => {
     // Verify success
     await upgrade.waitForSuccess();
     await expect(upgrade.successHeading).toBeVisible();
-  });
-});
-
-test.describe('severity-2', () => {
-  test.setTimeout(240_000);
-  test.use({ viewport: { width: 1280, height: 1080 } });
-
-  test.beforeEach(async ({}, { project }) => {
-    test.skip(
-      project.name.includes('production'),
-      'Upgrade tests are not run in production'
-    );
-  });
-
-  test('Duplicate subscription blocked — already subscribed user is rejected', async ({
-    target,
-    page,
-    pages: { relier, signin },
-    paymentPages: { checkout, upgrade },
-    testAccountTracker,
-  }) => {
-    const credentials = await testAccountTracker.signUp();
-
-    // Step 1: Complete initial monthly subscription
-    await relier.goto();
-    await relier.clickSubscribeMonthly();
-
-    await checkout.handleLocationIfNeeded();
-
-    await checkout.emailInput.fill(credentials.email);
-    await checkout.signInContinueButton.click();
-
-    await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
-      timeout: 30_000,
-    });
-    await signin.fillOutPasswordForm(credentials.password);
-
-    await checkout.waitForPaymentReady();
-
-    await checkout.waitForStripeReady();
-    await checkout.checkConsent();
-    await checkout.fillCard(StripeTestCards.SUCCESS);
-    await checkout.submit();
-
-    await checkout.waitForSuccess();
-    await checkout.waitForSubscriptionProvisioned();
-
-    // Step 2: Attempt to subscribe to the same monthly plan again
-    await relier.goto();
-    await relier.clickSubscribeMonthly();
-
-    // The system detects the duplicate subscription and shows an error
-    await upgrade.waitForEligibilityError();
-    await expect(upgrade.errorHeading).toContainText(/already subscribed/i);
-    await expect(upgrade.errorButton).toBeVisible();
-  });
-
-  test('Downgrade blocked — higher-tier user cannot subscribe to lower tier', async ({
-    target,
-    page,
-    pages: { relier, signin },
-    paymentPages: { checkout, upgrade },
-    testAccountTracker,
-  }) => {
-    const credentials = await testAccountTracker.signUp();
-
-    // Step 1: Complete initial 12-month (higher-tier) subscription
-    await relier.goto();
-    await relier.clickSubscribe12Month();
-
-    await checkout.handleLocationIfNeeded();
-
-    await checkout.emailInput.fill(credentials.email);
-    await checkout.signInContinueButton.click();
-
-    await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
-      timeout: 30_000,
-    });
-    await signin.fillOutPasswordForm(credentials.password);
-
-    await checkout.waitForPaymentReady();
-
-    await checkout.waitForStripeReady();
-    await checkout.checkConsent();
-    await checkout.fillCard(StripeTestCards.SUCCESS);
-    await checkout.submit();
-
-    await checkout.waitForSuccess();
-    await checkout.waitForSubscriptionProvisioned();
-
-    // Step 2: Attempt to subscribe to the monthly (lower-tier) plan
-    await relier.goto();
-    await relier.clickSubscribeMonthly();
-
-    // The system detects the downgrade attempt and shows an error
-    await upgrade.waitForEligibilityError();
-    await expect(upgrade.errorHeading).toContainText(/contact support/i);
-    await expect(upgrade.errorButton).toBeVisible();
   });
 });

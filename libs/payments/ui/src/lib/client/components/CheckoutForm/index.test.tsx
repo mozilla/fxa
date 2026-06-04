@@ -2,17 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { CheckoutForm } from './index';
 
-const mockPaymentElementListeners: Array<
-  [string, (event?: unknown) => void]
-> = [];
+const mockPaymentElementListeners: Array<[string, (event?: unknown) => void]> =
+  [];
 const mockPaymentElement = {
   on: (event: string, cb: (event?: unknown) => void) => {
     mockPaymentElementListeners.push([event, cb]);
@@ -133,16 +128,32 @@ jest.mock('@fxa/payments/ui', () => ({
   CheckoutCheckbox: ({
     notifyCheckboxChange,
     disabled,
+    termsOfService,
+    privacyNotice,
   }: {
     notifyCheckboxChange: (value: boolean) => void;
     disabled: boolean;
+    termsOfService?: string;
+    privacyNotice?: string;
   }) => (
-    <input
-      type="checkbox"
-      data-testid="consent-checkbox"
-      disabled={disabled}
-      onChange={(e) => notifyCheckboxChange(e.target.checked)}
-    />
+    <>
+      <input
+        type="checkbox"
+        data-testid="consent-checkbox"
+        disabled={disabled}
+        onChange={(e) => notifyCheckboxChange(e.target.checked)}
+      />
+      {termsOfService && (
+        <a href={termsOfService} data-testid="link-terms-of-service">
+          Terms of Service
+        </a>
+      )}
+      {privacyNotice && (
+        <a href={privacyNotice} data-testid="link-privacy-notice">
+          Privacy Notice
+        </a>
+      )}
+    </>
   ),
 }));
 
@@ -155,8 +166,6 @@ jest.mock('@sentry/nextjs', () => ({
   __esModule: true,
   captureMessage: jest.fn(),
 }));
-
-import { CheckoutForm } from './index';
 
 const baseCart = {
   id: 'cart-id',
@@ -179,9 +188,7 @@ const baseProps = {
 };
 
 const fireStripeReady = () => {
-  const handler = mockPaymentElementListeners.find(
-    ([e]) => e === 'ready'
-  )?.[1];
+  const handler = mockPaymentElementListeners.find(([e]) => e === 'ready')?.[1];
   if (!handler) throw new Error('PaymentElement ready listener not registered');
   act(() => {
     handler();
@@ -192,9 +199,9 @@ const fireStripeChange = (event: {
   complete: boolean;
   value: { type: string; payment_method?: { id?: string } };
 }) => {
-  const handler = mockPaymentElementListeners.findLast(
-    ([e]) => e === 'change'
-  )?.[1];
+  const handler = [...mockPaymentElementListeners]
+    .reverse()
+    .find(([e]) => e === 'change')?.[1];
   if (!handler)
     throw new Error('PaymentElement change listener not registered');
   act(() => {
@@ -202,10 +209,11 @@ const fireStripeChange = (event: {
   });
 };
 
-const renderAndSelectPaypal = () => {
+const renderAndSelectPaypal = async () => {
+  const user = userEvent.setup();
   render(<CheckoutForm {...baseProps} />);
   fireStripeReady();
-  fireEvent.click(screen.getByTestId('consent-checkbox'));
+  await user.click(screen.getByTestId('consent-checkbox'));
   fireStripeChange({
     complete: true,
     value: { type: 'external_paypal' },
@@ -247,7 +255,8 @@ describe('CheckoutForm', () => {
       expect(screen.queryByTestId('paypal-buttons')).not.toBeInTheDocument();
     });
 
-    it('keeps the submit button disabled until consent is given and stripe fields are complete', () => {
+    it('keeps the submit button disabled until consent is given and stripe fields are complete', async () => {
+      const user = userEvent.setup();
       render(<CheckoutForm {...baseProps} />);
       fireStripeReady();
 
@@ -256,7 +265,7 @@ describe('CheckoutForm', () => {
       });
       expect(submitButton).toHaveAttribute('aria-disabled', 'true');
 
-      fireEvent.click(screen.getByTestId('consent-checkbox'));
+      await user.click(screen.getByTestId('consent-checkbox'));
       fireStripeChange({ complete: false, value: { type: 'card' } });
       expect(submitButton).toHaveAttribute('aria-disabled', 'true');
 
@@ -265,15 +274,15 @@ describe('CheckoutForm', () => {
     });
 
     it('shows a loading spinner and disables the submit button while submission is in flight', async () => {
+      const user = userEvent.setup();
       mockElementsSubmit.mockImplementation(() => new Promise(() => {}));
 
       render(<CheckoutForm {...baseProps} />);
       fireStripeReady();
-      fireEvent.click(screen.getByTestId('consent-checkbox'));
+      await user.click(screen.getByTestId('consent-checkbox'));
       fireStripeChange({ complete: true, value: { type: 'card' } });
 
-      const form = screen.getByRole('form', { name: /Checkout form/i });
-      fireEvent.submit(form);
+      await user.click(screen.getByRole('button', { name: /Subscribe Now/i }));
 
       await waitFor(() => {
         const button = screen.getByRole('button');
@@ -293,13 +302,13 @@ describe('CheckoutForm', () => {
       });
       mockHandleStripeErrorAction.mockResolvedValue(undefined);
 
+      const user = userEvent.setup();
       render(<CheckoutForm {...baseProps} />);
       fireStripeReady();
-      fireEvent.click(screen.getByTestId('consent-checkbox'));
+      await user.click(screen.getByTestId('consent-checkbox'));
       fireStripeChange({ complete: true, value: { type: 'card' } });
 
-      const form = screen.getByRole('form', { name: /Checkout form/i });
-      fireEvent.submit(form);
+      await user.click(screen.getByRole('button', { name: /Subscribe Now/i }));
 
       await waitFor(() => {
         expect(mockHandleStripeErrorAction).toHaveBeenCalledWith(
@@ -324,7 +333,7 @@ describe('CheckoutForm', () => {
   describe('PayPal payment path', () => {
     it('checks out the cart and routes to processing when PayPal onApprove is invoked', async () => {
       mockCheckoutCartWithPaypal.mockResolvedValue(undefined);
-      renderAndSelectPaypal();
+      await renderAndSelectPaypal();
 
       await waitFor(() => {
         expect(screen.getByTestId('paypal-buttons')).toBeInTheDocument();
@@ -348,7 +357,7 @@ describe('CheckoutForm', () => {
 
     it('finalizes the cart with an error and routes to error when PayPal onError is invoked', async () => {
       mockFinalizeCartWithError.mockResolvedValue(undefined);
-      renderAndSelectPaypal();
+      await renderAndSelectPaypal();
 
       await waitFor(() => {
         expect(screen.getByTestId('paypal-buttons')).toBeInTheDocument();
@@ -366,6 +375,48 @@ describe('CheckoutForm', () => {
       expect(mockRouterPush).toHaveBeenCalledWith('./error');
       expect(screen.getByTestId('paypal-buttons')).toBeInTheDocument();
       expect(mockCheckoutCartWithPaypal).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Checkout legal links', () => {
+    it('renders the Terms of Service link with the correct href', () => {
+      render(<CheckoutForm {...baseProps} />);
+      fireStripeReady();
+
+      const tosLink = screen.getByTestId('link-terms-of-service');
+      expect(tosLink).toHaveAttribute('href', 'https://example.com/tos');
+    });
+
+    it('renders the Privacy Notice link with the correct href', () => {
+      render(<CheckoutForm {...baseProps} />);
+      fireStripeReady();
+
+      const privacyLink = screen.getByTestId('link-privacy-notice');
+      expect(privacyLink).toHaveAttribute(
+        'href',
+        'https://example.com/privacy'
+      );
+    });
+
+    it('renders both legal links with distinct hrefs from cmsCommonContent', () => {
+      const customProps = {
+        ...baseProps,
+        cmsCommonContent: {
+          termsOfServiceUrl: 'https://custom.example.com/terms',
+          privacyNoticeUrl: 'https://custom.example.com/privacy',
+        },
+      };
+      render(<CheckoutForm {...customProps} />);
+      fireStripeReady();
+
+      expect(screen.getByTestId('link-terms-of-service')).toHaveAttribute(
+        'href',
+        'https://custom.example.com/terms'
+      );
+      expect(screen.getByTestId('link-privacy-notice')).toHaveAttribute(
+        'href',
+        'https://custom.example.com/privacy'
+      );
     });
   });
 });

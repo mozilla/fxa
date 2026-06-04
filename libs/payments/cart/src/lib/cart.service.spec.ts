@@ -111,6 +111,12 @@ import {
   CartRestartInvalidPromoCodeError,
   SetupCartAccountNotFoundError,
 } from './cart.error';
+import {
+  IntentGetInTouchError,
+  IntentInsufficientFundsError,
+  IntentCardExpiredError,
+  SubmitNeedsInputFailedError,
+} from './checkout.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
   LocationConfig,
@@ -3351,6 +3357,86 @@ describe('CartService', () => {
       await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
         /SubmitNeedsInputUidMissingError/
       );
+    });
+
+    it('throws IntentGetInTouchError when payment intent status is requires_payment_method with card_declined', async () => {
+      const declinedIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({
+          status: 'requires_payment_method',
+          payment_method: mockPaymentMethod.id,
+          last_payment_error: {
+            type: 'card_error',
+            code: 'card_declined',
+            decline_code: 'generic_decline',
+          } as Stripe.PaymentIntent.LastPaymentError,
+        })
+      );
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(declinedIntent);
+
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(IntentGetInTouchError);
+
+      expect(checkoutService.postPaySteps).not.toHaveBeenCalled();
+    });
+
+    it('throws IntentInsufficientFundsError when payment intent has insufficient_funds decline code', async () => {
+      const insufficientFundsIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({
+          status: 'requires_payment_method',
+          payment_method: mockPaymentMethod.id,
+          last_payment_error: {
+            type: 'card_error',
+            code: 'card_declined',
+            decline_code: 'insufficient_funds',
+          } as Stripe.PaymentIntent.LastPaymentError,
+        })
+      );
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(insufficientFundsIntent);
+
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(IntentInsufficientFundsError);
+    });
+
+    it('throws IntentCardExpiredError when payment intent has expired_card error code', async () => {
+      const expiredCardIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({
+          status: 'requires_payment_method',
+          payment_method: mockPaymentMethod.id,
+          last_payment_error: {
+            type: 'card_error',
+            code: 'expired_card',
+          } as Stripe.PaymentIntent.LastPaymentError,
+        })
+      );
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(expiredCardIntent);
+
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(IntentCardExpiredError);
+    });
+
+    it('throws SubmitNeedsInputFailedError for unexpected intent status', async () => {
+      const processingIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({
+          status: 'processing',
+          payment_method: mockPaymentMethod.id,
+        })
+      );
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(processingIntent);
+
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(SubmitNeedsInputFailedError);
     });
   });
 });

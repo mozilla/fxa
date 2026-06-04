@@ -7,7 +7,6 @@ import { TestCardDefaults } from '../../lib/stripe-test-cards';
 import { BasePaymentPage } from './base';
 
 export class CheckoutPage extends BasePaymentPage {
-
   // Start page — sign-in section (unauthenticated only)
 
   get signinHeading() {
@@ -26,10 +25,6 @@ export class CheckoutPage extends BasePaymentPage {
 
   get paymentHeading() {
     return this.page.getByTestId('header');
-  }
-
-  get checkoutForm() {
-    return this.page.getByRole('form', { name: 'Checkout form' });
   }
 
   get subscribeButton() {
@@ -68,47 +63,6 @@ export class CheckoutPage extends BasePaymentPage {
     return this.stripeFrame.getByText(/Save (?:my )?information for/i);
   }
 
-
-  // Processing page
-
-  get processingSection() {
-    return this.page.getByTestId('payment-processing');
-  }
-
-  get loadingSpinner() {
-    return this.page.getByTestId('loading-spinner');
-  }
-
-  get processingHeading() {
-    return this.page.getByRole('heading', {
-      name: /process your payment/i,
-    });
-  }
-
-  // Success page (checkout-specific; shared locators are in BasePaymentPage)
-
-  get paymentAmount() {
-    return this.page
-      .locator('section[aria-labelledby="subscription-confirmation-heading"]')
-      .getByText(/\$[\d.]+/);
-  }
-
-  get productName() {
-    return this.page.getByTestId('plan-details-product');
-  }
-
-  // Error page (checkout-specific; shared locators are in BasePaymentPage)
-
-  get errorBanner() {
-    return this.page.locator(
-      'section[aria-labelledby="page-information-heading"]'
-    );
-  }
-
-  get retryButton() {
-    return this.page.getByRole('link', { name: /Try again/i });
-  }
-
   // Location page (shown when geolocation can't determine tax address)
 
   get locationHeading() {
@@ -134,17 +88,24 @@ export class CheckoutPage extends BasePaymentPage {
    * When geolocation works (local), it goes directly to /start.
    */
   async handleLocationIfNeeded(country = 'US', postalCode = '10001') {
-    // Wait for either the location page or the sign-in heading
-    const locationOrSignin = this.locationHeading.or(this.signinHeading);
-    await expect(locationOrSignin).toBeVisible({ timeout: 90_000 });
+    // Wait for the URL to settle on either /location or a page with the
+    // sign-in heading. Checking the URL is more reliable than .or() on
+    // two elements, which can resolve on a briefly-visible element that
+    // disappears during a redirect.
+    await this.page.waitForURL(
+      (url) =>
+        url.pathname.includes('/location') || url.pathname.includes('/start'),
+      { timeout: 90_000, waitUntil: 'domcontentloaded' }
+    );
 
-    // Use URL to determine which page we're on — avoids a race between
-    // the .or() resolution and a concurrent redirect swapping the page.
     if (this.page.url().includes('/location')) {
+      await expect(this.locationHeading).toBeVisible({ timeout: 10_000 });
       await this.countrySelect.selectOption(country);
       await this.locationPostalCodeInput.fill(postalCode);
       await this.locationSaveButton.click();
       // After location submit, wait for redirect to checkout with sign-in
+      await expect(this.signinHeading).toBeVisible({ timeout: 30_000 });
+    } else {
       await expect(this.signinHeading).toBeVisible({ timeout: 30_000 });
     }
   }
@@ -185,6 +146,9 @@ export class CheckoutPage extends BasePaymentPage {
     locator: ReturnType<typeof this.stripeFrame.locator>,
     value: string
   ) {
+    // Wait for the field to be editable before interacting — the Stripe
+    // iframe may still be wiring up event handlers or may have remounted.
+    await expect(locator).toBeEditable({ timeout: 10_000 });
     await locator.click();
     await locator.pressSequentially(value, { delay: 50 });
   }
@@ -217,7 +181,10 @@ export class CheckoutPage extends BasePaymentPage {
     // Link may auto-check after card fill — uncheck if present.
     // Stripe A/B tests this feature so it may not always appear.
     try {
-      await this.stripeLinkCheckbox.waitFor({ state: 'visible', timeout: 5_000 });
+      await this.stripeLinkCheckbox.waitFor({
+        state: 'visible',
+        timeout: 5_000,
+      });
       await this.stripeLinkCheckbox.click();
     } catch {
       // Stripe Link checkbox not shown — no action needed
@@ -238,126 +205,37 @@ export class CheckoutPage extends BasePaymentPage {
   }
 
   /**
-   * Wait for the processing page to appear.
-   */
-  async waitForProcessing(timeout = 30_000) {
-    await expect(this.processingSection).toBeVisible({ timeout });
-  }
-
-  /**
    * Wait for the success page heading to become visible.
    * First waits for processing to resolve to any terminal state,
    * then asserts we landed on success specifically.
    */
   async waitForSuccess(timeout = 90_000) {
-    // Wait for any post-submit state. Include "processing" so we don't
-    // burn the full timeout when the page is visibly stuck there.
+    // Wait for a terminal state. The path-boundary patterns (/…/) prevent
+    // false matches on unrelated URL segments.
     await expect(this.page).toHaveURL(
-      /success|error|needs_input|processing/,
+      /\/(success|error|needs_input|processing)(\/|$|\?)/,
       { timeout }
     );
     const url = this.page.url();
-    if (/error/.test(url)) {
+    if (/\/error(\/|$|\?)/.test(url)) {
       throw new Error(`Expected success but landed on error page: ${url}`);
     }
     // If still on /processing, give it more time to transition
-    if (/processing/.test(url)) {
-      await expect(this.page).toHaveURL(/success|error|needs_input/, {
-        timeout,
-      });
+    if (/\/processing(\/|$|\?)/.test(url)) {
+      await expect(this.page).toHaveURL(
+        /\/(success|error|needs_input)(\/|$|\?)/,
+        { timeout }
+      );
       const resolvedUrl = this.page.url();
-      if (/error/.test(resolvedUrl)) {
+      if (/\/error(\/|$|\?)/.test(resolvedUrl)) {
         throw new Error(
           `Expected success but landed on error page: ${resolvedUrl}`
         );
       }
     }
-    await expect(this.page).toHaveURL(/success/, { timeout: 30_000 });
+    await expect(this.page).toHaveURL(/\/success(\/|$|\?)/, {
+      timeout: 30_000,
+    });
     await expect(this.successHeading).toBeVisible({ timeout: 30_000 });
-  }
-
-  /**
-   * Wait for the error page to become visible.
-   * First waits for processing to resolve to any terminal state,
-   * then asserts we landed on error specifically.
-   */
-  async waitForError(timeout = 90_000) {
-    await expect(this.page).toHaveURL(
-      /success|error|needs_input|processing/,
-      { timeout }
-    );
-    const url = this.page.url();
-    if (/success/.test(url)) {
-      throw new Error(`Expected error but landed on success page: ${url}`);
-    }
-    if (/processing/.test(url)) {
-      await expect(this.page).toHaveURL(/success|error|needs_input/, {
-        timeout,
-      });
-      const resolvedUrl = this.page.url();
-      if (/success/.test(resolvedUrl)) {
-        throw new Error(
-          `Expected error but landed on success page: ${resolvedUrl}`
-        );
-      }
-    }
-    await expect(this.page).toHaveURL(/error/, { timeout: 30_000 });
-    await expect(this.errorBanner).toBeVisible({ timeout: 10_000 });
-  }
-
-  /**
-   * Handle Stripe 3D Secure authentication challenge.
-   * The test card 4000000000003220 shows a Stripe-hosted 3DS dialog.
-   *
-   * The 3DS dialog lives in nested cross-origin iframes that
-   * Playwright's frameLocator can't reliably interact with, so we
-   * use page.frames() + evaluate to find and click the button.
-   * `expect.toPass()` handles the retry/polling automatically.
-   */
-  async handle3dsChallenge() {
-    // After submit, the page navigates: /start -> /processing -> /needs_input
-    // Include "processing" so we detect slow transitions early.
-    await expect(this.page).toHaveURL(
-      /success|error|needs_input|processing/,
-      { timeout: 90_000 }
-    );
-    // If still on /processing, wait for it to resolve
-    if (/processing/.test(this.page.url())) {
-      await expect(this.page).toHaveURL(/success|error|needs_input/, {
-        timeout: 90_000,
-      });
-    }
-    const url = this.page.url();
-    if (/error/.test(url)) {
-      throw new Error(`3DS challenge expected /needs_input but landed on error: ${url}`);
-    }
-    if (/success/.test(url)) {
-      // 3DS was auto-completed or skipped — no challenge to handle
-      return;
-    }
-
-    // Retry clicking the 3DS Complete button until it works.
-    // The button is inside:
-    //   div[data-react-aria-top-layer] >
-    //     iframe[name*="__privateStripeFrame"] >
-    //       iframe[name="stripe-challenge-frame"] >
-    //         button#test-source-authorize-3ds ("COMPLETE")
-    await expect(async () => {
-      const challengeFrame = this.page
-        .frames()
-        .find((f) => f.url().includes('3d_secure_2_test'));
-      if (!challengeFrame) throw new Error('3DS challenge frame not found');
-      await challengeFrame.evaluate(() => {
-        const btn = document.querySelector(
-          '#test-source-authorize-3ds'
-        ) as HTMLButtonElement;
-        if (!btn) throw new Error('3DS button not found');
-        btn.click();
-      });
-    }).toPass({ intervals: [1_000], timeout: 30_000 });
-
-    // Wait for the 3DS completion to propagate — the page should
-    // navigate away from /needs_input to /success or /error.
-    await expect(this.page).not.toHaveURL(/needs_input/, { timeout: 60_000 });
   }
 }
