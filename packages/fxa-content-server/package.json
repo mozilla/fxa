@@ -18,7 +18,7 @@
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
     "lint": "yarn lint-glean && eslint app server --cache",
     "lint-glean": "npx glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
-    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",
+    "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js ",
     "delete": "pm2 delete pm2.config.js",
