@@ -20,6 +20,11 @@ export type CloudTasksConfig = {
   };
 };
 
+export type CloudTasksCredentials =
+  CloudTasksConfig['cloudTasks']['credentials'];
+export type CloudTasksOidc = CloudTasksConfig['cloudTasks']['oidc'];
+export type CloudTasksSettings = CloudTasksConfig['cloudTasks'];
+
 export type CloudTaskOptions = Partial<
   {
     // See TASK_ID for the `name` field in https://cloud.google.com/tasks/docs/reference/rest/v2/projects.locations.queues.tasks#Task
