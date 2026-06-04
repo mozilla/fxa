@@ -262,6 +262,120 @@
         "outputs": [
           "{projectRoot}/tsconfig.tsbuildinfo"
         ]
+      },
+      "build-react-dev": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          { "env": "BUILD_TARGETS" },
+          { "env": "PUBLIC_URL" }
+        ],
+        "outputs": [
+          "{projectRoot}/build/dev"
+        ]
+      },
+      "build-react-stage": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          { "env": "BUILD_TARGETS" },
+          { "env": "PUBLIC_URL" }
+        ],
+        "outputs": [
+          "{projectRoot}/build/stage"
+        ]
+      },
+      "build-react-prod": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          { "env": "BUILD_TARGETS" },
+          { "env": "PUBLIC_URL" }
+        ],
+        "outputs": [
+          "{projectRoot}/build/prod"
+        ]
+      },
+      "build-react": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          { "env": "BUILD_TARGETS" },
+          { "env": "PUBLIC_URL" }
+        ],
+        "outputs": [
+          "{projectRoot}/build/dev",
+          "{projectRoot}/build/stage",
+          "{projectRoot}/build/prod"
+        ]
+      },
+      "build-css": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/src/styles/tailwind.out.css"
+        ]
+      },
+      "build-static": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/static"
+        ]
+      },
+      "build-l10n": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/en/branding.ftl",
+          "{projectRoot}/public/locales/en/settings.ftl",
+          "{projectRoot}/public/locales/**/main.ftl",
+          "{projectRoot}/test/settings.ftl"
+        ]
+      },
+      "l10n-merge": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/en/branding.ftl",
+          "{projectRoot}/public/locales/en/settings.ftl"
+        ]
+      },
+      "l10n-bundle": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/**/main.ftl"
+        ]
+      },
+      "l10n-merge-test": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/test/settings.ftl"
+        ]
       }
     }
   },
