@@ -8,12 +8,10 @@ cd "$DIR/../.."
 _dev/pm2/create-docker-net.sh fxa
 pm2 start _dev/pm2/infrastructure.config.js
 
-
-
 # Check that mysql is up
+echo "Waiting for mysql"
 _scripts/check-mysql.sh
-
-echo "waiting for DB patches"
+echo "Waiting for DB patches"
 _scripts/check-db-patcher.sh
 
 # Check that goaws simulator is up
