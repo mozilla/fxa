@@ -134,10 +134,17 @@ export const SigninDecider = ({
   // Relay browser service login launched in Firefox desktop 135, and the "keys optional"
   // capability (Sync decoupling) launched in Fx desktop 147, meaning all Relay service users
   // in those Fx versions require a password.
-  // This also covers Mobile until Sync has been decoupled.
+  // This also covers Mobile until Sync is decoupled except for the authorization state below.
   const syncNotDecoupledRequiresPassword =
     !useFxAStatusResult.supportsKeysOptionalLogin &&
     integration.wantsKeysIfPasswordEntered();
+
+  // In Firefox Android 153, Sync is not decoupled, but we need to show cached sign-in
+  // for signed-in users (e.g., signed into Sync) that are authorizing VPN.
+  const isMobileAuthorizationFlow =
+    syncNotDecoupledRequiresPassword &&
+    !!isSignedIntoFirefox &&
+    integration.isFirefoxMobileClient();
 
   // Redirect-based RPs (OAuthWeb) that request scoped keys always need a password for key
   // derivation. In practice today, we don't have RPs that need this, but we do support it.
@@ -152,7 +159,7 @@ export const SigninDecider = ({
     // The password is forced when the RP requests prompt=login
     (isOAuth && integration.wantsLogin());
 
-  // Do we have a session token, and can we defer the key fetch?
+  // Do we have a session token, and can we defer the key fetch because sync is decoupled?
   const keysOptional =
     hasCachedSession && useFxAStatusResult.supportsKeysOptionalLogin;
 
@@ -165,7 +172,11 @@ export const SigninDecider = ({
   // Passwordless users always see cached sign-in and are redirected to set a
   // password after signing in, if a password is required (e.g. for Sync).
   const showCached =
-    hasCachedSession && (!hasPassword || !passwordNeeded || keysOptional);
+    hasCachedSession &&
+    (isMobileAuthorizationFlow ||
+      !hasPassword ||
+      !passwordNeeded ||
+      keysOptional);
 
   if (showCached) {
     return (
