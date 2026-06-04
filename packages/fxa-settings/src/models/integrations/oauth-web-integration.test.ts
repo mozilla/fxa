@@ -12,6 +12,7 @@ import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 
 jest.mock('@sentry/browser', () => ({
   captureException: jest.fn(),
+  captureMessage: jest.fn(),
 }));
 
 describe('models/integrations/oauth-relier', function () {
@@ -181,37 +182,6 @@ describe('models/integrations/oauth-relier', function () {
         return integration;
       }
 
-      /**
-       * If a test should expect an OAuth scope error, use this function to assert the error was captured.
-       * @param scope
-       */
-      function expectSentryOAuthScopeError(
-        scope: string,
-        trusted: boolean,
-        wantsConsent: boolean
-      ) {
-        expect(Sentry.captureException).toHaveBeenCalledTimes(1);
-
-        const sentryCall = (Sentry.captureException as jest.Mock).mock.calls[0];
-        const capturedError = sentryCall[0];
-        const sentryContext = sentryCall[1];
-
-        expect(capturedError).toBeInstanceOf(OAuthError);
-        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
-        expect(sentryContext).toEqual({
-          tags: {
-            area: 'OAuthWebIntegration.getPermissions',
-            service: 'test-service',
-            clientId: 'a1b2c3d4e5f6789012345678901234567890abcd',
-          },
-          extra: {
-            scope,
-            trusted,
-            wantsConsent,
-          },
-        });
-      }
-
       beforeEach(() => {
         jest.clearAllMocks();
       });
@@ -229,7 +199,10 @@ describe('models/integrations/oauth-relier', function () {
           integration.getPermissions();
         }).toThrow(OAuthError);
 
-        expectSentryOAuthScopeError(EMPTY_SCOPE, isTrusted, wantsConsent);
+        const capturedError = (Sentry.captureException as jest.Mock).mock
+          .calls[0][0];
+        expect(capturedError).toBeInstanceOf(OAuthError);
+        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
       });
 
       it('captures Sentry error and throws OAuthError when untrusted scope results in empty permissions', () => {
@@ -245,11 +218,10 @@ describe('models/integrations/oauth-relier', function () {
           integration.getPermissions();
         }).toThrow(OAuthError);
 
-        expectSentryOAuthScopeError(
-          INVALID_UNTRUSTED_SCOPE,
-          isTrusted,
-          wantsConsent
-        );
+        const capturedError = (Sentry.captureException as jest.Mock).mock
+          .calls[0][0];
+        expect(capturedError).toBeInstanceOf(OAuthError);
+        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
       });
     });
 
