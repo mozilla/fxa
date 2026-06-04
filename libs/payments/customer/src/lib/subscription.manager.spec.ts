@@ -567,6 +567,30 @@ describe('SubscriptionManager', () => {
       ).rejects.toThrow(SubscriptionCustomerMismatchError);
       expect(jest.spyOn(subscriptionManager, 'update')).not.toHaveBeenCalled();
     });
+
+    it('returns null when resubscribe fails', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const mockCouponId = 'coupon_123';
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockResponse);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockRejectedValue(new Error('Stripe API error'));
+
+      const result = await subscriptionManager.resubscribeWithCoupon({
+        customerId: mockCustomer.id,
+        subscriptionId: mockSubscription.id,
+        stripeCouponId: mockCouponId,
+      });
+
+      expect(result).toBeNull();
+    });
   });
 
   describe('hasCouponId', () => {
