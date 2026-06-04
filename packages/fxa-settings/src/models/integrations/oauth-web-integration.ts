@@ -224,6 +224,13 @@ export class OAuthWebIntegration extends GenericIntegration<
       // capture error to Sentry, but throw so it can be handled
       // in app/index. We check the integration type and present
       // an OAuthDataError component.
+      const extra = {
+        scope: this.data.scope || 'undefined',
+        wantsConsent: this.data.prompt || 'undefined',
+        clientId: this.data.clientId || 'undeifned',
+        service: this.data.service || 'undefined',
+        clientInfo: this.clientInfo || 'undefined',
+      };
       Sentry.captureException(err, {
         tags: {
           area: 'OAuthWebIntegration.getPermissions',
@@ -231,10 +238,8 @@ export class OAuthWebIntegration extends GenericIntegration<
           service: this.data.service,
         },
         extra: {
-          scope: this.data.scope,
-          trusted: this.isTrusted(),
-          wantsConsent: this.wantsConsent(),
-          clientInfo: this.clientInfo,
+          ...extra,
+          raw: btoa(JSON.stringify(extra)),
         },
       });
       throw err;
@@ -337,6 +342,17 @@ export class OAuthWebIntegration extends GenericIntegration<
         ) {
           wantsScopeThatHasKeys = true;
         } else {
+          const extra = {
+            scope,
+            redirectUris: validation[scope]?.redirectUris || 'undefined',
+            clientInfo: this.clientInfo || 'undefined',
+          };
+          Sentry.captureMessage(`Invalid redirect paramater`, {
+            extra: {
+              ...extra,
+              raw: btoa(JSON.stringify(extra)),
+            },
+          });
           throw new Error('Invalid redirect parameter');
         }
       }
