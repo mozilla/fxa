@@ -1,0 +1,151 @@
+# Runs the gated CircleCI functional (Playwright) tests automatically once a PR
+# is ready for review, and lets draft PRs opt in early with a label.
+#
+# Policy:
+#   - Ready-for-review (non-draft) PRs: functional tests run automatically when
+#     the PR is opened ready, on the draft -> ready transition, and on each push.
+#   - Draft PRs: functional tests do NOT run automatically. Add the
+#     "run-functional-tests" label to opt in during early development.
+#
+# Mechanism: mirrors _scripts/approve-functional-tests.sh — calls the CircleCI
+# v2 API to find the PR's pipeline and approve the on-hold "Approve Functional
+# Tests (PR)" job. PRs that do not qualify are untouched and keep the manual
+# one-off approval.
+#
+# PREREQUISITE: a CircleCI PERSONAL API token (project tokens cannot approve v2
+# workflows) stored as the repository secret CIRCLECI_PERSONAL_TOKEN. Until that
+# secret is set the job logs a warning and exits without failing the PR.
+name: Auto-approve functional tests
+
+on:
+  pull_request:
+    # opened / ready_for_review: a PR that is, or becomes, ready for review.
+    # synchronize: new pushes (gated below on non-draft, or the opt-in label).
+    # reopened: re-evaluate when a PR is reopened.
+    # labeled: opt in during draft via the run-functional-tests label.
+    types: [opened, ready_for_review, synchronize, reopened, labeled]
+
+permissions: {}
+
+# Only the most recent commit on a PR is worth approving; cancel superseded runs.
+concurrency:
+  group: approve-functional-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  approve:
+    # Run functional tests automatically once a PR is ready for review, or when
+    # a draft opts in with the label. Same-repo only: fork PRs run without
+    # secrets, so there is nothing to approve with; skipping keeps the check
+    # green rather than failing.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository
+      && (
+        github.event.pull_request.draft == false
+        || contains(github.event.pull_request.labels.*.name, 'run-functional-tests')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve the CircleCI functional tests gate
+        env:
+          CIRCLE_TOKEN: ${{ secrets.CIRCLECI_PERSONAL_TOKEN }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        # No `set -e`: a transient CircleCI API blip should fall through to the
+        # next poll, not abort the run.
+        run: |
+          set -uo pipefail
+
+          if [ -z "${CIRCLE_TOKEN:-}" ]; then
+            echo "::warning::CIRCLECI_PERSONAL_TOKEN is not set; skipping auto-approval. Add the repo secret to enable automatic functional tests."
+            exit 0
+          fi
+
+          SLUG="github/mozilla/fxa"
+          API="https://circleci.com/api/v2"
+          WORKFLOW_NAME="test_pull_request"
+          APPROVAL_JOB="Approve Functional Tests (PR)"
+          MAX_ATTEMPTS=10   # ~5 minutes at a 30s interval
+          SLEEP_SECONDS=30
+
+          auth=(-H "Circle-Token: ${CIRCLE_TOKEN}")
+
+          # CircleCI API GET. Echoes the response body on success. On HTTP 429
+          # it backs off and returns non-zero so the caller retries next poll;
+          # network failures likewise return non-zero (empty result -> retry).
+          circle_get() {
+            local resp code
+            resp=$(curl -sS -w $'\n%{http_code}' "${auth[@]}" "$@" 2>/dev/null) || return 1
+            code=${resp##*$'\n'}
+            if [ "${code}" = "429" ]; then
+              echo "::warning::CircleCI API rate limited (429); backing off." >&2
+              sleep 60
+              return 1
+            fi
+            { [ "${code}" -ge 200 ] && [ "${code}" -lt 300 ]; } || return 1
+            printf '%s' "${resp%$'\n'*}"
+          }
+
+          echo "Waiting for the functional-tests gate on ${BRANCH}..."
+
+          # Resolve the pipeline and workflow once, then poll only the job. The
+          # newest pipeline for the branch is always the live one (redundant
+          # pipelines are auto-cancelled on each push), so these IDs are stable
+          # for this run and steady-state polling is a single request.
+          pipeline_id=""
+          workflow_id=""
+
+          for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
+            if [ -z "${workflow_id}" ]; then
+              if [ -z "${pipeline_id}" ]; then
+                pipeline_id=$(circle_get --get --data-urlencode "branch=${BRANCH}" \
+                  "${API}/project/${SLUG}/pipeline" | jq -r '.items[0].id // empty')
+              fi
+              if [ -n "${pipeline_id}" ]; then
+                workflow_id=$(circle_get "${API}/pipeline/${pipeline_id}/workflow" \
+                  | jq -r --arg n "${WORKFLOW_NAME}" \
+                      '[.items[] | select(.name == $n)] | .[0].id // empty')
+              fi
+              if [ -z "${workflow_id}" ]; then
+                echo "[attempt ${attempt}] pipeline/workflow not visible yet; waiting..."
+                sleep "${SLEEP_SECONDS}"; continue
+              fi
+            fi
+
+            job=$(circle_get "${API}/workflow/${workflow_id}/job" \
+              | jq -c --arg n "${APPROVAL_JOB}" \
+                  '[.items[] | select(.name == $n)] | .[0] // empty')
+
+            status="pending"
+            [ -n "${job}" ] && status=$(printf '%s' "${job}" | jq -r '.status')
+
+            case "${status}" in
+              on_hold)
+                approval_id=$(printf '%s' "${job}" | jq -r '.approval_request_id')
+                resp=$(curl -sS -w $'\n%{http_code}' -X POST "${auth[@]}" \
+                  "${API}/workflow/${workflow_id}/approve/${approval_id}" 2>/dev/null) || resp=""
+                code=${resp##*$'\n'}
+                if [ -n "${code}" ] && [ "${code}" -ge 200 ] && [ "${code}" -lt 300 ]; then
+                  echo "Approved functional tests."
+                  echo "https://app.circleci.com/pipelines/${SLUG}/workflows/${workflow_id}"
+                  exit 0
+                fi
+                echo "[attempt ${attempt}] Approve call returned HTTP ${code:-error}; retrying..."
+                ;;
+              success)
+                echo "Functional tests already approved."
+                exit 0
+                ;;
+              failed | canceled | error | unauthorized)
+                echo "::warning::Approval job is '${status}'; nothing to approve."
+                exit 0
+                ;;
+              *)
+                # pending / blocked (waiting on Build) / running / queued, etc.
+                echo "[attempt ${attempt}] Gate status='${status}'; waiting..."
+                ;;
+            esac
+            sleep "${SLEEP_SECONDS}"
+          done
+
+          echo "::error::Timed out waiting for the approval gate to reach 'on_hold'."
+          exit 1
