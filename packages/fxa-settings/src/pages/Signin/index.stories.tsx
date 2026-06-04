@@ -183,6 +183,36 @@ export const CachedNonSyncBrowserServiceWithPasswordlessCapabilityNotSignedIntoD
     name: 'Cached > Non-Sync browser service > Browser has Sync keys optional capability > Account is not signed into Firefox Desktop',
   };
 
+export const CachedNonSyncBrowserServiceMobileAuthorizationFlow: Story = {
+  ...story({
+    sessionToken: MOCK_SESSION_TOKEN,
+    serviceName: MozServices.MozillaVPN,
+    integration: createMockSigninOAuthNativeIntegration({
+      service: OAuthNativeServices.Vpn,
+      isSync: false,
+      isMobile: true,
+    }),
+    supportsKeysOptionalLogin: false,
+    isSignedIntoFirefox: true,
+  }),
+  name: 'Cached > Non-Sync browser service > Browser does not have keys optional capability > Account is signed into Firefox Mobile',
+};
+
+export const CachedNonSyncBrowserServiceMobileNotSignedIn: Story = {
+  ...story({
+    sessionToken: MOCK_SESSION_TOKEN,
+    serviceName: MozServices.MozillaVPN,
+    integration: createMockSigninOAuthNativeIntegration({
+      service: OAuthNativeServices.Vpn,
+      isSync: false,
+      isMobile: true,
+    }),
+    supportsKeysOptionalLogin: false,
+    isSignedIntoFirefox: false,
+  }),
+  name: 'Cached > Non-Sync browser service > Browser does not have keys optional capability > Account is not signed into Firefox Mobile',
+};
+
 export const CmsNonCachedDefault: Story = {
   ...story({
     integration: createMockSigninOAuthIntegration({
