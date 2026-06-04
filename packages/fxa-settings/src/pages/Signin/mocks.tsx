@@ -144,7 +144,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => undefined,
     isFirefoxClient: () => true,
-    isFirefoxMobileClient: () => isSync && isMobile,
+    isFirefoxMobileClient: () => isMobile,
     isFirefoxDesktopClient: () => isSync && !isMobile,
     getLegalTerms: () => undefined,
   };
@@ -224,7 +224,7 @@ export function createMockSigninOAuthNativeIntegration({
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => cmsInfo,
     isFirefoxClient: () => true,
-    isFirefoxMobileClient: () => isSync && isMobile,
+    isFirefoxMobileClient: () => isMobile,
     isFirefoxDesktopClient: () => !isMobile,
     getLegalTerms: () => undefined,
   };

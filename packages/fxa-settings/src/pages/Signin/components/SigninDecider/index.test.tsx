@@ -111,6 +111,76 @@ describe('SigninDecider routing', () => {
     });
   });
 
+  describe('Mobile authorization flow', () => {
+    // Mobile does not send `keys_optional` so we detect signed-in Mobile users
+    // authorizing a non-Sync service and route them to cached signin.
+
+    it('routes to cached signin for Mobile signed into Firefox + service=vpn without keys_optional', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Vpn,
+        isSync: false,
+        isMobile: true,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputNotRendered();
+      screen.getByRole('button', { name: 'Sign in' });
+    });
+
+    it('routes to cached signin for Mobile signed into Firefox + service=relay without keys_optional', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
+        isMobile: true,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputNotRendered();
+    });
+
+    it('routes to password signin when Mobile is not signed into Firefox', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Vpn,
+        isSync: false,
+        isMobile: true,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: false,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputRendered();
+    });
+
+    it('routes to password signin for Desktop signed into Firefox + service=relay without keys_optional', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
+        isMobile: false,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputRendered();
+    });
+  });
+
   describe('cached vs password based on integration requesting keys', () => {
     it('routes to password signin when integration wants keys and user has a password', () => {
       const integration = createMockSigninOAuthNativeSyncIntegration();
