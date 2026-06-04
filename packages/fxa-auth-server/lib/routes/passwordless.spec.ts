@@ -1218,18 +1218,69 @@ describe('passwordless security events', () => {
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      // Should record two events: registration_complete and otp_verified
-      expect(mockRecordSecurityEvent).toHaveBeenCalledTimes(2);
+      // Should record three events: account.create (so the generic
+      // account-creation metric fires for OTP signups too), then
+      // registration_complete and otp_verified.
+      expect(mockRecordSecurityEvent).toHaveBeenCalledTimes(3);
       expect(mockRecordSecurityEvent).toHaveBeenNthCalledWith(
         1,
-        'account.passwordless_registration_complete',
-        expect.anything()
+        'account.create',
+        expect.objectContaining({ account: { uid } })
       );
       expect(mockRecordSecurityEvent).toHaveBeenNthCalledWith(
         2,
-        'account.passwordless_login_otp_verified',
-        expect.anything()
+        'account.passwordless_registration_complete',
+        expect.objectContaining({ account: { uid } })
       );
+      expect(mockRecordSecurityEvent).toHaveBeenNthCalledWith(
+        3,
+        'account.passwordless_login_otp_verified',
+        expect.objectContaining({ account: { uid } })
+      );
+    });
+  });
+
+  it('should not record account.create when confirming OTP for an existing account', () => {
+    // Existing account: accountRecord resolves, so isNewAccount is false and
+    // the account.create event must not fire (it would double-count the
+    // metric on every passwordless sign-in).
+    mockDB.createSessionToken = jest.fn(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: true,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    mockRequest.payload.code = '123456';
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      recordSecurityEvent: mockRecordSecurityEvent,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      const recordedEvents = mockRecordSecurityEvent.mock.calls.map(
+        ([name]: [string]) => name
+      );
+      expect(recordedEvents).not.toContain('account.create');
+      expect(recordedEvents).toEqual([
+        'account.passwordless_login_otp_verified',
+      ]);
     });
   });
 });
