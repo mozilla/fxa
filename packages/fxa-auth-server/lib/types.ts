@@ -116,6 +116,14 @@ export interface AuthLogger extends Logger {
     request: AuthRequest,
     data: Record<string, any>
   ): Promise<void>;
+
+  activityEvent(data: Record<string, any>): void;
+
+  amplitudeEvent(data: Record<string, any>): void;
+
+  flowEvent(data: Record<string, any>): void;
+
+  summary(request: AuthRequest, response: unknown): void;
 }
 
 export interface AuthClientInfoService {

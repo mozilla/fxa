@@ -4,6 +4,9 @@
 
 /* eslint-disable no-undef */
 
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+
 const Sentry = require('@sentry/node');
 const Chance = require('chance');
 const { Container } = require('typedi');
@@ -18,7 +21,7 @@ try {
   sentryModule = { reportSentryMessage: () => {} };
 }
 
-const { mockLog, asyncIterable } = require('../../test/mocks');
+const { asyncIterable } = require('../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
@@ -333,7 +336,7 @@ describe('StripeHelper', () => {
   let listStripePlans: any;
   let log: any;
   let existingCustomer: any;
-  let mockStatsd: any;
+  let mockStatsd: DeepMocked<StatsD>;
   const existingUid = '40cc397def2d487b9b8ba0369079a267';
   let stripeFirestore: any;
   let mockGoogleMapsService: any;
@@ -350,12 +353,8 @@ describe('StripeHelper', () => {
   beforeEach(() => {
     mockRedis = createMockRedis();
     (globalThis as any).__testMockRedis = mockRedis;
-    log = mockLog();
-    mockStatsd = {
-      increment: jest.fn().mockReturnValue({}),
-      timing: jest.fn().mockReturnValue({}),
-      close: jest.fn().mockReturnValue({}),
-    };
+    log = createMock<AuthLogger>();
+    mockStatsd = createMock<StatsD>();
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(AuthFirestore, {

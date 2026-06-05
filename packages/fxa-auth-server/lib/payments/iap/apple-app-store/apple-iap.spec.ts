@@ -7,12 +7,11 @@ jest.mock('./app-store-helper', () => ({
   AppStoreHelper: class MockAppStoreHelper {},
 }));
 
+import { createMock } from '@golevelup/ts-jest';
 import { Container } from 'typedi';
 
 import { AuthFirestore, AuthLogger, AppConfig } from '../../../types';
 import { AppleIAP } from '.';
-
-const { mockLog } = require('../../../../test/mocks');
 
 const mockConfig = {
   authFirestore: {
@@ -38,7 +37,7 @@ describe('AppleIAP', () => {
   let log: any;
 
   beforeEach(() => {
-    log = mockLog();
+    log = createMock<AuthLogger>();
     collectionMock = jest.fn();
     firestore = {
       collection: collectionMock,

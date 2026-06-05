@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+
 const { Container } = require('typedi');
 const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
@@ -31,7 +34,7 @@ jest.mock('./utils', () => ({
 const { StripeHandler: DirectStripeRoutes } = require('./stripe');
 
 const { buildTaxAddress: buildTaxAddressStub } = require('./utils');
-const { AuthLogger, AppConfig } = require('../../types');
+const { AppConfig } = require('../../types');
 const { CapabilityService } = require('../../payments/capability');
 const { PlayBilling } = require('../../payments/iap/google-play');
 const subscription2 = require('../../../test/local/payments/fixtures/stripe/subscription2.json');
@@ -164,7 +167,7 @@ describe('subscriptions stripeRoutes', () => {
     mockCapabilityService.getClients.mockResolvedValue(mockCMSClients);
     Container.set(CapabilityService, mockCapabilityService);
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
 
     Container.set(AuthLogger, log);
@@ -385,7 +388,7 @@ describe('DirectStripeRoutes', () => {
       },
     };
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
       deleteCache: jest.fn(async (uid: any) => ({})),
@@ -551,7 +554,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('buildTaxAddress', () => {
     beforeEach(() => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
     });
 
     it('returns tax location if complete', () => {

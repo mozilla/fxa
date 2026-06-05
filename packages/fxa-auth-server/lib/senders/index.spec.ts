@@ -4,6 +4,8 @@
 
 import crypto from 'crypto';
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
 const config = require('../../config').default.getProperties();
 const mocks = require('../../test/mocks');
@@ -12,7 +14,7 @@ const {
   ProductConfigurationManager,
 } = require('../../../../libs/shared/cms/src');
 
-const nullLog = mocks.mockLog();
+const nullLog = createMock<AuthLogger>();
 
 describe('lib/senders/index', () => {
   afterEach(() => {

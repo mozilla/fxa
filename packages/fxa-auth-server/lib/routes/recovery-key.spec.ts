@@ -3,6 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppError as errors } from '@fxa/accounts/errors';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
 
 const uuid = require('uuid');
 const mocks = require('../../test/mocks');
@@ -37,7 +43,7 @@ function setup(results: any, _errors: any, path: string, requestOptions: any) {
   results = results || {};
   _errors = _errors || {};
 
-  log = mocks.mockLog();
+  log = createMock<AuthLogger>();
   db = mocks.mockDB(results.db, _errors.db);
   customs = mocks.mockCustoms(_errors.customs);
   mailer = mocks.mockMailer();
@@ -59,7 +65,7 @@ function setup(results: any, _errors: any, path: string, requestOptions: any) {
 }
 
 function makeRoutes(options: any = {}) {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || mocks.mockCustoms();
   const config = options.config || { signinConfirmation: {} };
@@ -79,7 +85,7 @@ function makeRoutes(options: any = {}) {
 describe('POST /recoveryKey', () => {
   beforeEach(() => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
   });
 
   afterEach(() => {
@@ -672,7 +678,7 @@ describe('POST /recoveryKey/exists', () => {
 describe('DELETE /recoveryKey', () => {
   beforeEach(() => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
   });
 
   afterEach(() => {
@@ -779,3 +785,5 @@ describe('POST /recoveryKey/hint', () => {
     });
   });
 });
+
+afterAll(() => uninstallMockFxaMailer());

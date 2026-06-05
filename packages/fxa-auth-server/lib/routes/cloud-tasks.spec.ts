@@ -4,8 +4,9 @@
 
 import { Container } from 'typedi';
 import { ReasonForDeletion, EmailTypes } from '@fxa/shared/cloud-tasks';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
-const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { cloudTaskRoutes } = require('./cloud-tasks');
 const { AccountDeleteManager } = require('../account-delete');
@@ -35,7 +36,7 @@ describe('/cloud-tasks/accounts/delete', () => {
   let route: any, routes: any;
 
   beforeEach(() => {
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     jest.clearAllMocks();
 
     Container.set(AccountDeleteManager, {
@@ -67,7 +68,7 @@ describe('/cloud-tasks/emails/notify-inactive', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
 
     Container.set(AccountDeleteManager, {
       deleteAccount: deleteAccountStub,

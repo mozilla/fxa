@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
 import { Container } from 'typedi';
 
 import { AuthLogger } from '../../../types';
@@ -11,8 +12,6 @@ import {
   PurchaseUpdateError,
   NotificationType,
 } from './types';
-
-const { mockLog } = require('../../../../test/mocks');
 
 // Mock subscription purchase module used by both auth-server and fxa-shared.
 // Use a delegating function pattern so the mock factory (hoisted by Jest)
@@ -44,7 +43,7 @@ describe('PurchaseManager', () => {
   let mockApiClient: any;
 
   beforeEach(() => {
-    log = mockLog();
+    log = createMock<AuthLogger>();
     mockPurchaseDbRef = {};
     mockApiClient = {};
     Container.set(AuthLogger, log);

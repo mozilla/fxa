@@ -4,6 +4,10 @@
 
 import crypto from 'crypto';
 import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
@@ -24,7 +28,7 @@ function makeRoutes(options: any = {}) {
       digits: 8,
     },
   };
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || {};
   const mailer = options.mailer || {};
   const Password = require('../../lib/crypto/password')(log, config);
@@ -70,7 +74,7 @@ describe('/password', () => {
     // otherwise it won't pickup the mock we define because
     // of module caching
     mocks.mockOAuthClientInfo();
-    mockFxaMailer = mocks.mockFxaMailer();
+    mockFxaMailer = installMockFxaMailer();
     mockAccountEventsManager = mocks.mockAccountEventsManager();
     glean.resetPassword.emailSent.mockClear();
   });
@@ -96,16 +100,7 @@ describe('/password', () => {
     });
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
-    const mockLog = mocks.mockLog('ERROR', 'test', {
-      stdout: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-      stderr: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-    });
+    const mockLog = createMock<AuthLogger>();
     mockLog.flowEvent = jest.fn(() => {
       return Promise.resolve();
     });
@@ -114,7 +109,7 @@ describe('/password', () => {
       get: jest.fn(),
       del: jest.fn(),
     };
-    const mockStatsd = { increment: jest.fn() };
+    const mockStatsd: DeepMocked<StatsD> = createMock<StatsD>();
 
     it('sends an OTP when enabled', () => {
       const passwordRoutes = makeRoutes({
@@ -268,16 +263,7 @@ describe('/password', () => {
     });
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
-    const mockLog = mocks.mockLog('ERROR', 'test', {
-      stdout: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-      stderr: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-    });
+    const mockLog = createMock<AuthLogger>();
     mockLog.flowEvent = jest.fn(() => {
       return Promise.resolve();
     });
@@ -287,7 +273,7 @@ describe('/password', () => {
       get: jest.fn().mockReturnValue(code),
       del: jest.fn(),
     };
-    const mockStatsd = { increment: jest.fn() };
+    const mockStatsd: DeepMocked<StatsD> = createMock<StatsD>();
 
     const mockRequest = mocks.mockRequest({
       log: mockLog,
@@ -510,7 +496,7 @@ describe('/password', () => {
       });
       const mockPush = mocks.mockPush();
       const mockMailer = mocks.mockMailer();
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
       const mockSessionToken = await mockDB.createSessionToken({});
       const mockRequest = mocks.mockRequest({
         payload: {
@@ -530,7 +516,7 @@ describe('/password', () => {
         uaOSVersion: '10.11',
       });
       const mockCustoms = mocks.mockCustoms();
-      const mockStatsd = mocks.mockStatsd();
+      const mockStatsd = createMock<StatsD>();
       const passwordRoutes = makeRoutes({
         db: mockDB,
         push: mockPush,
@@ -577,8 +563,8 @@ describe('/password', () => {
       const mockSession = await mockDB.createSessionToken({});
       const mockPush = mocks.mockPush();
       const mockMailer = mocks.mockMailer();
-      const mockLog = mocks.mockLog();
-      const mockStatsd = mocks.mockStatsd();
+      const mockLog = createMock<AuthLogger>();
+      const mockStatsd = createMock<StatsD>();
       const mockRequest = mocks.mockRequest({
         credentials: mockSession,
         payload: {
@@ -646,7 +632,7 @@ describe('/password', () => {
       });
       const mockPush = mocks.mockPush();
       const mockMailer = mocks.mockMailer();
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
       const mockRequest = mocks.mockRequest({
         credentials: {
           uid: uid,
@@ -757,7 +743,7 @@ describe('/password', () => {
           return Promise.reject(error.emailBouncedHard());
         }),
       };
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
 
       // Configure mockFxaMailer to reject for this test
       mockFxaMailer.sendPasswordChangedEmail.mockRejectedValue(
@@ -844,7 +830,7 @@ describe('/password', () => {
           return Promise.resolve();
         }),
       };
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
       const mockRequest = mocks.mockRequest({
         credentials: {
           uid: uid,
@@ -910,7 +896,7 @@ describe('/password', () => {
         verifierSetAt: 0,
       });
       mockMailer = mocks.mockMailer();
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
       const authPW = await random.hex(32);
       passwordRoutes = makeRoutes({
         db: mockDB,
@@ -1020,8 +1006,8 @@ describe('/password', () => {
       });
       mockMailer = mocks.mockMailer();
       mockPush = mocks.mockPush();
-      mockLog = mocks.mockLog();
-      mockStatsd = mocks.mockStatsd();
+      mockLog = createMock<AuthLogger>();
+      mockStatsd = createMock<StatsD>();
       mockCustoms = mocks.mockCustoms();
     });
 

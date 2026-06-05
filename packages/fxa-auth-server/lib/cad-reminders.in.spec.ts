@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
+
 const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce(
   (expected: any, reminder) => {
@@ -12,14 +15,13 @@ const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce(
 );
 
 const config = require('../config').default.getProperties();
-const mocks = require('../test/mocks');
 
 describe('#integration - lib/cad-reminders', () => {
   let log: any, mockConfig: any, redis: any, cadReminders: any;
 
   beforeEach(() => {
     jest.resetModules();
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     mockConfig = {
       redis: config.redis,
       cadReminders: {
@@ -40,7 +42,7 @@ describe('#integration - lib/cad-reminders', () => {
         ...mockConfig.cadReminders.redis,
         enabled: true,
       },
-      mocks.mockLog()
+      createMock<AuthLogger>()
     );
     cadReminders = require('./cad-reminders')(mockConfig, log);
   });

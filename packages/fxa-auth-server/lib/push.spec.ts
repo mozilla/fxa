@@ -6,6 +6,9 @@ import Ajv from 'ajv';
 import fs from 'fs';
 import path from 'path';
 import mocks from '../test/mocks';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from './types';
 
 const ajv = new Ajv();
 const mockUid = 'deadbeef';
@@ -88,9 +91,9 @@ const mockSendNotification = webPush.sendNotification as jest.Mock;
 
 describe('push', () => {
   let mockDb: ReturnType<typeof mocks.mockDB>,
-    mockLog: ReturnType<typeof mocks.mockLog>,
+    mockLog: DeepMocked<AuthLogger>,
     mockConfig: Record<string, unknown>,
-    mockStatsD: { increment: jest.Mock },
+    mockStatsD: DeepMocked<StatsD>,
     mockDevices: MockDevice[];
 
   function loadMockedPushModule() {
@@ -99,7 +102,7 @@ describe('push', () => {
 
   beforeEach(() => {
     mockDb = mocks.mockDB();
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockConfig = {};
     mockDevices = [
       {
@@ -136,9 +139,7 @@ describe('push', () => {
         pushEndpointExpired: false,
       },
     ];
-    mockStatsD = {
-      increment: jest.fn(),
-    };
+    mockStatsD = createMock<StatsD>();
     mockSendNotification.mockReset().mockImplementation(async () => {});
   });
 

@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../../test/fixtures/fxa-mailer';
+
 const mocks = require('../../../test/mocks');
 const { gleanMetrics } = require('../../metrics/glean');
 
@@ -17,7 +24,7 @@ const gleanConfig = {
 const glean = gleanMetrics({ gleanMetrics: gleanConfig });
 
 async function setup(options: any) {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || {};
   const verificationReminders =
@@ -44,6 +51,8 @@ describe('verifyAccount', () => {
   let utils: any;
   let account: any;
 
+  afterAll(() => uninstallMockFxaMailer());
+
   beforeEach(() => {
     account = {
       uid: TEST_UID,
@@ -54,9 +63,9 @@ describe('verifyAccount', () => {
       },
     };
     db = mocks.mockDB(account);
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     push = mocks.mockPush();
     verificationReminders = mocks.mockVerificationReminders();
     request = mocks.mockRequest({

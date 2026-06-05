@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
+
 const AccessToken = require('./oauth/db/accessToken');
 const RefreshTokenMetadata = require('./oauth/db/refreshTokenMetadata');
 const config = require('../config').default.getProperties();
-const mocks = require('../test/mocks');
 
 const recordLimit = 20;
 const prefix = 'test:';
@@ -19,12 +21,12 @@ const redis = require('./redis')(
     recordLimit,
     maxttl,
   },
-  mocks.mockLog()
+  createMock<AuthLogger>()
 );
 
 const downRedis = require('./redis')(
   { enabled: true, port: 1, timeoutMs: 10, lazyConnect: true },
-  mocks.mockLog()
+  createMock<AuthLogger>()
 );
 downRedis.redis.on('error', () => {});
 

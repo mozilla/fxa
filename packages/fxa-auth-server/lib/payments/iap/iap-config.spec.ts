@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
 import { Container } from 'typedi';
 
 import { AuthFirestore, AuthLogger, AppConfig } from '../../types';
 import { IAPConfig } from './iap-config';
-
-const { mockLog } = require('../../../test/mocks');
 
 const mockConfig = {
   authFirestore: {
@@ -28,7 +27,7 @@ describe('IAPConfig', () => {
     firestore = {
       collection: collectionMock,
     };
-    log = mockLog();
+    log = createMock<AuthLogger>();
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);

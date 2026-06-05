@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Container from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
 import { StripeHelper } from '../payments/stripe';
+import { AuthLogger } from '../types';
 
 const { AppError: error } = require('@fxa/accounts/errors');
-const { mockLog } = require('../../test/mocks');
 const notifications = require('./notifications');
 
 const SIX_HOURS = 1000 * 60 * 60 * 6;
@@ -28,7 +29,7 @@ describe('lib/email/notifications:', () => {
     now = Date.now();
     jest.spyOn(Date, 'now').mockImplementation(() => now);
     del = jest.fn();
-    log = mockLog();
+    log = createMock<AuthLogger>();
     queue = {
       start: jest.fn(),
       on: jest.fn(),

@@ -4,7 +4,14 @@
 
 import crypto from 'crypto';
 import * as uuid from 'uuid';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import { AppError as error } from '@fxa/accounts/errors';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
@@ -23,6 +30,7 @@ beforeAll(() => {
 });
 afterAll(() => {
   jest.restoreAllMocks();
+  uninstallMockFxaMailer();
 });
 
 // --- Module-level stubs for mocked dependencies ---
@@ -113,14 +121,14 @@ function makeRoutes(options: any = {}) {
     enabled: true,
   };
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: () => Promise.resolve(true),
     v2Enabled: () => true,
   };
   const glean = options.glean || mocks.mockGlean();
-  const statsd = options.statsd || mocks.mockStatsd();
+  const statsd = options.statsd || createMock<StatsD>();
   const redis = options.authServerCacheRedis || {
     get: async () => null,
     set: async () => 'OK',
@@ -145,7 +153,7 @@ function makeRoutes(options: any = {}) {
   getOptionalCmsEmailConfigStub =
     options.getOptionalCmsEmailConfig || jest.fn().mockResolvedValue({});
 
-  mocks.mockFxaMailer();
+  installMockFxaMailer();
 
   // Now require the module under test. Because all mocks above are wired
   // through jest.mock() at the module level, the fresh `require` picks them
@@ -179,7 +187,7 @@ describe('/account/passwordless/send_code', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -343,7 +351,7 @@ describe('/account/passwordless/confirm_code', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -784,7 +792,7 @@ describe('passwordless CMS customization', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1070,7 +1078,7 @@ describe('passwordless security events', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1297,7 +1305,7 @@ describe('passwordless statsd metrics', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1309,7 +1317,7 @@ describe('passwordless statsd metrics', () => {
       check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
-    mockStatsd = mocks.mockStatsd();
+    mockStatsd = createMock<StatsD>();
     mockRequest = mocks.mockRequest({
       log: mockLog,
       payload: {
@@ -1520,7 +1528,7 @@ describe('/account/passwordless/resend_code', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1696,7 +1704,7 @@ describe('passwordless service validation', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -2000,7 +2008,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,

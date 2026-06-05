@@ -34,7 +34,11 @@ const {
 const {
   VX_REGEX: CLIENT_SALT_STRING,
 } = require('../../lib/routes/utils/client-key-stretch');
-const { ReasonForDeletion } = require('./cloud-tasks');
+// Import ReasonForDeletion from its source package rather than the local
+// ./cloud-tasks route module, which re-exports it: ./cloud-tasks imports this
+// validators module, so requiring it here created a circular dependency that
+// left ReasonForDeletion undefined depending on module load order.
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;

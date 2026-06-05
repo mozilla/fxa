@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Container from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import { v4 as uuidv4 } from 'uuid';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
@@ -47,7 +49,7 @@ describe('AccountDeleteManager', () => {
   let mockOAuthDb: any;
   let mockPush: any;
   let mockPushbox: any;
-  let mockStatsd: any;
+  let mockStatsd: DeepMocked<StatsD>;
   let mockGlean: any;
   let mockMailer: any;
   let mockStripeHelper: any;
@@ -89,11 +91,11 @@ describe('AccountDeleteManager', () => {
     mockOAuthDb = {};
     mockPush = mocks.mockPush();
     mockPushbox = mocks.mockPushbox();
-    mockStatsd = { increment: jest.fn() };
+    mockStatsd = createMock<StatsD>();
     mockGlean = mocks.mockGlean();
     mockMailer = mocks.mockMailer();
     mockStripeHelper = {};
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockAppleIap = {
       purchaseManager: {
         deletePurchases: jest.fn().mockResolvedValue(undefined),

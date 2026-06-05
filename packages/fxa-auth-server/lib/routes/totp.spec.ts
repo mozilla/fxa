@@ -6,7 +6,11 @@ import { Container } from 'typedi';
 import { AppError as authErrors } from '@fxa/accounts/errors';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import crypto from 'crypto';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const otplib = require('otplib');
 
@@ -43,7 +47,7 @@ const sessionId = 'id';
 function setup(results: any, errors: any, routePath: string, reqOpts: any) {
   results = results || {};
   errors = errors || {};
-  log = mocks.mockLog();
+  log = createMock<AuthLogger>();
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
@@ -97,7 +101,7 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
     }
     return Promise.resolve();
   });
-  const statsd = mocks.mockStatsd();
+  const statsd = createMock<StatsD>();
   routes = makeRoutes({
     log,
     db,
@@ -172,7 +176,7 @@ describe('totp', () => {
     };
 
     mocks.mockOAuthClientInfo();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
 
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(BackupCodeManager, mockBackupCodeManager);

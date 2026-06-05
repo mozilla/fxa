@@ -30,6 +30,11 @@ jest.mock('../../oauth/client', () => ({
   },
 }));
 
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../../test/fixtures/fxa-mailer';
+
 const mocks = require('../../../test/mocks');
 const oauthUtils = require('./oauth');
 
@@ -95,6 +100,8 @@ describe('newTokenNotification', () => {
   let credentials: any;
   let grant: any;
 
+  afterAll(() => uninstallMockFxaMailer());
+
   beforeEach(() => {
     db = mocks.mockDB({
       email: TEST_EMAIL,
@@ -102,7 +109,7 @@ describe('newTokenNotification', () => {
       uid: MOCK_UID,
     });
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     devices = mocks.mockDevices();
     credentials = {
