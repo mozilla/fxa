@@ -4,10 +4,12 @@
 
 import { EventEmitter } from 'events';
 import Container from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
 
 const bounces = require('./bounces');
 const { AppError: error } = require('@fxa/accounts/errors');
-const { mockLog, mockStatsd } = require('../../test/mocks');
 const { StripeHelper } = require('../payments/stripe');
 const emailHelpers = require('./utils/helpers');
 
@@ -34,8 +36,8 @@ describe('bounce messages', () => {
   }
 
   beforeEach(() => {
-    log = mockLog();
-    statsd = mockStatsd();
+    log = createMock<AuthLogger>();
+    statsd = createMock<StatsD>();
     mockConfig = {
       smtp: {
         bounces: {

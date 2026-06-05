@@ -4,7 +4,8 @@
 
 import crypto from 'crypto';
 import { MetricsRedis } from '../metricsCache';
-import mocks from '../../test/mocks';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 import contextFactory from './context';
 
 const cache = {
@@ -42,7 +43,7 @@ describe('metricsContext', () => {
     cache.get.mockReset().mockImplementation(() => results.get);
     (MetricsRedis as jest.Mock).mockClear();
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     config = {
       redis: {
         metrics: {
@@ -674,7 +675,7 @@ describe('metricsContext', () => {
     // graph; just call the already-loaded factory with a fresh config
     // instead of re-requiring `./context`.
     function makeValidateContext(flowIdKey = 'test') {
-      const mockLog = mocks.mockLog();
+      const mockLog = createMock<AuthLogger>();
       const mockConfig = {
         redis: { metrics: {} },
         metrics: {

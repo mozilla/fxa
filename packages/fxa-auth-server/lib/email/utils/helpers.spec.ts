@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Container from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
 import { AccountEventsManager } from '../../account-events';
+import { AuthLogger } from '../../types';
 
 const amplitude = jest.fn();
 
 jest.mock('../../../lib/metrics/amplitude', () => () => amplitude);
 
-const { mockLog } = require('../../../test/mocks');
 const emailHelpers = require('./helpers');
 
 describe('email utils helpers', () => {
@@ -49,7 +50,7 @@ describe('email utils helpers', () => {
 
   describe('logEmailEventSent', () => {
     it('should check headers case-insensitively', () => {
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const message = {
         email: 'user@example.domain',
         template: 'verifyEmail',
@@ -66,7 +67,7 @@ describe('email utils helpers', () => {
     });
 
     it('should log an event per CC email', () => {
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const message = {
         email: 'user@example.domain',
         ccEmails: ['noreply@gmail.com', 'noreply@yahoo.com'],
@@ -93,7 +94,7 @@ describe('email utils helpers', () => {
   });
 
   it('logEmailEventSent should call amplitude correctly', async () => {
-    emailHelpers.logEmailEventSent(mockLog(), {
+    emailHelpers.logEmailEventSent(createMock<AuthLogger>(), {
       email: 'foo@example.com',
       ccEmails: ['bar@example.com', 'baz@example.com'],
       template: 'verifyEmail',
@@ -141,7 +142,7 @@ describe('email utils helpers', () => {
 
   it('logEmailEventFromMessage should call amplitude correctly', async () => {
     emailHelpers.logEmailEventFromMessage(
-      mockLog(),
+      createMock<AuthLogger>(),
       {
         email: 'foo@example.com',
         ccEmails: ['bar@example.com', 'baz@example.com'],
@@ -196,7 +197,7 @@ describe('email utils helpers', () => {
     let log: any;
 
     beforeEach(() => {
-      log = mockLog();
+      log = createMock<AuthLogger>();
     });
 
     it('logs an error if message.mail is missing', () => {

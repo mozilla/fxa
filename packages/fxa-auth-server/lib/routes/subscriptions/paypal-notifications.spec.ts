@@ -4,6 +4,8 @@
 
 import * as uuid from 'uuid';
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
 const dbStub = {
   getPayPalBAByBAId: jest.fn(),
@@ -58,7 +60,7 @@ describe('PayPalNotificationHandler', () => {
       },
     };
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
 
     db = mocks.mockDB({

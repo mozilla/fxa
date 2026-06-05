@@ -2,14 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
+
 const uuid = require('uuid');
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
+// FxaMailer is resolved from the TypeDI Container at route-factory construction
+// time, so it must be installed before makeRoutes() runs (see the describe-scope
+// install below). Tear it down once for the whole file to keep cross-file isolation.
+afterAll(() => {
+  uninstallMockFxaMailer();
+});
+
 function makeRoutes(options: any = {}) {
   const config = options.config || {};
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
@@ -36,7 +50,7 @@ function runTest(route: any, request: any, assertions?: (res: any) => void) {
 describe('/account/login/send_unblock_code', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const email = 'unblock@example.com';
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
     payload: {
@@ -48,8 +62,9 @@ describe('/account/login/send_unblock_code', () => {
       },
     },
   });
-  const mockMailer = mocks.mockMailer();
-  const mockFxaMailer = mocks.mockFxaMailer();
+  // Mock the modern FxaMailer (the legacy `mailer` else-branch is not exercised:
+  // canSend defaults to true, so makeRoutes leaves `mailer` as the default stub).
+  const mockFxaMailer = installMockFxaMailer();
   const mockDb = mocks.mockDB({
     uid: uid,
     email: email,
@@ -61,7 +76,6 @@ describe('/account/login/send_unblock_code', () => {
     config: config,
     db: mockDb,
     log: mockLog,
-    mailer: mockMailer,
   });
   const route = getRoute(accountRoutes, '/account/login/send_unblock_code');
 

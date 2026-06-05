@@ -4,8 +4,10 @@
 
 import { Container } from 'typedi';
 import { DateTime, Duration, Interval } from 'luxon';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
-const { mockLog } = require('../../test/mocks');
+const mockLog = createMock<AuthLogger>();
 const { CurrencyHelper } = require('./currencies');
 const { StripeHelper } = require('./stripe');
 const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');

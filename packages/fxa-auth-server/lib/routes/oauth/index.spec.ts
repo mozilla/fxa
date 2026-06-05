@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+
 // Mock the OAuth DB to prevent real MySQL connections
 jest.mock('../../oauth/db', () => ({
   getClient: jest.fn().mockResolvedValue(null),
@@ -74,7 +77,7 @@ describe('/oauth/ routes', () => {
   }
 
   beforeEach(() => {
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockConfig = {
       oauth: {},
       oauthServer: {

@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+import { installMockFxaMailer } from '../../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../../test/mocks');
 const Password = require('../../crypto/password')({}, {});
@@ -24,7 +27,7 @@ const otpOptions = {
 };
 
 function makeSigninUtils(options: any) {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const config = options.config || {};
   config.authFirestore = config.authFirestore || {};
   config.securityHistory = config.securityHistory || {};
@@ -240,7 +243,7 @@ describe('checkCustomsAndLoadAccount', () => {
       uid: TEST_UID,
       email: TEST_EMAIL,
     });
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = {
       v2Enabled: jest.fn(() => true),
       check: jest.fn(() => Promise.resolve()),
@@ -695,10 +698,10 @@ describe('sendSigninNotifications', () => {
     clock = jest.useFakeTimers({ now: 1769555935958 });
 
     db = mocks.mockDB();
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     mailer = mocks.mockMailer();
     mocks.mockOAuthClientInfo();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     metricsContext = mocks.mockMetricsContext();
     request = mocks.mockRequest(defaultMockRequestData(log, metricsContext));
     accountRecord = {

@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
 
 // Mutable mock implementations — changed per-test via makeRoutes(options, requireMocks)
 // eslint-disable-next-line no-var
@@ -51,13 +57,8 @@ const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
 
-// Set up mock FxaMailer in Container before loading linked-accounts
-const mockFxaMailer: any = {
-  canSend: jest.fn().mockReturnValue(true),
-  sendPostAddLinkedAccountEmail: jest.fn().mockResolvedValue(undefined),
-};
-const { FxaMailer } = require('../senders/fxa-mailer');
-Container.set(FxaMailer, mockFxaMailer);
+// Install a typed mock FxaMailer in the Container before loading linked-accounts
+const mockFxaMailer = installMockFxaMailer();
 
 const { linkedAccountRoutes } = require('./linked-accounts');
 
@@ -70,11 +71,11 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
   const config = options.config || {};
   config.signinConfirmation = config.signinConfirmation || {};
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || mocks.mockMailer();
   const profile = options.profile || mocks.mockProfile();
-  const statsd = options.statsd || { increment: jest.fn() };
+  const statsd = options.statsd || createMock<StatsD>();
 
   // Apply per-test mock implementations
   if (requireMocks) {
@@ -112,6 +113,8 @@ function runTest(route: any, request: any, assertions?: any) {
   }).then(assertions);
 }
 
+afterAll(() => uninstallMockFxaMailer());
+
 describe('/linked_account', () => {
   let mockLog: any,
     mockDB: any,
@@ -120,7 +123,7 @@ describe('/linked_account', () => {
     mockRequest: any,
     route: any,
     axiosMock: any,
-    statsd: any;
+    statsd: DeepMocked<StatsD>;
 
   const UID = 'fxauid';
 
@@ -132,7 +135,7 @@ describe('/linked_account', () => {
       };
 
       beforeEach(async () => {
-        mockLog = mocks.mockLog();
+        mockLog = createMock<AuthLogger>();
         mockDB = mocks.mockDB({
           email: mockGoogleUser.email,
           uid: UID,
@@ -141,7 +144,7 @@ describe('/linked_account', () => {
           googleAuthConfig: { clientId: 'OooOoo' },
         };
         mockMailer = mocks.mockMailer();
-        mockFxaMailer = mocks.mockFxaMailer();
+        mockFxaMailer = installMockFxaMailer();
         mocks.mockOAuthClientInfo();
         mockRequest = mocks.mockRequest({
           log: mockLog,
@@ -151,7 +154,7 @@ describe('/linked_account', () => {
             service: 'sync',
           },
         });
-        statsd = { increment: jest.fn() };
+        statsd = createMock<StatsD>();
 
         const OAuth2ClientMock = class OAuth2Client {
           verifyIdToken() {
@@ -425,7 +428,7 @@ describe('/linked_account', () => {
       -----END PRIVATE KEY-----`;
 
       beforeEach(async () => {
-        mockLog = mocks.mockLog();
+        mockLog = createMock<AuthLogger>();
         mockDB = mocks.mockDB({
           email: mockAppleUser.email,
           uid: UID,
@@ -650,7 +653,7 @@ describe('/linked_account', () => {
     };
 
     beforeEach(async () => {
-      mockLog = mocks.mockLog();
+      mockLog = createMock<AuthLogger>();
       mockDB = mocks.mockDB({
         email: mockGoogleUser.email,
         uid: UID,
@@ -799,7 +802,7 @@ describe('/linked_account', () => {
     }
 
     function setupTest(options: any) {
-      mockLog = mocks.mockLog();
+      mockLog = createMock<AuthLogger>();
       mockDB = mocks.mockDB({
         uid: UID,
         sessions: [
@@ -826,7 +829,7 @@ describe('/linked_account', () => {
       mockRequest = mocks.mockRequest({
         payload: [],
       });
-      statsd = { increment: jest.fn() };
+      statsd = createMock<StatsD>();
 
       route = getRoute(
         makeRoutes(
@@ -1159,7 +1162,7 @@ describe('/linked_account', () => {
     }
 
     function setupTest(options: any) {
-      mockLog = mocks.mockLog();
+      mockLog = createMock<AuthLogger>();
       mockDB = mocks.mockDB({
         uid: UID,
         sessions: [
@@ -1182,7 +1185,7 @@ describe('/linked_account', () => {
       mockRequest = mocks.mockRequest({
         payload: [],
       });
-      statsd = { increment: jest.fn() };
+      statsd = createMock<StatsD>();
 
       route = getRoute(
         makeRoutes(

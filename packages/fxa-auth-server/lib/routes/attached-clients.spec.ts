@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
@@ -35,7 +37,7 @@ function makeRoutes(options: any = {}) {
   };
   config.publicUrl = 'https://public.url';
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const push = options.push || require('../push')(log, db, {});
   const devices = options.devices || require('../devices')(log, db, push);
@@ -66,7 +68,7 @@ describe('/account/attached_clients', () => {
   beforeEach(() => {
     config = {};
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     db = mocks.mockDB();
     request = mocks.mockRequest({
       credentials: {
@@ -412,7 +414,7 @@ describe('/account/attached_client/destroy', () => {
   beforeEach(() => {
     config = {};
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     db = mocks.mockDB();
     devices = mocks.mockDevices({});
     request = mocks.mockRequest({
@@ -627,7 +629,7 @@ describe('/account/attached_oauth_clients', () => {
   beforeEach(() => {
     config = {};
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     db = mocks.mockDB();
     request = mocks.mockRequest({
       credentials: {

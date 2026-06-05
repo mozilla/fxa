@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const { ERRNO } = require('@fxa/accounts/errors');
 const uuid = require('uuid');
@@ -164,7 +167,7 @@ const mockIapOffering = {
 };
 
 const mocks = require('../../../test/mocks');
-const log = mocks.mockLog();
+const log = createMock<AuthLogger>();
 const db = mocks.mockDB({
   uid: UID,
   email: TEST_EMAIL,

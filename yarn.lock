@@ -30982,6 +30982,7 @@ __metadata:
     "@fluent/bundle": "npm:^0.18.0"
     "@fluent/dom": "npm:^0.10.0"
     "@fluent/langneg": "npm:^0.7.0"
+    "@golevelup/ts-jest": "npm:^0.5.0"
     "@google-cloud/tasks": "npm:^5.5.0"
     "@googlemaps/google-maps-services-js": "npm:^3.4.0"
     "@hapi/hapi": "npm:^20.2.1"

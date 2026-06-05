@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
+
 const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
@@ -25,11 +33,11 @@ function makeRoutes(options: any = {}) {
   config.oauth = config.oauth || {};
   config.smtp = config.smtp || {};
   const db = options.db || mocks.mockDB();
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const mailer = options.mailer || mocks.mockMailer();
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const glean = options.glean || gleanMock;
-  const statsd = options.statsd || mocks.mockStatsd();
+  const statsd = options.statsd || createMock<StatsD>();
 
   Container.set(
     AccountEventsManager,
@@ -108,13 +116,15 @@ function getExpectedOtpCode(options: any = {}, secret = 'abcdef') {
   return authenticator.generate();
 }
 
+afterAll(() => uninstallMockFxaMailer());
+
 describe('/session/status', () => {
   let log: any, db: any, config: any, routes: any, route: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    log = mocks.mockLog();
-    mocks.mockFxaMailer();
+    log = createMock<AuthLogger>();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     db = {
       account: () => {},
@@ -417,7 +427,7 @@ describe('/session/reauth', () => {
     SessionToken: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     config = {};
     customs = {
       checkAuthenticated: () => {
@@ -429,7 +439,7 @@ describe('/session/reauth', () => {
       uid: TEST_UID,
     });
     mailer = mocks.mockMailer();
-    mocks.mockFxaMailer();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
     SessionToken = require('../tokens/index')(log, config).SessionToken;
@@ -723,7 +733,7 @@ describe('/session/destroy', () => {
 
   beforeEach(() => {
     db = mocks.mockDB();
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     const config = {};
     securityEventStub = jest.fn();
     const routes = makeRoutes({
@@ -823,8 +833,8 @@ describe('/session/duplicate', () => {
 
   beforeEach(async () => {
     db = mocks.mockDB({});
-    log = mocks.mockLog();
-    mocks.mockFxaMailer();
+    log = createMock<AuthLogger>();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     const config = {};
     const routes = makeRoutes({ log, config, db });
@@ -963,15 +973,15 @@ describe('/session/verify_code', () => {
 
   function setup(options: any = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
     customs.check = jest.fn(() => Promise.resolve(true));
     cadReminders = mocks.mockCadReminders();
-    const statsd = mocks.mockStatsd();
+    const statsd = createMock<StatsD>();
     const config = {};
 
     const routes = makeRoutes({
@@ -1124,9 +1134,9 @@ describe('/session/resend_code', () => {
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount });
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     oauthClientInfo = mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = {
