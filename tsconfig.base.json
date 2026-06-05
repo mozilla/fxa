@@ -41,6 +41,7 @@
         "libs/accounts/recovery-phone/src/index.ts"
       ],
       "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
+      "@fxa/entitlements/metering": ["libs/entitlements/metering/src/index.ts"],
       "@fxa/google": ["libs/google/src/index.ts"],
       "@fxa/payments/api-server": ["libs/payments/api-server/src/index.ts"],
       "@fxa/payments/auth": ["libs/payments/auth/src/index.ts"],

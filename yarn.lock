@@ -10607,6 +10607,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openmeter/sdk@npm:1.0.0-beta.228":
+  version: 1.0.0-beta.228
+  resolution: "@openmeter/sdk@npm:1.0.0-beta.228"
+  dependencies:
+    openapi-fetch: "npm:0.17.0"
+    openapi-typescript-helpers: "npm:0.1.0"
+  peerDependencies:
+    react: ">=18.0.0"
+  checksum: 10c0/ed10089167f24351a06b878dd330c91a9bbc52c510ec36ffa442e85cc396412e51712b1de5fa272ae9c234eae39d5166b53be5388c3f9930b3b328c49436a0c3
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/api-logs@npm:0.208.0":
   version: 0.208.0
   resolution: "@opentelemetry/api-logs@npm:0.208.0"
@@ -31691,6 +31703,7 @@ __metadata:
     "@nx/web": "npm:21.2.4"
     "@nx/webpack": "npm:21.2.4"
     "@nx/workspace": "npm:21.2.4"
+    "@openmeter/sdk": "npm:1.0.0-beta.228"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-node": "npm:^0.75.0"
     "@opentelemetry/sdk-trace-base": "npm:^2.0.0"
@@ -42028,12 +42041,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"openapi-fetch@npm:0.17.0":
+  version: 0.17.0
+  resolution: "openapi-fetch@npm:0.17.0"
+  dependencies:
+    openapi-typescript-helpers: "npm:^0.1.0"
+  checksum: 10c0/7e981d28c7839469662a73d44f3a85e05c1a5842a8afd5d6e36c75cbf085aa7f705862871cc7ce07c04605ddc936af3d5850c2cc66d193ee1fea07e7135da192
+  languageName: node
+  linkType: hard
+
 "openapi-fetch@npm:^0.13.5":
   version: 0.13.8
   resolution: "openapi-fetch@npm:0.13.8"
   dependencies:
     openapi-typescript-helpers: "npm:^0.0.15"
   checksum: 10c0/28fd9b2f23be8ed1b8ac489ae9715b087de6a70be4ce3c40285d9a1fa1f033ecd2d08f767765c5a45a1797bb0996bd331cc57fb5bac1e259d999b58567f029ac
+  languageName: node
+  linkType: hard
+
+"openapi-typescript-helpers@npm:0.1.0, openapi-typescript-helpers@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "openapi-typescript-helpers@npm:0.1.0"
+  checksum: 10c0/3a148cf7d6a7f51124966a0fef64c2fbcf1a5a0a1e6320dd627f0733787ac4259877be43f7a7a2910684e3d5d238c6a9655c6f9e1f3adaa9a2a61477e3b8481f
   languageName: node
   linkType: hard
 
