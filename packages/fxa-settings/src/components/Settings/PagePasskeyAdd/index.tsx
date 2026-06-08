@@ -34,6 +34,7 @@ import {
 import { AuthUiErrorNos } from '../../../lib/auth-errors/auth-errors';
 import {
   passkeyCanceledOrTimedOutMessage,
+  passkeyCouldNotCompleteMessage,
   unsupportedPasskeyMessage,
 } from '../../../lib/passkeys/unsupported-message';
 
@@ -185,11 +186,11 @@ export const PagePasskeyAdd = () => {
             },
           });
           if (categorized.errorType === WebAuthnErrorType.NotSupported) {
-            // Defensive: MfaGuardPagePasskeyAdd should have caught this before
-            // MFA, so we only reach here if detection raced. Push the alert and
-            // leave the user on the page — they can use Cancel to navigate
-            // away themselves.
-            alertBar.error(unsupportedPasskeyMessage());
+            // NotSupportedError at this stage means the ceremony was refused
+            // (e.g., algorithm/attestation mismatch, requireResidentKey on a non-RK authenticator, etc.),
+            // not that the browser doesn't support WebAuthn at all — the MfaGuard's pre-check would have caught that.
+            alertBar.error(passkeyCouldNotCompleteMessage());
+            navigateToSettings();
             return;
           }
           if (

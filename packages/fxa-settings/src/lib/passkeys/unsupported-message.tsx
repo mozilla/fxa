@@ -20,21 +20,27 @@ export const unsupportedPasskeyMessage = (): ReactNode => (
   </>
 );
 
-/**
- * Shown when the passkey ceremony is cancelled or times out — covers the
- * in-page Cancel link, the AbortError surfaced by our timeout wrapper, and
- * the TimeoutError raised by browsers that distinguish it. NotAllowedError
- * is NOT routed here: WebAuthn conflates cancel with UV failure and other
- * denials behind that DOMException, so it falls through to the generic
- * categorizer fallback — see PagePasskeyAdd dispatcher. Matches the Figma
- * spec for FXA-13805 / FXA-13806.
- */
 export const passkeyCanceledOrTimedOutMessage = (): ReactNode => (
   <>
     <FtlMsg id="passkey-registration-canceled-v2">
       <span>Passkey setup timed out or was cancelled.</span>
     </FtlMsg>{' '}
     <FtlMsg id="passkey-registration-canceled-link">
+      <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
+        Learn more
+      </LinkExternal>
+    </FtlMsg>
+  </>
+);
+
+export const passkeyCouldNotCompleteMessage = (): ReactNode => (
+  <>
+    <FtlMsg id="passkey-registration-error-could-not-complete">
+      <span>
+        Passkey setup couldn’t be completed. Try a different method or device.
+      </span>
+    </FtlMsg>{' '}
+    <FtlMsg id="passkey-registration-error-could-not-complete-link">
       <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
         Learn more
       </LinkExternal>

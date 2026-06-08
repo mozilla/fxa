@@ -23,6 +23,13 @@ passkey-registration-error-not-supported-v2 = Your browser or device doesn’t s
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Learn more
 
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Passkey setup couldn’t be completed. Try a different method or device.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Learn more
+
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Passkeys can’t be set up on this page. Use the secure site and try again.
 

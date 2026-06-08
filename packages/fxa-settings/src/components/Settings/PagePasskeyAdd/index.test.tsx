@@ -35,6 +35,7 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
 jest.mock('../../../lib/passkeys/unsupported-message', () => ({
   unsupportedPasskeyMessage: () => 'mock-unsupported-message',
   passkeyCanceledOrTimedOutMessage: () => 'mock-canceled-or-timed-out-message',
+  passkeyCouldNotCompleteMessage: () => 'mock-could-not-complete-message',
 }));
 
 // Mock Sentry
@@ -263,7 +264,7 @@ describe('PagePasskeyAdd', () => {
     );
   });
 
-  it('renders the unsupported-passkey alert (with Learn more link) on NotSupportedError', async () => {
+  it('shows the could-not-complete banner and navigates to settings on NotSupportedError from the ceremony', async () => {
     const notSupportedError = new DOMException(
       'not supported',
       'NotSupportedError'
@@ -279,13 +280,18 @@ describe('PagePasskeyAdd', () => {
 
     renderPage();
     await waitFor(() => {
-      expect(mockAlertError).toHaveBeenCalledTimes(1);
+      expect(mockAlertError).toHaveBeenCalledWith(
+        'mock-could-not-complete-message'
+      );
     });
-    expect(mockAlertError).toHaveBeenCalledWith('mock-unsupported-message');
-    // Defensive case: pre-check at MfaGuardPagePasskeyAdd is the
-    // primary handler. If we reach here (race), don't auto-redirect — the user
-    // can use Cancel to navigate away.
-    expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'not_supported' },
+    });
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
   });
 
   it('shows the cancel/timeout banner and navigates to settings on TimeoutError', async () => {
