@@ -4,6 +4,7 @@
 
 import { expect } from '@playwright/test';
 import { TestCardDefaults } from '../../lib/stripe-test-cards';
+import { reportToSentry } from '../../lib/sentry';
 import { BasePaymentPage } from './base';
 
 export class CheckoutPage extends BasePaymentPage {
@@ -61,6 +62,140 @@ export class CheckoutPage extends BasePaymentPage {
 
   get stripeLinkCheckbox() {
     return this.stripeFrame.getByText(/Save (?:my )?information for/i);
+  }
+
+  // PayPal (rendered by @paypal/react-paypal-js inside an iframe)
+
+  /**
+   * The PayPal button iframe rendered by the PayPal JS SDK.
+   * Visible only after the user selects PayPal in the Stripe
+   * PaymentElement accordion.
+   */
+  get paypalButton() {
+    // PayPal renders two iframes: the actual button and a prerender
+    // placeholder. Filter out the prerender frame by name.
+    // The PayPal button is rendered as a clickable div with
+    // role="link", not a semantic <button>.
+    return this.page
+      .frameLocator('iframe[title="PayPal"]:not([name*="prerender"])')
+      .locator('.paypal-button');
+  }
+
+  /**
+   * Select PayPal in the Stripe PaymentElement accordion.
+   * The PaymentElement shows payment method options; clicking the
+   * PayPal radio/accordion item sets selectedPaymentMethod to
+   * 'external_paypal' and reveals the PayPal button.
+   */
+  async selectPayPal() {
+    // The PayPal option is rendered inside the Stripe iframe as an
+    // accordion item. Click it to switch the payment method.
+    const paypalOption = this.stripeFrame.getByText(/PayPal/i);
+    await expect(paypalOption).toBeVisible({ timeout: 10_000 });
+    await paypalOption.click();
+    // Wait for the PayPal button iframe to appear (exclude prerender frame)
+    const paypalIframe = this.page.locator(
+      'iframe[title="PayPal"]:not([name*="prerender"])'
+    );
+    await expect(paypalIframe).toBeVisible({ timeout: 30_000 });
+  }
+
+  /**
+   * Handle the PayPal sandbox popup that opens when the PayPal
+   * button is clicked. Logs in with sandbox credentials and
+   * approves the payment.
+   *
+   * Returns `true` on success. On sandbox failure, logs a warning
+   * to Sentry and returns `false` so the test can skip gracefully
+   * without blocking deployment.
+   *
+   * The popup is a new browser window opened by PayPal's JS SDK.
+   * Playwright captures it via the 'popup' event on the page context.
+   */
+  async handlePayPalPopup(
+    sandboxEmail: string,
+    sandboxPassword: string
+  ): Promise<boolean> {
+    try {
+      // Listen for the popup before clicking
+      const popupPromise = this.page.context().waitForEvent('page', {
+        timeout: 60_000,
+      });
+
+      await this.paypalButton.click();
+
+      const popup = await popupPromise;
+      await popup.waitForURL(/paypal\.com/, { timeout: 30_000 });
+      await popup.waitForLoadState('domcontentloaded');
+
+      // PayPal sandbox login — multi-step flow: email → next → password → login
+      await popup.locator('#email').fill(sandboxEmail);
+      await popup.getByRole('button', { name: /Next/i }).click();
+      await expect(popup.locator('#password')).toBeVisible({ timeout: 10_000 });
+      await expect(popup.locator('#password')).toBeEditable({ timeout: 5_000 });
+      await popup.locator('#password').click();
+      await popup.locator('#password').pressSequentially(sandboxPassword, {
+        delay: 50,
+      });
+      await popup.getByRole('button', { name: /Log in/i }).click();
+
+      // Wait for the consent/approve page and click the submit button
+      const consentButton = popup.locator('#consentButton');
+      await expect(consentButton).toBeVisible({ timeout: 30_000 });
+      await consentButton.click();
+
+      // Popup closes after approval; wait for it
+      await popup.waitForEvent('close', { timeout: 30_000 });
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      // eslint-disable-next-line no-console
+      console.warn('PayPal sandbox issue:', message);
+      await reportToSentry(`PayPal sandbox checkout failed: ${message}`, {
+        test: 'PayPal checkout success',
+      });
+      return false;
+    }
+  }
+
+  // Processing page
+
+  get processingSection() {
+    return this.page.getByTestId('payment-processing');
+  }
+
+  get loadingSpinner() {
+    return this.page.getByTestId('loading-spinner');
+  }
+
+  get processingHeading() {
+    return this.page.getByRole('heading', {
+      name: /process your payment/i,
+    });
+  }
+
+  // Success page (checkout-specific; shared locators are in BasePaymentPage)
+
+  get paymentAmount() {
+    return this.page
+      .locator('section[aria-labelledby="subscription-confirmation-heading"]')
+      .getByText(/\$[\d.]+/);
+  }
+
+  get productName() {
+    return this.page.getByTestId('plan-details-product');
+  }
+
+  // Error page (checkout-specific; shared locators are in BasePaymentPage)
+
+  get errorBanner() {
+    return this.page.locator(
+      'section[aria-labelledby="page-information-heading"]'
+    );
+  }
+
+  get retryButton() {
+    return this.page.getByRole('link', { name: /Try again/i });
   }
 
   // Location page (shown when geolocation can't determine tax address)
