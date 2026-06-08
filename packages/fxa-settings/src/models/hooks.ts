@@ -303,6 +303,16 @@ export function useClientInfoState() {
             headers: { 'Content-Type': 'application/json' },
           }
         );
+        Sentry.addBreadcrumb({
+          message: 'OAuth Client Response',
+          category: 'useClientInfoState.fetch',
+          data: {
+            clientId: clientId,
+            ok: response?.ok,
+            status: response?.status,
+            statusText: response?.statusText
+          }
+        })
 
         if (!response.ok) {
           throw new Error(`Failed to fetch client info: ${response.status}`);
