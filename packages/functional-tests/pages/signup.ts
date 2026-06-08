@@ -20,7 +20,9 @@ export class SignupPage extends BaseLayout {
   }
 
   get submitButton() {
-    return this.page.getByRole('button', { name: 'Sign up or sign in' });
+    return this.page
+      .getByRole('button')
+      .and(this.page.locator('button[type="submit"]'));
   }
 
   get signupFormHeading() {
