@@ -765,7 +765,7 @@ describe('/oauth/token POST', () => {
 
     it('handles token exchange and passes existingDeviceId to newTokenNotification', async () => {
       const PROFILE_SCOPE = 'profile';
-      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue(undefined);
       const sessionTokenStub = jest
         .fn()
         .mockRejectedValue(new Error('should not be called'));
@@ -861,7 +861,7 @@ describe('/oauth/token POST', () => {
 
     it('handles token exchange when no existing device is found (existingDeviceId is undefined)', async () => {
       const PROFILE_SCOPE = 'profile';
-      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue(undefined);
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(
@@ -1289,7 +1289,7 @@ describe('/oauth/token POST', () => {
 
   describe('fxa-credentials with reason=token_migration', () => {
     it('calls newTokenNotification with skipEmail: true when reason is token_migration', async () => {
-      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue(undefined);
       const sessionTokenStub = jest
         .fn()
         .mockRejectedValue(new Error('should not be called'));
@@ -1354,7 +1354,7 @@ describe('/oauth/token POST', () => {
     });
 
     it('calls newTokenNotification with skipEmail: false when reason is not provided', async () => {
-      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue(undefined);
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(

@@ -177,7 +177,7 @@ export function spawnAuthServer(
     LOG_LEVEL: printLogs ? 'info' : 'error',
     AUTH_GLEAN_ENABLED: 'false',
     NODE_NO_WARNINGS: printLogs ? '' : '1',
-  };
+  } as unknown as typeof process.env;
 
   const serverProcess = spawn(
     'node',

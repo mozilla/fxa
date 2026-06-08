@@ -7,6 +7,7 @@ import { Container } from 'typedi';
 import { deleteCollection, deepCopy } from '../local/payments/util';
 import { AuthFirestore, AuthLogger, AppConfig } from '../../lib/types';
 import { setupFirestore } from '../../lib/firestore-db';
+import { ConfigType } from '../../config';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 
 const plan = require('fxa-auth-server/test/local/payments/fixtures/stripe/plan2.json');
@@ -180,7 +181,7 @@ describe('#integration - convert', () => {
     mockLog.error = jest.fn().mockReturnValue({});
     mockLog.info = jest.fn().mockReturnValue({});
     mockLog.debug = jest.fn().mockReturnValue({});
-    const firestore = setupFirestore(mockConfig);
+    const firestore = setupFirestore(mockConfig as unknown as ConfigType);
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, {});
     Container.set(AppConfig, mockConfig);
@@ -357,8 +358,8 @@ describe('#integration - convert', () => {
     const stubFsAccess = jest.spyOn(fs.promises, 'access').mockResolvedValue();
     paymentConfigManager.storeProductConfig = jest.fn();
     paymentConfigManager.storePlanConfig = jest.fn();
-    converter.writeToFileProductConfig = jest.fn().mockResolvedValue();
-    converter.writeToFilePlanConfig = jest.fn().mockResolvedValue();
+    converter.writeToFileProductConfig = jest.fn().mockResolvedValue(undefined);
+    converter.writeToFilePlanConfig = jest.fn().mockResolvedValue(undefined);
 
     const argsLocal = { ...args, target: 'local' };
     await converter.convert(argsLocal);

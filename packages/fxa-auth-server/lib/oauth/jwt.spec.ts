@@ -16,10 +16,27 @@ import jsonwebtoken from 'jsonwebtoken';
 import * as JWT from './jwt';
 import * as keys from './keys';
 
+// The JS `jwt.js` module is type-inferred: `sign`'s `options` arg is not marked
+// optional in JSDoc (it is at runtime), and `verify`'s return type is inferred
+// from `promisify` as the callback type rather than the resolved payload. These
+// typed views keep the test honest against the real runtime shapes without
+// touching the production module.
+const sign = JWT.sign as (
+  claims: Record<string, unknown>,
+  options?: Record<string, unknown>
+) => Promise<string>;
+const verify = JWT.verify as unknown as (
+  jwt: string,
+  options?: Record<string, unknown>
+) => Promise<Record<string, unknown>>;
+// The `./keys` mock factory replaces `publicPEM` with a jest.fn; the CommonJS
+// `exports.publicPEM` is not visible on the namespace import's type.
+const publicPEM = (keys as unknown as { publicPEM: jest.Mock }).publicPEM;
+
 describe('lib/jwt', () => {
   describe('sign', () => {
     it('signs the claims, passes on options', async () => {
-      const jwt = await JWT.sign(
+      const jwt = await sign(
         {
           jti: 'foo',
         },
@@ -32,92 +49,88 @@ describe('lib/jwt', () => {
 
       const decoded = jsonwebtoken.decode(jwt, { json: true, complete: true });
 
-      expect(decoded.header.typ).toBe('custom jwt');
-      expect(decoded.payload.jti).toBe('foo');
+      expect(decoded?.header.typ).toBe('custom jwt');
+      expect(decoded?.payload.jti).toBe('foo');
     });
 
     describe('verify', () => {
       it('fails if JWT is invalid', async () => {
-        await expect(JWT.verify('invalid token')).rejects.toThrow(
-          'jwt malformed'
-        );
+        await expect(verify('invalid token')).rejects.toThrow('jwt malformed');
       });
 
       it('fails if kid is invalid', async () => {
-        keys.publicPEM.mockImplementationOnce(() => {
+        publicPEM.mockImplementationOnce(() => {
           throw new Error('PEM not found');
         });
 
-        const jwt = await JWT.sign({ foo: 'bar' });
+        const jwt = await sign({ foo: 'bar' });
 
-        await expect(JWT.verify(jwt)).rejects.toThrow(
+        await expect(verify(jwt)).rejects.toThrow(
           'error in secret or public key callback: Invalid kid'
         );
       });
 
       it('fails if signature does not match', async () => {
-        const jwt = await JWT.sign({ foo: 'bar' });
-        await expect(JWT.verify(jwt + '1')).rejects.toThrow(
-          'invalid signature'
-        );
+        const jwt = await sign({ foo: 'bar' });
+        await expect(verify(jwt + '1')).rejects.toThrow('invalid signature');
       });
 
       it('fails if algorithm does not match', async () => {
-        const jwt = await JWT.sign({ foo: 'bar' });
-        await expect(
-          JWT.verify(jwt, { algorithms: ['HS256'] })
-        ).rejects.toThrow('invalid algorithm');
+        const jwt = await sign({ foo: 'bar' });
+        await expect(verify(jwt, { algorithms: ['HS256'] })).rejects.toThrow(
+          'invalid algorithm'
+        );
       });
 
       it('fails if expired', async () => {
-        const jwt = await JWT.sign({
+        const jwt = await sign({
           exp: Math.floor((Date.now() - 2000) / 1000),
           foo: 'bar',
         });
-        await expect(JWT.verify(jwt)).rejects.toThrow('jwt expired');
+        await expect(verify(jwt)).rejects.toThrow('jwt expired');
       });
 
       it('passes if expired and ignoreExpiration option is true', async () => {
-        const jwt = await JWT.sign({
+        const jwt = await sign({
           exp: Math.floor((Date.now() - 2000) / 1000),
           foo: 'bar',
         });
 
-        const verifiedPayload = await JWT.verify(jwt, {
+        const verifiedPayload = await verify(jwt, {
           ignoreExpiration: true,
         });
         expect(verifiedPayload.foo).toBe('bar');
       });
 
       it('fails if invalid issuer', async () => {
-        const jwt = await JWT.sign({ iss: 'another issuer', foo: 'bar' });
-        await expect(
-          JWT.verify(jwt, { issuer: 'custom issuer' })
-        ).rejects.toThrow('jwt issuer invalid. expected: custom issuer');
+        const jwt = await sign({ iss: 'another issuer', foo: 'bar' });
+        await expect(verify(jwt, { issuer: 'custom issuer' })).rejects.toThrow(
+          'jwt issuer invalid. expected: custom issuer'
+        );
       });
 
       it('fails if header `typ` is not expected', async () => {
-        const jwt = await JWT.sign({ foo: 'bar' }, { header: { typ: 'JWT' } });
-        await expect(JWT.verify(jwt, { typ: 'custom JWT' })).rejects.toThrow(
+        const jwt = await sign({ foo: 'bar' }, { header: { typ: 'JWT' } });
+        await expect(verify(jwt, { typ: 'custom JWT' })).rejects.toThrow(
           'error in secret or public key callback: Invalid typ'
         );
       });
 
       it('succeeds if valid', async () => {
-        const jwt = await JWT.sign(
+        const jwt = await sign(
           { foo: 'bar' },
           { header: { typ: 'custom JWT' } }
         );
-        const verifiedPayload = await JWT.verify(jwt, { typ: 'custom JWT' });
+        const verifiedPayload = await verify(jwt, { typ: 'custom JWT' });
         expect(verifiedPayload.foo).toBe('bar');
       });
 
       it('succeeds if valid and typ matches according to comparison rules', async () => {
-        const jwt = await JWT.sign(
+        const jwt = await sign(
           { foo: 'bar' },
           { header: { typ: 'cUstOm-JwT' } }
         );
-        const verifiedPayload = await JWT.verify(jwt, {
+        const verifiedPayload = await verify(jwt, {
           typ: 'application/custom-jwt',
         });
         expect(verifiedPayload.foo).toBe('bar');

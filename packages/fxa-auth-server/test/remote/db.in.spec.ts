@@ -82,7 +82,7 @@ let db: any;
 let redis: any;
 
 beforeAll(async () => {
-  redis = IORedis.createClient({
+  redis = (IORedis as any).createClient({
     host: config.redis.host,
     port: config.redis.port,
     password: config.redis.password,

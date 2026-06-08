@@ -82,11 +82,12 @@ describe('lib/senders/fxa-mailer', () => {
       acceptLanguage: 'en',
       timeZone: 'America/New_York',
       clientName: 'Test Client',
-      device: 'Firefox on Mac',
+      device: { uaBrowser: 'Firefox', uaOS: 'Mac OS X' },
       time: '10:00 AM',
       date: 'January 1, 2026',
       location: { city: 'San Francisco', stateCode: 'CA', country: 'USA' },
       showBannerWarning: false,
+      sync: false,
     };
 
     function stubRender() {
@@ -217,11 +218,12 @@ describe('lib/senders/fxa-mailer', () => {
       acceptLanguage: 'en',
       timeZone: 'America/New_York',
       clientName: 'Test Client',
-      device: 'Firefox on Mac',
+      device: { uaBrowser: 'Firefox', uaOS: 'Mac OS X' },
       time: '10:00 AM',
       date: 'January 1, 2026',
       location: { city: 'San Francisco', stateCode: 'CA', country: 'USA' },
       showBannerWarning: false,
+      sync: false,
       flowId: 'test-flow-id',
       deviceId: 'test-device-id',
     };

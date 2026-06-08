@@ -34,6 +34,7 @@ function deepCopy(object: any) {
 }
 
 describe('StripeFirestore', () => {
+  const firestorePrefix = 'mock-fxa-';
   let firestore: any;
   let stripe: any;
   let customerCollectionDbRef: any;
@@ -48,7 +49,8 @@ describe('StripeFirestore', () => {
     stripeFirestore = new StripeFirestore(
       firestore,
       customerCollectionDbRef,
-      stripe
+      stripe,
+      firestorePrefix
     );
   });
 
@@ -56,7 +58,8 @@ describe('StripeFirestore', () => {
     const stripeFirestore = new StripeFirestore(
       firestore,
       customerCollectionDbRef,
-      stripe
+      stripe,
+      firestorePrefix
     );
     expect(stripeFirestore).toBeTruthy();
   });

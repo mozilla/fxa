@@ -12,6 +12,7 @@ import {
 } from '../passkey-utils';
 import { passkeyRoutes, PasskeyHandler } from './passkeys';
 import { FxaMailer } from '../senders/fxa-mailer';
+import { ConfigType } from '../../config';
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: jest.fn(),
@@ -56,7 +57,7 @@ describe('passkeys routes', () => {
       registrationEnabled: true,
       authenticationEnabled: true,
     },
-  };
+  } as ConfigType;
 
   const mockAuthenticationOptions = {
     challenge: 'auth-challenge-xyz',
@@ -186,7 +187,7 @@ describe('passkeys routes', () => {
             enabled: true,
             registrationEnabled: false,
           },
-        })
+        } as ConfigType)
       ).toThrow('Feature not enabled');
     });
   });
@@ -199,7 +200,7 @@ describe('passkeys routes', () => {
             enabled: true,
             authenticationEnabled: false,
           },
-        })
+        } as ConfigType)
       ).toThrow('Feature not enabled');
     });
   });

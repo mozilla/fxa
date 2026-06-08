@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import url from 'url';
 
 const Client = require('../client')();
@@ -66,7 +69,7 @@ describe.each(testVersions)(
 
       const emailData = await server.mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
-      const query = url.parse(link, true).query;
+      const query = url.parse(link as string, true).query;
       expect(query.uid).toBeTruthy();
       expect(query.code).toBeTruthy();
       expect(query.redirectTo).toBe(options.redirectTo);

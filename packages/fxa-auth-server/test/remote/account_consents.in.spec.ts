@@ -78,7 +78,6 @@ describe('isKnownService (config-driven)', () => {
   });
 
   it('falsy non-string input returns false', () => {
-    // @ts-expect-error - defensive falsy handling
     expect(db.isKnownService(undefined)).toBe(false);
   });
 });

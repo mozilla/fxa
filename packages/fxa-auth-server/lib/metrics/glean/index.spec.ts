@@ -906,7 +906,7 @@ describe('Glean server side events', () => {
   });
 
   describe('logErrorWithGlean hapi preResponse error logger', () => {
-    const error = AppError.requestBlocked();
+    const error = AppError.requestBlocked(false);
 
     // Build a mock glean object where every method is a jest.fn()
     const mockGleanObj = gleanMetrics(config);

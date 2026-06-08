@@ -449,7 +449,8 @@ describe('Customs', () => {
       const originalGet = configModule.config.get.bind(configModule.config);
       jest
         .spyOn(configModule.config, 'get')
-        .mockImplementation((key: string) => {
+        .mockImplementation((...args: unknown[]) => {
+          const key = args[0];
           if (key === 'rateLimit.emailAliasNormalization') {
             return JSON.stringify([
               { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
@@ -535,7 +536,11 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', { ip, email, ip_email });
+      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', {
+        ip,
+        email,
+        ip_email,
+      });
       expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
     });
 

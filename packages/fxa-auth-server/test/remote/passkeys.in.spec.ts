@@ -21,7 +21,7 @@ import {
 
 const Client = require('../client')();
 let server: TestServerInstance;
-let redis: Redis | undefined;
+let redis: Redis.Redis | undefined;
 let db: Awaited<ReturnType<typeof setupAccountDatabase>> | undefined;
 let passkeyRpId: string;
 let passkeyOrigin: string;
