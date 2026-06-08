@@ -11,19 +11,23 @@
     "lib": ["ESNext"],
     // We should remove this, but for whatever reason, esbuild was not complaining
     // about these explicit any
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    // Treat every file as a module so the legacy require()-style specs (which
+    // share top-level const names like `mocks`/`config`/`error`) don't collide
+    // in the global scope once specs are included below.
+    "moduleDetection": "force"
   },
+  // Default config for editors and type-checking: includes test/ and specs so
+  // jest types apply in-editor (no spurious "Cannot find name 'describe'").
+  // Emit and `yarn compile` use tsconfig.build.json, which excludes tests so
+  // dist stays test-free. See FXA-13782.
   "include": [
-    // Note, we want to include javascript and type script files. This ensures
-    // ts aliases (ie imports for @fxa/...) work.
     "bin/*",
     "config/*",
     "lib/*",
     "lib/**/*",
     "scripts/*",
-    "scripts/**/*"
-  ],
-  "exclude": [
-    "lib/**/*.spec.ts"
+    "scripts/**/*",
+    "test/**/*"
   ]
 }
