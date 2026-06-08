@@ -110,7 +110,11 @@ import {
   CartSetupInvalidPromoCodeError,
   CartRestartInvalidPromoCodeError,
   SetupCartAccountNotFoundError,
+  ConcurrentCartCheckoutError,
+  CartProcessingConflictError,
+  UpdatePayPalProcessingCartError,
 } from './cart.error';
+import { CART_PROCESSING_STALE_TIMEOUT_MS } from './cart.repository';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
   LocationConfig,
@@ -1400,9 +1404,10 @@ describe('CartService', () => {
     const mockRequestArgs = CommonMetricsFactory();
 
     it('accepts payment with Paypal', async () => {
-      const mockCart = ResultCartFactory();
+      const mockCart = ResultCartFactory({ state: CartState.START });
       const mockToken = faker.string.uuid();
 
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(cartManager, 'fetchAndValidateCartVersion')
         .mockResolvedValue(mockCart);
@@ -1430,9 +1435,10 @@ describe('CartService', () => {
     });
 
     it('reject with CartStateProcessingError if cart could not be set to processing', async () => {
-      const mockCart = ResultCartFactory();
+      const mockCart = ResultCartFactory({ state: CartState.START });
       const mockToken = faker.string.uuid();
 
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(cartManager, 'fetchAndValidateCartVersion')
         .mockRejectedValue(new Error('test'));
@@ -1452,6 +1458,137 @@ describe('CartService', () => {
 
       expect(checkoutService.payWithPaypal).not.toHaveBeenCalled();
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
+    });
+
+    it('rejects with ConcurrentCartCheckoutError when the cart is already actively processing', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        updatedAt: Date.now(),
+      });
+      const mockToken = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      const setProcessingSpy = jest
+        .spyOn(cartManager, 'setProcessingCart')
+        .mockResolvedValue();
+      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await expect(
+        cartService.checkoutCartWithPaypal(
+          mockCart.id,
+          mockCart.version,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid,
+          mockToken
+        )
+      ).rejects.toBeInstanceOf(ConcurrentCartCheckoutError);
+
+      expect(setProcessingSpy).not.toHaveBeenCalled();
+      expect(checkoutService.payWithPaypal).not.toHaveBeenCalled();
+      expect(finishErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects with ConcurrentCartCheckoutError without finalizing when the claim hits a CartProcessingConflictError', async () => {
+      const mockCart = ResultCartFactory({ state: CartState.START });
+      const mockToken = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'setProcessingCart')
+        .mockRejectedValue(
+          new CartProcessingConflictError(
+            mockCart.id,
+            mockCart.uid ?? faker.string.uuid(),
+            faker.string.uuid()
+          )
+        );
+      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await expect(
+        cartService.checkoutCartWithPaypal(
+          mockCart.id,
+          mockCart.version,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid,
+          mockToken
+        )
+      ).rejects.toBeInstanceOf(ConcurrentCartCheckoutError);
+
+      expect(finishErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects with ConcurrentCartCheckoutError without finalizing when the claim fails but the cart is still processing', async () => {
+      const startCart = ResultCartFactory({ state: CartState.START });
+      const processingCart = ResultCartFactory({
+        id: startCart.id,
+        state: CartState.PROCESSING,
+        updatedAt: Date.now(),
+      });
+      const mockToken = faker.string.uuid();
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockResolvedValueOnce(startCart)
+        .mockResolvedValue(processingCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockRejectedValue(new CartVersionMismatchError(startCart.id));
+      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await expect(
+        cartService.checkoutCartWithPaypal(
+          startCart.id,
+          startCart.version,
+          mockAttributionData,
+          mockRequestArgs,
+          startCart.uid,
+          mockToken
+        )
+      ).rejects.toBeInstanceOf(ConcurrentCartCheckoutError);
+
+      expect(finishErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('finalizes with UpdatePayPalProcessingCartError when the claim fails and the cart is not processing', async () => {
+      const mockCart = ResultCartFactory({ state: CartState.START });
+      const mockToken = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockRejectedValue(new CartVersionMismatchError(mockCart.id));
+      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await expect(
+        cartService.checkoutCartWithPaypal(
+          mockCart.id,
+          mockCart.version,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid,
+          mockToken
+        )
+      ).rejects.toBeInstanceOf(UpdatePayPalProcessingCartError);
+
+      expect(checkoutService.payWithPaypal).not.toHaveBeenCalled();
+      expect(finishErrorSpy).toHaveBeenCalled();
     });
   });
 
@@ -1529,9 +1666,10 @@ describe('CartService', () => {
 
   describe('finalizeCartWithError', () => {
     it('calls cartManager.finishErrorCart', async () => {
-      const mockCart = ResultCartFactory();
+      const mockCart = ResultCartFactory({ state: CartState.START });
       const mockErrorCart = FinishErrorCartFactory();
 
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
       await cartService.finalizeCartWithError(
@@ -1540,6 +1678,48 @@ describe('CartService', () => {
       );
 
       expect(cartManager.finishErrorCart).toHaveBeenCalledWith(mockCart.id, {
+        errorReasonId: mockErrorCart.errorReasonId,
+      });
+    });
+
+    it('does not finalize a cart that is actively processing', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        updatedAt: Date.now(),
+      });
+      const mockErrorCart = FinishErrorCartFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await cartService.finalizeCartWithError(
+        mockCart.id,
+        mockErrorCart.errorReasonId
+      );
+
+      expect(finishErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('finalizes a cart whose processing has exceeded the stale timeout', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        updatedAt: Date.now() - CART_PROCESSING_STALE_TIMEOUT_MS - 1000,
+      });
+      const mockErrorCart = FinishErrorCartFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      const finishErrorSpy = jest
+        .spyOn(cartManager, 'finishErrorCart')
+        .mockResolvedValue();
+
+      await cartService.finalizeCartWithError(
+        mockCart.id,
+        mockErrorCart.errorReasonId
+      );
+
+      expect(finishErrorSpy).toHaveBeenCalledWith(mockCart.id, {
         errorReasonId: mockErrorCart.errorReasonId,
       });
     });

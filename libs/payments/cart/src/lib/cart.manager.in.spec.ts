@@ -28,6 +28,7 @@ import {
   UpdateProcessingCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
+import { setCartProcessing } from './cart.repository';
 import { ResultCart } from './cart.types';
 import { type StatsD } from '@fxa/shared/metrics/statsd';
 import { LoggerService } from '@nestjs/common';
@@ -378,6 +379,8 @@ describe('CartManager', () => {
     const STALE_PROCESSING_UID = '77777777777777777777777777777777';
     const CONCURRENT_UID = '88888888888888888888888888888888';
     const TERMINAL_SIBLING_UID = '99999999999999999999999999999999';
+    const SELF_CONCURRENT_UID = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    const SELF_PROCESSING_UID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
     async function seedAccount(db: AccountDatabase, uidHex: string) {
       await db
@@ -555,6 +558,48 @@ describe('CartManager', () => {
         (cart) => cart.state === CartState.PROCESSING
       ).length;
       expect(processingCount).toEqual(1);
+    });
+
+    it('fails when the same cart is already processing', async () => {
+      await seedAccount(db, SELF_PROCESSING_UID);
+      const cart = await cartManager.createCart(
+        SetupCartFactory({ uid: SELF_PROCESSING_UID })
+      );
+
+      await directUpdate(
+        db,
+        { state: CartState.PROCESSING, updatedAt: Date.now() },
+        cart.id
+      );
+
+      await expect(
+        setCartProcessing(
+          db,
+          Buffer.from(cart.id, 'hex'),
+          Buffer.from(SELF_PROCESSING_UID, 'hex'),
+          cart.version
+        )
+      ).rejects.toBeInstanceOf(CartProcessingConflictError);
+    });
+
+    it('allows only one of two concurrent checkouts for the same cart to enter processing', async () => {
+      await seedAccount(db, SELF_CONCURRENT_UID);
+      const cart = await cartManager.createCart(
+        SetupCartFactory({ uid: SELF_CONCURRENT_UID })
+      );
+
+      const results = await Promise.allSettled([
+        cartManager.setProcessingCart(cart.id),
+        cartManager.setProcessingCart(cart.id),
+      ]);
+
+      const fulfillments = results.filter((r) => r.status === 'fulfilled');
+      const rejections = results.filter((r) => r.status === 'rejected');
+      expect(fulfillments).toHaveLength(1);
+      expect(rejections).toHaveLength(1);
+
+      const updated = await cartManager.fetchCartById(cart.id);
+      expect(updated.state).toEqual(CartState.PROCESSING);
     });
   });
 

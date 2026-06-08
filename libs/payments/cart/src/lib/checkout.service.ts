@@ -352,6 +352,10 @@ export class CheckoutService {
       });
     }
 
+    // TODO: uncomment to test, remove after testing
+    //console.log('postPaySteps: about to finish cart, sleeping, START TAB 2')
+    //await new Promise((r) => setTimeout(r, 5_000));
+
     await this.cartManager.finishCart(cart.id, version, {});
 
     if (args.isCancelInterstitialOffer && args.requestArgs) {
