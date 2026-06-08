@@ -277,7 +277,7 @@ export function useClientInfoState() {
     loading: boolean;
     error?: Error;
     data?: { clientInfo: RelierClientInfo };
-  }>({ loading: false });
+  }>({ loading: true });
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   const clientId =
