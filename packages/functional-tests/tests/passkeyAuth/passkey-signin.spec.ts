@@ -17,6 +17,7 @@ import { SettingsPage } from '../../pages/settings';
 import { SettingsPasskeyAddPage } from '../../pages/settings/passkey';
 import { SigninPage } from '../../pages/signin';
 import { enableTotpOnAccount } from '../../lib/pairing-helpers';
+import { EmailType } from '../../lib/email';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('passkey sign-in', () => {
@@ -35,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, settings, settingsPasskeyAdd, signin },
       testAccountTracker,
     }) => {
-      await setUpAccountWithPasskey({
+      const { email } = await setUpAccountWithPasskey({
         target,
         page,
         settings,
@@ -44,6 +45,8 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       });
       await clearSession(page);
+      // Isolate the sign-in email from setup emails.
+      await target.emailClient.clear(email);
       await page.goto(target.contentServerUrl);
 
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
@@ -52,6 +55,14 @@ test.describe('severity-1 #smoke', () => {
       });
 
       await expect(settings.settingsHeading).toBeVisible();
+
+      const newDeviceLogin = await target.emailClient.waitForEmail(
+        email,
+        EmailType.newDeviceLogin
+      );
+      expect(newDeviceLogin.subject).toMatch(
+        /new sign-in to your mozilla account/i
+      );
     });
 
     test('signs in with a registered passkey from /signin after submitting an email', async ({

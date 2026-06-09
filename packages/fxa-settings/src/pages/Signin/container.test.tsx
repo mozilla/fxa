@@ -685,6 +685,24 @@ describe('signin container', () => {
       });
     });
 
+    it('does not forward a Web integration fallback clientId as the email service', async () => {
+      integration = new WebIntegration(
+        new GenericData({ service: MozServices.Default }),
+        { clientIdFallback: 'fallback-client-id' }
+      );
+      expect(integration.getClientId()).toEqual('fallback-client-id');
+
+      render();
+      await waitFor(() => expect(currentSigninProps).toBeDefined());
+      await act(async () => {
+        await currentSigninProps?.beginSigninHandler(MOCK_EMAIL, MOCK_PASSWORD);
+      });
+
+      const options = (mockAuthClient.signInWithAuthPW as jest.Mock).mock
+        .calls[0]?.[2];
+      expect(options?.service).toBeUndefined();
+    });
+
     describe('showInlineRecoveryKeySetup', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
