@@ -105,6 +105,7 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
 };
 
 export type FormattedSubscriptionForEmail = {
+  subscriptionId: string;
   productId: string;
   productName: string;
   planId: string;
@@ -2046,6 +2047,10 @@ export class StripeHelper extends StripeHelperBase {
     return {
       uid,
       email,
+      subscriptionId:
+        typeof invoice.subscription === 'string'
+          ? invoice.subscription
+          : invoice.subscription?.id,
       cardType,
       lastFour,
       payment_provider,
@@ -2116,6 +2121,7 @@ export class StripeHelper extends StripeHelperBase {
     const planSuccessActionButtonURL = successActionButtonURL || '';
 
     return {
+      subscriptionId: subscription.id,
       productId,
       productName,
       planId,
@@ -2389,6 +2395,7 @@ export class StripeHelper extends StripeHelperBase {
     const baseDetails = {
       uid,
       email,
+      subscriptionId: subscription.id,
       planId: planIdNew,
       productId: productIdNew,
       productIdNew,
@@ -2504,6 +2511,7 @@ export class StripeHelper extends StripeHelperBase {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
       email,
       uid,
+      subscriptionId: subscription.id,
       productId,
       planId,
       planEmailIconURL,
@@ -2560,6 +2568,7 @@ export class StripeHelper extends StripeHelperBase {
       updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
       email,
       uid,
+      subscriptionId: subscription.id,
       productId,
       planId,
       planEmailIconURL,
