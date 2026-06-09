@@ -355,7 +355,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({ to, locationState, shouldHardNavigate });
+      performNavigation({
+        to,
+        locationState,
+        shouldHardNavigate,
+        replace: navigationOptions.origin === 'post-verify-set-password',
+      });
     }
     return { error: undefined };
   }
