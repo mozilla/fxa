@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  ServiceResultFactory,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResult,
   ServicesWithCapabilitiesResultUtil,
@@ -31,5 +32,39 @@ describe('ServicesWithCapabilitiesResultUtil', () => {
     expect(util.getServices()[0].capabilities[0].slug).toEqual(
       result.services?.[0]?.capabilities?.[0]?.slug
     );
+  });
+
+  describe('findServiceByClientId', () => {
+    it('returns the service entry matching the clientId (case-insensitive)', () => {
+      const result = ServicesWithCapabilitiesQueryFactory({
+        services: [
+          ServiceResultFactory({
+            oauthClientId: 'Some-Client',
+            internalName: 'Some Service',
+            description: 'A useful service.',
+          }),
+        ],
+      });
+      const util = new ServicesWithCapabilitiesResultUtil(
+        result as ServicesWithCapabilitiesResult
+      );
+
+      const match = util.findServiceByClientId('SOME-CLIENT');
+      expect(match).toBeDefined();
+      expect(match?.oauthClientId).toBe('Some-Client');
+      expect(match?.internalName).toBe('Some Service');
+      expect(match?.description).toBe('A useful service.');
+    });
+
+    it('returns undefined for an unknown clientId', () => {
+      const result = ServicesWithCapabilitiesQueryFactory({
+        services: [ServiceResultFactory({ oauthClientId: 'known' })],
+      });
+      const util = new ServicesWithCapabilitiesResultUtil(
+        result as ServicesWithCapabilitiesResult
+      );
+
+      expect(util.findServiceByClientId('unknown')).toBeUndefined();
+    });
   });
 });

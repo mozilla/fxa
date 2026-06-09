@@ -14,6 +14,7 @@ import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   Banner,
   BannerVariant,
+  BusinessEntitlementContent,
   formatPlanInterval,
   FreeTrialContent,
   getCardIcon,
@@ -76,6 +77,7 @@ export default async function Manage({
     appleIapSubscriptions,
     googleIapSubscriptions,
     trialSubscriptions,
+    entitlements,
   } = await getSubManPageContentAction(
     { ...resolvedParams },
     { ...resolvedSearchParams },
@@ -266,6 +268,44 @@ export default async function Manage({
             )}
           </ul>
         </nav>
+      )}
+
+      {entitlements && entitlements.length > 0 && (
+        <section
+          id="entitlements"
+          className="scroll-mt-16"
+          aria-labelledby="entitlements-heading"
+        >
+          <h2
+            id="entitlements-heading"
+            className="font-bold px-4 pt-8 pb-4 text-lg tablet:px-6"
+          >
+            {l10n.getString(
+              'subscription-management-entitlements-heading',
+              'Services included with your account'
+            )}
+          </h2>
+          <ul
+            aria-label={l10n.getString(
+              'subscription-management-your-entitlements-aria',
+              'Services included with your account'
+            )}
+          >
+            {entitlements.map((entitlement, index) => (
+              <li
+                key={`${entitlement.clientId}-${index}`}
+                aria-labelledby={`${entitlement.clientId}-entitlement-information`}
+                className="leading-6 pb-4 last:pb-0"
+              >
+                <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                  <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                    <BusinessEntitlementContent entitlement={entitlement} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {trialSubscriptions.length > 0 && (

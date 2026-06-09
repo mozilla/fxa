@@ -6,4 +6,8 @@ export { setupAuth, getAuthInstance } from './lib/auth';
 export type { UiAuthOptions } from './lib/auth';
 export { authConfig } from './lib/auth.config';
 export { AuthError, UnauthenticatedError } from './lib/auth.error';
-export { getSessionUid, requireSessionUid } from './lib/session';
+export {
+  getSessionEmail,
+  getSessionUid,
+  requireSessionUid,
+} from './lib/session';

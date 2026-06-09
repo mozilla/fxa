@@ -14,6 +14,7 @@ import Stripe from 'stripe';
 import Container from 'typedi';
 
 import { CapabilityManager } from '@fxa/payments/capability';
+import { EmailCapabilityList } from './email-capability-list';
 import {
   EligibilityManager,
   IntervalComparison,
@@ -58,6 +59,7 @@ export class CapabilityService {
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
   private capabilityManager?: CapabilityManager;
+  private emailCapabilityList?: EmailCapabilityList;
   private eligibilityManager?: EligibilityManager;
 
   constructor() {
@@ -80,6 +82,9 @@ export class CapabilityService {
     }
     if (Container.has(CapabilityManager)) {
       this.capabilityManager = Container.get(CapabilityManager);
+    }
+    if (Container.has(EmailCapabilityList)) {
+      this.emailCapabilityList = Container.get(EmailCapabilityList);
     }
     if (Container.has(EligibilityManager)) {
       this.eligibilityManager = Container.get(EligibilityManager);
@@ -217,12 +222,38 @@ export class CapabilityService {
 
   /**
    * Return a map of capabilities to client ids for the user.
+   *
+   * Capabilities come from two sources, unioned together:
+   *   1. Active subscriptions (Stripe / IAP) resolved via CapabilityManager.
+   *   2. The email-allowlist source (EmailCapabilityList). Pass `email` when
+   *      the caller already has it to avoid an extra DB fetch.
    */
   public async subscriptionCapabilities(
-    uid: string
+    uid: string,
+    email?: string | null
   ): Promise<ClientIdCapabilityMap> {
     const subscribedPrices = await this.subscribedPriceIds(uid);
-    return this.planIdsToClientCapabilities(subscribedPrices);
+    const subscriptionCaps =
+      await this.planIdsToClientCapabilities(subscribedPrices);
+    const emailCaps = this.emailCapabilityList
+      ? await this.emailCapabilityList.getCapabilitiesForEmail(email)
+      : {};
+    return ClientIdCapabilityMap.merge(subscriptionCaps, emailCaps);
+  }
+
+  /**
+   * Returns true if the user's email is on the Strapi-managed B2B allowlist
+   * (i.e. has any `EmailCapabilityList`-derived entitlement). Distinct from
+   * `subscriptionCapabilities`, which merges Stripe + B2B sources — this
+   * surfaces *only* the B2B signal, for UI gates that need to differentiate
+   * "user is paid" from "user is on the allowlist".
+   */
+  public async hasBusinessEntitlement(
+    email?: string | null
+  ): Promise<boolean> {
+    if (!email || !this.emailCapabilityList) return false;
+    const caps = await this.emailCapabilityList.getCapabilitiesForEmail(email);
+    return Object.keys(caps).length > 0;
   }
 
   /**
@@ -502,6 +533,47 @@ export class CapabilityService {
   }
 
   /**
+   * Apply a change to the email-allowlist capability source for a single
+   * user: invalidate their profile cache and broadcast the added/removed
+   * capabilities to attached services via the existing SQS pipeline.
+   *
+   * TODO(FXA-XXXXX): Replace this with an event-driven flow where
+   * payments-api emits a "capability list changed" event that auth-server
+   * consumes. This method exists because payments-api currently calls
+   * auth-server over HTTP to drive the broadcast (see
+   * `/oauth/subscriptions/email-capability-changed`).
+   */
+  public async processEmailListChange(options: {
+    uid: string;
+    added: string[];
+    removed: string[];
+    eventCreatedAt?: number;
+    request?: AuthRequest;
+  }) {
+    const { uid, added, removed, eventCreatedAt, request } = options;
+    if (added.length === 0 && removed.length === 0) {
+      return;
+    }
+    await this.profileClient.deleteCache(uid);
+    if (added.length > 0) {
+      this.broadcastCapabilitiesAdded({
+        uid,
+        capabilities: added,
+        eventCreatedAt,
+        request,
+      });
+    }
+    if (removed.length > 0) {
+      this.broadcastCapabilitiesRemoved({
+        uid,
+        capabilities: removed,
+        eventCreatedAt,
+        request,
+      });
+    }
+  }
+
+  /**
    * Diff a list of prior price ids to the list of current price ids
    * and emit the necessary events for added/removed capabilities.
    */
@@ -716,11 +788,7 @@ export class CapabilityService {
     try {
       return await this.capabilityManager.getClients();
     } catch (err) {
-      throw error.internalValidationError(
-        'subscriptions.getClients',
-        {},
-        err
-      );
+      throw error.internalValidationError('subscriptions.getClients', {}, err);
     }
   }
 

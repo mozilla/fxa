@@ -35,6 +35,7 @@ const {
 const authDbModule = require('fxa-shared/db/models/auth');
 const { PurchaseQueryError } = require('./iap/google-play/types');
 const { CapabilityManager } = require('@fxa/payments/capability');
+const { EmailCapabilityList } = require('./email-capability-list');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   SubscriptionEligibilityResult,
@@ -407,6 +408,71 @@ describe('CapabilityService', () => {
         capabilities,
       });
       expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('processEmailListChange', () => {
+    it('broadcasts added capabilities with isActive=true', async () => {
+      await capabilityService.processEmailListChange({
+        uid: UID,
+        added: ['capA', 'capB'],
+        removed: [],
+        eventCreatedAt: 1_700_000_000,
+      });
+
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
+        'subscription:update',
+        expect.anything(),
+        expect.objectContaining({
+          uid: UID,
+          isActive: true,
+          productCapabilities: ['capA', 'capB'],
+          eventCreatedAt: 1_700_000_000,
+        })
+      );
+    });
+
+    it('broadcasts removed capabilities with isActive=false', async () => {
+      await capabilityService.processEmailListChange({
+        uid: UID,
+        added: [],
+        removed: ['capX'],
+      });
+
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
+        'subscription:update',
+        expect.anything(),
+        expect.objectContaining({
+          uid: UID,
+          isActive: false,
+          productCapabilities: ['capX'],
+        })
+      );
+    });
+
+    it('broadcasts both events when added and removed are non-empty', async () => {
+      await capabilityService.processEmailListChange({
+        uid: UID,
+        added: ['capA'],
+        removed: ['capX'],
+      });
+
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(2);
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledTimes(1);
+    });
+
+    it('is a no-op when no capabilities are added or removed', async () => {
+      await capabilityService.processEmailListChange({
+        uid: UID,
+        added: [],
+        removed: [],
+      });
+
+      expect(log.notifyAttachedServices).not.toHaveBeenCalled();
+      expect(mockProfileClient.deleteCache).not.toHaveBeenCalled();
     });
   });
 
@@ -834,6 +900,133 @@ describe('CapabilityService', () => {
         currentPriceIds: ['plan_876543', 'plan_ABCDEF'],
       });
       expect(log.notifyAttachedServices).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('subscriptionCapabilities — email-list merge', () => {
+    beforeEach(() => {
+      // No subscriptions so we isolate the email-list contribution.
+      mockStripeHelper.fetchCustomer = jest.fn(async () => ({
+        subscriptions: { data: [] },
+      }));
+      mockStripeHelper.iapPurchasesToPriceIds = jest.fn().mockReturnValue([]);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockResolvedValue([]);
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({});
+    });
+
+    it('returns only subscription caps when no EmailCapabilityList is registered', async () => {
+      Container.remove(EmailCapabilityList);
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ c1: ['capSub'] });
+    });
+
+    const buildEmailList = (caps: Record<string, string[]>) =>
+      new EmailCapabilityList(
+        { enabled: true },
+        {
+          getBusinessEntitlements: jest.fn().mockResolvedValue({
+            findCapabilitiesForEmail: jest.fn().mockReturnValue(caps),
+          }),
+        } as any
+      );
+
+    it('merges email-list caps with subscription caps', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(
+        EmailCapabilityList,
+        buildEmailList({ c1: ['capEmail'], c2: ['capExtra'] })
+      );
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({
+        c1: ['capSub', 'capEmail'],
+        c2: ['capExtra'],
+      });
+    });
+
+    it('honors ALL_RPS_CAPABILITIES_KEY ("*") when merging', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ '*': ['capAll'] });
+      Container.set(
+        EmailCapabilityList,
+        buildEmailList({ '*': ['capAllFromEmail'] })
+      );
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ '*': ['capAll', 'capAllFromEmail'] });
+    });
+
+    it('returns subscription caps unchanged when email is not on the list', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(EmailCapabilityList, buildEmailList({}));
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ c1: ['capSub'] });
+    });
+
+    it('skips the email lookup when no email is passed', async () => {
+      const getCapsForEmail = jest.fn();
+      Container.set(EmailCapabilityList, {
+        getCapabilitiesForEmail: getCapsForEmail.mockResolvedValue({}),
+      });
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID);
+      expect(caps).toEqual({ c1: ['capSub'] });
+      expect(getCapsForEmail).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  describe('hasBusinessEntitlement', () => {
+    const buildEmailList = (caps: Record<string, string[]>) =>
+      new EmailCapabilityList(
+        { enabled: true },
+        {
+          getBusinessEntitlements: jest.fn().mockResolvedValue({
+            findCapabilitiesForEmail: jest.fn().mockReturnValue(caps),
+          }),
+        } as any
+      );
+
+    it('returns true when the email is on the allowlist', async () => {
+      Container.set(EmailCapabilityList, buildEmailList({ c1: ['capEmail'] }));
+      const svc = new CapabilityService();
+      await expect(svc.hasBusinessEntitlement(EMAIL)).resolves.toBe(true);
+    });
+
+    it('returns false when the email is not on the allowlist', async () => {
+      Container.set(EmailCapabilityList, buildEmailList({}));
+      const svc = new CapabilityService();
+      await expect(svc.hasBusinessEntitlement(EMAIL)).resolves.toBe(false);
+    });
+
+    it('returns false when no email is supplied', async () => {
+      Container.set(EmailCapabilityList, buildEmailList({ c1: ['capEmail'] }));
+      const svc = new CapabilityService();
+      await expect(svc.hasBusinessEntitlement(undefined)).resolves.toBe(false);
+      await expect(svc.hasBusinessEntitlement(null)).resolves.toBe(false);
+      await expect(svc.hasBusinessEntitlement('')).resolves.toBe(false);
+    });
+
+    it('returns false when EmailCapabilityList is not registered', async () => {
+      Container.remove(EmailCapabilityList);
+      const svc = new CapabilityService();
+      await expect(svc.hasBusinessEntitlement(EMAIL)).resolves.toBe(false);
     });
   });
 

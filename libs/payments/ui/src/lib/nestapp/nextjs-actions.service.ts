@@ -679,6 +679,7 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async getSubManPageContent(args: {
     uid: string;
+    email?: string;
     requestArgs: CommonMetrics;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
@@ -686,7 +687,8 @@ export class NextJSActionsService {
     const result = await this.subscriptionManagementService.getPageContent(
       args.uid,
       args.acceptLanguage || undefined,
-      args.selectedLanguage
+      args.selectedLanguage,
+      args.email
     );
 
     result.subscriptions.forEach((subscription) => {

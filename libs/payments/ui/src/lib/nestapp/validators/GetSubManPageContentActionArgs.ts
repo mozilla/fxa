@@ -10,6 +10,10 @@ export class GetSubManPageContentActionArgs {
   @IsString()
   uid!: string;
 
+  @IsString()
+  @IsOptional()
+  email?: string;
+
   @Type(() => RequestArgs)
   @ValidateNested()
   requestArgs!: RequestArgs;

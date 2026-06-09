@@ -8,6 +8,7 @@ import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger } from '../../types';
 import { appleIapRoutes } from './apple';
+import { emailCapabilityRoutes } from './email-capability';
 import { googleIapRoutes } from './google';
 import { mozillaSubscriptionRoutes } from './mozilla';
 import { paypalNotificationRoutes } from './paypal-notifications';
@@ -34,6 +35,8 @@ export const createRoutes = (
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return routes;
   }
+
+  routes.push(...emailCapabilityRoutes(log, db));
 
   if (stripeHelper) {
     routes.push(

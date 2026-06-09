@@ -8,6 +8,8 @@ export const servicesWithCapabilitiesQuery = graphql(`
   query ServicesWithCapabilities {
     services(pagination: { limit: 500 }) {
       oauthClientId
+      internalName
+      description
       capabilities {
         slug
       }

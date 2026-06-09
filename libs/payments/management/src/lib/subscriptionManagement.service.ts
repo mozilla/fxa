@@ -87,6 +87,10 @@ import {
   PaypalCustomerManager,
   ResultPaypalCustomer,
 } from '@fxa/payments/paypal';
+import {
+  buildBusinessEntitlementsForPage,
+  type BusinessEntitlementContent,
+} from './businessEntitlements';
 import { ChurnInterventionService } from './churn-intervention.service';
 
 @Injectable()
@@ -221,7 +225,8 @@ export class SubscriptionManagementService {
   async getPageContent(
     uid: string,
     acceptLanguage?: string,
-    selectedLanguage?: string
+    selectedLanguage?: string,
+    email?: string
   ) {
     const subscriptions: SubscriptionContent[] = [];
     const appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
@@ -282,6 +287,7 @@ export class SubscriptionManagementService {
     const hasGoogleIap = googleIapSubs.purchaseDetails.length > 0;
 
     if (!hasStripe && !hasAppleIap && !hasGoogleIap) {
+      const entitlements = await this.resolveBusinessEntitlements(email, []);
       return {
         accountCreditBalance,
         defaultPaymentMethod,
@@ -290,6 +296,7 @@ export class SubscriptionManagementService {
         trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
+        entitlements,
       };
     }
 
@@ -420,6 +427,11 @@ export class SubscriptionManagementService {
       }
     }
 
+    const entitlements = await this.resolveBusinessEntitlements(
+      email,
+      stripeSubs
+    );
+
     return {
       accountCreditBalance,
       defaultPaymentMethod,
@@ -428,7 +440,50 @@ export class SubscriptionManagementService {
       trialSubscriptions,
       appleIapSubscriptions,
       googleIapSubscriptions,
+      entitlements,
     };
+  }
+
+  private async resolveBusinessEntitlements(
+    email: string | undefined,
+    stripeSubs: StripeSubscription[]
+  ): Promise<BusinessEntitlementContent[]> {
+    if (!email) return [];
+    const entitlementResult =
+      await this.productConfigurationManager.getBusinessEntitlements();
+    const map = entitlementResult.findCapabilitiesForEmail(email);
+    if (Object.keys(map).length === 0) return [];
+
+    const subscribedClientIds = new Set<string>();
+    if (stripeSubs.length > 0) {
+      const stripePriceIds = stripeSubs.flatMap((sub) =>
+        sub.items.data.map((item) => item.price.id)
+      );
+      if (stripePriceIds.length > 0) {
+        const capabilityMap =
+          await this.productConfigurationManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+            stripePriceIds
+          );
+        for (const priceId of stripePriceIds) {
+          const offering = capabilityMap.capabilityOfferingForPlanId(priceId);
+          for (const capability of offering?.capabilities ?? []) {
+            for (const service of capability.services ?? []) {
+              if (service?.oauthClientId) {
+                subscribedClientIds.add(service.oauthClientId);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const serviceCatalog =
+      await this.productConfigurationManager.getServicesWithCapabilities();
+    return buildBusinessEntitlementsForPage(
+      map,
+      serviceCatalog,
+      subscribedClientIds
+    );
   }
 
   private async getAppleIapPurchases(uid: string) {

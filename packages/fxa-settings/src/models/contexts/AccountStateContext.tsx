@@ -64,6 +64,7 @@ export interface ExtendedAccountState {
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   subscriptions: Subscription[];
+  hasBusinessEntitlement: boolean;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
@@ -112,6 +113,7 @@ const defaultAccountState: AccountState = {
   attachedClients: [],
   linkedAccounts: [],
   subscriptions: [],
+  hasBusinessEntitlement: false,
   securityEvents: [],
   passkeys: [],
   isLoading: false,
@@ -166,6 +168,7 @@ function unifiedToAccountState(
     attachedClients: data.attachedClients,
     linkedAccounts: data.linkedAccounts,
     subscriptions: data.subscriptions,
+    hasBusinessEntitlement: data.hasBusinessEntitlement ?? false,
     securityEvents: data.securityEvents,
     passkeys: data.passkeys,
     isLoading: data.isLoading,

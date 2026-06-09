@@ -11,6 +11,9 @@ const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const Redis = require('ioredis');
 const { CapabilityManager } = require('@fxa/payments/capability');
+const {
+  EmailCapabilityList,
+} = require('../lib/payments/email-capability-list');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   PriceManager,
@@ -232,6 +235,16 @@ async function run(config) {
       );
       Container.set(DefaultCmsConfigurationManager, defaultCmsManager);
     }
+
+    Container.set(
+      EmailCapabilityList,
+      new EmailCapabilityList(
+        config.subscriptions.emailCapabilityList || {},
+        Container.has(ProductConfigurationManager)
+          ? Container.get(ProductConfigurationManager)
+          : undefined
+      )
+    );
 
     const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);

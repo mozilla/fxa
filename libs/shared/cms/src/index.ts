@@ -9,6 +9,7 @@ export * from './lib/legal-terms-configuration.manager';
 export * from './lib/product-configuration.manager';
 export * from './lib/relying-party-configuration.manager';
 export * from './lib/default-configuration.manager';
+export * from './lib/queries/business-entitlements';
 export * from './lib/queries/cancel-interstitial-offer';
 export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/churn-intervention-by-product-id';

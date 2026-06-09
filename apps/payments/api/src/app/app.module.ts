@@ -9,8 +9,10 @@ import {
 } from '@fxa/payments/api-server';
 import { AuthModule } from '@fxa/payments/auth';
 import {
+  AuthServerEmailCapabilityClient,
   CmsWebhooksController,
   CmsWebhookService,
+  EmailCapabilityWebhookService,
   FxaWebhooksController,
   FxaWebhookService,
   StripeEventManager,
@@ -118,6 +120,8 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     StrapiClient,
     CmsContentValidationManager,
     CmsWebhookService,
+    EmailCapabilityWebhookService,
+    AuthServerEmailCapabilityClient,
     FxaWebhookService,
     NimbusManager,
     NimbusManagerConfig,

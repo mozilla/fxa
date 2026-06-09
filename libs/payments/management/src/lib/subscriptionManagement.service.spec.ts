@@ -82,11 +82,16 @@ import {
   StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
+  BusinessEntitlementsResultUtil,
   IapWithOfferingResultFactory,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   PageContentByPriceIdsResultUtil,
   PageContentByPriceIdsPurchaseResultFactory,
+  ServicesWithCapabilitiesQueryFactory,
+  ServicesWithCapabilitiesResult,
+  ServicesWithCapabilitiesResultUtil,
+  ServiceResultFactory,
   StrapiClient,
   ChurnInterventionByProductIdResultFactory,
 } from '@fxa/shared/cms';
@@ -500,6 +505,7 @@ describe('SubscriptionManagementService', () => {
         trialSubscriptions: [],
         appleIapSubscriptions: [mockAppleIapSubscriptionContent],
         googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
+        entitlements: [],
       });
     });
 
@@ -541,6 +547,7 @@ describe('SubscriptionManagementService', () => {
         trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
+        entitlements: [],
       });
     });
 
@@ -592,6 +599,7 @@ describe('SubscriptionManagementService', () => {
         trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
+        entitlements: [],
       });
     });
 
@@ -685,6 +693,7 @@ describe('SubscriptionManagementService', () => {
         trialSubscriptions: [],
         appleIapSubscriptions: [mockAppleIapSubscriptionContent],
         googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
+        entitlements: [],
       });
     });
 
@@ -1258,6 +1267,107 @@ describe('SubscriptionManagementService', () => {
 
       expect(result.subscriptions).toEqual([mockSubscriptionContent]);
       expect(result.trialSubscriptions).toEqual([]);
+    });
+
+    describe('business entitlements', () => {
+      function mockEmptyAccountFlow() {
+        const mockUid = faker.string.uuid();
+        const mockAccountCustomer = ResultAccountCustomerFactory({
+          stripeCustomerId: null,
+        });
+        jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockResolvedValue(mockAccountCustomer);
+        jest
+          .spyOn(subscriptionManager, 'listForCustomer')
+          .mockResolvedValue([]);
+        jest
+          .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+          .mockResolvedValue(
+            AppleIapPurchaseResultFactory({ storeIds: [], purchaseDetails: [] })
+          );
+        jest
+          .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+          .mockResolvedValue(
+            GoogleIapPurchaseResultFactory({
+              storeIds: [],
+              purchaseDetails: [],
+            })
+          );
+        return mockUid;
+      }
+
+      function mockServicesCatalog(
+        services: Parameters<typeof ServiceResultFactory>[0][]
+      ) {
+        const util = new ServicesWithCapabilitiesResultUtil(
+          ServicesWithCapabilitiesQueryFactory({
+            services: services.map((s) => ServiceResultFactory(s)),
+          }) as ServicesWithCapabilitiesResult
+        );
+        jest
+          .spyOn(productConfigurationManager, 'getServicesWithCapabilities')
+          .mockResolvedValue(util);
+      }
+
+      function mockEntitlementsForEmail(
+        capabilitiesByClientId: Record<string, readonly string[]>
+      ) {
+        jest
+          .spyOn(productConfigurationManager, 'getBusinessEntitlements')
+          .mockResolvedValue({
+            findCapabilitiesForEmail: jest
+              .fn()
+              .mockReturnValue(capabilitiesByClientId),
+          } as unknown as BusinessEntitlementsResultUtil);
+      }
+
+      it('returns no entitlements when email is omitted', async () => {
+        const mockUid = mockEmptyAccountFlow();
+        const result =
+          await subscriptionManagementService.getPageContent(mockUid);
+        expect(result.entitlements).toEqual([]);
+      });
+
+      it('returns no entitlements when the user is not on the allowlist', async () => {
+        const mockUid = mockEmptyAccountFlow();
+        mockEntitlementsForEmail({});
+
+        const result = await subscriptionManagementService.getPageContent(
+          mockUid,
+          undefined,
+          undefined,
+          'user@example.com'
+        );
+        expect(result.entitlements).toEqual([]);
+      });
+
+      it('returns one entitlement card per granted clientId, decorated from the service catalog', async () => {
+        const mockUid = mockEmptyAccountFlow();
+        mockEntitlementsForEmail({ vpn: ['pro'] });
+        mockServicesCatalog([
+          {
+            oauthClientId: 'vpn',
+            internalName: 'Mozilla VPN',
+            description: 'Encrypted tunnels.',
+          },
+        ]);
+
+        const result = await subscriptionManagementService.getPageContent(
+          mockUid,
+          undefined,
+          undefined,
+          'user@example.com'
+        );
+        expect(result.entitlements).toEqual([
+          {
+            clientId: 'vpn',
+            displayName: 'Mozilla VPN',
+            description: 'Encrypted tunnels.',
+            capabilities: ['pro'],
+          },
+        ]);
+      });
     });
   });
 

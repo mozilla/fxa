@@ -182,6 +182,7 @@ export interface AccountData {
     available: boolean;
   };
   subscriptions: Subscription[];
+  hasBusinessEntitlement: boolean;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
@@ -313,6 +314,7 @@ export class Account implements AccountData {
             available: false,
           },
           subscriptions: [],
+          hasBusinessEntitlement: false,
           securityEvents: [],
           passkeys: [],
         } as AccountData;
@@ -356,6 +358,8 @@ export class Account implements AccountData {
         available: false,
       },
       passkeys: accountData.passkeys || [],
+      hasBusinessEntitlement:
+        (accountData as Partial<AccountData>).hasBusinessEntitlement ?? false,
     } as AccountData;
   }
 
@@ -420,6 +424,10 @@ export class Account implements AccountData {
 
   get subscriptions() {
     return this.data.subscriptions;
+  }
+
+  get hasBusinessEntitlement() {
+    return this.data.hasBusinessEntitlement ?? false;
   }
 
   get totp() {

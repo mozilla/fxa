@@ -109,6 +109,7 @@ export function defaultAppContext(context?: AppContextValue) {
     metricsEnabled: true,
     attachedClients: [],
     subscriptions: [],
+    hasBusinessEntitlement: false,
     email: 'johndope@example.com',
     primaryEmail: {
       email: 'johndope@example.com',

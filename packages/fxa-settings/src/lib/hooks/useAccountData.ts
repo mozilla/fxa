@@ -94,6 +94,7 @@ interface AccountResponse {
   createdAt?: number;
   passwordCreatedAt?: number;
   hasPassword?: boolean;
+  hasBusinessEntitlement?: boolean;
 }
 
 /** Transform the consolidated /account endpoint response to AccountState format. */
@@ -155,6 +156,7 @@ function transformAccountResponse(
     emails,
     linkedAccounts,
     subscriptions,
+    hasBusinessEntitlement: response.hasBusinessEntitlement ?? false,
     metricsEnabled: !response.metricsOptOutAt,
     accountCreated: response.createdAt ?? null,
     passwordCreated: response.passwordCreatedAt ?? null,
