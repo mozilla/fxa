@@ -11,7 +11,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
@@ -22,6 +21,19 @@ import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
 import * as dto from '../queueworker/sqs.dto';
+
+/**
+ * Parse a fetch Response body the way axios did by default: attempt to parse
+ * it as JSON, falling back to the raw text when the body isn't valid JSON.
+ */
+async function parseResponseBody(response: Response): Promise<any> {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
 
 @Controller('v1/proxy')
 export class PubsubProxyController {
@@ -106,16 +118,25 @@ export class PubsubProxyController {
     jwtPayload: string;
     webhookEndpoint: string;
     message: Record<string, any>;
-  }): Promise<AxiosResponse> {
+  }): Promise<{ status: number; data: any }> {
     const { jwtPayload, webhookEndpoint, clientId, message } = options;
-    const requestOptions: AxiosRequestConfig = {
-      headers: { Authorization: 'Bearer ' + jwtPayload },
-      url: webhookEndpoint,
-      method: 'post',
-    };
+    let response: Response;
     try {
-      const response = await axios(requestOptions);
-      const now = Date.now();
+      response = await fetch(webhookEndpoint, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + jwtPayload },
+      });
+    } catch (err) {
+      // fetch only rejects on network-level failures; HTTP error responses
+      // (4xx/5xx) resolve normally and are proxied back below.
+      this.log.error('proxyDeliverError', { err });
+      Sentry.captureException(err);
+      throw ExtendedError.withCause('Proxy delivery error', err);
+    }
+
+    const data = await parseResponseBody(response);
+    const now = Date.now();
+    if (response.ok) {
       this.metrics.timing('proxy.success', now - message.timestamp, {
         clientId,
         statusCode: response.status.toString(),
@@ -124,26 +145,20 @@ export class PubsubProxyController {
       if (message.event === dto.SUBSCRIPTION_UPDATE_EVENT) {
         this.metrics.timing(`proxy.sub.eventDelay`, now - message.changeTime);
       }
-      return response;
-    } catch (err) {
-      if (err.response) {
-        // Proxy normal HTTP responses that aren't 200.
-        this.metrics.increment(`proxy.fail`, {
-          clientId,
-          statusCode: (err.response as AxiosResponse).status.toString(),
-          type: message.event,
-        });
-        this.log.debug('proxyDeliverFail', {
-          response: err.response,
-          message: 'failed to proxy message',
-        });
-        return err.response;
-      } else {
-        this.log.error('proxyDeliverError', { err });
-        Sentry.captureException(err);
-        throw ExtendedError.withCause('Proxy delivery error', err);
-      }
+    } else {
+      // Proxy normal HTTP responses that aren't successful.
+      this.metrics.increment(`proxy.fail`, {
+        clientId,
+        statusCode: response.status.toString(),
+        type: message.event,
+      });
+      this.log.debug('proxyDeliverFail', {
+        statusCode: response.status,
+        body: data,
+        message: 'failed to proxy message',
+      });
     }
+    return { status: response.status, data };
   }
 
   /**
