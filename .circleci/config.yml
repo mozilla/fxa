@@ -259,6 +259,10 @@ commands:
       - run:
           name: Recreate venv with glean_parser 19
           command: |
+            # Img doesn't ship with venv; only install if missing.
+            if ! python3 -c "import ensurepip" 2>/dev/null; then
+              sudo apt-get update && sudo apt-get install -y python3-venv
+            fi
             rm -rf .venv
             python3 -m venv .venv
             .venv/bin/pip install 'glean_parser~=19.0'
