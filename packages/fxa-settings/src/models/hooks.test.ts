@@ -597,8 +597,8 @@ describe('useClientInfoState', () => {
     expect(result.current.error).toEqual(fetchError);
     expect(result.current.data).toBeUndefined();
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
-      tags: { area: 'useClientInfoState.fetch' },
-      extra: { clientId: '1234567890abcdef' },
+      tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' },
+      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined },
     });
   });
 
@@ -619,7 +619,7 @@ describe('useClientInfoState', () => {
     expect(result.current.error?.message).toMatch(/403/);
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringMatching(/403/) }),
-      { tags: { area: 'useClientInfoState.fetch' }, extra: { clientId: '1234567890abcdef' } }
+      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined} })
     );
   });
 
