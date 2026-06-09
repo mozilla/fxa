@@ -6,7 +6,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Subject, createMockWebIntegration } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
-import { AppContext } from '../../../models';
+import { AppContext, RelierCmsInfo } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { createMockSigninOAuthNativeIntegration } from '../mocks';
 
@@ -51,6 +51,24 @@ export const WithCmsInfo = () => (
       email="user@example.com"
       expirationMinutes={5}
       integration={createMockWebIntegration(MOCK_CMS_INFO)}
+      isSignup={false}
+    />
+  </AppContext.Provider>
+);
+
+const accessibilityOnlyCmsInfo = {
+  shared: {
+    additionalAccessibilityInfo:
+      MOCK_CMS_INFO.shared.additionalAccessibilityInfo,
+  },
+} as unknown as RelierCmsInfo;
+
+export const WithAdditionalAccessibilityInfo = () => (
+  <AppContext.Provider value={mockAppContext()}>
+    <Subject
+      email="user@example.com"
+      expirationMinutes={5}
+      integration={createMockWebIntegration(accessibilityOnlyCmsInfo)}
       isSignup={false}
     />
   </AppContext.Provider>

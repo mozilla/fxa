@@ -472,6 +472,8 @@ const SigninPasswordlessCode = ({
   } = (isSignup
     ? cmsInfo?.SignupPasswordlessCodePage
     : cmsInfo?.SigninPasswordlessCodePage) ?? {};
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   // Heading and instruction text vary based on signup vs signin
   const subHeadingText = isSignup
@@ -563,6 +565,10 @@ const SigninPasswordlessCode = ({
           </>
         )}
       </p>
+
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 text-sm">{additionalAccessibilityInfo}</p>
+      )}
 
       <FormVerifyCode
         {...{
