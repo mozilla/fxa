@@ -46,6 +46,7 @@ import {
   ProductManager,
   PromotionCodeManager,
   SetupIntentManager,
+  PriceForCurrencyNotFoundError,
   PromotionCodeNotFoundError,
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
@@ -2847,6 +2848,28 @@ describe('CheckoutService', () => {
           trial_settings: expect.anything(),
         })
       );
+    });
+
+    it('throws PriceForCurrencyNotFoundError when target price does not support cart currency', async () => {
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockReset()
+        .mockRejectedValue(
+          new PriceForCurrencyNotFoundError(toPriceId, cart.currency)
+        );
+
+      await expect(
+        checkoutService.upgradeSubscription(
+          customerId,
+          toPriceId,
+          fromPriceId,
+          cart,
+          [],
+          mockAttributionData
+        )
+      ).rejects.toBeInstanceOf(PriceForCurrencyNotFoundError);
+
+      expect(subscriptionManager.update).not.toHaveBeenCalled();
     });
   });
 
