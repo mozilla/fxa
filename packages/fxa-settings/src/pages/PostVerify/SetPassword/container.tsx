@@ -67,45 +67,33 @@ const SetPasswordContainer = ({
     flowQueryParams as unknown as Record<string, string>
   );
 
+  // Trust the stored password state; fall back to a one-time accountStatus
+  // check only when it's unknown (e.g. third-party sign-in, stale/direct hit).
+  const knownHasPassword = storedLocalAccount?.hasPassword;
+  const passwordStateKnown = knownHasPassword !== undefined;
+
   const [passwordStatus, setPasswordStatus] = useState<{
     isLoading: boolean;
     hasPassword: boolean;
   }>({
-    isLoading: true,
-    hasPassword: false,
+    isLoading: !passwordStateKnown,
+    hasPassword: knownHasPassword ?? false,
   });
-  const didRunPasswordStatusCheckRef = useRef(false);
+  const didCheckRef = useRef(false);
   useEffect(() => {
-    if (didRunPasswordStatusCheckRef.current) return;
-    didRunPasswordStatusCheckRef.current = true;
-    const checkPasswordStatus = async () => {
-      if (sessionToken) {
-        try {
-          const status = await authClient.accountStatus(
-            undefined,
-            sessionToken
-          );
-          setPasswordStatus({
-            isLoading: false,
-            hasPassword: !!status.hasPassword,
-          });
-        } catch (error) {
-          // TODO? Might need to retry.
-          // Request to create a PW won't go through if they already have one.
-          setPasswordStatus({
-            isLoading: false,
-            hasPassword: false,
-          });
-        }
-      } else {
+    if (passwordStateKnown || !sessionToken || didCheckRef.current) return;
+    didCheckRef.current = true;
+    authClient
+      .accountStatus(undefined, sessionToken)
+      .then((status) =>
         setPasswordStatus({
           isLoading: false,
-          hasPassword: false,
-        });
-      }
-    };
-    checkPasswordStatus();
-  }, [authClient, sessionToken]);
+          hasPassword: !!status.hasPassword,
+        })
+      )
+      // On failure, treat as no password; the server rejects if one exists.
+      .catch(() => setPasswordStatus({ isLoading: false, hasPassword: false }));
+  }, [authClient, sessionToken, passwordStateKnown]);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -234,10 +222,7 @@ const SetPasswordContainer = ({
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
-  // User already has a password, redirect to signin.
-  // This can happen when a user signs into the browser with third party
-  // oauth and they try to use Sync or Send Tab later, but keys are missing.
-  // Firefox will send users to this page to set a password and receive keys.
+  // Already has a password (re-entry): sign in instead.
   if (passwordStatus.hasPassword) {
     navigateWithQuery('/signin', { replace: true });
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;

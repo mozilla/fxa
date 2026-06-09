@@ -5,6 +5,7 @@
 import * as ModelsModule from '../../../models';
 import * as CacheModule from '../../../lib/cache';
 import * as SetPasswordModule from '.';
+import { StoredAccountData } from '../../../lib/storage-utils';
 
 import AuthClient from 'fxa-auth-client/browser';
 import {
@@ -106,7 +107,7 @@ function mockModelsModule() {
 }
 // Call this when testing local storage
 function mockCurrentAccount(
-  storedAccount = {
+  storedAccount: StoredAccountData = {
     uid: MOCK_UID,
     sessionToken: MOCK_SESSION_TOKEN,
     email: MOCK_EMAIL,
@@ -236,6 +237,52 @@ describe('SetPassword-container', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
     });
     expect(SetPasswordModule.default).not.toHaveBeenCalled();
+  });
+
+  describe('password state gating', () => {
+    it('skips the check and renders when stored state is passwordless', async () => {
+      mockCurrentAccount({ ...MOCK_STORED_ACCOUNT, hasPassword: false });
+      render();
+      await waitFor(() => {
+        expect(SetPasswordModule.default).toHaveBeenCalled();
+      });
+      expect(mockAuthClient.accountStatus).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('skips the check and redirects to signin when stored state has a password', async () => {
+      mockCurrentAccount({ ...MOCK_STORED_ACCOUNT, hasPassword: true });
+      render();
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+      });
+      expect(mockAuthClient.accountStatus).not.toHaveBeenCalled();
+      expect(SetPasswordModule.default).not.toHaveBeenCalled();
+    });
+
+    it('falls back to the accountStatus check when stored state is unknown', async () => {
+      mockCurrentAccount({ ...MOCK_STORED_ACCOUNT, hasPassword: undefined });
+      render();
+      await waitFor(() => {
+        expect(SetPasswordModule.default).toHaveBeenCalled();
+      });
+      expect(mockAuthClient.accountStatus).toHaveBeenCalledWith(
+        undefined,
+        MOCK_SESSION_TOKEN
+      );
+    });
+
+    it('treats a failed fallback check as no password and renders', async () => {
+      mockCurrentAccount({ ...MOCK_STORED_ACCOUNT, hasPassword: undefined });
+      mockAuthClient.accountStatus = jest
+        .fn()
+        .mockRejectedValue(new Error('network failure'));
+      render();
+      await waitFor(() => {
+        expect(SetPasswordModule.default).toHaveBeenCalled();
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   describe('calling createPassword', () => {
