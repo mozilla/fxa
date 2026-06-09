@@ -295,6 +295,14 @@ class PasswordlessHandler {
         reason: 'otp',
       });
 
+      // This path bypasses the createAccount handler which normally records
+      // the event. We still need the event, so we also call it here for passwordless.
+      await recordSecurityEvent('account.create', {
+        db: this.db,
+        request,
+        account: { uid: account.uid },
+      });
+
       await recordSecurityEvent('account.passwordless_registration_complete', {
         db: this.db,
         request,
