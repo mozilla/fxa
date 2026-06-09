@@ -320,6 +320,12 @@ export function useClientInfoState() {
 
         const data = await response.json();
 
+        Sentry.addBreadcrumb({
+          message: 'OAuth Client Response Data',
+          category: 'useClientInfoState.fetch',
+          data
+        })
+
         if (mounted) {
           setState({
             loading: false,
@@ -337,13 +343,34 @@ export function useClientInfoState() {
       } catch (error) {
         const err =
           error instanceof Error ? error : new Error('Unknown error');
+
+        Sentry.addBreadcrumb({
+          message: 'OAuth Client - Unexpected Error',
+          category: 'useClientInfoState.fetch',
+          data: {
+            clientId: clientId,
+            message: err.message,
+            errno: error.errno,
+            code: error.code,
+            statusCode: error.statusCode,
+          }
+        })
+
         // Surface fetch failures as their own Sentry issue so the real cause
         // (network, WAF challenge, 5xx, unknown client_id) is observable
         // separately from the downstream scope-validation paths it used to
         // be misattributed to — see FXA-13618.
         Sentry.captureException(err, {
-          tags: { area: 'useClientInfoState.fetch' },
-          extra: { clientId },
+          tags: {
+            area: 'useClientInfoState.fetch',
+            clientId
+          },
+          extra: {
+            message: err.message,
+            errno: error.errno,
+            code: error.code,
+            statusCode: error.statusCode,
+           },
         });
         if (mounted) {
           setState({ loading: false, error: err });
