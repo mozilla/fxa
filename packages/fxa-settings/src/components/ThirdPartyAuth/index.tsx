@@ -8,6 +8,8 @@ import { useLocalization } from '@fluent/react';
 
 import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
 import { ReactComponent as AppleLogo } from './apple-logo-viewbox-white.svg';
+import { ReactComponent as AppleLogoBoxBlack } from './apple-logo-cropped-black.svg';
+import { ReactComponent as AppleLogoBoxWhite } from './apple-logo-cropped-white.svg';
 
 import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
@@ -205,22 +207,33 @@ const ThirdPartySignInButton = ({
         : 'continue-with-apple-button';
     const labelDefault =
       party === 'google' ? 'Continue with Google' : 'Continue with Apple';
-    const logoBgClass =
-      party === 'google'
-        ? 'bg-[#F9F4F4] border border-[#747775]'
-        : 'bg-black border-2 border-transparent dark:border-grey-300';
+
+    let leadingIcon: React.ReactNode;
+    switch (party) {
+      case 'google':
+        leadingIcon = <GoogleLogo className="w-6 h-6" />;
+        break;
+      case 'apple':
+        leadingIcon = (
+          // In forced-color mode (HCM), the Apple mark opts out of the system palette
+          // and gets an opposite-colour chip for contrast.
+          <>
+            <span className="flex items-center justify-center dark:hidden forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-white forced-colors:p-1.5">
+              <AppleLogoBoxBlack className="w-6 h-6" />
+            </span>
+            <span className="hidden items-center justify-center dark:flex forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-black forced-colors:p-1.5">
+              <AppleLogoBoxWhite className="w-6 h-6" />
+            </span>
+          </>
+        );
+        break;
+    }
 
     return (
       <BoxButton
         onClick={handleClick}
         aria-label={getLoginAriaLabel()}
-        leadingIcon={
-          <span
-            className={`w-8 h-8 rounded-full flex items-center justify-center p-1.5 ${logoBgClass}`}
-          >
-            {buttonText}
-          </span>
-        }
+        leadingIcon={leadingIcon}
       >
         <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
       </BoxButton>
