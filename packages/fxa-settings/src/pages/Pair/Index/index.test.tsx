@@ -64,6 +64,26 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+// Stub QRCode so the test can read the encoded URL without decoding an SVG; covered in its own test.
+jest.mock('../../../components/QRCode', () => ({
+  __esModule: true,
+  default: ({
+    value,
+    localizedLabel,
+  }: {
+    value: string;
+    localizedLabel: string;
+  }) => <img alt={localizedLabel} data-testid="pair-qr" data-value={value} />,
+}));
+
+const sendTabIntegration = {
+  data: { entrypoint: 'send-tab-toolbar-icon' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+const webIntegration = {
+  data: { entrypoint: 'fxa_app_menu' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
 describe('Pair', () => {
   // jsdom's default UA lacks "Firefox", which would trip the mount-effect UA check and redirect to /pair/unsupported.
   const realUserAgent = navigator.userAgent;
@@ -190,8 +210,10 @@ describe('Pair', () => {
   });
 
   describe('download screen', () => {
-    async function renderAndNavigateToDownload(): Promise<void> {
-      await renderPair();
+    async function renderAndNavigateToDownload(
+      props: React.ComponentProps<typeof Pair> = {}
+    ): Promise<void> {
+      await renderPair(props);
       fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
       fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     }
@@ -208,6 +230,22 @@ describe('Pair', () => {
       expect(
         screen.getByRole('button', { name: 'Continue to sync' })
       ).toBeInTheDocument();
+    });
+
+    it('encodes a send-tab campaign in the QR for a send-tab entrypoint', async () => {
+      await renderAndNavigateToDownload({ integration: sendTabIntegration });
+      const url = new URL(
+        screen.getByTestId('pair-qr').getAttribute('data-value')!
+      );
+      expect(url.searchParams.get('campaign')).toBe('send-tab');
+      expect(url.searchParams.get('creative')).toBe('send-tab-toolbar-icon');
+    });
+
+    it('encodes the generic Mozilla download link for a non-send-tab entrypoint', async () => {
+      await renderAndNavigateToDownload({ integration: webIntegration });
+      expect(screen.getByTestId('pair-qr').getAttribute('data-value')).toBe(
+        'https://mzl.la/3NDxAIS'
+      );
     });
 
     it('fires view Glean event when download screen renders', async () => {
