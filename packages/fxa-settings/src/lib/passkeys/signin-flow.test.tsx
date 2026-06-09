@@ -137,7 +137,8 @@ const buildArgs = (
   const integration = {
     isSync: () => false,
     isFirefoxNonSync: () => false,
-    getService: () => 'service-id',
+    getService: () => undefined,
+    getClientId: () => 'service-id',
     type: IntegrationType.OAuthWeb,
     data: {},
     wantsTwoStepAuthentication: () => false,
@@ -210,7 +211,7 @@ describe('usePasskeySignIn', () => {
     expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
       MOCK_CREDENTIAL,
       CHALLENGE,
-      { service: 'service-id' }
+      { service: 'service-id', metricsContext: {} }
     );
     expect(spies.account).toHaveBeenCalledWith(SESSION_TOKEN);
     expect(handleNavigation).toHaveBeenCalledWith({
@@ -243,6 +244,31 @@ describe('usePasskeySignIn', () => {
     });
   });
 
+  it('forwards the Firefox service name (not the client id) for a Sync sign-in', async () => {
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+        getService: () => 'sync',
+        getClientId: () => 'client-id-should-not-be-used',
+        type: IntegrationType.OAuthNative,
+        data: {},
+        wantsTwoStepAuthentication: () => false,
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      { service: 'sync', metricsContext: {} }
+    );
+  });
+
   it('routes non-OAuth Web integrations through handleNavigation', async () => {
     // Soft-navigate to /settings happens inside handleNavigation (same path
     // as password sign-in). hardNavigate would cause a cached-signin flash.
@@ -250,7 +276,8 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => false,
         isFirefoxNonSync: () => false,
-        getService: () => 'service-id',
+        getService: () => undefined,
+        getClientId: () => 'service-id',
         type: IntegrationType.Web,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -262,6 +289,11 @@ describe('usePasskeySignIn', () => {
       await result.current.onClick();
     });
 
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      { metricsContext: {} }
+    );
     expect(storeAccountData).toHaveBeenCalled();
     expect(handleNavigation).toHaveBeenCalledWith({
       email: EMAIL,
@@ -751,7 +783,8 @@ describe('usePasskeySignIn', () => {
       const integration = {
         isSync: () => false,
         isFirefoxNonSync: () => false,
-        getService: () => 'service-id',
+        getService: () => undefined,
+        getClientId: () => 'service-id',
         type: IntegrationType.OAuthWeb,
         data: {},
         wantsTwoStepAuthentication: () => true,
@@ -837,7 +870,8 @@ describe('usePasskeySignIn', () => {
           integration: {
             isSync: () => false,
             isFirefoxNonSync: () => false,
-            getService: () => 'service-id',
+            getService: () => undefined,
+            getClientId: () => 'service-id',
             type: IntegrationType.OAuthWeb,
             data: {},
             wantsTwoStepAuthentication: () => false,

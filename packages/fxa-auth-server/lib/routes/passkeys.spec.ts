@@ -12,6 +12,7 @@ import {
 } from '../passkey-utils';
 import { passkeyRoutes, PasskeyHandler } from './passkeys';
 import { FxaMailer } from '../senders/fxa-mailer';
+import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: jest.fn(),
@@ -42,7 +43,9 @@ describe('passkeys routes', () => {
     route: any,
     request: any,
     mockPasskeyService: any,
-    mockFxaMailer: any;
+    mockFxaMailer: any,
+    mailer: any,
+    mockOauthClientInfoService: any;
 
   const UID = 'f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6';
   const SESSION_TOKEN_ID = 'session-token-456';
@@ -97,12 +100,20 @@ describe('passkeys routes', () => {
     requestOptions: any,
     method = 'POST'
   ) {
-    routes = passkeyRoutes(customs, db, config, statsd, glean, log);
+    routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
     route = routes.find((r) => r.path === routePath && r.method === method);
     request = {
+      headers: { 'user-agent': 'test-agent' },
       ...requestOptions,
+      app: {
+        acceptLanguage: 'en',
+        clientAddress: '127.0.0.1',
+        geo: { location: { country: 'United States', countryCode: 'US' } },
+        ...requestOptions.app,
+      },
     };
     request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
+    request.setMetricsFlowCompleteSignal = jest.fn();
     return await route.handler(request);
   }
 
@@ -110,6 +121,8 @@ describe('passkeys routes', () => {
     log = {
       begin: jest.fn(),
       error: jest.fn(),
+      trace: jest.fn(),
+      notifyAttachedServices: jest.fn().mockResolvedValue(undefined),
     };
     customs = {
       checkAuthenticated: jest.fn(),
@@ -130,16 +143,20 @@ describe('passkeys routes', () => {
     };
     db = {
       account: jest.fn().mockResolvedValue({
+        uid: UID,
         email: TEST_EMAIL,
         emailCode: 'emailcode123',
         emailVerified: true,
         verifierSetAt: 1234567890,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        emails: [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
       }),
       createPasskeyVerifiedSessionToken: jest.fn().mockResolvedValue({
         id: 'new-session-token-id',
         data: 'new-session-token-data',
       }),
       securityEvent: jest.fn().mockResolvedValue(undefined),
+      sessions: jest.fn().mockResolvedValue([{ id: 'session-1' }]),
     };
 
     mockPasskeyService = {
@@ -165,10 +182,20 @@ describe('passkeys routes', () => {
       canSend: jest.fn().mockReturnValue(true),
       sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendPostRemovePasskeyEmail: jest.fn().mockResolvedValue(undefined),
+      sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
+    };
+
+    mailer = {
+      sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
+    };
+
+    mockOauthClientInfoService = {
+      fetch: jest.fn().mockResolvedValue({ name: 'Mozilla' }),
     };
 
     Container.set(PasskeyService, mockPasskeyService);
     Container.set(FxaMailer, mockFxaMailer);
+    Container.set(OAuthClientInfoServiceName, mockOauthClientInfoService);
   });
 
   afterEach(() => {
@@ -1067,10 +1094,13 @@ describe('passkeys routes', () => {
 
     it('sets hasPassword false for passwordless accounts', async () => {
       db.account.mockResolvedValueOnce({
+        uid: UID,
         email: TEST_EMAIL,
         emailCode: 'emailcode123',
         emailVerified: true,
         verifierSetAt: 0,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        emails: [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
       });
 
       const result = await runTest('/passkey/authentication/finish', {
@@ -1280,6 +1310,178 @@ describe('passkeys routes', () => {
         })
       ).rejects.toBe(customsError);
     });
+
+    describe('post sign-in notifications', () => {
+      it('sends a generic "Mozilla account" email for a non-OAuth sign-in (no service)', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(mockOauthClientInfoService.fetch).toHaveBeenCalledWith(
+          undefined
+        );
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
+          expect.objectContaining({
+            clientName: 'Mozilla',
+            showBannerWarning: false,
+          })
+        );
+        expect(mailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
+      });
+
+      it('shows the relying-party name for a non-sync OAuth sign-in', async () => {
+        mockOauthClientInfoService.fetch.mockResolvedValue({
+          name: 'Firefox Monitor',
+        });
+
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: { ...payload, service: 'dcdb5ae7add825d2' },
+        });
+
+        expect(mockOauthClientInfoService.fetch).toHaveBeenCalledWith(
+          'dcdb5ae7add825d2'
+        );
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
+          expect.objectContaining({ clientName: 'Firefox Monitor' })
+        );
+      });
+
+      it('forces the generic "Mozilla account" email for a sync sign-in (no Firefox/Sync framing before keys)', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: { ...payload, service: 'sync' },
+        });
+
+        expect(mockOauthClientInfoService.fetch).toHaveBeenCalledWith(
+          undefined
+        );
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
+          expect.objectContaining({ clientName: 'Mozilla' })
+        );
+      });
+
+      it('falls back to the legacy mailer when fxaMailer cannot send newDeviceLogin', async () => {
+        mockFxaMailer.canSend.mockReturnValue(false);
+
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
+        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
+          [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
+          expect.objectContaining({ uid: UID }),
+          expect.objectContaining({ uid: UID })
+        );
+      });
+
+      it('does not reject the sign-in when the email send fails', async () => {
+        mockFxaMailer.sendNewDeviceLoginEmail.mockRejectedValue(
+          new Error('smtp down')
+        );
+
+        const result = await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(result.uid).toBe(UID);
+        expect(log.trace).toHaveBeenCalledWith(
+          'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',
+          { error: expect.any(Error) }
+        );
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      });
+
+      it('notifies attached services of the login', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(log.notifyAttachedServices).toHaveBeenCalledWith(
+          'login',
+          expect.anything(),
+          {
+            country: 'United States',
+            countryCode: 'US',
+            deviceCount: 1,
+            email: TEST_EMAIL,
+            service: undefined,
+            uid: UID,
+            userAgent: 'test-agent',
+          }
+        );
+      });
+
+      it('emits the account.login metrics event and flow signal for a non-sync sign-in', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith('account.login', {
+          uid: UID,
+        });
+        expect(request.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.login',
+          'login'
+        );
+      });
+
+      it('records the account.login security event for a non-sync sign-in', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        expect(recordSecurityEvent).toHaveBeenCalledWith(
+          'account.login',
+          expect.objectContaining({ account: { uid: UID } })
+        );
+      });
+
+      it('does not emit the account.login metrics event for a sync sign-in', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: { ...payload, service: 'sync' },
+        });
+
+        expect(request.emitMetricsEvent).not.toHaveBeenCalledWith(
+          'account.login',
+          expect.anything()
+        );
+        expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
+      });
+
+      it('does not record the account.login security event for a sync sign-in', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: { ...payload, service: 'sync' },
+        });
+
+        expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+          'account.login',
+          expect.anything()
+        );
+      });
+    });
   });
 
   describe('PasskeyHandler.createPasskeySessionToken', () => {
@@ -1314,7 +1516,9 @@ describe('passkeys routes', () => {
         log,
         mockFxaMailer,
         statsd,
-        glean
+        glean,
+        mailer,
+        mockOauthClientInfoService
       );
     });
 

@@ -119,7 +119,9 @@ export interface AuthLogger extends Logger {
 }
 
 export interface AuthClientInfoService {
-  fetch(service: string): Promise<{
+  // `service` is optional: when absent (or falsy) the service resolves the
+  // generic "Mozilla" client, used for sign-ins that aren't tied to a client.
+  fetch(service?: string): Promise<{
     name: string;
   }>;
 }

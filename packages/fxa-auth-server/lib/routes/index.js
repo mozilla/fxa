@@ -242,7 +242,15 @@ module.exports = function (
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
   const { passkeyRoutes } = require('./passkeys');
-  const passkeys = passkeyRoutes(customs, db, config, statsd, glean, log);
+  const passkeys = passkeyRoutes(
+    customs,
+    db,
+    config,
+    statsd,
+    glean,
+    log,
+    mailer
+  );
 
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
