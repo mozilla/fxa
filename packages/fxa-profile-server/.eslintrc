@@ -15,6 +15,15 @@
     "fxa/async-crypto-random": 0,
     "fxa/no-new-buffer": 2
   },
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "env": {
+        "jest": true
+      }
+    }
+  ],
   "ignorePatterns": [
     "dist",
     "node_modules",

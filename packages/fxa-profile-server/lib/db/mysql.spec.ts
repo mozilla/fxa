@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sinon from 'sinon';
-import MysqlStore from '../lib/db/mysql';
+import MysqlStore from './mysql';
 
 describe('mysql db backend', () => {
   let store: any;
@@ -48,9 +48,7 @@ describe('mysql db backend', () => {
     // The first query sets the timezone.
     expect(capturedQueries[0]).toBe("SET time_zone = '+00:00'");
     // The second sets utf8mb4
-    expect(capturedQueries[1]).toBe(
-      'SET NAMES utf8mb4 COLLATE utf8mb4_bin;'
-    );
+    expect(capturedQueries[1]).toBe('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
     // The third is checking the sql_mode.
     expect(capturedQueries[2]).toBe('SELECT @@sql_mode AS mode');
     // The fourth query is to set the sql_mode.
@@ -77,9 +75,7 @@ describe('mysql db backend', () => {
     // The only queries are to check connection parameters.
     expect(capturedQueries[0]).toBe("SET time_zone = '+00:00'");
     // The second sets utf8mb4
-    expect(capturedQueries[1]).toBe(
-      'SET NAMES utf8mb4 COLLATE utf8mb4_bin;'
-    );
+    expect(capturedQueries[1]).toBe('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
     // The third is checking the sql_mode.
     expect(capturedQueries[2]).toBe('SELECT @@sql_mode AS mode');
   });
