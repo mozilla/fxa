@@ -1,0 +1,13 @@
+{
+  // Build/emit + `yarn compile` config. The default tsconfig.json includes
+  // tests so editors get jest types; this re-excludes them so dist never
+  // contains test files and the type-check covers only shipped code.
+  // See FXA-13782.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // moduleDetection: "force" is only needed to de-collide the legacy specs
+    // (excluded here), so revert it to keep emit for prod files unchanged.
+    "moduleDetection": "auto"
+  },
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
+}
