@@ -431,6 +431,16 @@ export default class AuthClient {
 
     let errorCaptured = false;
     try {
+      Sentry.addBreadcrumb({
+        category: 'auth-client',
+        message: 'outgoing request',
+        level: 'info',
+        data: {
+          path,
+          enc_path: btoa(path),
+        },
+      });
+
       const response = await fetchOrTimeout(
         this.url(path),
         requestOptions,
@@ -453,6 +463,18 @@ export default class AuthClient {
           throw parseError;
         }
         errorCaptured = true;
+        Sentry.addBreadcrumb({
+          category: 'auth-client',
+          message: 'response blocked by WAF',
+          level: 'info', // Available: fatal, error, warning, info, debug
+          data: {
+            path,
+            enc_path: btoa(path),
+            status: response.status,
+            code: response.status,
+            errno,
+          },
+        });
         throw new AuthClientError(
           'WAF blocked',
           'Request blocked by WAF',
@@ -463,11 +485,23 @@ export default class AuthClient {
       if (result.errno) {
         // We want to monitor down spikes in known responses from the auth server.
         errorCaptured = true;
+        Sentry.addBreadcrumb({
+          category: 'auth-client',
+          message: 'response has known error',
+          level: 'info', // Available: fatal, error, warning, info, debug
+          data: {
+            path,
+            enc_path: btoa(path),
+            status: result.status,
+            code: result.code,
+            errno: result.errno,
+          },
+        });
         Sentry.captureMessage(
           `Auth client encoutered known error response during a request`,
           {
             tags: {
-              path: path,
+              path,
               method: requestOptions.method || '',
               errno: result.errno,
               code: result.code,
@@ -478,6 +512,18 @@ export default class AuthClient {
       }
       if (!response.ok) {
         errorCaptured = true;
+        Sentry.addBreadcrumb({
+          category: 'auth-client',
+          message: 'response not ok',
+          level: 'info', // Available: fatal, error, warning, info, debug
+          data: {
+            path,
+            enc_path: btoa(path),
+            status: result.status,
+            code: result.code,
+            errno: result.errno,
+          },
+        });
         // We want to monitor spikes in non-ok responses.
         Sentry.captureMessage(
           `Auth client encoutered non-ok response during a request`,
@@ -500,6 +546,15 @@ export default class AuthClient {
       return result;
     } catch (e) {
       if (!errorCaptured) {
+        Sentry.addBreadcrumb({
+          category: 'auth-client',
+          message: 'auth-client unexpected error',
+          level: 'error', // Available: fatal, error, warning, info, debug
+          data: {
+            path,
+            enc_path: btoa(path),
+          },
+        });
         // One more check for unexpected errors that wouldn't have been caught by the above two check.
         Sentry.captureMessage(
           `Auth client encoutered unexpected error during request`,
