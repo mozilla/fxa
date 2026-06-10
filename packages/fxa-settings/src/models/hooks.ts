@@ -36,6 +36,7 @@ import {
   getFullAccountData,
   isSignedIn as checkIsSignedIn,
 } from '../lib/account-storage';
+import { AuthUiErrors } from '../lib/auth-errors/auth-errors';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
@@ -96,7 +97,7 @@ export function useIntegration() {
   const legalTermsState = useLegalTermsState();
 
   return useMemo(() => {
-    // If we are still loading data, just return an null integration
+    // A null integration signals that loading is still in progress.
     if (
       clientInfoState.loading ||
       productInfoState.loading ||
@@ -271,31 +272,94 @@ export function useInitialMetricsQueryState() {
   return state;
 }
 
+/**
+ * Reads the `client_id` stashed in storage by
+ * `OAuthWebIntegration.saveOAuthState()`. OAuth flows that resume after an
+ * email verification can land on a path (e.g. `/signup`) without the
+ * `client_id` / `service` query params, but the id is still available from
+ * storage. Mirrors `IntegrationFactoryFlags._getSavedClientId()`.
+ */
+function getSavedOAuthClientId(storageData: StorageData): string {
+  try {
+    const oauth = JSON.parse(storageData.get('oauth') || '{}');
+    if (oauth && typeof oauth.client_id === 'string') {
+      return oauth.client_id;
+    }
+  } catch {
+    // Ignore malformed storage state.
+  }
+  return '';
+}
+
 export function useClientInfoState() {
   const { config } = useContext(AppContext);
   const [state, setState] = useState<{
     loading: boolean;
     error?: Error;
     data?: { clientInfo: RelierClientInfo };
-  }>({ loading: false });
+  }>({ loading: true });
 
-  const urlQueryData = new UrlQueryData(new ReachRouterWindow());
+  const windowWrapper = new ReachRouterWindow();
+  const urlQueryData = new UrlQueryData(windowWrapper);
+  // Resolve the client_id the same way the integration is classified. Without
+  // the storage fallback, a resume flow without a `client_id` query param skips
+  // the `/v1/oauth/client/:id` fetch entirely — leaving `clientInfo` empty while
   const clientId =
-    urlQueryData.get('client_id') || urlQueryData.get('service') || '';
-
-  const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
+    urlQueryData.get('client_id') ||
+    urlQueryData.get('service') ||
+    getSavedOAuthClientId(new StorageData(windowWrapper)) ||
+    '';
 
   useEffect(() => {
-    if (!isValidClientId || !config) {
-      setState({ loading: false });
+
+    // This shouldn't happen, but types do allow it. Run this check just be cautious.
+    if (!config) {
+      Sentry.addBreadcrumb({
+        category: "useClientInfoState",
+        message: "Missing config!",
+        level: "info",
+      });
+      Sentry.captureMessage('Encountered empty config during useClientInfoState.')
+      setState({
+        loading:false,
+        error: AuthUiErrors.UNEXPECTED_ERROR
+      })
       return;
     }
 
-    let mounted = true;
-    setState((prev) => ({ ...prev, loading: true }));
+    // It's possible the clientId passed to us isn't valid. There's no point in
+    // fetching client data in this case.
+    const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
+    if (!isValidClientId) {
+      Sentry.addBreadcrumb({
+        category: "useClientInfoState",
+        message: "Invalid clientId!",
+        level: "info",
+        data: {
+          clientId,
+          enc_clientId: btoa(clientId),
+          client_id: urlQueryData.get('client_id'),
+          service: urlQueryData.get('service'),
+          oauth_client_id: getSavedOAuthClientId(new StorageData(windowWrapper))
+        }
+      });
+      setState({loading: false});
+      return;
+    }
 
-    const fetchClientInfo = async () => {
+    // Fetch client info asynchronously.
+    // Update client info as long as component is still mounted.
+    // Mutate loading state, once info is resolved or error is encountered
+    // Track mounted state. If component unmounts during async operation, we need to exit
+    let mounted = true;
+    (async () => {
       try {
+        // Check if mounted and run fetch
+        if (!mounted) {
+          return;
+        }
+
+        // Fetch the client info, Check if we are still mounted, and process the result.
         const response = await fetch(
           `${config.servers.auth.url}/v1/oauth/client/${clientId}`,
           {
@@ -303,30 +367,65 @@ export function useClientInfoState() {
             headers: { 'Content-Type': 'application/json' },
           }
         );
-
+        if (!mounted) {
+          return;
+        }
         if (!response.ok) {
+          Sentry.addBreadcrumb({
+            category: "useClientInfoState",
+            message: "Response not ok",
+            level: "info",
+            data: {
+              clientId,
+              enc_clientId: btoa(clientId),
+              response_status: response.status
+            }
+          });
+          setState({
+            loading: false,
+            error: AuthUiErrors.SERVICE_UNAVAILABLE,
+          });
           throw new Error(`Failed to fetch client info: ${response.status}`);
         }
 
+        // Parse the response. It's another async operation, so make sure were still mounted.
         const data = await response.json();
-
-        if (mounted) {
-          setState({
-            loading: false,
-            data: {
-              clientInfo: {
-                clientId: data.id || clientId,
-                imageUri: data.image_uri || null,
-                redirectUri: data.redirect_uri || null,
-                serviceName: data.name || null,
-                trusted: data.trusted || false,
-              },
-            },
-          });
+        if (!mounted) {
+          return;
         }
+        setState({
+          loading: false,
+          data: {
+            clientInfo: {
+              clientId: data.id || clientId,
+              imageUri: data.image_uri || null,
+              redirectUri: data.redirect_uri || null,
+              serviceName: data.name || null,
+              trusted: data.trusted || false,
+            },
+          },
+        });
       } catch (error) {
-        const err =
-          error instanceof Error ? error : new Error('Unknown error');
+        // Potentially hit after async operation. Check if still mounted and update error state.
+        if (!mounted) {
+          return;
+        }
+
+        const err = error instanceof Error ? error : new Error('Unknown error');
+
+        // Add a breadcrumb so down stream errors can be traced back to this issue
+        Sentry.addBreadcrumb({
+          category: "useClientInfoState",
+          message: "Unexpected Error",
+          level: "info",
+          data: {
+            clientId,
+            enc_clientId: btoa(clientId),
+            isUnknownError: error instanceof Error,
+            message: error.message
+          }
+        });
+
         // Surface fetch failures as their own Sentry issue so the real cause
         // (network, WAF challenge, 5xx, unknown client_id) is observable
         // separately from the downstream scope-validation paths it used to
@@ -335,18 +434,19 @@ export function useClientInfoState() {
           tags: { area: 'useClientInfoState.fetch' },
           extra: { clientId },
         });
-        if (mounted) {
-          setState({ loading: false, error: err });
-        }
-      }
-    };
 
-    fetchClientInfo();
+        // Inidcate that client info could not be loaded, and relay error
+        setState({
+          loading: false,
+          error: err,
+         });
+      }
+    })();
 
     return () => {
       mounted = false;
     };
-  }, [clientId, isValidClientId, config]);
+  }, [clientId, config, urlQueryData, windowWrapper]);
 
   return state;
 }
