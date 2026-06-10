@@ -139,7 +139,7 @@ const SetPasswordContainer = ({
             //       the email provided was the original email. Therefore we could
             //       have been setting passwords that were NOT hashed with the original
             //       account email.
-            {original: emails.original },
+            { original: emails.original },
             newPassword
           );
 
@@ -195,6 +195,7 @@ const SetPasswordContainer = ({
             // users will see a "flash" of whatever page we navigate them to
             // before the client closes the view. See FXA-11944
             performNavigation: !integration.isFirefoxMobileClient(),
+            authClient,
           };
 
           const { error } = await handleNavigation(navigationOptions);

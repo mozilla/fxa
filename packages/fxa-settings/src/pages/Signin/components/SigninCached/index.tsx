@@ -12,7 +12,11 @@ import CardHeader from '../../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
 import { AuthUiErrors } from '../../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../../lib/glean';
-import { useFtlMsgResolver, isWebIntegration } from '../../../../models';
+import {
+  useFtlMsgResolver,
+  isWebIntegration,
+  useAuthClient,
+} from '../../../../models';
 import { SigninCachedProps } from '../../interfaces';
 import { handleNavigation, ensureCanLinkAcountOrRedirect } from '../../utils';
 import { useWebRedirect } from '../../../../lib/hooks/useWebRedirect';
@@ -44,6 +48,7 @@ const SigninCached = ({
   onSessionExpired,
   supportsKeysOptionalLogin,
 }: SigninCachedProps & RouteComponentProps) => {
+  const authClient = useAuthClient();
   const config = useConfig();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
@@ -163,6 +168,7 @@ const SigninCached = ({
         // Redirect these passwordless users to set_password after session
         // verification.
         isSignInWithThirdPartyAuth: deferKeysUntilPasswordSet,
+        authClient,
       };
       const { error: navError } = await handleNavigation(navigationOptions);
       if (navError) {
@@ -202,6 +208,7 @@ const SigninCached = ({
     setLocalizedBannerError,
     hasPassword,
     onSessionExpired,
+    authClient,
   ]);
 
   return (

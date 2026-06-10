@@ -8,7 +8,6 @@ import { NavigationOptions, SigninLocationState } from './interfaces';
 import type { SetPasswordLocationState } from '../PostVerify/SetPassword/interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
-  useSession,
   isOAuthIntegration,
   isOAuthNativeIntegration,
   useAuthClient,
@@ -137,19 +136,14 @@ export function getSyncNavigate(
 
 export const cachedSignIn = async (
   sessionToken: string,
-  authClient: ReturnType<typeof useAuthClient>,
-  session: ReturnType<typeof useSession>,
-  isOauthPromptNone = false
+  authClient: ReturnType<typeof useAuthClient>
 ) => {
   try {
     // retrieves the account's authentication methods only
     // authenticatorAssuranceLevel reflects account AAL
     // and does not reflect the token's AAL (==> not useful here)
-    const {
-      authenticationMethods,
-    }: {
-      authenticationMethods: AuthenticationMethods[];
-    } = await authClient.accountProfile(sessionToken);
+    const { authenticationMethods } =
+      await authClient.accountProfile(sessionToken);
 
     const totpIsActive = authenticationMethods.includes(
       AuthenticationMethods.OTP
@@ -166,7 +160,8 @@ export const cachedSignIn = async (
     if (!emailVerified) {
       verificationReason = VerificationReasons.SIGN_UP;
       verificationMethod = VerificationMethods.EMAIL_OTP;
-      !isOauthPromptNone && (await session.sendVerificationCode());
+      // We should send the code prior to nav. That couples with an actual navigation action, where it belongs.
+      // !isOauthPromptNone && (await session.sendVerificationCode());
     } else if (!sessionVerified) {
       // we are inferring verification method and verification reason here
       // ideally we would check the server directly to allow for more verification reasons
@@ -174,8 +169,11 @@ export const cachedSignIn = async (
       if (totpIsActive) {
         verificationMethod = VerificationMethods.TOTP_2FA;
       } else {
+        // Note when using this method, the expectation is that we will send the user
+        // a verification code, if and only if the navigation handler directs them to
+        // a verification code page. There are some RPs that require email_otp verification,
+        // so for these RPs, we can just pass the user straight through.
         verificationMethod = VerificationMethods.EMAIL_OTP;
-        !isOauthPromptNone && (await session.sendVerificationCode());
       }
     }
 
@@ -293,6 +291,19 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       !to?.includes('signin_totp_code')
     ) {
       sendFxaLogin(navigationOptions);
+    }
+
+    // If we are about to direct a user to /signin_totp_code, where they will be prompoted for a
+    // totp code and we know their session isn't fully verified then send them an otp code.
+    if (
+      to?.includes('signin_token_code') &&
+      navigationOptions.signinData.sessionToken &&
+      navigationOptions.signinData.verificationMethod ===
+        VerificationMethods.EMAIL_OTP
+    ) {
+      await navigationOptions.authClient.sessionResendVerifyCode(
+        navigationOptions.signinData.sessionToken
+      );
     }
 
     if (
