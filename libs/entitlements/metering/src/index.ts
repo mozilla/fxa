@@ -3,3 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/metering.config';
+export * from './lib/metering-auth.guard';
+export * from './lib/utils/extractBearerToken';
