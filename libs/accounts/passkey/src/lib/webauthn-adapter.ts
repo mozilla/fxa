@@ -74,7 +74,8 @@ export async function generateWebauthnRegistrationOptions(
     challenge: Buffer.from(input.challenge, 'base64url'),
     authenticatorSelection: {
       residentKey: config.residentKey,
-      userVerification: config.userVerification,
+      // AAL2 invariant — UV always required, not configurable.
+      userVerification: 'required',
       authenticatorAttachment: config.authenticatorAttachment,
     },
     excludeCredentials: input.excludeCredentials,
@@ -133,6 +134,8 @@ export async function verifyWebauthnRegistrationResponse(
     expectedChallenge: input.challenge,
     expectedOrigin: config.allowedOrigins,
     expectedRPID: config.rpId,
+    // Library defaults this to false; UV must be enforced for the AAL2 claim.
+    requireUserVerification: true,
   });
 
   if (!verified) {
@@ -164,7 +167,7 @@ export async function verifyWebauthnRegistrationResponse(
 
 /**
  * Per-request inputs for generating WebAuthn authentication options.
- * `rpID` and `userVerification` are supplied by PasskeyConfig.
+ * `rpID` is supplied by PasskeyConfig; `userVerification` is always 'required'.
  */
 export interface AuthenticationOptionsInput {
   /** Challenge from ChallengeManager. */
@@ -189,7 +192,8 @@ export async function generateWebauthnAuthenticationOptions(
 ): Promise<PublicKeyCredentialRequestOptionsJSON> {
   return generateAuthenticationOptions({
     rpID: config.rpId,
-    userVerification: config.userVerification,
+    // AAL2 invariant — UV always required, not configurable.
+    userVerification: 'required',
     // See comment in generateRegistrationOptions — same base64url roundtrip fix.
     challenge: Buffer.from(input.challenge, 'base64url'),
     allowCredentials:
@@ -260,6 +264,8 @@ export async function verifyWebauthnAuthenticationResponse(
     expectedOrigin: config.allowedOrigins,
     expectedRPID: config.rpId,
     credential,
+    // Library defaults this to false; UV must be enforced for the AAL2 claim.
+    requireUserVerification: true,
   });
 
   if (!verified) {

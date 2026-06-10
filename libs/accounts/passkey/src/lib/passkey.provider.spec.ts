@@ -22,7 +22,6 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   allowedOrigins: ['https://accounts.firefox.com'],
   maxPasskeysPerUser: 10,
   challengeTimeout: 30_000,
-  userVerification: 'required',
   residentKey: 'required',
   authenticatorAttachment: '',
 };
@@ -102,7 +101,6 @@ describe('PasskeyConfigProvider', () => {
       expect(config!.allowedOrigins).toEqual(['https://accounts.firefox.com']);
       expect(config!.challengeTimeout).toBe(30_000);
       expect(config!.maxPasskeysPerUser).toBe(10);
-      expect(config!.userVerification).toBe('required');
       expect(config!.residentKey).toBe('required');
     });
 
