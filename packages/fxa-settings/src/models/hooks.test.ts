@@ -14,6 +14,7 @@ import { AppContext } from './contexts/AppContext';
 jest.mock('@sentry/browser', () => ({
   captureMessage: jest.fn(),
   captureException: jest.fn(),
+  addBreadcrumb: jest.fn()
 }));
 
 jest.mock('class-validator', () => ({
