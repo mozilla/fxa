@@ -88,6 +88,8 @@ const settingsConfig = {
     reactClientIdsEnabled: config.get(
       'oauth.react_feature_flags.enabled_client_ids'
     ),
+    clientInfoTimeout: config.get('oauth.client_info.timeout'),
+    clientInfoRetries: config.get('oauth.client_info.retries'),
   },
   recoveryCodes: {
     count: config.get('recovery_codes.count'),

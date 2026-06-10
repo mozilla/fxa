@@ -713,6 +713,20 @@ const conf = (module.exports = convict({
         format: Array,
       },
     },
+    client_info: {
+      timeout: {
+        default: 10000,
+        doc: 'Timeout in milliseconds for each /v1/oauth/client/:id fetch attempt in fxa-settings.',
+        env: 'OAUTH_CLIENT_INFO_TIMEOUT',
+        format: Number,
+      },
+      retries: {
+        default: 4,
+        doc: 'Number of attempts (including the first) for the /v1/oauth/client/:id fetch in fxa-settings.',
+        env: 'OAUTH_CLIENT_INFO_RETRIES',
+        format: Number,
+      },
+    },
   },
   openid_configuration: {
     claims_supported: ['aud', 'exp', 'iat', 'iss', 'sub'],

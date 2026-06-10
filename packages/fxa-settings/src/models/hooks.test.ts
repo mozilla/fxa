@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'reflect-metadata';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
@@ -74,6 +74,10 @@ const mockConfig = {
     auth: {
       url: 'http://localhost:9000',
     },
+  },
+  oauth: {
+    clientInfoRetries: 4,
+    clientInfoTimeout: 20_000,
   },
 };
 
@@ -537,6 +541,7 @@ describe('useClientInfoState', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
 
     const { UrlQueryData } = require('../lib/model-data');
     mockUrlQueryData = { get: jest.fn() };
@@ -557,6 +562,10 @@ describe('useClientInfoState', () => {
       }),
     });
   });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  })
 
   it('populates clientInfo from the fetch response', async () => {
     mockUrlQueryData.get.mockImplementation((key: string) =>
@@ -598,7 +607,7 @@ describe('useClientInfoState', () => {
     expect(result.current.data).toBeUndefined();
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
       tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' },
-      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined },
+      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined, mounted:true, attempt:3 },
     });
   });
 
@@ -619,8 +628,46 @@ describe('useClientInfoState', () => {
     expect(result.current.error?.message).toMatch(/403/);
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringMatching(/403/) }),
-      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined} })
+      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined, mounted:true, attempt:3} })
     );
+  });
+
+  it('aborts a hung fetch after the timeout, retries, and surfaces an error', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    // The request never resolves on its own — it only rejects when its
+    // AbortSignal fires, i.e. when the hook's per-attempt timeout aborts it.
+    mockFetch.mockImplementation(
+      (_url: string, opts: { signal: AbortSignal }) =>
+        new Promise((_resolve, reject) => {
+          opts.signal.addEventListener('abort', () =>
+            reject(opts.signal.reason ?? new DOMException('aborted', 'AbortError'))
+          );
+        })
+    );
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    // Drive the fake clock past all four 20s (REQUEST_TIMEOUT_MS) attempt
+    // timeouts plus the intervening linear backoffs (0 + 250 + 500ms), with a
+    // margin so the final attempt's timeout fires rather than landing on the
+    // advance boundary.
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5 * 20_000);
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(4);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.stringContaining('/v1/oauth/client/1234567890abcdef'),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
   it('does not fetch when client_id is missing', async () => {
