@@ -138,6 +138,7 @@ const ThirdPartyAuthCallback = ({
         // password and keys are available.
         handleFxaLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
         handleFxaOAuthLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
+        authClient,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -155,6 +156,7 @@ const ThirdPartyAuthCallback = ({
       webRedirectCheck,
       ftlMsgResolver,
       useFxAStatusResult.supportsKeysOptionalLogin,
+      authClient,
     ]
   );
 

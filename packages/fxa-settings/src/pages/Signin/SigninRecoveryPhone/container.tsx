@@ -130,6 +130,7 @@ const SigninRecoveryPhoneContainer = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        authClient,
       };
 
       await handleNavigation(navigationOptions);

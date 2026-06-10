@@ -572,7 +572,8 @@ const SigninContainer = ({
           credentials.credentialStatus?.upgradeNeeded === true &&
           credentials.v2Credentials
         ) {
-          const { sessionToken, emailVerified, sessionVerified } = result.data.signIn;
+          const { sessionToken, emailVerified, sessionVerified } =
+            result.data.signIn;
 
           // To simplify this process. Fetch the original account sign in email.
           const emails = await authClient.accountEmails(sessionToken);
@@ -581,7 +582,10 @@ const SigninContainer = ({
           // Update the v1Credentials object to make sure the authPW is in fact correct. It
           // needs to be derived from the original account email, not the current primary.
           if (emails.original !== email) {
-            credentials.v1Credentials = await getCredentials(emails.original, password);
+            credentials.v1Credentials = await getCredentials(
+              emails.original,
+              password
+            );
           }
 
           sensitiveDataClient.KeyStretchUpgradeData = {
@@ -628,9 +632,8 @@ const SigninContainer = ({
   );
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
-    async (sessionToken: hexstring) =>
-      cachedSignIn(sessionToken, authClient, session),
-    [authClient, session]
+    async (sessionToken: hexstring) => cachedSignIn(sessionToken, authClient),
+    [authClient]
   );
 
   const sendUnblockEmailHandler = useCallback(
@@ -769,14 +772,18 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const response = await authClient.signInWithAuthPW({ primary: email }, authPW, {
-      verificationMethod: options.verificationMethod,
-      keys: options.keys,
-      service: options.service,
-      metricsContext: options.metricsContext,
-      unblockCode: options.unblockCode,
-      originalLoginEmail: options.originalLoginEmail,
-    });
+    const response = await authClient.signInWithAuthPW(
+      { primary: email },
+      authPW,
+      {
+        verificationMethod: options.verificationMethod,
+        keys: options.keys,
+        service: options.service,
+        metricsContext: options.metricsContext,
+        unblockCode: options.unblockCode,
+        originalLoginEmail: options.originalLoginEmail,
+      }
+    );
 
     if (response) {
       const unwrapBKey = v2Credentials

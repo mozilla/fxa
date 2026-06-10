@@ -171,6 +171,7 @@ const Signin = ({
             integration.isFirefoxMobileClient() && isFullyVerified
           ),
           isServiceWithEmailVerification,
+          authClient,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -275,6 +276,7 @@ const Signin = ({
       webRedirectCheck,
       sensitiveDataClient,
       isServiceWithEmailVerification,
+      authClient,
     ]
   );
 

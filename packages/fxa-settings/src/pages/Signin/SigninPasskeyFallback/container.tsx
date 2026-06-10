@@ -156,6 +156,7 @@ const SigninPasskeyFallbackContainer = ({
         // messages; navigating the WebView away would interrupt it and leave
         // Sync paused. Desktop finishes by navigating.
         performNavigation: !integration.isFirefoxMobileClient(),
+        authClient,
       });
       if (navError) {
         GleanMetrics.passkeyEnterPassword.submitFrontendError({

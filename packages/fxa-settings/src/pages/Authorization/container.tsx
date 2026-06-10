@@ -11,7 +11,6 @@ import {
   RelierAccount,
   useAuthClient,
   useConfig,
-  useSession,
 } from '../../models';
 
 import { useCallback, useEffect, useState, useRef } from 'react';
@@ -58,7 +57,6 @@ const AuthorizationContainer = ({
   const config = useConfig();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -76,12 +74,9 @@ const AuthorizationContainer = ({
         relierAccount
       );
 
-      const isOauthPromptNone = true;
       const { data, error } = await cachedSignIn(
         account?.sessionToken!,
-        authClient,
-        session,
-        isOauthPromptNone
+        authClient
       );
 
       if (error === AuthUiErrors.SESSION_EXPIRED) {
@@ -122,6 +117,7 @@ const AuthorizationContainer = ({
           redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
           queryParams: location.search,
+          authClient,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -156,7 +152,6 @@ const AuthorizationContainer = ({
     integration,
     location.search,
     navigateWithQuery,
-    session,
   ]);
 
   useEffect(() => {

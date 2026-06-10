@@ -13,6 +13,7 @@ import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
+import AuthClient from 'fxa-auth-client/browser';
 
 export interface AvatarResponse {
   account: {
@@ -286,6 +287,7 @@ export interface NavigationOptions {
   // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
   isPasskeySession?: boolean;
   accountHasTotp?: boolean;
+  authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 
 export interface OAuthSigninResult {
