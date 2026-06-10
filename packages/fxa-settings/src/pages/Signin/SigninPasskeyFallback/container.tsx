@@ -149,6 +149,7 @@ const SigninPasskeyFallbackContainer = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        authClient
       });
       if (navError) {
         GleanMetrics.passkeyEnterPassword.submitFrontendError({

@@ -147,10 +147,12 @@ export function mockAuthClient() {
   if (typeof jest !== 'undefined') {
     return {
       sessionStatus: jest.fn().mockResolvedValue(mockSessionStatus),
+      sessionResendVerifyCode: jest.fn().mockResolvedValue(undefined),
     } as unknown as AuthClient;
   } else {
     return {
       sessionStatus: () => Promise.resolve(mockSessionStatus),
+      sessionResendVerifyCode: () => Promise.resolve(undefined),
     } as unknown as AuthClient;
   }
 }

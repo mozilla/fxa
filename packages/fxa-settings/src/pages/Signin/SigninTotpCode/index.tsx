@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAlertBar, useFtlMsgResolver, useSession } from '../../../models';
+import { useAlertBar, useAuthClient, useFtlMsgResolver, useSession } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import firefox from '../../../lib/channels/firefox';
@@ -58,6 +58,7 @@ export const SigninTotpCode = ({
   const session = useSession();
   const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
   const alertBar = useAlertBar();
+  const authClient = useAuthClient();
 
   const [bannerError, setBannerError] = useState<string>('');
 
@@ -176,6 +177,7 @@ export const SigninTotpCode = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        authClient
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);

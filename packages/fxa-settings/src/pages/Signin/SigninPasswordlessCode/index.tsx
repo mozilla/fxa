@@ -292,6 +292,7 @@ const SigninPasswordlessCode = ({
           integration.isFirefoxMobileClient() && isSessionVerified
         ),
         isPasswordlessOtpSignin: true,
+        authClient
       };
 
       // For existing users signing into Sync (signin flow), show merge warning

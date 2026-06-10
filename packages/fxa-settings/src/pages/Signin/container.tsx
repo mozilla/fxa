@@ -623,8 +623,8 @@ const SigninContainer = ({
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
     async (sessionToken: hexstring) =>
-      cachedSignIn(sessionToken, authClient, session),
-    [authClient, session]
+      cachedSignIn(sessionToken, authClient),
+    [authClient]
   );
 
   const sendUnblockEmailHandler = useCallback(
