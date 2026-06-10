@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
+
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
@@ -10,7 +13,7 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const { INVALID_PARAMETER, MISSING_PARAMETER } = error.ERRNO;
 
 function makeRoutes(options: any = {}) {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   return require('./newsletters')(log, db);
 }
@@ -33,7 +36,7 @@ describe('/newsletters should emit newsletters update message', () => {
 
   describe('using session token', () => {
     beforeEach(async () => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       db = mocks.mockDB({
         email,
         uid,
@@ -91,7 +94,7 @@ describe('/newsletters should emit newsletters update message', () => {
 
   describe('using access token', () => {
     beforeEach(async () => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       db = mocks.mockDB({
         email,
         uid,
@@ -153,7 +156,7 @@ describe('/newsletters should emit newsletters update message', () => {
 
   describe('using access token without the required scope', () => {
     it('throws an unauthorized error', async () => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       db = mocks.mockDB({
         email,
         uid,
@@ -187,7 +190,7 @@ describe('/newsletters should emit newsletters update message', () => {
 
   describe('request errors', () => {
     beforeEach(() => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       db = mocks.mockDB({
         email,
         uid,

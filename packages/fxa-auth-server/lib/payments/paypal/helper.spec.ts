@@ -26,7 +26,10 @@ import {
   PAYPAL_RETRY_ERRORS,
 } from './error-codes';
 
-const { mockLog } = require('../../../test/mocks');
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+
+const mockLog = createMock<AuthLogger>();
 
 const successfulDoReferenceTransactionResponse = require('../../../test/local/payments/fixtures/paypal/do_reference_transaction_success.json');
 const successfulRefundTransactionResponse = require('../../../test/local/payments/fixtures/paypal/refund_transaction_success.json');

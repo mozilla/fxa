@@ -19,7 +19,6 @@ const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
-const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
 // Patch Account.metricsEnabled before loading amplitude (replicates what
 // proxyquire used to do without replacing the entire auth models module).
@@ -238,8 +237,6 @@ const SUBHUB_METHOD_NAMES = [
   'createSubscription',
 ];
 
-const STATSD_METHOD_NAMES = ['increment', 'timing', 'histogram'];
-
 const PROFILE_METHOD_NAMES = ['deleteCache', 'updateDisplayName'];
 
 const MOCK_CMS_CLIENTS = [
@@ -349,7 +346,6 @@ module.exports = {
   mockPushbox,
   mockRequest,
   mockSubHub,
-  mockStatsd: mockObject(STATSD_METHOD_NAMES),
   mockProfile,
   mockVerificationReminders,
   mockCadReminders,
@@ -361,7 +357,6 @@ module.exports = {
   unMockAccountEventsManager,
   mockPriceManager,
   mockProductConfigurationManager,
-  mockFxaMailer,
   mockOAuthClientInfo,
 };
 
@@ -1138,82 +1133,6 @@ function mockProductConfigurationManager() {
   };
   Container.set(ProductConfigurationManager, productConfigurationManager);
   return productConfigurationManager;
-}
-
-/**
- * Used to mock the FxaMailer, injecting the mock into the Container. Be sure
- * to call this before the code under test requests an FxaMailer instance from
- * the Container.
- *
- * `canSend` is defaulted to a stub that resolves to `false`, so email
- * sending is disabled by default in tests. Call mock setup with an override to enable
- * sending for specific tests.
- * ```
- * const mockFxaMailer = mocks.mockFxaMailer({ canSend: jest.fn().mockResolvedValue(true) });
- * // or, if you don't need to spy on the method:
- * const mockFxaMailer = mocks.mockFxaMailer({ canSend: true });
- * ```
- * @param {*} overrides
- * @returns {object} The mock FxaMailer instance for spy and assertion use.
- * @usage
- *
- * ``` ts
- * const mockFxaMailer = mocks.mockFxaMailer();
- * // arrange, act, assert
- * expect(mockFxaMailer.sendRecoveryEmail).toHaveBeenCalledTimes(1);
- * ```
- */
-function mockFxaMailer(overrides) {
-  const mockFxaMailer = {
-    // add new email methods here!
-    canSend: jest.fn().mockReturnValue(true),
-    sendRecoveryEmail: jest.fn().mockResolvedValue(),
-    sendPasswordForgotOtpEmail: jest.fn().mockResolvedValue(),
-    sendPasswordlessSigninOtpEmail: jest.fn().mockResolvedValue(),
-    sendPasswordlessSignupOtpEmail: jest.fn().mockResolvedValue(),
-    sendPostVerifySecondaryEmail: jest.fn().mockResolvedValue(),
-    sendPostChangePrimaryEmail: jest.fn().mockResolvedValue(),
-    sendPostRemoveSecondaryEmail: jest.fn().mockResolvedValue(),
-    sendPostAddLinkedAccountEmail: jest.fn().mockResolvedValue(),
-    sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(),
-    sendPostAddTwoStepAuthenticationEmail: jest.fn().mockResolvedValue(),
-    sendPostChangeTwoStepAuthenticationEmail: jest.fn().mockResolvedValue(),
-    sendPostNewRecoveryCodesEmail: jest.fn().mockResolvedValue(),
-    sendPostConsumeRecoveryCodeEmail: jest.fn().mockResolvedValue(),
-    sendLowRecoveryCodesEmail: jest.fn().mockResolvedValue(),
-    sendPostSigninRecoveryCodeEmail: jest.fn().mockResolvedValue(),
-    sendPostAddRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
-    sendPostChangeRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
-    sendPostRemoveRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
-    sendPasswordResetRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
-    sendPostSigninRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
-    sendPostAddAccountRecoveryEmail: jest.fn().mockResolvedValue(),
-    sendPostChangeAccountRecoveryEmail: jest.fn().mockResolvedValue(),
-    sendPostRemoveAccountRecoveryEmail: jest.fn().mockResolvedValue(),
-    sendPasswordResetAccountRecoveryEmail: jest.fn().mockResolvedValue(),
-    sendPasswordResetWithRecoveryKeyPromptEmail: jest.fn().mockResolvedValue(),
-    sendPostVerifyEmail: jest.fn().mockResolvedValue(),
-    sendVerifyLoginCodeEmail: jest.fn().mockResolvedValue(),
-    sendVerifyShortCodeEmail: jest.fn().mockResolvedValue(),
-    sendVerifySecondaryCodeEmail: jest.fn().mockResolvedValue(),
-    sendVerifyLoginEmail: jest.fn().mockResolvedValue(),
-    sendVerifyEmail: jest.fn().mockResolvedValue(),
-    sendVerifyAccountChangeEmail: jest.fn().mockResolvedValue(),
-    sendUnblockCodeEmail: jest.fn().mockResolvedValue(),
-    sendPasswordResetEmail: jest.fn().mockResolvedValue(),
-    sendPasswordChangedEmail: jest.fn().mockResolvedValue(),
-    sendInactiveAccountFirstWarningEmail: jest.fn().mockResolvedValue(),
-    sendInactiveAccountSecondWarningEmail: jest.fn().mockResolvedValue(),
-    sendInactiveAccountFinalWarningEmail: jest.fn().mockResolvedValue(),
-    sendVerificationReminderFirstEmail: jest.fn().mockResolvedValue(),
-    sendVerificationReminderSecondEmail: jest.fn().mockResolvedValue(),
-    sendVerificationReminderFinalEmail: jest.fn().mockResolvedValue(),
-    sendCadReminderFirstEmail: jest.fn().mockResolvedValue(),
-    sendCadReminderSecondEmail: jest.fn().mockResolvedValue(),
-    ...overrides,
-  };
-  Container.set(FxaMailer, mockFxaMailer);
-  return mockFxaMailer;
 }
 
 function mockOAuthClientInfo(overrides) {

@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+
 const { pushboxApi } = require('./index');
 const { AppError: error } = require('@fxa/accounts/errors');
-const { mockLog } = require('../../test/mocks');
-let mockStatsD: { increment: jest.Mock; timing: jest.Mock };
+let mockStatsD: DeepMocked<StatsD>;
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -43,7 +46,7 @@ describe('pushbox', () => {
     let stubConstructor: jest.Mock;
 
     beforeEach(() => {
-      mockStatsD = { increment: jest.fn(), timing: jest.fn() };
+      mockStatsD = createMock<StatsD>();
       // Create a mock instance with the methods we need
       stubDbModule = {
         store: jest.fn(),
@@ -62,7 +65,7 @@ describe('pushbox', () => {
       jest.spyOn(Date, 'now').mockReturnValue(1000534);
       stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
-        mockLog(),
+        createMock<AuthLogger>(),
         mockConfig,
         mockStatsD,
         stubConstructor
@@ -92,7 +95,7 @@ describe('pushbox', () => {
       jest.spyOn(Date, 'now').mockReturnValue(1000534);
       stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
-        mockLog(),
+        createMock<AuthLogger>(),
         mockConfig,
         mockStatsD,
         stubConstructor
@@ -115,7 +118,7 @@ describe('pushbox', () => {
       jest.spyOn(Date, 'now').mockReturnValue(1000432);
       stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
-        mockLog(),
+        createMock<AuthLogger>(),
         mockConfig,
         mockStatsD,
         stubConstructor
@@ -136,7 +139,7 @@ describe('pushbox', () => {
 
     it('logs an error when failed to store', async () => {
       stubDbModule.store.mockRejectedValue(new Error('db is a mess right now'));
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
         await pushbox.store(
@@ -173,7 +176,7 @@ describe('pushbox', () => {
         ],
       });
       const pushbox = pushboxApi(
-        mockLog(),
+        createMock<AuthLogger>(),
         mockConfig,
         mockStatsD,
         stubConstructor
@@ -200,7 +203,7 @@ describe('pushbox', () => {
       stubDbModule.retrieve.mockRejectedValue(
         new Error('db is a mess right now')
       );
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
         await pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10);
@@ -222,7 +225,7 @@ describe('pushbox', () => {
 
     it('deletes records of a device', async () => {
       stubDbModule.deleteDevice.mockResolvedValue(undefined);
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       const res = await pushbox.deleteDevice(mockUid, mockDeviceIds[0]);
       expect(res).toBeUndefined();
@@ -240,7 +243,7 @@ describe('pushbox', () => {
       stubDbModule.deleteDevice.mockRejectedValue(
         new Error('db is a mess right now')
       );
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
         await pushbox.deleteDevice(mockUid, mockDeviceIds[0]);
@@ -262,7 +265,7 @@ describe('pushbox', () => {
 
     it('deletes all records for an account', async () => {
       stubDbModule.deleteAccount.mockResolvedValue(undefined);
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       const res = await pushbox.deleteAccount(mockUid);
       expect(res).toBeUndefined();
@@ -280,7 +283,7 @@ describe('pushbox', () => {
       stubDbModule.deleteAccount.mockRejectedValue(
         new Error('someone deleted the pushboxv1 table')
       );
-      const log = mockLog();
+      const log = createMock<AuthLogger>();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
         await pushbox.deleteAccount(mockUid);
@@ -303,7 +306,7 @@ describe('pushbox', () => {
 
   it('feature disabled', async () => {
     const config = { ...mockConfig, pushbox: { enabled: false } };
-    const pushbox = pushboxApi(mockLog(), config);
+    const pushbox = pushboxApi(createMock<AuthLogger>(), config);
 
     try {
       await pushbox.store(mockUid, mockDeviceIds[0], 'sendtab', mockUid);

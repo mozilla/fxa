@@ -3,8 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import { AppError } from '@fxa/accounts/errors';
 import { AccountManager } from '@fxa/shared/account/account';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 import {
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
@@ -26,7 +30,7 @@ describe('/recovery_phone', () => {
   const nationalFormat = '(555) 000-5555';
   const code = '000000';
   const mockDb = mocks.mockDB({ uid: uid, email: email });
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   let mockMailer: any;
   let mockFxaMailer: any;
 
@@ -34,10 +38,7 @@ describe('/recovery_phone', () => {
     check: jest.fn(),
     checkAuthenticated: jest.fn(),
   };
-  const mockStatsd = {
-    increment: jest.fn(),
-    histogram: jest.fn(),
-  };
+  const mockStatsd: DeepMocked<StatsD> = createMock<StatsD>();
   const mockGlean = {
     login: {
       recoveryPhoneSuccess: jest.fn(),
@@ -89,7 +90,7 @@ describe('/recovery_phone', () => {
     Container.set(AccountManager, mockAccountManager);
     Container.set(AccountEventsManager, mockAccountEventsManager);
     mockMailer = mocks.mockMailer();
-    mockFxaMailer = mocks.mockFxaMailer();
+    mockFxaMailer = installMockFxaMailer();
     // Ensure RecoveryPhoneHandler resolves OtpUtils with our mocked db/statsd
     otpUtils = new OtpUtils(mockDb, mockStatsd);
     Container.set(OtpUtils, otpUtils);

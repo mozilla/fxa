@@ -4,7 +4,11 @@
 
 import { Container } from 'typedi';
 import { AppError } from '@fxa/accounts/errors';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import { strategy } from './auth-schemes/mfa';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
 const getRoute = require('../../test/routes_helpers').getRoute;
@@ -94,11 +98,11 @@ describe('mfa', () => {
     const mockAccountEventsManager = {
       recordSecurityEvent: jest.fn(),
     };
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
     mailer = mocks.mockMailer();
-    const fxaMailer = mocks.mockFxaMailer();
-    statsd = mocks.mockStatsd();
+    const fxaMailer = installMockFxaMailer();
+    statsd = createMock<StatsD>();
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,

@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
 import { Container } from 'typedi';
 
 import { AuthLogger } from '../../../types';
 import { UserManager } from './user-manager';
 import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 import { PurchaseQueryError } from './types';
-
-const { mockLog } = require('../../../../test/mocks');
 
 const USER_ID = 'testUser';
 const VALID_SUB_API_RESPONSE = {
@@ -33,7 +32,7 @@ describe('UserManager', () => {
   let queryResult: any;
 
   beforeEach(() => {
-    log = mockLog();
+    log = createMock<AuthLogger>();
     queryResult = {
       docs: [],
     };

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
+
 // Mock fxa-shared/db to prevent real DB connections
 jest.mock('fxa-shared/db', () => ({
   setupAuthDatabase: jest.fn(),
@@ -59,7 +62,6 @@ jest.mock('fxa-shared/connected-services', () => {
 });
 
 // Import after mocks
-const mocks = require('../test/mocks');
 const config = require('../config').default.getProperties();
 const models: any = require('fxa-shared/db/models/auth');
 const { createDB } = require('./db');
@@ -73,7 +75,7 @@ describe('db, session tokens expire:', () => {
 
   beforeEach(async () => {
     redisMockFactory = () => undefined;
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
       {
@@ -131,7 +133,7 @@ describe('db, session tokens do not expire:', () => {
 
   beforeEach(async () => {
     redisMockFactory = () => undefined;
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
       {
@@ -189,7 +191,7 @@ describe('db with redis disabled:', () => {
 
   beforeEach(async () => {
     redisMockFactory = () => undefined;
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
       { redis: {}, tokenLifetimes, tokenPruning: {} },
@@ -249,7 +251,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       expect(args[0].blee).toBeUndefined();
       return redis;
     };
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
       {
@@ -489,7 +491,7 @@ describe('redis enabled, token-pruning disabled:', () => {
       expect(args[0].blee).toBeUndefined();
       return redis;
     };
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
       {
@@ -539,7 +541,7 @@ describe('db.deviceFromRefreshTokenId:', () => {
     mergeDevicesAndSessionTokens: jest.Mock;
 
   beforeEach(async () => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
 
     models.Device.findByUidAndRefreshTokenId = jest.fn();

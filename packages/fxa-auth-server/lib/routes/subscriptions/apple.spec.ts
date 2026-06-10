@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
-const mocks = require('../../../test/mocks');
 const { AppleIapHandler } = require('./apple');
 const {
   PurchaseUpdateError,
 } = require('../../payments/iap/apple-app-store/types/errors');
 const { AppError: error } = require('@fxa/accounts/errors');
-const { AuthLogger } = require('../../types');
 const { AppleIAP } = require('../../payments/iap/apple-app-store/apple-iap');
 const { IAPConfig } = require('../../payments/iap/iap-config');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
@@ -38,7 +38,7 @@ describe('AppleIapHandler', () => {
   let mockCapabilityService: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     appleIap = {};
     Container.set(AuthLogger, log);
     iapConfig = {};

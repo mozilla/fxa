@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
+
 const uuid = require('uuid');
 
 const mocks = require('../../test/mocks');
@@ -12,7 +15,7 @@ const TEST_EMAIL = 'foo@gmail.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
 function makeRoutes(options: any = {}) {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const config = options.config || {};
   const db = options.db || mocks.mockDB();
   return require('./security-events')(log, db, config);

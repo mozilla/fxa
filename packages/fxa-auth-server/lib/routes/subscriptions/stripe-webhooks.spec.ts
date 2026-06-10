@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { default as Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
 const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
@@ -102,7 +104,7 @@ describe('StripeWebhookHandler', () => {
       },
     };
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
       deleteCache: jest.fn(async (uid: any) => ({})),
@@ -2040,10 +2042,7 @@ describe('StripeWebhookHandler', () => {
       it('silently no-ops when SetupIntent has no subscription_id metadata', async () => {
         const event = makeEvent(null);
         const dispatchStub = jest
-          .spyOn(
-            StripeWebhookHandlerInstance,
-            'sendSubscriptionInvoiceEmail'
-          )
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .mockResolvedValue(undefined);
         const sentryMod = require('../../sentry');
         const reportMessage = jest
@@ -2062,10 +2061,7 @@ describe('StripeWebhookHandler', () => {
       it('dispatches the welcome emails when subscription is active and invoice is paid', async () => {
         const event = makeEvent({ subscription_id: mockSubscription.id });
         const dispatchStub = jest
-          .spyOn(
-            StripeWebhookHandlerInstance,
-            'sendSubscriptionInvoiceEmail'
-          )
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .mockResolvedValue(undefined);
 
         const customer = deepCopy(customerFixture);
@@ -2092,10 +2088,7 @@ describe('StripeWebhookHandler', () => {
       it('reports a Sentry warning when the subscription is not active', async () => {
         const event = makeEvent({ subscription_id: mockSubscription.id });
         const dispatchStub = jest
-          .spyOn(
-            StripeWebhookHandlerInstance,
-            'sendSubscriptionInvoiceEmail'
-          )
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .mockResolvedValue(undefined);
         const sentryMod = require('../../sentry');
         const reportMessage = jest
@@ -2121,10 +2114,7 @@ describe('StripeWebhookHandler', () => {
       it('reports a Sentry warning when the latest invoice is not paid', async () => {
         const event = makeEvent({ subscription_id: mockSubscription.id });
         const dispatchStub = jest
-          .spyOn(
-            StripeWebhookHandlerInstance,
-            'sendSubscriptionInvoiceEmail'
-          )
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .mockResolvedValue(undefined);
         const sentryMod = require('../../sentry');
         const reportMessage = jest
@@ -2135,7 +2125,8 @@ describe('StripeWebhookHandler', () => {
           .fn()
           .mockImplementation((id) => {
             if (id === mockSubscription.id) return mockSubscription;
-            if (id === mockInvoice.id) return { ...mockInvoice, status: 'open' };
+            if (id === mockInvoice.id)
+              return { ...mockInvoice, status: 'open' };
             return undefined;
           });
 

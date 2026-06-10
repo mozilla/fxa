@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
 import { AppError as error } from '@fxa/accounts/errors';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
 const getRoute = require('../../test/routes_helpers').getRoute;
@@ -48,10 +51,10 @@ function runTest(routePath: string, requestOptions: any, method?: string) {
 
 describe('backup authentication codes', () => {
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,

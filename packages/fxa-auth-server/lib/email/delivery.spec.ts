@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
-const { mockLog, mockGlean } = require('../../test/mocks');
+const { mockGlean } = require('../../test/mocks');
 const emailHelpers = require('./utils/helpers');
 const delivery = require('./delivery');
 const { requestForGlean } = require('../inactive-accounts');
@@ -32,7 +34,7 @@ describe('delivery messages', () => {
   });
 
   it('should not log an error for headers', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     await mockedDelivery(log, glean).handleDelivery(
       mockMessage({ junk: 'message' })
@@ -41,7 +43,7 @@ describe('delivery messages', () => {
   });
 
   it('should log an error for missing headers', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const message = mockMessage({
       junk: 'message',
@@ -52,7 +54,7 @@ describe('delivery messages', () => {
   });
 
   it('should ignore unknown message types', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     await mockedDelivery(log, glean).handleDelivery(
       mockMessage({
@@ -67,7 +69,7 @@ describe('delivery messages', () => {
   });
 
   it('should log delivery', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
@@ -112,7 +114,7 @@ describe('delivery messages', () => {
   });
 
   it('should emit flow metrics', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
@@ -175,7 +177,7 @@ describe('delivery messages', () => {
   });
 
   it('should log popular email domain', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
@@ -242,7 +244,7 @@ describe('delivery messages', () => {
     jest
       .spyOn(emailHelpers, 'logAccountEventFromMessage')
       .mockReturnValue(Promise.resolve());
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
@@ -285,7 +287,7 @@ describe('delivery messages', () => {
   });
 
   it('should log glean event for successful email delivery', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',

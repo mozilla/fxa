@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
-const { mockDB, mockLog } = require('../../test/mocks');
+const { mockDB } = require('../../test/mocks');
 const profileUpdates = require('./updates');
 
 const mockDeliveryQueue = new EventEmitter();
@@ -38,7 +40,7 @@ describe('profile updates', () => {
 
   it('should log errors', async () => {
     pushShouldThrow = true;
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     await mockProfileUpdates(log).handleProfileUpdated(
       mockMessage({
         uid: 'bogusuid',
@@ -49,7 +51,7 @@ describe('profile updates', () => {
   });
 
   it('should send notifications', async () => {
-    const log = mockLog();
+    const log = createMock<AuthLogger>();
     const uid = '1e2122ba';
     const email = 'foo@mozilla.com';
     const locale = 'en-US';

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Account } from 'fxa-shared/db/models/auth/account';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
 
 const mockReportValidationError = jest.fn();
 jest.mock('fxa-shared/sentry/report-validation-error', () => ({
@@ -110,7 +112,7 @@ describe('lib/server', () => {
 
     beforeEach(() => {
       config = getConfig();
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       routes = getRoutes();
       statsd = { timing: jest.fn(), increment: jest.fn() };
     });

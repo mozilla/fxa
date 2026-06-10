@@ -13,12 +13,16 @@
 import crypto from 'crypto';
 import { Container } from 'typedi';
 import { v4 as uuid } from 'uuid';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { ProfileClient } = require('@fxa/profile/client');
 const { AccountDeleteManager } = require('../account-delete');
-const { AppConfig, AuthLogger } = require('../types');
+const { AppConfig } = require('../types');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
@@ -103,7 +107,7 @@ function makeRoutes(options: { db: any; mailer: any }) {
     signinConfirmation: {},
     smtp: {},
   };
-  const log = mocks.mockLog();
+  const log = createMock<AuthLogger>();
   mocks.mockAccountEventsManager();
   Container.set(AccountDeleteManager, { enqueue: jest.fn() });
   Container.set(AppConfig, config);
@@ -144,7 +148,7 @@ function makeRoutes(options: { db: any; mailer: any }) {
     null,
     glean,
     authServerCacheRedis,
-    mocks.mockStatsd()
+    createMock<StatsD>()
   );
 }
 
@@ -183,7 +187,7 @@ describe('IP Profiling', () => {
       ],
     });
     jest.clearAllMocks();
-    mockFxaMailerInstance = mocks.mockFxaMailer({
+    mockFxaMailerInstance = installMockFxaMailer({
       canSend: jest.fn().mockResolvedValue(true),
     });
     mocks.mockOAuthClientInfo();

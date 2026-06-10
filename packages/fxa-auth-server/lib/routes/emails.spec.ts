@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
+
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
@@ -161,7 +169,7 @@ const makeRoutes = function (options: any = {}) {
   config.otp = otpOptions;
   config.gleanMetrics = gleanConfig;
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: () => Promise.resolve(),
@@ -173,7 +181,7 @@ const makeRoutes = function (options: any = {}) {
     options.verificationReminders || mocks.mockVerificationReminders();
   cadReminders = options.cadReminders || mocks.mockCadReminders();
   glean = gleanMetrics(config);
-  const statsd = mocks.mockStatsd();
+  const statsd = createMock<StatsD>();
 
   const signupUtils =
     options.signupUtils ||
@@ -216,6 +224,8 @@ const makeRoutes = function (options: any = {}) {
 function runTest(route: any, request: any, assertions?: any) {
   return route.handler(request).then(assertions);
 }
+
+afterAll(() => uninstallMockFxaMailer());
 
 // Called in /recovery_email/set_primary, however the promise is not waited for
 // so we test the function independently as it doesn't affect the route success.
@@ -349,7 +359,7 @@ describe('/recovery_email/status', () => {
   const config: any = {};
   const mockDB = mocks.mockDB();
   let pushCalled: boolean;
-  const mockLog = mocks.mockLog({
+  const mockLog = createMock<AuthLogger>({
     info: jest.fn((op: any, data: any) => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true;
@@ -571,7 +581,7 @@ describe('/recovery_email/resend_code', () => {
     secondEmailCode: secondEmailCode,
     email: TEST_EMAIL,
   });
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   mockLog.flowEvent = jest.fn(() => {
     return Promise.resolve();
   });
@@ -579,7 +589,7 @@ describe('/recovery_email/resend_code', () => {
   mocks.mockOAuthClientInfo({
     fetch: jest.fn().mockResolvedValue({ name: 'Firefox' }),
   });
-  const mockFxaMailer = mocks.mockFxaMailer();
+  const mockFxaMailer = installMockFxaMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
   const accountRoutes = makeRoutes({
     config: config,
@@ -713,7 +723,7 @@ describe('/recovery_email/resend_code', () => {
 
 describe('/recovery_email/verify_code', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
     metricsContext: mocks.mockMetricsContext({
@@ -750,7 +760,7 @@ describe('/recovery_email/verify_code', () => {
   const mockDB = mocks.mockDB(dbData, dbErrors);
   const mockMailer = mocks.mockMailer();
   mocks.mockOAuthClientInfo();
-  const mockFxaMailer = mocks.mockFxaMailer();
+  const mockFxaMailer = installMockFxaMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
   const verificationReminders = mocks.mockVerificationReminders();
@@ -971,7 +981,7 @@ describe('/recovery_email/verify_code', () => {
 
 describe('/recovery_email', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   let dbData: any,
     accountRoutes: any,
     mockDB: any,
@@ -1045,7 +1055,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   let fxaMailer: any;
   beforeEach(() => {
     mocks.mockOAuthClientInfo();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
   });
   afterEach(() => {
     fxaMailer.sendVerifySecondaryCodeEmail.mockClear();
@@ -1053,7 +1063,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   it('resends code when redis reservation exists for this uid', async () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockMailer = mocks.mockMailer();
     const mockDB = mocks.mockDB({
       uid,
@@ -1108,7 +1118,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1191,7 +1201,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1324,7 +1334,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
@@ -1370,7 +1380,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1424,7 +1434,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const email = TEST_EMAIL_ADDITIONAL;
     const secret = 'existingsecret1234567890123456';
     const mockMailer = mocks.mockMailer();
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockDB = mocks.mockDB({
       uid,
       email: TEST_EMAIL,
@@ -1472,7 +1482,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
 });
 
 describe('/emails/reminders/cad', () => {
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   let accountRoutes: any, mockRequest: any, route: any, uid: string;
 
   beforeEach(() => {

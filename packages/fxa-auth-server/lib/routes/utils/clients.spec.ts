@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import moment from 'moment';
-
-const mocks = require('../../../test/mocks');
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -62,7 +62,7 @@ function mockRequest(data: any) {
 }
 
 const makeClientUtils = (options: any) => {
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const config = options.config || {};
   config.lastAccessTimeUpdates = config.lastAccessTimeUpdates || {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
@@ -78,7 +78,7 @@ describe('clientUtils.formatLocation', () => {
   let log: any, clientUtils: any, request: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     clientUtils = makeClientUtils({ log });
     request = mockRequest({});
   });
@@ -163,7 +163,7 @@ describe('clientUtils.formatTimestamps', () => {
   let log: any, clientUtils: any, request: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     clientUtils = makeClientUtils({ log });
     request = mockRequest({});
   });
