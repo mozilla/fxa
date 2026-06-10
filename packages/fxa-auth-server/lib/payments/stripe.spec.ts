@@ -4515,6 +4515,7 @@ describe('StripeHelper', () => {
       const expected: any = {
         uid,
         email,
+        subscriptionId: 'sub_GyHjvuW3xOeaZS',
         cardType: 'visa',
         creditAppliedInCents: 0,
         lastFour: '5309',
@@ -4556,6 +4557,7 @@ describe('StripeHelper', () => {
 
       const expectedDiscount_foreverCoupon: any = {
         ...expected,
+        subscriptionId: 'sub_1KEJVVBVqmGyQTMakN6U7sPU',
         invoiceAmountDueInCents: 450,
         invoiceNumber: '3432720C-0001',
         invoiceTotalInCents: 450,
@@ -5039,6 +5041,7 @@ describe('StripeHelper', () => {
     const expectedBaseUpdateDetails: any = {
       uid,
       email,
+      subscriptionId: eventCustomerSubscriptionUpdated.data.object.id,
       planId,
       productId,
       productIdNew: productId,
@@ -5587,6 +5590,7 @@ describe('StripeHelper', () => {
         updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
         email,
         uid,
+        subscriptionId: eventCustomerSubscriptionUpdated.data.object.id,
         productId,
         planId,
         planConfig: {},
@@ -5844,6 +5848,7 @@ describe('StripeHelper', () => {
           updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
           email,
           uid,
+          subscriptionId: subscription.id,
           productId,
           planId,
           planConfig: {},
@@ -5878,6 +5883,7 @@ describe('StripeHelper', () => {
           updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
           email,
           uid,
+          subscriptionId: subscription.id,
           productId,
           planId,
           planConfig: {},
@@ -5915,6 +5921,7 @@ describe('StripeHelper', () => {
           updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
           email,
           uid,
+          subscriptionId: subscription.id,
           productId,
           planId,
           planConfig: {},

@@ -4185,8 +4185,25 @@ module.exports = function (log, config, bounces, statsd) {
         'subscription-privacy'
       )
     );
+
+    const subscriptionId =
+      message.subscriptionId ??
+      message.subscription?.subscriptionId ??
+      (message.subscriptions?.length === 1
+        ? message.subscriptions[0]?.subscriptionId
+        : undefined);
+    const subscriptionPageUrl = (path) => {
+      if (!subscriptionId) {
+        return this.subscriptionSettingsUrl;
+      }
+      const base = this.subscriptionSettingsUrl.endsWith('/')
+        ? this.subscriptionSettingsUrl
+        : `${this.subscriptionSettingsUrl}/`;
+      return new URL(`subscriptions/${subscriptionId}/${path}`, base).href;
+    };
+
     links.cancelSubscriptionUrl = this._generateUTMLink(
-      this.subscriptionSettingsUrl,
+      subscriptionPageUrl('cancel'),
       { ...query, email, uid },
       templateName,
       'cancel-subscription'
@@ -4198,7 +4215,7 @@ module.exports = function (log, config, bounces, statsd) {
       'manage-subscription'
     );
     links.reactivateSubscriptionUrl = this._generateUTMLink(
-      this.subscriptionSettingsUrl,
+      subscriptionPageUrl('stay-subscribed'),
       { ...query, email, uid },
       templateName,
       'reactivate-subscription'
