@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/node';
 import {
   RateLimitBqWriter,
   BqWriterConfig,
   RATE_LIMIT_CHECK_SCHEMA,
 } from './bq-writer';
 import { RateLimitCheckEvent } from './models';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('RateLimitBqWriter', () => {
   let writer: RateLimitBqWriter;
@@ -96,11 +101,11 @@ describe('RateLimitBqWriter', () => {
     expect(mockTable.insert).not.toHaveBeenCalled();
   });
 
-  it('catches errors, emits statsd metric, and never throws', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+  it('catches errors, emits statsd metric, reports to Sentry, and never throws', async () => {
     const mockIncrement = jest.fn();
     const statsd = { increment: mockIncrement } as any;
-    mockTable.insert.mockRejectedValue(new Error('BQ unavailable'));
+    const insertError = new Error('BQ unavailable');
+    mockTable.insert.mockRejectedValue(insertError);
 
     // Recreate writer with statsd
     await writer.shutdown();
@@ -112,11 +117,7 @@ describe('RateLimitBqWriter', () => {
     expect(mockIncrement).toHaveBeenCalledWith(
       'rate_limit.bq_writer.flush_error'
     );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'rate_limit.bq_writer.flush_error',
-      expect.any(Error)
-    );
-    consoleSpy.mockRestore();
+    expect(Sentry.captureException).toHaveBeenCalledWith(insertError);
   });
 
   it('drains remaining events on shutdown', async () => {
@@ -166,20 +167,16 @@ describe('RateLimitBqWriter', () => {
     });
 
     it('handles ensureTable errors without affecting inserts', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockTable.exists.mockRejectedValue(new Error('permission denied'));
+      const permError = new Error('permission denied');
+      mockTable.exists.mockRejectedValue(permError);
       await writer.shutdown();
       writer = new RateLimitBqWriter(config, mockTable as any);
 
       writer.write(createEvent());
       await writer.flush();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'rate_limit.bq_writer.ensure_table_error',
-        expect.any(Error)
-      );
+      expect(Sentry.captureException).toHaveBeenCalledWith(permError);
       expect(mockTable.insert).toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
   });
 });

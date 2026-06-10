@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BigQuery, Table } from '@google-cloud/bigquery';
+import * as Sentry from '@sentry/node';
 import { StatsD } from '@fxa/shared/metrics/statsd';
 import { RateLimitCheckEvent } from './models';
 
@@ -82,9 +83,10 @@ export class RateLimitBqWriter {
         await this.tableRef.create({ schema: RATE_LIMIT_CHECK_SCHEMA });
       }
     } catch (err) {
-      // Non-fatal — table may already exist from a race, or permissions
-      // may not allow creation. Inserts will fail with a clear error.
-      console.error('rate_limit.bq_writer.ensure_table_error', err);
+      // Non-fatal — table may already exist from a race, or the service
+      // account may lack bigquery.tables.create. Inserts will fail with
+      // a clear error if the table truly doesn't exist.
+      Sentry.captureException(err);
     }
   }
 
@@ -109,9 +111,9 @@ export class RateLimitBqWriter {
     try {
       await this.tableRef.insert(batch);
     } catch (err) {
-      // Log but never throw — BQ failures must not affect auth
+      // Never throw — BQ failures must not affect auth
       this.statsd?.increment('rate_limit.bq_writer.flush_error');
-      console.error('rate_limit.bq_writer.flush_error', err);
+      Sentry.captureException(err);
     }
   }
 
