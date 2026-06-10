@@ -286,48 +286,83 @@ export function useClientInfoState() {
   const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
 
   useEffect(() => {
+    let mounted = true;
     if (!isValidClientId || !config) {
-      setState({ loading: false });
+      Sentry.addBreadcrumb({
+        message: `OAuth Client - Invalid state for fetching clientInfo`,
+        category: 'useClientInfoState.fetch',
+        data: { isValidClientId, hasConfig:!!config }
+      });
+      setState((prev) => ({ ...prev, loading: false }));
       return;
     }
 
-    let mounted = true;
     setState((prev) => ({ ...prev, loading: true }));
 
-    const fetchClientInfo = async () => {
-      try {
-        const response = await fetch(
-          `${config.servers.auth.url}/v1/oauth/client/${clientId}`,
-          {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          }
+    // Tracks the controller for the request currently in flight so the cleanup
+    // can abort it on unmount. A fresh controller is created per attempt (below)
+    // so a per-attempt timeout doesn't permanently abort later retries.
+    let activeController: AbortController | undefined;
+
+    (async () => {
+      // It's important this resolves! If it doesn't, down stream calls will be in an erroneous state.
+      // Retry with linear back off before giving up; both bounds are configurable.
+      const MAX_RETRIES = config.oauth.clientInfoRetries;
+      const REQUEST_TIMEOUT_MS = config.oauth.clientInfoTimeout;
+      for (let i=0; i < MAX_RETRIES; i++) {
+        // Fresh controller per attempt: a timeout aborts only this attempt, and
+        // the cleanup can abort whichever request is currently in flight.
+        const controller = new AbortController();
+        activeController = controller;
+        const timeoutId = setTimeout(
+          () => controller.abort(new DOMException('Request timed out', 'TimeoutError')),
+          REQUEST_TIMEOUT_MS
         );
-        Sentry.addBreadcrumb({
-          message: 'OAuth Client Response',
-          category: 'useClientInfoState.fetch',
-          data: {
-            clientId: clientId,
-            ok: response?.ok,
-            status: response?.status,
-            statusText: response?.statusText
+        try {
+          const response = await fetch(
+            `${config.servers.auth.url}/v1/oauth/client/${clientId}`,
+            {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+            }
+          );
+          if (!mounted) {
+            return Sentry.addBreadcrumb({
+              message: `OAuth Client - Unmounted after fetch`,
+              category: 'useClientInfoState.fetch',
+              data: { attempt:i }
+            });
           }
-        })
+          Sentry.addBreadcrumb({
+            message: `OAuth Client - Got response`,
+            category: 'useClientInfoState.fetch',
+            data: { clientId, ok:response?.ok, status:response?.status }
+          });
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch client info: ${response.status}`);
-        }
+          if (!response.ok) {
+            throw new Error(`Failed to fetch client info: ${response.status}`);
+          }
 
-        const data = await response.json();
+          const data = await response.json();
+          if (!mounted) {
+            return Sentry.addBreadcrumb({
+              message: `OAuth Client - Unmounted after response.json()`,
+              category: 'useClientInfoState.fetch',
+              data: { attempt:i }
+            });
+          }
+          Sentry.addBreadcrumb({
+            message: `OAuth Client - Got response data`,
+            category: 'useClientInfoState.fetch',
+            data: {
+              attempt:i,
+              ...data
+            }
+          });
 
-        Sentry.addBreadcrumb({
-          message: 'OAuth Client Response Data',
-          category: 'useClientInfoState.fetch',
-          data
-        })
-
-        if (mounted) {
-          setState({
+          // Success! Set state and return to exit loop...
+          return setState({
             loading: false,
             data: {
               clientInfo: {
@@ -339,49 +374,79 @@ export function useClientInfoState() {
               },
             },
           });
-        }
-      } catch (error) {
-        const err =
-          error instanceof Error ? error : new Error('Unknown error');
-
-        Sentry.addBreadcrumb({
-          message: 'OAuth Client - Unexpected Error',
-          category: 'useClientInfoState.fetch',
-          data: {
-            clientId: clientId,
-            message: err.message,
-            errno: error.errno,
-            code: error.code,
-            statusCode: error.statusCode,
+        } catch (error) {
+          // An abort triggered by unmount (not a timeout) is an intentional
+          // cancellation — don't capture it to Sentry or retry.
+          if (!mounted) {
+            return Sentry.addBreadcrumb({
+              message: `OAuth Client - Unmounted after expected error`,
+              category: 'useClientInfoState.fetch',
+              data: { attempt:i }
+            });
           }
-        })
 
-        // Surface fetch failures as their own Sentry issue so the real cause
-        // (network, WAF challenge, 5xx, unknown client_id) is observable
-        // separately from the downstream scope-validation paths it used to
-        // be misattributed to — see FXA-13618.
-        Sentry.captureException(err, {
-          tags: {
-            area: 'useClientInfoState.fetch',
-            clientId
-          },
-          extra: {
-            message: err.message,
-            errno: error.errno,
-            code: error.code,
-            statusCode: error.statusCode,
-           },
-        });
-        if (mounted) {
-          setState({ loading: false, error: err });
+          const err =
+            error instanceof Error ? error : new Error('Unknown error');
+
+          Sentry.addBreadcrumb({
+            message: 'OAuth Client - Unexpected Error',
+            category: 'useClientInfoState.fetch',
+            data: {
+              mounted,
+              attempt: i,
+              clientId,
+              message: err.message,
+              errno: error.errno,
+              code: error.code,
+              statusCode: error.statusCode,
+            }
+          })
+
+
+          // On last attempt, give up and record failure to sentry
+          if (i === MAX_RETRIES - 1) {
+            setState({ loading: false, error: err });
+
+            // Surface fetch failures as their own Sentry issue so the real cause
+            // (network, WAF challenge, 5xx, unknown client_id) is observable
+            // separately from the downstream scope-validation paths it used to
+            // be misattributed to — see FXA-13618.
+            Sentry.captureException(err, {
+              tags: {
+                area: 'useClientInfoState.fetch',
+                clientId
+              },
+              extra: {
+                mounted,
+                attempt: i,
+                message: err.message,
+                errno: error.errno,
+                code: error.code,
+                statusCode: error.statusCode,
+              },
+            });
+          } else {
+            // Back off and try again
+            await new Promise(r => setTimeout(r, i * 250));
+            if (!mounted) {
+              return Sentry.addBreadcrumb({
+                message: `OAuth Client - Unmounted after backoff`,
+                category: 'useClientInfoState.fetch',
+                data: { attempt:i }
+              });
+            }
+          }
+        } finally {
+          // Always clear the per-attempt timeout so it can't fire late or leak.
+          clearTimeout(timeoutId);
         }
       }
-    };
-
-    fetchClientInfo();
+    })();
 
     return () => {
       mounted = false;
+      // Cancel any request currently in flight.
+      activeController?.abort();
     };
   }, [clientId, isValidClientId, config]);
 

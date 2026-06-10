@@ -347,7 +347,7 @@ export class OAuthWebIntegration extends GenericIntegration<
             redirectUris: validation[scope]?.redirectUris || 'undefined',
             clientInfo: this.clientInfo || 'undefined',
           };
-          Sentry.captureMessage(`Invalid redirect paramater`, {
+          Sentry.captureMessage(`Invalid redirect parameter`, {
             extra: {
               ...extra,
               raw: btoa(JSON.stringify(extra)),

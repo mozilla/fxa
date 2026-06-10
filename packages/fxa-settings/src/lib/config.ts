@@ -57,6 +57,8 @@ export interface Config {
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
     reactClientIdsEnabled: string[];
+    clientInfoTimeout: number,
+    clientInfoRetries: number,
   };
   recoveryCodes: {
     count: number;
@@ -177,6 +179,8 @@ export function getDefault() {
       isPromptNoneEnabled: false,
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),
+      clientInfoRetries: 4,
+      clientInfoTimeout: 10_000
     },
     recoveryCodes: {
       count: 8,
