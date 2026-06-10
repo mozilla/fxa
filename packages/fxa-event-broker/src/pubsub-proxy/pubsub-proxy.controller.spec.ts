@@ -6,7 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import nock from 'nock';
 
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
@@ -88,19 +87,26 @@ describe('PubsubProxy Controller', () => {
   let logger: any;
   let mockWebhookValue: any;
   let mockMetricValue: any;
+  let originalFetch: typeof global.fetch;
 
+  // Stub global fetch with a webhook that echoes the Authorization header back
+  // in the response body, mirroring the relying party endpoint under test.
   const mockWebhook = () => {
-    nock('http://accounts.firefox.com')
-      .post('/webhook')
-      .reply(function (uri, requestBody) {
-        const auth = this.req.getHeader('authorization');
-        return [200, { token: typeof auth === 'string' ? auth : 'unknown' }];
-      });
+    global.fetch = jest.fn().mockImplementation(async (_input, init) => {
+      const headers = (init?.headers ?? {}) as Record<string, string>;
+      const auth = headers.Authorization ?? 'unknown';
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ token: auth }),
+      } as unknown as Response;
+    });
   };
 
   beforeEach(async () => {
-    // we can't use fakeTimers here because it causes issues with
-    // axios/nock, but for other tests this gets us what we need
+    originalFetch = global.fetch;
+    // Spy on Date.now directly (rather than fake timers) so the timing
+    // assertions below are deterministic without stalling async fetch calls.
     jest.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);
 
     jwtset = {
@@ -157,6 +163,7 @@ describe('PubsubProxy Controller', () => {
   });
 
   afterEach(() => {
+    global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
@@ -322,7 +329,11 @@ describe('PubsubProxy Controller', () => {
   });
 
   it('proxies an error code back', async () => {
-    nock('http://accounts.firefox.com').post('/webhook').reply(400, 'Error123');
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: async () => 'Error123',
+    } as unknown as Response);
     const message = createValidSubscriptionMessage();
     expect.assertions(2);
     let err:

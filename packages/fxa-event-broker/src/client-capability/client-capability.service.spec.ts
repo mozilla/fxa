@@ -25,8 +25,11 @@ jest.mock('@sentry/node', () => ({
 describe('ClientCapabilityService', () => {
   let service: ClientCapabilityService;
   let log: any;
+  let originalFetch: typeof global.fetch;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+    originalFetch = global.fetch;
     log = { setContext: jest.fn(), debug: jest.fn(), error: jest.fn() };
     const MockLogger: Provider = {
       provide: MozLoggerService,
@@ -50,6 +53,11 @@ describe('ClientCapabilityService', () => {
     }).compile();
 
     service = module.get<ClientCapabilityService>(ClientCapabilityService);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
@@ -80,11 +88,12 @@ describe('ClientCapabilityService', () => {
   });
 
   describe('updateCapabilities', () => {
-    it('updates successfully', async () => {
-      const mockUpdate = jest
-        .fn()
-        .mockResolvedValue({ status: 200, data: baseClients });
-      (service as any).axiosInstance = { get: mockUpdate };
+    it('populates capabilities from the fetched client list', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => baseClients,
+      } as unknown as Response);
       await service.updateCapabilities();
       expect(service.capabilities).toStrictEqual({
         testClient1: ['testCapability1'],
@@ -92,25 +101,32 @@ describe('ClientCapabilityService', () => {
       });
     });
 
-    it('throws on error', async () => {
-      const mockUpdate = jest.fn().mockRejectedValue({});
-      (service as any).axiosInstance = { get: mockUpdate };
-      expect.assertions(1);
-      let error: Error | undefined = undefined;
-      try {
-        await service.updateCapabilities({ throwOnError: true });
-      } catch (err) {
-        error = err;
-      }
-
-      expect(error).toBeDefined();
+    it('rethrows as an ExtendedError when throwOnError is set and the request rejects', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+      await expect(
+        service.updateCapabilities({ throwOnError: true })
+      ).rejects.toThrow(
+        'Unexpected error fetching client capabilities from auth-server'
+      );
     });
 
-    it('logs on error', async () => {
-      const mockUpdate = jest.fn().mockRejectedValue({});
-      (service as any).axiosInstance = { get: mockUpdate };
+    it('logs and reports to Sentry when the request rejects', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
       await service.updateCapabilities();
-      expect((service as any).log.error).toBeCalledTimes(1);
+      expect(log.error).toBeCalledTimes(1);
+      expect(Sentry.captureException).toBeCalledTimes(1);
+    });
+
+    it('logs the status and reports to Sentry on a non-ok HTTP response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as unknown as Response);
+      await service.updateCapabilities();
+      expect(log.error).toHaveBeenCalledWith('updateCapabilities', {
+        status: 500,
+        message: 'Error fetching client capabilities.',
+      });
       expect(Sentry.captureException).toBeCalledTimes(1);
     });
   });

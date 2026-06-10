@@ -10,7 +10,6 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
 
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
@@ -18,12 +17,13 @@ import { AppConfig } from '../config';
 
 export type ClientCapabilities = Record<string, string[]>;
 
+type ClientCapabilityRecord = { clientId: string; capabilities: string[] };
+
 @Injectable()
 export class ClientCapabilityService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private config: AppConfig['clientCapabilityFetch'];
-  private axiosInstance: AxiosInstance;
   private intervalName = 'clientCapabilities';
   public capabilities: ClientCapabilities = {};
 
@@ -35,18 +35,25 @@ export class ClientCapabilityService
     this.config = configService.get(
       'clientCapabilityFetch'
     ) as AppConfig['clientCapabilityFetch'];
-    this.axiosInstance = axios.create({
-      headers: { Authorization: this.config.authToken },
-    });
     this.log.setContext(ClientCapabilityService.name);
   }
 
   async updateCapabilities(
     { throwOnError } = { throwOnError: false }
   ): Promise<void> {
-    let result: AxiosResponse<{ clientId: string; capabilities: string[] }[]>;
+    let records: ClientCapabilityRecord[];
     try {
-      result = await this.axiosInstance.get(this.config.clientUrl);
+      const response = await fetch(this.config.clientUrl, {
+        headers: { Authorization: this.config.authToken },
+      });
+      // fetch does not reject on 4xx/5xx; surface it as a thrown error so the
+      // existing error handling below runs, mirroring axios' behavior.
+      if (!response.ok) {
+        throw Object.assign(new Error('Error fetching client capabilities.'), {
+          status: response.status,
+        });
+      }
+      records = await response.json();
     } catch (err: any) {
       if (throwOnError) {
         throw ExtendedError.withCause(
@@ -55,16 +62,14 @@ export class ClientCapabilityService
         );
       }
       this.log.error('updateCapabilities', {
-        status: err.response
-          ? (err.response as AxiosResponse).status
-          : undefined,
+        status: err.status,
         message: 'Error fetching client capabilities.',
       });
       Sentry.captureException(err);
       return;
     }
-    this.log.debug('updateCapabilities', { clientCapabilities: result.data });
-    result.data.forEach(({ clientId, capabilities }) => {
+    this.log.debug('updateCapabilities', { clientCapabilities: records });
+    records.forEach(({ clientId, capabilities }) => {
       this.capabilities[clientId] = capabilities;
     });
   }

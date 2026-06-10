@@ -36,7 +36,6 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.973.0",
     "@types/sinon": "10.0.1",
-    "axios": "^1.16.0",
     "convict": "^6.2.5",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
@@ -72,7 +71,6 @@
     "eslint-plugin-import": "^2.30.0",
     "factory-bot-ts": "^0.1.5",
     "jest": "27.5.1",
-    "nock": "^13.5.1",
     "p-event": "^6.0.0",
     "pm2": "^6.0.14",
     "prettier": "^3.5.3",
