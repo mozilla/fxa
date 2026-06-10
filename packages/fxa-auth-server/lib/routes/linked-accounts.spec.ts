@@ -22,21 +22,6 @@ jest.mock('google-auth-library', () => {
   };
 });
 
-// Mock axios with a getter so per-test overrides work.
-// Default returns the real axios so transitive deps (googleapis, google-maps) work at init time.
-// eslint-disable-next-line no-var
-var axiosDefaultOverride: any = null;
-jest.mock('axios', () => {
-  const actual = jest.requireActual('axios');
-  return {
-    ...actual,
-    __esModule: true,
-    get default() {
-      return axiosDefaultOverride || actual;
-    },
-  };
-});
-
 jest.mock('./utils/third-party-events', () => {
   const actual = jest.requireActual('./utils/third-party-events');
   return new Proxy(actual, {
@@ -81,16 +66,9 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
     if (requireMocks['google-auth-library']) {
       mockOAuth2ClientClass = requireMocks['google-auth-library'].OAuth2Client;
     }
-    if (requireMocks['axios']) {
-      axiosDefaultOverride = requireMocks['axios'];
-    } else {
-      axiosDefaultOverride = null;
-    }
     if (requireMocks['./utils/third-party-events']) {
       mockThirdPartyEventsModule = requireMocks['./utils/third-party-events'];
     }
-  } else {
-    axiosDefaultOverride = null;
   }
 
   // Reset FxaMailer mocks
@@ -119,10 +97,18 @@ describe('/linked_account', () => {
     mockFxaMailer: any,
     mockRequest: any,
     route: any,
-    axiosMock: any,
     statsd: any;
+  let originalFetch: typeof global.fetch;
 
   const UID = 'fxauid';
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
 
   describe('/linked_account/login', () => {
     describe('google auth', () => {
@@ -163,12 +149,10 @@ describe('/linked_account', () => {
           }
         };
 
-        const mockGoogleAuthResponse = {
-          data: { id_token: 'somedata' },
-        };
-        axiosMock = {
-          post: jest.fn(() => mockGoogleAuthResponse),
-        };
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ id_token: 'somedata' }),
+        } as unknown as Response);
 
         route = getRoute(
           makeRoutes(
@@ -183,7 +167,6 @@ describe('/linked_account', () => {
               'google-auth-library': {
                 OAuth2Client: OAuth2ClientMock,
               },
-              axios: axiosMock,
             }
           ),
           '/linked_account/login'
@@ -221,8 +204,11 @@ describe('/linked_account', () => {
         mockRequest.payload.code = 'oauth code';
         const result: any = await runTest(route, mockRequest);
 
-        expect(axiosMock.post).toHaveBeenCalledTimes(1);
-        expect(axiosMock.post.mock.calls[0][1]).toEqual(
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        const requestBody = JSON.parse(
+          (global.fetch as jest.Mock).mock.calls[0][1].body
+        );
+        expect(requestBody).toEqual(
           expect.objectContaining({ code: 'oauth code' })
         );
 
@@ -241,6 +227,17 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+      });
+
+      it('throws thirdPartyAccountError when the Google token endpoint responds non-ok', async () => {
+        global.fetch = jest
+          .fn()
+          .mockResolvedValue({ ok: false, status: 400 } as unknown as Response);
+        mockRequest.payload.code = 'oauth code';
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
       });
 
       it('should create new fxa account from new google account, return session, emit Glean events', async () => {
@@ -447,30 +444,23 @@ describe('/linked_account', () => {
           },
         });
 
-        const mockAppleAuthResponse = {
-          data: {
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
             id_token:
               'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQzEyM0RFRkcifQ.eyJpc3MiOiJERUYxMjNHSElKIiwic3ViIjoiT29vT29vIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTcyMzU4MDg2LCJhdWQiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiZW1haWwiOiJibG9vcEBtb3ppbGxhLmNvbSIsInRlYW1JZCI6Ik15IGNvb2wgdGVhbSB5byJ9.owz0xkgzDr9rLwXhd3TWV2QSRfH2YSnLt7LkS_TS42oGq_cbp1pyqhBtOBNTyvpZT6YKlxAxdmDkAr9x_KI7-A',
             email: 'bloop@mozilla.com',
             user: 'OooOoo',
-          },
-        };
-        axiosMock = {
-          post: jest.fn(() => mockAppleAuthResponse),
-        };
+          }),
+        } as unknown as Response);
 
         route = getRoute(
-          makeRoutes(
-            {
-              config: mockConfig,
-              db: mockDB,
-              log: mockLog,
-              mailer: mockMailer,
-            },
-            {
-              axios: axiosMock,
-            }
-          ),
+          makeRoutes({
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+            mailer: mockMailer,
+          }),
           '/linked_account/login'
         );
         glean.registration.complete.mockClear();
@@ -506,9 +496,14 @@ describe('/linked_account', () => {
         mockRequest.payload.code = 'oauth code';
         const result: any = await runTest(route, mockRequest);
 
-        expect(axiosMock.post).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        // The body is a pre-encoded form string, so the request must set this
+        // Content-Type explicitly — fetch won't infer it from a string body.
+        expect((global.fetch as jest.Mock).mock.calls[0][1].headers).toEqual({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        });
         const urlSearchParams = new URLSearchParams(
-          axiosMock.post.mock.calls[0][1]
+          (global.fetch as jest.Mock).mock.calls[0][1].body
         );
         const params = Object.fromEntries(urlSearchParams.entries());
 
@@ -529,6 +524,17 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+      });
+
+      it('throws thirdPartyAccountError when the Apple token endpoint responds non-ok', async () => {
+        global.fetch = jest
+          .fn()
+          .mockResolvedValue({ ok: false, status: 400 } as unknown as Response);
+        mockRequest.payload.code = 'oauth code';
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
       });
 
       it('should create new fxa account from new apple account, return session, emit Glean events', async () => {
