@@ -77,6 +77,9 @@ export class CustomerPlanMover {
   }
 
   async convertSubscription(subscription: Stripe.Subscription, destinationPrice: Stripe.Price) {
+    const paymentProvider =
+      subscription.collection_method === 'send_invoice' ? 'PayPal' : 'Stripe';
+
     try {
       console.log(`Processing ${subscription.id}`);
 
@@ -101,7 +104,7 @@ export class CustomerPlanMover {
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
       const destinationPriceCurrencyOptionForCurrency = destinationPrice.currency_options?.[subscription.currency];
-      const destinationPriceUnitAmountForCurrency = 
+      const destinationPriceUnitAmountForCurrency =
         destinationPriceCurrencyOptionForCurrency?.unit_amount ??
         (typeof destinationPriceCurrencyOptionForCurrency?.unit_amount_decimal === "string"
           ? Math.round(parseFloat(destinationPriceCurrencyOptionForCurrency.unit_amount_decimal))
@@ -166,6 +169,7 @@ export class CustomerPlanMover {
       await this.writeReport({
         subscription,
         customer,
+        paymentProvider,
         isExcluded,
         amountRefunded,
         approximateAmountWasOwed,
@@ -182,6 +186,7 @@ export class CustomerPlanMover {
       await this.writeReport({
         subscription,
         customer: null,
+        paymentProvider,
         isExcluded: false,
         amountRefunded: null,
         approximateAmountWasOwed: null,
@@ -334,7 +339,8 @@ export class CustomerPlanMover {
       "daysSinceLastBill",
       "previousInvoiceAmountDue",
       "isOwed",
-      "error"
+      "error",
+      "paymentProvider"
     ];
 
     const reportCSV = data.join(',') + '\n';
@@ -348,6 +354,7 @@ export class CustomerPlanMover {
   async writeReport(args: {
     subscription: Stripe.Subscription,
     customer: Stripe.Customer | null,
+    paymentProvider: 'Stripe' | 'PayPal',
     isExcluded: boolean,
     amountRefunded: number | null,
     approximateAmountWasOwed: number | null,
@@ -371,7 +378,8 @@ export class CustomerPlanMover {
       args.daysSinceLastBill ?? "null",
       args.previousInvoiceAmountDue ?? "null",
       args.isOwed,
-      args.error
+      args.error,
+      args.paymentProvider
     ];
 
     const reportCSV = data.join(',') + '\n';

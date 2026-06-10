@@ -243,6 +243,7 @@ describe('CustomerPlanMover v2', () => {
         expect(writeReportStub).toHaveBeenCalledTimes(1);
         const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.subscription.id).toBe('sub_123');
+        expect(reportArgs.paymentProvider).toBe('Stripe');
         expect(reportArgs.isExcluded).toBe(false);
         expect(reportArgs.amountRefunded).toBe(null);
         expect(reportArgs.approximateAmountWasOwed).toBe(null);
@@ -442,8 +443,12 @@ describe('CustomerPlanMover v2', () => {
       });
     });
 
-    describe('success - with prorated refund', () => {
+    describe('success - PayPal subscription with prorated refund', () => {
       let attemptRefundStub: jest.Mock;
+      const paypalSub = {
+        ...mockStripeSubscription,
+        collection_method: 'send_invoice',
+      } as unknown as Stripe.Subscription;
 
       beforeEach(async () => {
         customerPlanMover = new CustomerPlanMover(
@@ -470,20 +475,18 @@ describe('CustomerPlanMover v2', () => {
 
         stripeStub.subscriptions.update = jest
           .fn()
-          .mockResolvedValue(mockStripeSubscription);
+          .mockResolvedValue(paypalSub);
 
-        await customerPlanMover.convertSubscription(
-          mockStripeSubscription,
-          mockPrice
-        );
+        await customerPlanMover.convertSubscription(paypalSub, mockPrice);
       });
 
       it('attempts refund', () => {
-        expect(attemptRefundStub).toHaveBeenCalledWith(mockStripeSubscription);
+        expect(attemptRefundStub).toHaveBeenCalledWith(paypalSub);
       });
 
-      it('writes report with refund amount', () => {
+      it('writes report with PayPal provider and refund amount', () => {
         const reportArgs = writeReportStub.mock.calls[0][0];
+        expect(reportArgs.paymentProvider).toBe('PayPal');
         expect(reportArgs.amountRefunded).toBe(500);
         expect(reportArgs.isOwed).toBe(false);
         expect(reportArgs.error).toBe(false);
@@ -530,6 +533,7 @@ describe('CustomerPlanMover v2', () => {
 
       it('marks customer as owed', () => {
         const reportArgs = writeReportStub.mock.calls[0][0];
+        expect(reportArgs.paymentProvider).toBe('Stripe');
         expect(reportArgs.isOwed).toBe(true);
         expect(reportArgs.amountRefunded).toBe(null);
         expect(reportArgs.error).toBe(false);
@@ -581,6 +585,7 @@ describe('CustomerPlanMover v2', () => {
 
       it('writes report marking as excluded', () => {
         const reportArgs = writeReportStub.mock.calls[0][0];
+        expect(reportArgs.paymentProvider).toBe('Stripe');
         expect(reportArgs.isExcluded).toBe(true);
         expect(reportArgs.error).toBe(false);
         expect(reportArgs.amountRefunded).toBe(null);
@@ -724,6 +729,7 @@ describe('CustomerPlanMover v2', () => {
 
         expect(writeReportStub).toHaveBeenCalledTimes(1);
         const reportArgs = writeReportStub.mock.calls[0][0];
+        expect(reportArgs.paymentProvider).toBe('Stripe');
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.customer).toBe(null);
         expect(reportArgs.isOwed).toBe(false);
