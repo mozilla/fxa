@@ -22,6 +22,13 @@ parameters:
   enable_nightly:
     type: boolean
     default: true
+  # Kill switch for the PR functional-test experiment: when true, #phone tests
+  # run in the parallel timings split instead of serially on node 0. If PR runs
+  # start hitting phone-number conflicts or Twilio rate limits, set this to
+  # false to revert to the previous serial-on-node-0 behavior.
+  parallelize_phone_tests:
+    type: boolean
+    default: true
   force-deploy-fxa-ci-images:
     type: boolean
     default: false
@@ -174,6 +181,11 @@ executors:
       RECOVERY_PHONE__ENABLED: true
       # use test mode except for smoke tests
       RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'test'
+      # Recovery-phone functional tests share a single magic test number. When
+      # the PR job runs them in parallel (parallelize_phone_tests), many
+      # accounts register that number concurrently, so raise the per-number
+      # registration cap well above the worker count. Harmless for serial runs.
+      RECOVERY_PHONE__MAX_REGISTRATIONS_PER_NUMBER: 1000
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
@@ -350,6 +362,9 @@ commands:
       fail_fast:
         type: boolean
         default: true
+      phone_parallel:
+        type: string
+        default: 'false'
     steps:
       - run:
           name: Running Playwright tests
@@ -387,6 +402,9 @@ commands:
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
             PLAYWRIGHT_FAIL_FAST: << parameters.fail_fast >>
+            # When 'true', #phone-tagged tests run in parallel (PR only). They
+            # are included in the timings split rather than pinned to node 0.
+            PLAYWRIGHT_PHONE_PARALLEL: << parameters.phone_parallel >>
 
   # DRY helper to run phone-tagged tests in a single worker on node 0
   run-phone-tests-serialized:
@@ -844,6 +862,13 @@ jobs:
       fail_fast:
         type: boolean
         default: true
+      # When true, #phone-tagged tests join the parallel timings split across
+      # all nodes instead of running serially on node 0. Safe only against the
+      # local target (codes read from Redis per-uid). Enabled for the PR
+      # workflow; smoke/nightly/tag keep the serial default.
+      parallelize_phone_tests:
+        type: boolean
+        default: false
     executor: functional-test-executor
     parallelism: << parameters.parallelism >>
     steps:
@@ -864,12 +889,25 @@ jobs:
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
-      - run-phone-tests-serialized:
-          project: local
-      - run-playwright-tests:
-          project: local
-          grep_invert: '#phone'
-          fail_fast: << parameters.fail_fast >>
+      # PR: run everything (including #phone) in the parallel timings split.
+      - when:
+          condition: << parameters.parallelize_phone_tests >>
+          steps:
+            - run-playwright-tests:
+                project: local
+                fail_fast: << parameters.fail_fast >>
+                phone_parallel: 'true'
+      # Default (smoke/nightly/tag): #phone tests run serially on node 0, the
+      # rest run in parallel with phone tests excluded.
+      - unless:
+          condition: << parameters.parallelize_phone_tests >>
+          steps:
+            - run-phone-tests-serialized:
+                project: local
+            - run-playwright-tests:
+                project: local
+                grep_invert: '#phone'
+                fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
           workflow: << parameters.workflow >>
@@ -1070,6 +1108,7 @@ workflows:
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
+          parallelize_phone_tests: << pipeline.parameters.parallelize_phone_tests >>
           requires:
             - Build (PR)
             - Approve Functional Tests (PR)

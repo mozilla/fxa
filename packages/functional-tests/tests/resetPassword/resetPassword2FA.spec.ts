@@ -4,6 +4,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { getTotpCode } from '../../lib/totp';
+import { phoneTestMode } from '../../lib/phoneTestMode';
 
 test.describe('severity-1 #smoke', () => {
   test('can reset password with 2FA enabled', async ({
@@ -562,8 +563,8 @@ test.describe('severity-1 #smoke', () => {
   });
 });
 
-test.describe('reset password with recovery phone', () => {
-  test.describe.configure({ mode: 'serial' });
+test.describe('reset password with recovery phone #phone', () => {
+  test.describe.configure({ mode: phoneTestMode() });
   test.beforeAll(async ({ target }) => {
     target.smsClient.guardTestPhoneNumber();
   });

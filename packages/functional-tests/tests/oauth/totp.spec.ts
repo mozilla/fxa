@@ -96,7 +96,7 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    test('can setup TOTP inline with recovery phone choice', async ({
+    test('can setup TOTP inline with recovery phone choice #phone', async ({
       target,
       pages: { page, relier, signin, totp, recoveryPhone, inlineTotpSetup },
       testAccountTracker,

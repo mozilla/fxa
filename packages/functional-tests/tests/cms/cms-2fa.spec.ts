@@ -220,7 +220,7 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    test('enable 2FA and signin with recovery phone - 123Done', async ({
+    test('enable 2FA and signin with recovery phone - 123Done #phone', async ({
       target,
       page,
       pages: {
