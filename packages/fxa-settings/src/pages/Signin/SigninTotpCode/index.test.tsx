@@ -37,6 +37,7 @@ import { navigate } from '@reach/router';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import userEvent from '@testing-library/user-event';
 import * as SigninUtils from '../utils';
+import * as StorageUtils from '../../../lib/storage-utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -411,6 +412,36 @@ describe('Sign in with TOTP code page', () => {
           screen.getByText('Sorry, there was a problem signing you out')
         ).toBeInTheDocument();
         expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('recording password state for set-password', () => {
+    it('records hasPassword: false on a passwordless OTP sign-in', async () => {
+      const user = userEvent.setup();
+      jest.spyOn(SigninUtils, 'handleNavigation').mockResolvedValue({
+        error: undefined,
+      });
+      const storeAccountDataSpy = jest
+        .spyOn(StorageUtils, 'storeAccountData')
+        .mockImplementation(() => {});
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+      renderWithLocalizationProvider(
+        <Subject
+          submitTotpCode={submitTotpCode}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isPasswordlessOtpSignin: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(storeAccountDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ hasPassword: false })
+        );
       });
     });
   });

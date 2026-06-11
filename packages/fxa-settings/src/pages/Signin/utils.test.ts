@@ -16,6 +16,7 @@ import {
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
+  createMockSigninWebIntegration,
 } from './mocks';
 import {
   handleNavigation,
@@ -135,6 +136,47 @@ describe('Signin utils', () => {
       expect(navigateSpy).toHaveBeenCalledWith('/settings');
       expect(hardNavigateSpy).not.toHaveBeenCalled();
       expect(fxaLoginSpy).not.toHaveBeenCalled();
+    });
+
+    it('replaces history on a set-password completion so Back cannot return to it', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: {
+          ...createMockSigninWebIntegration(),
+          isSync: () => true,
+        },
+        queryParams: '?service=sync',
+        showSignupConfirmedSync: true,
+        origin: 'post-verify-set-password',
+        performNavigation: true,
+        handleFxaLogin: true,
+      });
+
+      await handleNavigation(navigationOptions);
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/signup_confirmed_sync'),
+        expect.objectContaining({ replace: true })
+      );
+    });
+
+    it('does not replace history for a Sync sign-in that is not a set-password completion', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: {
+          ...createMockSigninWebIntegration(),
+          isSync: () => true,
+        },
+        queryParams: '?service=sync',
+        showSignupConfirmedSync: true,
+        performNavigation: true,
+        handleFxaLogin: true,
+      });
+
+      await handleNavigation(navigationOptions);
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/signup_confirmed_sync'),
+        expect.objectContaining({ replace: false })
+      );
     });
 
     describe('unverified session navigation', () => {

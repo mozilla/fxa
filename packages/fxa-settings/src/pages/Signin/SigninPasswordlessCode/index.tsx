@@ -261,6 +261,7 @@ const SigninPasswordlessCode = ({
         // Update verification status of stored current account
         verified: isSessionVerified,
         sessionVerified: isSessionVerified,
+        hasPassword: false,
       });
 
       const navigationOptions = {

@@ -132,6 +132,7 @@ export const SigninTotpCode = ({
         // Update verification status of stored current account
         verified: true,
         sessionVerified: true,
+        ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
       // Passwordless Sync flow: after TOTP, redirect to set_password
