@@ -26,11 +26,13 @@ export const Subject = ({
   createPasswordHandler = () => Promise.resolve({ error: null }),
   integration,
   passwordCreationReason,
+  gleanReason,
 }: {
   email?: string;
   createPasswordHandler?: CreatePasswordHandler;
   integration?: PostVerifySetPasswordIntegration;
   passwordCreationReason?: PasswordCreationReason;
+  gleanReason?: string;
 }) => {
   const { offeredSyncEngineConfigs } = mockUseFxAStatus();
   return (
@@ -42,6 +44,7 @@ export const Subject = ({
           offeredSyncEngineConfigs,
           integration,
           passwordCreationReason,
+          gleanReason,
         }}
       />
     </LocationProvider>
