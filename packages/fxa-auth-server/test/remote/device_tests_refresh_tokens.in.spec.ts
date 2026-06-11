@@ -385,16 +385,16 @@ describe.each(testVersions)(
       expect(devices[1].name).toBe('first device');
     });
 
-    it('does not allow non-allowlisted clients', async () => {
-      // After FXA-13704 the refresh-token scheme rejects any client_id not in
-      // the deviceManagementClientIds allowlist before reaching the
-      // publicClient check, so this also covers the prior "non-public client"
-      // case using NON_PUBLIC_CLIENT_ID (not in the allowlist either).
+    it('does not allow non-allowlisted clients without the oldsync scope', async () => {
+      // A refresh token that is neither allowlisted nor oldsync-scoped is
+      // rejected at the gate with 401/errno-110. A non-allowlisted client that
+      // still carries the oldsync scope is allowed via the scope path (covered
+      // by the unit spec).
       const refresh = await oauthServerDb.generateRefreshToken({
         clientId: buf(NON_PUBLIC_CLIENT_ID),
         userId: buf(client.uid),
         email: client.email,
-        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        scope: 'profile',
       });
       refreshToken = refresh.token.toString('hex');
 
