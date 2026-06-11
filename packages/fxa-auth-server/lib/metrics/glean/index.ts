@@ -442,6 +442,10 @@ export function gleanMetrics(config: ConfigType) {
       knownDevice: createEventFn('login_confirm_skip_for_known_device'),
     },
     passkey: {
+      authenticationStarted: createEventFn('passkey_authentication_started'),
+      authenticationVerificationSuccess: createEventFn(
+        'passkey_authentication_verification_success'
+      ),
       createComplete: createEventFn('passkey_create_complete'),
       deleteSuccess: createEventFn('passkey_delete_success'),
       renameSuccess: createEventFn('passkey_rename_success'),

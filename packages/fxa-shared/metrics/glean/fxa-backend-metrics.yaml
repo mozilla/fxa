@@ -1689,6 +1689,47 @@ login_confirm_skip_for:
       - interaction
 
 passkey:
+  authentication_started:
+    type: event
+    description: |
+      Passkey authentication (assertion) ceremony started on the server: a
+      challenge was generated for the client. Pairs with the
+      login.complete (reason=passkey) completion signal to measure the
+      server-side passkey sign-in funnel.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  authentication_verification_success:
+    type: event
+    description: |
+      Passkey authentication assertion verified successfully on the server,
+      before any session/token work. Sits between
+      passkey.authentication_started and login.complete (reason=passkey) so
+      failures during token/session creation are distinguishable from a
+      failed WebAuthn ceremony.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
   create_complete:
     type: event
     description: |
