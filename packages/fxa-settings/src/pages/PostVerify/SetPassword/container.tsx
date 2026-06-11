@@ -63,6 +63,12 @@ const SetPasswordContainer = ({
   const passwordCreationReason =
     location.state?.passwordCreationReason ?? 'third_party_auth';
   const passkeySurface = location.state?.passkeySurface;
+  // For the passkey flow, tag the reason with the originating surface (e.g.
+  // `signin_passkey`) so this shared page's funnel can be split per surface.
+  const gleanReason =
+    passwordCreationReason === 'passkey'
+      ? `${passkeySurface ?? 'emailfirst'}_passkey`
+      : passwordCreationReason;
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
@@ -137,7 +143,7 @@ const SetPasswordContainer = ({
           persistAccount({ uid, hasPassword: true });
 
           GleanMetrics.postVerifySetPassword.success({
-            event: { reason: passwordCreationReason },
+            event: { reason: gleanReason },
           });
 
           // For passkey flow, fire the consolidated terminal-success event
@@ -201,6 +207,7 @@ const SetPasswordContainer = ({
       getKeyFetchToken,
       passwordCreationReason,
       passkeySurface,
+      gleanReason,
       offeredSyncEngines,
       location.search,
     ]
@@ -239,6 +246,7 @@ const SetPasswordContainer = ({
         offeredSyncEngineConfigs,
         integration,
         passwordCreationReason,
+        gleanReason,
       }}
     />
   );

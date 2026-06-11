@@ -2627,7 +2627,9 @@ post_verify_set_password:
         description: |
           Which sign-in flow brought the user to the set-password page:
           'third_party_auth' (Google/Apple OAuth), 'otp' (passwordless OTP
-          code), or 'passkey' (WebAuthn passkey).
+          code), or — for the passkey flow — '<surface>_passkey' where surface
+          is 'emailfirst', 'signin', 'otplogin', or 'alternative_auth' (the
+          passkey entry surface, e.g. 'signin_passkey').
         type: string
   engage:
     type: event
@@ -2653,7 +2655,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
   submit:
     type: event
@@ -2678,7 +2682,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
   submit_frontend_error:
     type: event
@@ -2701,9 +2707,11 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'. Client-side validation
-          errors prevent submission rather than emitting this event, so the
-          captured failures are server-side rejections.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values). Client-side validation errors prevent submission rather
+          than emitting this event, so the captured failures are server-side
+          rejections.
         type: string
   success:
     type: event
@@ -2728,7 +2736,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
 
 passkey_enter_password:
