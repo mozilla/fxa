@@ -27,6 +27,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
+    "baseUrl": ".",
     "paths": {
       "@fxa/accounts/email-renderer": [
         "./libs/accounts/email-renderer/src/index.ts"
