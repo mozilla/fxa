@@ -149,6 +149,9 @@ const SigninPasskeyFallbackContainer = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        // On mobile, navigating the WebView away leaves Sync paused; let Firefox
+        // drive completion via WebChannel instead.
+        performNavigation: !integration.isFirefoxMobileClient(),
       });
       if (navError) {
         GleanMetrics.passkeyEnterPassword.submitFrontendError({

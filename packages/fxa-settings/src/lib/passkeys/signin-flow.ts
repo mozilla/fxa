@@ -280,7 +280,9 @@ export function usePasskeySignIn({
         throw err;
       }
 
-      const serviceForRequest = getEmailService(integration);
+      const serviceForRequest = integration.isSync()
+        ? 'sync'
+        : getEmailService(integration);
       const metricsContext = queryParamsToMetricsContext(
         searchParams(queryParams) as Record<string, string | undefined>
       );
