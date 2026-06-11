@@ -91,6 +91,8 @@ export class PlanCanceller {
       typeof subscription.customer === 'string'
         ? subscription.customer
         : subscription.customer.id;
+    const paymentProvider =
+      subscription.collection_method === 'send_invoice' ? 'PayPal' : 'Stripe';
 
     try {
       console.log(`Processing ${subscription.id}`);
@@ -160,6 +162,7 @@ export class PlanCanceller {
       await this.writeReport({
         subscription,
         customer,
+        paymentProvider,
         isExcluded,
         amountRefunded,
         approximateAmountWasOwed,
@@ -176,6 +179,7 @@ export class PlanCanceller {
       await this.writeReport({
         subscription,
         customer: null,
+        paymentProvider,
         isExcluded: false,
         amountRefunded: null,
         approximateAmountWasOwed: null,
@@ -371,7 +375,8 @@ export class PlanCanceller {
       "daysUntilNextBill",
       "previousInvoiceAmountDue",
       "isOwed",
-      "error"
+      "error",
+      "paymentProvider"
     ];
 
     const reportCSV = data.join(',') + '\n';
@@ -385,6 +390,7 @@ export class PlanCanceller {
   async writeReport(args: {
     subscription: Stripe.Subscription,
     customer: Stripe.Customer | null,
+    paymentProvider: 'Stripe' | 'PayPal',
     isExcluded: boolean,
     amountRefunded: number | null,
     approximateAmountWasOwed: number | null,
@@ -408,7 +414,8 @@ export class PlanCanceller {
       args.daysUntilNextBill ?? "null",
       args.previousInvoiceAmountDue ?? "null",
       args.isOwed,
-      args.error
+      args.error,
+      args.paymentProvider
     ];
 
     const reportCSV = data.join(',') + '\n';

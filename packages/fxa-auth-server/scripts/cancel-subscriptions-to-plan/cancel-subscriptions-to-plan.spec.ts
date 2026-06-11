@@ -237,6 +237,7 @@ describe('PlanCanceller', () => {
           expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
+            paymentProvider: 'Stripe',
             isExcluded: false,
             amountRefunded: 1000,
             isOwed: false,
@@ -246,17 +247,23 @@ describe('PlanCanceller', () => {
       });
     });
 
-    describe('success - with refund', () => {
+    describe('success - PayPal subscription with refund', () => {
+      const paypalSub = {
+        ...mockSub,
+        collection_method: 'send_invoice',
+      } as unknown as Stripe.Subscription;
+
       beforeEach(async () => {
         attemptFullRefundStub.mockResolvedValue(1000);
-        await planCanceller.processSubscription(mockSub);
+        await planCanceller.processSubscription(paypalSub);
       });
 
-      it('writes report with refund amount', () => {
+      it('writes report with PayPal provider and refund amount', () => {
         expect(writeReportStub).toHaveBeenCalledWith(
           expect.objectContaining({
-            subscription: mockSub,
+            subscription: paypalSub,
             customer: mockCustomer,
+            paymentProvider: 'PayPal',
             isExcluded: false,
             amountRefunded: 1000,
             isOwed: false,
@@ -285,6 +292,7 @@ describe('PlanCanceller', () => {
           expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
+            paymentProvider: 'Stripe',
             isExcluded: false,
             amountRefunded: 1000,
             isOwed: false,
@@ -309,6 +317,7 @@ describe('PlanCanceller', () => {
           expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
+            paymentProvider: 'Stripe',
             isExcluded: true,
             amountRefunded: null,
             isOwed: false,
@@ -327,6 +336,7 @@ describe('PlanCanceller', () => {
           expect.objectContaining({
             subscription: mockSub,
             customer: null,
+            paymentProvider: 'Stripe',
             isExcluded: false,
             amountRefunded: null,
             isOwed: false,
@@ -343,6 +353,7 @@ describe('PlanCanceller', () => {
           expect.objectContaining({
             subscription: mockSub,
             customer: null,
+            paymentProvider: 'Stripe',
             isExcluded: false,
             amountRefunded: null,
             isOwed: false,
