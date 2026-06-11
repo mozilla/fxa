@@ -799,6 +799,18 @@ describe('lib/glean', () => {
     });
 
     describe('passkey', () => {
+      it.each(['emailfirst', 'signin', 'otplogin', 'alternative_auth'])(
+        'submits passkey_button_view with reason=%s',
+        async (reason) => {
+          GleanMetrics.passkey.buttonView({ event: { reason } });
+          await GleanMetrics.isDone();
+          sinon.assert.calledOnce(setEventNameStub);
+          sinon.assert.calledWith(setEventNameStub, 'passkey_button_view');
+          sinon.assert.calledOnce(setEventReasonStub);
+          sinon.assert.calledWith(setEventReasonStub, reason);
+        }
+      );
+
       it.each([
         'emailfirst_nopassword',
         'emailfirst_withpassword',

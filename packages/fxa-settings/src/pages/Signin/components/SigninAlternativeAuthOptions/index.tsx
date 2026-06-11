@@ -60,6 +60,7 @@ const SigninAlternativeAuthOptions = ({
     navigateWithQuery,
     queryParams: location.search,
     surface: 'alternative_auth',
+    isButtonVisible: showPasskeySignin,
   });
 
   const {

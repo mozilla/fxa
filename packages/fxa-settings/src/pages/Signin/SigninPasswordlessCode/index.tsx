@@ -96,6 +96,7 @@ const SigninPasswordlessCode = ({
     navigateWithQuery,
     queryParams: location.search,
     surface: 'login_otp',
+    isButtonVisible: showPasskeySignin,
   });
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =

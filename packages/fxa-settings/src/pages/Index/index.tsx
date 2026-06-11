@@ -67,6 +67,7 @@ export const Index = ({
     navigateWithQuery,
     queryParams: location.search,
     surface: 'emailfirst',
+    isButtonVisible: showPasskeySignin,
   });
   const handlePasskeyClick = () => {
     // Cancel any pending suggested-email auto-submit so it can't override
