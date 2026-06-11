@@ -18,7 +18,7 @@ import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../pages/Signin/utils';
-import { getEmailService } from '../../models/integrations/utils';
+import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import { queryParamsToMetricsContext } from '../metrics';
 import { searchParams } from '../utilities';
 import {
@@ -154,6 +154,26 @@ const gleanEventsForSurface = (
  */
 export type PasskeySignInIntegration = NavigationOptions['integration'];
 
+/**
+ * Resolves the `service` value sent with a passkey authentication request.
+ * Forces `sync` for any Sync integration; everything else uses
+ * `resolveServiceOrClientId`. Why force it:
+ * - The server decides per credential whether the account password is needed
+ *   (phase 1: always, to derive Sync keys; phase 2: not when the passkey
+ *   carries a stored key wrap) and needs `service=sync` to make that call.
+ * - Mobile Firefox omits the `service=sync` URL param, so `getService()` is
+ *   undefined and `resolveServiceOrClientId` would return the client id,
+ *   silently skipping that decision.
+ */
+export function resolvePasskeyService(
+  integration: PasskeySignInIntegration
+): string | undefined {
+  if (integration.isSync()) {
+    return 'sync';
+  }
+  return resolveServiceOrClientId(integration);
+}
+
 /** Pick<> so tests can pass minimal mocks without `as any`. */
 export type PasskeySignInAuthClient = Pick<
   AuthClient,
@@ -280,7 +300,7 @@ export function usePasskeySignIn({
         throw err;
       }
 
-      const serviceForRequest = getEmailService(integration);
+      const serviceForRequest = resolvePasskeyService(integration);
       const metricsContext = queryParamsToMetricsContext(
         searchParams(queryParams) as Record<string, string | undefined>
       );
@@ -379,7 +399,9 @@ export function usePasskeySignIn({
         queryParams,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-        performNavigation: true,
+        // On Firefox mobile, the browser finishes sign-in via WebChannel
+        // messages; navigating the WebView away would interrupt it.
+        performNavigation: !integration.isFirefoxMobileClient(),
         isPasskeySession: true,
         accountHasTotp,
       });

@@ -59,7 +59,7 @@ import {
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import {
-  getEmailService,
+  resolveServiceOrClientId,
   isUnsupportedContext,
 } from '../../models/integrations/utils';
 import { AuthKeyStretchUpgrade } from '../../lib/auth-key-stretch-upgrade';
@@ -463,7 +463,7 @@ const SigninContainer = ({
         }
       }
 
-      const emailService = getEmailService(integration);
+      const service = resolveServiceOrClientId(integration);
 
       const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
 
@@ -489,7 +489,7 @@ const SigninContainer = ({
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
         // See oauth_client_info in the auth-server for details on service/clientId.
-        ...(emailService ? { service: emailService } : {}),
+        ...(service ? { service } : {}),
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as ReturnType<typeof searchParams>
         ),

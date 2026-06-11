@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import {
   usePasskeySignIn,
+  resolvePasskeyService,
   type PasskeySignInAuthClient,
   type PasskeySignInIntegration,
 } from './signin-flow';
@@ -15,6 +16,7 @@ import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
 import { IntegrationType } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
@@ -139,6 +141,7 @@ const buildArgs = (
     isFirefoxNonSync: () => false,
     getService: () => undefined,
     getClientId: () => 'service-id',
+    isFirefoxMobileClient: () => false,
     type: IntegrationType.OAuthWeb,
     data: {},
     wantsTwoStepAuthentication: () => false,
@@ -244,13 +247,14 @@ describe('usePasskeySignIn', () => {
     });
   });
 
-  it('forwards the Firefox service name (not the client id) for a Sync sign-in', async () => {
+  it('sends service=sync in the passkey authentication request for a Sync sign-in, not the client id', async () => {
     const { args, spies } = buildArgs({
       integration: {
         isSync: () => true,
         isFirefoxNonSync: () => false,
         getService: () => 'sync',
         getClientId: () => 'client-id-should-not-be-used',
+        isFirefoxMobileClient: () => false,
         type: IntegrationType.OAuthNative,
         data: {},
         wantsTwoStepAuthentication: () => false,
@@ -278,6 +282,7 @@ describe('usePasskeySignIn', () => {
         isFirefoxNonSync: () => false,
         getService: () => undefined,
         getClientId: () => 'service-id',
+        isFirefoxMobileClient: () => false,
         type: IntegrationType.Web,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -391,6 +396,56 @@ describe('usePasskeySignIn', () => {
       expect(handleNavigation).not.toHaveBeenCalled();
     }
   );
+
+  it('sends service=sync in the passkey authentication request for a Sync sign-in when the service URL param is absent', async () => {
+    // Mobile Firefox omits service=sync and defaults via clientId, so
+    // getService() returns undefined; isSync() must still drive service=sync.
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+        getService: () => undefined,
+        isFirefoxMobileClient: () => false,
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      { service: 'sync', metricsContext: {} }
+    );
+  });
+
+  it('skips navigation on Firefox mobile so Firefox finishes sign-in via WebChannel', async () => {
+    const { args } = buildArgs({
+      integration: {
+        isSync: () => false,
+        isFirefoxNonSync: () => true,
+        getService: () => 'vpn',
+        getClientId: () => 'service-id',
+        isFirefoxMobileClient: () => true,
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(handleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ performNavigation: false })
+    );
+  });
 
   // Locks the contract: each DOMException name maps to its expected FTL id
   // AND its fallback string. Drift in either lands silently otherwise.
@@ -785,6 +840,7 @@ describe('usePasskeySignIn', () => {
         isFirefoxNonSync: () => false,
         getService: () => undefined,
         getClientId: () => 'service-id',
+        isFirefoxMobileClient: () => false,
         type: IntegrationType.OAuthWeb,
         data: {},
         wantsTwoStepAuthentication: () => true,
@@ -872,6 +928,7 @@ describe('usePasskeySignIn', () => {
             isFirefoxNonSync: () => false,
             getService: () => undefined,
             getClientId: () => 'service-id',
+            isFirefoxMobileClient: () => false,
             type: IntegrationType.OAuthWeb,
             data: {},
             wantsTwoStepAuthentication: () => false,
@@ -891,5 +948,71 @@ describe('usePasskeySignIn', () => {
         })
       );
     });
+  });
+});
+
+describe('resolvePasskeyService', () => {
+  const make = (overrides: {
+    isSync?: () => boolean;
+    getService?: () => string | undefined;
+    getClientId?: () => string | undefined;
+    type?: IntegrationType;
+  }) =>
+    ({
+      isSync: () => false,
+      getService: () => undefined,
+      getClientId: () => undefined,
+      type: IntegrationType.OAuthNative,
+      ...overrides,
+    }) as unknown as PasskeySignInIntegration;
+
+  it('resolves to sync for a Sync integration when getService() is undefined', () => {
+    expect(
+      resolvePasskeyService(
+        make({ isSync: () => true, getService: () => undefined })
+      )
+    ).toBe(OAuthNativeServices.Sync);
+  });
+
+  it('resolves to sync for a Sync integration when getService() returns sync', () => {
+    expect(
+      resolvePasskeyService(
+        make({ isSync: () => true, getService: () => OAuthNativeServices.Sync })
+      )
+    ).toBe(OAuthNativeServices.Sync);
+  });
+
+  it('resolves to the Firefox service for a non-Sync Firefox service (vpn)', () => {
+    expect(
+      resolvePasskeyService(
+        make({ isSync: () => false, getService: () => OAuthNativeServices.Vpn })
+      )
+    ).toBe(OAuthNativeServices.Vpn);
+  });
+
+  it('resolves to the client id for an OAuth integration with no Firefox service', () => {
+    expect(
+      resolvePasskeyService(
+        make({
+          isSync: () => false,
+          getService: () => undefined,
+          getClientId: () => 'client-id',
+          type: IntegrationType.OAuthWeb,
+        })
+      )
+    ).toBe('client-id');
+  });
+
+  it('resolves to undefined for a non-OAuth Web integration with no Firefox service', () => {
+    expect(
+      resolvePasskeyService(
+        make({
+          isSync: () => false,
+          getService: () => undefined,
+          getClientId: () => 'client-id',
+          type: IntegrationType.Web,
+        })
+      )
+    ).toBeUndefined();
   });
 });
