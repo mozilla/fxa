@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import axios from 'axios';
 import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
 import jwt from 'jsonwebtoken';
 import * as Sentry from '@sentry/node';
@@ -93,7 +92,7 @@ async function revokeThirdPartySessions(
           await db.deleteSessionToken(session);
           deletedCount++;
         } catch (deleteError) {
-            statsd.increment('revokeThirdPartySessions.deleteSessionToken.error');
+          statsd.increment('revokeThirdPartySessions.deleteSessionToken.error');
           // Continue with other sessions instead of failing completely
         }
       }
@@ -237,7 +236,7 @@ async function handleGoogleSessionsRevokedEvent(
       await revokeThirdPartySessions(account.uid, 'google', log, db, statsd);
     }
   } catch (error) {
-      statsd.increment('handleGoogleSessionsRevokedEvent.error');
+    statsd.increment('handleGoogleSessionsRevokedEvent.error');
     // Don't rethrow - log and continue to prevent unhandled promise rejection
   }
 }
@@ -284,14 +283,22 @@ export function handleGoogleOtherEventType(eventType: string, log: any) {
 export function normalizeGoogleSETEventType(eventType: string): string {
   // Map of known event types to clear, concise names
   const eventTypeMap: { [key: string]: string } = {
-    'https://schemas.openid.net/secevent/risc/event-type/verification': 'verification',
-    'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked': 'sessions_revoked',
-    'https://schemas.openid.net/secevent/risc/event-type/account-disabled': 'account_disabled',
-    'https://schemas.openid.net/secevent/risc/event-type/account-enabled': 'account_enabled',
-    'https://schemas.openid.net/secevent/risc/event-type/account-purged': 'account_purged',
-    'https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required': 'credential_change_required',
-    'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked': 'tokens_revoked',
-    'https://schemas.openid.net/secevent/oauth/event-type/token-revoked': 'token_revoked',
+    'https://schemas.openid.net/secevent/risc/event-type/verification':
+      'verification',
+    'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked':
+      'sessions_revoked',
+    'https://schemas.openid.net/secevent/risc/event-type/account-disabled':
+      'account_disabled',
+    'https://schemas.openid.net/secevent/risc/event-type/account-enabled':
+      'account_enabled',
+    'https://schemas.openid.net/secevent/risc/event-type/account-purged':
+      'account_purged',
+    'https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required':
+      'credential_change_required',
+    'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked':
+      'tokens_revoked',
+    'https://schemas.openid.net/secevent/oauth/event-type/token-revoked':
+      'token_revoked',
     'https://schemas.openid.net/secevent/risc/event-type/unknown': 'unknown',
   };
 
@@ -317,14 +324,20 @@ export function normalizeGoogleSETEventType(eventType: string): string {
  */
 export async function getApplePublicKey(token: string, statsd: StatsD) {
   try {
-    const appleCerts = await axios.get(APPLE_PUBLIC_KEYS);
+    const response = await fetch(APPLE_PUBLIC_KEYS);
+    if (!response.ok) {
+      throw new Error(
+        `Apple public key endpoint responded with ${response.status}`
+      );
+    }
+    const appleCerts = await response.json();
     const jwtHeader = jwt.decode(token, { complete: true })?.header;
     const keyId = jwtHeader?.kid;
     if (!keyId) {
       throw new Error('No valid keyId found.');
     }
 
-    const publicKey = appleCerts.data.keys.find(
+    const publicKey = appleCerts.keys.find(
       (key: { kid: string }) => key.kid === keyId
     );
 
@@ -353,17 +366,28 @@ export async function getGooglePublicKey(
   statsd: StatsD
 ): Promise<{ pem: string; issuer: string }> {
   try {
-    const riscConfig = await axios.get(RISC_CONFIG_URI);
-    const { jwks_uri: jwksUri, issuer } = riscConfig.data;
+    const riscConfigResponse = await fetch(RISC_CONFIG_URI);
+    if (!riscConfigResponse.ok) {
+      throw new Error(
+        `Google RISC configuration endpoint responded with ${riscConfigResponse.status}`
+      );
+    }
+    const { jwks_uri: jwksUri, issuer } = await riscConfigResponse.json();
 
-    const googleCerts = await axios.get(jwksUri);
+    const googleCertsResponse = await fetch(jwksUri);
+    if (!googleCertsResponse.ok) {
+      throw new Error(
+        `Google public key endpoint responded with ${googleCertsResponse.status}`
+      );
+    }
+    const googleCerts = await googleCertsResponse.json();
     const jwtHeader = jwt.decode(token, { complete: true })?.header;
     const keyId = jwtHeader.kid;
     if (!keyId) {
       throw new Error('No valid keyId found.');
     }
 
-    const publicKey = googleCerts.data.keys.find(
+    const publicKey = googleCerts.keys.find(
       (key: { kid: string }) => key.kid === keyId
     );
 

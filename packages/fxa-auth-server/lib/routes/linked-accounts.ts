@@ -4,7 +4,6 @@
 import { AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
-import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import * as jose from 'jose';
@@ -279,16 +278,26 @@ export class LinkedAccountHandler {
           };
 
           try {
-            const res = await axios.post(
+            const res = await fetch(
               this.config.googleAuthConfig.tokenEndpoint,
-              data
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              }
             );
+            if (!res.ok) {
+              throw new Error(
+                `Google token endpoint responded with ${res.status}`
+              );
+            }
+            const tokenResponse = await res.json();
             // We currently only use the `id_token` after completing the
             // authorization code exchange. In the future we could store a
             // refresh token to do other things like revoking sessions.
             //
             // See https://developers.google.com/identity/protocols/oauth2/openid-connect#exchangecode
-            rawIdToken = res.data['id_token'];
+            rawIdToken = tokenResponse['id_token'];
 
             const verifiedToken = await this.googleAuthClient.verifyIdToken({
               idToken: rawIdToken,
@@ -328,11 +337,20 @@ export class LinkedAccountHandler {
           };
 
           try {
-            const res = await axios.post(
-              this.config.appleAuthConfig.tokenEndpoint,
-              new URLSearchParams(data).toString()
-            );
-            rawIdToken = res.data['id_token'];
+            const res = await fetch(this.config.appleAuthConfig.tokenEndpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams(data).toString(),
+            });
+            if (!res.ok) {
+              throw new Error(
+                `Apple token endpoint responded with ${res.status}`
+              );
+            }
+            const tokenResponse = await res.json();
+            rawIdToken = tokenResponse['id_token'];
             idToken = jose.decodeJwt(rawIdToken);
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
