@@ -182,9 +182,34 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     });
   });
 
-  it('rejects refresh tokens from non-allowlisted client_ids', async () => {
+  it('allows a non-allowlisted client_id whose refresh token has the oldsync scope', async () => {
+    // Regression guard: a Sync client_id outside the allowlist must still
+    // authenticate via the oldsync scope, not be rejected with 401/errno-110.
     oauthDB.getRefreshToken.mockResolvedValue({
       scope: ScopeSet.fromString('https://identity.mozilla.com/apps/oldsync'),
+      userId: USER_ID,
+      clientId: Buffer.from('0123456789abcdef', 'hex'), // not in the allowlist
+    });
+
+    const scheme = schemeRefreshToken(config, db);
+    await scheme().authenticate(
+      {
+        headers: {
+          authorization:
+            'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
+        },
+        app,
+      },
+      response
+    );
+
+    expect(response.unauthenticated).not.toHaveBeenCalled();
+    expect(response.authenticated).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects refresh tokens that are neither allowlisted nor oldsync-scoped', async () => {
+    oauthDB.getRefreshToken.mockResolvedValue({
+      scope: ScopeSet.fromString('profile'),
       userId: USER_ID,
       clientId: Buffer.from('0123456789abcdef', 'hex'),
     });
