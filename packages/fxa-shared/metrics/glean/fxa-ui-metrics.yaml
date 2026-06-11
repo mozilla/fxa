@@ -2754,8 +2754,8 @@ passkey_enter_password:
       reason:
         description: |
           Sign-in surface the user came from before this page: 'emailfirst'
-          (email-first page or passwordless OTP code page) or 'login' (login
-          page with password).
+          (email-first page) or 'signin' (login page). Only these two surfaces
+          reach the existing-password page (no-password surfaces never do).
         type: string
   engage:
     type: event
@@ -2778,7 +2778,9 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
   submit:
     type: event
@@ -2801,7 +2803,9 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
   submit_frontend_error:
     type: event
@@ -2849,7 +2853,9 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
 
 passkey:
@@ -2878,14 +2884,12 @@ passkey:
     extra_keys:
       reason:
         description: |
-          Sign-in entry surface paired with the post-auth Sync outcome.
-          One of: 'emailfirst_nopassword' (came from email-first or the
-          passwordless OTP page, no Sync password step required),
-          'emailfirst_withpassword' (existing Sync password entered after
-          passkey), 'emailfirst_createdpassword' (new Sync password created
-          after passkey), 'signin_nopassword' (came from the signin/login
-          page, no Sync password step required), 'signin_withpassword'
-          (existing Sync password entered after passkey).
+          `<surface>_<outcome>`. Surface: 'emailfirst', 'signin',
+          'otplogin', or 'alternative_auth'. Outcome: 'nopassword' (no Sync
+          password step), 'withpassword' (existing password entered), or
+          'createdpassword' (new password set). E.g. 'signin_withpassword'.
+          'otplogin' and 'alternative_auth' are no-password surfaces, so they
+          pair only with 'nopassword'/'createdpassword' (never 'withpassword').
         type: string
 
 account_pref:
