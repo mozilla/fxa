@@ -350,7 +350,9 @@ describe('SetPassword-container', () => {
 
     it.each([
       ['emailfirst' as const, 'emailfirst_createdpassword'],
-      ['login' as const, 'signin_createdpassword'],
+      ['signin' as const, 'signin_createdpassword'],
+      ['otplogin' as const, 'otplogin_createdpassword'],
+      ['alternative_auth' as const, 'alternative_auth_createdpassword'],
     ])(
       'fires passkey.auth_success with reason="%s" on the passkey-flow createPassword success (passkeySurface=%s)',
       async (passkeySurface, expectedReason) => {
