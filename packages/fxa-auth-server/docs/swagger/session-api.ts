@@ -130,6 +130,21 @@ const SESSION_RESEND_CODE_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
+const SESSION_ORIGINAL_ACCOUNT_EMAIL_GET = {
+  ...TAGS_SESSION,
+  description: '/session/original-account-email',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Returns the account's signup email — the value used as the salt for v1 password derivation. Clients deriving v1 credentials must use this email (not the user's current primary email) so that the resulting authPW matches the stored verifier. Self-deprecating: v2 accounts derive from \`clientSalt\` and don't need this call; the endpoint can be removed once v1 is fully phased out.
+
+      **Response object:**
+      - \`email\`: The account's signup email (\`accounts.email\`).
+    `,
+  ],
+};
+
 const API_DOCS = {
   SESSION_DESTROY_POST,
   SESSION_DUPLICATE_POST,
@@ -137,6 +152,7 @@ const API_DOCS = {
   SESSION_STATUS_GET,
   SESSION_RESEND_CODE_POST,
   SESSION_VERIFY_CODE_POST,
+  SESSION_ORIGINAL_ACCOUNT_EMAIL_GET,
 };
 
 export default API_DOCS;

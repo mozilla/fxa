@@ -400,6 +400,37 @@ describe('/session/status', () => {
   });
 });
 
+describe('/session/original-account-email', () => {
+  let log: any, db: any, config: any, routes: any, route: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    log = mocks.mockLog();
+    mocks.mockFxaMailer();
+    mocks.mockOAuthClientInfo();
+    db = {
+      account: jest.fn().mockResolvedValue({
+        uid: 'account-123',
+        email: 'signup@example.com',
+      }),
+    };
+    config = {};
+    routes = makeRoutes({ log, db, config });
+    route = getRoute(routes, '/session/original-account-email');
+  });
+
+  it('returns the signup email for the session uid', async () => {
+    const request = mocks.mockRequest({
+      credentials: { uid: 'account-123' },
+    });
+    const resp = await runTest(route, request);
+    expect(db.account).toHaveBeenCalledWith('account-123');
+    expect(resp).toEqual({
+      email: 'signup@example.com',
+    });
+  });
+});
+
 describe('/session/reauth', () => {
   const TEST_EMAIL = 'foo@example.com';
   const TEST_UID = 'abcdef123456';
@@ -497,8 +528,10 @@ describe('/session/reauth', () => {
       expect(checkCustomsArgs[0]).toBe(request);
       expect(checkCustomsArgs[1]).toBe(TEST_EMAIL);
 
-      expect(db.accountRecord).toHaveBeenCalledTimes(2);
-      expect(db.accountRecord).toHaveBeenNthCalledWith(1, TEST_EMAIL);
+
+      expect(db.account).toHaveBeenCalledTimes(1);
+      expect(db.account).toHaveBeenNthCalledWith(1, TEST_UID);
+      expect(db.accountRecord).toHaveBeenCalledTimes(1);
 
       expect(signinUtils.checkEmailAddress).toHaveBeenCalledTimes(1);
       const checkEmailArgs = signinUtils.checkEmailAddress.mock.calls[0];
@@ -553,10 +586,10 @@ describe('/session/reauth', () => {
     });
   });
 
-  it('erorrs when session uid and email account uid mismatch', () => {
+  it('errors with INCORRECT_EMAIL_CASE when payload email does not match account.email', () => {
     db = mocks.mockDB({
-      email: 'hello@bs.gg',
-      uid: 'quux',
+      email: 'signup@example.com',
+      uid: TEST_UID,
     });
     const routes = makeRoutes({
       log,
@@ -569,15 +602,20 @@ describe('/session/reauth', () => {
     const route = getRoute(routes, '/session/reauth');
     const req = {
       ...request,
-      payload: { ...request.payload, email: 'hello@bs.gg' },
+      // Client sends current primary instead of the signup email — has been a
+      // common issue with client side implementations. Server must surface
+      // the original account email back so the client can derive the correct
+      // V1 authPW.
+      payload: { ...request.payload, email: 'primary-now@example.com' },
     };
     return runTest(route, req).then(
       () => {
         throw new Error('request should have been rejected');
       },
       (err: any) => {
-        expect(db.accountRecord).toHaveBeenCalledTimes(1);
-        expect(err.errno).toBe(error.ERRNO.ACCOUNT_UNKNOWN);
+        expect(db.account).toHaveBeenCalledTimes(1);
+        expect(err.errno).toBe(error.ERRNO.INCORRECT_EMAIL_CASE);
+        expect(err.output.payload.email).toBe('signup@example.com');
       }
     );
   });

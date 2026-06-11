@@ -4,6 +4,7 @@
 
 import * as assert from 'assert';
 import AuthClient from '../server';
+import * as crypto from '../lib/crypto';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -331,6 +332,281 @@ describe('lib/client', () => {
         }
         assert.equal(caught?.errno, 114);
         assert.equal(caught?.retryAfter, 30);
+      });
+    });
+  });
+
+  describe('original-account-email credential derivation', () => {
+    const SESSION_TOKEN = 'a'.repeat(64);
+    const KEY_FETCH_TOKEN = 'b'.repeat(64);
+    const PASSWORD_CHANGE_TOKEN = 'c'.repeat(64);
+    const ORIGINAL_EMAIL = 'original@example.com';
+    const PRIMARY_EMAIL = 'primary@example.com';
+
+    let authClient: AuthClient;
+    let originalFetch: typeof globalThis.fetch;
+    let requests: Array<{
+      method: string;
+      path: string;
+      body: any;
+      headers?: Headers;
+    }>;
+    let getCredentialsCalls: Array<{ email: string; password: string }>;
+
+    // Captured once so afterEach can restore the real implementations.
+    const realGetCredentials = (crypto as any).getCredentials;
+    const realUnwrapKB = (crypto as any).unwrapKB;
+    const realUnbundle = (crypto as any).unbundleKeyFetchResponse;
+
+    // Route a request by `METHOD /suffix`; the client prepends `/v1` to paths.
+    function mockFetch(
+      routes: Record<string, { status?: number; json?: any }>
+    ) {
+      globalThis.fetch = (async (url: string, init?: RequestInit) => {
+        const { pathname } = new URL(url);
+        const method = init?.method || 'GET';
+        const body = init?.body
+          ? JSON.parse(init.body as string)
+          : undefined;
+        requests.push({
+          method,
+          path: pathname,
+          body,
+          headers: init?.headers as Headers,
+        });
+
+        const matchKey = Object.keys(routes).find((key) => {
+          const [routeMethod, routePath] = key.split(' ');
+          return routeMethod === method && pathname.endsWith(routePath);
+        });
+        const { status = 200, json = {} } = matchKey ? routes[matchKey] : {};
+        return new Response(JSON.stringify(json), {
+          status,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }) as typeof globalThis.fetch;
+    }
+
+    function requestsTo(method: string, pathSuffix: string) {
+      return requests.filter(
+        (r) => r.method === method && r.path.endsWith(pathSuffix)
+      );
+    }
+
+    beforeEach(() => {
+      authClient = new AuthClient('http://localhost:9000');
+      requests = [];
+      getCredentialsCalls = [];
+      originalFetch = globalThis.fetch;
+
+      // Stub crypto so we (a) skip slow PBKDF2 stretching and (b) can assert
+      // exactly which email salts each derivation — the heart of this change.
+      // bearer/hawk token derivation still uses the real WebCrypto, so the
+      // *_TOKEN constants above must remain valid hex.
+      (crypto as any).getCredentials = async (
+        email: string,
+        password: string
+      ) => {
+        getCredentialsCalls.push({ email, password });
+        return { authPW: `authPW-${email}`, unwrapBKey: `unwrapBKey-${email}` };
+      };
+      (crypto as any).unbundleKeyFetchResponse = async () => ({
+        kA: 'kA',
+        wrapKB: 'wrapKB',
+      });
+      (crypto as any).unwrapKB = () => 'unwrapped';
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+      (crypto as any).getCredentials = realGetCredentials;
+      (crypto as any).unwrapKB = realUnwrapKB;
+      (crypto as any).unbundleKeyFetchResponse = realUnbundle;
+    });
+
+    describe('sessionReauth', () => {
+      it('fetches the original email and maps it onto the wire payload when originalLoginEmail is not supplied', async () => {
+        mockFetch({
+          'GET /session/original-account-email': {
+            json: { email: ORIGINAL_EMAIL },
+          },
+          'POST /session/reauth': { json: { uid: 'uid', authAt: 1 } },
+        });
+
+        await authClient.sessionReauth(SESSION_TOKEN, PRIMARY_EMAIL, 'pw');
+
+        // The signup (derivation) email is fetched exactly once...
+        assert.equal(
+          requestsTo('GET', '/session/original-account-email').length,
+          1
+        );
+        // ...and used to derive credentials.
+        assert.equal(getCredentialsCalls.length, 1);
+        assert.equal(getCredentialsCalls[0].email, ORIGINAL_EMAIL);
+
+        // payload.email is the derivation email; payload.originalLoginEmail is
+        // the typed/current primary checked server-side against the account.
+        const [reauth] = requestsTo('POST', '/session/reauth');
+        assert.equal(reauth.body.email, ORIGINAL_EMAIL);
+        assert.equal(reauth.body.originalLoginEmail, PRIMARY_EMAIL);
+      });
+
+      it('skips the extra round-trip when originalLoginEmail is pre-supplied', async () => {
+        mockFetch({
+          'POST /session/reauth': { json: { uid: 'uid', authAt: 1 } },
+        });
+
+        await authClient.sessionReauth(SESSION_TOKEN, PRIMARY_EMAIL, 'pw', {
+          originalLoginEmail: ORIGINAL_EMAIL,
+        });
+
+        assert.equal(
+          requestsTo('GET', '/session/original-account-email').length,
+          0
+        );
+        assert.equal(getCredentialsCalls[0].email, ORIGINAL_EMAIL);
+
+        const [reauth] = requestsTo('POST', '/session/reauth');
+        assert.equal(reauth.body.email, ORIGINAL_EMAIL);
+        assert.equal(reauth.body.originalLoginEmail, PRIMARY_EMAIL);
+      });
+
+      it('relays the derived unwrapBKey when keys are requested', async () => {
+        mockFetch({
+          'POST /session/reauth': { json: { uid: 'uid', authAt: 1 } },
+        });
+
+        const accountData = await authClient.sessionReauth(
+          SESSION_TOKEN,
+          PRIMARY_EMAIL,
+          'pw',
+          { keys: true, originalLoginEmail: ORIGINAL_EMAIL }
+        );
+
+        assert.equal(accountData.unwrapBKey, `unwrapBKey-${ORIGINAL_EMAIL}`);
+      });
+
+      it('propagates an incorrect-email-case error without retrying (case lookahead removed)', async () => {
+        mockFetch({
+          'GET /session/original-account-email': {
+            json: { email: ORIGINAL_EMAIL },
+          },
+          'POST /session/reauth': {
+            status: 400,
+            json: {
+              errno: 120,
+              code: 400,
+              email: 'CASED@example.com',
+              message: 'Incorrect email case',
+            },
+          },
+        });
+
+        let caught: any;
+        try {
+          await authClient.sessionReauth(SESSION_TOKEN, PRIMARY_EMAIL, 'pw');
+        } catch (e) {
+          caught = e;
+        }
+
+        assert.equal(caught?.errno, 120);
+        // The old flow retried the reauth with the server-corrected email; the
+        // new flow derives from the original email up front, so there is no retry.
+        assert.equal(requestsTo('POST', '/session/reauth').length, 1);
+      });
+    });
+
+    describe('passwordChange', () => {
+      it('derives every v1 credential from the original signup email', async () => {
+        mockFetch({
+          'GET /session/original-account-email': {
+            json: { email: ORIGINAL_EMAIL },
+          },
+          'POST /password/change/start': {
+            json: {
+              keyFetchToken: KEY_FETCH_TOKEN,
+              passwordChangeToken: PASSWORD_CHANGE_TOKEN,
+            },
+          },
+          'GET /account/keys': { json: { bundle: '00' } },
+          'POST /password/change/finish': {
+            json: { uid: 'uid', sessionToken: SESSION_TOKEN, authAt: 1 },
+          },
+        });
+
+        await authClient.passwordChange(
+          PRIMARY_EMAIL,
+          'oldpw',
+          'newpw',
+          SESSION_TOKEN
+        );
+
+        assert.equal(
+          requestsTo('GET', '/session/original-account-email').length,
+          1
+        );
+        // /password/change/start is salted/looked-up by the original email.
+        const [start] = requestsTo('POST', '/password/change/start');
+        assert.equal(start.body.email, ORIGINAL_EMAIL);
+        // No derivation ever uses the typed primary email.
+        assert.ok(
+          getCredentialsCalls.every((c) => c.email === ORIGINAL_EMAIL),
+          `expected all getCredentials calls to use ${ORIGINAL_EMAIL}, got ${JSON.stringify(
+            getCredentialsCalls
+          )}`
+        );
+      });
+    });
+
+    describe('passwordChangeWithJWT', () => {
+      it('fetches the original email once and uses it for reauth and the JWT change payload', async () => {
+        mockFetch({
+          'GET /session/original-account-email': {
+            json: { email: ORIGINAL_EMAIL },
+          },
+          'POST /session/reauth': {
+            json: { uid: 'uid', keyFetchToken: KEY_FETCH_TOKEN, authAt: 1 },
+          },
+          'GET /account/keys': { json: { bundle: '00' } },
+          'POST /mfa/password/change': {
+            json: { uid: 'uid', sessionToken: SESSION_TOKEN, authAt: 1 },
+          },
+        });
+
+        await authClient.passwordChangeWithJWT(
+          'jwt-token',
+          PRIMARY_EMAIL,
+          'oldpw',
+          'newpw',
+          SESSION_TOKEN
+        );
+
+        // Fetched once at the top — sessionReauth reuses it via originalLoginEmail
+        // instead of issuing a redundant round-trip.
+        assert.equal(
+          requestsTo('GET', '/session/original-account-email').length,
+          1
+        );
+
+        const [reauth] = requestsTo('POST', '/session/reauth');
+        assert.equal(reauth.body.email, ORIGINAL_EMAIL);
+        assert.equal(reauth.body.originalLoginEmail, PRIMARY_EMAIL);
+
+        const [change] = requestsTo('POST', '/mfa/password/change');
+        assert.equal(change.body.email, ORIGINAL_EMAIL);
+        assert.ok(change.body.oldAuthPW, 'expected oldAuthPW in payload');
+        assert.ok(change.body.authPW, 'expected authPW in payload');
+        assert.equal(
+          change.headers?.get('authorization'),
+          'Bearer jwt-token'
+        );
+
+        assert.ok(
+          getCredentialsCalls.every((c) => c.email === ORIGINAL_EMAIL),
+          `expected all getCredentials calls to use ${ORIGINAL_EMAIL}, got ${JSON.stringify(
+            getCredentialsCalls
+          )}`
+        );
       });
     });
   });

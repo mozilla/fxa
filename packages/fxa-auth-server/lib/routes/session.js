@@ -5,6 +5,7 @@
 'use strict';
 
 const { AppError: error } = require('@fxa/accounts/errors');
+const { emailsMatch } = require('fxa-shared/email/helpers');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -173,19 +174,19 @@ module.exports = function (
           throw error.disabledClientId(service);
         }
 
-        const account = await db.accountRecord(email);
-        if (account.uid !== sessionToken.uid) {
-          throw error.unknownAccount(email);
+        const account = await db.account(sessionToken.uid);
+        if (!emailsMatch(email, account.email)) {
+          throw error.incorrectPassword(account.email, email);
         }
 
-        const { accountRecord } = await signinUtils.checkCustomsAndLoadAccount(
+        await signinUtils.checkCustomsAndLoadAccount(
           request,
           email,
           sessionToken.uid
         );
 
         // Start temporary metrics section
-        if (!account?.primaryEmail?.isVerified) {
+        if (!account.primaryEmail?.isVerified) {
           statsd.increment(
             'session_reauth.primary_email_not_verified',
             getClientServiceTags(request)
@@ -208,29 +209,29 @@ module.exports = function (
         // End temporary metrics section
 
         await signinUtils.checkEmailAddress(
-          accountRecord,
+          account,
           email,
           originalLoginEmail
         );
 
         const password = new Password(
           authPW,
-          accountRecord.authSalt,
-          accountRecord.verifierVersion
+          account.authSalt,
+          account.verifierVersion
         );
         const match = await signinUtils.checkPassword(
-          accountRecord,
+          account,
           password,
           request
         );
         if (!match) {
-          throw error.incorrectPassword(accountRecord.email, email);
+          throw error.incorrectPassword(account.email, email);
         }
 
         // Check to see if the user has a TOTP token and it is verified and
         // enabled, if so then the verification method is automatically forced so that
         // they have to verify the token.
-        const hasTotpToken = await otpUtils.hasTotpToken(accountRecord);
+        const hasTotpToken = await otpUtils.hasTotpToken(account);
         if (hasTotpToken) {
           // User has enabled TOTP, no way around it, they must verify TOTP token
           verificationMethod = 'totp-2fa';
@@ -261,7 +262,7 @@ module.exports = function (
 
         await signinUtils.sendSigninNotifications(
           request,
-          accountRecord,
+          account,
           sessionToken,
           verificationMethod
         );
@@ -269,14 +270,14 @@ module.exports = function (
         const response = {
           uid: sessionToken.uid,
           authAt: sessionToken.lastAuthAt(),
-          metricsEnabled: !accountRecord.metricsOptOut,
+          metricsEnabled: !account.metricsOptOut,
           emailVerified: sessionToken.emailVerified,
         };
 
         if (requestHelper.wantsKeys(request)) {
           const keyFetchToken = await signinUtils.createKeyFetchToken(
             request,
-            accountRecord,
+            account,
             password,
             sessionToken
           );
@@ -361,6 +362,29 @@ module.exports = function (
             sessionVerificationMeetsMinimumAAL,
             verified,
           },
+        };
+      },
+    },
+    {
+      method: 'GET',
+      path: '/session/original-account-email',
+      options: {
+        ...SESSION_DOCS.SESSION_ORIGINAL_ACCOUNT_EMAIL_GET,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA.object({
+            email: isA.string().required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.originalAccountEmail', request);
+        const sessionToken = request.auth.credentials;
+        const account = await db.account(sessionToken.uid);
+        return {
+          email: account.email
         };
       },
     },
