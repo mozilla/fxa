@@ -272,13 +272,13 @@ describe('SigninPasskeyFallback container', () => {
     it('fires success with the passkeySurface reason after sessionReauth resolves', async () => {
       mockLocationState = {
         ...MOCK_LOCATION_STATE,
-        passkeySurface: 'login',
+        passkeySurface: 'signin',
       };
       const { getByTestId } = render();
       submitPassword(getByTestId);
       await waitFor(() => {
         expect(GleanMetrics.passkeyEnterPassword.success).toHaveBeenCalledWith({
-          event: { reason: 'login' },
+          event: { reason: 'signin' },
         });
       });
       expect(
@@ -329,9 +329,11 @@ describe('SigninPasskeyFallback container', () => {
       expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
     });
 
+    // Only emailfirst/signin reach the existing-password fallback; no-password
+    // surfaces (otplogin, alternative_auth) never do.
     it.each([
       ['emailfirst' as const, 'emailfirst_withpassword'],
-      ['login' as const, 'signin_withpassword'],
+      ['signin' as const, 'signin_withpassword'],
     ])(
       'fires passkey.auth_success with reason=%s on successful reauth (passkeySurface=%s)',
       async (surface, expectedReason) => {

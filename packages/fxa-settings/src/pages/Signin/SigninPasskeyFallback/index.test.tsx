@@ -69,11 +69,11 @@ describe('SigninPasskeyFallback', () => {
       renderWithRouter(
         <SigninPasskeyFallback
           email="user@example.com"
-          passkeySurface="login"
+          passkeySurface="signin"
         />
       );
       expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
-        event: { reason: 'login' },
+        event: { reason: 'signin' },
       });
     });
 
@@ -82,13 +82,13 @@ describe('SigninPasskeyFallback', () => {
       renderWithRouter(
         <SigninPasskeyFallback
           email="user@example.com"
-          passkeySurface="login"
+          passkeySurface="signin"
         />
       );
       await user.type(screen.getByLabelText('Password'), 'a');
       await waitFor(() => {
         expect(GleanMetrics.passkeyEnterPassword.engage).toHaveBeenCalledWith({
-          event: { reason: 'login' },
+          event: { reason: 'signin' },
         });
       });
       const callsBefore = (
