@@ -4,21 +4,24 @@
 
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
-const nock = require('nock');
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
-const CUSTOMS_URL_MISSING = 'http://localhost:7001';
 
-const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
-  'Content-Type': 'application/json',
-});
 const Customs = require('./customs');
 const configModule = require('../config');
+
+// Build a minimal fetch Response stand-in for the customs server.
+function customsResponse(body: any, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  } as unknown as Response;
+}
 
 describe('Customs', () => {
   let customsNoUrl: any;
   let customsWithUrl: any;
-  let customsInvalidUrl: any;
   const statsd = {
     increment: () => {},
     timing: () => {},
@@ -38,8 +41,10 @@ describe('Customs', () => {
   let ip_uid: string;
   let ip_email: string;
   let action: string;
+  let originalFetch: typeof global.fetch;
 
   beforeEach(() => {
+    originalFetch = global.fetch;
     jest.spyOn(statsd, 'increment');
     jest.spyOn(statsd, 'timing');
     jest.spyOn(statsd, 'gauge');
@@ -53,7 +58,7 @@ describe('Customs', () => {
   });
 
   afterEach(() => {
-    nock.cleanAll();
+    global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
@@ -74,357 +79,177 @@ describe('Customs', () => {
     expect(result).toBeUndefined();
   });
 
-  it('can create a customs object with a url', async () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    expect(customsWithUrl).toBeTruthy();
+  it('posts a sanitized /check body and passes when not blocked', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(customsResponse({ block: false, retryAfter: 0 }));
 
-    // Mock a check that does not get blocked.
-    customsServer
-      .post('/check', (body: any) => {
-        expect(body).toEqual({
-          ip: ip,
-          email: email,
-          action: action,
-          headers: request.headers,
-          query: request.query,
-          payload: request.payload,
-        });
-        return true;
-      })
-      .reply(200, { block: false, retryAfter: 0 });
-
-    let result = await customsWithUrl.check(request, email, action);
+    const result = await customs.check(request, email, action);
     expect(result).toBeUndefined();
 
-    // flag() is now a noop
-    result = await customsWithUrl.flag(ip, { email, uid });
-    expect(result).toBeUndefined();
-
-    // Mock a report of a password reset.
-    customsServer
-      .post('/passwordReset', (body: any) => {
-        expect(body).toEqual({
-          ip: request.app.clientAddress,
-          email: email,
-        });
-        return true;
-      })
-      .reply(200, {});
-    result = await customsWithUrl.reset(request, email);
-    expect(result).toBeUndefined();
-
-    // Mock a check that does get blocked, with a retryAfter.
-    customsServer
-      .post('/check', (body: any) => {
-        expect(body).toEqual({
-          ip: ip,
-          email: email,
-          action: action,
-          headers: request.headers,
-          query: request.query,
-          payload: request.payload,
-        });
-        return true;
-      })
-      .reply(200, { block: true, retryAfter: 10001 });
-
-    try {
-      await customsWithUrl.check(request, email, action);
-      throw new Error(
-        'This should have failed the check since it should be blocked'
-      );
-    } catch (err: any) {
-      expect(err.errno).toBe(error.ERRNO.THROTTLED);
-      expect(err.message).toBe('Client has sent too many requests');
-      expect(err.isBoom).toBeTruthy();
-      expect(err.output.statusCode).toBe(429);
-      expect(err.output.payload.retryAfter).toBe(10001);
-      expect(err.output.headers['retry-after']).toBe('10001');
-    }
-
-    // flag() is now a noop
-    result = await customsWithUrl.flag(ip, {
-      email: email,
-      errno: error.ERRNO.INCORRECT_PASSWORD,
+    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(`${CUSTOMS_URL_REAL}/check`);
+    expect(init.method).toBe('POST');
+    expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
+    expect(JSON.parse(init.body)).toEqual({
+      ip,
+      email,
+      action,
+      headers: request.headers,
+      query: request.query,
+      payload: request.payload,
     });
-    expect(result).toBeUndefined();
-
-    // Mock a check that does get blocked, with no retryAfter.
-    request.headers['user-agent'] = 'test passing through headers';
-    request.payload['foo'] = 'bar';
-    customsServer
-      .post('/check', (body: any) => {
-        expect(body).toEqual({
-          ip: ip,
-          email: email,
-          action: action,
-          headers: request.headers,
-          query: request.query,
-          payload: request.payload,
-        });
-        return true;
-      })
-      .reply(200, { block: true });
-
-    try {
-      await customsWithUrl.check(request, email, action);
-      throw new Error(
-        'This should have failed the check since it should be blocked'
-      );
-    } catch (err: any) {
-      expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
-      expect(err.message).toBe('The request was blocked for security reasons');
-      expect(err.isBoom).toBeTruthy();
-      expect(err.output.statusCode).toBe(400);
-      expect(err.output.payload.retryAfter).toBeUndefined();
-      expect(err.output.headers['retry-after']).toBeUndefined();
-    }
-
-    customsServer
-      .post('/checkIpOnly', (body: any) => {
-        expect(body).toEqual({
-          ip: ip,
-          action: action,
-        });
-        return true;
-      })
-      .reply(200, { block: false, retryAfter: 0 });
-
-    result = await customsWithUrl.checkIpOnly(request, action);
-    expect(result).toBeUndefined();
   });
 
-  it('failed closed when creating a customs object with non-existant customs service', async () => {
-    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING, log, error, statsd);
-    expect(customsInvalidUrl).toBeTruthy();
+  it('throws tooManyRequests (429) when a check is blocked with a retryAfter', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(customsResponse({ block: true, retryAfter: 10001 }));
 
-    await expect(
-      customsInvalidUrl.check(request, email, action)
-    ).rejects.toMatchObject({
+    let err: any;
+    try {
+      await customs.check(request, email, action);
+    } catch (e) {
+      err = e;
+    }
+    expect(err.errno).toBe(error.ERRNO.THROTTLED);
+    expect(err.message).toBe('Client has sent too many requests');
+    expect(err.isBoom).toBeTruthy();
+    expect(err.output.statusCode).toBe(429);
+    expect(err.output.payload.retryAfter).toBe(10001);
+    expect(err.output.headers['retry-after']).toBe('10001');
+  });
+
+  it('throws requestBlocked (400) when a check is blocked without a retryAfter', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(customsResponse({ block: true }));
+
+    let err: any;
+    try {
+      await customs.check(request, email, action);
+    } catch (e) {
+      err = e;
+    }
+    expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
+    expect(err.message).toBe('The request was blocked for security reasons');
+    expect(err.isBoom).toBeTruthy();
+    expect(err.output.statusCode).toBe(400);
+  });
+
+  it('posts a sanitized /passwordReset body on reset', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest.fn().mockResolvedValue(customsResponse({}));
+
+    await customs.reset(request, email);
+
+    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(`${CUSTOMS_URL_REAL}/passwordReset`);
+    expect(JSON.parse(init.body)).toEqual({
+      ip: request.app.clientAddress,
+      email,
+    });
+  });
+
+  it('posts ip and action to /checkIpOnly', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(customsResponse({ block: false, retryAfter: 0 }));
+
+    const result = await customs.checkIpOnly(request, action);
+    expect(result).toBeUndefined();
+
+    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(`${CUSTOMS_URL_REAL}/checkIpOnly`);
+    expect(JSON.parse(init.body)).toEqual({ ip, action });
+  });
+
+  it('treats flag() as a no-op', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    expect(await customs.flag(ip, { email, uid })).toBeUndefined();
+  });
+
+  it('fails closed (backendServiceFailure) when the request rejects', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+
+    await expect(customs.check(request, email, action)).rejects.toMatchObject({
       errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
     });
-    await expect(customsInvalidUrl.reset(request, email)).rejects.toMatchObject(
-      {
-        errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
-      }
-    );
+    await expect(customs.reset(request, email)).rejects.toMatchObject({
+      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
+    });
   });
 
-  it('can rate limit checkAccountStatus /check', async () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    expect(customsWithUrl).toBeTruthy();
+  it('fails closed (backendServiceFailure) on a non-ok response', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest.fn().mockResolvedValue(customsResponse('error', 500));
 
-    action = 'accountStatusCheck';
+    await expect(customs.check(request, email, action)).rejects.toMatchObject({
+      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
+    });
+  });
 
-    function checkRequestBody(body: any) {
-      expect(body).toEqual({
-        ip: ip,
-        email: email,
-        action: action,
-        headers: request.headers,
-        query: request.query,
-        payload: request.payload,
-      });
-      return true;
-    }
-
-    customsServer
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":true,"retryAfter":10001}');
-
-    let result;
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-
-    try {
-      await customsWithUrl.check(request, email, action);
-      throw new Error(
-        'This should have failed the check since it should be blocked'
+  it('makes a fresh request for each check rather than caching', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(customsResponse({ block: false, retryAfter: 0 }))
+      .mockResolvedValueOnce(
+        customsResponse({ block: true, retryAfter: 10001 })
       );
-    } catch (err: any) {
-      expect(err.errno).toBe(114);
-      expect(err.message).toBe('Client has sent too many requests');
-      expect(err.isBoom).toBeTruthy();
-      expect(err.output.statusCode).toBe(429);
-      expect(err.output.payload.retryAfter).toBe(10001);
-      expect(err.output.payload.retryAfterLocalized).toBe('in 3 hours');
-      expect(err.output.headers['retry-after']).toBe('10001');
-    }
+
+    await customs.check(request, email, action);
+    await expect(customs.check(request, email, action)).rejects.toMatchObject({
+      output: { statusCode: 429 },
+    });
+    expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
-  it('can rate limit devicesNotify /checkAuthenticated', async () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    expect(customsWithUrl).toBeTruthy();
-
+  it('posts a sanitized /checkAuthenticated body and throws 429 when blocked', async () => {
+    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    const authUid = 'foo';
+    const authEmail = 'bar@mozilla.com';
     action = 'devicesNotify';
-    const uid = 'foo';
-    const email = 'bar@mozilla.com';
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(customsResponse({ block: true, retryAfter: 10001 }));
 
-    function checkRequestBody(body: any) {
-      expect(body).toEqual({
-        action: action,
-        ip: ip,
-        uid: uid,
-      });
-      return true;
-    }
-
-    customsServer
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/checkAuthenticated', checkRequestBody)
-      .reply(200, '{"block":true,"retryAfter":10001}');
-
-    let result;
-    result = await customsWithUrl.checkAuthenticated(
-      request,
-      uid,
-      email,
-      action
-    );
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.checkAuthenticated(
-      request,
-      uid,
-      email,
-      action
-    );
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.checkAuthenticated(
-      request,
-      uid,
-      email,
-      action
-    );
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.checkAuthenticated(
-      request,
-      uid,
-      email,
-      action
-    );
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.checkAuthenticated(
-      request,
-      uid,
-      email,
-      action
-    );
-    expect(result).toBeUndefined();
-
+    let err: any;
     try {
-      await customsWithUrl.checkAuthenticated(request, uid, email, action);
-      throw new Error(
-        'This should have failed the check since it should be blocked'
-      );
-    } catch (err: any) {
-      expect(err.errno).toBe(114);
-      expect(err.message).toBe('Client has sent too many requests');
-      expect(err.isBoom).toBeTruthy();
-      expect(err.output.statusCode).toBe(429);
-      expect(err.output.payload.retryAfter).toBe(10001);
-      expect(err.output.headers['retry-after']).toBe('10001');
+      await customs.checkAuthenticated(request, authUid, authEmail, action);
+    } catch (e) {
+      err = e;
     }
+    expect(err.output.statusCode).toBe(429);
+    expect(err.output.payload.retryAfter).toBe(10001);
+    expect(err.output.payload.retryAfterLocalized).toBe('in 3 hours');
+
+    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(`${CUSTOMS_URL_REAL}/checkAuthenticated`);
+    expect(JSON.parse(init.body)).toEqual({ action, ip, uid: authUid });
   });
 
-  it('can rate limit verifyTotpCode /check', async () => {
-    action = 'verifyTotpCode';
-    email = 'test@email.com';
-
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    expect(customsWithUrl).toBeTruthy();
-
-    function checkRequestBody(body: any) {
-      expect(body).toEqual({
-        ip: ip,
-        email: email,
-        action: action,
-        headers: request.headers,
-        query: request.query,
-        payload: request.payload,
+  describe('sanitizePayload', () => {
+    it('strips sensitive fields (authPW, oldAuthPW, paymentToken)', () => {
+      const customs = new Customs('none', log, error, statsd);
+      const sanitized = customs.sanitizePayload({
+        authPW: 'secret',
+        oldAuthPW: 'old-secret',
+        paymentToken: 'token',
+        notThePW: 'plaintext',
       });
-      return true;
-    }
+      expect(sanitized).toEqual({ notThePW: 'plaintext' });
+    });
 
-    customsServer
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', checkRequestBody)
-      .reply(200, '{"block":true,"retryAfter":30}');
-
-    let result;
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-    result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-
-    try {
-      await customsWithUrl.check(request, email, action);
-      throw new Error('should have been blocked');
-    } catch (err: any) {
-      expect(err.errno).toBe(114);
-      expect(err.message).toBe('Client has sent too many requests');
-      expect(err.isBoom).toBeTruthy();
-      expect(err.output.statusCode).toBe(429);
-      expect(err.output.payload.retryAfter).toBe(30);
-      expect(err.output.headers['retry-after']).toBe('30');
-    }
-  });
-
-  it('can scrub customs request object', async () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    expect(customsWithUrl).toBeTruthy();
-
-    request.payload.authPW = 'asdfasdfadsf';
-    request.payload.oldAuthPW = '012301230123';
-    request.payload.notThePW = 'plaintext';
-
-    customsServer
-      .post('/check', (body: any) => {
-        expect(body).toEqual({
-          ip: ip,
-          email: email,
-          action: action,
-          headers: request.headers,
-          query: request.query,
-          payload: {
-            notThePW: 'plaintext',
-          },
-        });
-        return true;
-      })
-      .reply(200, { block: false, retryAfter: 0 });
-
-    const result = await customsWithUrl.check(request, email, action);
-    expect(result).toBeUndefined();
+    it('returns undefined when there is no payload', () => {
+      const customs = new Customs('none', log, error, statsd);
+      expect(customs.sanitizePayload(undefined)).toBeUndefined();
+    });
   });
 
   describe('customs v2', () => {
@@ -535,7 +360,11 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', { ip, email, ip_email });
+      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', {
+        ip,
+        email,
+        ip_email,
+      });
       expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
     });
 
@@ -636,7 +465,7 @@ describe('Customs', () => {
     });
 
     it('reports for /check', async () => {
-      customsServer.post('/check').reply(200, tags);
+      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags));
 
       await expect(
         customsWithUrl.check(request, email, action)
@@ -649,18 +478,10 @@ describe('Customs', () => {
         expect.stringContaining('customs.check.success'),
         expect.anything()
       );
-      expect(statsd.gauge).toHaveBeenCalledWith(
-        expect.stringContaining('httpAgent.createSocketCount'),
-        expect.anything()
-      );
-      expect(statsd.gauge).toHaveBeenCalledWith(
-        expect.stringContaining('httpsAgent.createSocketCount'),
-        expect.anything()
-      );
     });
 
     it('reports for /checkIpOnly', async () => {
-      customsServer.post('/checkIpOnly').reply(200, tags);
+      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags));
 
       await expect(
         customsWithUrl.checkIpOnly(request, action)
@@ -679,10 +500,11 @@ describe('Customs', () => {
     });
 
     it('reports for /checkAuthenticated', async () => {
-      customsServer.post('/checkAuthenticated').reply(200, {
-        block: true,
-        blockReason: 'other',
-      });
+      global.fetch = jest
+        .fn()
+        .mockResolvedValue(
+          customsResponse({ block: true, blockReason: 'other' })
+        );
 
       await expect(
         customsWithUrl.checkAuthenticated(
@@ -707,7 +529,7 @@ describe('Customs', () => {
     });
 
     it('reports failure statsd timing', async () => {
-      customsServer.post('/check').reply(400, tags);
+      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags, 400));
       await expect(
         customsWithUrl.check(request, email, action)
       ).rejects.toThrow();
