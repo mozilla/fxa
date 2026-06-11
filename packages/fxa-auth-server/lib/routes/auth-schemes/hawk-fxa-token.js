@@ -127,8 +127,14 @@ function strategy(getCredentialsFunc, options) {
     return err;
   };
 
-  const recordUsed = () => {
-    statsd.increment('auth.strategy.used', [`scheme:hawk`, `kind:${kind}`]);
+  // `path` is the templated route (e.g. /v1/account/device), never the raw
+  // URL, so cardinality stays ~2 schemes x authed routes (~130 series total).
+  const recordUsed = (req) => {
+    statsd.increment('auth.strategy.used', [
+      `scheme:hawk`,
+      `kind:${kind}`,
+      `path:${req.route?.path ?? 'unknown'}`,
+    ]);
   };
 
   return function (server, options) {
@@ -156,7 +162,7 @@ function strategy(getCredentialsFunc, options) {
             return failAuth();
           }
 
-          recordUsed();
+          recordUsed(req);
           return h.authenticated({ credentials: token });
         }
 

@@ -180,6 +180,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
       const request = {
         headers: { authorization: HAWK_HEADER },
         auth: { mode: 'required' },
+        route: { path: '/v1/account/devices' },
       };
       const h = { authenticated: jest.fn() };
 
@@ -187,6 +188,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
       expect(statsd.increment).toHaveBeenCalledWith('auth.strategy.used', [
         'scheme:hawk',
         'kind:sessionToken',
+        'path:/v1/account/devices',
       ]);
     });
 

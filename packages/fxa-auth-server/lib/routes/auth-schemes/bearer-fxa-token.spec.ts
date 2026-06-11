@@ -321,13 +321,17 @@ describe('lib/routes/auth-schemes/bearer-fxa-token', () => {
         testOptions({ statsd })
       )(null as any, null as any);
 
-      const req = makeReq({ headers: { authorization: authHeader } });
+      const req = makeReq({
+        headers: { authorization: authHeader },
+        route: { path: '/v1/account/devices' },
+      });
       const h = makeH();
 
       await authStrategy.authenticate(req as any, h as any);
       expect(statsd.increment).toHaveBeenCalledWith('auth.strategy.used', [
         'scheme:bearer',
         'kind:sessionToken',
+        'path:/v1/account/devices',
       ]);
     });
 
