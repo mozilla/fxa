@@ -711,10 +711,7 @@ export const passkeyRoutes = (
                   .string()
                   .valid('discouraged', 'preferred', 'required')
                   .optional(),
-                userVerification: isA
-                  .string()
-                  .valid('discouraged', 'preferred', 'required')
-                  .optional(),
+                userVerification: isA.string().valid('required').required(),
               })
               .optional(),
             hints: isA
@@ -865,10 +862,7 @@ export const passkeyRoutes = (
             challenge: isA.string().required(),
             allowCredentials: isA.array().items(isA.object()).optional(),
             timeout: isA.number().optional(),
-            userVerification: isA
-              .string()
-              .valid('discouraged', 'preferred', 'required')
-              .optional(),
+            userVerification: isA.string().valid('required').required(),
             rpId: isA.string().optional(),
             hints: isA
               .array()

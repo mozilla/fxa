@@ -20,7 +20,6 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     enabled: true,
     rpId: TEST_RP_ID,
     allowedOrigins: [TEST_ORIGIN],
-    userVerification: 'required',
     residentKey: 'preferred',
     maxPasskeysPerUser: 10,
     challengeTimeout: 30_000,
@@ -89,7 +88,6 @@ describe('generateWebauthnRegistrationOptions', () => {
     const options = await generateWebauthnRegistrationOptions(
       testConfig({
         residentKey: 'required',
-        userVerification: 'required',
         authenticatorAttachment: 'platform',
       }),
       {
@@ -274,6 +272,30 @@ describe('verifyWebauthnRegistrationResponse', () => {
       })
     ).rejects.toThrow();
   });
+
+  it('rejects an attestation without user verification', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(
+      cred,
+      { challenge: options.challenge, origin: TEST_ORIGIN, rpId: TEST_RP_ID },
+      { userVerified: false }
+    );
+
+    await expect(
+      verifyWebauthnRegistrationResponse(config, {
+        response: attestation,
+        challenge,
+      })
+    ).rejects.toThrow(/user could not be verified/i);
+  });
 });
 
 describe('generateWebauthnAuthenticationOptions', () => {
@@ -290,17 +312,22 @@ describe('generateWebauthnAuthenticationOptions', () => {
     expect(options.challenge).toBe(challenge);
   });
 
-  it('sets rpId and userVerification from config', async () => {
-    const options = await generateWebauthnAuthenticationOptions(
-      testConfig({ userVerification: 'discouraged' }),
-      {
-        challenge: randomBytes(32).toString('base64url'),
-        allowCredentials: [],
-      }
-    );
+  it('sets rpId from config', async () => {
+    const options = await generateWebauthnAuthenticationOptions(testConfig(), {
+      challenge: randomBytes(32).toString('base64url'),
+      allowCredentials: [],
+    });
 
     expect(options.rpId).toBe(TEST_RP_ID);
-    expect(options.userVerification).toBe('discouraged');
+  });
+
+  it('always sets userVerification to required in generated options', async () => {
+    const options = await generateWebauthnAuthenticationOptions(testConfig(), {
+      challenge: randomBytes(32).toString('base64url'),
+      allowCredentials: [],
+    });
+
+    expect(options.userVerification).toBe('required');
   });
 
   it('omits allowCredentials for discoverable flow (empty input)', async () => {
@@ -521,5 +548,31 @@ describe('verifyWebauthnAuthenticationResponse', () => {
         signCount: stored.signCount,
       })
     ).rejects.toThrow();
+  });
+
+  it('rejects an assertion without user verification', async () => {
+    const { cred, stored } = await registerCredential(config);
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
+
+    const assertion = VirtualAuthenticator.createAssertionResponse(
+      cred,
+      { challenge: options.challenge, origin: TEST_ORIGIN, rpId: TEST_RP_ID },
+      { userVerified: false }
+    );
+
+    await expect(
+      verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: stored.signCount,
+      })
+    ).rejects.toThrow(/user could not be verified/i);
   });
 });

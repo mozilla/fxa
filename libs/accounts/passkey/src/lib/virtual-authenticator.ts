@@ -89,10 +89,11 @@ export class VirtualAuthenticator {
     return { id: randomBytes(32), privateKey, publicKey, signCount: 0 };
   }
 
-  /** Build a valid "none"-format attestation response for registration. */
+  /** Build a "none"-format attestation response; pass `userVerified: false` to clear the UV flag (default true). */
   static createAttestationResponse(
     cred: VirtualCredential,
-    input: { challenge: string; origin: string; rpId: string }
+    input: { challenge: string; origin: string; rpId: string },
+    opts: { userVerified?: boolean } = {}
   ): RegistrationResponseJSON {
     const jwk = cred.publicKey.export({ format: 'jwk' });
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -109,7 +110,8 @@ export class VirtualAuthenticator {
     ]);
 
     const rpIdHash = createHash('sha256').update(input.rpId).digest();
-    const flags = Buffer.from([0x45]); // UP + UV + AT
+    const uvFlag = opts.userVerified === false ? 0x00 : 0x04;
+    const flags = Buffer.from([0x41 | uvFlag]); // UP + AT (+ UV unless suppressed)
     const signCountBuf = Buffer.alloc(4);
     const credIdLen = Buffer.alloc(2);
     credIdLen.writeUInt16BE(cred.id.length, 0);
@@ -152,15 +154,17 @@ export class VirtualAuthenticator {
     };
   }
 
-  /** Build a valid signed assertion response for authentication. */
+  /** Build a signed assertion response; pass `userVerified: false` to clear the UV flag (default true). */
   static createAssertionResponse(
     cred: VirtualCredential,
-    input: { challenge: string; origin: string; rpId: string }
+    input: { challenge: string; origin: string; rpId: string },
+    opts: { userVerified?: boolean } = {}
   ): AuthenticationResponseJSON {
     cred.signCount++;
 
     const rpIdHash = createHash('sha256').update(input.rpId).digest();
-    const flags = Buffer.from([0x05]); // UP + UV
+    const uvFlag = opts.userVerified === false ? 0x00 : 0x04;
+    const flags = Buffer.from([0x01 | uvFlag]); // UP (+ UV unless suppressed)
     const signCountBuf = Buffer.alloc(4);
     signCountBuf.writeUInt32BE(cred.signCount, 0);
 

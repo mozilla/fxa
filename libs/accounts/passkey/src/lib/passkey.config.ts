@@ -17,7 +17,6 @@ import {
 import type {
   AuthenticatorAttachment,
   ResidentKeyRequirement,
-  UserVerificationRequirement,
 } from '@simplewebauthn/server';
 
 /**
@@ -75,16 +74,6 @@ export class PasskeyConfig {
   public challengeTimeout!: number;
 
   /**
-   * User verification requirement for WebAuthn.
-   * - 'required': User verification must occur (e.g., biometric, PIN)
-   * - 'preferred': User verification preferred but not required
-   * - 'discouraged': User verification should not occur
-   * @example 'required'
-   */
-  @IsIn(['required', 'preferred', 'discouraged'])
-  public userVerification?: UserVerificationRequirement;
-
-  /**
    * Resident key (discoverable credential) requirement.
    * - 'required': Credential must be discoverable (stored on authenticator).
    *   Must be set to 'required' for the passwordless / usernameless sign-in
@@ -121,6 +110,5 @@ export class PasskeyConfig {
     this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
     this.residentKey = opts.residentKey;
     this.rpId = opts.rpId;
-    this.userVerification = opts.userVerification;
   }
 }

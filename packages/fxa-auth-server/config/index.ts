@@ -2705,12 +2705,6 @@ const convictConf = convict({
       env: 'PASSKEYS__MAX_PASSKEYS_PER_USER',
       format: Number,
     },
-    userVerification: {
-      default: 'required',
-      doc: 'WebAuthn user-verification requirement for ceremonies. One of "required", "preferred", or "discouraged". May be relaxed to "preferred" depending on UX requirements.',
-      env: 'PASSKEYS__USER_VERIFICATION',
-      format: ['required', 'preferred', 'discouraged'],
-    },
     residentKey: {
       default: 'required',
       doc: 'WebAuthn resident-key (discoverable credential) requirement. One of "required", "preferred", or "discouraged". Discoverable credential flow won\'t work if not set to "required".',

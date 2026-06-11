@@ -11,7 +11,6 @@ import { validateSync } from 'class-validator';
 import type {
   AuthenticatorAttachment,
   ResidentKeyRequirement,
-  UserVerificationRequirement,
 } from '@simplewebauthn/server';
 
 /**
@@ -28,7 +27,6 @@ export type RawPasskeyConfig = {
   allowedOrigins: string[];
   challengeTimeout: number;
   maxPasskeysPerUser: number;
-  userVerification: UserVerificationRequirement;
   residentKey: ResidentKeyRequirement;
   /** Empty string is treated as "no preference" and normalized to `undefined`. */
   authenticatorAttachment: AuthenticatorAttachment | '';
