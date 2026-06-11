@@ -177,6 +177,12 @@ jest.mock('./server_events', () => ({
     recordLoginConfirmSkipForKnownDevice: mockFn(
       'recordLoginConfirmSkipForKnownDevice'
     ),
+    recordPasskeyAuthenticationStarted: mockFn(
+      'recordPasskeyAuthenticationStarted'
+    ),
+    recordPasskeyAuthenticationVerificationSuccess: mockFn(
+      'recordPasskeyAuthenticationVerificationSuccess'
+    ),
     recordPasskeyCreateComplete: mockFn('recordPasskeyCreateComplete'),
     recordPasskeyDeleteSuccess: mockFn('recordPasskeyDeleteSuccess'),
     recordPasskeyRenameSuccess: mockFn('recordPasskeyRenameSuccess'),

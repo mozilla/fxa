@@ -175,7 +175,7 @@ export class PasskeyHandler {
         request,
       });
 
-      await this.glean.passkey.createComplete(request);
+      this.glean.passkey.createComplete(request);
 
       try {
         if (this.fxaMailer.canSend('postAddPasskey')) {
@@ -302,7 +302,7 @@ export class PasskeyHandler {
       request,
     });
 
-    await this.glean.passkey.deleteSuccess(request);
+    this.glean.passkey.deleteSuccess(request);
 
     try {
       if (this.fxaMailer.canSend('postRemovePasskey')) {
@@ -346,7 +346,7 @@ export class PasskeyHandler {
 
     const passkey = await this.service.renamePasskey(uid, credentialId, name);
 
-    await this.glean.passkey.renameSuccess(request);
+    this.glean.passkey.renameSuccess(request);
 
     return {
       credentialId: passkey.credentialId,
@@ -377,8 +377,7 @@ export class PasskeyHandler {
 
     const options = await this.service.generateAuthenticationChallenge();
 
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.authenticationStarted(request);
+    this.glean.passkey.authenticationStarted(request);
 
     return options;
   }
@@ -419,6 +418,10 @@ export class PasskeyHandler {
       await this.customs.checkIpOnly(request, 'passkeyAuthFinishFailed');
       throw err;
     }
+
+    // Assertion verified; fired before token/session work so failures in
+    // that step are distinguishable from a failed ceremony.
+    this.glean.passkey.authenticationVerificationSuccess(request);
 
     const account = await this.db.account(uid);
 
