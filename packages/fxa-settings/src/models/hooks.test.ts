@@ -670,7 +670,7 @@ describe('useClientInfoState', () => {
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
-  it('does not fetch when client_id is missing', async () => {
+  it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {
     mockUrlQueryData.get.mockReturnValue(null);
     const { isHexadecimal, length } = require('class-validator');
     isHexadecimal.mockReturnValue(false);
@@ -682,7 +682,11 @@ describe('useClientInfoState', () => {
 
     expect(mockFetch).not.toHaveBeenCalled();
     expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeUndefined();
+    // Fail fast: a missing/invalid clientId is surfaced as an error so the
+    // App-level guard can render OAuthDataError rather than proceeding with
+    // half-populated client info. This is a breadcrumb, not a Sentry capture.
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toBe('Invalid clientId');
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

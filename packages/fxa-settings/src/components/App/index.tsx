@@ -383,6 +383,25 @@ export const App = ({
     metricsEnabled,
   ]);
 
+  // Fail fast: if the OAuth client-info fetch in useClientInfoState exhausted its
+  // retries, surface the user-facing error immediately rather than waiting downstream
+  // failures to occur.
+  if (
+    integration &&
+    isOAuthIntegration(integration) &&
+    integration.clientInfoLoadFailed
+  ) {
+    try {
+      integration.checkClientInfo();
+    } catch (err: any) {
+      return (
+        <Suspense fallback={<AppLayout loading />}>
+          <OAuthDataError error={err} />
+        </Suspense>
+      );
+    }
+  }
+
   // Wait until app initialization is complete
   if (
     metricsLoading ||

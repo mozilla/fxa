@@ -35,7 +35,7 @@ import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import sentryMetrics from 'fxa-shared/sentry/browser';
-import { OAuthError } from '../../lib/oauth';
+import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
@@ -674,6 +674,47 @@ describe('Integration serviceName error handling', () => {
       isSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
+  });
+
+  it('shows OAuthDataError immediately when OAuth client info load failed, before metrics/sign-in resolve', async () => {
+    // App init not yet complete: metrics still loading and sign-in undetermined.
+    // The fail-fast path must surface the error without waiting on these.
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: true,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: undefined,
+    });
+
+    const mockError = new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    const mockOAuthIntegration = {
+      type: IntegrationType.OAuthWeb,
+      clientInfoLoadFailed: true,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      checkClientInfo: jest.fn().mockImplementation(() => {
         throw mockError;
       }),
       getClientId: jest.fn(),

@@ -298,6 +298,69 @@ describe('models/integrations/oauth-relier', function () {
     });
   });
 
+  describe('checkClientInfo', () => {
+    // 16-byte hex clientId, matching the shape real OAuth clients use.
+    const MOCK_CLIENT_ID = 'a1b2c3d4e5f6789012345678901234567890abcd';
+
+    function getIntegration() {
+      return new OAuthWebIntegration(
+        new GenericData({ scope: 'profile' }),
+        new GenericData({}),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+    }
+
+    it('throws SERVICE_UNAVAILABLE when clientInfoLoadFailed is true', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = true;
+
+      let caught: OAuthError | undefined;
+      try {
+        integration.checkClientInfo();
+      } catch (err) {
+        caught = err as OAuthError;
+      }
+
+      expect(caught).toBeInstanceOf(OAuthError);
+      expect(caught?.errno).toBe(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    });
+
+    it('throws UNKNOWN_CLIENT when the client info has no clientId', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = false;
+      // clientInfo is left undefined, so `clientInfo?.clientId` is falsy.
+
+      let caught: OAuthError | undefined;
+      try {
+        integration.checkClientInfo();
+      } catch (err) {
+        caught = err as OAuthError;
+      }
+
+      expect(caught).toBeInstanceOf(OAuthError);
+      expect(caught?.errno).toBe(OAUTH_ERRORS.UNKNOWN_CLIENT.errno);
+    });
+
+    it('does not throw when client info has a clientId', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = false;
+      integration.clientInfo = {
+        clientId: MOCK_CLIENT_ID,
+        imageUri: 'https://example.com/icon.png',
+        serviceName: 'Test Service',
+        redirectUri: 'https://example.com/redirect',
+        trusted: true,
+      };
+
+      expect(() => integration.checkClientInfo()).not.toThrow();
+    });
+  });
+
   describe('replaceItemInArray', () => {
     it('handles empty array', () => {
       expect(replaceItemInArray([], 'foo', ['bar'])).toEqual([]);
