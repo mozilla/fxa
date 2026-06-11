@@ -37,6 +37,7 @@ function createMockSyncIntegration() {
     type: IntegrationType.OAuthNative,
     getService: () => MozServices.FirefoxSync,
     isSync: () => true,
+    isFirefoxMobileClient: () => false,
     requiresKeys: () => true,
     wantsKeys: () => true,
     getCmsInfo: () => undefined,
@@ -197,6 +198,32 @@ describe('SigninPasskeyFallback container', () => {
           }),
         })
       );
+    });
+
+    it('performs navigation to finish sign-in after reauth on desktop', async () => {
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalledWith(
+          expect.objectContaining({ performNavigation: true })
+        );
+      });
+    });
+
+    it('skips navigation after reauth on Firefox mobile so Firefox finishes sign-in via WebChannel', async () => {
+      const mobileIntegration = {
+        ...createMockSyncIntegration(),
+        isFirefoxMobileClient: () => true,
+      } as unknown as Integration;
+      const { getByTestId } = render(mobileIntegration);
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalledWith(
+          expect.objectContaining({ performNavigation: false })
+        );
+      });
     });
 
     it('renders an error banner when sessionReauth throws', async () => {

@@ -25,6 +25,8 @@ import { SigninLocationState } from '../interfaces';
 import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
 import SigninPasskeyFallback from '.';
 
+// Password step for accounts that signed in with a passkey but still need the
+// account password to unwrap Sync encryption keys.
 const SigninPasskeyFallbackContainer = ({
   integration,
 }: { integration: Integration } & RouteComponentProps) => {
@@ -149,6 +151,10 @@ const SigninPasskeyFallbackContainer = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        // On Firefox mobile, the browser finishes Sync sign-in via WebChannel
+        // messages; navigating the WebView away would interrupt it and leave
+        // Sync paused. Desktop finishes by navigating.
+        performNavigation: !integration.isFirefoxMobileClient(),
       });
       if (navError) {
         GleanMetrics.passkeyEnterPassword.submitFrontendError({

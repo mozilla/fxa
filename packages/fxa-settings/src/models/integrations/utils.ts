@@ -12,12 +12,14 @@ export function isFirefoxService(service?: string) {
 }
 
 /**
- * Resolves the `service` to send for new-device-login emails: the Firefox
- * service name when present (e.g. 'sync'), otherwise an OAuth RP's client id so
- * the server names the RP. Only for genuine OAuth integrations — a Web
- * integration's getClientId() can fall back to the first-party Settings client.
+ * Resolves the `service` value to send with a sign-in or sign-up request,
+ * mainly so the server names the right service in the new-device-login email:
+ * the Firefox service name when present (e.g. 'sync'), otherwise an OAuth RP's
+ * client id so the server names the RP. Only for genuine OAuth integrations — a
+ * Web integration's getClientId() can fall back to the first-party Settings
+ * client.
  */
-export function getEmailService(
+export function resolveServiceOrClientId(
   integration: Parameters<typeof isOAuthIntegration>[0] & {
     getService(): string | undefined;
     getClientId(): string | undefined;
