@@ -668,6 +668,27 @@ export type ComponentAccountsTosAndPrivacyNoticeDetailsInput = {
   termsOfServiceLink: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ComponentEntitlementsWebhooks = {
+  __typename?: 'ComponentEntitlementsWebhooks';
+  id: Scalars['ID']['output'];
+  signingClientId: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ComponentEntitlementsWebhooksFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentEntitlementsWebhooksFiltersInput>>>;
+  not: InputMaybe<ComponentEntitlementsWebhooksFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentEntitlementsWebhooksFiltersInput>>>;
+  signingClientId: InputMaybe<StringFilterInput>;
+  url: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentEntitlementsWebhooksInput = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  signingClientId: InputMaybe<Scalars['String']['input']>;
+  url: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ComponentIapAppleProductIDs = {
   __typename?: 'ComponentIapAppleProductIDs';
   appleProductID: Scalars['String']['output'];
@@ -893,6 +914,12 @@ export enum Enum_Iap_Interval {
   Yearly = 'yearly'
 }
 
+export enum Enum_Meter_Window {
+  Daily = 'daily',
+  Monthly = 'monthly',
+  Weekly = 'weekly'
+}
+
 export type FileInfoInput = {
   alternativeText: InputMaybe<Scalars['String']['input']>;
   caption: InputMaybe<Scalars['String']['input']>;
@@ -990,7 +1017,7 @@ export type FreeTrialRelationResponseCollection = {
   nodes: Array<FreeTrial>;
 };
 
-export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsIllustrationsTheme | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | Default | FreeTrial | I18NLocale | Iap | LegalNotice | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsIllustrationsTheme | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentEntitlementsWebhooks | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | Default | FreeTrial | I18NLocale | Iap | LegalNotice | Meter | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -1177,6 +1204,59 @@ export type LegalNoticeInput = {
   serviceOrClientId: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Meter = {
+  __typename?: 'Meter';
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  documentId: Scalars['ID']['output'];
+  limit: Scalars['Int']['output'];
+  notificationThresholds: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  unit: Scalars['String']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+  webhooks: Array<Maybe<ComponentEntitlementsWebhooks>>;
+  window: Enum_Meter_Window;
+};
+
+
+export type MeterWebhooksArgs = {
+  filters: InputMaybe<ComponentEntitlementsWebhooksFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type MeterEntityResponseCollection = {
+  __typename?: 'MeterEntityResponseCollection';
+  nodes: Array<Meter>;
+  pageInfo: Pagination;
+};
+
+export type MeterFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<MeterFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  documentId: InputMaybe<IdFilterInput>;
+  limit: InputMaybe<IntFilterInput>;
+  not: InputMaybe<MeterFiltersInput>;
+  notificationThresholds: InputMaybe<StringFilterInput>;
+  or: InputMaybe<Array<InputMaybe<MeterFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  slug: InputMaybe<StringFilterInput>;
+  unit: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+  webhooks: InputMaybe<ComponentEntitlementsWebhooksFiltersInput>;
+  window: InputMaybe<StringFilterInput>;
+};
+
+export type MeterInput = {
+  limit: InputMaybe<Scalars['Int']['input']>;
+  notificationThresholds: InputMaybe<Scalars['String']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  slug: InputMaybe<Scalars['String']['input']>;
+  unit: InputMaybe<Scalars['String']['input']>;
+  webhooks: InputMaybe<Array<InputMaybe<ComponentEntitlementsWebhooksInput>>>;
+  window: InputMaybe<Enum_Meter_Window>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Change user password. Confirm with the current password. */
@@ -1189,6 +1269,7 @@ export type Mutation = {
   createFreeTrial: Maybe<FreeTrial>;
   createIap: Maybe<Iap>;
   createLegalNotice: Maybe<LegalNotice>;
+  createMeter: Maybe<Meter>;
   createOffering: Maybe<Offering>;
   createPurchase: Maybe<Purchase>;
   createPurchaseDetail: Maybe<PurchaseDetail>;
@@ -1210,6 +1291,7 @@ export type Mutation = {
   deleteFreeTrial: Maybe<DeleteMutationResponse>;
   deleteIap: Maybe<DeleteMutationResponse>;
   deleteLegalNotice: Maybe<DeleteMutationResponse>;
+  deleteMeter: Maybe<DeleteMutationResponse>;
   deleteOffering: Maybe<DeleteMutationResponse>;
   deletePurchase: Maybe<DeleteMutationResponse>;
   deletePurchaseDetail: Maybe<DeleteMutationResponse>;
@@ -1241,6 +1323,7 @@ export type Mutation = {
   updateFreeTrial: Maybe<FreeTrial>;
   updateIap: Maybe<Iap>;
   updateLegalNotice: Maybe<LegalNotice>;
+  updateMeter: Maybe<Meter>;
   updateOffering: Maybe<Offering>;
   updatePurchase: Maybe<Purchase>;
   updatePurchaseDetail: Maybe<PurchaseDetail>;
@@ -1311,6 +1394,12 @@ export type MutationCreateIapArgs = {
 
 export type MutationCreateLegalNoticeArgs = {
   data: LegalNoticeInput;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationCreateMeterArgs = {
+  data: MeterInput;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -1418,6 +1507,11 @@ export type MutationDeleteIapArgs = {
 
 
 export type MutationDeleteLegalNoticeArgs = {
+  documentId: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteMeterArgs = {
   documentId: Scalars['ID']['input'];
 };
 
@@ -1566,6 +1660,13 @@ export type MutationUpdateIapArgs = {
 
 export type MutationUpdateLegalNoticeArgs = {
   data: LegalNoticeInput;
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationUpdateMeterArgs = {
+  data: MeterInput;
   documentId: Scalars['ID']['input'];
   status?: InputMaybe<PublicationStatus>;
 };
@@ -1991,6 +2092,9 @@ export type Query = {
   legalNotices: Array<Maybe<LegalNotice>>;
   legalNotices_connection: Maybe<LegalNoticeEntityResponseCollection>;
   me: Maybe<UsersPermissionsMe>;
+  meter: Maybe<Meter>;
+  meters: Array<Maybe<Meter>>;
+  meters_connection: Maybe<MeterEntityResponseCollection>;
   offering: Maybe<Offering>;
   offerings: Array<Maybe<Offering>>;
   offerings_connection: Maybe<OfferingEntityResponseCollection>;
@@ -2261,6 +2365,31 @@ export type QueryLegalNoticesArgs = {
 
 export type QueryLegalNotices_ConnectionArgs = {
   filters: InputMaybe<LegalNoticeFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryMeterArgs = {
+  documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryMetersArgs = {
+  filters: InputMaybe<MeterFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryMeters_ConnectionArgs = {
+  filters: InputMaybe<MeterFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -3233,6 +3362,13 @@ export type LocalesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LocalesQuery = { __typename?: 'Query', i18NLocales: Array<{ __typename?: 'I18NLocale', code: string | null } | null> };
 
+export type MeterBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type MeterBySlugQuery = { __typename?: 'Query', meters: Array<{ __typename?: 'Meter', slug: string, unit: string, limit: number, window: Enum_Meter_Window, notificationThresholds: string, webhooks: Array<{ __typename?: 'ComponentEntitlementsWebhooks', url: string, signingClientId: string } | null> } | null> };
+
 export type OfferingQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   locale: Scalars['String']['input'];
@@ -3344,6 +3480,7 @@ export const FreeTrialDocument = {"kind":"Document","definitions":[{"kind":"Oper
 export const IapOfferingsByStoreIDsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"IapOfferingsByStoreIDs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iaps"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"storeID"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeID"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<IapOfferingsByStoreIDsQuery, IapOfferingsByStoreIDsQueryVariables>;
 export const LegalTermsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LegalTerms"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalNotices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"serviceOrClientId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"serviceOrClientId"}},{"kind":"Field","name":{"kind":"Name","value":"Terms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceLink"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeLink"}},{"kind":"Field","name":{"kind":"Name","value":"fontSize"}}]}},{"kind":"Field","name":{"kind":"Name","value":"l10nId"}}]}}]}}]} as unknown as DocumentNode<LegalTermsQuery, LegalTermsQueryVariables>;
 export const LocalesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Locales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18NLocales"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"100"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]} as unknown as DocumentNode<LocalesQuery, LocalesQueryVariables>;
+export const MeterBySlugDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MeterBySlug"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"meters"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"slug"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"window"}},{"kind":"Field","name":{"kind":"Name","value":"notificationThresholds"}},{"kind":"Field","name":{"kind":"Name","value":"webhooks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"signingClientId"}}]}}]}}]}}]} as unknown as DocumentNode<MeterBySlugQuery, MeterBySlugQueryVariables>;
 export const OfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Offering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offering"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<OfferingQuery, OfferingQueryVariables>;
 export const PageContentByPriceIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"pageContentByPriceIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"50"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"100"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}}]}}]} as unknown as DocumentNode<PageContentByPriceIdsQuery, PageContentByPriceIdsQueryVariables>;
 export const PageContentForOfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PageContentForOffering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PageContentForOfferingQuery, PageContentForOfferingQueryVariables>;

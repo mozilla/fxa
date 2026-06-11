@@ -119,19 +119,34 @@ export class MultipleEligilityContentOfferingResultsError extends QueriesUtilErr
   }
 }
 
+export class MeterNotFoundError extends QueriesUtilError {
+  constructor(slug: string) {
+    super('Meter not found', { slug });
+    this.name = 'MeterNotFoundError';
+  }
+}
+
+export class MeterInvalidNotificationThresholdError extends QueriesUtilError {
+  constructor(slug: string, value: number) {
+    super('Notification threshold must be between 0 and 100', { slug, value });
+    this.name = 'MeterInvalidNotificationThresholdError';
+  }
+}
+
 export class CmsValidationError extends CMSError {
   constructor(
     public readonly model: string,
     public readonly zodErrors: ZodError[]
   ) {
-    const errorCount = zodErrors.reduce(
-      (sum, e) => sum + e.issues.length,
-      0
+    const errorCount = zodErrors.reduce((sum, e) => sum + e.issues.length, 0);
+    super(
+      `CMS validation failed for ${model}: ${errorCount} issue(s)`,
+      {
+        model,
+        issues: zodErrors.map((e) => e.issues),
+      },
+      new BaseMultiError(zodErrors)
     );
-    super(`CMS validation failed for ${model}: ${errorCount} issue(s)`, {
-      model,
-      issues: zodErrors.map((e) => e.issues),
-    }, new BaseMultiError(zodErrors));
     this.name = 'CmsValidationError';
   }
 }
