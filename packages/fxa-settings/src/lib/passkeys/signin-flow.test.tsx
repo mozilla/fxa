@@ -67,6 +67,7 @@ jest.mock('../glean', () => ({
       passkeySubmitSuccess: jest.fn(),
     },
     passkey: {
+      buttonView: jest.fn(),
       authSuccess: jest.fn(),
     },
   },
@@ -735,6 +736,34 @@ describe('usePasskeySignIn', () => {
   });
 
   describe('Glean metrics', () => {
+    it.each([
+      ['emailfirst' as const, 'emailfirst'],
+      ['login' as const, 'signin'],
+      ['login_otp' as const, 'otplogin'],
+      ['alternative_auth' as const, 'alternative_auth'],
+    ])(
+      'fires passkey.button_view with reason=%s when the button is visible (surface=%s)',
+      async (surface, expectedReason) => {
+        const { args } = buildArgs({ surface, isButtonVisible: true });
+        renderHook(() => usePasskeySignIn(args));
+
+        expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledWith({
+          event: { reason: expectedReason },
+        });
+      }
+    );
+
+    it('does NOT fire passkey.button_view when the button is hidden', async () => {
+      const { args } = buildArgs({
+        surface: 'login',
+        isButtonVisible: false,
+      });
+      renderHook(() => usePasskeySignIn(args));
+
+      expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
+    });
+
     it.each([
       ['emailfirst' as const],
       ['login' as const],

@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as Sentry from '@sentry/browser';
 import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
@@ -206,6 +212,12 @@ export interface UsePasskeySignInArgs {
   navigateWithQuery: ReturnType<typeof useNavigateWithQuery>;
   queryParams: string;
   surface: PasskeySignInSurface;
+  /**
+   * Whether the passkey button is rendered on this surface. Drives the
+   * `passkey.button_view` impression so it counts buttons shown, not hook
+   * mounts.
+   */
+  isButtonVisible?: boolean;
 }
 
 export interface UsePasskeySignInResult {
@@ -222,10 +234,20 @@ export function usePasskeySignIn({
   navigateWithQuery,
   queryParams,
   surface,
+  isButtonVisible = false,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const inFlight = useRef(false);
+
+  // One impression per surface when the button is shown, so click-through is measurable.
+  useEffect(() => {
+    if (isButtonVisible) {
+      GleanMetrics.passkey.buttonView({
+        event: { reason: toPasskeyMetricsSurface(surface) },
+      });
+    }
+  }, [isButtonVisible, surface]);
 
   const errorBanner = useMemo<React.ReactNode | undefined>(
     () =>
