@@ -88,6 +88,18 @@ describe('SetPassword page', () => {
       }
     );
 
+    it('uses the container-supplied gleanReason for the funnel events', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          passwordCreationReason="passkey"
+          gleanReason="signin_passkey"
+        />
+      );
+      expect(GleanMetrics.postVerifySetPassword.view).toHaveBeenCalledWith({
+        event: { reason: 'signin_passkey' },
+      });
+    });
+
     it('fires postVerifySetPassword.engage on first keystroke', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(

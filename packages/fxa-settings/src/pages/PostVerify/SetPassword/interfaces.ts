@@ -36,6 +36,12 @@ export interface SetPasswordProps {
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   integration?: PostVerifySetPasswordIntegration;
   passwordCreationReason?: PasswordCreationReason;
+  /**
+   * Glean `reason` for the funnel events, composed by the container. Defaults
+   * to `passwordCreationReason`; the passkey flow passes a surface-tagged
+   * value (e.g. `signin_passkey`).
+   */
+  gleanReason?: string;
 }
 
 export interface SetPasswordLocationState {
