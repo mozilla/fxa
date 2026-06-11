@@ -159,6 +159,15 @@ export class OAuthWebIntegration extends GenericIntegration<
     return this.clientInfo;
   }
 
+  checkClientInfo() {
+    if (this.clientInfoLoadFailed) {
+      throw new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    }
+    if (!this.clientInfo?.clientId) {
+      throw new OAuthError(OAUTH_ERRORS.UNKNOWN_CLIENT.errno);
+    }
+  }
+
   isTrusted() {
     return this.clientInfo?.trusted === true;
   }

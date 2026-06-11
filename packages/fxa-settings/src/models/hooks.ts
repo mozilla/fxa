@@ -287,13 +287,20 @@ export function useClientInfoState() {
 
   useEffect(() => {
     let mounted = true;
-    if (!isValidClientId || !config) {
+    if (!config) {
       Sentry.addBreadcrumb({
-        message: `OAuth Client - Invalid state for fetching clientInfo`,
+        message: `OAuth Client - Missing config`,
         category: 'useClientInfoState.fetch',
-        data: { isValidClientId, hasConfig:!!config }
       });
-      setState((prev) => ({ ...prev, loading: false }));
+      setState((prev) => ({ ...prev, loading: false, error: new Error('Missing config') }));
+      return;
+    }
+    if (!isValidClientId) {
+      Sentry.addBreadcrumb({
+        message: `OAuth Client - Invalid clientId`,
+        category: 'useClientInfoState.fetch',
+      });
+      setState((prev) => ({ ...prev, loading: false, error: new Error('Invalid clientId') }));
       return;
     }
 
