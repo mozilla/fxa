@@ -2859,6 +2859,32 @@ passkey_enter_password:
         type: string
 
 passkey:
+  button_view:
+    type: event
+    description: |
+      The "Sign in with passkey" button was shown on a sign-in surface. Fires
+      once per surface render (only when the passkey feature flags are on), so
+      click-through to the per-surface `*_passkey_submit` event is measurable.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13896
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the button is shown on: 'emailfirst' (email-first
+          page), 'signin' (login page), 'otplogin' (passwordless OTP code
+          page), or 'alternative_auth' (alternative-auth options page).
+        type: string
   auth_success:
     type: event
     description: |

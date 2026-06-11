@@ -28,3 +28,23 @@ export const authSuccess = new EventMetricType<{
   },
   ['reason']
 );
+
+/**
+ * The "Sign in with passkey" button was shown on a sign-in surface. Fires
+ * once per surface render (only when the passkey feature flags are on), so
+ * click-through to the per-surface `*_passkey_submit` event is measurable.
+ *
+ * Generated from `passkey.button_view`.
+ */
+export const buttonView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'button_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
