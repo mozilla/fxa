@@ -52,17 +52,16 @@
       "cache": true
     },
     "restart": {
-      "dependsOn": ["build", "^restart"],
+      "dependsOn": ["^restart"],
       "inputs": ["production", "^production"],
       "outputs": []
     },
     "start": {
-      "dependsOn": ["build", "gen-keys", "^start"],
+      "dependsOn": ["gen-keys", "^start"],
       "inputs": ["production", "^production"],
       "outputs": []
     },
     "storybook": {
-      "dependsOn": ["build"],
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/storybook-static"]
     },
@@ -78,7 +77,6 @@
       "cache": true
     },
     "test-e2e": {
-      "dependsOn": ["build"],
       "inputs": ["production", "^production"],
       "outputs": [
         "{workspaceRoot}/artifacts/tests",
@@ -88,7 +86,7 @@
       ]
     },
     "test-scripts": {
-      "dependsOn": ["build", "gen-keys"],
+      "dependsOn": ["gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
         "{workspaceRoot}/artifacts/tests/{projectName}-scripts",
@@ -97,7 +95,7 @@
       "cache": true
     },
     "test-integration": {
-      "dependsOn": ["build", "gen-keys"],
+      "dependsOn": ["gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
         "{workspaceRoot}/artifacts/tests/{projectName}",
@@ -109,7 +107,7 @@
       "cache": true
     },
     "test-unit": {
-      "dependsOn": ["build", "gen-keys"],
+      "dependsOn": ["gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
         "{workspaceRoot}/artifacts/tests/{projectName}",
@@ -242,5 +240,8 @@
     "ciMode": "read-write",
     "region": "us-east-1",
     "endpoint": "https://storage.googleapis.com"
-  }
+  },
+  "parallel": 5,
+  "useDaemonProcess": false,
+  "analytics": false
 }

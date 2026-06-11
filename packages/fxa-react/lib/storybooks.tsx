@@ -14,14 +14,14 @@ import {
 // This decorator makes the localization bundles available in the stories.
 // If a localized string is available, that will be rendered in the storybook,
 // otherwise the fallback strings will be displayed.
-export const withLocalization: Decorator = (Story) => (
+export const withLocalization: Decorator = (Story:any) => (
   <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
     <Story />
   </AppLocalizationProvider>
 );
 
 export const withLocation: (location?: string) => Decorator =
-  (location) => (Story) => {
+  (location) => (Story:any) => {
     if (location === undefined) {
       return (
         <LocationProvider>

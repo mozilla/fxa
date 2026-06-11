@@ -129,7 +129,7 @@ async function renderUsingMJML({
   });
 }
 
-const Template: StoryFn<StorybookEmailArgs> = (args, context) =>
+const Template: StoryFn<StorybookEmailArgs> = (args:any, context:{globals:{ acceptLanguage:string, direction: "ltr" | "rtl"}}) =>
   storybookEmail({
     ...args,
     acceptLanguage: context.globals['acceptLanguage'],

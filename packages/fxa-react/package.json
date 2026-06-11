@@ -73,7 +73,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "27.5.1",
     "jest-environment-jsdom": "^27.5.1",
-    "nx": "21.2.4",
+    "nx": "^22.7.5",
     "pm2": "^6.0.14",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
@@ -111,6 +111,18 @@
     "tags": [
       "scope:shared:lib",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

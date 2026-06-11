@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { Config } from 'jest';
+const { Config } = require('jest');
 
 const config: Config = {
   displayName: 'accounts-two-factor',
@@ -23,4 +23,4 @@ const config: Config = {
   ],
 };
 
-export default config;
+module.exports = config;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* eslint-disable */
-import { Config } from 'jest';
+const { Config } = require('jest');
 
 const config: Config = {
   displayName: 'payments-next',
@@ -25,4 +25,4 @@ const config: Config = {
   ],
 };
 
-export default config;
+module.exports = config;

@@ -8,11 +8,16 @@ cd "$DIR/../.."
 _dev/pm2/create-docker-net.sh fxa
 pm2 start _dev/pm2/infrastructure.config.js
 
-echo "waiting for containers to start"
-
-_scripts/check-url.sh localhost:4100/health
-_scripts/check-url.sh localhost:9299/api/config
+# Check that mysql is up
+echo "Waiting for mysql"
 _scripts/check-mysql.sh
-
-echo "waiting for DB patches"
+echo "Waiting for DB patches"
 _scripts/check-db-patcher.sh
+
+# Check that goaws simulator is up
+echo "Waiting for goaws"
+_scripts/check-url.sh localhost:4100/health
+
+# Check firestore is up
+echo "Waiting for firestore"
+_scripts/check-url.sh localhost:9299/api/config

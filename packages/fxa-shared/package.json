@@ -320,6 +320,18 @@
     "tags": [
       "scope:shared:lib",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

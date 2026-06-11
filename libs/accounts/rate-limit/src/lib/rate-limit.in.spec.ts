@@ -59,8 +59,8 @@ describe('rate-limit', () => {
       expect(check2?.reason).toEqual('too-many-attempts');
       expect(check2?.retryAfter).toEqual(1000);
 
-      expect(mockIncrement).toBeCalledTimes(1);
-      expect(mockIncrement).toBeCalledWith('rate_limit.block', [
+      expect(mockIncrement).toHaveBeenCalledTimes(1);
+      expect(mockIncrement).toHaveBeenCalledWith('rate_limit.block', [
         `on:${blockOn}`,
         'action:testBlock',
       ]);
@@ -91,8 +91,8 @@ describe('rate-limit', () => {
       expect(check1).toBeNull();
       expect(check2).toBeNull();
 
-      expect(mockIncrement).toBeCalledTimes(1);
-      expect(mockIncrement).toBeCalledWith('rate_limit.report', [
+      expect(mockIncrement).toHaveBeenCalledTimes(1);
+      expect(mockIncrement).toHaveBeenCalledWith('rate_limit.report', [
         `on:${blockOn}`,
         'action:testReport',
       ]);
@@ -268,19 +268,19 @@ describe('rate-limit', () => {
     expect(checkReportOnly2).toBeNull();
     expect(checkReportOnly3).toBeNull();
 
-    expect(statsd.increment).toBeCalledTimes(5);
+    expect(statsd.increment).toHaveBeenCalledTimes(5);
     // For unblock calls
-    expect(statsd.increment).toBeCalledWith('rate_limit.unblock', [
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.unblock', [
       'on:ip',
       'action:testBlock',
     ]);
     // For two blocked calls
-    expect(statsd.increment).toBeCalledWith('rate_limit.block', [
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.block', [
       'on:ip',
       'action:testBlock',
     ]);
     // For two report only calls
-    expect(statsd.increment).toBeCalledWith('rate_limit.report', [
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.report', [
       'on:ip',
       'action:testReport',
     ]);
@@ -317,8 +317,8 @@ describe('rate-limit', () => {
     expect(check2?.reason).toEqual('too-many-attempts');
     expect(check2?.retryAfter).toEqual(1000);
 
-    expect(mockIncrement).toBeCalledTimes(1);
-    expect(mockIncrement).toBeCalledWith('rate_limit.block', [
+    expect(mockIncrement).toHaveBeenCalledTimes(1);
+    expect(mockIncrement).toHaveBeenCalledWith('rate_limit.block', [
       'on:ip',
       'action:testBlock',
     ]);
@@ -377,8 +377,8 @@ describe('rate-limit', () => {
     expect(check4).not.toBeNull();
     expect(check5).toBeNull();
 
-    expect(statsd.increment).toBeCalledTimes(1);
-    expect(statsd.increment).toBeCalledWith('rate_limit.ban', [
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.ban', [
       'on:ip',
       'action:testBan',
     ]);

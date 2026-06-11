@@ -9,7 +9,7 @@
     "clean": "rimraf dist",
     "outdated": "npm outdated --depth 0 || exit 0",
     "build": "echo 'Build not required'",
-    "start": "pm2 start pm2.config.js && yarn check:url localhost:1111/__heartbeat__",
+    "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",

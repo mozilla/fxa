@@ -30,7 +30,7 @@
     "emails-scss": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./lib/senders/emails/sass-compile-files.ts",
     "write-emails": "yarn emails-scss && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./scripts/write-emails-to-disk.js",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "start": "yarn check:mysql && pm2 start pm2.config.js && yarn check:url localhost:9000/__heartbeat__",
+    "start": "yarn check:mysql && pm2 start pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "JEST_JUNIT_OUTPUT_DIR='../../artifacts/tests/fxa-auth-server' JEST_JUNIT_OUTPUT_NAME='jest-results.xml' jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit",
@@ -160,7 +160,7 @@
     "moment": "^2.30.1",
     "nock": "^13.5.1",
     "nodemon": "^3.1.0",
-    "nx": "21.2.4",
+    "nx": "^22.7.5",
     "pm2": "^6.0.14",
     "prettier": "^3.5.3",
     "read": "3.0.1",
@@ -181,6 +181,18 @@
     "tags": [
       "scope:server:auth",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

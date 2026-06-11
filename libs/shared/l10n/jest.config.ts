@@ -1,4 +1,4 @@
-import { Config } from 'jest';
+const { Config } = require('jest');
 /* eslint-disable */
 const config: Config = {
   displayName: 'shared-l10n',
@@ -24,4 +24,4 @@ const config: Config = {
     ],
   ],
 };
-export default config;
+module.exports = config;

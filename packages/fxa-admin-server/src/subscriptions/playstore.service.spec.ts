@@ -93,6 +93,6 @@ describe('PlayStoreService', () => {
   it('gets subscriptions', async () => {
     await service.getSubscriptions('uid-123');
 
-    expect(mockQueryCurrentSubscriptions).toBeCalledWith('uid-123');
+    expect(mockQueryCurrentSubscriptions).toHaveBeenCalledWith('uid-123');
   });
 });

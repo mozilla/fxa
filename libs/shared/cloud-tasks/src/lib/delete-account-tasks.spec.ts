@@ -95,10 +95,10 @@ describe('account-tasks', () => {
         { taskId: 'wibble', scheduleTime: { seconds: Date.now() / 1000 } }
       );
       expect(taskName).toEqual('task123');
-      expect(mockStatsd.increment).toBeCalledWith(
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cloud-tasks.account-delete.enqueue.success'
       );
-      expect(mockCloudClient.createTask).toBeCalledWith({
+      expect(mockCloudClient.createTask).toHaveBeenCalledWith({
         parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.deleteAccounts.queueName}`,
         task: {
           httpRequest: {
@@ -129,7 +129,7 @@ describe('account-tasks', () => {
       await expect(
         deleteAccountCloudTask.deleteAccount(mockDeleteTaskPayload)
       ).rejects.toThrow('BOOM');
-      expect(mockStatsd.increment).toBeCalledWith(
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cloud-tasks.account-delete.enqueue.failure'
       );
     });
