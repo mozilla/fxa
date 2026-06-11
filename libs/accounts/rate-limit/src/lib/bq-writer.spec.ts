@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/node';
-import {
-  RateLimitBqWriter,
-  BqWriterConfig,
-  RATE_LIMIT_CHECK_SCHEMA,
-} from './bq-writer';
+import { RateLimitBqWriter, BqWriterConfig } from './bq-writer';
 import { RateLimitCheckEvent } from './models';
 
 jest.mock('@sentry/node', () => ({
@@ -16,7 +12,7 @@ jest.mock('@sentry/node', () => ({
 
 describe('RateLimitBqWriter', () => {
   let writer: RateLimitBqWriter;
-  let mockTable: { insert: jest.Mock; exists: jest.Mock; create: jest.Mock };
+  let mockTable: { insert: jest.Mock };
   let config: BqWriterConfig;
 
   const createEvent = (
@@ -36,8 +32,6 @@ describe('RateLimitBqWriter', () => {
     jest.useFakeTimers();
     mockTable = {
       insert: jest.fn().mockResolvedValue(undefined),
-      exists: jest.fn().mockResolvedValue([true]),
-      create: jest.fn().mockResolvedValue(undefined),
     };
     config = {
       projectId: 'test-project',
@@ -68,9 +62,8 @@ describe('RateLimitBqWriter', () => {
     writer.write(createEvent({ action: 'b' }));
     writer.write(createEvent({ action: 'c' }));
 
-    // write() calls flush() fire-and-forget. flush() has two async hops
-    // (await tableReady, await insert), so we drain two microtasks.
-    await Promise.resolve();
+    // write() calls flush() fire-and-forget (no await). Drain one
+    // microtask so the async insert resolves.
     await Promise.resolve();
 
     expect(mockTable.insert).toHaveBeenCalledTimes(1);
@@ -138,45 +131,5 @@ describe('RateLimitBqWriter', () => {
     await writer.flush();
 
     expect(mockTable.insert).not.toHaveBeenCalled();
-  });
-
-  describe('ensureTable', () => {
-    it('does not create table when it already exists', async () => {
-      mockTable.exists.mockResolvedValue([true]);
-      await writer.shutdown();
-      writer = new RateLimitBqWriter(config, mockTable as any);
-
-      writer.write(createEvent());
-      await writer.flush();
-
-      expect(mockTable.exists).toHaveBeenCalled();
-      expect(mockTable.create).not.toHaveBeenCalled();
-    });
-
-    it('creates table when it does not exist', async () => {
-      mockTable.exists.mockResolvedValue([false]);
-      await writer.shutdown();
-      writer = new RateLimitBqWriter(config, mockTable as any);
-
-      writer.write(createEvent());
-      await writer.flush();
-
-      expect(mockTable.create).toHaveBeenCalledWith({
-        schema: RATE_LIMIT_CHECK_SCHEMA,
-      });
-    });
-
-    it('handles ensureTable errors without affecting inserts', async () => {
-      const permError = new Error('permission denied');
-      mockTable.exists.mockRejectedValue(permError);
-      await writer.shutdown();
-      writer = new RateLimitBqWriter(config, mockTable as any);
-
-      writer.write(createEvent());
-      await writer.flush();
-
-      expect(Sentry.captureException).toHaveBeenCalledWith(permError);
-      expect(mockTable.insert).toHaveBeenCalled();
-    });
   });
 });
