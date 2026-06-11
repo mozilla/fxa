@@ -12,6 +12,7 @@ import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { OLDSYNC_SCOPE } from '../../lib/scopes';
+import { EmailType } from '../../lib/email';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sync passkey signin with password fallback', () => {
@@ -55,6 +56,8 @@ test.describe('severity-1 #smoke', () => {
 
       // The polyfill credential survives signOut via page.addInitScript.
       await settings.signOut();
+      // Isolate the sign-in email from setup emails.
+      await target.emailClient.clear(email);
 
       // Returning user picks passkey; service=sync routes to the fallback.
       await signin.goto('/authorization', syncDesktopOAuthQueryParams);
@@ -75,6 +78,14 @@ test.describe('severity-1 #smoke', () => {
       await signin.checkWebChannelMessageScope(
         FirefoxCommand.OAuthLogin,
         OLDSYNC_SCOPE
+      );
+
+      const newDeviceLogin = await target.emailClient.waitForEmail(
+        email,
+        EmailType.newDeviceLogin
+      );
+      expect(newDeviceLogin.subject).toMatch(
+        /new sign-in to your mozilla account/i
       );
     });
 

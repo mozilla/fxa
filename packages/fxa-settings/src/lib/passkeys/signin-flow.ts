@@ -18,6 +18,9 @@ import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../pages/Signin/utils';
+import { getEmailService } from '../../models/integrations/utils';
+import { queryParamsToMetricsContext } from '../metrics';
+import { searchParams } from '../utilities';
 import {
   getCredential,
   handleWebAuthnError,
@@ -277,11 +280,17 @@ export function usePasskeySignIn({
         throw err;
       }
 
-      const service = integration.getService();
+      const serviceForRequest = getEmailService(integration);
+      const metricsContext = queryParamsToMetricsContext(
+        searchParams(queryParams) as Record<string, string | undefined>
+      );
       const completion = await authClient.completePasskeyAuthentication(
         credential,
         challengeOptions.challenge,
-        service ? { service } : {}
+        {
+          ...(serviceForRequest ? { service: serviceForRequest } : {}),
+          metricsContext,
+        }
       );
 
       gleanEvents.submitSuccess();

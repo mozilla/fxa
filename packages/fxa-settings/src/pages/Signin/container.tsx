@@ -59,7 +59,7 @@ import {
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import {
-  isFirefoxService,
+  getEmailService,
   isUnsupportedContext,
 } from '../../models/integrations/utils';
 import { AuthKeyStretchUpgrade } from '../../lib/auth-key-stretch-upgrade';
@@ -463,8 +463,7 @@ const SigninContainer = ({
         }
       }
 
-      const service = integration.getService();
-      const clientId = integration.getClientId();
+      const emailService = getEmailService(integration);
 
       const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
 
@@ -489,10 +488,8 @@ const SigninContainer = ({
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
-        // See oauth_client_info in the auth-server for details on service/clientId
-        // Sending up the clientId when the user is not signing in to the browser
-        // is used to show the correct service name in emails
-        ...(isFirefoxService(service) ? { service } : { service: clientId }),
+        // See oauth_client_info in the auth-server for details on service/clientId.
+        ...(emailService ? { service: emailService } : {}),
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as ReturnType<typeof searchParams>
         ),

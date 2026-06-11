@@ -3662,17 +3662,21 @@ export default class AuthClient {
   async completePasskeyAuthentication(
     response: PublicKeyCredentialJSON,
     challenge: string,
-    options: { service?: string } = {},
+    options: { service?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<PasskeyAuthenticationResult> {
     const payload: {
       response: PublicKeyCredentialJSON;
       challenge: string;
       service?: string;
+      metricsContext?: MetricsContext;
     } = {
       response,
       challenge,
       ...(options.service ? { service: options.service } : {}),
+      ...(options.metricsContext
+        ? { metricsContext: options.metricsContext }
+        : {}),
     };
 
     return this.request(

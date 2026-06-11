@@ -5,8 +5,10 @@
 import * as isA from 'joi';
 import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
-import { AuthRequest } from '../types';
+import { AuthClientInfoService, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
+import { notifyAttachedServicesForAccountSession } from './utils/account';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { ConfigType } from '../../config';
 import {
   isPasskeyFeatureEnabled,
@@ -22,6 +24,7 @@ import {
 } from '@simplewebauthn/server';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { reportSentryError } from '../sentry';
 
 /** Subset of the Customs service used by passkey routes. */
@@ -47,11 +50,16 @@ interface Customs {
 interface DB {
   /** Fetches the account record for the given UID. */
   account(uid: string): Promise<{
+    uid: string;
     email: string;
     emailCode: string;
     emailVerified: boolean;
     verifierSetAt: number;
+    locale?: string;
+    primaryEmail: { email: string; isVerified: boolean };
+    emails: Array<{ email: string; isPrimary: boolean; isVerified: boolean }>;
   }>;
+  sessions(uid: string): Promise<unknown[]>;
   /** Creates a passkey session token, pre-verified as AAL2 at creation time. */
   createPasskeyVerifiedSessionToken(options: {
     uid: string;
@@ -88,7 +96,9 @@ export class PasskeyHandler {
     private readonly log: any,
     private readonly fxaMailer: FxaMailer,
     private readonly statsd: any,
-    private readonly glean: GleanMetricsType
+    private readonly glean: GleanMetricsType,
+    private readonly mailer: any,
+    private readonly oauthClientInfoService: AuthClientInfoService
   ) {}
 
   /**
@@ -428,6 +438,14 @@ export class PasskeyHandler {
     this.glean.login.complete(request, { uid, reason: 'passkey' });
 
     const requiresPasswordForSync = service === 'sync';
+
+    await this.sendPostSigninNotifications(
+      request,
+      account,
+      service,
+      requiresPasswordForSync
+    );
+
     const hasPassword = account.verifierSetAt > 0;
 
     return {
@@ -437,6 +455,93 @@ export class PasskeyHandler {
       requiresPasswordForSync,
       hasPassword,
     };
+  }
+
+  async sendPostSigninNotifications(
+    request: AuthRequest,
+    account: {
+      uid: string;
+      email: string;
+      emails: any[];
+      primaryEmail: { email: string };
+      locale?: string;
+    },
+    service: string | undefined,
+    requiresPasswordForSync: boolean
+  ) {
+    // Drop the service for Sync so the subject stays generic — keys aren't
+    // retrieved yet, so Firefox/Sync framing would be premature.
+    const emailService = requiresPasswordForSync ? undefined : service;
+    try {
+      const geoData = request.app.geo;
+      if (this.fxaMailer.canSend('newDeviceLogin')) {
+        const clientInfo =
+          await this.oauthClientInfoService.fetch(emailService);
+        await this.fxaMailer.sendNewDeviceLoginEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.sync(false),
+          clientName: clientInfo.name,
+          showBannerWarning: false,
+        });
+      } else {
+        await this.mailer.sendNewDeviceLoginEmail(account.emails, account, {
+          acceptLanguage: request.app.acceptLanguage,
+          ip: request.app.clientAddress,
+          location: geoData.location,
+          service: emailService,
+          timeZone: geoData.timeZone,
+          uaBrowser: request.app.ua.browser,
+          uaBrowserVersion: request.app.ua.browserVersion,
+          uaOS: request.app.ua.os,
+          uaOSVersion: request.app.ua.osVersion,
+          uaDeviceType: request.app.ua.deviceType,
+          uid: account.uid,
+        });
+      }
+    } catch (err) {
+      this.log.trace(
+        'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',
+        { error: err }
+      );
+    }
+
+    try {
+      const deviceCount = (await this.db.sessions(account.uid)).length;
+      await notifyAttachedServicesForAccountSession({
+        log: this.log,
+        request,
+        account: {
+          uid: account.uid,
+          email: account.primaryEmail.email,
+          locale: account.locale,
+        },
+        service,
+        deviceCount,
+        isNewAccount: false,
+        emailVerified: true,
+        profileChanged: false,
+      });
+
+      // Non-Sync only: the Sync flow's /session/reauth step already emits these.
+      if (!requiresPasswordForSync) {
+        await request.emitMetricsEvent('account.login', { uid: account.uid });
+        request.setMetricsFlowCompleteSignal('account.login', 'login');
+        await recordSecurityEvent('account.login', {
+          db: this.db,
+          request,
+          account: { uid: account.uid },
+        });
+      }
+    } catch (err) {
+      this.log.trace(
+        'passkeys.authenticationFinish.postSigninNotifications.error',
+        { error: err }
+      );
+    }
   }
 
   /**
@@ -498,7 +603,8 @@ export const passkeyRoutes = (
   config: ConfigType,
   statsd: any,
   glean: GleanMetricsType,
-  log: any
+  log: any,
+  mailer: any
 ) => {
   // Passkey route flag hierarchy:
   //   passkeys.enabled (master switch)  — gates management routes (list/delete/rename)
@@ -516,6 +622,9 @@ export const passkeyRoutes = (
     );
   }
   const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get<AuthClientInfoService>(
+    OAuthClientInfoServiceName
+  );
   const handler = new PasskeyHandler(
     service,
     db,
@@ -523,7 +632,9 @@ export const passkeyRoutes = (
     log,
     fxaMailer,
     statsd,
-    glean
+    glean,
+    mailer,
+    oauthClientInfoService
   );
 
   return [
@@ -796,6 +907,7 @@ export const passkeyRoutes = (
               .regex(/^[A-Za-z0-9_-]+$/)
               .required(),
             service: validators.service.optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
         response: {
