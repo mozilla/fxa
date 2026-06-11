@@ -169,6 +169,33 @@ describe('SigninTokenCode page', () => {
       await renderAndResend();
       screen.getByText('You’ve tried too many times. Please try again later.');
     });
+
+    it('on throttled resend, disables the submit button', async () => {
+      session = {
+        sendVerificationCode: jest
+          .fn()
+          .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 }),
+      } as unknown as Session;
+      render();
+
+      // Enter a valid code so the submit button is enabled absent throttling;
+      // this isolates the throttle disable from the empty-input disable.
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText('Enter 6-digit code'),
+        MOCK_SIGNUP_CODE
+      );
+      expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Email new code.' }));
+      await waitFor(() => {
+        expect(session.sendVerificationCode).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      });
+    });
     it('on other error, renders banner with expected default error message', async () => {
       session = {
         sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
@@ -287,6 +314,23 @@ describe('SigninTokenCode page', () => {
       );
       expect(GleanMetrics.loginConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.loginConfirmation.success).not.toHaveBeenCalled();
+    });
+
+    it('on throttled submit with retryAfter, disables both buttons', async () => {
+      session = {
+        verifySession: jest
+          .fn()
+          .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 }),
+      } as unknown as Session;
+      render();
+      await submitCode();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      });
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
     });
     it('on other error, renders expected default error message in tooltip', async () => {
       session = {

@@ -43,6 +43,7 @@ import {
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { getSyncNavigate } from '../../Signin/utils';
+import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'confirm-signup-code';
 
@@ -76,6 +77,7 @@ const ConfirmSignupCode = ({
   );
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
   const [resendCountdown, setResendCountdown] = useState<number>(0);
+  const throttle = useThrottle();
 
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -145,6 +147,9 @@ const ConfirmSignupCode = ({
       setResendStatus(ResendStatus.sent);
     } catch (error) {
       setResendStatus(ResendStatus.error);
+      if (error?.errno === AuthUiErrors.THROTTLED.errno) {
+        throttle.startThrottle(error);
+      }
       setLocalizedErrorBannerHeading(
         getLocalizedErrorMessage(ftlMsgResolver, error)
       );
@@ -349,6 +354,9 @@ const ConfirmSignupCode = ({
       ) {
         setCodeErrorMessage(localizedErrorMessage);
       } else {
+        if (error.errno === AuthUiErrors.THROTTLED.errno) {
+          throttle.startThrottle(error);
+        }
         // Clear resend link success banner (if displayed) before rendering an error banner
         setResendStatus(ResendStatus.none);
         // Any other error messages should be displayed in an error banner
@@ -439,6 +447,7 @@ const ConfirmSignupCode = ({
             text: cmsInfo?.SignupConfirmCodePage.primaryButtonText,
             color: cmsInfo?.shared.buttonColor,
           },
+          isThrottled: throttle.isThrottled,
         }}
       />
 
@@ -465,7 +474,7 @@ const ConfirmSignupCode = ({
               id="resend"
               className="link-blue"
               onClick={handleResendCode}
-              disabled={resendCodeLoading}
+              disabled={resendCodeLoading || throttle.isThrottled}
             >
               Email new code.
             </button>

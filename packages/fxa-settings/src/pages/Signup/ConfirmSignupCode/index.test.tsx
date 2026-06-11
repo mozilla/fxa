@@ -633,4 +633,27 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
 
     jest.useRealTimers();
   });
+
+  it('disables submit and resend when resend hits THROTTLED', async () => {
+    session = {
+      sendVerificationCode: jest.fn().mockRejectedValue({
+        ...AuthUiErrors.THROTTLED,
+        retryAfter: 60_000,
+      }),
+    } as unknown as Session;
+
+    renderWithSession({ session, integration: mockWebIntegration });
+
+    const resendButton = screen.getByRole('button', {
+      name: 'Email new code.',
+    });
+    fireEvent.click(resendButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
+    });
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+  });
 });

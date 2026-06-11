@@ -25,6 +25,7 @@ import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'signin-token-code';
 
@@ -59,6 +60,7 @@ const SigninTokenCode = ({
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
   const [resendCountdown, setResendCountdown] = useState<number>(0);
+  const { isThrottled, startThrottle } = useThrottle();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
@@ -120,15 +122,19 @@ const SigninTokenCode = ({
       }
     } catch (error) {
       setShowResendSuccessBanner(false);
-      // TODO in FXA-9714 - verify if we only want to display a specific message for throttled errors
-      setLocalizedErrorBannerMessage(
-        error.errno === AuthUiErrors.THROTTLED.errno
-          ? getLocalizedErrorMessage(ftlMsgResolver, error)
-          : ftlMsgResolver.getMsg(
-              'signin-token-code-resend-error',
-              'Something went wrong. A new code could not be sent.'
-            )
-      );
+      if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        startThrottle(error);
+        setLocalizedErrorBannerMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, error)
+        );
+      } else {
+        setLocalizedErrorBannerMessage(
+          ftlMsgResolver.getMsg(
+            'signin-token-code-resend-error',
+            'Something went wrong. A new code could not be sent.'
+          )
+        );
+      }
     } finally {
       setResendCodeLoading(false);
       // Start countdown
@@ -197,6 +203,7 @@ const SigninTokenCode = ({
         );
         if (error.errno === AuthUiErrors.THROTTLED.errno) {
           setShowResendSuccessBanner(false);
+          startThrottle(error);
           setLocalizedErrorBannerMessage(localizedErrorMessage);
         } else {
           // TODO in FXA-9714 - show in tooltip or banner? we might end up with unexpected errors shown in tooltip with current pattern
@@ -220,6 +227,7 @@ const SigninTokenCode = ({
       verificationReason,
       showInlineRecoveryKeySetup,
       onSessionVerified,
+      startThrottle,
     ]
   );
 
@@ -289,6 +297,7 @@ const SigninTokenCode = ({
           cmsButton: {
             color: cmsInfo?.shared.buttonColor,
           },
+          isThrottled,
         }}
       />
 
@@ -313,7 +322,7 @@ const SigninTokenCode = ({
             <button
               className="link-blue"
               onClick={handleResendCode}
-              disabled={resendCodeLoading}
+              disabled={resendCodeLoading || isThrottled}
             >
               Email new code.
             </button>

@@ -390,6 +390,30 @@ describe('SigninPasswordlessCode page', () => {
       await screen.findByText(/tried too many times/);
     });
 
+    it('on throttled resend, disables the submit button', async () => {
+      mockAuthClient.passwordlessResendCode = jest
+        .fn()
+        .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 });
+
+      render();
+
+      // Enter a valid code so the submit button is enabled absent throttling;
+      // this isolates the throttle disable from the empty-input disable.
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText('Enter 6-digit code'),
+        MOCK_PASSWORDLESS_CODE
+      );
+      expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Email new code.' }));
+      await screen.findByText(/tried too many times/);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      });
+    });
+
     it('on other error, renders banner with expected default error message', async () => {
       mockAuthClient.passwordlessResendCode = jest
         .fn()
@@ -507,6 +531,21 @@ describe('SigninPasswordlessCode page', () => {
       await submitCode();
 
       await screen.findByText(/tried too many times/);
+    });
+
+    it('on throttled submit with retryAfter, disables submit and resend', async () => {
+      mockAuthClient.passwordlessConfirmCode = jest
+        .fn()
+        .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 });
+
+      render();
+      await submitCode();
+
+      await screen.findByText(/tried too many times/);
+      expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
     });
 
     it('on invalid code error, renders error message in tooltip', async () => {

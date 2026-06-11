@@ -50,6 +50,7 @@ import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import GleanMetrics from '../../../lib/glean';
+import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'signin-passwordless-code';
 
@@ -107,6 +108,7 @@ const SigninPasswordlessCode = ({
   const [resendCountdown, setResendCountdown] = useState<number>(
     resendCountdownSeconds
   );
+  const throttle = useThrottle();
 
   const gleanOtp = isSignup
     ? GleanMetrics.passwordlessReg
@@ -205,6 +207,7 @@ const SigninPasswordlessCode = ({
       setShowResendSuccessBanner(false);
       if (error.errno === AuthUiErrors.THROTTLED.errno) {
         gleanOtp.error({ event: { reason: 'too many times' } });
+        throttle.startThrottle(error);
         setLocalizedErrorBannerMessage(
           getLocalizedErrorMessage(ftlMsgResolver, error)
         );
@@ -446,6 +449,7 @@ const SigninPasswordlessCode = ({
       if (error.errno === AuthUiErrors.THROTTLED.errno) {
         gleanOtp.error({ event: { reason: 'too many times' } });
         setShowResendSuccessBanner(false);
+        throttle.startThrottle(error);
         setLocalizedErrorBannerMessage(localizedErrorMessage);
       } else {
         // Note: The backend OTP manager doesn't distinguish expired vs invalid
@@ -589,6 +593,7 @@ const SigninPasswordlessCode = ({
             }
           },
           className: `flex flex-col gap-4 mt-6 ${showPasskeySignin ? 'mb-2' : 'mb-6'}`,
+          isThrottled: throttle.isThrottled,
         }}
       />
 
@@ -632,7 +637,7 @@ const SigninPasswordlessCode = ({
             <button
               className="link-blue"
               onClick={handleResendCode}
-              disabled={resendCodeLoading}
+              disabled={resendCodeLoading || throttle.isThrottled}
             >
               Email new code.
             </button>
