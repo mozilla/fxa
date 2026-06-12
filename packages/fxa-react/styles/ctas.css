@@ -55,7 +55,8 @@
   /* Max-height is a likely temp "hack" for .spinner until it's converted to TW */
   /* font-color is also a hack until all buttons are TWified */
   .cta-xl {
-    @apply flex-1 font-bold text-base p-4 rounded-md;
+    /* grow without shrinking — prevents CJK labels breaking one character per line */
+    @apply grow shrink-0 basis-0 font-bold text-base p-4 rounded-md;
   }
 
   .cta-caution {
@@ -200,5 +201,23 @@
         border-color: color-mix(in srgb, var(--cta-border) 90%, black);
       }
     }
+  }
+}
+
+@layer utilities {
+  /*
+   * Flex children default to flex-shrink: 1, which squeezes CJK button labels
+   * to one character per line in settings rows and modals. Higher specificity
+   * than the flex-1 utility ensures shrink-0 wins when both are present.
+   */
+  button.cta-neutral,
+  a.cta-neutral,
+  button.cta-primary,
+  a.cta-primary,
+  button.cta-caution,
+  a.cta-caution,
+  button.cta-primary-cms,
+  a.cta-primary-cms {
+    @apply shrink-0 whitespace-nowrap;
   }
 }
