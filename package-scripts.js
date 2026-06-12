@@ -24,8 +24,8 @@ module.exports = {
       },
       firefox: './packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs &',
       mza: {
-        script: `_scripts/check-pre-launch.sh && _dev/pm2/start.sh && _scripts/pm2-all.sh start ${mzaProjects} && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
-        description: 'Start infrastructure and only required Mozilla Accounts services',
+        script: `_scripts/start-mza.sh ${mzaProjects}`,
+        description: 'Start infrastructure and only required Mozilla Accounts services (fast build)',
       },
       sp2: {
         script: `_dev/pm2/start.sh && _scripts/pm2-all.sh start ${sp2Projects} && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
@@ -76,8 +76,8 @@ module.exports = {
         description: 'Restart all services, only.',
       },
       mza: {
-        script: `_scripts/pm2-all.sh restart ${mzaProjects}`,
-        description: 'Restart required Mozilla Accounts services.',
+        script: `FXA_BUILD_TARGET=build-fast _scripts/pm2-all.sh restart ${mzaProjects}`,
+        description: 'Restart required Mozilla Accounts services (fast build).',
       },
       sp2: {
         script: `_scripts/pm2-all.sh restart ${sp2Projects}`,

@@ -14,6 +14,7 @@
   "scripts": {
     "prebuild": "nx l10n-prime",
     "build": "nx build-l10n && nx build-css && nx build-ts",
+    "build-fast": "yarn build",
     "build-css": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-ts": "tsc --build && tsc-alias",
     "build-storybook": "nx build-l10n && NODE_ENV=production yarn build-css && storybook build",
