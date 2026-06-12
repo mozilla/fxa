@@ -769,7 +769,7 @@ describe('rate-limit', () => {
     });
   });
 
-  describe('bqWriter integration', () => {
+  describe('bqWriter', () => {
     let mockWrite: jest.Mock;
     let mockIncr: jest.Mock;
     let mockExpire: jest.Mock;

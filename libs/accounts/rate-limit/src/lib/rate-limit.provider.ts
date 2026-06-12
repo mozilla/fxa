@@ -48,7 +48,9 @@ export const RateLimitProvider = {
       'rateLimit.bigquery'
     );
     const bqWriter =
-      bqConfig && bqConfig.enabled ? new RateLimitBqWriter(bqConfig) : undefined;
+      bqConfig && bqConfig.enabled
+        ? new RateLimitBqWriter(bqConfig, undefined, statsd)
+        : undefined;
 
     return new RateLimit(
       {
