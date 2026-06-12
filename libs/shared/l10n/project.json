@@ -12,6 +12,13 @@
         "command": "echo Build complete"
       }
     },
+    "build-fast": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
     "build-ts": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],

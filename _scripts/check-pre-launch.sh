@@ -40,6 +40,12 @@ if [ -d ".nx/cache" ]; then
 
   if (( $NX_CACHE_SIZE_GB > 50 )); then
     echo "❌ NX cache size is about $NX_CACHE_SIZE_GB GB! That's pretty big!"
-    read -p "Do you want to delete it now? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] && rm -rf .nx/cache && echo "Cache deleted!" || echo "Cache kept!"
+    # Only prompt interactively; under a non-TTY invocation (CI, nested shells)
+    # a blocking read would hang startup indefinitely, so just warn and continue.
+    if [ -t 0 ]; then
+      read -p "Do you want to delete it now? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] && rm -rf .nx/cache && echo "Cache deleted!" || echo "Cache kept!"
+    else
+      echo "    Non-interactive shell; leaving it. Run 'rm -rf .nx/cache' to clear it manually."
+    fi
   fi
 fi
