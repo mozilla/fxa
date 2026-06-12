@@ -240,7 +240,7 @@ export class OAuthWebIntegration extends GenericIntegration<
         service: this.data.service || 'undefined',
         clientInfo: this.clientInfo || 'undefined',
       };
-      Sentry.captureException(err, {
+      err.sentryEventId = Sentry.captureException(err, {
         tags: {
           area: 'OAuthWebIntegration.getPermissions',
           clientId: this.data.clientId,

@@ -670,6 +670,46 @@ describe('useClientInfoState', () => {
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
+  it('reports loading on the very first render when a fetch will run (race regression)', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    let resolveFetch!: (value: unknown) => void;
+    mockFetch.mockReturnValue(
+      new Promise((resolve) => {
+        resolveFetch = resolve;
+      })
+    );
+
+    // A settled-empty render (no loading/data/error) is the race that fed
+    // useIntegration an empty clientInfo before the fetch ran.
+    const settledEmptyRenders: boolean[] = [];
+    const { result } = renderHook(
+      () => {
+        const state = useClientInfoState();
+        settledEmptyRenders.push(!state.loading && !state.data && !state.error);
+        return state;
+      },
+      { wrapper: MockAppProvider }
+    );
+
+    resolveFetch({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        id: '1234567890abcdef',
+        name: 'Test RP',
+        redirect_uri: 'https://example.test/redirect',
+        image_uri: '',
+        trusted: true,
+      }),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.clientInfo.trusted).toBe(true);
+    expect(settledEmptyRenders).not.toContain(true);
+  });
+
   it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {
     mockUrlQueryData.get.mockReturnValue(null);
     const { isHexadecimal, length } = require('class-validator');
