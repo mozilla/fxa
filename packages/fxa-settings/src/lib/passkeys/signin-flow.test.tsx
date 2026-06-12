@@ -128,11 +128,13 @@ const buildArgs = (
     emails: [{ email: EMAIL, isPrimary: true, verified: true }],
     totp: { exists: false, verified: false },
   });
+  const sessionResendVerifyCode = jest.fn();
 
   const authClient = {
     beginPasskeyAuthentication,
     completePasskeyAuthentication,
     account,
+    sessionResendVerifyCode
   } as jest.Mocked<PasskeySignInAuthClient>;
   const integration = {
     isSync: () => false,
@@ -232,6 +234,7 @@ describe('usePasskeySignIn', () => {
       performNavigation: true,
       isPasskeySession: true,
       accountHasTotp: false,
+      authClient: args.authClient,
     });
     expect(storeAccountData).toHaveBeenCalledWith({
       email: EMAIL,
@@ -313,6 +316,7 @@ describe('usePasskeySignIn', () => {
       performNavigation: true,
       isPasskeySession: true,
       accountHasTotp: false,
+      authClient: args.authClient,
     });
   });
 

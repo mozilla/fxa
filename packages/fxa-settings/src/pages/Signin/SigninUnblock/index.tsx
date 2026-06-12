@@ -17,6 +17,7 @@ import FormVerifyCode, {
 import {
   isWebIntegration,
   useAlertBar,
+  useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -59,6 +60,7 @@ export const SigninUnblock = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const authClient = useAuthClient();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
@@ -152,6 +154,7 @@ export const SigninUnblock = ({
         performNavigation: !(
           integration.isFirefoxMobileClient() && isFullyVerified
         ),
+        authClient
       };
 
       // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar

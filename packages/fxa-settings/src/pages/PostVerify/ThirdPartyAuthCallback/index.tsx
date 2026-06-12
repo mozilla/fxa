@@ -128,6 +128,7 @@ const ThirdPartyAuthCallback = ({
         // user sets a password and keys are available (see SetPassword/container.tsx).
         handleFxaLogin: isFirefoxNonSync,
         handleFxaOAuthLogin: isFirefoxNonSync,
+        authClient
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -144,6 +145,7 @@ const ThirdPartyAuthCallback = ({
       navigateWithQuery,
       webRedirectCheck,
       ftlMsgResolver,
+      authClient
     ]
   );
 

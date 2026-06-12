@@ -352,6 +352,83 @@ describe('Signin utils', () => {
       });
     });
 
+    describe('email OTP resend before /signin_token_code', () => {
+      it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('does not resend the email OTP code when the verification method is not EMAIL_OTP', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('does not resend the email OTP code when navigating to a page other than /signin_token_code', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: false,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/confirm_signup_code',
+          expect.any(Object)
+        );
+      });
+    });
+
     describe('third party auth with non-Sync services', () => {
       it('sends fxaOAuthLogin and navigates to settings', async () => {
         const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');

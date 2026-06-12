@@ -52,6 +52,14 @@ jest.mock('@reach/router', () => ({
   navigate: jest.fn(),
 }));
 
+const mockSessionResendVerifyCode = jest.fn().mockResolvedValue(undefined);
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => ({
+    sessionResendVerifyCode: mockSessionResendVerifyCode,
+  }),
+}));
+
 const email = MOCK_EMAIL;
 const hasLinkedAccount = false;
 const hasPassword = true;
