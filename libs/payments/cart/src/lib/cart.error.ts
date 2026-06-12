@@ -190,6 +190,13 @@ export class CartProcessingConflictError extends CartError {
   }
 }
 
+export class ConcurrentCartCheckoutError extends CartError {
+  constructor(cartId: string, cause?: Error) {
+    super('Concurrent checkout detected for cart', { cartId }, cause);
+    this.name = 'ConcurrentCartCheckoutError';
+  }
+}
+
 export class CartStateProcessingError extends CartError {
   constructor(message: string, cartId: string, cause: Error) {
     super(message, { cartId }, cause);

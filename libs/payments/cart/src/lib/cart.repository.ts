@@ -124,6 +124,21 @@ export async function setCartProcessing(
             conflictingCart.id.toString('hex')
           );
         }
+
+        const cartIsProcessing = carts.find(
+          (cart) =>
+            cart.id.equals(cartId) &&
+            cart.state === CartState.PROCESSING &&
+            cart.updatedAt > now - CART_PROCESSING_STALE_TIMEOUT_MS
+        );
+
+        if (cartIsProcessing) {
+          throw new CartProcessingConflictError(
+            cartId.toString('hex'),
+            uid.toString('hex'),
+            cartId.toString('hex')
+          );
+        }
       }
 
       const updatedRows = await trx

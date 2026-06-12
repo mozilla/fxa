@@ -78,6 +78,8 @@ import {
   InvalidPromoCodeCartError,
   CartVersionMismatchError,
   CartInvalidStateForActionError,
+  CartProcessingConflictError,
+  ConcurrentCartCheckoutError,
   GetCartMissingTaxAddressError,
   GetCartFromPriceMissingError,
   GetCartCustomerMissingError,
@@ -94,6 +96,9 @@ import {
   CartSubscriptionDeletionFailedError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
+import {
+  CART_PROCESSING_STALE_TIMEOUT_MS
+} from './cart.repository';
 import type {
   CartDTO,
   FromPrice,
@@ -142,6 +147,10 @@ const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
   'PromotionCodeNotFoundError',
   'CouponErrorInvalidCode',
 ]);
+
+const isCartActivelyProcessing = (cart: ResultCart): boolean =>
+  cart.state === CartState.PROCESSING &&
+  cart.updatedAt > Date.now() - CART_PROCESSING_STALE_TIMEOUT_MS;
 
 @Injectable()
 export class CartService {
@@ -223,6 +232,9 @@ export class CartService {
         await this.cartManager.finishErrorCart(cartId, {
           errorReasonId,
         });
+
+        // TODO: uncomment to test, remove after testing
+        //await new Promise((r) => setTimeout(r, 8_000));
 
         const cart = await this.cartManager.fetchCartById(cartId);
         const store = this.asyncLocalStorage.getStore();
@@ -374,6 +386,21 @@ export class CartService {
 
       throw error;
     }
+  }
+
+  private async isOwnedByAnotherCheckout(
+    cartId: string,
+    error: unknown
+  ): Promise<boolean> {
+    if (error instanceof CartProcessingConflictError) {
+      return true;
+    }
+
+    const current = await this.cartManager
+      .fetchCartById(cartId)
+      .catch(() => null);
+
+    return !!current && isCartActivelyProcessing(current);
   }
 
   @SanitizeExceptions()
@@ -722,48 +749,59 @@ export class CartService {
         },
       });
     };
-    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
-      let updatedCart: ResultCart | null = null;
-      try {
-        //Ensure that the cart version matches the value passed in from FE
-        await this.cartManager.fetchAndValidateCartVersion(cartId, version);
-
-        await this.cartManager.setProcessingCart(cartId);
-
-        // Ensure we have a positive lock on the processing cart
-        updatedCart = await this.cartManager.fetchAndValidateCartVersion(
-          cartId,
-          version + 1
-        );
-      } catch (error) {
-        throw new UpdatePayPalProcessingCartError(cartId, error);
-      }
-
-      this.asyncLocalStorage.run(
-        { checkout: { subscriptionId: undefined } },
-        () => {
-          // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
-            await this.checkoutService.payWithPaypal(
-              updatedCart,
-              attribution,
-              requestArgs,
-              sessionUid,
-              token
-            );
-          }).catch((error) => {
-            handleException({
-              error,
-              className: 'CartService',
-              methodName: 'checkoutCartWithPaypal',
-              allowlist: [],
-              logger: this.log as Logger,
-              statsd: this.statsd,
-            });
-          });
+    return this.wrapWithCartCatch(
+      cartId,
+      { onCheckoutFail, errorAllowList: [ConcurrentCartCheckoutError] },
+      async () => {
+        const existing = await this.cartManager.fetchCartById(cartId);
+        if (isCartActivelyProcessing(existing)) {
+          throw new ConcurrentCartCheckoutError(cartId);
         }
-      );
-    });
+
+        let updatedCart: ResultCart | null = null;
+        try {
+          //Ensure that the cart version matches the value passed in from FE
+          await this.cartManager.fetchAndValidateCartVersion(cartId, version);
+
+          await this.cartManager.setProcessingCart(cartId);
+
+          // Ensure we have a positive lock on the processing cart
+          updatedCart = await this.cartManager.fetchAndValidateCartVersion(
+            cartId,
+            version + 1
+          );
+        } catch (error) {
+          if (await this.isOwnedByAnotherCheckout(cartId, error)) {
+            throw new ConcurrentCartCheckoutError(cartId, error);
+          }
+          throw new UpdatePayPalProcessingCartError(cartId, error);
+        }
+
+        this.asyncLocalStorage.run(
+          { checkout: { subscriptionId: undefined } },
+          () => {
+            // Intentionally non-blocking
+            this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
+              await this.checkoutService.payWithPaypal(
+                updatedCart,
+                attribution,
+                requestArgs,
+                sessionUid,
+                token
+              );
+            }).catch((error) => {
+              handleException({
+                error,
+                className: 'CartService',
+                methodName: 'checkoutCartWithPaypal',
+                allowlist: [],
+                logger: this.log as Logger,
+                statsd: this.statsd,
+              });
+            });
+          }
+        );
+      });
   }
 
   @SanitizeExceptions()
@@ -816,6 +854,8 @@ export class CartService {
 
   /**
    * Update a cart in the database by ID or with an existing cart reference
+   * Do not fail a cart that another request is actively processing, since
+   * we may have already charged the customer.
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
   @SanitizeExceptions()
@@ -823,6 +863,11 @@ export class CartService {
     cartId: string,
     errorReasonId: CartErrorReasonId | string
   ): Promise<void> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+    if (isCartActivelyProcessing(cart)) {
+      return;
+    }
+
     try {
       await this.cartManager.finishErrorCart(cartId, {
         errorReasonId,
