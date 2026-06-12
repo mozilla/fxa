@@ -4,6 +4,7 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
 import PaypalPaymentManagementPage from './page';
 
 const mockAuth = jest.fn();
@@ -81,14 +82,7 @@ jest.mock('@fxa/shared/assets/images/error.svg', () => 'error.svg', {
   virtual: true,
 });
 
-const MOCK_USER_ID = 'user-123';
-
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: 'user@example.com',
-  },
-};
+const baseSession = SessionFactory();
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {

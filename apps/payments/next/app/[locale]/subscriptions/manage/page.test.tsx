@@ -4,6 +4,13 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import {
+  DefaultPaymentMethodFactory,
+  DefaultPaymentMethodErrorFactory,
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer/testing';
+import { SubscriptionContentFactory } from '@fxa/payments/management/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
 import Manage from './page';
 
 const mockGetSubManPageContentAction = jest.fn();
@@ -66,17 +73,21 @@ jest.mock('next/image', () => ({
   }) => <img alt={alt ?? ''} className={className} src="mock-image" />,
 }));
 
-jest.mock('@fxa/payments/customer', () => ({
-  __esModule: true,
-  SubPlatPaymentMethodType: {
-    PayPal: 'external_paypal',
-    Card: 'card',
-    ApplePay: 'apple_pay',
-    GooglePay: 'google_pay',
-    Link: 'link',
-    Stripe: 'stripe',
-  },
-}));
+jest.mock('@fxa/payments/customer', () => {
+  const actual = jest.requireActual('@fxa/payments/customer/testing');
+  return {
+    __esModule: true,
+    ...actual,
+    SubPlatPaymentMethodType: {
+      PayPal: 'external_paypal',
+      Card: 'card',
+      ApplePay: 'apple_pay',
+      GooglePay: 'google_pay',
+      Link: 'link',
+      Stripe: 'stripe',
+    },
+  };
+});
 
 jest.mock('@fxa/payments/ui', () => ({
   __esModule: true,
@@ -160,21 +171,15 @@ jest.mock('@fxa/shared/assets/images/error.svg', () => 'error.svg', {
   virtual: true,
 });
 
-const MOCK_USER_ID = 'user-123';
-
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: 'user@example.com',
-    metricsEnabled: true,
-  },
-};
+const baseSession = SessionFactory();
 
 const basePageContent = {
   accountCreditBalance: { balance: 0, currency: null },
-  defaultPaymentMethod: undefined,
+  defaultPaymentMethod: undefined as
+    | ReturnType<typeof DefaultPaymentMethodFactory>
+    | undefined,
   isStripeCustomer: true,
-  subscriptions: [],
+  subscriptions: [] as ReturnType<typeof SubscriptionContentFactory>[],
   appleIapSubscriptions: [],
   googleIapSubscriptions: [],
   trialSubscriptions: [],
@@ -216,23 +221,12 @@ describe('Manage page — payment method error banner', () => {
   it('does not render error banner when there is no payment method error', async () => {
     mockGetSubManPageContentAction.mockResolvedValue({
       ...basePageContent,
-      defaultPaymentMethod: {
-        type: 'external_paypal',
+      defaultPaymentMethod: DefaultPaymentMethodFactory({
+        type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: 'ba_active',
-      },
-      subscriptions: [
-        {
-          id: 'sub_1',
-          productName: 'Test Product',
-          currency: 'usd',
-          interval: 'monthly',
-          currentInvoiceTax: 0,
-          currentInvoiceTotal: 999,
-          currentPeriodEnd: 1700000000,
-          nextInvoiceDate: 1703000000,
-          isEligibleForChurnStaySubscribed: false,
-        },
-      ],
+        hasPaymentMethodError: undefined,
+      }),
+      subscriptions: [SubscriptionContentFactory()],
     });
 
     await renderPage();
@@ -241,9 +235,8 @@ describe('Manage page — payment method error banner', () => {
   });
 
   it('renders error banner with PayPal funding source error content', async () => {
-    const paypalFundingSourceError = {
-      paymentMethodType: 'external_paypal',
-      bannerType: 'error',
+    const paypalFundingSourceError = DefaultPaymentMethodErrorFactory({
+      paymentMethodType: SubPlatPaymentMethodType.PayPal,
       bannerTitle: 'Invalid payment information',
       bannerTitleFtl:
         'error-payment-method-banner-title-invalid-payment-information',
@@ -255,28 +248,16 @@ describe('Manage page — payment method error banner', () => {
       message:
         'There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.',
       messageFtl: 'subscription-management-error-paypal-billing-agreement',
-    };
+    });
 
     mockGetSubManPageContentAction.mockResolvedValue({
       ...basePageContent,
-      defaultPaymentMethod: {
-        type: 'external_paypal',
+      defaultPaymentMethod: DefaultPaymentMethodFactory({
+        type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: 'ba_123',
         hasPaymentMethodError: paypalFundingSourceError,
-      },
-      subscriptions: [
-        {
-          id: 'sub_1',
-          productName: 'Test Product',
-          currency: 'usd',
-          interval: 'monthly',
-          currentInvoiceTax: 0,
-          currentInvoiceTotal: 999,
-          currentPeriodEnd: 1700000000,
-          nextInvoiceDate: 1703000000,
-          isEligibleForChurnStaySubscribed: false,
-        },
-      ],
+      }),
+      subscriptions: [SubscriptionContentFactory()],
     });
 
     await renderPage();
@@ -291,42 +272,18 @@ describe('Manage page — payment method error banner', () => {
   });
 
   it('links to PayPal payment management page when error is on PayPal method', async () => {
-    const paypalError = {
-      paymentMethodType: 'external_paypal',
-      bannerType: 'error',
-      bannerTitle: 'Invalid payment information',
-      bannerTitleFtl:
-        'error-payment-method-banner-title-invalid-payment-information',
-      bannerMessage: 'There is an issue with your account.',
-      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
-      bannerLinkLabel: 'Manage payment method',
-      bannerLinkLabelFtl:
-        'subscription-management-button-manage-payment-method-1',
-      message:
-        'There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.',
-      messageFtl: 'subscription-management-error-paypal-billing-agreement',
-    };
+    const paypalError = DefaultPaymentMethodErrorFactory({
+      paymentMethodType: SubPlatPaymentMethodType.PayPal,
+    });
 
     mockGetSubManPageContentAction.mockResolvedValue({
       ...basePageContent,
-      defaultPaymentMethod: {
-        type: 'external_paypal',
+      defaultPaymentMethod: DefaultPaymentMethodFactory({
+        type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: 'ba_123',
         hasPaymentMethodError: paypalError,
-      },
-      subscriptions: [
-        {
-          id: 'sub_1',
-          productName: 'Test Product',
-          currency: 'usd',
-          interval: 'monthly',
-          currentInvoiceTax: 0,
-          currentInvoiceTotal: 999,
-          currentPeriodEnd: 1700000000,
-          nextInvoiceDate: 1703000000,
-          isEligibleForChurnStaySubscribed: false,
-        },
-      ],
+      }),
+      subscriptions: [SubscriptionContentFactory()],
     });
 
     await renderPage();
@@ -340,42 +297,21 @@ describe('Manage page — payment method error banner', () => {
   });
 
   it('renders inline error message in payment method details section', async () => {
-    const paypalError = {
-      paymentMethodType: 'external_paypal',
-      bannerType: 'error',
-      bannerTitle: 'Invalid payment information',
-      bannerTitleFtl:
-        'error-payment-method-banner-title-invalid-payment-information',
-      bannerMessage: 'There is an issue with your account.',
-      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
-      bannerLinkLabel: 'Manage payment method',
-      bannerLinkLabelFtl:
-        'subscription-management-button-manage-payment-method-1',
+    const paypalError = DefaultPaymentMethodErrorFactory({
+      paymentMethodType: SubPlatPaymentMethodType.PayPal,
       message:
         'There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.',
       messageFtl: 'subscription-management-error-paypal-billing-agreement',
-    };
+    });
 
     mockGetSubManPageContentAction.mockResolvedValue({
       ...basePageContent,
-      defaultPaymentMethod: {
-        type: 'external_paypal',
+      defaultPaymentMethod: DefaultPaymentMethodFactory({
+        type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: 'ba_123',
         hasPaymentMethodError: paypalError,
-      },
-      subscriptions: [
-        {
-          id: 'sub_1',
-          productName: 'Test Product',
-          currency: 'usd',
-          interval: 'monthly',
-          currentInvoiceTax: 0,
-          currentInvoiceTotal: 999,
-          currentPeriodEnd: 1700000000,
-          nextInvoiceDate: 1703000000,
-          isEligibleForChurnStaySubscribed: false,
-        },
-      ],
+      }),
+      subscriptions: [SubscriptionContentFactory()],
     });
 
     await renderPage();

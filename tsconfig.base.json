@@ -52,12 +52,18 @@
       ],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
+      "@fxa/payments/customer/testing": [
+        "libs/payments/customer/src/testing.ts"
+      ],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/events": ["libs/payments/events/src/index.ts"],
       "@fxa/payments/experiments": ["libs/payments/experiments/src/index.ts"],
       "@fxa/payments/iap": ["libs/payments/iap/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
+      "@fxa/payments/management/testing": [
+        "libs/payments/management/src/testing.ts"
+      ],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
       "@fxa/payments/metrics-aggregator": [
         "libs/payments/metrics-aggregator/src/index.ts"
@@ -70,6 +76,9 @@
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui-auth": ["libs/payments/ui-auth/src/index.ts"],
+      "@fxa/payments/ui-auth/testing": [
+        "libs/payments/ui-auth/src/testing.ts"
+      ],
       "@fxa/payments/ui/actions": ["libs/payments/ui/src/lib/actions/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
       "@fxa/payments/ui/utils": ["libs/payments/ui/src/utils.ts"],
