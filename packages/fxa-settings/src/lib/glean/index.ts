@@ -832,6 +832,11 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'passkey_button_view':
+      passkey.buttonView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'passkey_auth_success':
       passkey.authSuccess.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

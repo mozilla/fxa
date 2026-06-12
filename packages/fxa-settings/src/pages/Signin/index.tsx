@@ -63,6 +63,12 @@ const Signin = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const authClient = useAuthClient();
 
+  // Button stays visible without WebAuthn support; the hook surfaces an error.
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
+
   const passkey = usePasskeySignIn({
     integration,
     authClient,
@@ -71,6 +77,7 @@ const Signin = ({
     navigateWithQuery,
     queryParams: location.search,
     surface: 'login',
+    isButtonVisible: showPasskeySignin,
   });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
@@ -100,12 +107,6 @@ const Signin = ({
 
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
-
-  // Button stays visible without WebAuthn support; the hook surfaces an error.
-  const showPasskeySignin = !!(
-    config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled
-  );
 
   const localizedPasswordFormLabel = ftlMsgResolver.getMsg(
     'signin-password-button-label',

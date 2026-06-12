@@ -377,8 +377,7 @@ export class PasskeyHandler {
 
     const options = await this.service.generateAuthenticationChallenge();
 
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.authenticationStarted(request);
+    await this.glean.passkey.authenticationStarted(request);
 
     return options;
   }
@@ -419,6 +418,10 @@ export class PasskeyHandler {
       await this.customs.checkIpOnly(request, 'passkeyAuthFinishFailed');
       throw err;
     }
+
+    // Assertion verified; fired before token/session work so failures in
+    // that step are distinguishable from a failed ceremony.
+    await this.glean.passkey.authenticationVerificationSuccess(request);
 
     const account = await this.db.account(uid);
 

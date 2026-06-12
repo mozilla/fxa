@@ -376,7 +376,9 @@ describe('SetPassword-container', () => {
       );
     });
 
-    it.each(['otp' as const, 'passkey' as const])(
+    // Passkey reasons are surface-tagged (`<surface>_passkey`) and covered by
+    // the dedicated tests below; non-passkey reasons pass through unchanged.
+    it.each(['third_party_auth' as const, 'otp' as const])(
       'fires postVerifySetPassword.success with reason="%s" when passwordCreationReason matches',
       async (reason) => {
         mockLocation.state = { passwordCreationReason: reason };
@@ -397,7 +399,9 @@ describe('SetPassword-container', () => {
 
     it.each([
       ['emailfirst' as const, 'emailfirst_createdpassword'],
-      ['login' as const, 'signin_createdpassword'],
+      ['signin' as const, 'signin_createdpassword'],
+      ['otplogin' as const, 'otplogin_createdpassword'],
+      ['alternative_auth' as const, 'alternative_auth_createdpassword'],
     ])(
       'fires passkey.auth_success with reason="%s" on the passkey-flow createPassword success (passkeySurface=%s)',
       async (passkeySurface, expectedReason) => {
@@ -420,6 +424,33 @@ describe('SetPassword-container', () => {
       }
     );
 
+    it.each([
+      ['emailfirst' as const, 'emailfirst_passkey'],
+      ['signin' as const, 'signin_passkey'],
+      ['otplogin' as const, 'otplogin_passkey'],
+      ['alternative_auth' as const, 'alternative_auth_passkey'],
+    ])(
+      'tags postVerifySetPassword.success with the surface reason (passkeySurface=%s -> %s)',
+      async (passkeySurface, expectedReason) => {
+        mockLocation.state = {
+          passwordCreationReason: 'passkey',
+          passkeySurface,
+        };
+        render();
+
+        await waitFor(() => {
+          expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        });
+        await act(async () => {
+          await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+        });
+
+        expect(GleanMetrics.postVerifySetPassword.success).toHaveBeenCalledWith(
+          { event: { reason: expectedReason } }
+        );
+      }
+    );
+
     it('defaults passkeySurface to emailfirst when missing from router state', async () => {
       mockLocation.state = { passwordCreationReason: 'passkey' };
       render();
@@ -431,6 +462,11 @@ describe('SetPassword-container', () => {
       });
       expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
         event: { reason: 'emailfirst_createdpassword' },
+      });
+      // The funnel reason defaults the same way, so it stays in-vocabulary
+      // (`emailfirst_passkey`) rather than emitting a bare `passkey`.
+      expect(GleanMetrics.postVerifySetPassword.success).toHaveBeenCalledWith({
+        event: { reason: 'emailfirst_passkey' },
       });
     });
 

@@ -172,6 +172,7 @@ export const eventsMap = {
   },
 
   passkey: {
+    buttonView: 'passkey_button_view',
     authSuccess: 'passkey_auth_success',
   },
 

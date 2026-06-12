@@ -65,6 +65,7 @@ jest.mock('../glean', () => ({
       passkeySubmitSuccess: jest.fn(),
     },
     passkey: {
+      buttonView: jest.fn(),
       authSuccess: jest.fn(),
     },
   },
@@ -392,6 +393,76 @@ describe('usePasskeySignIn', () => {
     }
   );
 
+  it.each([
+    [
+      'emailfirst' as const,
+      true,
+      '/signin_passkey_fallback',
+      { state: { passkeySurface: 'emailfirst' } },
+    ],
+    [
+      'login' as const,
+      true,
+      '/signin_passkey_fallback',
+      { state: { passkeySurface: 'signin' } },
+    ],
+    // No-password surfaces (otplogin, alternative_auth) route to set-password
+    // (createdpassword); they never reach the existing-password fallback.
+    [
+      'login_otp' as const,
+      false,
+      '/post_verify/set_password',
+      {
+        state: {
+          passwordCreationReason: 'passkey',
+          passkeySurface: 'otplogin',
+        },
+      },
+    ],
+    [
+      'alternative_auth' as const,
+      false,
+      '/post_verify/set_password',
+      {
+        state: {
+          passwordCreationReason: 'passkey',
+          passkeySurface: 'alternative_auth',
+        },
+      },
+    ],
+  ])(
+    'threads the passkey surface for %s into the %s nav state',
+    async (surface, hasPassword, expectedPath, expectedOptions) => {
+      const { args, spies } = buildArgs({
+        surface,
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          getService: () => 'sync',
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      spies.completePasskeyAuthentication.mockResolvedValue({
+        uid: UID,
+        sessionToken: SESSION_TOKEN,
+        verified: true,
+        requiresPasswordForSync: true,
+        hasPassword,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        expectedPath,
+        expectedOptions
+      );
+    }
+  );
+
   // Locks the contract: each DOMException name maps to its expected FTL id
   // AND its fallback string. Drift in either lands silently otherwise.
   // The fallback substrings are stable phrases pulled from webauthn-errors.ts
@@ -611,6 +682,34 @@ describe('usePasskeySignIn', () => {
 
   describe('Glean metrics', () => {
     it.each([
+      ['emailfirst' as const, 'emailfirst'],
+      ['login' as const, 'signin'],
+      ['login_otp' as const, 'otplogin'],
+      ['alternative_auth' as const, 'alternative_auth'],
+    ])(
+      'fires passkey.button_view with reason=%s when the button is visible (surface=%s)',
+      async (surface, expectedReason) => {
+        const { args } = buildArgs({ surface, isButtonVisible: true });
+        renderHook(() => usePasskeySignIn(args));
+
+        expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledWith({
+          event: { reason: expectedReason },
+        });
+      }
+    );
+
+    it('does NOT fire passkey.button_view when the button is hidden', async () => {
+      const { args } = buildArgs({
+        surface: 'login',
+        isButtonVisible: false,
+      });
+      renderHook(() => usePasskeySignIn(args));
+
+      expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
+    });
+
+    it.each([
       ['emailfirst' as const],
       ['login' as const],
       ['login_otp' as const],
@@ -680,8 +779,8 @@ describe('usePasskeySignIn', () => {
     it.each([
       ['emailfirst' as const, 'emailfirst_nopassword'],
       ['login' as const, 'signin_nopassword'],
-      ['login_otp' as const, 'emailfirst_nopassword'],
-      ['alternative_auth' as const, 'signin_nopassword'],
+      ['login_otp' as const, 'otplogin_nopassword'],
+      ['alternative_auth' as const, 'alternative_auth_nopassword'],
     ])(
       'fires passkey.auth_success with reason=%s on the no-Sync-password branch (surface=%s)',
       async (surface, expectedReason) => {

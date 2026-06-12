@@ -4,7 +4,7 @@
 
 import { syncEngineConfigs } from '../../../lib/sync-engines';
 import { HandledError } from '../../../lib/error-utils';
-import { PasskeyFallbackSurface } from '../../../lib/passkeys/signin-flow';
+import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
 import { Integration } from '../../../models';
 
 export interface SetPasswordFormData {
@@ -36,16 +36,20 @@ export interface SetPasswordProps {
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   integration?: PostVerifySetPasswordIntegration;
   passwordCreationReason?: PasswordCreationReason;
+  /**
+   * Glean `reason` for the funnel events, composed by the container. Defaults
+   * to `passwordCreationReason`; the passkey flow passes a surface-tagged
+   * value (e.g. `signin_passkey`).
+   */
+  gleanReason?: string;
 }
 
 export interface SetPasswordLocationState {
   passwordCreationReason?: PasswordCreationReason;
   /**
-   * Only set when `passwordCreationReason === 'passkey'`. The originating
-   * passkey sign-in surface (`emailfirst` covers both the email-first page
-   * and the passwordless OTP code page; `login` covers the signin/login
-   * page). Used to fire `passkey.auth_success` with the correct
-   * `<surface>_createdpassword` reason after the new Sync password is set.
+   * Originating passkey sign-in surface; set only for `passwordCreationReason
+   * === 'passkey'`. Tags the `post_verify_set_password.*` and
+   * `passkey.auth_success` reasons with the surface.
    */
-  passkeySurface?: PasskeyFallbackSurface;
+  passkeySurface?: PasskeyMetricsSurface;
 }

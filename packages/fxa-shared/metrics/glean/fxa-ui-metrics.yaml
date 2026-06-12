@@ -2627,7 +2627,9 @@ post_verify_set_password:
         description: |
           Which sign-in flow brought the user to the set-password page:
           'third_party_auth' (Google/Apple OAuth), 'otp' (passwordless OTP
-          code), or 'passkey' (WebAuthn passkey).
+          code), or — for the passkey flow — '<surface>_passkey' where surface
+          is 'emailfirst', 'signin', 'otplogin', or 'alternative_auth' (the
+          passkey entry surface, e.g. 'signin_passkey').
         type: string
   engage:
     type: event
@@ -2653,7 +2655,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
   submit:
     type: event
@@ -2678,7 +2682,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
   submit_frontend_error:
     type: event
@@ -2701,9 +2707,11 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'. Client-side validation
-          errors prevent submission rather than emitting this event, so the
-          captured failures are server-side rejections.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values). Client-side validation errors prevent submission rather
+          than emitting this event, so the captured failures are server-side
+          rejections.
         type: string
   success:
     type: event
@@ -2728,7 +2736,9 @@ post_verify_set_password:
       reason:
         description: |
           Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or 'passkey'.
+          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
+          flow (e.g. 'signin_passkey'; see the `view` event for the surface
+          values).
         type: string
 
 passkey_enter_password:
@@ -2754,8 +2764,8 @@ passkey_enter_password:
       reason:
         description: |
           Sign-in surface the user came from before this page: 'emailfirst'
-          (email-first page or passwordless OTP code page) or 'login' (login
-          page with password).
+          (email-first page) or 'signin' (login page). Only these two surfaces
+          reach the existing-password page (no-password surfaces never do).
         type: string
   engage:
     type: event
@@ -2778,7 +2788,9 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
   submit:
     type: event
@@ -2801,7 +2813,9 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
   submit_frontend_error:
     type: event
@@ -2849,10 +2863,38 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Sign-in surface the user came from: 'emailfirst' or 'login'.
+          Sign-in surface the user came from: 'emailfirst' (email-first page)
+          or 'signin' (login page). Only these two surfaces reach the
+          existing-password page (no-password surfaces never do).
         type: string
 
 passkey:
+  button_view:
+    type: event
+    description: |
+      The "Sign in with passkey" button was shown on a sign-in surface. Fires
+      once per surface render (only when the passkey feature flags are on), so
+      click-through to the per-surface `*_passkey_submit` event is measurable.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13896
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the button is shown on: 'emailfirst' (email-first
+          page), 'signin' (login page), 'otplogin' (passwordless OTP code
+          page), or 'alternative_auth' (alternative-auth options page).
+        type: string
   auth_success:
     type: event
     description: |
@@ -2878,14 +2920,12 @@ passkey:
     extra_keys:
       reason:
         description: |
-          Sign-in entry surface paired with the post-auth Sync outcome.
-          One of: 'emailfirst_nopassword' (came from email-first or the
-          passwordless OTP page, no Sync password step required),
-          'emailfirst_withpassword' (existing Sync password entered after
-          passkey), 'emailfirst_createdpassword' (new Sync password created
-          after passkey), 'signin_nopassword' (came from the signin/login
-          page, no Sync password step required), 'signin_withpassword'
-          (existing Sync password entered after passkey).
+          `<surface>_<outcome>`. Surface: 'emailfirst', 'signin',
+          'otplogin', or 'alternative_auth'. Outcome: 'nopassword' (no Sync
+          password step), 'withpassword' (existing password entered), or
+          'createdpassword' (new password set). E.g. 'signin_withpassword'.
+          'otplogin' and 'alternative_auth' are no-password surfaces, so they
+          pair only with 'nopassword'/'createdpassword' (never 'withpassword').
         type: string
 
 account_pref:
