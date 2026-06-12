@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { Schema } from 'joi';
 import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
@@ -1562,6 +1563,297 @@ describe('passkeys routes', () => {
       await expect(
         handler.createPasskeySessionToken(mockAccount, mockRequest as any)
       ).rejects.toThrow('DB unavailable');
+    });
+  });
+
+  describe('credentialId payload validation', () => {
+    const VALID_CRED_ID = 'A_z-09Aa';
+    const VALID_CHALLENGE = 'A_z-09';
+    const VALID_AUTH_INNER = {
+      clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0In0',
+      authenticatorData: 'SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAAAAQ',
+      signature: 'MEUCIQCx',
+    };
+    const VALID_REG_INNER = {
+      clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIn0',
+      attestationObject: 'o2NmbXRkbm9uZQ',
+    };
+
+    function getSchema(
+      path: string,
+      method: string,
+      kind: 'payload' | 'params'
+    ): Schema {
+      const all = passkeyRoutes(customs, db, config, statsd, glean, log);
+      const route = all.find(
+        (r: any) => r.path === path && r.method === method
+      );
+      if (!route) {
+        throw new Error(`Route not found: ${method} ${path}`);
+      }
+      return route.options.validate[kind];
+    }
+
+    const authPayload = (
+      responseOverride: Record<string, unknown> = {},
+      innerOverride: Record<string, unknown> = {},
+      challenge: string = VALID_CHALLENGE
+    ) => ({
+      response: {
+        id: VALID_CRED_ID,
+        type: 'public-key',
+        response: { ...VALID_AUTH_INNER, ...innerOverride },
+        ...responseOverride,
+      },
+      challenge,
+    });
+
+    const regPayload = (
+      responseOverride: Record<string, unknown> = {},
+      innerOverride: Record<string, unknown> = {},
+      challenge: string = VALID_CHALLENGE
+    ) => ({
+      response: {
+        id: VALID_CRED_ID,
+        type: 'public-key',
+        response: { ...VALID_REG_INNER, ...innerOverride },
+        ...responseOverride,
+      },
+      challenge,
+    });
+
+    describe('POST /passkey/authentication/finish', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/authentication/finish', 'POST', 'payload');
+      });
+
+      it('accepts a well-formed assertion payload', () => {
+        const { error } = schema.validate(authPayload());
+        expect(error).toBeUndefined();
+      });
+
+      it.each([
+        [
+          'shell-injection probe shape',
+          '(nslookup x.example.com||curl x.example.com)',
+          'string.pattern.base',
+        ],
+        ['contains slash', 'A/B', 'string.pattern.base'],
+        ['contains plus', 'A+B', 'string.pattern.base'],
+        ['contains equals padding', 'AA==', 'string.pattern.base'],
+        ['empty string', '', 'string.empty'],
+      ])('rejects response.id (%s)', (_label, badId, expectedType) => {
+        const { error } = schema.validate(authPayload({ id: badId }));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['response', 'id'],
+            type: expectedType,
+          }),
+        ]);
+      });
+
+      it('rejects response.id that exceeds the max length', () => {
+        const { error } = schema.validate(
+          authPayload({ id: 'A'.repeat(1365) })
+        );
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['response', 'id'],
+            type: 'string.max',
+          }),
+        ]);
+      });
+
+      it('rejects a challenge longer than 64 chars', () => {
+        const { error } = schema.validate(authPayload({}, {}, 'A'.repeat(65)));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['challenge'],
+            type: 'string.max',
+          }),
+        ]);
+      });
+
+      it('rejects a non-base64url challenge', () => {
+        const { error } = schema.validate(authPayload({}, {}, 'has/slash'));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['challenge'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
+
+      it.each<[string, Record<string, string>]>([
+        ['clientDataJSON', { clientDataJSON: 'has/slash' }],
+        ['authenticatorData', { authenticatorData: 'has/slash' }],
+        ['signature', { signature: 'has/slash' }],
+        ['userHandle', { userHandle: 'has/slash' }],
+      ])(
+        'rejects a non-base64url response.response.%s',
+        (field: string, innerOverride: Record<string, string>) => {
+          const { error } = schema.validate(authPayload({}, innerOverride));
+          expect(error?.details).toEqual([
+            expect.objectContaining({
+              path: ['response', 'response', field],
+              type: 'string.pattern.base',
+            }),
+          ]);
+        }
+      );
+
+      it.each<[string]>([
+        ['clientDataJSON'],
+        ['authenticatorData'],
+        ['signature'],
+      ])(
+        'rejects when required response.response.%s is missing',
+        (field: string) => {
+          const inner: Record<string, string> = { ...VALID_AUTH_INNER };
+          delete inner[field];
+          const { error } = schema.validate({
+            response: {
+              id: VALID_CRED_ID,
+              type: 'public-key',
+              response: inner,
+            },
+            challenge: VALID_CHALLENGE,
+          });
+          expect(error?.details).toEqual([
+            expect.objectContaining({
+              path: ['response', 'response', field],
+              type: 'any.required',
+            }),
+          ]);
+        }
+      );
+    });
+
+    describe('POST /passkey/registration/finish', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/registration/finish', 'POST', 'payload');
+      });
+
+      it('accepts a well-formed attestation payload', () => {
+        const { error } = schema.validate(regPayload());
+        expect(error).toBeUndefined();
+      });
+
+      it('rejects a non-base64url response.id', () => {
+        const { error } = schema.validate(regPayload({ id: 'has/slash' }));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['response', 'id'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
+
+      it('rejects a challenge longer than 64 chars', () => {
+        const { error } = schema.validate(regPayload({}, {}, 'A'.repeat(65)));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['challenge'],
+            type: 'string.max',
+          }),
+        ]);
+      });
+
+      it('rejects a non-base64url challenge', () => {
+        const { error } = schema.validate(regPayload({}, {}, 'has/slash'));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['challenge'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
+
+      it.each<[string, Record<string, string>]>([
+        ['clientDataJSON', { clientDataJSON: 'has/slash' }],
+        ['attestationObject', { attestationObject: 'has/slash' }],
+        ['authenticatorData', { authenticatorData: 'has/slash' }],
+        ['publicKey', { publicKey: 'has/slash' }],
+      ])(
+        'rejects a non-base64url response.response.%s',
+        (field: string, innerOverride: Record<string, string>) => {
+          const { error } = schema.validate(regPayload({}, innerOverride));
+          expect(error?.details).toEqual([
+            expect.objectContaining({
+              path: ['response', 'response', field],
+              type: 'string.pattern.base',
+            }),
+          ]);
+        }
+      );
+
+      it.each<[string]>([['clientDataJSON'], ['attestationObject']])(
+        'rejects when required response.response.%s is missing',
+        (field: string) => {
+          const inner: Record<string, string> = { ...VALID_REG_INNER };
+          delete inner[field];
+          const { error } = schema.validate({
+            response: {
+              id: VALID_CRED_ID,
+              type: 'public-key',
+              response: inner,
+            },
+            challenge: VALID_CHALLENGE,
+          });
+          expect(error?.details).toEqual([
+            expect.objectContaining({
+              path: ['response', 'response', field],
+              type: 'any.required',
+            }),
+          ]);
+        }
+      );
+    });
+
+    describe('DELETE /passkey/{credentialId}', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/{credentialId}', 'DELETE', 'params');
+      });
+
+      it('accepts a base64url credentialId', () => {
+        const { error } = schema.validate({ credentialId: VALID_CRED_ID });
+        expect(error).toBeUndefined();
+      });
+
+      it('rejects a non-base64url credentialId', () => {
+        const { error } = schema.validate({ credentialId: 'has/slash' });
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['credentialId'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
+    });
+
+    describe('PATCH /passkey/{credentialId}', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/{credentialId}', 'PATCH', 'params');
+      });
+
+      it('accepts a base64url credentialId', () => {
+        const { error } = schema.validate({ credentialId: VALID_CRED_ID });
+        expect(error).toBeUndefined();
+      });
+
+      it('rejects a non-base64url credentialId', () => {
+        const { error } = schema.validate({ credentialId: 'has/slash' });
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['credentialId'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
     });
   });
 });
