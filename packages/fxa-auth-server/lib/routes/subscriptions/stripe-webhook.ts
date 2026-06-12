@@ -298,6 +298,56 @@ export class StripeWebhookHandler extends StripeHandler {
         message:
           'Credit note issued on invoice without a PayPal transaction id.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note issued on invoice without a PayPal transaction id.'
+      );
+      reportSentryError(
+        new Error(
+          `Credit note on invoice without PayPal transaction id: ${invoice.id}`
+        ),
+        request
+      );
+      return;
+    }
+
+    // A balance credit was applied; refunding via PayPal too would double-refund.
+    if (creditNote.customer_balance_transaction) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message:
+          'Credit note applied a customer balance credit; PayPal refund not auto-issued to avoid double refund.',
+      });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note applied a Stripe customer balance credit; PayPal refund must be handled manually to avoid double-refunding.'
+      );
+      reportSentryError(
+        new Error(
+          `Credit note applied a balance credit; PayPal refund withheld: ${invoice.id}`
+        ),
+        request
+      );
+      return;
+    }
+
+    // No out-of-band amount means there's nothing to disburse via PayPal.
+    if (!creditNote.out_of_band_amount && invoice.amount_due > 0) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message:
+          'Credit note has no out-of-band refund amount; PayPal refund not issued.',
+      });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note has no out-of-band refund amount; refund must be issued manually in PayPal.'
+      );
+      reportSentryError(
+        new Error(
+          `Credit note has no out-of-band amount to refund: ${invoice.id}`
+        ),
+        request
+      );
       return;
     }
 
@@ -310,6 +360,10 @@ export class StripeWebhookHandler extends StripeHandler {
         invoiceId: invoice.id,
         message: 'Credit note exceeds invoice amount.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note amount exceeds invoice amount; refund not issued.'
+      );
       reportSentryError(
         new Error(`Credit amount exceeds invoice: ${invoice.id}.`),
         request
