@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('@radix-ui/react-form');
 
@@ -143,8 +144,74 @@ describe('StaySubscribed', () => {
     });
   });
 
+  describe('Resubscribe charge display', () => {
+    it('renders next charge amount before resubscribe', () => {
+      render(
+        <StaySubscribed
+          {...baseProps}
+          pageContent={{
+            ...basePageContent,
+            nextInvoiceTotal: 999,
+          }}
+        />
+      );
+
+      expect(screen.getByText(/\$9\.99/)).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Resubscribe to Mozilla VPN/i })
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('Resubscribe success path', () => {
+    it('calls resubscribeSubscriptionAction and shows success view after prop update', async () => {
+      const user = userEvent.setup();
+      mockResubscribeSubscriptionAction.mockResolvedValue({ ok: true });
+
+      const { rerender } = render(
+        <StaySubscribed
+          {...baseProps}
+          pageContent={{
+            ...basePageContent,
+            nextInvoiceTotal: 999,
+          }}
+        />
+      );
+
+      const submitButton = screen.getByRole('button', {
+        name: /Resubscribe to Mozilla VPN/i,
+      });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockResubscribeSubscriptionAction).toHaveBeenCalledWith(
+          'sub-id'
+        );
+      });
+
+      // Simulate parent re-rendering with updated props after successful resubscribe
+      rerender(
+        <StaySubscribed
+          {...baseProps}
+          pageContent={{
+            ...basePageContent,
+            cancelAtPeriodEnd: false,
+          }}
+        />
+      );
+
+      expect(screen.getByText(/Thanks! You’re all set/i)).toBeInTheDocument();
+      const backLink = screen.getByRole('link', {
+        name: /Back to subscriptions/i,
+      });
+      expect(backLink).toBeInTheDocument();
+      expect(backLink).toHaveAttribute('href', '/en/subscriptions/landing');
+    });
+  });
+
   describe('Resubscribe error path', () => {
-    it('shows an error message and keeps the form interactive when the resubscribe action fails', async () => {
+    it('shows error alert when resubscribe action rejects', async () => {
+      const user = userEvent.setup();
       mockResubscribeSubscriptionAction.mockResolvedValue({ ok: false });
 
       render(
@@ -160,7 +227,7 @@ describe('StaySubscribed', () => {
       const submitButton = screen.getByRole('button', {
         name: /Resubscribe to Mozilla VPN/i,
       });
-      fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
         expect(
@@ -168,10 +235,8 @@ describe('StaySubscribed', () => {
         ).toBeInTheDocument();
       });
 
-      expect(mockResubscribeSubscriptionAction).toHaveBeenCalledWith(
-        'sub-id'
-      );
-
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(mockResubscribeSubscriptionAction).toHaveBeenCalledWith('sub-id');
       expect(submitButton).not.toBeDisabled();
     });
   });

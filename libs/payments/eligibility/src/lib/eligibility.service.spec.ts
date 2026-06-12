@@ -11,8 +11,11 @@ import {
 import {
   StripeClient,
   StripeConfig,
+  StripeApiListFactory,
   StripeCustomerFactory,
   StripePriceFactory,
+  StripeSubscriptionFactory,
+  StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
   EligibilityContentByOfferingResultFactory,
@@ -485,6 +488,64 @@ describe('EligibilityService', () => {
         mockOffering,
         interval,
         []
+      );
+    });
+
+    it('returns CREATE when user has active subscription for a different product with no offering overlap', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const mockOffering = EligibilityContentOfferingResultFactory();
+      const vpnPriceId = 'price_vpn_monthly';
+      const vpnPrice = StripePriceFactory({ id: vpnPriceId });
+      const mockSubscription = StripeSubscriptionFactory({
+        items: StripeApiListFactory([
+          StripeSubscriptionItemFactory({ price: vpnPrice }),
+        ]),
+      });
+
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [mockOffering],
+            })
+          )
+        );
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(eligibilityManager, 'getOfferingOverlap')
+        .mockResolvedValue([]);
+      jest.spyOn(eligibilityManager, 'compareOverlaps').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        mockOffering.apiIdentifier,
+        faker.string.uuid(),
+        mockCustomer.id
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
+        mockCustomer.id
+      );
+      expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
+        priceIds: [vpnPriceId],
+        targetOffering: mockOffering,
+      });
+      expect(eligibilityManager.compareOverlaps).toHaveBeenCalledWith(
+        [],
+        mockOffering,
+        interval,
+        [vpnPrice]
       );
     });
   });
