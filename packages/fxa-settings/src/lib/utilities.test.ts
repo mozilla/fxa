@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  buildPairingDownloadUrl,
   constructHrefWithUtm,
   deepMerge,
   formatSecret,
@@ -394,4 +395,36 @@ describe('isSendTabEntrypoint', () => {
     expect(isSendTabEntrypoint(null)).toBe(false);
     expect(isSendTabEntrypoint('')).toBe(false);
   });
+});
+
+describe('buildPairingDownloadUrl', () => {
+  const DEFAULT_URL = 'https://mzl.la/3NDxAIS';
+
+  it('points send-tab entrypoints at the Adjust tracker so installs are attributable', () => {
+    const url = new URL(buildPairingDownloadUrl('send-tab-toolbar-icon'));
+    expect(url.host).toBe('app.adjust.com');
+  });
+
+  it('sets campaign=send-tab for every send-tab entrypoint', () => {
+    for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
+      const url = new URL(buildPairingDownloadUrl(entrypoint));
+      expect(url.searchParams.get('campaign')).toBe('send-tab');
+    }
+  });
+
+  it('records the specific entrypoint as the creative for per-entrypoint attribution', () => {
+    const url = new URL(buildPairingDownloadUrl('send-tab-account-menu'));
+    expect(url.searchParams.get('creative')).toBe('send-tab-account-menu');
+  });
+
+  it('returns the generic Mozilla download link for a non-send-tab entrypoint', () => {
+    expect(buildPairingDownloadUrl('fxa_app_menu')).toBe(DEFAULT_URL);
+  });
+
+  it.each([undefined, null, ''])(
+    'returns the generic Mozilla download link when entrypoint is %p',
+    (entrypoint) => {
+      expect(buildPairingDownloadUrl(entrypoint)).toBe(DEFAULT_URL);
+    }
+  );
 });
