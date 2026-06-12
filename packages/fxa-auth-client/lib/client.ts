@@ -861,9 +861,13 @@ export default class AuthClient {
               );
             }
           } catch (err) {
-            Sentry.captureMessage(
-              'Failure to complete v2 key stretch upgrade.'
-            );
+            Sentry.captureException(err, {
+              tags: {
+                errno: err?.errno,
+                endpoint: 'passwordChange',
+                source: 'v2-upgrade',
+              },
+            });
           }
         } else if (credentials.v2) {
           // Already using V2! Just sign in.
@@ -1608,45 +1612,40 @@ export default class AuthClient {
 
   async sessionReauth(
     sessionToken: hexstring,
-    email: string,
+    primaryEmail: string,
     password: string,
     options: SessionReauthOptions = {},
     headers?: Headers
   ): Promise<SessionReauthedAccountData> {
-    const credentials = await crypto.getCredentials(email, password);
-    try {
-      const accountData = await this.sessionReauthWithAuthPW(
+    // v1 stretching salts using the account's initial signup email, which can
+    // differ from the user's current primary. Resolve the derivation email
+    // up-front (callers may pre-supply it via `options.originalLoginEmail` to
+    // skip the roundtrip) so we derive the correct authPW the first time.
+    let derivationEmail = options.originalLoginEmail;
+    if (derivationEmail == null) {
+      const result = await this.fetchOriginalAccountEmail(
         sessionToken,
-        email,
-        credentials.authPW,
-        options,
         headers
       );
-      if (options.keys) {
-        accountData.unwrapBKey = credentials.unwrapBKey;
-      }
-      return accountData;
-    } catch (error: any) {
-      if (
-        error &&
-        error.email &&
-        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-        !options.skipCaseError
-      ) {
-        options.skipCaseError = true;
-        options.originalLoginEmail = email;
-
-        return this.sessionReauth(
-          sessionToken,
-          error.email,
-          password,
-          options,
-          headers
-        );
-      } else {
-        throw error;
-      }
+      derivationEmail = result.email;
     }
+
+    const credentials = await crypto.getCredentials(derivationEmail, password);
+    // Server semantics: payload.email is the email used for authPW derivation
+    // and account lookup (the immutable account.email); payload.originalLoginEmail
+    // is the email the user typed for login (checked against the current primary
+    // via checkEmailAddress). Map the helper's args onto the wire format.
+    const accountData = await this.sessionReauthWithAuthPW(
+      sessionToken,
+      derivationEmail,
+      credentials.authPW,
+      { ...options, originalLoginEmail: primaryEmail },
+      headers
+    );
+    if (options.keys) {
+      accountData.unwrapBKey = credentials.unwrapBKey;
+    }
+    return accountData;
   }
 
   async sessionReauthWithAuthPW(
@@ -1681,8 +1680,15 @@ export default class AuthClient {
     } = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
+    // v1 stretching salts using the accounts initial signup email, which
+    // can differ from the user's current primary email. Fetch the original
+    // account email up-front so we derive the correct authPW the first time.
+    const { email: originalEmail } = await this.fetchOriginalAccountEmail(
+      sessionToken,
+      headers
+    );
     const oldCredentials = await this.passwordChangeStart(
-      email,
+      originalEmail,
       oldPassword,
       sessionToken,
       undefined,
@@ -1715,7 +1721,7 @@ export default class AuthClient {
     let unwrapBKeyVersion2: string | undefined;
     if (this.keyStretchVersion === 2) {
       const v2Payload = await this.createPasswordChangeV2Payload(
-        email,
+        originalEmail,
         newPassword,
         keys,
         newCredentials,
@@ -1795,6 +1801,15 @@ export default class AuthClient {
     }
   }
 
+  /**
+   * Initiates the password change process by validating the old password and returning the necessary tokens for the password change flow.
+   * @param email - The original email associated with the account, used for deriving the correct credentials. This is the salt.
+   * @param oldPassword - The current password of the user, used to derive the old credentials for validation.
+   * @param sessionToken - The session token of the authenticated user, required for authorization of the password change operation.
+   * @param options - Additional options for the password change process, such as skipping email case error handling.
+   * @param headers - Optional headers for the request, allowing for customization of the request context.
+   * @returns
+   */
   private async passwordChangeStart(
     email: string,
     oldPassword: string,
@@ -1946,16 +1961,28 @@ export default class AuthClient {
     } = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
+    // Both the old v1 credentials and the new v1 credentials are salted by
+    // the account's original signup email, which can differ from the
+    // user's current primary. Fetch the original account email up-front so
+    // every derivation below matches the stored verifier on the first try.
+    const { email: originalEmail } = await this.fetchOriginalAccountEmail(
+      sessionToken,
+      headers
+    );
     const oldCredentials = await this.sessionReauth(
       sessionToken,
-      options.reauthEmail || email,
+      email,
       oldPassword,
       {
         keys: true,
+        originalLoginEmail: originalEmail,
       },
       headers
     );
-    const oldCredentialsAuth = await crypto.getCredentials(email, oldPassword);
+    const oldCredentialsAuth = await crypto.getCredentials(
+      originalEmail,
+      oldPassword
+    );
     const oldAuthPW = oldCredentialsAuth.authPW;
 
     const keys = await this.accountKeys(
@@ -1964,7 +1991,10 @@ export default class AuthClient {
       headers
     );
 
-    const newCredentials = await crypto.getCredentials(email, newPassword);
+    const newCredentials = await crypto.getCredentials(
+      originalEmail,
+      newPassword
+    );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
     const authPW = newCredentials.authPW;
@@ -1978,7 +2008,7 @@ export default class AuthClient {
       wrapKbVersion2?: string;
       clientSalt?: string;
     } = {
-      email,
+      email: originalEmail,
       oldAuthPW,
       authPW,
       wrapKb,
@@ -1986,7 +2016,7 @@ export default class AuthClient {
 
     if (this.keyStretchVersion === 2) {
       const v2Payload = await this.createPasswordChangeV2Payload(
-        email,
+        originalEmail,
         newPassword,
         keys,
         newCredentials,
@@ -2001,37 +2031,7 @@ export default class AuthClient {
       };
     }
 
-    try {
-      const accountData = await this.jwtPost(
-        '/mfa/password/change',
-        jwt,
-        payload,
-        headers
-      );
-
-      return accountData;
-    } catch (error: any) {
-      if (
-        error &&
-        error.email &&
-        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-        !options.skipCaseError
-      ) {
-        options.skipCaseError = true;
-        options.reauthEmail = email;
-        return await this.passwordChangeWithJWT(
-          jwt,
-          error.email,
-          oldPassword,
-          newPassword,
-          sessionToken,
-          options,
-          headers
-        );
-      } else {
-        throw error;
-      }
-    }
+    return this.jwtPost('/mfa/password/change', jwt, payload, headers);
   }
 
   async createPassword(
@@ -3828,5 +3828,22 @@ export default class AuthClient {
       }
       throw error;
     }
+  }
+
+  // Returns the account's signup email — the immutable PBKDF2 salt for v1
+  // password derivation. Callers must use this email (not the user's current
+  // primary) when deriving v1 credentials so the resulting authPW matches
+  // the stored verifier on accounts whose primary email has been swapped.
+  // v2 accounts derive from `clientSalt` and don't need this — callers can
+  // short-circuit when verifierVersion === 2.
+  public async fetchOriginalAccountEmail(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<{ email: string }> {
+    return this.sessionGet(
+      '/session/original-account-email',
+      sessionToken,
+      headers
+    );
   }
 }
