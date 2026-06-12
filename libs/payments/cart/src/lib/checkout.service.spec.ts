@@ -5,6 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
+import { Stripe } from 'stripe';
 
 import {
   AsyncLocalStorageCart,
@@ -106,7 +107,12 @@ import {
   CartNoTaxAddressError,
   CartUidMismatchError,
 } from './cart.error';
-import { AccountCustomerAlreadyExistsError } from './checkout.error';
+import {
+  AccountCustomerAlreadyExistsError,
+  IntentCardExpiredError,
+  IntentGetInTouchError,
+  IntentInsufficientFundsError,
+} from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { CHECKOUT_EVENT_EMITTER_TOKEN } from '@fxa/payments/metrics';
 import { PrePayStepsResultFactory } from './checkout.factories';
@@ -667,6 +673,61 @@ describe('CheckoutService', () => {
           checkoutService.prePaySteps(mockCart, mockCart.uid)
         ).rejects.toBeInstanceOf(AccountCustomerAlreadyExistsError);
       });
+    });
+
+    it('validates promotion code and retrieves it when cart has couponCode', async () => {
+      const result = await checkoutService.prePaySteps(mockCart, mockCart.uid);
+
+      expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice
+      ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCart.currency);
+      expect(promotionCodeManager.retrieveByName).toHaveBeenCalledWith(
+        mockCart.couponCode
+      );
+      expect(result.promotionCode).toEqual(mockPromotionCode);
+    });
+
+    it('throws CartTotalMismatchError when cart.amount reflects coupon discount but determineCheckoutAmount returns full price', async () => {
+      // Documents current behavior: determineCheckoutAmount does NOT factor
+      // in the coupon — the coupon is applied later at subscription creation.
+      const discountedCart = StripeResponseFactory(
+        ResultCartFactory({
+          uid: uid,
+          couponCode: 'DISCOUNT50',
+          stripeCustomerId: mockCustomer.id,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          amount: 500,
+        })
+      );
+      const fullPricePreview = InvoicePreviewFactory({ subtotal: 1000 });
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(fullPricePreview);
+
+      await expect(
+        checkoutService.prePaySteps(discountedCart, discountedCart.uid)
+      ).rejects.toBeInstanceOf(CartTotalMismatchError);
+    });
+
+    it('allows checkout when returning customer currency differs from expired subscription currency', async () => {
+      const eurCart = StripeResponseFactory(
+        ResultCartFactory({
+          uid: uid,
+          couponCode: 'EUR_PROMO',
+          stripeCustomerId: mockCustomer.id,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          currency: 'eur',
+          amount: mockInvoicePreview.subtotal,
+        })
+      );
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+
+      const result = await checkoutService.prePaySteps(eurCart, eurCart.uid);
+
+      expect(result.uid).toEqual(uid);
+      expect(result.customer).toEqual(mockCustomer);
     });
   });
 
@@ -1277,6 +1338,131 @@ describe('CheckoutService', () => {
         );
 
         expect(cartManager.setNeedsInputCart).toHaveBeenCalledWith(mockCart.id);
+      });
+    });
+
+    describe('requires_payment_method', () => {
+      it('throws IntentGetInTouchError for card_declined with generic_decline', async () => {
+        const mockDeclinedPaymentIntent = StripeResponseFactory(
+          StripePaymentIntentFactory({
+            status: 'requires_payment_method',
+            last_payment_error: {
+              type: 'card_error',
+              code: 'card_declined',
+              decline_code: 'generic_decline',
+            } as Stripe.PaymentIntent.LastPaymentError,
+          })
+        );
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue(mockDeclinedPaymentIntent);
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          )
+        ).rejects.toThrow(IntentGetInTouchError);
+      });
+
+      it('throws IntentInsufficientFundsError for insufficient_funds decline code', async () => {
+        const mockDeclinedPaymentIntent = StripeResponseFactory(
+          StripePaymentIntentFactory({
+            status: 'requires_payment_method',
+            last_payment_error: {
+              type: 'card_error',
+              code: 'card_declined',
+              decline_code: 'insufficient_funds',
+            } as Stripe.PaymentIntent.LastPaymentError,
+          })
+        );
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue(mockDeclinedPaymentIntent);
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          )
+        ).rejects.toThrow(IntentInsufficientFundsError);
+      });
+
+      it('throws IntentCardExpiredError for expired_card error code', async () => {
+        const mockExpiredPaymentIntent = StripeResponseFactory(
+          StripePaymentIntentFactory({
+            status: 'requires_payment_method',
+            last_payment_error: {
+              type: 'card_error',
+              code: 'expired_card',
+            } as Stripe.PaymentIntent.LastPaymentError,
+          })
+        );
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue(mockExpiredPaymentIntent);
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          )
+        ).rejects.toThrow(IntentCardExpiredError);
+      });
+
+      it('extracts error from setup intent last_setup_error', async () => {
+        const mockSetupIntent = StripeResponseFactory(
+          StripeSetupIntentFactory({
+            status: 'requires_payment_method',
+            last_setup_error: {
+              type: 'card_error',
+              code: 'card_declined',
+              decline_code: 'generic_decline',
+            } as Stripe.SetupIntent.LastSetupError,
+          })
+        );
+        const mockZeroInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: mockPaymentIntent.id,
+            amount_due: 0,
+          })
+        );
+        const localMockSubscription = StripeResponseFactory(
+          StripeSubscriptionFactory({
+            pending_setup_intent: mockSetupIntent.id,
+          })
+        );
+        jest
+          .spyOn(subscriptionManager, 'create')
+          .mockResolvedValue(localMockSubscription);
+        jest
+          .spyOn(invoiceManager, 'retrieve')
+          .mockResolvedValue(mockZeroInvoice);
+        jest
+          .spyOn(setupIntentManager, 'update')
+          .mockResolvedValue(mockSetupIntent);
+        jest
+          .spyOn(setupIntentManager, 'confirm')
+          .mockResolvedValue(mockSetupIntent);
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          )
+        ).rejects.toThrow(IntentGetInTouchError);
       });
     });
 
@@ -3006,6 +3192,25 @@ describe('CheckoutService', () => {
           taxAddress: mockTaxAddress,
         })
       ).rejects.toThrow(/DetermineCheckoutAmountSubscriptionRequiredError/);
+    });
+
+    it('does not include coupon discount in checkout amount calculation', async () => {
+      // Documents that the coupon is applied later at subscription creation,
+      // not during amount validation. previewUpcoming is called without any
+      // couponCode parameter.
+      await checkoutService.determineCheckoutAmount({
+        eligibility: mockEligibility,
+        customer: mockCustomer,
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        taxAddress: mockTaxAddress,
+      });
+      expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        customer: mockCustomer,
+        taxAddress: mockTaxAddress,
+      });
     });
   });
 
