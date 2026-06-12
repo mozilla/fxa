@@ -13,6 +13,8 @@ import {
   PaymentMethodManager,
   PriceManager,
   ProductManager,
+  STRIPE_CUSTOMER_METADATA,
+  STRIPE_INVOICE_METADATA,
   SubscriptionManager,
 } from '@fxa/payments/customer';
 import {
@@ -43,6 +45,7 @@ import {
   StripePriceFactory,
   StripePriceRecurringFactory,
   StripeProductFactory,
+  StripeInvoiceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
@@ -72,6 +75,7 @@ describe('BillingAndSubscriptionsService', () => {
   let accountCustomerManager: AccountCustomerManager;
   let customerManager: CustomerManager;
   let subscriptionManager: SubscriptionManager;
+  let invoiceManager: InvoiceManager;
   let paymentMethodManager: PaymentMethodManager;
   let priceManager: PriceManager;
   let productManager: ProductManager;
@@ -123,6 +127,7 @@ describe('BillingAndSubscriptionsService', () => {
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     customerManager = moduleRef.get(CustomerManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
+    invoiceManager = moduleRef.get(InvoiceManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     priceManager = moduleRef.get(PriceManager);
     productManager = moduleRef.get(ProductManager);
@@ -456,6 +461,236 @@ describe('BillingAndSubscriptionsService', () => {
       const result = await service.get({ uid: UID, clientId: CLIENT_ID });
       expect(result.payment_provider).toBe('paypal');
       expect(result.paypal_payment_error).toBe('missing_agreement');
+    });
+
+    it('sets paypal_payment_error=funding_source when PayPal sub has agreement and open invoice with retry attempts', async () => {
+      const customer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: STRIPE_CUSTOMER_ID,
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: 'ba_123',
+          },
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const price = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      const sub = StripeSubscriptionFactory({
+        status: 'active',
+        collection_method: 'send_invoice',
+        cancel_at_period_end: false,
+        latest_invoice: 'in_open_retry',
+        items: {
+          object: 'list',
+          data: [
+            StripeSubscriptionItemFactory({
+              price: { ...price, product: 'prod_p' },
+            }),
+          ],
+          has_more: false,
+          url: '',
+        },
+      });
+      const openInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          id: 'in_open_retry',
+          status: 'open',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: '2',
+          },
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue({
+          uid: UID,
+          stripeCustomerId: STRIPE_CUSTOMER_ID,
+        } as never);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(customer);
+      jest
+        .spyOn(subscriptionManager, 'listActiveForCustomer')
+        .mockResolvedValue([sub]);
+      jest
+        .spyOn(invoiceManager, 'retrieve')
+        .mockResolvedValue(openInvoice);
+      jest
+        .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+        .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
+
+      const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+      expect(result.payment_provider).toBe('paypal');
+      expect(result.paypal_payment_error).toBe('funding_source');
+    });
+
+    it('sets funding_source when only one of multiple PayPal subs has a failing invoice', async () => {
+      const customer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: STRIPE_CUSTOMER_ID,
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: 'ba_123',
+          },
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const price1 = StripePriceFactory({
+        id: 'price_ok',
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      const price2 = StripePriceFactory({
+        id: 'price_failing',
+        recurring: StripePriceRecurringFactory({ interval: 'year' }),
+      });
+      const healthySub = StripeSubscriptionFactory({
+        id: 'sub_healthy',
+        status: 'active',
+        collection_method: 'send_invoice',
+        cancel_at_period_end: false,
+        latest_invoice: 'in_healthy',
+        items: {
+          object: 'list',
+          data: [
+            StripeSubscriptionItemFactory({
+              price: { ...price1, product: 'prod_a' },
+            }),
+          ],
+          has_more: false,
+          url: '',
+        },
+      });
+      const failingSub = StripeSubscriptionFactory({
+        id: 'sub_failing',
+        status: 'active',
+        collection_method: 'send_invoice',
+        cancel_at_period_end: false,
+        latest_invoice: 'in_failing',
+        items: {
+          object: 'list',
+          data: [
+            StripeSubscriptionItemFactory({
+              price: { ...price2, product: 'prod_b' },
+            }),
+          ],
+          has_more: false,
+          url: '',
+        },
+      });
+      const healthyInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          id: 'in_healthy',
+          status: 'paid',
+          metadata: {},
+        })
+      );
+      const failingInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          id: 'in_failing',
+          status: 'open',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: '3',
+          },
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue({
+          uid: UID,
+          stripeCustomerId: STRIPE_CUSTOMER_ID,
+        } as never);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(customer);
+      jest
+        .spyOn(subscriptionManager, 'listActiveForCustomer')
+        .mockResolvedValue([healthySub, failingSub]);
+      jest
+        .spyOn(invoiceManager, 'retrieve')
+        .mockImplementation(async (id: string) =>
+          id === 'in_healthy' ? healthyInvoice : failingInvoice
+        );
+      jest
+        .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+        .mockResolvedValue({
+          [CLIENT_ID]: ['cap_a', 'cap_b'],
+        });
+
+      const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+      expect(result.payment_provider).toBe('paypal');
+      expect(result.paypal_payment_error).toBe('funding_source');
+    });
+
+    it('does not set paypal_payment_error when PayPal sub has agreement but no open invoice with retries', async () => {
+      const customer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: STRIPE_CUSTOMER_ID,
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: 'ba_123',
+          },
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const price = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      const sub = StripeSubscriptionFactory({
+        status: 'active',
+        collection_method: 'send_invoice',
+        cancel_at_period_end: false,
+        latest_invoice: 'in_paid',
+        items: {
+          object: 'list',
+          data: [
+            StripeSubscriptionItemFactory({
+              price: { ...price, product: 'prod_p' },
+            }),
+          ],
+          has_more: false,
+          url: '',
+        },
+      });
+      const paidInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          id: 'in_paid',
+          status: 'paid',
+          metadata: {},
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue({
+          uid: UID,
+          stripeCustomerId: STRIPE_CUSTOMER_ID,
+        } as never);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(customer);
+      jest
+        .spyOn(subscriptionManager, 'listActiveForCustomer')
+        .mockResolvedValue([sub]);
+      jest
+        .spyOn(invoiceManager, 'retrieve')
+        .mockResolvedValue(paidInvoice);
+      jest
+        .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+        .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
+
+      const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+      expect(result.payment_provider).toBe('paypal');
+      expect(result.paypal_payment_error).toBeUndefined();
     });
 
     it('sanitizes IAP misconfig errors and logs the pre-sanitization context', async () => {

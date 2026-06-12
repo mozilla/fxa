@@ -31,6 +31,7 @@ import {
   SubscriptionManager,
   SetupIntentManager,
   CustomerSessionManager,
+  BannerVariant,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
@@ -593,6 +594,82 @@ describe('SubscriptionManagementService', () => {
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
       });
+    });
+
+    it('surfaces PayPal missing-agreement error through real PaymentMethodManager', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      // PayPal subscription — collection_method: 'send_invoice' triggers
+      // PaymentMethodManager.determineType to identify PayPal provider
+      const paypalSub = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+      });
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([paypalSub]);
+      // Do NOT mock paymentMethodManager.getDefaultPaymentMethod —
+      // let the real implementation run so we exercise the full chain.
+      // Mock only the low-level PayPal dependency: no active agreement.
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
+        .mockResolvedValue(SubscriptionContentFactory());
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'not_eligible',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
+        });
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.defaultPaymentMethod).toBeDefined();
+      expect(result.defaultPaymentMethod?.type).toBe(
+        SubPlatPaymentMethodType.PayPal
+      );
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError
+      ).toBeDefined();
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.bannerType
+      ).toBe(BannerVariant.Error);
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.paymentMethodType
+      ).toBe(SubPlatPaymentMethodType.PayPal);
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.bannerTitle
+      ).toBe('Invalid payment information');
     });
 
     it('returns if there are only IAP subscriptions', async () => {

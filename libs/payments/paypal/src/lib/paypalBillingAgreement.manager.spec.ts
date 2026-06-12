@@ -14,7 +14,10 @@ import {
 } from './factories';
 import { PayPalClient } from './paypal.client';
 import { MockPaypalClientConfigProvider } from './paypal.client.config';
-import { PayPalActiveSubscriptionsMissingAgreementError, PaypalBillingAgreementMissingTokenError } from './paypal.error';
+import {
+  PayPalActiveSubscriptionsMissingAgreementError,
+  PaypalBillingAgreementMissingTokenError,
+} from './paypal.error';
 import { BillingAgreementStatus } from './paypal.types';
 import { PaypalBillingAgreementManager } from './paypalBillingAgreement.manager';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
@@ -254,6 +257,58 @@ describe('PaypalBillingAgreementManager', () => {
       });
       expect(baUpdateMock).toBeCalledTimes(1);
       expect(baUpdateMock).toBeCalledWith({ billingAgreementId });
+    });
+
+    it('throws when baUpdate rejects', async () => {
+      const billingAgreementId = faker.string.sample();
+
+      jest
+        .spyOn(paypalClient, 'baUpdate')
+        .mockRejectedValue(new Error('PayPal API failure'));
+
+      await expect(
+        paypalBillingAgreementManager.retrieve(billingAgreementId)
+      ).rejects.toThrow('PayPal API failure');
+    });
+  });
+
+  describe('refresh billing agreement', () => {
+    it('creates a new billing agreement after the old one is cancelled', async () => {
+      const uid = faker.string.uuid();
+      const oldBillingAgreementId = faker.string.uuid();
+      const newToken = faker.string.uuid();
+      const newBillingAgreementId = faker.string.uuid();
+
+      jest
+        .spyOn(paypalClient, 'baUpdate')
+        .mockResolvedValue(NVPBAUpdateTransactionResponseFactory());
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'create')
+        .mockResolvedValue(newBillingAgreementId);
+
+      await paypalBillingAgreementManager.cancel(oldBillingAgreementId);
+
+      expect(paypalClient.baUpdate).toHaveBeenCalledWith({
+        billingAgreementId: oldBillingAgreementId,
+        cancel: true,
+      });
+
+      const result = await paypalBillingAgreementManager.retrieveOrCreateId(
+        uid,
+        false,
+        newToken
+      );
+
+      expect(result).toEqual(newBillingAgreementId);
+      expect(paypalBillingAgreementManager.create).toHaveBeenCalledWith(
+        uid,
+        newToken
+      );
     });
   });
 
