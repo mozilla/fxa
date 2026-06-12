@@ -392,6 +392,32 @@ describe('usePasskeySignIn', () => {
     }
   );
 
+  it('sends service=sync for Sync integrations even when the service URL param is absent', async () => {
+    // Mobile Firefox omits service=sync and defaults via clientId, so
+    // getService() returns undefined; isSync() must still drive service=sync.
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+        getService: () => undefined,
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      { service: 'sync', metricsContext: {} }
+    );
+  });
+
   // Locks the contract: each DOMException name maps to its expected FTL id
   // AND its fallback string. Drift in either lands silently otherwise.
   // The fallback substrings are stable phrases pulled from webauthn-errors.ts
