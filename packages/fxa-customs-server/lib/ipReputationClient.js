@@ -6,6 +6,7 @@
 
 const https = require('https');
 const http = require('http');
+const { performance } = require('perf_hooks');
 const Hawk = require('@hapi/hawk');
 
 // Non-CIDR IPv4 validation matching the constraints of the iprepd API.
@@ -20,13 +21,15 @@ function isValidIPv4(value) {
 
 function doRequest(reqOptions, bodyStr) {
   return new Promise((resolve, reject) => {
-    const start = Date.now();
+    // performance.now() gives float ms; Date.now()'s integer ms yields a 0ms
+    // total for sub-millisecond localhost round-trips, breaking `total > 0`.
+    const start = performance.now();
     const lib = reqOptions.protocol === 'https:' ? https : http;
     const req = lib.request(reqOptions, (res) => {
       const chunks = [];
       res.on('data', (chunk) => chunks.push(chunk));
       res.on('end', () => {
-        const elapsed = Date.now() - start;
+        const elapsed = performance.now() - start;
         const raw = Buffer.concat(chunks).toString();
         let body = null;
         try {
