@@ -1,0 +1,10 @@
+{
+  "commit": "7d86fe43041a1af3257b3bea07c5a10d67dc6fa9",
+  "summary": "test(payments): Add tests for cart, eligibility, management, etc",
+  "description": "",
+  "timestamp": 1780579511000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

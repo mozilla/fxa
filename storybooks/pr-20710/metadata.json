@@ -1,0 +1,11 @@
+{
+  "commit": "b21b4e9acf018c4e66a1c0ffaca0aabd93877cc6",
+  "summary": "Revisions - use factories",
+  "description": "",
+  "timestamp": 1781294709000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

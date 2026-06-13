@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c556dcb4b1e3ac58e509b64c138852483b3ebbc5</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c556dcb4b1e3ac58e509b64c138852483b3ebbc5</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/12/2026, 4:54:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(dev): speed up local stack startup with a fast build path</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - `yarn start mza` was slow: the start tasks pulled the full production
+   build (including tsc) on every boot, though dev servers compile from
+   source at runtime.
+
+This commit:
+ - Adds a `build-fast` Nx target that skips `build-ts` for app services
+   while still building dist-loaded libs, and routes `yarn start mza` and
+   `yarn restart mza` through it via FXA_BUILD_TARGET=build-fast.
+ - Drops `build` from the `start`/`restart` target dependencies; the build
+   now runs explicitly in pm2-all.sh (full build by default), so `yarn
+   start` still does a full build and CI, which calls `build` directly, is
+   unaffected.
+ - Hardens local startup: Docker daemon preflight, labeled URL checks with
+   curl timeouts, a non-fatal redis readiness gate, and a db-patcher
+   expected-count derived from the migrations layout.
+ - Parallelizes the fxa-shared ESM/CJS tsc build to cut critical-path time.
+ - Fixes the l10n-gettext-extract workflow to read .nvmrc from the
+   checked-out fxa-code/ path.</pre></dd>
+  </dl>
+</body>
+</html>

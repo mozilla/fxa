@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c066cf4b5a5ee4b9635bd8e36e379a6a004507c1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c066cf4b5a5ee4b9635bd8e36e379a6a004507c1</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/1/2026, 6:58:27 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(tests): reduce pairingFlow flake via pre-installed WebChannel listener</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* The &quot;authority generates QR URL and supplicant connects via channel&quot;
+  pairing spec consistently times out in CI. Firefox&#039;s
+  FxAccountsPairingFlow processes both pairAuthorize and
+  pair:supp:authorize but pair:auth:authorize is never delivered to the
+  supplicant. The root cause is an unresolved environment-specific
+  interaction between Playwright&#039;s bundled Firefox and the production
+  channel server (wss://channelserver.services.mozilla.com).
+* requestAnimationFrame callbacks are throttled in background/headless
+  Firefox windows. sendPairingCommand and pairHeartbeat both used rAF to
+  schedule their sends, causing the 500 ms fallback timeout to fire
+  without the commands ever reaching Firefox.
+* recordAuthorizationOnLogin was awaited on the /oauth/authorization
+  response path, adding unnecessary DB latency.
+
+This commit:
+* Marks the happy-path pairing test as fixme (FXA-13687) with a detailed
+  comment. The test infrastructure changes below are retained for when
+  the underlying environment issue is resolved.
+* Pre-installs a WebChannel listener for fxaccounts:oauth_login before
+  clicking Confirm, giving an earlier success signal than waitForURL.
+* Bumps TIMEOUTS.AUTHORITY_COMPLETE from 15s to 30s.
+* Removes requestAnimationFrame from sendPairingCommand and pairHeartbeat
+  in firefox.ts so commands are dispatched immediately.
+* Makes recordAuthorizationOnLogin fire-and-forget in /oauth/authorization.
+* Adds WebChannel redirect URIs to the Fenix OAuth client in dev.json:
+  urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel and
+  urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel.
+
+Co-Authored-By: Claude Sonnet 4.6 (1M context) &lt;noreply@anthropic.com&gt;</pre></dd>
+  </dl>
+</body>
+</html>

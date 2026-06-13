@@ -1,0 +1,11 @@
+{
+  "commit": "a4c34274ea240b48c6acc00485351e886c80badd",
+  "summary": "feat(subplat): add b2b poc",
+  "description": "Because\n\n- The entitlements service has considered building a business to\n  business feature which would provide access to services without\n  requiring a subscription managed by Stripe.\n\nThis commit\n\n- Adds a proof of concept for a business to business entitlements\n  feature, built for the Mozilla VPN Free Access Program and immediate\n  launch of the feature, while still keeping in mind ongoing development\n  of the entitlements infrastructure as well as allowing for future\n  scalability and extensibility.\n- Read list of emails from Strapi and what capabilities should be\n  provided to these users.\n- On auth-server /profile query, return the relevant capability if the\n  user email is in the list configured in Strapi.\n- Add webhook listener to `payments-api` that listens for changes in\n  Strapi and then calls an API in auth-server, which broadcasts\n  capability added or removed via event-broker to RPs.\n- Show Paid Subscriptions option to user that have access via a B2B\n  subscription. On the subscription management page added a new section\n  indicating services provided by the customers organization.\n\nCloses PAY-3754",
+  "timestamp": 1779912346000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "459161f2f7929396c1bd267da822df0b53073cbc",
+  "summary": "test(auth): migrate log/statsd/fxaMailer mocks to typed Jest fixtures",
+  "description": "Because:\n- test/mocks.js's untyped shared factories obscure intent and miss type\n  drift (FXA-13708).\n\nThis commit:\n- Swaps mocks.mockLog()/mockStatsd() for inline createMock<T>() and adds\n  test/fixtures/fxa-mailer.ts (installMockFxaMailer) across ~60 specs.\n- Completes the AuthLogger interface and removes the now-dead mockStatsd and\n  mockFxaMailer slices from test/mocks.js.\n- Breaks a validators <-> cloud-tasks circular dependency the migration\n  exposed (validators now imports ReasonForDeletion from @fxa/shared/cloud-tasks).",
+  "timestamp": 1781130713000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "f992749f4e663ecfb84ecdf86d5c75b54c82be1c",
+  "summary": "chore(auth): replace axios in auth/customs with native fetch",
+  "description": "",
+  "timestamp": 1781216406000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "c556dcb4b1e3ac58e509b64c138852483b3ebbc5",
+  "summary": "feat(dev): speed up local stack startup with a fast build path",
+  "description": "Because:\n - `yarn start mza` was slow: the start tasks pulled the full production\n   build (including tsc) on every boot, though dev servers compile from\n   source at runtime.\n\nThis commit:\n - Adds a `build-fast` Nx target that skips `build-ts` for app services\n   while still building dist-loaded libs, and routes `yarn start mza` and\n   `yarn restart mza` through it via FXA_BUILD_TARGET=build-fast.\n - Drops `build` from the `start`/`restart` target dependencies; the build\n   now runs explicitly in pm2-all.sh (full build by default), so `yarn\n   start` still does a full build and CI, which calls `build` directly, is\n   unaffected.\n - Hardens local startup: Docker daemon preflight, labeled URL checks with\n   curl timeouts, a non-fatal redis readiness gate, and a db-patcher\n   expected-count derived from the migrations layout.\n - Parallelizes the fxa-shared ESM/CJS tsc build to cut critical-path time.\n - Fixes the l10n-gettext-extract workflow to read .nvmrc from the\n   checked-out fxa-code/ path.",
+  "timestamp": 1781283252000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

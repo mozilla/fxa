@@ -1,0 +1,12 @@
+{
+  "commit": "224483740c03e00f9838852e1754ffc2d483028f",
+  "summary": "feat(pair): generate pairing download QR per entrypoint",
+  "description": "Because:\n - The pairing download screen served one static QR image to everyone, so\n   mobile installs originating from a Send Tab flow could not be attributed\n   separately from generic downloads.\n\nThis commit:\n - Adds a reusable, domain-agnostic QRCode component (qrcode.react) that\n   generates a QR from a value or renders a pre-rendered imageData URI, with an\n   optional center logo (modules excavated behind it so it stays scannable) and\n   a loading state.\n - Adds isSendTabEntrypoint (now a type guard) and buildPairingDownloadUrl:\n   the generic mzl.la shortlink by default, and an Adjust deep-link\n   (campaign=send-tab, creative=<entrypoint>) for Send Tab entrypoints so each\n   is individually attributable.\n - Wires the component into the pairing download screen and removes the static\n   qr_code_firefox_mobile.svg asset.",
+  "timestamp": 1781018652000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

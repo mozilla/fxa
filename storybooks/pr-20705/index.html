@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 459161f2f7929396c1bd267da822df0b53073cbc</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 459161f2f7929396c1bd267da822df0b53073cbc</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/10/2026, 10:31:53 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(auth): migrate log/statsd/fxaMailer mocks to typed Jest fixtures</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- test/mocks.js&#039;s untyped shared factories obscure intent and miss type
+  drift (FXA-13708).
+
+This commit:
+- Swaps mocks.mockLog()/mockStatsd() for inline createMock&lt;T&gt;() and adds
+  test/fixtures/fxa-mailer.ts (installMockFxaMailer) across ~60 specs.
+- Completes the AuthLogger interface and removes the now-dead mockStatsd and
+  mockFxaMailer slices from test/mocks.js.
+- Breaks a validators &lt;-&gt; cloud-tasks circular dependency the migration
+  exposed (validators now imports ReasonForDeletion from @fxa/shared/cloud-tasks).</pre></dd>
+  </dl>
+</body>
+</html>

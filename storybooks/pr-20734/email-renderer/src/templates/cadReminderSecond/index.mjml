@@ -1,0 +1,31 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="cadReminderSecond-title-2">Don’t forget to sync!</span>
+    </mj-text>
+    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://cdn.accounts.firefox.com/other/graphic-laptop-mobile.png"></mj-image>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="cadReminderSecond-description-sync">Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="cadReminderSecond-description-plus">Plus, your data is always encrypted. Only you and devices you approve can see it.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "cadReminderSecond-action",
+  buttonText: "Sync another device"
+}) %>
+<%- include('/partials/appBadges/index.mjml') %>
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

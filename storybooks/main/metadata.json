@@ -1,0 +1,12 @@
+{
+  "commit": "ec5a13d400a393dbefa588e507909665811b42a7",
+  "summary": "Merge pull request #20691 from mozilla/PAY-3761",
+  "description": "test(payments): Revise test coverage for Checkout and Upgrade flows",
+  "timestamp": 1781275597000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

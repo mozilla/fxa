@@ -1,0 +1,10 @@
+{
+  "commit": "03e801726ed55e9c29b32c32ff4e51348302d1e5",
+  "summary": "bug(settings): Fix extranious email being during cached signin flows.",
+  "description": "",
+  "timestamp": 1781202213000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "3d2845bfab47f29e803b8b3515397c6baadcf134",
+  "summary": "feat(auth-server): add server-side passkey auth funnel events",
+  "description": "Because:\n - The backend recorded passkey authentication completion (login.complete,\n   reason=passkey) but neither the ceremony start nor the assertion\n   verification, so server-side drop-off was invisible.\n\nThis commit:\n - Adds passkey.authentication_started (challenge generated) and\n   passkey.authentication_verification_success (assertion verified, before\n   session/token work), giving a started -> verified -> complete funnel.\n - Regenerates the server Glean bindings (glean_parser v19.0.0 -> v19.2.0).",
+  "timestamp": 1781210693000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

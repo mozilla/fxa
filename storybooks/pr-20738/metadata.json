@@ -1,0 +1,11 @@
+{
+  "commit": "28236a9b2a30247c0984abfa101e465228c8bb2a",
+  "summary": "feat(entitlements): Create MeteringConfigurationManager",
+  "description": "",
+  "timestamp": 1781272815000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

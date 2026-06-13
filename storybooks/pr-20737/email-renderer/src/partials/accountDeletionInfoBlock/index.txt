@@ -1,0 +1,5 @@
+account-deletion-info-block-communications-plaintext = "If your account is deleted, you’ll still receive emails from Mozilla Corporation and Mozilla Foundation, unless you ask to unsubscribe:"
+<%- unsubscribeUrl %>
+
+account-deletion-info-block-support-plaintext = "If you have any questions or need assistance, feel free to contact our support team:"
+<%- supportUrl %>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 224483740c03e00f9838852e1754ffc2d483028f</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 224483740c03e00f9838852e1754ffc2d483028f</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/9/2026, 3:24:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(pair): generate pairing download QR per entrypoint</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - The pairing download screen served one static QR image to everyone, so
+   mobile installs originating from a Send Tab flow could not be attributed
+   separately from generic downloads.
+
+This commit:
+ - Adds a reusable, domain-agnostic QRCode component (qrcode.react) that
+   generates a QR from a value or renders a pre-rendered imageData URI, with an
+   optional center logo (modules excavated behind it so it stays scannable) and
+   a loading state.
+ - Adds isSendTabEntrypoint (now a type guard) and buildPairingDownloadUrl:
+   the generic mzl.la shortlink by default, and an Adjust deep-link
+   (campaign=send-tab, creative=&lt;entrypoint&gt;) for Send Tab entrypoints so each
+   is individually attributable.
+ - Wires the component into the pairing download screen and removes the static
+   qr_code_firefox_mobile.svg asset.</pre></dd>
+  </dl>
+</body>
+</html>

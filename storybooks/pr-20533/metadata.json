@@ -1,0 +1,10 @@
+{
+  "commit": "e73e34d6e102283dc217cfe98b60833e9ba6504f",
+  "summary": "bug(auth,settings): Ensure original email is used for password changes and session reauths",
+  "description": "Because:\n- v1 password stretching salts using the account's original signup\n  email, which can differ from the user's current primary. Clients that\n  used the typed/current primary computed the wrong authPW on the first\n  try, forcing email-case retry logic and brittle lookahead in the\n  password-change and reauth flows.\n\nThis commit:\n- Adds GET /session/original-account-email returning the account's\n  signup email for the authenticated session, with swagger docs.\n- Adds AuthClient.fetchOriginalAccountEmail and uses it in\n  sessionReauth, passwordChange, and passwordChangeWithAuthPW so v1\n  derivations match the stored verifier on the first attempt.\n- Threads originalLoginEmail through SessionReauthOptions so callers\n  that already fetched the email (e.g. passwordChangeWithAuthPW) avoid\n  a redundant round-trip.\n- Updates auth-server route, password.ts, and remote tests to the new\n  flow; renames the sessionReauth parameter email -> primaryEmail to\n  disambiguate from the derivation email.\n- Replaces a Sentry.captureMessage with captureException(err, { tags })\n  on the v2-upgrade failure path so stacks are preserved.",
+  "timestamp": 1781213474000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

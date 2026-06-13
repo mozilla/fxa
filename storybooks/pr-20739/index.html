@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 12ca8ec16625344e9c62665aae05cb1d1677b742</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 12ca8ec16625344e9c62665aae05cb1d1677b742</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/12/2026, 7:46:51 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(fxa-settings): route passkey Sync sign-in to password fallback on mobile</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - On mobile Firefox, signing in to Sync via a passkey left the browser in a
+   &quot;syncing paused&quot; state with no redirect to the password fallback. Mobile
+   commonly omits the service=sync URL param (defaulting to Sync via clientId),
+   so getService() returned undefined and the server never set
+   requiresPasswordForSync.
+
+This commit:
+ - Sends service=sync for Sync integrations using isSync() — the signal already
+   trusted for the can-link check — instead of the often-absent service URL
+   param, so the password fallback redirect fires for both standard and
+   passwordless accounts.
+ - Skips navigation on mobile in the passkey password fallback so Firefox drives
+   Sync completion via WebChannel messages rather than navigating the WebView
+   away.
+
+Closes #FXA-13911</pre></dd>
+  </dl>
+</body>
+</html>
