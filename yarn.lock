@@ -31548,6 +31548,7 @@ __metadata:
     postcss-normalize: "npm:^13.0.1"
     postcss-preset-env: "npm:^10.0.5"
     prop-types: "npm:^15.8.1"
+    qrcode.react: "npm:^4.2.0"
     raw-loader: "npm:^4.0.2"
     react-app-polyfill: "npm:^3.0.0"
     react-async-hook: "npm:^4.0.0"
@@ -45551,6 +45552,15 @@ __metadata:
   version: 1.5.1
   resolution: "q@npm:1.5.1"
   checksum: 10c0/7855fbdba126cb7e92ef3a16b47ba998c0786ec7fface236e3eb0135b65df36429d91a86b1fff3ab0927b4ac4ee88a2c44527c7c3b8e2a37efbec9fe34803df4
+  languageName: node
+  linkType: hard
+
+"qrcode.react@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "qrcode.react@npm:4.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/68c691d130e5fda2f57cee505ed7aea840e7d02033100687b764601f9595e1116e34c13876628a93e1a5c2b85e4efc27d30b2fda72e2050c02f3e1c4e998d248
   languageName: node
   linkType: hard
 

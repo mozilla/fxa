@@ -6,6 +6,8 @@ import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
 import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
+import { Constants } from './constants';
+import { interpolate } from './error-utils';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -293,6 +295,17 @@ export function getPairingErrorMessage(err: unknown): string {
 /** Whether the given entrypoint originated from a Firefox "Send Tab" UI. */
 export function isSendTabEntrypoint(
   entrypoint: string | null | undefined
-): boolean {
+): entrypoint is string {
   return !!entrypoint && SEND_TAB_ENTRYPOINTS.has(entrypoint);
+}
+
+/** URL for the pairing QR: an attributable Adjust link for send-tab, else the generic Mozilla link. */
+export function buildPairingDownloadUrl(entrypoint?: string | null): string {
+  if (!isSendTabEntrypoint(entrypoint)) {
+    return Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
+  }
+  return interpolate(Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB, {
+    campaign: 'send-tab',
+    creative: entrypoint,
+  });
 }

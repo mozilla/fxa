@@ -23,10 +23,14 @@ import firefox, {
   FirefoxCommand,
 } from '../../../lib/channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import qrCodeFirefoxMobile from '../../../components/images/qr_code_firefox_mobile.svg';
+import QRCode from '../../../components/QRCode';
+import firefoxLogo from './firefox-logo-browser.svg';
 import mobileFirefoxIcon from './mobile-ff.svg';
 import mobileDownloadIcon from './mobile-download.svg';
-import { isSendTabEntrypoint } from '../../../lib/utilities';
+import {
+  buildPairingDownloadUrl,
+  isSendTabEntrypoint,
+} from '../../../lib/utilities';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -266,10 +270,13 @@ const Pair = ({
                   the camera on your mobile device:
                 </p>
               </FtlMsg>
-              <img
-                src={qrCodeFirefoxMobile}
-                className="my-10 mx-auto w-48 h-48"
-                alt={localizedQRCodeLabel}
+              <QRCode
+                value={buildPairingDownloadUrl(integration?.data.entrypoint)}
+                localizedLabel={localizedQRCodeLabel}
+                logoSrc={firefoxLogo}
+                size={224}
+                loadingDelayMs={200}
+                className="my-10 mx-auto"
               />
             </li>
             <li>
