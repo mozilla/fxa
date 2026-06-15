@@ -4,7 +4,16 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import {
+  InvoiceFactory,
+  PaymentInfoFactory,
+  SuccessCartDTOFactory,
+} from '@fxa/payments/cart/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
+import {
+  PageContentCommonContentResultFactory,
+  PageContentOfferingTransformedFactory,
+} from '@fxa/shared/cms/testing';
 import UpgradeSuccess from './page';
 
 const mockFetchCMSData = jest.fn();
@@ -125,92 +134,39 @@ const MOCK_INVOICE_NUMBER = 'INV-001';
 const MOCK_SUCCESS_URL = 'https://download.example.com/app';
 const MOCK_SUCCESS_LABEL = 'Download the app';
 
-const baseCmsData = {
-  apiIdentifier: 'offering-1',
-  countries: ['US'],
-  stripeProductId: 'prod_test',
-  defaultPurchase: {
-    purchaseDetails: {
-      details: ['Detail 1'],
-      productName: 'Test Product',
-      subtitle: null,
-      webIcon: 'https://example.com/icon.png',
-      localizations: [],
-    },
-  },
-  commonContent: {
-    privacyNoticeUrl: 'https://example.com/privacy',
-    privacyNoticeDownloadUrl: 'https://example.com/privacy-download',
-    termsOfServiceUrl: 'https://example.com/terms',
-    termsOfServiceDownloadUrl: 'https://example.com/terms-download',
-    cancellationUrl: 'https://example.com/cancel',
-    emailIcon: null,
-    successActionButtonUrl: MOCK_SUCCESS_URL,
-    successActionButtonLabel: MOCK_SUCCESS_LABEL,
-    newsletterLabelTextCode: null,
-    newsletterSlug: null,
-    localizations: [
-      {
-        privacyNoticeUrl: 'https://example.com/privacy',
-        privacyNoticeDownloadUrl: 'https://example.com/privacy-download',
-        termsOfServiceUrl: 'https://example.com/terms',
-        termsOfServiceDownloadUrl: 'https://example.com/terms-download',
-        cancellationUrl: 'https://example.com/cancel',
-        emailIcon: null,
-        successActionButtonUrl: MOCK_SUCCESS_URL,
-        successActionButtonLabel: MOCK_SUCCESS_LABEL,
-        newsletterLabelTextCode: null,
-        newsletterSlug: null,
-      },
-    ],
-  },
-};
+const mockCommonContent = PageContentCommonContentResultFactory({
+  emailIcon: null,
+  successActionButtonUrl: MOCK_SUCCESS_URL,
+  successActionButtonLabel: MOCK_SUCCESS_LABEL,
+  newsletterLabelTextCode: null,
+  newsletterSlug: null,
+});
 
-const baseCart = {
+const baseCmsData = PageContentOfferingTransformedFactory({
+  commonContent: {
+    ...mockCommonContent,
+    localizations: [mockCommonContent],
+  },
+});
+
+const mockInvoice = InvoiceFactory({
+  number: MOCK_INVOICE_NUMBER,
+  currency: 'usd',
+});
+
+const baseCart = SuccessCartDTOFactory({
   id: MOCK_CART_ID,
   uid: MOCK_USER_ID,
-  createdAt: 1_700_000_000_000,
-  version: 1,
-  interval: 'monthly',
-  offeringPrice: 999,
-  metricsOptedOut: false,
-  currency: 'usd',
-  couponCode: null,
-  taxAddress: { countryCode: 'US', postalCode: '94107' },
-  freeTrialOffer: null,
-  freeTrialUserEligible: false,
-  upcomingInvoicePreview: {
-    number: MOCK_INVOICE_NUMBER,
-    currency: 'usd',
-    amountDue: 999,
-    totalAmount: 999,
-    nextInvoiceDate: 1_703_000_000,
-    creditApplied: null,
-    startingBalance: 0,
-  },
-  latestInvoicePreview: {
-    number: MOCK_INVOICE_NUMBER,
-    currency: 'usd',
-    amountDue: 999,
-    totalAmount: 999,
-    nextInvoiceDate: 1_703_000_000,
-    creditApplied: null,
-    startingBalance: 0,
-  },
-  paymentInfo: {
-    type: 'card' as SubPlatPaymentMethodType,
+  upcomingInvoicePreview: mockInvoice,
+  latestInvoicePreview: mockInvoice,
+  paymentInfo: PaymentInfoFactory({
+    type: 'card',
     brand: 'visa',
     last4: '4242',
-  },
-};
+  }),
+});
 
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: MOCK_USER_EMAIL,
-    metricsEnabled: true,
-  },
-};
+const baseSession = SessionFactory({ id: MOCK_USER_ID, email: MOCK_USER_EMAIL });
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {

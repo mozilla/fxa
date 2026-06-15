@@ -4,6 +4,12 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import {
+  PageContentCommonContentResultFactory,
+  PageContentOfferingDefaultPurchaseTransformedFactory,
+  PageContentOfferingTransformedFactory,
+  PageContentPurchaseDetailsTransformedFactory,
+} from '@fxa/shared/cms/testing';
 import Location from './page';
 
 const mockFetchCMSData = jest.fn();
@@ -122,33 +128,29 @@ const MOCK_PRIVACY_DOWNLOAD_URL = 'https://example.com/privacy-download';
 const MOCK_TOS_DOWNLOAD_URL = 'https://example.com/terms-download';
 const MOCK_CANCELLATION_URL = 'https://example.com/cancel';
 
-const baseCmsData = {
-  apiIdentifier: 'offering-1',
-  countries: ['US'],
-  stripeProductId: 'prod_test',
-  defaultPurchase: {
+const baseCmsData = PageContentOfferingTransformedFactory({
+  defaultPurchase: PageContentOfferingDefaultPurchaseTransformedFactory({
     purchaseDetails: {
-      details: ['Detail 1'],
-      productName: MOCK_PRODUCT_NAME,
-      subtitle: null,
-      webIcon: 'https://example.com/icon.png',
+      ...PageContentPurchaseDetailsTransformedFactory({
+        productName: MOCK_PRODUCT_NAME,
+      }),
       localizations: [],
     },
-  },
+  }),
   commonContent: {
-    privacyNoticeUrl: MOCK_PRIVACY_URL,
-    privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
-    termsOfServiceUrl: MOCK_TOS_URL,
-    termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
-    cancellationUrl: MOCK_CANCELLATION_URL,
-    emailIcon: null,
-    successActionButtonUrl: null,
-    successActionButtonLabel: null,
-    newsletterLabelTextCode: null,
-    newsletterSlug: null,
+    ...PageContentCommonContentResultFactory({
+      privacyNoticeUrl: MOCK_PRIVACY_URL,
+      privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
+      termsOfServiceUrl: MOCK_TOS_URL,
+      termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
+      cancellationUrl: MOCK_CANCELLATION_URL,
+      emailIcon: null,
+      newsletterLabelTextCode: null,
+      newsletterSlug: null,
+    }),
     localizations: [],
   },
-};
+});
 
 const baseValidateLocationResult = {
   isValid: true,

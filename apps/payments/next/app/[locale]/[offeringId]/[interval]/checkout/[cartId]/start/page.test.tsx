@@ -4,6 +4,12 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { StartCartDTOFactory } from '@fxa/payments/cart/testing';
+import {
+  PageContentCommonContentResultFactory,
+  PageContentOfferingTransformedFactory,
+} from '@fxa/shared/cms/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
 import Checkout from './page';
 
 const mockFetchCMSData = jest.fn();
@@ -122,32 +128,25 @@ const MOCK_USER_ID = 'user-123';
 const MOCK_USER_EMAIL = 'user@example.com';
 const MOCK_CART_ID = 'cart-abc';
 
-const baseCmsData = {
-  apiIdentifier: 'offering-1',
+const baseCmsData = PageContentOfferingTransformedFactory({
   commonContent: {
-    newsletterLabelTextCode: null,
-    privacyNoticeUrl: 'https://example.com/privacy',
-    termsOfServiceUrl: 'https://example.com/terms',
+    ...PageContentCommonContentResultFactory({
+      newsletterLabelTextCode: null,
+      privacyNoticeUrl: 'https://example.com/privacy',
+      termsOfServiceUrl: 'https://example.com/terms',
+    }),
+    localizations: [],
   },
-};
+});
 
-const baseCart = {
+const baseCart = StartCartDTOFactory({
   id: MOCK_CART_ID,
   uid: MOCK_USER_ID,
-  version: 1,
-  interval: 'monthly',
   amount: 999,
   currency: 'usd',
-  couponCode: null,
-  taxAddress: { countryCode: 'US', postalCode: '94107' },
-};
+});
 
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: MOCK_USER_EMAIL,
-  },
-};
+const baseSession = SessionFactory({ id: MOCK_USER_ID, email: MOCK_USER_EMAIL });
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {

@@ -4,6 +4,8 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { FailCartDTOFactory } from '@fxa/payments/cart/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
 import UpgradeError from './page';
 
 const mockGetCartOrRedirectAction = jest.fn();
@@ -125,27 +127,13 @@ const MOCK_USER_ID = 'user-123';
 const MOCK_USER_EMAIL = 'user@example.com';
 const MOCK_CART_ID = 'cart-abc';
 
-const baseCart = {
+const baseCart = FailCartDTOFactory({
   id: MOCK_CART_ID,
   uid: MOCK_USER_ID,
-  createdAt: 1_700_000_000_000,
-  version: 1,
-  interval: 'monthly',
-  offeringPrice: 999,
-  metricsOptedOut: false,
-  currency: 'usd',
-  couponCode: null,
-  taxAddress: { countryCode: 'US', postalCode: '94107' },
   errorReasonId: 'iap_upgrade_contact_support',
-};
+});
 
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: MOCK_USER_EMAIL,
-    metricsEnabled: true,
-  },
-};
+const baseSession = SessionFactory({ id: MOCK_USER_ID, email: MOCK_USER_EMAIL });
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {
