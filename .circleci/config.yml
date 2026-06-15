@@ -1046,7 +1046,7 @@ workflows:
           name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: large
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: test_pull_request

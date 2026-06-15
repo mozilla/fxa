@@ -20,7 +20,9 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/'],
 
   testTimeout: 120000,
-  maxWorkers: 8,
+  // I/O-bound suite; 4 workers fit CI memory with no wall-clock cost.
+  // TEMP cache-bust to force a live `large`-runner validation; remove before merge.
+  maxWorkers: 4,
 
   globalSetup: '<rootDir>/test/support/jest-global-setup.ts',
   globalTeardown: '<rootDir>/test/support/jest-global-teardown.ts',
