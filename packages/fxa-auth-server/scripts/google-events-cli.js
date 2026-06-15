@@ -11,7 +11,6 @@
  */
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
 
 const { Command } = require('commander');
 const program = new Command();
@@ -88,14 +87,15 @@ async function getEventStreamConfig(authToken) {
   };
 
   try {
-    const response = await axios.get(streamUpdateEndpoint, {
+    const response = await fetch(streamUpdateEndpoint, {
       headers: headers,
     });
     if (response.status !== 200) {
       throw new Error(`Request failed with status ${response.status}`);
     }
-    console.log('getEventStreamConfig response', response.data);
-    return response.data;
+    const data = await response.json();
+    console.log('getEventStreamConfig response', data);
+    return data;
   } catch (error) {
     console.error(`Error configuring the event stream: ${error}`);
     throw error;
@@ -127,15 +127,17 @@ async function configureEventStream(
       ...streamCfg,
     };
 
-    const response = await axios.post(streamUpdateEndpoint, newConfig, {
-      headers: headers,
+    const response = await fetch(streamUpdateEndpoint, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(newConfig),
     });
-    console.log('configureEventStream response', response.data);
     if (response.status !== 200) {
       throw new Error(`Request failed with status ${response.status}`);
     }
+    console.log('configureEventStream response', await response.json());
   } catch (error) {
-    console.log(`Error configuring the event stream: ${error}`);
+    console.error(`Error configuring the event stream: ${error}`);
     throw error;
   }
 }
@@ -151,13 +153,15 @@ async function testEventStream(authToken, nonce) {
   };
 
   try {
-    const response = await axios.post(streamVerifyEndpoint, state, {
-      headers: headers,
+    const response = await fetch(streamVerifyEndpoint, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(state),
     });
-    console.log('testEventStream response', response.data);
     if (response.status !== 200) {
       throw new Error(`Request failed with status ${response.status}`);
     }
+    console.log('testEventStream response', await response.json());
   } catch (error) {
     console.error(`Error testing the event stream: ${error.message}`);
     throw error;
