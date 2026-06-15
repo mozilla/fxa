@@ -30,6 +30,7 @@ export type IndexIntegration = Pick<
   | 'requiresKeys'
   | 'wantsKeys'
   | 'wantsKeysIfPasswordEntered'
+  | 'requiresPasswordForLogin'
   | 'wantsLogin'
   | 'wantsTwoStepAuthentication'
 >;

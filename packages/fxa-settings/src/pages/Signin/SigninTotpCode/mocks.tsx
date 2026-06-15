@@ -19,6 +19,7 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { SigninIntegration } from '../interfaces';
 import { GenericData } from '../../../lib/model-data';
 
@@ -29,6 +30,12 @@ export const mockWebSigninIntegration = {
   requiresKeys: () => false,
   wantsKeysIfPasswordEntered: () => false,
   wantsKeys: () => false,
+  requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    return (
+      this.requiresKeys() ||
+      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+    );
+  },
   isFirefoxClientServiceRelay: () => false,
   isFirefoxClientServiceSmartWindow: () => false,
   isFirefoxClientServiceVpn: () => false,
@@ -53,6 +60,12 @@ export const mockOAuthNativeSigninIntegration = (
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     isFirefoxClientServiceRelay: () => isRelay,
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
@@ -98,7 +111,10 @@ export const Subject = ({
   serviceName = MozServices.Default,
   signinState = MOCK_TOTP_LOCATION_STATE,
   submitTotpCode = mockSubmitTotpCode,
-}: Partial<SigninTotpCodeProps>) => {
+  supportsKeysOptionalLogin = false,
+}: Partial<SigninTotpCodeProps> & {
+  supportsKeysOptionalLogin?: boolean;
+}) => {
   return (
     <LocationProvider>
       <SigninTotpCode
@@ -108,6 +124,7 @@ export const Subject = ({
           serviceName,
           signinState,
           submitTotpCode,
+          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
         }}
       />
     </LocationProvider>

@@ -21,6 +21,7 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
@@ -34,12 +35,14 @@ export type SigninTotpCodeContainerProps = {
   integration: Integration;
   serviceName: MozServices;
   setCurrentSplitLayout?: (value: boolean) => void;
+  useFxAStatusResult: UseFxAStatusResult;
 };
 
 export const SigninTotpCodeContainer = ({
   integration,
   serviceName,
   setCurrentSplitLayout,
+  useFxAStatusResult,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const session = useSession();
@@ -156,6 +159,7 @@ export const SigninTotpCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         setCurrentSplitLayout,
+        useFxAStatusResult,
       }}
     />
   );

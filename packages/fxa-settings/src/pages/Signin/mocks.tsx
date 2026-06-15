@@ -99,6 +99,12 @@ export function createMockSigninWebIntegration({
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
@@ -131,6 +137,12 @@ export function createMockSigninOAuthNativeSyncIntegration({
     requiresKeys: () => isSync,
     wantsKeysIfPasswordEntered: () => !isSync,
     wantsKeys: () => true,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     getService: () => MozServices.FirefoxSync,
     getClientId: () => MOCK_CLIENT_ID,
     data: new IntegrationData(new GenericData({})),
@@ -169,6 +181,12 @@ export function createMockSigninOAuthIntegration({
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
@@ -207,6 +225,12 @@ export function createMockSigninOAuthNativeIntegration({
     requiresKeys: () => isSync,
     wantsKeysIfPasswordEntered: () => isRelay || isSmartWindow || isVpn,
     wantsKeys: () => true,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync && !isMobile,

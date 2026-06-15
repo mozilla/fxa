@@ -31,6 +31,7 @@ export type SigninUnblockIntegration = Pick<
   | 'requiresKeys'
   | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
@@ -56,6 +57,7 @@ export type SigninIntegration =
       | 'requiresKeys'
       | 'wantsKeysIfPasswordEntered'
       | 'wantsKeys'
+      | 'requiresPasswordForLogin'
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
@@ -81,6 +83,7 @@ export type SigninOAuthIntegration = Pick<
   | 'requiresKeys'
   | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
@@ -137,6 +140,7 @@ export interface SigninCachedProps extends SigninSharedProps {
   sessionToken: hexstring;
   cachedSigninHandler: CachedSigninHandler;
   onSessionExpired: (localizedErrorMessage: string) => void;
+  supportsKeysOptionalLogin?: boolean;
 }
 
 export type SigninAlternativeAuthOptionsProps = SigninSharedProps;
@@ -260,6 +264,11 @@ export interface NavigationOptions {
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
   isSessionAALUpgrade?: boolean;
+  // Browser "keys optional" capability (Sync decoupled from other services,
+  // Fx desktop 147+). When false, a non-Sync Firefox client that wants keys
+  // (e.g. Android VPN) must set a password before keys can be derived. Used together
+  // with `requiresPasswordForLogin` to decide the set_password redirect.
+  supportsKeysOptionalLogin?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {

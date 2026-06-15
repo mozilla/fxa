@@ -42,6 +42,7 @@ const SigninCached = ({
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
   onSessionExpired,
+  supportsKeysOptionalLogin,
 }: SigninCachedProps & RouteComponentProps) => {
   const config = useConfig();
   const location = useLocation();
@@ -51,7 +52,12 @@ const SigninCached = ({
 
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
 
-  const isSync = integration.isSync();
+  // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
+  // when Sync is not decoupled) need to defer the browser login/OAuth messages
+  // and let handleNavigation route to set_password.
+  const deferKeysUntilPasswordSet =
+    !hasPassword &&
+    integration.requiresPasswordForLogin(supportsKeysOptionalLogin);
 
   const {
     clientId,
@@ -140,19 +146,23 @@ const SigninCached = ({
             : '',
         finishOAuthFlowHandler,
         queryParams: location.search,
-        // Passwordless Sync accounts (OTP or third-party auth) need to navigate
-        // to set_password within the webview, even on mobile clients. No webchannel
-        // messages are sent (deferred until after password creation), so the webview
-        // must handle navigation internally.
+        // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
+        // when Sync is not decoupled) need to navigate to set_password within the
+        // webview, even on mobile clients. No webchannel messages are sent (deferred
+        // until after password creation), so the webview must handle navigation
+        // internally.
         performNavigation:
-          (isSync && !hasPassword) || !integration.isFirefoxMobileClient(),
+          (deferKeysUntilPasswordSet && !hasPassword) ||
+          !integration.isFirefoxMobileClient(),
         isServiceWithEmailVerification,
-        // Sync users in the cached path are passwordless (third-party auth or OTP);
-        // defer web channel messages until after password creation.
-        handleFxaLogin: !isSync,
-        handleFxaOAuthLogin: !isSync,
-        // Redirect passwordless Sync users to set_password after session verification.
-        isSignInWithThirdPartyAuth: isSync,
+        // Passwordless users in the cached path that still need keys (third-party
+        // auth or OTP) defer web channel messages until after password creation.
+        handleFxaLogin: !deferKeysUntilPasswordSet,
+        handleFxaOAuthLogin: !deferKeysUntilPasswordSet,
+        supportsKeysOptionalLogin,
+        // Redirect these passwordless users to set_password after session
+        // verification.
+        isSignInWithThirdPartyAuth: deferKeysUntilPasswordSet,
       };
       const { error: navError } = await handleNavigation(navigationOptions);
       if (navError) {
@@ -183,7 +193,8 @@ const SigninCached = ({
     navigateWithQuery,
     integration,
     finishOAuthFlowHandler,
-    isSync,
+    deferKeysUntilPasswordSet,
+    supportsKeysOptionalLogin,
     location.search,
     webRedirectCheck,
     isServiceWithEmailVerification,

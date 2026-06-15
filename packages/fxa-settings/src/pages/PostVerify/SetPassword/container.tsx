@@ -34,6 +34,7 @@ const SetPasswordContainer = ({
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
+    supportsKeysOptionalLogin,
   },
 }: {
   integration: Integration;
@@ -214,8 +215,16 @@ const SetPasswordContainer = ({
   );
 
   // Users must be already authenticated on this page.
-  // This page is currently always for the Sync flow.
-  if (!email || !sessionToken || !uid || !integration.isSync()) {
+  // This page only applies applies to flows where a passwordless account must
+  // set a password for key derivation, including non-Sync Firefox flows that
+  // that require keys because the browser hasn't decoupled Sync (desktop before
+  // Fx 147, and Mobile presently as of Fx 153).
+  if (
+    !email ||
+    !sessionToken ||
+    !uid ||
+    !integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+  ) {
     navigateWithQuery('/signin', { replace: true });
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }

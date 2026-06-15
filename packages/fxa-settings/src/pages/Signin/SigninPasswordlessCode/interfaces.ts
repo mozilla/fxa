@@ -5,6 +5,7 @@
 import type { QueryParams } from '../../..';
 import type { HandledError } from '../../../lib/error-utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { SigninIntegration } from '../interfaces';
 
 export interface PasswordlessLocationState {
@@ -23,6 +24,7 @@ export interface SigninPasswordlessCodeContainerProps {
   flowQueryParams: QueryParams;
   isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
+  useFxAStatusResult: UseFxAStatusResult;
 }
 
 export interface SigninPasswordlessCodeProps {
@@ -37,6 +39,7 @@ export interface SigninPasswordlessCodeProps {
   isSignup?: boolean;
   isSignedIntoFirefox?: boolean;
   resendCountdownSeconds?: number;
+  useFxAStatusResult: UseFxAStatusResult;
 }
 
 export interface PasswordlessConfirmCodeResponse {

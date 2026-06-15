@@ -43,6 +43,17 @@ describe('SetPassword page', () => {
     expect(screen.getByText('Start syncing')).toBeInTheDocument();
   });
 
+  it('renders both password inputs, including for non-Sync flows', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIntegration(undefined, { isSync: false })}
+      />
+    );
+
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Repeat password')).toBeInTheDocument();
+  });
+
   it('renders CMS overrides when PostVerifySetPasswordPage is set', () => {
     const cmsInfo = {
       shared: { buttonColor: '#333' },

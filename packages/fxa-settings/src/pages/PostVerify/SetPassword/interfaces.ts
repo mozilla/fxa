@@ -21,7 +21,10 @@ export type CreatePasswordHandler = (
   newPassword: string
 ) => Promise<CreatePasswordHandlerError>;
 
-export type PostVerifySetPasswordIntegration = Pick<Integration, 'getCmsInfo'>;
+export type PostVerifySetPasswordIntegration = Pick<
+  Integration,
+  'getCmsInfo' | 'isSync'
+>;
 
 /**
  * How the user got to the create-password page. Determines which Glean
@@ -34,7 +37,7 @@ export interface SetPasswordProps {
   email: string;
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  integration?: PostVerifySetPasswordIntegration;
+  integration: PostVerifySetPasswordIntegration;
   passwordCreationReason?: PasswordCreationReason;
   /**
    * Glean `reason` for the funnel events, composed by the container. Defaults

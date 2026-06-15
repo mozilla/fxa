@@ -97,6 +97,7 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
 let mockHandleNavigation = jest.fn().mockResolvedValue({ error: undefined });
 
 jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
   getSyncNavigate: jest.fn((search, options) => ({
     to: '/connect_another_device',
   })),
@@ -133,6 +134,7 @@ function resetMockAuthClient() {
 function render(
   props: Partial<SigninPasswordlessCodeProps> & {
     isSignup?: boolean;
+    supportsKeysOptionalLogin?: boolean;
   } = {}
 ) {
   if (!props.integration) {
@@ -573,6 +575,9 @@ describe('SigninPasswordlessCode page', () => {
 
       const integration = createMockSigninWebIntegration();
       integration.isSync = jest.fn().mockReturnValue(true);
+      // Sync requires keys, so a passwordless sign-in must set a password
+      // (passwordless TOTP accounts verify via email first).
+      integration.requiresKeys = jest.fn().mockReturnValue(true);
 
       render({ integration, isSignup: false });
       await submitCode();
@@ -677,6 +682,7 @@ describe('SigninPasswordlessCode page', () => {
 
         const integration = createMockSigninWebIntegration();
         integration.isSync = jest.fn().mockReturnValue(true);
+        integration.requiresKeys = jest.fn().mockReturnValue(true);
 
         render({ integration, isSignup: false });
         await submitCode();
@@ -710,6 +716,7 @@ describe('SigninPasswordlessCode page', () => {
 
         const integration = createMockSigninWebIntegration();
         integration.isSync = jest.fn().mockReturnValue(true);
+        integration.requiresKeys = jest.fn().mockReturnValue(true);
 
         render({ integration, isSignup: false });
         await submitCode();
@@ -730,6 +737,7 @@ describe('SigninPasswordlessCode page', () => {
 
         const integration = createMockSigninWebIntegration();
         integration.isSync = jest.fn().mockReturnValue(true);
+        integration.requiresKeys = jest.fn().mockReturnValue(true);
 
         render({ integration, isSignup: true });
         await submitCode();
@@ -750,13 +758,18 @@ describe('SigninPasswordlessCode page', () => {
         expect(mockEnsureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
       });
 
-      it('redirects to set password page for Firefox non-Sync (Relay) signin flow when user accepts merge', async () => {
+      it('sends can_link_account then continues through handleNavigation for a Firefox non-Sync (Relay) signin flow that does not need keys', async () => {
         mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
 
         const integration = createMockSigninOAuthNativeIntegration({
           service: OAuthNativeServices.Relay,
           isSync: false,
         });
+        // Relay doesn't request keys, so no set_password detour — it flows
+        // through handleNavigation.
+        integration.wantsKeysIfPasswordEntered = jest
+          .fn()
+          .mockReturnValue(false);
 
         render({ integration, isSignup: false });
         await submitCode();
@@ -773,6 +786,61 @@ describe('SigninPasswordlessCode page', () => {
         await waitFor(() => {
           expect(mockHandleNavigation).toHaveBeenCalled();
         });
+      });
+
+      // "keys not optional" = Firefox where Sync isn't decoupled: desktop
+      // before 147, and Mobile as of Firefox 153.
+      it('redirects to set password for a non-Sync VPN signin that needs keys when keys are not optional', async () => {
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Vpn,
+          isSync: false,
+        });
+
+        render({
+          integration,
+          isSignup: false,
+          supportsKeysOptionalLogin: false,
+        });
+        await submitCode();
+
+        await waitFor(() => {
+          expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+            '/post_verify/set_password',
+            expect.objectContaining({
+              replace: true,
+              state: { passwordCreationReason: 'otp' },
+            })
+          );
+        });
+        // Web channel messages must be deferred — handleNavigation only runs
+        // after the password is created.
+        expect(mockHandleNavigation).not.toHaveBeenCalled();
+      });
+
+      it('continues through handleNavigation for a non-Sync VPN signin when the browser supports keys-optional login', async () => {
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Vpn,
+          isSync: false,
+        });
+
+        render({
+          integration,
+          isSignup: false,
+          supportsKeysOptionalLogin: true,
+        });
+        await submitCode();
+
+        await waitFor(() => {
+          expect(mockHandleNavigation).toHaveBeenCalled();
+        });
+        expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
+          '/post_verify/set_password',
+          expect.anything()
+        );
       });
 
       it('with OAuth integration', async () => {

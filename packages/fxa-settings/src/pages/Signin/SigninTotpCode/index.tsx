@@ -15,6 +15,7 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getLocalizedErrorMessage,
@@ -38,6 +39,7 @@ export type SigninTotpCodeProps = {
   submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
   setCurrentSplitLayout?: (value: boolean) => void;
+  useFxAStatusResult: UseFxAStatusResult;
 } & SensitiveData.AuthData;
 
 export const viewName = 'signin-totp-code';
@@ -51,6 +53,7 @@ export const SigninTotpCode = ({
   keyFetchToken,
   unwrapBKey,
   setCurrentSplitLayout,
+  useFxAStatusResult,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -135,18 +138,24 @@ export const SigninTotpCode = ({
         ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
-      // Passwordless Sync flow: after TOTP, redirect to set_password
-      // for key derivation. The session is now verified so
-      // /password/create (which requires verifiedSessionToken) will work.
-      // Only redirect to set_password for Sync integrations, non-Sync
-      // OAuth flows (e.g. Relay) should continue through handleNavigation.
+      // Passwordless flow: after TOTP, redirect to set_password for key
+      // derivation. The session is now verified so /password/create (which
+      // requires verifiedSessionToken) will work. Redirect when keys are
+      // needed — Sync always, and non-Sync browser services that require keys
+      // because the browser hasn't decoupled Sync. Other non-Sync
+      // flows that don't require keys continue through handleNavigation.
       //
       // The inbound `isPasswordlessOtpSignin` lives on SigninLocationState;
       // the outbound `passwordCreationReason` lives on SetPasswordLocationState.
       // They look related but belong to different state objects on different
       // routes — the boolean gates the redirect, the enum tags the Glean
       // reason on the destination page.
-      if (signinState.isPasswordlessOtpSignin && integration.isSync()) {
+      if (
+        signinState.isPasswordlessOtpSignin &&
+        integration.requiresPasswordForLogin(
+          useFxAStatusResult.supportsKeysOptionalLogin
+        )
+      ) {
         navigateWithQuery('/post_verify/set_password', {
           replace: true,
           state: {

@@ -154,6 +154,7 @@ describe('useFxAStatus', () => {
       const integration = {
         type: IntegrationType.Web,
         isSync: () => false,
+        isFirefoxNonSync: () => false,
       };
 
       renderHook(() => useFxAStatus(integration));

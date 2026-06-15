@@ -18,6 +18,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninTotpCodeContainer from './container';
 import { MozServices } from '../../../lib/types';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { createMockWebIntegration } from '../SigninTokenCode/mocks';
 import {
   Integration,
@@ -121,14 +122,18 @@ const mockAuthClient = {
 function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
   mockAuthClient.verifyTotpCode.mockReset();
   if (errorOut) {
-    mockAuthClient.verifyTotpCode.mockRejectedValue(new Error('Unexpected error'));
+    mockAuthClient.verifyTotpCode.mockRejectedValue(
+      new Error('Unexpected error')
+    );
   } else if (!success) {
     mockAuthClient.verifyTotpCode.mockResolvedValue({ success: false });
   } else {
     mockAuthClient.verifyTotpCode.mockResolvedValue({ success: true });
   }
 
-  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(() => mockAuthClient);
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
+  );
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.getDataType = jest.fn();
@@ -177,6 +182,7 @@ describe('signin totp code container', () => {
           {...{
             integration,
             serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatus(),
           }}
         />
       </LocationProvider>

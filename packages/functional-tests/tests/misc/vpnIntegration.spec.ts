@@ -7,6 +7,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 import {
   syncMobileOAuthFenixQueryParams,
   vpnMobileOAuthQueryParams,
+  vpnSyncMobileOAuthFenixQueryParams,
 } from '../../lib/query-params';
 import { PROFILE_SCOPE, VPN_SCOPE } from '../../lib/scopes';
 
@@ -53,4 +54,30 @@ test.describe('vpn integration', () => {
       });
     }
   );
+
+  test('passwordless VPN + Sync signin on Android routes to set password when Sync is not decoupled', async ({
+    target,
+    syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
+    testAccountTracker,
+  }) => {
+    const { email, password } = await testAccountTracker.signUpPasswordless();
+    await signin.goto('/authorization', vpnSyncMobileOAuthFenixQueryParams);
+    await signin.fillOutEmailFirstForm(email);
+
+    await page.waitForURL(/signin_passwordless_code/);
+    const code = await target.emailClient.getPasswordlessSigninCode(email);
+    await signinPasswordlessCode.fillOutCodeForm(code);
+
+    await page.waitForURL(/set_password/);
+    await expect(
+      page.getByRole('heading', { name: 'Create password to sync' })
+    ).toBeVisible();
+
+    await page.getByLabel('Password', { exact: true }).fill(password);
+    await page.getByLabel('Repeat password').fill(password);
+    await page.getByRole('button', { name: 'Start syncing' }).click();
+
+    await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+  });
 });
