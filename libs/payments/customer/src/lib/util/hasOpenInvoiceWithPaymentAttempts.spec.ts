@@ -49,4 +49,55 @@ describe('hasOpenInvoiceWithPaymentAttempts', () => {
     );
     expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
   });
+
+  it('returns false when metadata is null', () => {
+    const invoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        status: 'open',
+        metadata: null,
+      })
+    );
+    expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
+  });
+
+  it('returns false when retry attempts metadata is non-numeric', () => {
+    const invoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        status: 'open',
+        metadata: { [STRIPE_INVOICE_METADATA.RetryAttempts]: 'abc' },
+      })
+    );
+    // parseInt('abc') → NaN, and NaN > 0 is false
+    expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
+  });
+
+  it('returns false for draft invoice with retry attempts', () => {
+    const invoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        status: 'draft',
+        metadata: { [STRIPE_INVOICE_METADATA.RetryAttempts]: '1' },
+      })
+    );
+    expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
+  });
+
+  it('returns false for void invoice with retry attempts', () => {
+    const invoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        status: 'void',
+        metadata: { [STRIPE_INVOICE_METADATA.RetryAttempts]: '1' },
+      })
+    );
+    expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
+  });
+
+  it('returns false for uncollectible invoice with retry attempts', () => {
+    const invoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        status: 'uncollectible',
+        metadata: { [STRIPE_INVOICE_METADATA.RetryAttempts]: '1' },
+      })
+    );
+    expect(hasOpenInvoiceWithPaymentAttempts(invoice)).toBe(false);
+  });
 });

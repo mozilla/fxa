@@ -335,6 +335,32 @@ describe('PaymentMethodManager', () => {
       });
     });
 
+    it('returns no error when PayPal billing agreement exists', async () => {
+      const mockPaypalBillingAgreementId = faker.string.sample();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscriptions = [StripeSubscriptionFactory()];
+      const mockUid = faker.string.uuid();
+
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.PayPal,
+        type: SubPlatPaymentMethodType.PayPal,
+      });
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(mockPaypalBillingAgreementId);
+
+      const result = await paymentMethodManager.getDefaultPaymentMethod(
+        mockStripeCustomer,
+        mockSubscriptions,
+        mockUid
+      );
+      expect(result).toEqual({
+        type: SubPlatPaymentMethodType.PayPal,
+        billingAgreementId: mockPaypalBillingAgreementId,
+        hasPaymentMethodError: undefined,
+      });
+    });
+
     it('returns hasPaymentMethodError (generic issue) in payment method information - paypal', async () => {
       const mockStripeCustomer = StripeCustomerFactory();
       const mockSubscriptions = [StripeSubscriptionFactory()];
