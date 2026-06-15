@@ -10,19 +10,17 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import { InvoiceFactory, PaymentInfoFactory } from '../testing';
 import {
   FinishCart,
   FinishErrorCart,
-  PaymentInfo,
   ResultCart,
   SetupCart,
-  TaxAmount,
   UpdateCart,
   UpdateCartInput,
   UpdateProcessingCart,
   type BaseCartDTO,
   type FailCartDTO,
-  type Invoice,
   type NeedsInputCartDTO,
   type ProcessingCartDTO,
   type StartCartDTO,
@@ -40,20 +38,7 @@ const OFFERING_CONFIG_IDS = [
 
 const INTERVALS = ['daily', 'weekly', 'monthly', 'halfyearly', 'yearly'];
 
-export const InvoiceFactory = (override?: Partial<Invoice>): Invoice => ({
-  currency: faker.finance.currencyCode().toLowerCase(),
-  totalAmount: faker.number.int({ min: 1, max: 10000 }),
-  taxAmounts: [TaxAmountFactory()],
-  discountAmount: null,
-  subtotal: faker.number.int({ min: 1, max: 10000 }),
-  number: null,
-  invoiceDate: faker.date.past().getTime(),
-  nextInvoiceDate: faker.date.past().getTime(),
-  amountDue: faker.number.int({ min: 1, max: 10000 }),
-  creditApplied: null,
-  startingBalance: faker.number.int({ min: 1, max: 10000 }),
-  ...override,
-});
+export { InvoiceFactory } from '../testing';
 
 export const SubscriptionAttributionFactory = (
   override?: Partial<SubscriptionAttributionParams>
@@ -86,25 +71,9 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   ...override,
 });
 
-export const TaxAmountFactory = (override?: Partial<TaxAmount>): TaxAmount => ({
-  inclusive: false,
-  title: faker.location.state({ abbreviated: true }),
-  amount: faker.number.int(10000),
-  ...override,
-});
+export { TaxAmountFactory } from '../testing';
 
-export const PaymentInfoFactory = (
-  override?: Partial<PaymentInfo>
-): PaymentInfo => ({
-  type: faker.helpers.arrayElement([
-    'card',
-    'google_iap',
-    'apple_iap',
-    'external_paypal',
-    'link',
-  ]),
-  ...override,
-});
+export { PaymentInfoFactory } from '../testing';
 
 export const UpdateCartInputFactory = (
   override?: Partial<UpdateCartInput>

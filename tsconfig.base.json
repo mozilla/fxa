@@ -47,6 +47,7 @@
       "@fxa/payments/auth": ["libs/payments/auth/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/cart/testing": ["libs/payments/cart/src/testing.ts"],
       "@fxa/payments/content-server": [
         "libs/payments/content-server/src/index.ts"
       ],
@@ -90,6 +91,7 @@
       "@fxa/shared/assets/*": ["libs/shared/assets/src/*"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index.ts"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index.ts"],
+      "@fxa/shared/cms/testing": ["libs/shared/cms/src/testing.ts"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"

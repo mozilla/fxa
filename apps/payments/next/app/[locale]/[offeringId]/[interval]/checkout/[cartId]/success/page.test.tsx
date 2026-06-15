@@ -4,7 +4,16 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import {
+  InvoiceFactory,
+  PaymentInfoFactory,
+  SuccessCartDTOFactory,
+} from '@fxa/payments/cart/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
+import {
+  PageContentCommonContentResultFactory,
+  PageContentOfferingTransformedFactory,
+} from '@fxa/shared/cms/testing';
 
 const mockFetchCMSData = jest.fn();
 const mockGetCartOrRedirectAction = jest.fn();
@@ -137,91 +146,44 @@ const MOCK_PRIVACY_DOWNLOAD_URL = 'https://example.com/privacy-download';
 const MOCK_TOS_DOWNLOAD_URL = 'https://example.com/terms-download';
 const MOCK_CANCELLATION_URL = 'https://example.com/cancel';
 
-const baseCmsData = {
-  apiIdentifier: 'offering-1',
-  countries: ['US'],
-  stripeProductId: 'prod_test',
-  defaultPurchase: {
-    purchaseDetails: {
-      details: ['Detail 1'],
-      productName: 'Test Product',
-      subtitle: null,
-      webIcon: 'https://example.com/icon.png',
-      localizations: [],
-    },
-  },
-  commonContent: {
-    privacyNoticeUrl: MOCK_PRIVACY_URL,
-    privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
-    termsOfServiceUrl: MOCK_TOS_URL,
-    termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
-    cancellationUrl: MOCK_CANCELLATION_URL,
-    emailIcon: null,
-    successActionButtonUrl: MOCK_SUCCESS_URL,
-    successActionButtonLabel: MOCK_SUCCESS_LABEL,
-    newsletterLabelTextCode: null,
-    newsletterSlug: null,
-    localizations: [
-      {
-        privacyNoticeUrl: MOCK_PRIVACY_URL,
-        privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
-        termsOfServiceUrl: MOCK_TOS_URL,
-        termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
-        cancellationUrl: MOCK_CANCELLATION_URL,
-        emailIcon: null,
-        successActionButtonUrl: MOCK_SUCCESS_URL,
-        successActionButtonLabel: MOCK_SUCCESS_LABEL,
-        newsletterLabelTextCode: null,
-        newsletterSlug: null,
-      },
-    ],
-  },
-};
+const mockCommonContent = PageContentCommonContentResultFactory({
+  privacyNoticeUrl: MOCK_PRIVACY_URL,
+  privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
+  termsOfServiceUrl: MOCK_TOS_URL,
+  termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
+  cancellationUrl: MOCK_CANCELLATION_URL,
+  emailIcon: null,
+  successActionButtonUrl: MOCK_SUCCESS_URL,
+  successActionButtonLabel: MOCK_SUCCESS_LABEL,
+  newsletterLabelTextCode: null,
+  newsletterSlug: null,
+});
 
-const baseCart = {
+const baseCmsData = PageContentOfferingTransformedFactory({
+  commonContent: {
+    ...mockCommonContent,
+    localizations: [mockCommonContent],
+  },
+});
+
+const mockInvoice = InvoiceFactory({
+  number: MOCK_INVOICE_NUMBER,
+  currency: 'usd',
+});
+
+const baseCart = SuccessCartDTOFactory({
   id: MOCK_CART_ID,
   uid: MOCK_USER_ID,
-  createdAt: 1_700_000_000_000,
-  version: 1,
-  interval: 'monthly',
-  offeringPrice: 999,
-  metricsOptedOut: false,
-  currency: 'usd',
-  couponCode: null,
-  taxAddress: { countryCode: 'US', postalCode: '94107' },
-  freeTrialOffer: null,
-  freeTrialUserEligible: false,
-  upcomingInvoicePreview: {
-    number: MOCK_INVOICE_NUMBER,
-    currency: 'usd',
-    amountDue: 999,
-    totalAmount: 999,
-    nextInvoiceDate: 1_703_000_000,
-    creditApplied: null,
-    startingBalance: 0,
-  },
-  latestInvoicePreview: {
-    number: MOCK_INVOICE_NUMBER,
-    currency: 'usd',
-    amountDue: 999,
-    totalAmount: 999,
-    nextInvoiceDate: 1_703_000_000,
-    creditApplied: null,
-    startingBalance: 0,
-  },
-  paymentInfo: {
-    type: 'card' as SubPlatPaymentMethodType,
+  upcomingInvoicePreview: mockInvoice,
+  latestInvoicePreview: mockInvoice,
+  paymentInfo: PaymentInfoFactory({
+    type: 'card',
     brand: 'visa',
     last4: '4242',
-  },
-};
+  }),
+});
 
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: MOCK_USER_EMAIL,
-  },
-};
+const baseSession = SessionFactory({ id: MOCK_USER_ID, email: MOCK_USER_EMAIL });
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {

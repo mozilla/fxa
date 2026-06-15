@@ -4,6 +4,8 @@
 
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { NeedsInputCartDTOFactory } from '@fxa/payments/cart/testing';
+import { SessionFactory } from '@fxa/payments/ui-auth/testing';
 import NeedsInputPage from './page';
 
 const mockGetCartOrRedirectAction = jest.fn();
@@ -77,22 +79,14 @@ jest.mock('@fxa/payments/ui', () => ({
 const MOCK_USER_ID = 'user-123';
 const MOCK_CART_ID = 'cart-abc';
 
-const baseCart = {
+const baseCart = NeedsInputCartDTOFactory({
   id: MOCK_CART_ID,
   uid: MOCK_USER_ID,
-  version: 1,
-  interval: 'monthly',
   amount: 999,
   currency: 'usd',
-  taxAddress: { countryCode: 'US', postalCode: '94107' },
-};
+});
 
-const baseSession = {
-  user: {
-    id: MOCK_USER_ID,
-    email: 'user@example.com',
-  },
-};
+const baseSession = SessionFactory({ id: MOCK_USER_ID, email: 'user@example.com' });
 
 const mockL10n = {
   getString: (_id: string, ...rest: unknown[]) => {

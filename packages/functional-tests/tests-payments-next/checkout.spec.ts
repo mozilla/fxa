@@ -146,12 +146,12 @@ test.describe('severity-2', () => {
   test('New user checkout with account creation', async ({
     target,
     page,
-    pages: { relier, signup, confirmSignupCode },
+    pages: { relier, signinPasswordlessCode },
     paymentPages: { checkout },
     testAccountTracker,
   }) => {
-    const { email, password } =
-      testAccountTracker.generateSignupAccountDetails();
+    const { email } =
+      testAccountTracker.generatePasswordlessAccountDetails();
 
     // Navigate from relier to checkout
     await relier.goto();
@@ -164,16 +164,12 @@ test.describe('severity-2', () => {
     await checkout.emailInput.fill(email);
     await checkout.signInContinueButton.click();
 
-    // Redirected to FXA — complete signup flow
-    await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
-      timeout: 30_000,
-    });
-    await signup.fillOutSignupForm(password);
-
-    // Confirm signup code
-    await expect(page).toHaveURL(/confirm_signup_code/);
-    const code = await target.emailClient.getVerifyShortCode(email);
-    await confirmSignupCode.fillOutCodeForm(code);
+    // Redirected to FXA — OTP is enabled for 123DonePro on stage,
+    // so new users go through the passwordless signup code flow
+    await page.waitForURL(/signin_passwordless_code/, { timeout: 30_000 });
+    await expect(signinPasswordlessCode.heading).toBeVisible();
+    const code = await target.emailClient.getPasswordlessSignupCode(email);
+    await signinPasswordlessCode.fillOutCodeForm(code);
 
     // After verification, should be redirected to checkout start (authenticated)
     await checkout.waitForPaymentReady();
