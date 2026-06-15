@@ -13,7 +13,7 @@ import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
 import { AccountAvatar } from '../../../lib/interfaces';
-import { PasskeyFallbackSurface } from '../../../lib/passkeys/signin-flow';
+import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
 
 export type SigninPasskeyFallbackProps = {
   email?: string;
@@ -21,7 +21,7 @@ export type SigninPasskeyFallbackProps = {
   localizedErrorMessage?: string;
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
-  passkeySurface?: PasskeyFallbackSurface;
+  passkeySurface?: PasskeyMetricsSurface;
 };
 
 type FormData = {

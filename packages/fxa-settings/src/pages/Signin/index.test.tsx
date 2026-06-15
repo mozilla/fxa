@@ -88,6 +88,10 @@ jest.mock('../../lib/glean', () => ({
       appleDeeplink: jest.fn(),
       googleDeeplink: jest.fn(),
     },
+    passkey: {
+      buttonView: jest.fn(),
+      authSuccess: jest.fn(),
+    },
   },
 }));
 

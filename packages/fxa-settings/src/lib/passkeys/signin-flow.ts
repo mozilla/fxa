@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as Sentry from '@sentry/browser';
 import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
@@ -40,36 +46,36 @@ export type PasskeySignInSurface =
   | 'login_otp'
   | 'alternative_auth';
 
-export type PasskeyFallbackSurface = 'emailfirst' | 'login';
+/** Surface vocabulary used in passkey metric reasons (see {@link toPasskeyMetricsSurface}). */
+export type PasskeyMetricsSurface =
+  | 'emailfirst'
+  | 'signin'
+  | 'otplogin'
+  | 'alternative_auth';
 
 /**
- * Fallback page (`/signin_passkey_fallback`) collapses surfaces to two.
- * 'login_otp' is reached only via the email-first flow. 'alternative_auth'
- * is shown to linked-passwordless users who have no password by definition,
- * so the existing-password fallback path is unreachable for them — but the
- * mapping must stay exhaustive; group with 'login' as a defensive default.
+ * Maps each sign-in surface to its passkey metric-reason name: `login` to
+ * `signin` and `login_otp` to `otplogin` (to match the agreed schema);
+ * `emailfirst` and `alternative_auth` are unchanged.
  */
-const surfaceToFallbackReason = (
+const toPasskeyMetricsSurface = (
   surface: PasskeySignInSurface
-): PasskeyFallbackSurface =>
-  surface === 'login' || surface === 'alternative_auth'
-    ? 'login'
-    : 'emailfirst';
-
-/**
- * Maps the surface enum to the two-prefix space used by the
- * `passkey.auth_success` reason codes (`emailfirst_*` vs `signin_*`). The
- * passwordless OTP code page is part of the email-first journey, so it
- * groups with `emailfirst`. The alternative-auth page rolls up under
- * `signin` alongside the regular /signin page. Note the prefix is `signin`,
- * not `login`, to match the schema Ipsita agreed in the ticket comments.
- */
-const surfaceToAuthSuccessPrefix = (
-  surface: PasskeySignInSurface
-): 'emailfirst' | 'signin' =>
-  surface === 'login' || surface === 'alternative_auth'
-    ? 'signin'
-    : 'emailfirst';
+): PasskeyMetricsSurface => {
+  switch (surface) {
+    case 'login':
+      return 'signin';
+    case 'login_otp':
+      return 'otplogin';
+    case 'alternative_auth':
+      return 'alternative_auth';
+    case 'emailfirst':
+      return 'emailfirst';
+    default: {
+      const _exhaustive: never = surface;
+      throw new Error(`Unhandled PasskeySignInSurface: ${_exhaustive}`);
+    }
+  }
+};
 
 export type PasskeyAuthSuccessOutcome =
   | 'nopassword'
@@ -81,13 +87,20 @@ export type PasskeyAuthSuccessReason =
   | 'emailfirst_withpassword'
   | 'emailfirst_createdpassword'
   | 'signin_nopassword'
-  | 'signin_withpassword';
+  | 'signin_withpassword'
+  | 'signin_createdpassword'
+  // `otplogin` and `alternative_auth` are no-password surfaces: they never
+  // reach the existing-password fallback, so `*_withpassword` is unreachable.
+  | 'otplogin_nopassword'
+  | 'otplogin_createdpassword'
+  | 'alternative_auth_nopassword'
+  | 'alternative_auth_createdpassword';
 
 export const buildPasskeyAuthSuccessReason = (
-  surface: PasskeySignInSurface,
+  prefix: PasskeyMetricsSurface,
   outcome: PasskeyAuthSuccessOutcome
 ): PasskeyAuthSuccessReason =>
-  `${surfaceToAuthSuccessPrefix(surface)}_${outcome}` as PasskeyAuthSuccessReason;
+  `${prefix}_${outcome}` as PasskeyAuthSuccessReason;
 
 interface PasskeySurfaceGleanEvents {
   submit: () => void;
@@ -199,6 +212,12 @@ export interface UsePasskeySignInArgs {
   navigateWithQuery: ReturnType<typeof useNavigateWithQuery>;
   queryParams: string;
   surface: PasskeySignInSurface;
+  /**
+   * Whether the passkey button is rendered on this surface. Drives the
+   * `passkey.button_view` impression so it counts buttons shown, not hook
+   * mounts.
+   */
+  isButtonVisible?: boolean;
 }
 
 export interface UsePasskeySignInResult {
@@ -215,10 +234,20 @@ export function usePasskeySignIn({
   navigateWithQuery,
   queryParams,
   surface,
+  isButtonVisible = false,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const inFlight = useRef(false);
+
+  // One impression per surface when the button is shown, so click-through is measurable.
+  useEffect(() => {
+    if (isButtonVisible) {
+      GleanMetrics.passkey.buttonView({
+        event: { reason: toPasskeyMetricsSurface(surface) },
+      });
+    }
+  }, [isButtonVisible, surface]);
 
   const errorBanner = useMemo<React.ReactNode | undefined>(
     () =>
@@ -361,20 +390,14 @@ export function usePasskeySignIn({
         const fallbackPath = completion.hasPassword
           ? '/signin_passkey_fallback'
           : '/post_verify/set_password';
-        // Thread state so the destination page can tag Glean events with
-        // the passkey context. `passkeySurface` drives both the
-        // `passkey_enter_password.*` reason on the fallback page and the
-        // `passkey.auth_success` reason fired from each terminal success
-        // (existing-password reauth on the fallback page,
-        // newly-created-password on the set-password page).
-        // `passwordCreationReason: 'passkey'` drives the
-        // `post_verify_set_password.*` reason on the set-password page.
+        // Thread the passkey context so the destination page can tag its Glean
+        // events with the originating surface.
         navigateWithQuery(fallbackPath, {
           state: completion.hasPassword
-            ? { passkeySurface: surfaceToFallbackReason(surface) }
+            ? { passkeySurface: toPasskeyMetricsSurface(surface) }
             : {
                 passwordCreationReason: 'passkey' as const,
-                passkeySurface: surfaceToFallbackReason(surface),
+                passkeySurface: toPasskeyMetricsSurface(surface),
               },
         });
         return;
@@ -416,7 +439,10 @@ export function usePasskeySignIn({
         // appropriate `<surface>_nopassword` reason for Looker funnels.
         GleanMetrics.passkey.authSuccess({
           event: {
-            reason: buildPasskeyAuthSuccessReason(surface, 'nopassword'),
+            reason: buildPasskeyAuthSuccessReason(
+              toPasskeyMetricsSurface(surface),
+              'nopassword'
+            ),
           },
         });
       }

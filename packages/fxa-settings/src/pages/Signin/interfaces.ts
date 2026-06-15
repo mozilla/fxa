@@ -8,7 +8,7 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { PasskeyFallbackSurface } from '../../lib/passkeys/signin-flow';
+import { PasskeyMetricsSurface } from '../../lib/passkeys/signin-flow';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
@@ -302,5 +302,5 @@ export interface SigninLocationState {
    * Used to populate the `reason` extra on `passkey_enter_password.*` Glean
    * events.
    */
-  passkeySurface?: PasskeyFallbackSurface;
+  passkeySurface?: PasskeyMetricsSurface;
 }

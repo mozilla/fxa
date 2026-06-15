@@ -749,7 +749,7 @@ describe('lib/glean', () => {
 
       it('submits a ping with the passkey_enter_password_engage event name and a reason', async () => {
         GleanMetrics.passkeyEnterPassword.engage({
-          event: { reason: 'login' },
+          event: { reason: 'signin' },
         });
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
@@ -757,7 +757,7 @@ describe('lib/glean', () => {
           setEventNameStub,
           'passkey_enter_password_engage'
         );
-        sinon.assert.calledWith(setEventReasonStub, 'login');
+        sinon.assert.calledWith(setEventReasonStub, 'signin');
       });
 
       it('submits a ping with the passkey_enter_password_submit event name and a reason', async () => {
@@ -787,7 +787,7 @@ describe('lib/glean', () => {
 
       it('submits a ping with the passkey_enter_password_success event name and a reason', async () => {
         GleanMetrics.passkeyEnterPassword.success({
-          event: { reason: 'login' },
+          event: { reason: 'signin' },
         });
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
@@ -799,12 +799,29 @@ describe('lib/glean', () => {
     });
 
     describe('passkey', () => {
+      it.each(['emailfirst', 'signin', 'otplogin', 'alternative_auth'])(
+        'submits passkey_button_view with reason=%s',
+        async (reason) => {
+          GleanMetrics.passkey.buttonView({ event: { reason } });
+          await GleanMetrics.isDone();
+          sinon.assert.calledOnce(setEventNameStub);
+          sinon.assert.calledWith(setEventNameStub, 'passkey_button_view');
+          sinon.assert.calledOnce(setEventReasonStub);
+          sinon.assert.calledWith(setEventReasonStub, reason);
+        }
+      );
+
       it.each([
         'emailfirst_nopassword',
         'emailfirst_withpassword',
         'emailfirst_createdpassword',
         'signin_nopassword',
         'signin_withpassword',
+        'signin_createdpassword',
+        'otplogin_nopassword',
+        'otplogin_createdpassword',
+        'alternative_auth_nopassword',
+        'alternative_auth_createdpassword',
       ])('submits passkey_auth_success with reason=%s', async (reason) => {
         GleanMetrics.passkey.authSuccess({ event: { reason } });
         await GleanMetrics.isDone();

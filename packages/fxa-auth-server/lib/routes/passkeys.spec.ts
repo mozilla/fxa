@@ -133,6 +133,8 @@ describe('passkeys routes', () => {
     };
     glean = {
       passkey: {
+        authenticationStarted: jest.fn(),
+        authenticationVerificationSuccess: jest.fn(),
         createComplete: jest.fn(),
         deleteSuccess: jest.fn(),
         renameSuccess: jest.fn(),
@@ -1024,6 +1026,19 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledWith();
     });
 
+    it('records glean.passkey.authenticationStarted with the request', async () => {
+      const request = {
+        auth: { credentials: {} },
+        app: { ua: {} },
+      };
+      await runTest('/passkey/authentication/start', request);
+
+      expect(glean.passkey.authenticationStarted).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.authenticationStarted).toHaveBeenCalledWith(
+        expect.objectContaining({ auth: { credentials: {} } })
+      );
+    });
+
     it('enforces rate limiting via customs.checkIpOnly', async () => {
       await runTest('/passkey/authentication/start', {
         auth: { credentials: {} },
@@ -1153,6 +1168,36 @@ describe('passkeys routes', () => {
       ).rejects.toThrow();
 
       expect(glean.login.complete).not.toHaveBeenCalled();
+    });
+
+    it('emits glean.passkey.authenticationVerificationSuccess on a verified assertion', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      expect(
+        glean.passkey.authenticationVerificationSuccess
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not emit glean.passkey.authenticationVerificationSuccess when verification fails', async () => {
+      mockPasskeyService.verifyAuthenticationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(() =>
+        runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(
+        glean.passkey.authenticationVerificationSuccess
+      ).not.toHaveBeenCalled();
     });
 
     it('enforces rate limiting via customs.checkIpOnly', async () => {

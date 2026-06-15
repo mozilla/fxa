@@ -23,6 +23,7 @@ export const SetPassword = ({
   offeredSyncEngineConfigs,
   integration,
   passwordCreationReason = 'third_party_auth',
+  gleanReason = passwordCreationReason,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
@@ -31,14 +32,14 @@ export const SetPassword = ({
 
   useEffect(() => {
     GleanMetrics.postVerifySetPassword.view({
-      event: { reason: passwordCreationReason },
+      event: { reason: gleanReason },
     });
-  }, [passwordCreationReason]);
+  }, [gleanReason]);
 
   const onSubmit = useCallback(
     async ({ newPassword }: SetPasswordFormData) => {
       GleanMetrics.postVerifySetPassword.submit({
-        event: { reason: passwordCreationReason },
+        event: { reason: gleanReason },
       });
       setCreatePasswordLoading(true);
       setBannerErrorText('');
@@ -51,7 +52,7 @@ export const SetPassword = ({
           error
         );
         GleanMetrics.postVerifySetPassword.submitFrontendError({
-          event: { reason: passwordCreationReason },
+          event: { reason: gleanReason },
         });
         setBannerErrorText(localizedErrorMessage);
         // if the request errored, loading state must be marked as false to reenable submission
@@ -59,7 +60,7 @@ export const SetPassword = ({
         return;
       }
     },
-    [createPasswordHandler, ftlMsgResolver, passwordCreationReason]
+    [createPasswordHandler, ftlMsgResolver, gleanReason]
   );
 
   const {
@@ -89,10 +90,10 @@ export const SetPassword = ({
     if (hasEngaged === false && newPasswordValue) {
       setHasEngaged(true);
       GleanMetrics.postVerifySetPassword.engage({
-        event: { reason: passwordCreationReason },
+        event: { reason: gleanReason },
       });
     }
-  }, [hasEngaged, newPasswordValue, passwordCreationReason]);
+  }, [hasEngaged, newPasswordValue, gleanReason]);
 
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsPage = cmsInfo?.PostVerifySetPasswordPage;
