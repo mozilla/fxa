@@ -181,7 +181,8 @@ describe('AccountDeleteManager', () => {
       await accountDeleteManager.deleteAccount(uid, deleteReason);
 
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
-        expect.objectContaining({ uid })
+        expect.objectContaining({ uid }),
+        deleteReason
       );
       expect(mockStripeHelper.removeCustomer).toHaveBeenCalledTimes(1);
       expect(mockStripeHelper.removeCustomer).toHaveBeenCalledWith(uid, {
@@ -348,7 +349,8 @@ describe('AccountDeleteManager', () => {
           ReasonForDeletion.InactiveAccountScheduled
         );
         expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
-          expect.objectContaining({ uid })
+          expect.objectContaining({ uid }),
+          ReasonForDeletion.InactiveAccountScheduled
         );
         expect(mockLog.info).toHaveBeenCalledTimes(1);
         expect(mockLog.info).toHaveBeenCalledWith(
@@ -364,7 +366,8 @@ describe('AccountDeleteManager', () => {
       await accountDeleteManager.quickDelete(uid, deleteReason);
 
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
-        expect.objectContaining({ uid })
+        expect.objectContaining({ uid }),
+        deleteReason
       );
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledTimes(1);
       expect(mockOAuthDb.removeTokensAndCodes).toHaveBeenCalledWith(uid);
@@ -423,7 +426,8 @@ describe('AccountDeleteManager', () => {
       ).resolves.toBeUndefined();
 
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
-        expect.objectContaining({ uid })
+        expect.objectContaining({ uid }),
+        deleteReason
       );
       expect(mockLog.error).toHaveBeenCalledWith(
         'quickDelete.oauthAccountData',

@@ -7,6 +7,7 @@ import Container from 'typedi';
 import { createMock } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AuthLogger } from '../types';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 const bounces = require('./bounces');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -322,7 +323,8 @@ describe('bounce messages', () => {
     );
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test@example.com' })
+      expect.objectContaining({ email: 'test@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
     expect(log.info).toHaveBeenCalledTimes(5);
     expect(log.info).toHaveBeenNthCalledWith(
@@ -418,7 +420,8 @@ describe('bounce messages', () => {
     expect(mockDB.accountRecord).toHaveBeenCalledWith('test@example.com');
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test@example.com' })
+      expect.objectContaining({ email: 'test@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
     expect(log.info).toHaveBeenCalledTimes(2);
     expect(log.info).toHaveBeenNthCalledWith(
@@ -466,7 +469,8 @@ describe('bounce messages', () => {
     expect(mockDB.accountRecord).toHaveBeenCalledWith('test.@example.com');
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test.@example.com' })
+      expect.objectContaining({ email: 'test.@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
   });
 
@@ -499,7 +503,8 @@ describe('bounce messages', () => {
     expect(mockDB.accountRecord).toHaveBeenCalledWith('test..me@example.com');
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test..me@example.com' })
+      expect.objectContaining({ email: 'test..me@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
   });
 
@@ -546,7 +551,8 @@ describe('bounce messages', () => {
     expect(mockDB.accountRecord).toHaveBeenCalledWith('test@example.com');
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test@example.com' })
+      expect.objectContaining({ email: 'test@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
     expect(log.info).toHaveBeenCalledTimes(3);
     expect(log.info).toHaveBeenNthCalledWith(
@@ -584,7 +590,8 @@ describe('bounce messages', () => {
     expect(mockDB.accountRecord).toHaveBeenCalledWith('test@example.com');
     expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'test@example.com' })
+      expect.objectContaining({ email: 'test@example.com' }),
+      ReasonForDeletion.EmailBounce
     );
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
     expect(log.flowEvent).toHaveBeenCalledWith(

@@ -7,6 +7,7 @@
 const utils = require('./utils/helpers');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../lib/payments/stripe');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 // Account deletion threshold for new unverified accounts that receive
 // a bounce or complaint notification. Unverified accounts younger than
@@ -52,7 +53,10 @@ module.exports = (log, error) => {
                 !(await stripeHelper.hasActiveSubscription(emailRecord.uid))
               ) {
                 // A bounce or complaint on a new unverified account is grounds for deletion
-                await db.deleteAccount(emailRecord);
+                await db.deleteAccount(
+                  emailRecord,
+                  ReasonForDeletion.EmailBounce
+                );
 
                 log.info('accountDeleted', { ...emailRecord });
               }

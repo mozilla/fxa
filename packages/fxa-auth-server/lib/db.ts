@@ -38,6 +38,7 @@ import {
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -896,15 +897,21 @@ export const createDB = (
 
     // DELETE
 
-    async deleteAccount(authToken: { uid: string }) {
+    async deleteAccount(
+      authToken: { uid: string },
+      reason?: ReasonForDeletion
+    ) {
       const { uid } = authToken;
 
       log.info('DB.deleteAccount', { uid });
       if (this.redis) {
         await this.redis.del(uid);
       }
-      this.metrics?.increment('db.account.delete');
-      return Account.delete(uid);
+      // reason is a bounded enum, so it is safe to use as a metric tag.
+      this.metrics?.increment('db.account.delete', {
+        reason: reason ?? 'unknown',
+      });
+      return Account.delete(uid, reason);
     }
 
     async deleteSessionToken(sessionToken: { id: string; uid: string }) {

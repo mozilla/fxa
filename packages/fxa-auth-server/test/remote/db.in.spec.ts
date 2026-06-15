@@ -13,6 +13,7 @@ import {
   TestServerInstance,
 } from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const config = require('../../config').default.getProperties();
@@ -823,7 +824,7 @@ describe('#integration - remote db', () => {
     const emailRecord = await db.emailRecord(account.email);
     expect(emailRecord.uid).toEqual(account.uid);
 
-    await db.deleteAccount(emailRecord);
+    await db.deleteAccount(emailRecord, ReasonForDeletion.UserRequested);
 
     const redisResult = await redis.get(account.uid);
     expect(redisResult).toBeNull();
@@ -833,6 +834,23 @@ describe('#integration - remote db', () => {
 
     const deletedAccount = await db.deletedAccount(account.uid);
     expect(deletedAccount.uid).toBe(account.uid);
+    expect(deletedAccount.deletionReason).toBe(ReasonForDeletion.UserRequested);
+  });
+
+  it('backfills a null deletion reason on a repeat delete', async () => {
+    const emailRecord = await db.emailRecord(account.email);
+
+    // A delete without a reason mimics a tombstone row written by the prior
+    // deleteAccount_23 proc mid-deploy: the row exists but deletionReason is NULL.
+    await db.deleteAccount(emailRecord);
+    let deletedAccount = await db.deletedAccount(account.uid);
+    expect(deletedAccount.deletionReason).toBeNull();
+
+    // A repeat delete with a reason is INSERT IGNORE'd (the row already exists),
+    // so only the proc's backfill UPDATE can fill the null deletionReason.
+    await db.deleteAccount(emailRecord, ReasonForDeletion.UserRequested);
+    deletedAccount = await db.deletedAccount(account.uid);
+    expect(deletedAccount.deletionReason).toBe(ReasonForDeletion.UserRequested);
   });
 
   it('should create and delete linked account', async () => {

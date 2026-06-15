@@ -12,6 +12,7 @@ import {
 
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
@@ -404,7 +405,8 @@ describe('/recovery_email/status', () => {
             expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
             expect(mockDB.deleteAccount).toHaveBeenNthCalledWith(
               1,
-              expect.objectContaining({ email: TEST_EMAIL_INVALID })
+              expect.objectContaining({ email: TEST_EMAIL_INVALID }),
+              ReasonForDeletion.InvalidEmail
             );
             expect(response.errno).toBe(error.ERRNO.INVALID_TOKEN);
             expect(mockLog.info).toHaveBeenCalledTimes(1);

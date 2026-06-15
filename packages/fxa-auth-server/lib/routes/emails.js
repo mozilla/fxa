@@ -7,6 +7,7 @@
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const { AppError: error } = require('@fxa/accounts/errors');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
@@ -326,7 +327,10 @@ module.exports = (
                 secondaryEmailRecord.uid
               ))
             ) {
-              await db.deleteAccount(secondaryEmailRecord);
+              await db.deleteAccount(
+                secondaryEmailRecord,
+                ReasonForDeletion.AccountRecreated
+              );
               log.info('accountDeleted.unverifiedSecondaryEmail', {
                 ...secondaryEmailRecord,
               });
@@ -687,7 +691,10 @@ module.exports = (
               !validators.isValidEmailAddress(sessionToken.email) &&
               !(await stripeHelper.hasActiveSubscription(sessionToken.uid))
             ) {
-              await db.deleteAccount(sessionToken);
+              await db.deleteAccount(
+                sessionToken,
+                ReasonForDeletion.InvalidEmail
+              );
               log.info('accountDeleted.invalidEmailAddress', {
                 ...sessionToken,
               });

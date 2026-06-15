@@ -177,8 +177,12 @@ export class Account extends BaseAuthModel {
     }
   }
 
-  static async delete(uid: string) {
-    return Account.callProcedure(Proc.DeleteAccount, uuidTransformer.to(uid));
+  static async delete(uid: string, deletionReason?: string) {
+    return Account.callProcedure(
+      Proc.DeleteAccount,
+      uuidTransformer.to(uid),
+      deletionReason ?? null
+    );
   }
 
   static async reset({
