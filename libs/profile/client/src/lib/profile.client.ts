@@ -4,8 +4,6 @@
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import Agent from 'agentkeepalive';
-import axios, { AxiosInstance } from 'axios';
 import { ProfileClientConfig } from './profile.config';
 import {
   MalformedUserinfoError,
@@ -21,76 +19,83 @@ import type { Profile } from 'next-auth';
 
 const PATH_PREFIX = '/v1';
 
-const MAX_SOCKETS = 1000;
-const MAX_FREE_SOCKETS = 10;
 const TIMEOUT_MS = 30000;
-const FREE_SOCKET_TIMEOUT_MS = 15000;
 
 type SupportedMethods = 'post' | 'delete' | 'get';
 
+/**
+ * Joins a request path onto the base url. An absolute url (getUserinfo's
+ * userinfoUrl) is returned unchanged. A relative path is appended to the base with slashes normalized.
+ */
+function buildUrl(baseUrl: string, endpoint: string): string {
+  if (/^https?:\/\//i.test(endpoint)) {
+    return endpoint;
+  }
+  return `${baseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+}
+
 @Injectable()
 export class ProfileClient {
-  private axiosInstance: AxiosInstance;
   constructor(
     @Inject(Logger) private log: LoggerService,
     @Inject(StatsDService) public statsd: StatsD,
     private config: ProfileClientConfig
-  ) {
-    this.axiosInstance = axios.create({
-      baseURL: this.config.url,
-      httpAgent: new Agent({
-        maxSockets: MAX_SOCKETS,
-        maxFreeSockets: MAX_FREE_SOCKETS,
-        timeout: TIMEOUT_MS,
-        freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
-      }),
-      httpsAgent: new Agent.HttpsAgent({
-        maxSockets: MAX_SOCKETS,
-        maxFreeSockets: MAX_FREE_SOCKETS,
-        timeout: TIMEOUT_MS,
-        freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
-      }),
-    });
-
-    // Authorization header is required for all requests to the profile server
-    this.axiosInstance.defaults.headers.common['Authorization'] =
-      `Bearer ${config.secretBearerToken}`;
-  }
+  ) {}
 
   private async makeRequest(
     endpoint: string,
-    requestData: any,
-    method: SupportedMethods
+    method: SupportedMethods,
+    { body, accessToken }: { body?: any; accessToken?: string } = {}
   ) {
-    if (!this.axiosInstance) {
-      return;
-    }
-
     try {
-      return (await this.axiosInstance[method](endpoint, requestData)).data;
+      // The profile server requires a bearer token on every request. Most
+      // calls use the configured secret; getUserinfo uses the user's token.
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${accessToken ?? this.config.secretBearerToken}`,
+      };
+
+      const init: RequestInit = {
+        method: method.toUpperCase(),
+        headers,
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      };
+
+      if (body !== undefined) {
+        headers['Content-Type'] = 'application/json';
+        init.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(buildUrl(this.config.url, endpoint), init);
+
+      if (!response.ok) {
+        const error: any = new Error(
+          `Profile server returned status ${response.status}`
+        );
+        error.response = { status: response.status };
+        throw error;
+      }
+
+      // deleteCache responds with an empty body.
+      const text = await response.text();
+      return text ? JSON.parse(text) : undefined;
     } catch (err) {
       const response = err.response || {};
       if (err.errno > -1 || (response.status && response.status < 500)) {
         throw new ProfileClientError(err);
-      } else {
-        throw new ProfileClientServiceFailureError(
-          this.config.serviceName,
-          method,
-          endpoint,
-          err
-        );
       }
+      throw new ProfileClientServiceFailureError(
+        this.config.serviceName,
+        method,
+        endpoint,
+        err
+      );
     }
   }
 
   @CaptureTimingWithStatsD()
   async deleteCache(uid: string) {
     try {
-      return await this.makeRequest(
-        `${PATH_PREFIX}/cache/${uid}`,
-        {},
-        'delete'
-      );
+      return await this.makeRequest(`${PATH_PREFIX}/cache/${uid}`, 'delete');
     } catch (error) {
       this.statsd.increment('profile_client', { type: 'delete_cache_error' });
       this.log.error(error);
@@ -103,8 +108,8 @@ export class ProfileClient {
     try {
       return await this.makeRequest(
         `${PATH_PREFIX}/_display_name/${uid}`,
-        { name },
-        'post'
+        'post',
+        { body: { name } }
       );
     } catch (error) {
       this.statsd.increment('profile_client', {
@@ -121,18 +126,11 @@ export class ProfileClient {
     accessToken: string
   ): Promise<Profile> {
     try {
-      const userinfo = await this.makeRequest(
-        userinfoUrl,
-        {
-          headers: {
-            ...this.axiosInstance.defaults.headers,
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        'get'
-      );
-      if (!userinfo.uid) {
-        throw new MalformedUserinfoError(userinfo);
+      const userinfo = await this.makeRequest(userinfoUrl, 'get', {
+        accessToken,
+      });
+      if (!userinfo?.uid) {
+        throw new MalformedUserinfoError(userinfo ?? {});
       }
       return userinfo;
     } catch (error) {
