@@ -435,10 +435,11 @@ const PasskeyDeleteModal = ({
           Delete your passkey?
         </h2>
       </FtlMsg>
-      <FtlMsg id="passkey-delete-modal-content">
+      <FtlMsg id="passkey-delete-modal-content-v2">
         <p className="mb-10 mx-4">
           This passkey will be removed from your account. You’ll need to sign in
-          using a different way.
+          using a different method (password, another passkey, or linked
+          account).
         </p>
       </FtlMsg>
       <div className="flex justify-center mx-2 mt-6">
