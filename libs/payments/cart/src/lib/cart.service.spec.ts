@@ -1187,6 +1187,37 @@ describe('CartService', () => {
         expect.objectContaining({ uid: undefined, isFreeTrial: false })
       );
     });
+
+    it('creates cart with CREATE eligibility when user has active subscription for unrelated product', async () => {
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createCart).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          uid: args.uid,
+          stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+        })
+      );
+      expect(cartManager.createCart).toHaveBeenCalledWith(
+        expect.not.objectContaining({
+          fromOfferingConfigId: expect.anything(),
+        })
+      );
+      expect(result).toEqual(mockResultCart);
+    });
   });
 
   describe('getCoupon', () => {
@@ -2094,6 +2125,125 @@ describe('CartService', () => {
           mockCart.id,
           mockCart.version,
           expect.objectContaining({ isFreeTrial: false })
+        );
+      });
+    });
+
+    describe('re-previews invoice when tax address country changes currency', () => {
+      it('updates cart amount to new invoice subtotal when currency changes', async () => {
+        const oldCurrency = 'usd';
+        const newCurrency = 'eur';
+        const mockPrice = StripePriceFactory();
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+        const newSubtotal = 1299;
+        const mockPreviewInvoice = InvoicePreviewFactory({
+          subtotal: newSubtotal,
+        });
+        const mockCart = ResultCartFactory({
+          currency: oldCurrency,
+          stripeCustomerId: mockCustomer.id,
+          stripeSubscriptionId: undefined,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+        });
+        const newTaxAddress = TaxAddressFactory({
+          countryCode: 'DE',
+        });
+        const mockInput = UpdateCartInputFactory({
+          taxAddress: newTaxAddress,
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(currencyManager, 'getCurrencyForCountry')
+          .mockReturnValue(newCurrency);
+        jest
+          .spyOn(productConfigurationManager, 'retrieveStripePrice')
+          .mockResolvedValue(mockPrice);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockResolvedValue(mockPreviewInvoice);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+          priceId: mockPrice.id,
+          currency: newCurrency,
+          taxAddress: newTaxAddress,
+          couponCode: undefined,
+        });
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({
+            currency: newCurrency,
+            amount: newSubtotal,
+          })
+        );
+      });
+
+      it('clears coupon when currency changes and coupon is invalid for new currency', async () => {
+        const oldCurrency = 'usd';
+        const newCurrency = 'eur';
+        const mockPrice = StripePriceFactory();
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+        const mockPreviewInvoice = InvoicePreviewFactory();
+        const mockCart = ResultCartFactory({
+          currency: oldCurrency,
+          couponCode: 'SAVE10',
+          stripeCustomerId: mockCustomer.id,
+          stripeSubscriptionId: undefined,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+        });
+        const newTaxAddress = TaxAddressFactory({
+          countryCode: 'DE',
+        });
+        const mockInput = UpdateCartInputFactory({
+          taxAddress: newTaxAddress,
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(currencyManager, 'getCurrencyForCountry')
+          .mockReturnValue(newCurrency);
+        jest
+          .spyOn(productConfigurationManager, 'retrieveStripePrice')
+          .mockResolvedValue(mockPrice);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockResolvedValue(mockPreviewInvoice);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+          .mockRejectedValue(new Error('coupon not valid for currency'));
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: null, userEligible: false });
+        jest
+          .spyOn(checkoutService, 'getProductFreeTrialOffer')
+          .mockResolvedValue(null);
+
+        await cartService.updateCart(mockCart.id, mockCart.version, mockInput);
+
+        expect(
+          promotionCodeManager.assertValidForPriceAndCustomer
+        ).toHaveBeenCalledWith('SAVE10', mockPrice, newCurrency, mockCustomer);
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expect.objectContaining({
+            couponCode: null,
+            currency: newCurrency,
+            amount: mockPreviewInvoice.subtotal,
+          })
         );
       });
     });

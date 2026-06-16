@@ -378,6 +378,13 @@ describe('CheckoutForm', () => {
     });
   });
 
+  it('renders both Stripe PaymentElement and PayPal buttons when PayPal payment type is selected', async () => {
+    await renderAndSelectPaypal();
+
+    expect(screen.getByTestId('payment-element')).toBeInTheDocument();
+    expect(screen.getByTestId('paypal-buttons')).toBeInTheDocument();
+  });
+
   describe('Checkout legal links', () => {
     it('renders the Terms of Service link with the correct href', () => {
       render(<CheckoutForm {...baseProps} />);

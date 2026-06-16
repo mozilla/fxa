@@ -927,7 +927,7 @@ export default async function Manage({
                                         {
                                           vars: { date: nextBillDate },
                                         },
-                                        <p>Next bill &bull; {nextBillDate}</p>
+                                        <span>Next bill &bull; {nextBillDate}</span>
                                       )}
                                     </p>
                                   ) : (

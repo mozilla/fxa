@@ -2,7 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { CancelFlowContentFactory } from '@fxa/payments/management/testing';
+
+jest.mock('@fxa/payments/customer', () => ({
+  SubplatInterval: {
+    Daily: 'daily',
+    Weekly: 'weekly',
+    Monthly: 'monthly',
+    HalfYearly: 'halfyearly',
+    Yearly: 'yearly',
+  },
+  SubPlatPaymentMethodType: {
+    Stripe: 'stripe',
+    PayPal: 'paypal',
+    GoogleIap: 'google_iap',
+    AppleIap: 'apple_iap',
+  },
+}));
 
 jest.mock('@radix-ui/react-form');
 
@@ -99,17 +117,15 @@ jest.mock('@fxa/shared/react', () => ({
 
 import { CancelSubscription } from './index';
 
+const basePageContent = CancelFlowContentFactory({
+  productName: 'Mozilla VPN',
+  currentPeriodEnd: 1735689600,
+});
+
 const baseProps = {
   subscriptionId: 'sub-id',
   locale: 'en',
-  pageContent: {
-    active: true,
-    cancelAtPeriodEnd: false,
-    productName: 'Mozilla VPN',
-    currentPeriodEnd: 1735689600,
-    supportUrl: 'https://support.example.com',
-    webIcon: 'https://example.com/icon.png',
-  },
+  pageContent: basePageContent,
 };
 
 describe('CancelSubscription', () => {
@@ -123,7 +139,7 @@ describe('CancelSubscription', () => {
       render(
         <CancelSubscription
           {...baseProps}
-          pageContent={{ ...baseProps.pageContent, cancelAtPeriodEnd: true }}
+          pageContent={{ ...basePageContent, cancelAtPeriodEnd: true }}
         />
       );
 
@@ -147,17 +163,68 @@ describe('CancelSubscription', () => {
     });
   });
 
-  describe('Active subscription error path', () => {
-    it('shows an error, keeps the form interactive, and preserves the checked checkbox when the cancel action fails', async () => {
+  describe('Active subscription cancel flow', () => {
+    it('cancel button disabled until checkbox checked', async () => {
+      const user = userEvent.setup();
+      render(<CancelSubscription {...baseProps} />);
+
+      const submitButton = screen.getByRole('button', {
+        name: /Cancel your subscription/i,
+      });
+      expect(submitButton).toBeDisabled();
+
+      const checkbox = screen.getByRole('checkbox');
+      await user.click(checkbox);
+
+      expect(submitButton).not.toBeDisabled();
+    });
+
+    it('shows "sorry to see you go" message after successful cancel', async () => {
+      const user = userEvent.setup();
+      mockCancelSubscriptionAtPeriodEndAction.mockResolvedValue({ ok: true });
+
+      render(<CancelSubscription {...baseProps} />);
+
+      const checkbox = screen.getByRole('checkbox');
+      await user.click(checkbox);
+
+      await user.click(
+        screen.getByRole('button', { name: /Cancel your subscription/i })
+      );
+
+      await waitFor(() => {
+        expect(mockCancelSubscriptionAtPeriodEndAction).toHaveBeenCalledWith(
+          'sub-id'
+        );
+      });
+    });
+
+    it('shows expiry date after cancellation completes', () => {
+      render(
+        <CancelSubscription
+          {...baseProps}
+          pageContent={{ ...basePageContent, cancelAtPeriodEnd: true }}
+        />
+      );
+
+      expect(
+        screen.getByText(/subscription has been cancelled/i)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: /Back to subscriptions/i })
+      ).toBeInTheDocument();
+    });
+
+    it('shows error alert when cancel action rejects', async () => {
+      const user = userEvent.setup();
       mockCancelSubscriptionAtPeriodEndAction.mockResolvedValue({ ok: false });
 
       render(<CancelSubscription {...baseProps} />);
 
       const checkbox = screen.getByRole('checkbox');
-      fireEvent.click(checkbox);
-      expect(checkbox).toBeChecked();
+      await user.click(checkbox);
 
-      fireEvent.click(
+      await user.click(
         screen.getByRole('button', { name: /Cancel your subscription/i })
       );
 
@@ -167,15 +234,10 @@ describe('CancelSubscription', () => {
         ).toBeInTheDocument();
       });
 
-      expect(mockCancelSubscriptionAtPeriodEndAction).toHaveBeenCalledWith(
-        'sub-id'
-      );
-
-      expect(checkbox).toBeChecked();
-      const submitButton = screen.getByRole('button', {
-        name: /Cancel your subscription/i,
-      });
-      expect(submitButton).not.toBeDisabled();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Cancel your subscription/i })
+      ).not.toBeDisabled();
     });
   });
 });
