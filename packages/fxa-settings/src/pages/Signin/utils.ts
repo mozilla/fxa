@@ -293,10 +293,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       sendFxaLogin(navigationOptions);
     }
 
-    // If we are about to direct a user to /signin_totp_code, where they will be prompoted for a
-    // totp code and we know their session isn't fully verified then send them an otp code.
+    // If we are about to direct a user to an email-OTP verification page
+    // (/signin_token_code for an unverified session, or /confirm_signup_code for an
+    // unverified email) and we know their session isn't fully verified, then send them
+    // an otp code. Sending here couples the email with the actual navigation action.
     if (
-      to?.includes('signin_token_code') &&
+      (to?.includes('signin_token_code') || to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
       navigationOptions.signinData.verificationMethod ===
         VerificationMethods.EMAIL_OTP

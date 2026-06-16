@@ -352,7 +352,7 @@ describe('Signin utils', () => {
       });
     });
 
-    describe('email OTP resend before /signin_token_code', () => {
+    describe('email OTP resend before verification pages', () => {
       it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
@@ -376,6 +376,31 @@ describe('Signin utils', () => {
         );
         expect(navigateSpy).toHaveBeenCalledWith(
           '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('resends the email OTP code when navigating to /confirm_signup_code with an EMAIL_OTP verification method', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: false,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_UP,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/confirm_signup_code',
           expect.any(Object)
         );
       });
@@ -405,14 +430,14 @@ describe('Signin utils', () => {
         );
       });
 
-      it('does not resend the email OTP code when navigating to a page other than /signin_token_code', async () => {
+      it('does not resend the email OTP code when navigating to a non-email verification page such as /signin_totp_code', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: false,
+            emailVerified: true,
             sessionVerified: false,
-            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationMethod: VerificationMethods.TOTP_2FA,
             verificationReason: VerificationReasons.SIGN_IN,
           },
           isServiceWithEmailVerification: true,
@@ -425,7 +450,7 @@ describe('Signin utils', () => {
         expect(result.error).toBeUndefined();
         expect(sessionResendVerifyCode).not.toHaveBeenCalled();
         expect(navigateSpy).toHaveBeenCalledWith(
-          '/confirm_signup_code',
+          '/signin_totp_code',
           expect.any(Object)
         );
       });
