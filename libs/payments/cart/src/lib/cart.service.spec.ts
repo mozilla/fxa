@@ -2270,6 +2270,7 @@ describe('CartService', () => {
   });
 
   describe('getCart', () => {
+    const mockPaymentIntentInvoiceId = 'in_mock_from_intent';
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCustomerSession = StripeResponseFactory(
       StripeCustomerSessionFactory()
@@ -2473,6 +2474,13 @@ describe('CartService', () => {
       jest
         .spyOn(paymentMethodManager, 'retrieve')
         .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripePaymentIntentFactory({ invoice: mockPaymentIntentInvoiceId })
+          )
+        );
 
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
@@ -2508,8 +2516,11 @@ describe('CartService', () => {
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
       });
+      expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(
+        mockCart.stripeIntentId
+      );
       expect(invoiceManager.preview).toHaveBeenCalledWith(
-        mockSubscription.latest_invoice
+        mockPaymentIntentInvoiceId
       );
     });
 
@@ -3010,12 +3021,125 @@ describe('CartService', () => {
     });
 
     describe('CartState.SUCCESS', () => {
+      const mockInvoiceId = 'in_mock_invoice_id';
       const mockCart = ResultCartFactory({
         state: CartState.SUCCESS,
       });
 
       beforeEach(() => {
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(paymentIntentManager, 'retrieve')
+          .mockResolvedValue(
+            StripeResponseFactory(
+              StripePaymentIntentFactory({ invoice: mockInvoiceId })
+            )
+          );
+      });
+
+      it('uses invoice from PaymentIntent for Stripe carts', async () => {
+        await cartService.getCart(mockCart.id);
+
+        expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(
+          mockCart.stripeIntentId
+        );
+        expect(invoiceManager.preview).toHaveBeenCalledWith(mockInvoiceId);
+      });
+
+      it('falls back to timestamp lookup when PaymentIntent invoice is null', async () => {
+        const fallbackInvoiceId = 'in_timestamp_fallback';
+        jest
+          .spyOn(paymentIntentManager, 'retrieve')
+          .mockResolvedValue(
+            StripeResponseFactory(
+              StripePaymentIntentFactory({ invoice: null })
+            )
+          );
+        jest
+          .spyOn(invoiceManager, 'retrieveBySubscriptionBeforeTimestamp')
+          .mockResolvedValue(fallbackInvoiceId);
+
+        await cartService.getCart(mockCart.id);
+
+        expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(
+          mockCart.stripeIntentId
+        );
+        expect(
+          invoiceManager.retrieveBySubscriptionBeforeTimestamp
+        ).toHaveBeenCalledWith(
+          mockCart.stripeSubscriptionId,
+          mockCart.updatedAt
+        );
+        expect(invoiceManager.preview).toHaveBeenCalledWith(fallbackInvoiceId);
+      });
+
+      it('falls back to subscription invoice list for PayPal carts', async () => {
+        const paypalCart = ResultCartFactory({
+          state: CartState.SUCCESS,
+          stripeIntentId: null,
+        });
+        const fallbackInvoiceId = 'in_paypal_invoice';
+        jest
+          .spyOn(cartManager, 'fetchCartById')
+          .mockResolvedValue(paypalCart);
+        jest
+          .spyOn(invoiceManager, 'retrieveBySubscriptionBeforeTimestamp')
+          .mockResolvedValue(fallbackInvoiceId);
+
+        await cartService.getCart(paypalCart.id);
+
+        expect(paymentIntentManager.retrieve).not.toHaveBeenCalled();
+        expect(
+          invoiceManager.retrieveBySubscriptionBeforeTimestamp
+        ).toHaveBeenCalledWith(
+          paypalCart.stripeSubscriptionId,
+          paypalCart.updatedAt
+        );
+        expect(invoiceManager.preview).toHaveBeenCalledWith(fallbackInvoiceId);
+      });
+
+      it('falls back to timestamp lookup for SetupIntent carts', async () => {
+        const setupIntentCart = ResultCartFactory({
+          state: CartState.SUCCESS,
+          stripeIntentId: `seti_${faker.string.alphanumeric(14)}`,
+        });
+        const fallbackInvoiceId = 'in_setup_intent_invoice';
+        jest
+          .spyOn(cartManager, 'fetchCartById')
+          .mockResolvedValue(setupIntentCart);
+        jest
+          .spyOn(invoiceManager, 'retrieveBySubscriptionBeforeTimestamp')
+          .mockResolvedValue(fallbackInvoiceId);
+
+        await cartService.getCart(setupIntentCart.id);
+
+        expect(paymentIntentManager.retrieve).not.toHaveBeenCalled();
+        expect(
+          invoiceManager.retrieveBySubscriptionBeforeTimestamp
+        ).toHaveBeenCalledWith(
+          setupIntentCart.stripeSubscriptionId,
+          setupIntentCart.updatedAt
+        );
+        expect(invoiceManager.preview).toHaveBeenCalledWith(fallbackInvoiceId);
+      });
+
+      it('does not fall back to subscription.latest_invoice for SUCCESS carts', async () => {
+        const cartWithSetupIntent = ResultCartFactory({
+          state: CartState.SUCCESS,
+          stripeIntentId: `seti_${faker.string.alphanumeric(14)}`,
+        });
+        jest
+          .spyOn(cartManager, 'fetchCartById')
+          .mockResolvedValue(cartWithSetupIntent);
+        jest
+          .spyOn(invoiceManager, 'retrieveBySubscriptionBeforeTimestamp')
+          .mockResolvedValue(undefined);
+
+        await expect(
+          cartService.getCart(cartWithSetupIntent.id)
+        ).rejects.toThrow(/GetCartLatestInvoicePreviewMissingError/);
+
+        expect(subscriptionManager.retrieve).not.toHaveBeenCalled();
       });
 
       it('throws assertion error on missing latestInvoicePreview', async () => {
@@ -3191,6 +3315,13 @@ describe('CartService', () => {
         .mockResolvedValue(mockUpcoming);
       jest.spyOn(invoiceManager, 'preview').mockResolvedValue(mockLatest);
       jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPM);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripePaymentIntentFactory({ invoice: mockPaymentIntentInvoiceId })
+          )
+        );
 
       const result = await cartService.getCart(mockCart.id);
       expect(result.freeTrialOffer).toBeNull();
@@ -3242,6 +3373,13 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockTrialSubscription]);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripePaymentIntentFactory({ invoice: mockPaymentIntentInvoiceId })
+          )
+        );
 
       const result = await cartService.getCart(mockCart.id);
       expect(result.trialStartDate).toBe(mockTrialSubscription.trial_start);

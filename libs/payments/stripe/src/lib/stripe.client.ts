@@ -231,6 +231,15 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
+  async invoicesList(params: Stripe.InvoiceListParams) {
+    const result = await this.stripe.invoices.list({
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeApiList<StripeInvoice>>;
+  }
+
+  @CaptureTimingWithStatsD()
   async invoicesRetrieve(
     id: string,
     params?: Stripe.PaymentMethodAttachParams

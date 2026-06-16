@@ -1154,20 +1154,52 @@ export class CartService {
       subscriptions &&
       cart.state !== CartState.FAIL
     ) {
-      const subscription =
-        subscriptions.find(
-          (subscription) => subscription.id === cart.stripeSubscriptionId
-        ) ||
-        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+      let invoiceId: string | undefined;
 
-      // fetch latest payment info from subscription
-      assert(
-        subscription?.latest_invoice,
-        new GetCartSubscriptionIdCartError(cartId)
-      );
-      latestInvoicePreview = await this.invoiceManager.preview(
-        subscription.latest_invoice
-      );
+      // For SUCCESS carts, pin to the original purchase invoice so that
+      // refreshing the success page after an upgrade in another tab does
+      // not show the upgrade's line items.
+      if (cart.state === CartState.SUCCESS) {
+        // Stripe carts: the PaymentIntent's invoice field is immutable
+        if (cart.stripeIntentId && isPaymentIntentId(cart.stripeIntentId)) {
+          const intent = await this.paymentIntentManager.retrieve(
+            cart.stripeIntentId
+          );
+          invoiceId = intent.invoice ?? undefined;
+        }
+
+        // PayPal carts (no stripeIntentId): find the most recent invoice
+        // created on or before the cart's success transition
+        if (!invoiceId) {
+          invoiceId =
+            await this.invoiceManager.retrieveBySubscriptionBeforeTimestamp(
+              cart.stripeSubscriptionId,
+              cart.updatedAt
+            );
+        }
+      }
+
+      // Non-SUCCESS carts: use subscription's latest invoice (safe because
+      // the subscription hasn't been modified by a subsequent upgrade yet).
+      // SUCCESS carts must not fall back here — subscription.latest_invoice
+      // is mutable and would show a later upgrade's invoice.
+      if (!invoiceId && cart.state !== CartState.SUCCESS) {
+        const subscription =
+          subscriptions.find(
+            (subscription) => subscription.id === cart.stripeSubscriptionId
+          ) ||
+          (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+
+        assert(
+          subscription?.latest_invoice,
+          new GetCartSubscriptionIdCartError(cartId)
+        );
+        invoiceId = subscription.latest_invoice;
+      }
+
+      if (invoiceId) {
+        latestInvoicePreview = await this.invoiceManager.preview(invoiceId);
+      }
     }
 
     if (cart.state === CartState.SUCCESS) {
