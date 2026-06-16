@@ -206,6 +206,23 @@ export class InvoiceManager {
   }
 
   /**
+   * Retrieve the most recent invoice for a subscription created on or before
+   * a given timestamp. Used to pin the success page to the original purchase
+   * invoice even after the subscription is later upgraded.
+   */
+  async retrieveBySubscriptionBeforeTimestamp(
+    subscriptionId: string,
+    timestampMs: number
+  ): Promise<string | undefined> {
+    const result = await this.stripeClient.invoicesList({
+      subscription: subscriptionId,
+      created: { lte: Math.floor(timestampMs / 1000) },
+      limit: 1,
+    });
+    return result.data[0]?.id;
+  }
+
+  /**
    * Fetch the invoice preview for the latest invoice associated with a cart
    */
   async preview(invoiceId: string): Promise<InvoicePreview> {
