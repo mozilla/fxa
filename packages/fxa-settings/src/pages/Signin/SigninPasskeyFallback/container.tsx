@@ -116,9 +116,10 @@ const SigninPasskeyFallbackContainer = ({
       let keyFetchToken: string | undefined;
       let unwrapBKey: string | undefined;
       try {
+        const emails = await authClient.accountEmails(sessionToken);
         ({ keyFetchToken, unwrapBKey } = await authClient.sessionReauth(
           sessionToken,
-          email,
+          emails,
           password,
           { keys: true }
         ));

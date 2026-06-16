@@ -117,6 +117,14 @@ const ACCOUNT_EMAIL_BOUNCE_STATUS_POST = {
   ],
 };
 
+const ACCOUNT_EMAILS_GET = {
+  ...TAGS_ACCOUNT,
+  description: '/account/emails',
+  notes: [
+    'Returns the current primary email, secondary email, and original email that was used during sign up.'
+  ]
+}
+
 const ACCOUNT_PROFILE_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/profile',
@@ -332,6 +340,7 @@ const API_DOCS = {
   ACCOUNT_CREATE_POST,
   ACCOUNT_DESTROY_POST,
   ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
+  ACCOUNT_EMAILS_GET,
   ACCOUNT_FINISH_SETUP_POST,
   ACCOUNT_KEYS_GET,
   ACCOUNT_LOGIN_POST,

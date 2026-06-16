@@ -190,3 +190,6 @@ libs/shared/cms/src/__generated__/graphql.js
 
 # Anthropic's Claude AI — ignore everything except checked-in skills
 .claude/worktrees
+
+# Local CircleCI logs downloaded by tooling
+.ci-logs/

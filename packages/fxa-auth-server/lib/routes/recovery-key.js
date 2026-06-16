@@ -375,7 +375,7 @@ module.exports = (
         validate: {
           payload: isA
             .object({
-              email: validators.email().optional(),
+              email: validators.email().optional(), // ? Not used ?
             })
             .optional()
             .allow(null),

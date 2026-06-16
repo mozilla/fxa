@@ -417,7 +417,11 @@ function mockDB(data, errors) {
         ],
         uid: uid || data.uid, // Prefer the uid parameter, fall back to data.uid
         verifierSetAt: data.verifierSetAt ?? Date.now(),
-        wrapWrapKb: data.wrapWrapKb,
+        // Match `accountRecord` so flows that switched from
+        // `accountRecord(email)` to `account(uid)` get a usable record.
+        kA: data.kA || crypto.randomBytes(32),
+        wrapWrapKb: data.wrapWrapKb || crypto.randomBytes(32),
+        verifierVersion: data.verifierVersion ?? 1,
         metricsOptOutAt: data.metricsOptOutAt || null,
       });
     }),

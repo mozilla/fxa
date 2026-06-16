@@ -4,6 +4,7 @@
 
 import * as assert from 'assert';
 import AuthClient from '../server';
+import * as crypto from '../lib/crypto';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports

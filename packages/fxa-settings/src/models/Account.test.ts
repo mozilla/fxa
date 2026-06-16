@@ -58,7 +58,10 @@ describe('Account', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      mockAuthClient = { passwordChangeWithJWT: jest.fn() } as any;
+      mockAuthClient = {
+        passwordChangeWithJWT: jest.fn(),
+        accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' })
+      } as any;
       account = new Account(mockAuthClient);
       Object.defineProperty(account, 'email', {
         get: () => 'test@example.com',
@@ -181,6 +184,7 @@ describe('Account', () => {
   describe('createPassword', () => {
     let account: Account;
     const authClient: any = {
+      accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' }),
       createPassword: jest.fn().mockResolvedValue({ passwordCreated: 123 }),
       createPasswordWithJwt: jest
         .fn()
@@ -261,6 +265,7 @@ describe('Account', () => {
       mockAuthClient = {
         account: jest.fn().mockResolvedValue(baseAccountResponse),
         attachedClients: jest.fn().mockResolvedValue(baseClientResponse),
+        accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' })
       } as unknown as jest.Mocked<AuthClient>;
       (sessionToken as jest.Mock).mockReturnValue('test-token');
       account = new Account(mockAuthClient);

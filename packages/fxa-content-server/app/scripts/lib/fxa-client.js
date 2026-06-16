@@ -181,12 +181,17 @@ FxaClientWrapper.prototype = {
    */
   checkPassword: withClient((client, email, password, sessionToken) => {
     if (sessionToken) {
-      return client.sessionReauth(sessionToken, email, password, {
-        reason: SignInReasons.PASSWORD_CHECK,
-      });
+      return client.sessionReauth(
+        sessionToken,
+        { original: email, primary: email },
+        password,
+        {
+          reason: SignInReasons.PASSWORD_CHECK,
+        }
+      );
     } else {
       return client
-        .signIn(email, password, {
+        .signIn({ original: email, primary: email }, password, {
           reason: SignInReasons.PASSWORD_CHECK,
         })
         .then(function (sessionInfo) {
@@ -311,7 +316,7 @@ FxaClientWrapper.prototype = {
       setMetricsContext(signInOptions, options);
 
       return client
-        .signIn(email, password, signInOptions)
+        .signIn({ original: email, primary: email }, password, signInOptions)
         .then(function (accountData) {
           if (
             !accountData.verified &&
@@ -407,7 +412,12 @@ FxaClientWrapper.prototype = {
       setMetricsContext(reauthOptions, options);
 
       return client
-        .sessionReauth(sessionToken, email, password, reauthOptions)
+        .sessionReauth(
+          sessionToken,
+          { original: email, primary: email },
+          password,
+          reauthOptions
+        )
         .then((accountData) => {
           accountData.sessionToken = sessionToken;
           return getUpdatedSessionData(email, relier, accountData, options);
@@ -675,7 +685,7 @@ FxaClientWrapper.prototype = {
           }
 
           return client.accountReset(
-            emailToHashWith,
+            { original: emailToHashWith, primary: email },
             newPassword,
             result.accountResetToken,
             accountResetOptions
@@ -731,9 +741,15 @@ FxaClientWrapper.prototype = {
     ) => {
       var email = trim(originalEmail);
       return client
-        .passwordChange(email, oldPassword, newPassword, sessionToken, {
-          keys: wantsKeys(relier, sessionTokenContext),
-        })
+        .passwordChange(
+          { original: email, primary: email },
+          oldPassword,
+          newPassword,
+          sessionToken,
+          {
+            keys: wantsKeys(relier, sessionTokenContext),
+          }
+        )
         .then((accountData = {}) => {
           return getUpdatedSessionData(email, relier, accountData, {
             sessionTokenContext: sessionTokenContext,
@@ -752,7 +768,12 @@ FxaClientWrapper.prototype = {
    */
   deleteAccount: withClient((client, originalEmail, password, sessionToken) => {
     var email = trim(originalEmail);
-    return client.accountDestroy(email, password, {}, sessionToken);
+    return client.accountDestroy(
+      { original: email, primary: email },
+      password,
+      {},
+      sessionToken
+    );
   }),
 
   /**
@@ -1117,10 +1138,15 @@ FxaClientWrapper.prototype = {
       let recoveryKey, keys, recoveryJwk;
 
       return client
-        .sessionReauth(sessionToken, email, password, {
-          keys: true,
-          reason: VerificationReasons.RECOVERY_KEY,
-        })
+        .sessionReauth(
+          sessionToken,
+          { original: email, primary: email },
+          password,
+          {
+            keys: true,
+            reason: VerificationReasons.RECOVERY_KEY,
+          }
+        )
         .then((res) => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
         .then((result) => {
           keys = result;
@@ -1245,7 +1271,7 @@ FxaClientWrapper.prototype = {
       return client
         .resetPasswordWithRecoveryKey(
           accountResetToken,
-          email,
+          { original: email, primary: email },
           newPassword,
           recoveryKeyId,
           keys,
@@ -1363,9 +1389,11 @@ FxaClientWrapper.prototype = {
   createCadReminder: createClientDelegate('createCadReminder'),
 
   finishSetup: withClient((client, relier, token, email, password) => {
-    return client.finishSetup(token, email, password).then((accountData) => {
-      return getUpdatedSessionData(email, relier, accountData);
-    });
+    return client
+      .finishSetup(token, { original: email, primary: email }, password)
+      .then((accountData) => {
+        return getUpdatedSessionData(email, relier, accountData);
+      });
   }),
 
   verifyAccountThirdParty: withClient(
@@ -1384,7 +1412,7 @@ FxaClientWrapper.prototype = {
   ),
 
   createPassword: withClient((client, token, email, password) => {
-    return client.createPassword(token, email, password);
+    return client.createPassword(token, { original: email }, password);
   }),
 };
 

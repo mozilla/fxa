@@ -14,6 +14,7 @@ const PASSWORD_CHANGE_START_POST = {
   description: '/password/change/start',
   notes: [
     'Begin the "change password" process. Returns a single-use `passwordChangeToken`, to be sent to `POST /password/change/finish`. Also returns a single-use `keyFetchToken`.',
+    'Important! the email value must be the original account email, i.e. the email used during initial sign up, and NOT the current primary email!'
   ],
   plugins: {
     'hapi-swagger': {

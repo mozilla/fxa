@@ -112,7 +112,7 @@ const SetPasswordContainer = ({
       // the oauth flow
       const { keyFetchToken } = await authClient.sessionReauthWithAuthPW(
         sessionToken,
-        email,
+        { primary: email },
         authPW,
         {
           keys: true,
@@ -129,9 +129,16 @@ const SetPasswordContainer = ({
     (uid: string, email: string, sessionToken: string): CreatePasswordHandler =>
       async (newPassword: string) => {
         try {
+          const emails = await authClient.accountEmails(sessionToken);
           const { authPW, unwrapBKey } = await authClient.createPassword(
             sessionToken,
-            email,
+            // TODO: This could be a nasty bug. The serverside code assumes that
+            //       authPW is salted with the original email for the account...
+            //       but in this case weren't actually checking or ensuring
+            //       the email provided was the original email. Therefore we could
+            //       have been setting passwords that were NOT hashed with the original
+            //       account email.
+            {original: emails.original },
             newPassword
           );
 

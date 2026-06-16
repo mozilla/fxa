@@ -98,7 +98,7 @@ export const SigninUnblockContainer = ({
     // Get credentials with the correct key version
     const status = await (async () => {
       try {
-        const result = await authClient.getCredentialStatusV2(email);
+        const result = await authClient.getCredentialStatusV2({ primary: email });
         return result;
       } catch (err) {
         // In the event there's a downstream error, this could be useful a breadcrumb to capture.
@@ -118,7 +118,7 @@ export const SigninUnblockContainer = ({
 
     try {
       const response = await authClient.signInWithAuthPW(
-        authEmail,
+        { primary: authEmail },
         credentials.authPW,
         options
       );

@@ -54,6 +54,10 @@ const MOCK_LOCATION_STATE = {
 };
 
 const mockSessionReauth = jest.fn();
+const mockAccountEmails = jest.fn().mockResolvedValue({
+  original: MOCK_EMAIL,
+  primary: MOCK_EMAIL
+})
 const mockHandleNavigation = jest.fn();
 const mockNavigate = jest.fn();
 let mockLocationState: Record<string, unknown> | undefined = undefined;
@@ -77,6 +81,7 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
   useAuthClient: () => ({
+    accountEmails: mockAccountEmails,
     sessionReauth: mockSessionReauth,
   }),
   useFtlMsgResolver: () => ({
@@ -97,6 +102,10 @@ function applyDefaultMocks(): void {
   jest.resetAllMocks();
   mockLocationState = MOCK_LOCATION_STATE;
   mockOAuthDataError = null;
+  mockAccountEmails.mockResolvedValue({
+    original: MOCK_EMAIL,
+    primary: MOCK_EMAIL
+  });
   mockSessionReauth.mockResolvedValue({
     keyFetchToken: 'keyfetchtoken',
     unwrapBKey: 'unwrapbkey',
@@ -181,7 +190,7 @@ describe('SigninPasskeyFallback container', () => {
       await waitFor(() => {
         expect(mockSessionReauth).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN,
-          MOCK_EMAIL,
+          { original: MOCK_EMAIL, primary: MOCK_EMAIL },
           'pa55word',
           { keys: true }
         );

@@ -125,10 +125,10 @@ module.exports = function (
         let passwordChangeToken: any | undefined = undefined;
 
         try {
-          const emailRecord = await db.accountRecord(email);
+          const emailRecord = await db.account(sessionToken.uid);
 
-          if (sessionToken.uid !== emailRecord.uid) {
-            throw error.invalidToken('Invalid session token');
+          if (!emailsMatch(email, emailRecord.email)) {
+            throw error.incorrectPassword(emailRecord.email, form.email);
           }
 
           const password = new Password(
@@ -661,7 +661,11 @@ module.exports = function (
           clientSalt?: string;
         };
 
-        const emailRecord = await db.accountRecord(email);
+        const emailRecord = await db.account(uid);
+
+        if (!emailsMatch(email, emailRecord.email)) {
+          throw error.incorrectPassword(emailRecord.email, email);
+        }
 
         const password = new Password(
           oldAuthPW,
