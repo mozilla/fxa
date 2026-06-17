@@ -16,6 +16,7 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
   AuthenticatorTransportFuture,
+  AuthenticationExtensionsClientInputs,
 } from '@simplewebauthn/server';
 
 import { uuidTransformer } from '@fxa/shared/db/mysql/core';
@@ -79,6 +80,9 @@ export async function generateWebauthnRegistrationOptions(
       authenticatorAttachment: config.authenticatorAttachment,
     },
     excludeCredentials: input.excludeCredentials,
+    // Probe PRF capability only (no eval) for passkey Phase 1.
+    // Cast: SimpleWebAuthn's bundled type predates PRF.
+    extensions: { prf: {} } as AuthenticationExtensionsClientInputs,
   });
 }
 
@@ -107,11 +111,12 @@ export type RegistrationVerificationResult =
   | { verified: true; data: VerifiedRegistrationData };
 
 /**
- * Extract the PRF `enabled` flag from authenticator extension results.
+ * Extract the PRF `enabled` flag from the browser's client extension results.
  */
-function extractPrfEnabled(extensions: unknown): boolean {
-  return Boolean(
-    (extensions as { prf?: { enabled?: unknown } } | undefined)?.prf?.enabled
+export function extractPrfEnabled(extensions: unknown): boolean {
+  return (
+    (extensions as { prf?: { enabled?: unknown } } | undefined)?.prf
+      ?.enabled === true
   );
 }
 
@@ -142,13 +147,8 @@ export async function verifyWebauthnRegistrationResponse(
     return { verified: false };
   }
 
-  const {
-    credential,
-    aaguid,
-    credentialDeviceType,
-    credentialBackedUp,
-    authenticatorExtensionResults,
-  } = registrationInfo;
+  const { credential, aaguid, credentialDeviceType, credentialBackedUp } =
+    registrationInfo;
 
   return {
     verified: true,
@@ -160,7 +160,7 @@ export async function verifyWebauthnRegistrationResponse(
       aaguid,
       backupEligible: credentialDeviceType === 'multiDevice',
       backupState: credentialBackedUp,
-      prfEnabled: extractPrfEnabled(authenticatorExtensionResults),
+      prfEnabled: extractPrfEnabled(input.response.clientExtensionResults),
     },
   };
 }
