@@ -1620,15 +1620,24 @@ describe('StripeWebhookHandler', () => {
         expect(sentryMod.reportSentryError).not.toHaveBeenCalled();
       });
 
-      it('doesnt issue refund without a paypal transaction to refund', async () => {
-        StripeWebhookHandlerInstance.paypalHelper = {};
+      it('tags the invoice and reports to Sentry when neither the cached nor the live invoice has a paypal transaction id', async () => {
+        const sentryMod = require('../../sentry');
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        StripeWebhookHandlerInstance.paypalHelper = {
+          issueRefund: jest.fn().mockResolvedValue(undefined),
+        };
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
           .fn()
           .mockResolvedValue(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoiceWithDiscount = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
           jest.fn().mockReturnValue(null);
+        StripeWebhookHandlerInstance.stripeHelper.updateInvoiceWithPaypalRefundReason =
+          jest.fn().mockResolvedValue({});
         StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
@@ -1644,7 +1653,6 @@ describe('StripeWebhookHandler', () => {
         expect(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
         ).toHaveBeenCalledTimes(1);
-        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledTimes(1);
         expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
           'handleCreditNoteEvent',
           {
@@ -1655,12 +1663,62 @@ describe('StripeWebhookHandler', () => {
         );
         expect(
           StripeWebhookHandlerInstance.stripeHelper
+            .updateInvoiceWithPaypalRefundReason
+        ).toHaveBeenCalledWith(
+          invoice,
+          'Credit note issued on invoice without a PayPal transaction id.'
+        );
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.getInvoiceWithDiscount
+        ).toHaveBeenCalledWith(invoice.id);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
-        ).toHaveBeenCalledTimes(1);
+        ).toHaveBeenCalledTimes(2);
         expect(
           StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
         ).toHaveBeenCalledWith(invoice);
+      });
+
+      it('tags the invoice when the credit note amount exceeds the invoice amount', async () => {
+        const sentryMod = require('../../sentry');
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        StripeWebhookHandlerInstance.paypalHelper = {
+          issueRefund: jest.fn().mockResolvedValue(undefined),
+        };
+        invoice.collection_method = 'send_invoice';
+        invoice.amount_due = 500;
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 900;
+        invoiceCreditNoteEvent.data.object.customer_balance_transaction = null;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          jest.fn().mockReturnValue('tx-1234');
+        StripeWebhookHandlerInstance.stripeHelper.updateInvoiceWithPaypalRefundReason =
+          jest.fn().mockResolvedValue({});
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        expect(result).toBeUndefined();
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateInvoiceWithPaypalRefundReason
+        ).toHaveBeenCalledWith(
+          invoice,
+          'Credit note amount exceeds invoice amount; refund not issued.'
+        );
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
       });
 
       it('logs an error if the amount doesnt match the invoice amount', async () => {
@@ -1742,6 +1800,44 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
         ).toHaveBeenCalledWith(invoice);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledWith(invoice, 'tx-1234', RefundType.Full, undefined);
+      });
+
+      it('re-fetches the invoice from Stripe and issues the refund when only the live invoice has the transaction id', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {
+          issueRefund: jest.fn().mockResolvedValue({}),
+        };
+        invoice.collection_method = 'send_invoice';
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
+        invoice.amount_due = 500;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
+        // The cached (Firestore) invoice has no transaction id, but the
+        // authoritative Stripe invoice does. See PAY-3762.
+        StripeWebhookHandlerInstance.stripeHelper.getInvoiceWithDiscount = jest
+          .fn()
+          .mockResolvedValue(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          jest.fn().mockReturnValueOnce(null).mockReturnValue('tx-1234');
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        expect(result).toBeUndefined();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.getInvoiceWithDiscount
+        ).toHaveBeenCalledWith(invoice.id);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledTimes(2);
         expect(
           StripeWebhookHandlerInstance.paypalHelper.issueRefund
         ).toHaveBeenCalledTimes(1);
