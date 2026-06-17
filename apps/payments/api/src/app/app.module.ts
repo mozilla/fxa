@@ -49,6 +49,7 @@ import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
 import {
   CmsContentValidationManager,
+  MeteringConfigurationManager,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -118,6 +119,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     PaypalCustomerManager,
     StrapiClient,
     CmsContentValidationManager,
+    MeteringConfigurationManager,
     CmsWebhookService,
     FxaWebhookService,
     NimbusManager,
