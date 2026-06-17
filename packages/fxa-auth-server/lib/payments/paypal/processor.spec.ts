@@ -21,8 +21,10 @@ import {
 } from './error-codes';
 import { CurrencyHelper } from '../currencies';
 import { CapabilityService } from '../capability';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
-const { mockLog } = require('../../../test/mocks');
+const mockLog = createMock<AuthLogger>();
 
 const paidInvoice = require('../../../test/local/payments/fixtures/stripe/invoice_paid.json');
 const unpaidInvoice = require('../../../test/local/payments/fixtures/stripe/invoice_open.json');

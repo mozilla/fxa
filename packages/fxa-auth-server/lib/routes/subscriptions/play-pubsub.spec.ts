@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 const uuid = require('uuid');
 
 const mocks = require('../../../test/mocks');
 const { PlayPubsubHandler } = require('./play-pubsub');
-const { AuthLogger } = require('../../types');
 const { PlayBilling } = require('../../payments/iap/google-play');
 const { CapabilityService } = require('../../payments/capability');
 
@@ -26,7 +27,7 @@ describe('PlayPubsubHandler', () => {
   let mockPurchase: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
 const Joi = require('joi');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -30,7 +32,7 @@ function makeRoutes(options: any = {}) {
   };
   config.publicUrl = 'https://public.url';
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
   const oauth = options.oauth || {
     getRefreshTokensByUid: jest.fn(async () => []),
@@ -121,7 +123,7 @@ describe('/account/device', () => {
     });
     devicesData = {};
     mockDevices = mocks.mockDevices(devicesData);
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     accountRoutes = makeRoutes({
       config: config,
       devices: mockDevices,
@@ -306,7 +308,7 @@ describe('/account/devices/notify', () => {
   const config: any = {};
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
     devices: [
@@ -546,7 +548,7 @@ describe('/account/devices/notify', () => {
       payload: pushPayload,
     };
 
-    const mockLog = mocks.mockLog();
+    const mockLog = createMock<AuthLogger>();
     const mockPush = mocks.mockPush({
       sendPush: () => Promise.reject('devices empty'),
     });
@@ -640,7 +642,7 @@ describe('/account/device/commands', () => {
   let mockLog: any, mockRequest: any, mockCustoms: any;
 
   beforeEach(() => {
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockRequest = mocks.mockRequest({
       log: mockLog,
       credentials: {
@@ -886,7 +888,7 @@ describe('/account/devices/invoke_command', () => {
     mockCustoms: any;
 
   beforeEach(() => {
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       devices: mockDevices,
     });
@@ -1330,7 +1332,7 @@ describe('/account/device/destroy', () => {
     deviceId = crypto.randomBytes(16).toString('hex');
     deviceId2 = crypto.randomBytes(16).toString('hex');
     mockDevices = mocks.mockDevices({ deviceId });
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB();
     mockPush = mocks.mockPush();
   });
@@ -1413,7 +1415,7 @@ describe('/account/devices', () => {
     });
     const mockDB = mocks.mockDB();
     const mockDevices = mocks.mockDevices();
-    const log = mocks.mockLog();
+    const log = createMock<AuthLogger>();
     const accountRoutes = makeRoutes({
       db: mockDB,
       devices: mockDevices,
@@ -1524,7 +1526,7 @@ describe('/account/devices', () => {
     });
     const db = mocks.mockDB();
     const devices = mocks.mockDevices();
-    const log = mocks.mockLog();
+    const log = createMock<AuthLogger>();
     const accountRoutes = makeRoutes({ db, devices, log });
     const route = getRoute(accountRoutes, '/account/devices');
 
@@ -1621,7 +1623,7 @@ describe('/account/devices', () => {
       payload: {},
     });
     const db = mocks.mockDB();
-    const log = mocks.mockLog();
+    const log = createMock<AuthLogger>();
     const oauth = {
       getRefreshTokensByUid: jest.fn(async () => {
         return [
@@ -1688,7 +1690,7 @@ describe('/account/devices', () => {
     });
     const mockDB = mocks.mockDB();
     const mockDevices = mocks.mockDevices();
-    const log = mocks.mockLog();
+    const log = createMock<AuthLogger>();
     const accountRoutes = makeRoutes({
       db: mockDB,
       devices: mockDevices,
@@ -1735,7 +1737,7 @@ describe('/account/devices', () => {
     });
     const mockDB = mocks.mockDB();
     const mockDevices = mocks.mockDevices();
-    const log = mocks.mockLog();
+    const log = createMock<AuthLogger>();
     const accountRoutes = makeRoutes({
       db: mockDB,
       devices: mockDevices,

@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger as AuthLoggerType } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
+
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const {
@@ -95,7 +103,10 @@ jest.mock('../oauth/jwt', () => {
 
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
-const statsd = mocks.mockStatsd();
+const statsd = createMock<StatsD>();
+
+afterAll(() => uninstallMockFxaMailer());
+
 const rpCmsConfig = {
   clientId: '00f00f',
   shared: {
@@ -154,7 +165,7 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
   config.cloudTasks = mocks.mockCloudTasksConfig;
   config.accountDestroy = defaultConfig.accountDestroy;
 
-  const log = options.log || mocks.mockLog();
+  const log = options.log || createMock<AuthLoggerType>();
   Container.set(AuthLogger, log);
 
   Container.set(AppConfig, config);
@@ -306,7 +317,7 @@ describe('/account/reset', () => {
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLoggerType>();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
       credentials: {
@@ -344,7 +355,7 @@ describe('/account/reset', () => {
     mockCustoms = mocks.mockCustoms();
     mockPush = mocks.mockPush();
     mailer = mocks.mockMailer();
-    fxaMailer = mocks.mockFxaMailer();
+    fxaMailer = installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     oauth = { removeTokensAndCodes: jest.fn() };
     accountRoutes = makeRoutes({
@@ -892,7 +903,7 @@ describe('/account/create', () => {
       }
     );
     const mockMailer = mocks.mockMailer();
-    const mockFxaMailer = mocks.mockFxaMailer();
+    const mockFxaMailer = installMockFxaMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
     const subscriptionAccountReminders = mocks.mockVerificationReminders();
@@ -1449,7 +1460,7 @@ describe('/account/stub', () => {
       }
     );
     const mockMailer = mocks.mockMailer();
-    mocks.mockFxaMailer();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
@@ -1666,7 +1677,7 @@ describe('/account/status', () => {
       }
     );
     const mockMailer = mocks.mockMailer();
-    mocks.mockFxaMailer();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     const mockPush = mocks.mockPush();
     const mockCustoms = mocks.mockCustoms();
@@ -2168,7 +2179,7 @@ describe('/account/set_password', () => {
       }
     );
     const mockMailer = mocks.mockMailer();
-    const mockFxaMailer = mocks.mockFxaMailer();
+    const mockFxaMailer = installMockFxaMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
     const subscriptionAccountReminders = mocks.mockVerificationReminders();
@@ -2461,7 +2472,7 @@ describe('/account/login', () => {
     uid: uid,
   });
   const mockMailer = mocks.mockMailer();
-  const mockFxaMailer = mocks.mockFxaMailer();
+  const mockFxaMailer = installMockFxaMailer();
   const mockOAuthClientInfo = mocks.mockOAuthClientInfo();
 
   const mockPush = mocks.mockPush();
@@ -4054,7 +4065,7 @@ describe('/account/login', () => {
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockLog = mocks.mockLog();
+  const mockLog = createMock<AuthLoggerType>();
   const mockRequest = mocks.mockRequest({
     credentials: {
       emailVerified: true,
@@ -4138,7 +4149,7 @@ describe('/account/destroy', () => {
     mockDB = {
       ...mocks.mockDB({ email: email, uid: uid }),
     };
-    mockLog = mocks.mockLog();
+    mockLog = createMock<AuthLoggerType>();
     mockCustoms = mocks.mockCustoms();
     mockRequest = mocks.mockRequest({
       credentials: { uid, email, tokenVerified },
@@ -4148,7 +4159,7 @@ describe('/account/destroy', () => {
         authPW: new Array(65).join('f'),
       },
     });
-    mocks.mockFxaMailer();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
   });
 
@@ -4243,7 +4254,10 @@ describe('/account/destroy', () => {
     const accountRoutes = makeRoutes({
       checkPassword: () => Promise.reject(error.unknownAccount()),
       config: {
-        subscriptions: { enabled: true, paypalNvpSigCredentials: { enabled: true } },
+        subscriptions: {
+          enabled: true,
+          paypalNvpSigCredentials: { enabled: true },
+        },
         accountDestroy: { requireVerifiedAccount: false },
         domain: 'wibble',
       },
@@ -4376,7 +4390,7 @@ describe('/account', () => {
   };
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLoggerType>();
     request = mocks.mockRequest({
       credentials: { uid, email },
       log: log,
@@ -4391,7 +4405,7 @@ describe('/account', () => {
       'subscriptionsToResponse',
       'removeFirestoreCustomer',
     ]);
-    mockFxaMailerLocal = mocks.mockFxaMailer();
+    mockFxaMailerLocal = installMockFxaMailer();
     mockOAuthClientInfoLocal = mocks.mockOAuthClientInfo();
     mockStripeHelper.fetchCustomer = jest.fn(
       async (uid: any, email: any) => mockCustomer
@@ -5019,7 +5033,7 @@ describe('/account/email_bounce_status', () => {
   const email = 'test@example.com';
 
   function buildRoute(dbOverrides: any = {}) {
-    log = mocks.mockLog();
+    log = createMock<AuthLoggerType>();
     mockDB = {
       emailBounces: jest.fn(() => Promise.resolve([])),
       ...dbOverrides,
@@ -5073,7 +5087,7 @@ describe('/account/metrics_opt', () => {
   const email = 'test@example.com';
 
   function buildRoute(setMetricsOptStub: any) {
-    log = mocks.mockLog();
+    log = createMock<AuthLoggerType>();
     mockCustoms = {
       check: jest.fn(() => Promise.resolve()),
       checkAuthenticated: jest.fn(() => Promise.resolve()),

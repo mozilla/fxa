@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
+
 const crypto = require('crypto');
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -36,7 +39,7 @@ interface DevicesModule {
 
 describe('lib/devices:', () => {
   describe('instantiate:', () => {
-    let log: ReturnType<typeof mocks.mockLog>,
+    let log: AuthLogger,
       deviceCreatedAt: number,
       deviceId: string,
       device: Record<string, unknown>,
@@ -46,7 +49,7 @@ describe('lib/devices:', () => {
       pushbox: ReturnType<typeof mocks.mockPushbox>;
 
     beforeEach(() => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       deviceCreatedAt = Date.now();
       deviceId = crypto.randomBytes(16).toString('hex');
       device = {

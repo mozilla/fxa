@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import nock from 'nock';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 
 const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
@@ -143,7 +145,7 @@ describe('support', () => {
       },
     };
 
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     customs = mocks.mockCustoms();
 
     db = mocks.mockDB({

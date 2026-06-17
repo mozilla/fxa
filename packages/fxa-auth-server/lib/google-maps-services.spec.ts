@@ -4,11 +4,12 @@
 
 import Sentry from '@sentry/node';
 import { default as Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from './types';
 
 const sentryModule = require('./sentry');
-const { mockLog } = require('../test/mocks');
 const { GoogleMapsService } = require('./google-maps-services');
-const { AuthLogger, AppConfig } = require('./types');
+const { AppConfig } = require('./types');
 
 function deepCopy(object: any) {
   return JSON.parse(JSON.stringify(object));
@@ -110,7 +111,7 @@ describe('GoogleMapsServices', () => {
   let log: any;
 
   beforeEach(() => {
-    log = mockLog();
+    log = createMock<AuthLogger>();
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
     googleMapsServices = new GoogleMapsService();

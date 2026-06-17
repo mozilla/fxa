@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
+import { createMock } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
 
-const { mockLog, mockStatsd } = require('../../test/mocks');
 const emailHelpers = require('./utils/helpers');
 const deliveryDelay = require('./delivery-delay');
 
@@ -48,8 +50,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should not log an error for headers', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(
       mockMessage({ junk: 'message' })
     );
@@ -57,8 +59,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should log an error for missing headers', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const message = mockMessage({ junk: 'message' });
     message.headers = undefined;
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(message);
@@ -66,8 +68,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should log delivery delay with all fields', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage({
       deliveryDelay: {
         delayType: 'TransientCommunicationFailure',
@@ -118,8 +120,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should handle delivery delay with notificationType', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage({
       notificationType: 'DeliveryDelay',
       eventType: undefined,
@@ -150,8 +152,8 @@ describe('delivery delay messages', () => {
     jest
       .spyOn(emailHelpers, 'logAccountEventFromMessage')
       .mockReturnValue(Promise.resolve());
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage({
       deliveryDelay: {
         delayType: 'SpamDetected',
@@ -169,8 +171,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should handle popular email domain', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage({
       deliveryDelay: {
         delayType: 'RecipientServerError',
@@ -187,8 +189,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should handle missing delayedRecipients gracefully', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage({
       deliveryDelay: {
         delayType: 'Undetermined',
@@ -204,8 +206,8 @@ describe('delivery delay messages', () => {
   });
 
   it('should handle errors and still delete message', async () => {
-    const log = mockLog();
-    const statsd = mockStatsd();
+    const log = createMock<AuthLogger>();
+    const statsd = createMock<StatsD>();
     const mockMsg = createDeliveryDelayMessage();
 
     jest

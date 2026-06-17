@@ -4,13 +4,15 @@
 
 import crypto from 'crypto';
 import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
+import { AuthLogger } from '../types';
 
-const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
 let log: any,
   mockConfig: any,
-  mockStatsD: any,
+  mockStatsD: DeepMocked<StatsD>,
   routes: any,
   route: any,
   request: any;
@@ -86,11 +88,8 @@ jest.mock('./utils/cms', () => ({
 
 describe('cms', () => {
   beforeEach(() => {
-    log = mocks.mockLog();
-    mockStatsD = {
-      increment: jest.fn(),
-      timing: jest.fn(),
-    };
+    log = createMock<AuthLogger>();
+    mockStatsD = createMock<StatsD>();
 
     mockConfig = {
       cms: {

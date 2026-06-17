@@ -3,12 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { StatsD } from 'hot-shots';
 import {
   EmailTypes,
   DeleteAccountTasks,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
-import { AppConfig } from '../types';
+import { AppConfig, AuthLogger } from '../types';
+import {
+  installMockFxaMailer,
+  uninstallMockFxaMailer,
+} from '../../test/fixtures/fxa-mailer';
 
 // Mock fxa-shared/db/models/auth with real exports plus mock EmailBounce for chaining.
 // Must be before any require() that pulls this module (including test/mocks.js).
@@ -52,8 +58,8 @@ const mockAccount = {
 };
 const mockFxaDb = mocks.mockDB(mockAccount);
 const mockMailer = mocks.mockMailer();
-const mockFxaMailer = mocks.mockFxaMailer();
-const mockStatsd = { increment: jest.fn() };
+const mockFxaMailer = installMockFxaMailer();
+const mockStatsd: DeepMocked<StatsD> = createMock<StatsD>();
 const mockGlean = {
   inactiveAccountDeletion: {
     firstEmailSkipped: jest.fn(),
@@ -74,7 +80,7 @@ const mockGlean = {
     deletionScheduled: jest.fn(),
   },
 };
-const mockLog = mocks.mockLog();
+const mockLog = createMock<AuthLogger>();
 const mockOAuthDb = {
   getRefreshTokensByUid: jest.fn().mockResolvedValue([]),
   getAccessTokensByUid: jest.fn().mockResolvedValue([]),
@@ -129,6 +135,8 @@ describe('InactiveAccountsManager', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
+
+  afterAll(() => uninstallMockFxaMailer());
 
   describe('first email notification', () => {
     beforeEach(() => {

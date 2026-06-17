@@ -4,6 +4,8 @@
 
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
 // ---------------------------------------------------------------------------
 // Ensure StatsD is available in the Container before any module-level code
@@ -49,7 +51,7 @@ describe('metrics/amplitude', () => {
     let amplitude: (...args: any[]) => Promise<void>;
 
     beforeEach(() => {
-      log = mocks.mockLog();
+      log = createMock<AuthLogger>();
       mockAmplitudeConfig.rawEvents = false;
       amplitude = amplitudeModule(log, {
         amplitude: mockAmplitudeConfig,

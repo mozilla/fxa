@@ -118,6 +118,7 @@
     "web-push": "3.4.4"
   },
   "devDependencies": {
+    "@golevelup/ts-jest": "^0.5.0",
     "@types/async-retry": "^1",
     "@types/dedent": "^0",
     "@types/hapi__hapi": "^20.0.10",

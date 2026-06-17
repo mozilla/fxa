@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
+
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
@@ -22,7 +25,7 @@ function setup({
   rules?: Record<string, string[]>;
   geoMissing?: boolean;
 } = {}) {
-  log = mocks.mockLog();
+  log = createMock<AuthLogger>();
 
   const config = {
     geoEligibility: { rules },

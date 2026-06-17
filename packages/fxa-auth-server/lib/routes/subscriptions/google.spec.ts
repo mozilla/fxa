@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
 const uuid = require('uuid');
 
 const mocks = require('../../../test/mocks');
@@ -11,7 +13,6 @@ const {
   PurchaseUpdateError,
 } = require('../../payments/iap/google-play/types/errors');
 const { AppError: error } = require('@fxa/accounts/errors');
-const { AuthLogger } = require('../../types');
 const { PlayBilling } = require('../../payments/iap/google-play');
 const { IAPConfig } = require('../../payments/iap/iap-config');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
@@ -40,7 +41,7 @@ describe('GoogleIapHandler', () => {
   let db: any;
 
   beforeEach(() => {
-    log = mocks.mockLog();
+    log = createMock<AuthLogger>();
     playBilling = {};
     Container.set(AuthLogger, log);
     iapConfig = {};

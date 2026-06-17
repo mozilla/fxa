@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../types';
 
 const mockAuthEvents: any = {};
 jest.mock('../events', () => ({
@@ -15,10 +17,9 @@ const config = require('../../config').default.getProperties();
 
 const {
   mockCMSClients,
-  mockLog,
   mockCMSPlanIdsToClientCapabilities,
 } = require('../../test/mocks');
-const { AppConfig, AuthLogger } = require('../types');
+const { AppConfig } = require('../types');
 const { StripeHelper } = require('./stripe');
 const { PlayBilling } = require('./iap/google-play');
 const { AppleIAP } = require('./iap/apple-app-store');
@@ -138,7 +139,7 @@ describe('CapabilityService', () => {
         .mockResolvedValue(mockCMSPlanIdsToClientCapabilities),
     };
     mockConfig = { ...config };
-    log = mockLog();
+    log = createMock<AuthLogger>();
 
     Container.set(AppConfig, mockConfig);
     Container.set(AuthLogger, log);
@@ -818,7 +819,6 @@ describe('CapabilityService', () => {
         });
       });
     });
-
   });
 
   describe('processPriceIdDiff', () => {
