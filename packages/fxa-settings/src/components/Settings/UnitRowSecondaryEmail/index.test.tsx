@@ -239,7 +239,7 @@ describe('UnitRowSecondaryEmail', () => {
         resendSecondaryEmailCode: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
 
-      const { history } = renderWithRouter(
+      const { router } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
         </AppContext.Provider>
@@ -251,7 +251,7 @@ describe('UnitRowSecondaryEmail', () => {
         );
       });
 
-      expect(history.location.pathname).toEqual('/settings/emails/verify');
+      expect(router.state.location.pathname).toEqual('/settings/emails/verify');
     });
 
     it('displays an error message in the AlertBar', async () => {

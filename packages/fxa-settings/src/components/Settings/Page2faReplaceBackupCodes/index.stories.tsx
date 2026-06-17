@@ -10,7 +10,7 @@ import {
 } from 'fxa-settings/src/models/mocks';
 import { Page2faReplaceBackupCodes } from '.';
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { MfaContext } from '../MfaGuard';
@@ -67,7 +67,7 @@ export default {
 
 // Story for users who have existing backup codes and want to replace them
 export const ReplaceExistingCodes = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider
       value={mockAppContext({ account: accountWithExistingCodes, session })}
     >
@@ -77,12 +77,12 @@ export const ReplaceExistingCodes = () => (
         </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 // Story for users who have no backup codes and need to create new ones
 export const CreateNewCodes = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider
       value={mockAppContext({ account: accountWithNoCodes, session })}
     >
@@ -92,5 +92,5 @@ export const CreateNewCodes = () => (
         </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );

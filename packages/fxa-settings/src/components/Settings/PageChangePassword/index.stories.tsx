@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PageChangePassword } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
@@ -18,7 +18,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider value={mockAppContext()}>
       <SettingsLayout>
         <MfaContext.Provider value="password">
@@ -26,5 +26,5 @@ export const Default = () => (
         </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );

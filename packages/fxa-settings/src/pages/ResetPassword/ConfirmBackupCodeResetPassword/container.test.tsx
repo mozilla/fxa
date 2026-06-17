@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
@@ -34,8 +34,8 @@ let mockLocationState = {
   estimatedSyncDeviceCount: 2,
   uid: MOCK_UID,
 };
-jest.mock('@reach/router', () => {
-  const actual = jest.requireActual('@reach/router');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useLocation: () => {
@@ -59,9 +59,9 @@ const mockIntegration: ResetPasswordIntegration = {
 
 async function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmBackupCodeResetPasswordContainer integration={mockIntegration} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

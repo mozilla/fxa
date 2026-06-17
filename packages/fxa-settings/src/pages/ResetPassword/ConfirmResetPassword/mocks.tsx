@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import ConfirmResetPassword from '.';
 import { MOCK_EMAIL } from '../../mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ResendStatus } from '../../../lib/types';
 import { ConfirmResetPasswordProps } from './interfaces';
 import { ResetPasswordIntegration } from '../interfaces';
@@ -53,7 +53,7 @@ export const Subject = ({
     : () => mockResendCodeError();
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmResetPassword
         resendCode={resendCode || mockResendCode}
         resendErrorMessage={codeResendErrorMessage}
@@ -67,6 +67,6 @@ export const Subject = ({
           integration: mockIntegration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

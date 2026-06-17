@@ -4,7 +4,6 @@
 
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import { useConfig, useFtlMsgResolver } from '../../../models';
-import { useLocation } from '@reach/router';
 import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import { getErrorFtlId } from '../../error-utils';
 
@@ -18,12 +17,11 @@ import { getErrorFtlId } from '../../error-utils';
 export function useWebRedirect(redirectTo: string | undefined) {
   const config = useConfig();
 
-  const location = useLocation();
   const ftlMsgResolver = useFtlMsgResolver();
 
   const isValid = isAllowed(
     redirectTo || '',
-    location.href,
+    window.location.href,
     config.redirectAllowlist
   );
 

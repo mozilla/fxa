@@ -5,7 +5,7 @@
 import * as InlineRecoverySetupModule from '.';
 import * as utils from 'fxa-react/lib/utils';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
@@ -51,10 +51,10 @@ const mockLocationHook = () => {
 };
 
 const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook(),
   };
@@ -179,9 +179,9 @@ const defaultProps = {
 
 function render(props = {}) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <InlineRecoverySetupContainer {...{ ...defaultProps, ...props }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

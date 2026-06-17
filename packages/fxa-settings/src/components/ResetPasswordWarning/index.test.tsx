@@ -7,11 +7,14 @@ import { screen, waitFor } from '@testing-library/react';
 import ResetPasswordWarning from '.';
 import userEvent from '@testing-library/user-event';
 import { createMockLocationState } from './mocks';
+import { MemoryRouter } from 'react-router';
 
 describe('ResetPasswordWarning component', () => {
   it('renders as expected when no recovery key exists', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      <MemoryRouter>
+        <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      </MemoryRouter>
     );
 
     expect(
@@ -66,7 +69,9 @@ describe('ResetPasswordWarning component', () => {
 
   it('renders additional message point when recovery key exists', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordWarning locationState={createMockLocationState(true)} />
+      <MemoryRouter>
+        <ResetPasswordWarning locationState={createMockLocationState(true)} />
+      </MemoryRouter>
     );
 
     expect(screen.getByText('Have an account recovery key?')).toBeVisible();
@@ -79,7 +84,9 @@ describe('ResetPasswordWarning component', () => {
 
   it('renders additional message point when recovery key status is undefined', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordWarning locationState={createMockLocationState()} />
+      <MemoryRouter>
+        <ResetPasswordWarning locationState={createMockLocationState()} />
+      </MemoryRouter>
     );
 
     expect(screen.getByText('Have an account recovery key?')).toBeVisible();
@@ -90,7 +97,9 @@ describe('ResetPasswordWarning component', () => {
     global.dispatchEvent(new Event('resize'));
 
     renderWithLocalizationProvider(
-      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      <MemoryRouter>
+        <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      </MemoryRouter>
     );
 
     expect(
@@ -116,7 +125,9 @@ describe('ResetPasswordWarning component', () => {
     global.dispatchEvent(new Event('resize'));
 
     renderWithLocalizationProvider(
-      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      <MemoryRouter>
+        <ResetPasswordWarning locationState={createMockLocationState(false)} />
+      </MemoryRouter>
     );
 
     user.click(screen.getByRole('img', { name: 'Expand warning' }));
@@ -144,10 +155,12 @@ describe('ResetPasswordWarning component', () => {
 
   it('defaults to collapsed view if defaultClosed is true', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordWarning
-        locationState={createMockLocationState(false)}
-        defaultClosed
-      />
+      <MemoryRouter>
+        <ResetPasswordWarning
+          locationState={createMockLocationState(false)}
+          defaultClosed
+        />
+      </MemoryRouter>
     );
 
     expect(

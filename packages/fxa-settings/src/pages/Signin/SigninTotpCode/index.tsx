@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
@@ -59,9 +59,10 @@ export const SigninTotpCode = ({
   unwrapBKey,
   setCurrentSplitLayout,
   useFxAStatusResult,
-}: SigninTotpCodeProps & RouteComponentProps) => {
+}: SigninTotpCodeProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
@@ -171,6 +172,7 @@ export const SigninTotpCode = ({
       }
 
       const navigationOptions = {
+        navigate,
         email,
         signinData: {
           uid,

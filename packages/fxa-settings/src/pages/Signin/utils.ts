@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { NavigateFunction } from 'react-router';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
@@ -16,7 +17,6 @@ import {
 import { isSendTabEntrypoint } from '../../lib/utilities';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
@@ -214,7 +214,7 @@ export const cachedSignIn = async (
 // data back to Backbone. This means temporarily we need to send the sync data up
 // _before_ we hard navigate to CAD/pair in these flows.
 export async function handleNavigation(navigationOptions: NavigationOptions) {
-  const { integration } = navigationOptions;
+  const { navigate, integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
     integration.isSync() || integration.isFirefoxNonSync();
@@ -319,7 +319,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       wantsTwoStepAuthentication ||
       wantsKeys
     ) {
-      performNavigation({ to, locationState });
+      performNavigation({ navigate, to, locationState });
       return { error: undefined };
     }
 
@@ -332,7 +332,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         return { error };
       }
       if (to) {
-        performNavigation({
+        performNavigation({ navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -343,7 +343,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     }
 
     if (navigationOptions.performNavigation !== false) {
-      performNavigation({ to, locationState });
+      performNavigation({ navigate, to, locationState });
     }
     return { error: undefined };
   }
@@ -368,7 +368,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({
+      performNavigation({ navigate,
         to,
         locationState,
         shouldHardNavigate,
@@ -409,7 +409,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       if (to === '/post_verify/service_welcome') {
         navigate(to, { state: { origin: 'signin' }, replace: true });
       } else {
-        performNavigation({
+        performNavigation({ navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -509,6 +509,7 @@ const getUnverifiedNavigationTarget = (
 };
 
 function performNavigation({
+  navigate,
   to,
   shouldHardNavigate = false,
   locationState,
@@ -516,7 +517,7 @@ function performNavigation({
 }: Pick<
   NavigationTarget,
   'to' | 'locationState' | 'shouldHardNavigate' | 'replace'
->) {
+> & { navigate: NavigateFunction }) {
   if (shouldHardNavigate) {
     // Hard navigate to RP, or (temp until CAD/pair is Reactified)
     hardNavigate(to, undefined, undefined, replace);

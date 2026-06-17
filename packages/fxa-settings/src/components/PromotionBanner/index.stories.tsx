@@ -8,7 +8,7 @@ import PromotionBanner, {
   AccountRecoveryKeyPromoBanner,
   RecoveryPhonePromoBanner,
 } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Components/PromotionBanner',
@@ -17,9 +17,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

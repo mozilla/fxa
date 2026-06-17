@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode } from 'react';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { PagePasskeyAdd } from '.';
 import { AppContext } from '../../../models';
 import { AlertBarInfo } from '../../../models/AlertBarInfo';
@@ -77,23 +73,8 @@ const configWithPasskeys = {
 
 export const CeremonyInProgress = () => {
   initLocalAccount();
-  // In-memory history so navigation doesn't change the storybook iframe's
-  // real URL (which would unmount the story). Memoized so toolbar-driven
-  // re-renders (theme, direction, etc.) don't accumulate listeners or
-  // recreate the history on every render.
-  const history = useMemo(
-    () => createHistory(createMemorySource('/settings/passkeys/add')),
-    []
-  );
-  useEffect(
-    () =>
-      history.listen(({ location }) =>
-        action('navigate')(`${location.pathname}${location.hash ?? ''}`)
-      ),
-    [history]
-  );
   return (
-    <LocationProvider history={history}>
+    <MemoryRouter initialEntries={['/settings/passkeys/add']}>
       <AppContext.Provider
         value={mockAppContext({
           account: mockAccount,
@@ -109,6 +90,6 @@ export const CeremonyInProgress = () => {
           </MfaContext.Provider>
         </SettingsContext.Provider>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

@@ -5,7 +5,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Localized, useLocalization } from '@fluent/react';
-import { RouteComponentProps } from '@reach/router';
+
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
@@ -22,7 +23,7 @@ type FormData = {
   verificationCode: string;
 };
 
-export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
+export const PageSecondaryEmailVerify = () => {
   const [errorText, setErrorText] = useState<string>();
   const [resendCodeLoading, setResendCodeLoading] = useState(false);
   const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
@@ -36,6 +37,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       verificationCode: '',
     },
   });
+  const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const goHome = useCallback(
     () =>
@@ -238,12 +240,10 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   );
 };
 
-export const MfaGuardPageSecondaryEmailVerify = ({
-  location,
-}: RouteComponentProps) => {
+export const MfaGuardPageSecondaryEmailVerify = () => {
   return (
     <MfaGuard requiredScope="email" reason={MfaReason.verifySecondaryEmail}>
-      <PageSecondaryEmailVerify location={location} />
+      <PageSecondaryEmailVerify />
     </MfaGuard>
   );
 };

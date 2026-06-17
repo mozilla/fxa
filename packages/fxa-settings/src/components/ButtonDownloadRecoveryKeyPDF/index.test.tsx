@@ -8,6 +8,7 @@ import { ButtonDownloadRecoveryKeyPDF, getFilename } from '.';
 import { logViewEvent } from '../../lib/metrics';
 import { TextEncoder } from 'util';
 import { MOCK_EMAIL } from '../../pages/mocks';
+import { MemoryRouter } from 'react-router';
 
 Object.assign(global, { TextEncoder });
 
@@ -21,7 +22,7 @@ jest.mock('../../lib/metrics', () => ({
 jest.mock('@react-pdf/renderer', () => {
   return {
     pdf: jest.fn().mockResolvedValue({
-      toBlob: jest.fn().mockResolvedValue(new Blob()),
+      toBlob: jest.fn().mockResolvedValue(new globalThis.Blob()),
       updateContainer: jest.fn(),
     }),
   };
@@ -34,10 +35,12 @@ beforeAll(() => {
 describe('ButtonDownloadRecoveryKeyPDF', () => {
   it('renders button as expected', () => {
     const { container } = renderWithLocalizationProvider(
-      <ButtonDownloadRecoveryKeyPDF
-        {...{ recoveryKeyValue, viewName }}
-        email={MOCK_EMAIL}
-      />
+      <MemoryRouter>
+        <ButtonDownloadRecoveryKeyPDF
+          {...{ recoveryKeyValue, viewName }}
+          email={MOCK_EMAIL}
+        />
+      </MemoryRouter>
     );
     screen.getByText('Download and continue');
     expect(container).toMatchSnapshot('without CMS');
@@ -47,10 +50,12 @@ describe('ButtonDownloadRecoveryKeyPDF', () => {
   // including validating that the expected key is included and matches the key in the DataBlock
   it('emits a metrics event when the link is clicked', () => {
     renderWithLocalizationProvider(
-      <ButtonDownloadRecoveryKeyPDF
-        {...{ recoveryKeyValue, viewName }}
-        email={MOCK_EMAIL}
-      />
+      <MemoryRouter>
+        <ButtonDownloadRecoveryKeyPDF
+          {...{ recoveryKeyValue, viewName }}
+          email={MOCK_EMAIL}
+        />
+      </MemoryRouter>
     );
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);

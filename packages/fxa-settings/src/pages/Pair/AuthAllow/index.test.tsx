@@ -16,11 +16,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
 import { AppContext } from '../../../models/contexts/AppContext';
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -30,8 +26,8 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -64,7 +60,7 @@ const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
 
 const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 
-// Helper to render with AppContext (authClient) and LocationProvider (useLocation)
+// Helper to render with AppContext (authClient) and MemoryRouter (useLocation)
 function renderWithAppContext(
   ui: React.ReactElement,
   authClientOverrides: Partial<{
@@ -75,10 +71,9 @@ function renderWithAppContext(
   if (appCtx.authClient) {
     Object.assign(appCtx.authClient as object, authClientOverrides);
   }
-  const history = createHistory(createMemorySource('/pair/auth/allow'));
-  return renderWithLocalizationProvider(
+    return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>
-      <LocationProvider history={history}>{ui}</LocationProvider>
+      <MemoryRouter initialEntries={['/pair/auth/allow']}>{ui}</MemoryRouter>
     </AppContext.Provider>
   );
 }

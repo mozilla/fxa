@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -19,7 +18,7 @@ import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
-export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
+export const MfaGuardPage2faChange = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.changeTotp}>
       <Page2faChange />

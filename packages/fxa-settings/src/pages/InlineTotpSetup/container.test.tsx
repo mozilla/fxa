@@ -5,7 +5,7 @@
 import * as InlineTotpSetupModule from '.';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MozServices } from '../../lib/types';
 import { IntegrationType, OAuthIntegration } from '../../models';
@@ -23,9 +23,9 @@ import { MOCK_FLOW_ID } from '../Signin/mocks';
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook(),
   };
@@ -99,7 +99,7 @@ const defaultProps = {
 };
 function render(props = {}) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <InlineTotpSetupContainer
         {...{
           ...defaultProps,
@@ -107,7 +107,7 @@ function render(props = {}) {
           flowQueryParams: { flowId: MOCK_FLOW_ID },
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

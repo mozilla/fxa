@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReachRouterWindow } from '../../window';
+import { RouterWindow } from '../../window';
 import { UrlData } from './url-data';
 
 /**
@@ -14,7 +14,7 @@ export class UrlQueryData extends UrlData {
   private internalState: URLSearchParams;
 
   constructor(
-    public readonly window: ReachRouterWindow,
+    public readonly window: RouterWindow,
     requireEncodedQueryParams = false
   ) {
     super(window);
@@ -63,10 +63,11 @@ export class UrlQueryData extends UrlData {
       const search = params.toString();
       url.search = search;
 
-      await this.window.navigate(url.toString(), {
-        state: this.window.location.state,
-        replace: false,
-      });
+      this.window.history.replaceState(
+        this.window.history.state,
+        '',
+        url.toString()
+      );
     };
     this.promises.push(setNav());
   }

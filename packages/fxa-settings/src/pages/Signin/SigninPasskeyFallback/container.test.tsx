@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
@@ -72,9 +72,9 @@ let mockLocationState: Record<string, unknown> | undefined = undefined;
 let mockOAuthDataError: unknown = null;
 const mockFinishOAuthFlowHandler = jest.fn();
 
-jest.mock('@reach/router', () => ({
+jest.mock('react-router', () => ({
   __esModule: true,
-  ...jest.requireActual('@reach/router'),
+  ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/signin_passkey_fallback',
     search: '?context=oauth_webchannel_v1',
@@ -132,14 +132,14 @@ function applyDefaultMocks(): void {
 
 function render(integration?: Integration) {
   return renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninPasskeyFallbackContainer
         integration={
           (integration ?? createMockSyncIntegration()) as Integration
         }
         flowQueryParams={MOCK_FLOW_QUERY_PARAMS}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

@@ -11,7 +11,6 @@
  */
 
 import React from 'react';
-import { RouteComponentProps } from '@reach/router';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import { usePageViewEvent } from '../../lib/metrics';
@@ -19,7 +18,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 
 export const viewName = 'poc_pair_start';
 
-const PocPairStart = (_: RouteComponentProps) => {
+const PocPairStart = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   return (

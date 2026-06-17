@@ -8,7 +8,7 @@ import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventDataAttrs } from '../../../lib/types';

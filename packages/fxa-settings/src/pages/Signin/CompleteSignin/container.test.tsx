@@ -12,7 +12,7 @@ import CompleteSigninContainer from './container';
 import { MOCK_HEXSTRING_32 } from '../../mocks';
 import { ModelDataProvider } from '../../../lib/model-data';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -35,8 +35,8 @@ function mockReactUtilsModule() {
 }
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -57,9 +57,9 @@ function mockModelsModule() {
 
 async function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <CompleteSigninContainer />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
 

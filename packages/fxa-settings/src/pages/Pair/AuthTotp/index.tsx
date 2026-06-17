@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver, useAuthClient } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -32,7 +32,7 @@ const AuthTotp = ({
   email,
   serviceName,
   onVerified,
-}: AuthTotpProps & RouteComponentProps) => {
+}: AuthTotpProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();

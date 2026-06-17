@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -18,7 +18,7 @@ import { MfaReason } from '../../../lib/types';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
-export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
+export const PageSecondaryEmailAdd = () => {
   usePageViewEvent('settings.emails');
   const handleMfaError = useMfaErrorHandler();
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
@@ -151,7 +151,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   );
 };
 
-export const MfaGuardPageSecondaryEmailAdd = (_: RouteComponentProps) => {
+export const MfaGuardPageSecondaryEmailAdd = () => {
   return (
     <MfaGuard requiredScope="email" reason={MfaReason.createSecondaryEmail}>
       <PageSecondaryEmailAdd />

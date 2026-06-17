@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { Link } from 'react-router';
 import Security from '../Security';
 import { Profile } from '../Profile';
 import ConnectedServices from '../ConnectedServices';
@@ -38,7 +38,7 @@ import FirefoxPromoBanner, {
 export const PageSettings = ({
   integration,
   isSignedIntoFirefox = false,
-}: RouteComponentProps & {
+}: {
   integration?: SettingsIntegration;
   isSignedIntoFirefox?: boolean;
 }) => {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';

@@ -7,6 +7,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../../lib/types';
 import {
   AuthUiError,
@@ -33,7 +34,7 @@ import {
 } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import * as utils from 'fxa-react/lib/utils';
-import { navigate } from '@reach/router';
+
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import userEvent from '@testing-library/user-event';
 import * as SigninUtils from '../utils';
@@ -74,9 +75,10 @@ const mockLocation = () => {
   };
 };
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
   useLocation: () => mockLocation(),
 }));
 
@@ -93,7 +95,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
@@ -106,7 +108,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('enables submit button when code entered', async () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
 
     const inputEl = screen.getByLabelText('Enter 6-digit code');
     await waitFor(() => userEvent.type(inputEl, '123456'));
@@ -115,9 +117,11 @@ describe('Sign in with TOTP code page', () => {
 
   it('renders additional accessibility info from CMS', () => {
     renderWithLocalizationProvider(
-      <Subject
-        integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
-      />
+      <MemoryRouter>
+        <Subject
+          integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+        />
+      </MemoryRouter>
     );
     expect(
       screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
@@ -126,9 +130,11 @@ describe('Sign in with TOTP code page', () => {
 
   it('renders CMS headline and description when provided', () => {
     renderWithLocalizationProvider(
-      <Subject
-        integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
-      />
+      <MemoryRouter>
+        <Subject
+          integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+        />
+      </MemoryRouter>
     );
     expect(
       screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.headline!)
@@ -140,18 +146,20 @@ describe('Sign in with TOTP code page', () => {
 
   it('shows the relying party in the header when a service name is provided', () => {
     renderWithLocalizationProvider(
-      <Subject
-        {...{
-          serviceName: MozServices.MozillaVPN,
-        }}
-      />
+      <MemoryRouter>
+        <Subject
+          {...{
+            serviceName: MozServices.MozillaVPN,
+          }}
+        />
+      </MemoryRouter>
     );
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
     expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
     expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
     expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
@@ -169,13 +177,15 @@ describe('Sign in with TOTP code page', () => {
         return response;
       });
       renderWithLocalizationProvider(
-        <Subject
-          {...{
-            finishOAuthFlowHandler,
-            integration,
-            submitTotpCode,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            {...{
+              finishOAuthFlowHandler,
+              integration,
+              submitTotpCode,
+            }}
+          />
+        </MemoryRouter>
       );
 
       fireEvent.input(screen.getByLabelText('Enter 6-digit code'), {
@@ -195,7 +205,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
     });
 
     describe('fxaLogin webchannel message', () => {
@@ -236,7 +246,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(navigate).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows general error on unexpected error', async () => {
@@ -248,7 +258,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(navigate).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     describe('with OAuth integration', () => {
@@ -309,12 +319,14 @@ describe('Sign in with TOTP code page', () => {
   describe('AAL upgrade', () => {
     it('renders as expected', () => {
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       expect(
@@ -340,13 +352,15 @@ describe('Sign in with TOTP code page', () => {
         .mockResolvedValue({ error: undefined });
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
       renderWithLocalizationProvider(
-        <Subject
-          submitTotpCode={submitTotpCode}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -365,12 +379,14 @@ describe('Sign in with TOTP code page', () => {
       const fxaLogoutSpy = jest.spyOn(firefox, 'fxaLogout');
 
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       const signOutButton = screen.getByRole('button', {
@@ -393,12 +409,14 @@ describe('Sign in with TOTP code page', () => {
       mockSessionDestroy.mockRejectedValueOnce(new Error('Sign out failed'));
 
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       const signOutButton = screen.getByRole('button', {
@@ -427,13 +445,15 @@ describe('Sign in with TOTP code page', () => {
         .mockImplementation(() => {});
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
       renderWithLocalizationProvider(
-        <Subject
-          submitTotpCode={submitTotpCode}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isPasswordlessOtpSignin: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -457,13 +477,15 @@ describe('Sign in with TOTP code page', () => {
         .mockImplementation(() => {});
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
       renderWithLocalizationProvider(
-        <Subject
-          submitTotpCode={submitTotpCode}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSignInWithThirdPartyAuth: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSignInWithThirdPartyAuth: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -496,15 +518,17 @@ describe('Sign in with TOTP code page', () => {
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
 
       renderWithLocalizationProvider(
-        <Subject
-          integration={vpnIntegration()}
-          submitTotpCode={submitTotpCode}
-          supportsKeysOptionalLogin={false}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isPasswordlessOtpSignin: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={false}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -530,15 +554,17 @@ describe('Sign in with TOTP code page', () => {
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
 
       renderWithLocalizationProvider(
-        <Subject
-          integration={vpnIntegration()}
-          submitTotpCode={submitTotpCode}
-          supportsKeysOptionalLogin={true}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isPasswordlessOtpSignin: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -560,15 +586,17 @@ describe('Sign in with TOTP code page', () => {
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
 
       renderWithLocalizationProvider(
-        <Subject
-          integration={vpnIntegration()}
-          submitTotpCode={submitTotpCode}
-          supportsKeysOptionalLogin={false}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSignInWithThirdPartyAuth: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={false}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSignInWithThirdPartyAuth: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));

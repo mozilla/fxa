@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { useLocation, useNavigate } from 'react-router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
@@ -69,7 +69,7 @@ const SigninPasswordlessCode = ({
   isSignedIntoFirefox = false,
   resendCountdownSeconds = 0,
   useFxAStatusResult,
-}: SigninPasswordlessCodeProps & RouteComponentProps) => {
+}: SigninPasswordlessCodeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const authClient = useAuthClient();
   const config = useConfig();
@@ -269,6 +269,7 @@ const SigninPasswordlessCode = ({
       });
 
       const navigationOptions = {
+        navigate,
         email,
         signinData: {
           uid: result.uid,

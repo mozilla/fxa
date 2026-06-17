@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import React, { useEffect } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';

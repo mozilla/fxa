@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import { RouteComponentProps /*useNavigate*/ } from '@reach/router';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -28,7 +27,7 @@ const SigninBounced = ({
   email,
   canGoBack,
   onBackButtonClick,
-}: SigninBouncedProps & RouteComponentProps) => {
+}: SigninBouncedProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');

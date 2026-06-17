@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../../InputText';
@@ -16,7 +16,7 @@ const validateDisplayName =
   (currentDisplayName: string) => (newDisplayName: string) =>
     newDisplayName !== currentDisplayName && newDisplayName.length <= 256;
 
-export const PageDisplayName = (_: RouteComponentProps) => {
+export const PageDisplayName = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();

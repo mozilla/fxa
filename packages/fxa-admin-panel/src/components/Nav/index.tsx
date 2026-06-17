@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
 import shieldIcon from '../../images/icon-shield.svg';

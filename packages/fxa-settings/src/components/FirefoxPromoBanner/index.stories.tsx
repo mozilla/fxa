@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { FirefoxPromoBannerView } from '.';
 
@@ -13,9 +13,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

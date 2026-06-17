@@ -5,11 +5,10 @@
 // Mocked Module Imports
 import * as ModelsModule from '../../../models';
 import * as SigninUnblockModule from './index';
-import * as ReachRouterModule from '@reach/router';
 
 // Regular imports
 import { act, screen } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninUnblockContainer from './container';
@@ -129,15 +128,23 @@ jest.mock('fxa-auth-client/lib/crypto', () => {
 });
 
 let mockNavigate = jest.fn();
-function mockReachRouter(mockLocationState?: SigninUnblockLocationState) {
+let mockLocationStateValue: SigninUnblockLocationState | undefined;
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/signin_unblock',
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(locationState?: SigninUnblockLocationState) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      ...global.window.location,
-      pathname: '/signin_unblock',
-      state: mockLocationState,
-    };
-  });
+  mockLocationStateValue = locationState;
 }
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
@@ -203,7 +210,7 @@ describe('signin unblock container', () => {
       options?.useFxAStatusResult || mockUseFxAStatus();
 
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninUnblockContainer
           {...{
             integration,
@@ -212,7 +219,7 @@ describe('signin unblock container', () => {
             useFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     await screen.findByText('signin unblock mock');

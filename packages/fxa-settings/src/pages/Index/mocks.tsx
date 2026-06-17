@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationData,
@@ -158,7 +158,7 @@ export const Subject = ({
     supportsKeysOptionalLogin,
   });
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <Index
         processEmailSubmission={async () => {}}
         disableAutoSubmit={() => {}}
@@ -190,6 +190,6 @@ export const Subject = ({
           useFxAStatusResult: mockUseFxAStatusResult,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

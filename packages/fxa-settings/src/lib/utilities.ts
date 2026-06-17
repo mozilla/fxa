@@ -4,7 +4,7 @@
 
 import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
-import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
+import type { NavigateFunction, NavigateOptions } from 'react-router';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
 import { Constants } from './constants';
 
@@ -211,12 +211,12 @@ export const formatSecret = (secret: string) => {
  * useNavigateWithQuery hook and the navigateWithQuery function
  */
 export function navigateWithQueryHelper(
-  location: Location,
-  navigate: NavigateFn,
+  location: Location | { search: string; hash: string },
+  navigate: NavigateFunction,
   to: string,
-  options?: NavigateOptions<{}>,
+  options?: NavigateOptions,
   includeHash: boolean = true
-): Promise<void> {
+): void {
   const [destinationPath, destinationHash = ''] = to.split('#');
   let path = destinationPath;
 
@@ -234,27 +234,43 @@ export function navigateWithQueryHelper(
     path = `${path}${location.hash}`;
   }
 
-  return options ? navigate(path, options) : navigate(path);
+  options ? navigate(path, options) : navigate(path);
 }
 
 /**
  * **NOTE:** This should only be used outside of a router context.
  * Prefer using useNavigateWithQuery when possible.
  *
- * The non-hook version of useNavigateWithQuery
+ * The non-hook version of useNavigateWithQuery — uses window.location.assign
+ * since it runs outside the React Router context.
  */
 export function navigateWithQuery(
   to: string,
-  options?: NavigateOptions<{}>,
+  options?: { replace?: boolean; state?: any },
   includeHash: boolean = true
-): Promise<void> {
-  return navigateWithQueryHelper(
-    window.location,
-    navigate,
-    to,
-    options,
-    includeHash
-  );
+): void {
+  const [destinationPath, destinationHash = ''] = to.split('#');
+  let path = destinationPath;
+
+  if (
+    !destinationPath.includes('?') &&
+    window.location.search &&
+    window.location.search !== '?'
+  ) {
+    path = `${path}${window.location.search}`;
+  }
+
+  if (to.includes('#')) {
+    path = `${path}#${destinationHash}`;
+  } else if (includeHash && window.location.hash) {
+    path = `${path}${window.location.hash}`;
+  }
+
+  if (options?.replace) {
+    window.location.replace(path);
+  } else {
+    window.location.assign(path);
+  }
 }
 
 /**

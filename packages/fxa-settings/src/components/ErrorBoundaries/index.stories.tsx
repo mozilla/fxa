@@ -8,7 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 
 import { Meta } from '@storybook/react';
 import { OAuthQueryParams } from '../../models/pages/signin';
-import { ReachRouterWindow } from '../../lib/window';
+import { RouterWindow } from '../../lib/window';
 
 export default {
   title: 'Components/AppError',
@@ -29,7 +29,7 @@ export const QueryParamValidationError = () => {
           search: '',
         },
         navigate: function () {},
-      } as unknown as ReachRouterWindow)
+      } as unknown as RouterWindow)
     );
     model.validate();
   } catch (error) {

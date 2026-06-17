@@ -16,6 +16,7 @@ import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
+import { useNavigate } from 'react-router';
 import { useNavigateWithQuery } from '../hooks/useNavigateWithQuery';
 import { FinishOAuthFlowHandler } from '../oauth/hooks';
 import { storeAccountData } from '../storage-utils';
@@ -239,6 +240,7 @@ export function usePasskeySignIn({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const inFlight = useRef(false);
+  const navigate = useNavigate();
 
   // One impression per surface when the button is shown, so click-through is measurable.
   useEffect(() => {
@@ -416,6 +418,7 @@ export function usePasskeySignIn({
 
       // Delegate to handleNavigation (same path as password sign-in).
       const { error: navError } = await handleNavigation({
+        navigate,
         email,
         signinData: {
           uid: completion.uid,
@@ -484,6 +487,7 @@ export function usePasskeySignIn({
     authClient,
     finishOAuthFlowHandler,
     ftlMsgResolver,
+    navigate,
     navigateWithQuery,
     queryParams,
     flowQueryParams,

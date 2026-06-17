@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
@@ -13,7 +12,7 @@ export type CompleteSigninProps = { errorMessage?: string };
 
 const CompleteSignin = ({
   errorMessage,
-}: CompleteSigninProps & RouteComponentProps) => {
+}: CompleteSigninProps) => {
   if (errorMessage) {
     return (
       <AppLayout>

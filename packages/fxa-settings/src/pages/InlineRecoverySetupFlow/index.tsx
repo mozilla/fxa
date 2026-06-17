@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useMemo } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../models';
 import AppLayout from '../../components/AppLayout';
 import { InlineRecoverySetupProps } from './interfaces';
@@ -38,7 +38,7 @@ const InlineRecoverySetup = ({
   verifySmsCode,
   completeBackupCodeSetup,
   successfulSetupHandler,
-}: InlineRecoverySetupProps & RouteComponentProps) => {
+}: InlineRecoverySetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-2fa-setup-title',

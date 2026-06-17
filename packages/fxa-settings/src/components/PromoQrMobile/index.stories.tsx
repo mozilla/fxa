@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/react';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { IntegrationType } from '../../models/integrations';
 import { PromoQrMobile } from '.';
@@ -20,22 +16,20 @@ export default {
 } as Meta;
 
 export const Default = () => {
-  const history = createHistory(createMemorySource('/'));
-
+  
   return (
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={['/']}>
       <PromoQrMobile
         integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
 export const WithCardAppLayout = () => {
-  const history = createHistory(createMemorySource('/'));
-
+  
   return (
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={['/']}>
       <AppLayout>
         <h1 className="card-header">Sign in</h1>
         <p className="mt-2">Continue to account settings</p>
@@ -43,21 +37,19 @@ export const WithCardAppLayout = () => {
       <PromoQrMobile
         integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
 export const DesktopSync = () => {
-  const history = createHistory(createMemorySource('/'));
-
   return (
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={['/']}>
       <PromoQrMobile
         integration={{
           type: IntegrationType.OAuthNative,
           isDesktopSync: () => true,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

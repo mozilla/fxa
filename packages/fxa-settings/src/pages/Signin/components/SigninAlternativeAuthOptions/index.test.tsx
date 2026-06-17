@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 import SigninAlternativeAuthOptions from '.';
@@ -36,7 +36,7 @@ const renderSigninAlternativeAuthOptions = (
   props: Partial<React.ComponentProps<typeof SigninAlternativeAuthOptions>> = {}
 ) =>
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext()}>
         <SigninAlternativeAuthOptions
           integration={createMockSigninWebIntegration()}
@@ -50,7 +50,7 @@ const renderSigninAlternativeAuthOptions = (
           {...props}
         />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 
 describe('SigninAlternativeAuthOptions', () => {

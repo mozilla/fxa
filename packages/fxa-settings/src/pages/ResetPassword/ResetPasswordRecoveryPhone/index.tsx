@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
@@ -52,9 +53,9 @@ const ResetPasswordRecoveryPhone = ({
   resendCode,
   sendError,
   numBackupCodes,
-  location,
   integration,
-}: ResetPasswordRecoveryPhoneProps & RouteComponentProps) => {
+}: ResetPasswordRecoveryPhoneProps) => {
+  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
   const [errorLink, setErrorLink] = useState<BannerLinkProps>();

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import FlowRecoveryKeyHint from '.';
 import { Meta } from '@storybook/react';
 import { Account, AppContext } from '../../../models';
@@ -41,7 +41,7 @@ const accountWithUnknownError = {
 
 const storyWithContext = (account: Account) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext({ account })}>
         <FlowRecoveryKeyHint
           {...{ localizedBackButtonTitle, localizedPageTitle, viewName }}
@@ -53,7 +53,7 @@ const storyWithContext = (account: Account) => {
           }}
         />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

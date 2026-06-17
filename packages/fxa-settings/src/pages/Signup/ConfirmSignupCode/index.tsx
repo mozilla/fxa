@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { useLocation, useNavigate } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { isSendTabEntrypoint } from '../../../lib/utilities';
@@ -63,7 +63,7 @@ const ConfirmSignupCode = ({
   flowQueryParams,
   origin,
   setCurrentSplitLayout,
-}: ConfirmSignupCodeProps & RouteComponentProps) => {
+}: ConfirmSignupCodeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ConnectAnotherDevicePromo } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -16,7 +16,7 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider value={mockAppContext()}>
           <SettingsContext.Provider
             value={mockSettingsContext({
@@ -26,7 +26,7 @@ export default {
             <Story />
           </SettingsContext.Provider>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

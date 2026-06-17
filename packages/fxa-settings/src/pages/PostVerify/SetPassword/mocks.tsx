@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import SetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   CreatePasswordHandler,
   PasswordCreationReason,
@@ -38,7 +38,7 @@ export const Subject = ({
 }) => {
   const { offeredSyncEngineConfigs } = mockUseFxAStatus();
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <SetPassword
         {...{
           email,
@@ -49,6 +49,6 @@ export const Subject = ({
           gleanReason,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

@@ -27,7 +27,7 @@ import {
 } from '../../../lib/cache';
 import { MfaReason, MfaScope } from '../../../lib/types';
 import { ERRNO } from '@fxa/accounts/errors';
-import { useNavigate } from '@reach/router';
+import { useNavigate } from 'react-router';
 import * as Sentry from '@sentry/react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';

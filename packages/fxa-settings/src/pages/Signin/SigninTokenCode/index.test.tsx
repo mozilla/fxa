@@ -9,6 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 import { viewName } from '.';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -28,7 +29,7 @@ import {
   createMockSigninWebIntegration,
 } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
-import { navigate } from '@reach/router';
+
 import { SigninOAuthIntegration } from '../interfaces';
 import * as SigninUtils from '../utils';
 
@@ -55,11 +56,12 @@ function applyDefaultMocks() {
   mockReactUtilsModule();
 }
 
-jest.mock('@reach/router', () => {
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
-    navigate: jest.fn(),
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockNavigate,
     useLocation: () => () => {},
   };
 });
@@ -75,9 +77,11 @@ function render(
       createMockSigninWebIntegration() as SigninOAuthIntegration;
   }
   renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ session })}>
-      <Subject {...props} />
-    </AppContext.Provider>
+    <MemoryRouter>
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <Subject {...props} />
+      </AppContext.Provider>
+    </MemoryRouter>
   );
 }
 
@@ -377,7 +381,7 @@ describe('SigninTokenCode page', () => {
 
         await expectSuccessGleanEvents();
         expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
-        expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();

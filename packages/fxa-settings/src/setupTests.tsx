@@ -21,6 +21,20 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
+// jsdom does not implement IntersectionObserver; provide a no-op stub
+// so components that rely on it (e.g. Settings/Nav) can mount in tests.
+global.IntersectionObserver = class IntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+} as any;
+
 // react-pdf required TextEncoder for EncodeStream
 // See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392
 global.TextEncoder = TextEncoder;

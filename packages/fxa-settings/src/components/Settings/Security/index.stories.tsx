@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Security } from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import {
@@ -89,7 +89,7 @@ const storyWithAccount = (
   const story = () => {
     if (passkeys) initLocalAccount();
     return (
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider
           value={mockAppContext({
             account: account as Account,
@@ -103,7 +103,7 @@ const storyWithAccount = (
             <Security />
           </SettingsContext.Provider>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   };
   if (storyName) story.storyName = storyName;

@@ -7,7 +7,7 @@ import Avatar from '../Avatar';
 import { Account } from '../../../models/Account';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { useLocalization } from '@fluent/react';
 import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
@@ -139,7 +139,7 @@ export const UnitRow = ({
   ctaOnClickAction,
   statusIcon,
   subRows,
-}: UnitRowProps & RouteComponentProps) => {
+}: UnitRowProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
     'row-defaults-action-add',

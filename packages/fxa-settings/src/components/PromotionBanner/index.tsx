@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../lib/glean';

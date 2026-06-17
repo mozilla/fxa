@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import Ready, { ReadyBaseIntegration } from '../../../components/Ready';
 import AppLayout from '../../../components/AppLayout';
 import { MozServices } from '../../../lib/types';
@@ -21,7 +20,7 @@ const SignupConfirmed = ({
   isSignedIn,
   serviceName,
   integration,
-}: SignupConfirmedProps & RouteComponentProps) => {
+}: SignupConfirmedProps) => {
   const cmsInfo = integration?.getCmsInfo?.();
 
   return (

@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AppLayout from '../../components/AppLayout';
-import { RouteComponentProps } from '@reach/router';
 
 /* This page is only used for manual and Playwright tests and does not need l10n */
-const Clear = (_: RouteComponentProps) => {
+const Clear = () => {
   try {
     localStorage.clear();
     sessionStorage.clear();

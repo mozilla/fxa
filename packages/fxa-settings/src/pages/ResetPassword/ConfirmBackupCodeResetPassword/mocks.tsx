@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import ConfirmBackupCodeResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ResetPasswordIntegration } from '../interfaces';
 
 const mockIntegration: ResetPasswordIntegration = {
@@ -17,7 +17,7 @@ export const Subject = ({
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmBackupCodeResetPassword
         {...{
           verifyBackupCode,
@@ -26,6 +26,6 @@ export const Subject = ({
           integration: mockIntegration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

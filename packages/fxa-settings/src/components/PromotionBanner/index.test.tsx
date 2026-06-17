@@ -10,9 +10,10 @@ import PromotionBanner, {
 } from '.';
 import keyImage from './key.svg';
 import GleanMetrics from '../../lib/glean';
+import { MemoryRouter } from 'react-router';
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => {
     return {
       pathname: '/settings',
@@ -37,7 +38,7 @@ describe('PromotionBanner component', () => {
       dismissKey: 'account-recovery-dismissed',
       metricsKey: 'create_recovery_key',
     };
-    renderWithLocalizationProvider(<PromotionBanner {...notificationProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><PromotionBanner {...notificationProps} /></MemoryRouter>);
     screen.getByText('Create');
     screen.getByText('Don’t lose your data if you forget your password');
     screen.getByText(
@@ -56,7 +57,7 @@ describe('PromotionBanner component', () => {
       dismissKey: 'account-recovery-dismissed',
       metricsKey: 'create_recovery_key',
     };
-    renderWithLocalizationProvider(<PromotionBanner {...notificationProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><PromotionBanner {...notificationProps} /></MemoryRouter>);
 
     const cta = screen.queryByRole('link', { name: 'Create' });
 
@@ -77,7 +78,7 @@ describe('PromotionBanner component', () => {
 
   describe('recovery key promotion banner', () => {
     it('renders as expected', () => {
-      renderWithLocalizationProvider(<AccountRecoveryKeyPromoBanner />);
+      renderWithLocalizationProvider(<MemoryRouter><AccountRecoveryKeyPromoBanner /></MemoryRouter>);
       expect(
         screen.getByText('Don’t lose your data if you forget your password')
       ).toBeVisible();
@@ -101,7 +102,7 @@ describe('PromotionBanner component', () => {
         GleanMetrics.accountBanner,
         'createRecoveryKeyView'
       );
-      renderWithLocalizationProvider(<AccountRecoveryKeyPromoBanner />);
+      renderWithLocalizationProvider(<MemoryRouter><AccountRecoveryKeyPromoBanner /></MemoryRouter>);
 
       expect(viewSpy).toHaveBeenCalledTimes(1);
     });
@@ -109,7 +110,7 @@ describe('PromotionBanner component', () => {
 
   describe('recovery phone promotion banner', () => {
     it('renders as expected', () => {
-      renderWithLocalizationProvider(<RecoveryPhonePromoBanner />);
+      renderWithLocalizationProvider(<MemoryRouter><RecoveryPhonePromoBanner /></MemoryRouter>);
       expect(
         screen.getByText(
           'Add extra protection to your account with a recovery phone'
@@ -143,7 +144,7 @@ describe('PromotionBanner component', () => {
         GleanMetrics.accountBanner,
         'addRecoveryPhoneView'
       );
-      renderWithLocalizationProvider(<RecoveryPhonePromoBanner />);
+      renderWithLocalizationProvider(<MemoryRouter><RecoveryPhonePromoBanner /></MemoryRouter>);
 
       expect(viewSpy).toHaveBeenCalledTimes(1);
     });

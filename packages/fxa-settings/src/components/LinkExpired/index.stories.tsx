@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
@@ -14,9 +14,9 @@ const meta = {
   decorators: [
     withLocalization,
     (Story: StoryFn) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 };

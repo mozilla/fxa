@@ -11,6 +11,7 @@ import { Integration } from '../../models';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import { MemoryRouter } from 'react-router';
 
 // Mocked Modules
 import * as CacheModule from '../../lib/cache';
@@ -19,9 +20,21 @@ import * as ModelsModule from '../../models';
 import * as ReactUtilsModule from 'fxa-react/lib/utils';
 import * as OAuthHooksModule from '../../lib/oauth/hooks';
 import * as HooksModule from '../../lib/hooks/useNavigateWithQuery';
-import * as ReachRouterModule from '@reach/router';
 import * as ModelsHooksModule from '../../models/hooks';
 import * as OAuthWebIntegrationModule from '../../models/integrations/oauth-web-integration';
+
+let mockLocationSearch = '';
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({
+    search: mockLocationSearch,
+    pathname: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  }),
+}));
 
 describe('AuthorizationContainer', () => {
   const mockAccount = {
@@ -32,7 +45,9 @@ describe('AuthorizationContainer', () => {
 
   function render(integration: unknown) {
     return renderWithLocalizationProvider(
-      <AuthorizationContainer integration={integration as Integration} />
+      <MemoryRouter>
+        <AuthorizationContainer integration={integration as Integration} />
+      </MemoryRouter>
     );
   }
 
@@ -45,11 +60,6 @@ describe('AuthorizationContainer', () => {
     validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
   } as unknown as ModelsModule.Session;
 
-  const mockLocation = {
-    search: '',
-  } as unknown as ReachRouterModule.WindowLocation<unknown>;
-
-  const mockUseLocation = jest.spyOn(ReachRouterModule, 'useLocation');
   const mockUseSession = jest.spyOn(ModelsHooksModule, 'useSession');
   const mockUseAuthClient = jest.spyOn(ModelsHooksModule, 'useAuthClient');
   const mockUseConfig = jest.spyOn(ModelsHooksModule, 'useConfig');
@@ -76,8 +86,7 @@ describe('AuthorizationContainer', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    mockLocation.search = '';
-    mockUseLocation.mockReturnValue(mockLocation);
+    mockLocationSearch = '';
     mockUseAuthClient.mockReturnValue(mockAuthClient);
     mockUseConfig.mockReturnValue({
       servicesWithEmailVerification: ['test-service-id'],
@@ -202,7 +211,7 @@ describe('AuthorizationContainer', () => {
   });
 
   it('navigates to /oauth when action=email', async () => {
-    mockLocation.search = '?foo=1&showReactApp=1';
+    mockLocationSearch = '?foo=1&showReactApp=1';
     const mockIntegration = {
       data: {
         redirectTo: '/settings',
@@ -220,7 +229,7 @@ describe('AuthorizationContainer', () => {
   });
 
   it('navigates to /signin when action is signin', async () => {
-    mockLocation.search = '?x=1&showReactApp=1';
+    mockLocationSearch = '?x=1&showReactApp=1';
     const mockIntegration = {
       data: {
         action: 'signin',

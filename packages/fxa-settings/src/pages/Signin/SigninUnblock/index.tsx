@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
@@ -46,7 +46,7 @@ export const SigninUnblock = ({
   integration,
   finishOAuthFlowHandler,
   setCurrentSplitLayout,
-}: SigninUnblockProps & RouteComponentProps) => {
+}: SigninUnblockProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [bannerErrorMessage, setBannerErrorMessage] = useState('');
@@ -59,6 +59,7 @@ export const SigninUnblock = ({
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
 
@@ -142,6 +143,7 @@ export const SigninUnblock = ({
       storeAccountData(accountData);
 
       const navigationOptions = {
+        navigate,
         email,
         signinData: data.signIn,
         unwrapBKey: data.unwrapBKey,

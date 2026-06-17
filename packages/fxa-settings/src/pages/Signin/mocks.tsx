@@ -36,7 +36,7 @@ import {
   SigninOAuthIntegration,
   SigninProps,
 } from './interfaces';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   AuthUiError,
   AuthUiErrorNos,
@@ -409,7 +409,7 @@ export const Subject = ({
     };
   }
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={contextValue}>
         <SigninDecider
           {...{
@@ -431,6 +431,6 @@ export const Subject = ({
           }}
         />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

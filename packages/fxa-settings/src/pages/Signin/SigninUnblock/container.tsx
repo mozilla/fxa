@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
@@ -50,7 +50,7 @@ export const SigninUnblockContainer = ({
   flowQueryParams: QueryParams;
   setCurrentSplitLayout?: (value: boolean) => void;
   useFxAStatusResult: UseFxAStatusResult;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
