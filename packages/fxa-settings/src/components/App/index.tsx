@@ -526,7 +526,7 @@ const AuthAndAccountSetupRoutes = ({
 
   const useFxAStatusResult = useFxAStatus(integration);
   const defaultCmsState = useDefaultCmsState({
-    enabled: isWebIntegration(integration),
+    enabled: isWebIntegration(integration) || integration.isDesktopSync(),
   });
   try {
     // Handle getServiceName() errors that occur when OAuth scope validation fails.

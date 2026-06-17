@@ -27,8 +27,11 @@ beforeAll(() => {
   });
 });
 
-function createIntegration(type: IntegrationType): PromoQrMobileIntegration {
-  return { type };
+function createIntegration(
+  type: IntegrationType,
+  isDesktopSync = false
+): PromoQrMobileIntegration {
+  return { type, isDesktopSync: () => isDesktopSync };
 }
 
 function renderAtRoute(
@@ -53,12 +56,17 @@ describe('PromoQrMobile', () => {
       expect(screen.getByRole('complementary')).toBeInTheDocument();
     });
 
+    it('renders for desktop sync integrations', () => {
+      renderAtRoute('/', createIntegration(IntegrationType.OAuthNative, true));
+      expect(screen.getByRole('complementary')).toBeInTheDocument();
+    });
+
     it('does not render for OAuth integrations', () => {
       renderAtRoute('/', createIntegration(IntegrationType.OAuthWeb));
       expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
     });
 
-    it('does not render for Sync integrations', () => {
+    it('does not render for non-sync OAuth native integrations', () => {
       renderAtRoute('/', createIntegration(IntegrationType.OAuthNative));
       expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
     });
@@ -107,13 +115,19 @@ describe('PromoQrMobile', () => {
       expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledTimes(1);
     });
 
+    it('fires the view event once on desktop for desktop sync integrations', () => {
+      mockMatchMedia.mockReturnValue({ matches: true });
+      renderAtRoute('/', createIntegration(IntegrationType.OAuthNative, true));
+      expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledTimes(1);
+    });
+
     it('does not fire the view event on mobile viewports', () => {
       mockMatchMedia.mockReturnValue({ matches: false });
       renderAtRoute('/', webIntegration);
       expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();
     });
 
-    it('does not fire when integration is not web', () => {
+    it('does not fire for OAuth web integrations', () => {
       mockMatchMedia.mockReturnValue({ matches: true });
       renderAtRoute('/', createIntegration(IntegrationType.OAuthWeb));
       expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();

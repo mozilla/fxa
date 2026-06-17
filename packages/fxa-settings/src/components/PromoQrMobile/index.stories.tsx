@@ -24,7 +24,9 @@ export const Default = () => {
 
   return (
     <LocationProvider {...{ history }}>
-      <PromoQrMobile integration={{ type: IntegrationType.Web }} />
+      <PromoQrMobile
+        integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
+      />
     </LocationProvider>
   );
 };
@@ -38,7 +40,24 @@ export const WithCardAppLayout = () => {
         <h1 className="card-header">Sign in</h1>
         <p className="mt-2">Continue to account settings</p>
       </AppLayout>
-      <PromoQrMobile integration={{ type: IntegrationType.Web }} />
+      <PromoQrMobile
+        integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
+      />
+    </LocationProvider>
+  );
+};
+
+export const DesktopSync = () => {
+  const history = createHistory(createMemorySource('/'));
+
+  return (
+    <LocationProvider {...{ history }}>
+      <PromoQrMobile
+        integration={{
+          type: IntegrationType.OAuthNative,
+          isDesktopSync: () => true,
+        }}
+      />
     </LocationProvider>
   );
 };
