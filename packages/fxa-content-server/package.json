@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "yarn l10n-prime && yarn copy-local-config && yarn check-local-config ",
     "build": "yarn build-l10n && yarn build-css && yarn build-js",
+    "build-fast": "yarn build-l10n && yarn build-css",
     "build-css": "NODE_ENV=production tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
     "build-js": "NODE_ENV=production grunt build",
     "build-l10n": "yarn l10n-create-json",
@@ -18,7 +19,7 @@
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
     "lint": "yarn lint-glean && eslint app server --cache",
     "lint-glean": "npx glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
-    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js 200 fxa-content-server",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js ",
     "delete": "pm2 delete pm2.config.js",
@@ -167,6 +168,9 @@
   },
   "readmeFilename": "README.md",
   "nx": {
+    "implicitDependencies": [
+      "crypto-relier"
+    ],
     "tags": [
       "scope:frontend",
       "type:core"

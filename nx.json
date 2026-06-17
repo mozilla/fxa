@@ -26,6 +26,23 @@
       "outputs": ["{projectRoot}/storybook-static"],
       "cache": true
     },
+    "build-fast": {
+      "dependsOn": ["prebuild", "^build-fast"],
+      "inputs": ["production", "^production"],
+      "outputs": [
+        "{projectRoot}/*.tsbuildinfo",
+        "{projectRoot}/*/.tmp",
+        "{projectRoot}/**/*.d.ts",
+        "{projectRoot}/build",
+        "{projectRoot}/dist",
+        "{projectRoot}/locale",
+        "{projectRoot}/public",
+        "{projectRoot}/src/styles/*.css",
+        "{projectRoot}/test/**/*.ftl",
+        "{projectRoot}/test/**/client.json"
+      ],
+      "cache": true
+    },
     "compile": {
       "dependsOn": ["^compile"],
       "inputs": ["typescript", "^typescript"],
@@ -52,12 +69,12 @@
       "cache": true
     },
     "restart": {
-      "dependsOn": ["build", "^restart"],
+      "dependsOn": ["^restart"],
       "inputs": ["production", "^production"],
       "outputs": []
     },
     "start": {
-      "dependsOn": ["build", "gen-keys", "^start"],
+      "dependsOn": ["gen-keys", "^start"],
       "inputs": ["production", "^production"],
       "outputs": []
     },

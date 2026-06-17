@@ -39,6 +39,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "build": "yarn build-ts",
+    "build-fast": "yarn build",
     "build-ts": "tsc --build tsconfig.browser.json && tsc --build tsconfig.cjs.json && tsc --build",
     "clean": "rimraf dist",
     "compile": "yarn build-ts",

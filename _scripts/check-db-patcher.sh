@@ -1,6 +1,13 @@
 #!/bin/bash
 RETRY=60
 
+# Derive the number of databases to patch from the migrations layout rather
+# than hardcoding it, so adding a database doesn't let the gate pass early.
+EXPECTED=$(ls -d packages/db-migrations/databases/*/ 2>/dev/null | wc -l | tr -d ' ')
+if [ -z "$EXPECTED" ] || [ "$EXPECTED" -lt 1 ]; then
+  EXPECTED=4
+fi
+
 echo -e "\nChecking for DB patches..."
 
 # Strategy: poll PM2 logs for the patcher outcome. This avoids the race
@@ -32,9 +39,9 @@ for i in $(seq 1 $RETRY); do
       exit 1
     fi
 
-    # Check for success — need all 4 databases
-    SUCCESS_COUNT=$(echo "$LOG_OUTPUT" | grep -c "Successfully patched" 2>/dev/null || echo "0")
-    if [[ "$SUCCESS_COUNT" -ge 4 ]]; then
+    # Check for success — need every database patched
+    SUCCESS_COUNT=$(echo "$LOG_OUTPUT" | grep -c "Successfully patched")
+    if [[ "$SUCCESS_COUNT" -ge "$EXPECTED" ]]; then
       echo "📋 Patch Summary:"
       echo "$LOG_OUTPUT" | \
         grep -E "Successfully patched" | \

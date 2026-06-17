@@ -196,7 +196,8 @@
   },
   "scripts": {
     "build": "yarn build-ts && yarn copy-assets && yarn copy-sql",
-    "build-ts": "tsc --build && tsc-alias && tsc --build tsconfig.cjs.json && tsc-alias -p tsconfig.cjs.json",
+    "build-fast": "yarn build",
+    "build-ts": "bash scripts/build-ts-parallel.sh",
     "clean": "rm -rf dist",
     "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",

@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "nx l10n-prime && nx legal-prime",
     "build": "nx build-l10n && nx build-static && nx build-ts && nx build-css && nx build-react",
+    "build-fast": "nx build-l10n && nx build-css",
     "build-static": "yarn grunt hash-static",
     "build-ts": "tsc --build",
     "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
@@ -24,7 +25,7 @@
     "l10n-merge-test": "yarn grunt merge-ftl:test",
     "legal-prime": "yarn legal:clone fxa-settings",
     "lint": "eslint . .storybook",
-    "start": "BUILD_PATH=build/dev pm2 start pm2.config.js && yarn check:url localhost:3000/settings/static/js/bundle.js",
+    "start": "BUILD_PATH=build/dev pm2 start pm2.config.js && yarn check:url localhost:3000/settings/static/js/bundle.js 200 fxa-settings",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
