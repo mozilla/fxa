@@ -158,7 +158,7 @@ export class AccountDeleteManager {
     // fire-and-forget with its own error handler and is not represented.
     let stage = 'fxaDb';
     try {
-      await this.deleteAccountFromDb(uid);
+      await this.deleteAccountFromDb(uid, reason);
       stage = 'oauthAccountData';
       await this.deleteOAuthAccountData(uid);
 
@@ -210,7 +210,7 @@ export class AccountDeleteManager {
     }
 
     try {
-      await this.deleteAccountFromDb(uid);
+      await this.deleteAccountFromDb(uid, reason);
     } catch (error) {
       // The account row still exists -- surface to the caller so the
       // route skips enqueueing a doomed cloud task and the user sees a
@@ -242,7 +242,7 @@ export class AccountDeleteManager {
    * Delete the account from the FxA database and notify devices and attached
    * services about the account deletion.
    */
-  private async deleteAccountFromDb(uid: string) {
+  private async deleteAccountFromDb(uid: string, reason: ReasonForDeletion) {
     // We fetch the devices to notify before attempting delete
     // because obviously we can't retrieve the devices list after!
     try {
@@ -251,7 +251,7 @@ export class AccountDeleteManager {
 
       const devices = await this.fxaDb.devices(uid);
 
-      await this.fxaDb.deleteAccount({ uid });
+      await this.fxaDb.deleteAccount({ uid }, reason);
       this.log.activityEvent({
         uid,
         email: account.primaryEmail?.email,

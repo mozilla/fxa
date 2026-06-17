@@ -735,7 +735,8 @@ describe('deleteAccountIfUnverified', () => {
       TEST_EMAIL
     );
     expect(mockDB.deleteAccount).toHaveBeenCalledWith(
-      expect.objectContaining(emailRecord)
+      expect.objectContaining(emailRecord),
+      ReasonForDeletion.AccountRecreated
     );
   });
   it('should not delete an unverified account with a linked Stripe account and return early', async () => {

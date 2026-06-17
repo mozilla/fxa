@@ -4,6 +4,7 @@ import { AppError as error } from '@fxa/accounts/errors';
 import { reportSentryError } from '../../../lib/sentry';
 import { RelyingPartiesQuery } from '../../../../../libs/shared/cms/src/__generated__/graphql';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { DB } from '../../db';
 
 export async function deleteAccountIfUnverified(
@@ -33,7 +34,10 @@ export async function deleteAccountIfUnverified(
         }
       }
 
-      const deleted = await db.deleteAccount(secondaryEmailRecord);
+      const deleted = await db.deleteAccount(
+        secondaryEmailRecord,
+        ReasonForDeletion.AccountRecreated
+      );
       log.info('accountDeleted.unverifiedSecondaryEmail', {
         ...secondaryEmailRecord,
       });

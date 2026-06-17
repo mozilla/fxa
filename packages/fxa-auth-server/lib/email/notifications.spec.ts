@@ -6,6 +6,7 @@ import Container from 'typedi';
 import { createMock } from '@golevelup/ts-jest';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger } from '../types';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 const { AppError: error } = require('@fxa/accounts/errors');
 const notifications = require('./notifications');
@@ -243,8 +244,16 @@ describe('lib/email/notifications:', () => {
       expect(db.accountRecord).toHaveBeenNthCalledWith(2, 'blee@example.com');
 
       expect(db.deleteAccount).toHaveBeenCalledTimes(2);
-      expect(db.deleteAccount).toHaveBeenNthCalledWith(1, emailRecord);
-      expect(db.deleteAccount).toHaveBeenNthCalledWith(2, emailRecord);
+      expect(db.deleteAccount).toHaveBeenNthCalledWith(
+        1,
+        emailRecord,
+        ReasonForDeletion.EmailBounce
+      );
+      expect(db.deleteAccount).toHaveBeenNthCalledWith(
+        2,
+        emailRecord,
+        ReasonForDeletion.EmailBounce
+      );
     });
 
     it('called message.del', () => {
