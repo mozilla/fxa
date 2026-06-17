@@ -19,6 +19,7 @@ import {
   toGenericOSName,
 } from './utilities';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
+import { Constants } from './constants';
 
 describe('deepMerge', () => {
   it('recursively merges multiple objects', () => {
@@ -398,23 +399,17 @@ describe('isSendTabEntrypoint', () => {
 });
 
 describe('buildPairingDownloadUrl', () => {
-  const DEFAULT_URL = 'https://mzl.la/3NDxAIS';
+  const DEFAULT_URL = Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
+  const SEND_TAB_URL = Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB;
 
-  it('points send-tab entrypoints at the Adjust tracker so installs are attributable', () => {
-    const url = new URL(buildPairingDownloadUrl('send-tab-toolbar-icon'));
-    expect(url.host).toBe('app.adjust.com');
+  it('returns the send-tab Mozilla download link for a send-tab entrypoint', () => {
+    expect(buildPairingDownloadUrl('send-tab-toolbar-icon')).toBe(SEND_TAB_URL);
   });
 
-  it('sets campaign=send-tab for every send-tab entrypoint', () => {
+  it('returns the send-tab link for every send-tab entrypoint', () => {
     for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
-      const url = new URL(buildPairingDownloadUrl(entrypoint));
-      expect(url.searchParams.get('campaign')).toBe('send-tab');
+      expect(buildPairingDownloadUrl(entrypoint)).toBe(SEND_TAB_URL);
     }
-  });
-
-  it('records the specific entrypoint as the creative for per-entrypoint attribution', () => {
-    const url = new URL(buildPairingDownloadUrl('send-tab-account-menu'));
-    expect(url.searchParams.get('creative')).toBe('send-tab-account-menu');
   });
 
   it('returns the generic Mozilla download link for a non-send-tab entrypoint', () => {

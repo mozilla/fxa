@@ -7,7 +7,6 @@ import { AttachedClient } from '../models/Account';
 import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
 import { Constants } from './constants';
-import { interpolate } from './error-utils';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -299,13 +298,9 @@ export function isSendTabEntrypoint(
   return !!entrypoint && SEND_TAB_ENTRYPOINTS.has(entrypoint);
 }
 
-/** URL for the pairing QR: an attributable Adjust link for send-tab, else the generic Mozilla link. */
+/** URL for the pairing QR: the send-tab Mozilla shortlink for send-tab entrypoints, else the generic Mozilla shortlink. */
 export function buildPairingDownloadUrl(entrypoint?: string | null): string {
-  if (!isSendTabEntrypoint(entrypoint)) {
-    return Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
-  }
-  return interpolate(Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB, {
-    campaign: 'send-tab',
-    creative: entrypoint,
-  });
+  return isSendTabEntrypoint(entrypoint)
+    ? Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB
+    : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
 }

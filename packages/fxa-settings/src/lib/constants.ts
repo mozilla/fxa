@@ -133,11 +133,10 @@ export const Constants = {
     'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android&fallback=https://play.google.com/store/apps/details?id=org.mozilla.firefox',
 
   // Generic pairing download QR target (Mozilla shortlink).
-  DOWNLOAD_LINK_PAIRING_QR_DEFAULT: 'https://mzl.la/3NDxAIS',
+  DOWNLOAD_LINK_PAIRING_QR_DEFAULT: 'https://mzl.la/4vbFJda',
 
-  // Send-tab QR target; no adgroup/fallback so Adjust routes by the scanning device's OS.
-  DOWNLOAD_LINK_PAIRING_QR_SEND_TAB:
-    'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s',
+  // Send-tab QR target (Mozilla shortlink).
+  DOWNLOAD_LINK_PAIRING_QR_SEND_TAB: 'https://mzl.la/4vr1mWU',
 
   MOZ_ORG_SYNC_GET_STARTED_LINK:
     'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
