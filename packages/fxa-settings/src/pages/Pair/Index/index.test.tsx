@@ -232,19 +232,17 @@ describe('Pair', () => {
       ).toBeInTheDocument();
     });
 
-    it('encodes a send-tab campaign in the QR for a send-tab entrypoint', async () => {
+    it('encodes the send-tab Mozilla download link in the QR for a send-tab entrypoint', async () => {
       await renderAndNavigateToDownload({ integration: sendTabIntegration });
-      const url = new URL(
-        screen.getByTestId('pair-qr').getAttribute('data-value')!
+      expect(screen.getByTestId('pair-qr').getAttribute('data-value')).toBe(
+        'https://mzl.la/4vr1mWU'
       );
-      expect(url.searchParams.get('campaign')).toBe('send-tab');
-      expect(url.searchParams.get('creative')).toBe('send-tab-toolbar-icon');
     });
 
     it('encodes the generic Mozilla download link for a non-send-tab entrypoint', async () => {
       await renderAndNavigateToDownload({ integration: webIntegration });
       expect(screen.getByTestId('pair-qr').getAttribute('data-value')).toBe(
-        'https://mzl.la/3NDxAIS'
+        'https://mzl.la/4vbFJda'
       );
     });
 
