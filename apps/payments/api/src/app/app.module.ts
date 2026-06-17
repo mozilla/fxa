@@ -8,7 +8,11 @@ import {
   BillingAndSubscriptionsService,
 } from '@fxa/payments/api-server';
 import { AuthModule } from '@fxa/payments/auth';
-import { MeteringAuthGuard, MeteringConfig } from '@fxa/entitlements/metering';
+import {
+  MeteringAuthGuard,
+  MeteringConfig,
+  MeteringWebhookManager,
+} from '@fxa/entitlements/metering';
 import {
   CmsWebhooksController,
   CmsWebhookService,
@@ -126,6 +130,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusClientConfig,
     MeteringConfig,
     MeteringAuthGuard,
+    MeteringWebhookManager,
   ],
 })
 export class AppModule {}
