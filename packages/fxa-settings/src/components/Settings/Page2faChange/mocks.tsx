@@ -9,12 +9,7 @@ import {
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { Page2faChange } from '.';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-  NavigateFn,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { action } from '@storybook/addon-actions';
 import {
   MOCK_2FA_SECRET_KEY_RAW,
@@ -25,14 +20,6 @@ import { MfaContext } from '../MfaGuard';
 export const MOCK_TOTP_INFO = {
   qrCodeUrl: PLACEHOLDER_QR_CODE,
   secret: MOCK_2FA_SECRET_KEY_RAW,
-};
-
-// Create a safe navigate function for Storybook that matches NavigateFn type
-const createSafeNavigate = (): NavigateFn => {
-  return (to: string | number, options?: any) => {
-    action('Navigate')(`to: ${to}`, options);
-    return Promise.resolve();
-  };
 };
 
 export const Subject = ({ account: accountOverrides = {} }) => {
@@ -48,15 +35,8 @@ export const Subject = ({ account: accountOverrides = {} }) => {
     ...accountOverrides,
   } as Account;
 
-  const source = createMemorySource('/settings/two_step_authentication/change');
-  const history = createHistory(source);
-  const historyWithSafeNavigate = {
-    ...history,
-    navigate: createSafeNavigate(),
-  };
-
   return (
-    <LocationProvider history={historyWithSafeNavigate}>
+    <MemoryRouter>
       <AppContext.Provider
         value={{
           ...mockAppContext({ account }),
@@ -67,6 +47,6 @@ export const Subject = ({ account: accountOverrides = {} }) => {
           <Page2faChange />
         </MfaContext.Provider>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

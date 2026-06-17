@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, OAuthWebIntegration } from '../../../models';
 import { QueryParams } from '../../..';
@@ -32,8 +31,7 @@ export type ConfirmSignupCodeProps = {
   flowQueryParams: QueryParams;
   origin?: string;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & SensitiveData.AuthData &
-  RouteComponentProps;
+} & SensitiveData.AuthData;
 
 export interface ConfirmSignupCodeFormData {
   code: string;

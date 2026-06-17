@@ -9,7 +9,7 @@ import * as CacheModule from '../../../lib/cache';
 import { SigninTokenCodeProps } from './interfaces';
 import { Integration, useSensitiveDataClient } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import SigninTokenCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
 import {
@@ -65,10 +65,10 @@ const mockLocation = () => {
   };
 };
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigate,
     useLocation: () => mockLocation(),
   };
@@ -107,13 +107,13 @@ function resetMockSensitiveDataClient() {
 
 async function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninTokenCodeContainer
         {...{
           integration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

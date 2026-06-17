@@ -5,7 +5,6 @@
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
-import * as ReachRouter from '@reach/router';
 
 describe('ServiceWelcome', () => {
   describe('success banner', () => {
@@ -15,13 +14,7 @@ describe('ServiceWelcome', () => {
     });
 
     it('renders the signed-in success banner when origin is signin', () => {
-      jest.spyOn(ReachRouter, 'useLocation').mockImplementation(
-        () =>
-          ({
-            state: { origin: 'signin' },
-          }) as ReturnType<typeof ReachRouter.useLocation>
-      );
-      renderWithLocalizationProvider(<Subject />);
+      renderWithLocalizationProvider(<Subject origin="signin" />);
       expect(screen.getByText('Signed in successfully!')).toBeInTheDocument();
     });
   });
@@ -33,12 +26,12 @@ describe('ServiceWelcome', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'One more step to boost your browser’s privacy. Go to the open panel and turn it on.'
+        'One more step to boost your browser\u2019s privacy. Go to the open panel and turn it on.'
       )
     ).toBeInTheDocument();
     expect(
       screen.getByRole('img', {
-        name: 'Firefox window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.',
+        name: 'Firefox window with a circular badge showing a green checkmark and \u201CVPN,\u201D showing the VPN is active.',
       })
     ).toBeInTheDocument();
   });

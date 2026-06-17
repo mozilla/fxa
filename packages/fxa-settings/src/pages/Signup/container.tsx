@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
@@ -64,7 +64,7 @@ const SignupContainer = ({
   flowQueryParams: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
   const navigateWithQuery = useNavigateWithQuery();

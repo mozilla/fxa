@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -29,7 +28,7 @@ import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitN
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
-export const MfaGuardPage2faSetup = (_: RouteComponentProps) => {
+export const MfaGuardPage2faSetup = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.createTotp}>
       <Page2faSetup />

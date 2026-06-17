@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { adminApi } from '../../lib/api';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';

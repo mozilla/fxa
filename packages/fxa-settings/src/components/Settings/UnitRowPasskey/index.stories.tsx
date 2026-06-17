@@ -4,7 +4,7 @@
 
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import UnitRowPasskey from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import {
@@ -86,7 +86,7 @@ const storyWithMockPasskeys = (
       deletePasskey: async () => {},
     };
     return (
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider
           value={mockAppContext({
             account: mockAccount as unknown as Account,
@@ -97,7 +97,7 @@ const storyWithMockPasskeys = (
             <UnitRowPasskey />
           </SettingsContext.Provider>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   };
   return story;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import SigninRecoveryPhone from '.';
 import { getSigninState, handleNavigation } from '../utils';
 import {
@@ -36,7 +36,7 @@ const SigninRecoveryPhoneContainer = ({
   integration,
   setCurrentSplitLayout,
   supportsKeysOptionalLogin,
-}: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
+}: SigninRecoveryPhoneContainerProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -49,6 +49,7 @@ const SigninRecoveryPhoneContainer = ({
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const numBackupCodes = location.state?.numBackupCodes;
   const navigateWithQuery = useNavigateWithQuery();
+  const navigate = useNavigate();
   const sendError = location.state?.sendError;
 
   useEffect(() => {
@@ -136,6 +137,7 @@ const SigninRecoveryPhoneContainer = ({
       );
 
       const navigationOptions = {
+        navigate,
         email: signinState.email,
         signinData: {
           uid: signinState.uid,

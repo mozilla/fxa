@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import ConfirmTotpResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export const Subject = ({
   verifyCode = () => Promise.resolve(),
@@ -13,7 +13,7 @@ export const Subject = ({
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmTotpResetPassword
         {...{
           verifyCode,
@@ -22,6 +22,6 @@ export const Subject = ({
           onTroubleWithCode,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

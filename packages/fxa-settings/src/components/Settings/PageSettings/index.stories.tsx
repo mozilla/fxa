@@ -7,7 +7,7 @@ import { Account } from '../../../models/Account';
 import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { Meta } from '@storybook/react';
@@ -47,13 +47,13 @@ const storyWithContext = (
 
   const story = () => {
     return (
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider value={mockAppContext(context)}>
           <SettingsLayout>
             <PageSettings />
           </SettingsLayout>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   };
   if (storyName) story.storyName = storyName;

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import ResetPasswordRecoveryPhone from '.';
 import { ResetPasswordRecoveryPhoneProps } from './interfaces';
 import { ResetPasswordIntegration } from '../interfaces';
@@ -23,7 +23,7 @@ export const Subject = ({
   const lastFourPhoneDigits = '1234';
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ResetPasswordRecoveryPhone
         {...{
           lastFourPhoneDigits,
@@ -35,6 +35,6 @@ export const Subject = ({
           integration: mockIntegration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

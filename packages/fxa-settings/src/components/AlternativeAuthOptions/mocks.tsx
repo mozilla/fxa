@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import AlternativeAuthOptions, { AlternativeAuthOptionsProps } from '.';
 import Banner from '../Banner';
 import { AppContext } from '../../models';
@@ -10,9 +10,9 @@ import { mockAppContext } from '../../models/mocks';
 
 export const Subject = (props: AlternativeAuthOptionsProps) => (
   <AppContext.Provider value={mockAppContext()}>
-    <LocationProvider>
+    <MemoryRouter>
       <AlternativeAuthOptions {...props} />
-    </LocationProvider>
+    </MemoryRouter>
   </AppContext.Provider>
 );
 

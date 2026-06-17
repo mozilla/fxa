@@ -34,8 +34,8 @@ jest.mock('../../../../lib/hooks/useNavigateWithQuery', () => ({
 }));
 
 let mockLocationPathname = '/signin';
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   navigate: jest.fn(),
   useNavigate: () => jest.fn(),
   useLocation: () => ({ pathname: mockLocationPathname, search: '' }),

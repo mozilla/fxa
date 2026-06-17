@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -66,7 +66,7 @@ function useDeviceContext() {
 
 const PairUnsupported = ({
   error,
-}: PairUnsupportedProps & RouteComponentProps) => {
+}: PairUnsupportedProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const {
     isDesktopNonFirefox,

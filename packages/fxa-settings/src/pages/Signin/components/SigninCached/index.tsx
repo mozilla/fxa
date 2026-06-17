@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -47,10 +47,11 @@ const SigninCached = ({
   setCurrentSplitLayout,
   onSessionExpired,
   supportsKeysOptionalLogin,
-}: SigninCachedProps & RouteComponentProps) => {
+}: SigninCachedProps) => {
   const authClient = useAuthClient();
   const config = useConfig();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -132,6 +133,7 @@ const SigninCached = ({
       }
 
       const navigationOptions = {
+        navigate,
         email,
         signinData: {
           emailVerified: data.emailVerified,
@@ -196,6 +198,7 @@ const SigninCached = ({
     sessionToken,
     email,
     ftlMsgResolver,
+    navigate,
     navigateWithQuery,
     integration,
     finishOAuthFlowHandler,

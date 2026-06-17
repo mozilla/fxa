@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Signup from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
@@ -45,7 +45,7 @@ const StoryWithProps = ({
 
   return (
     <AppContext.Provider value={mockAppContext()}>
-      <LocationProvider>
+      <MemoryRouter>
         <Signup
           {...{
             integration,
@@ -55,7 +55,7 @@ const StoryWithProps = ({
           }}
           email={MOCK_EMAIL}
         />
-      </LocationProvider>
+      </MemoryRouter>
     </AppContext.Provider>
   );
 };

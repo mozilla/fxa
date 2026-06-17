@@ -6,7 +6,7 @@ import { Meta } from '@storybook/react';
 import SigninRecoveryChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
@@ -21,7 +21,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() => Promise.resolve()}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -29,11 +29,11 @@ export const Default = () => (
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const DefaultWithCms = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() => Promise.resolve()}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -42,11 +42,11 @@ export const DefaultWithCms = () => (
       signinState={MOCK_SIGNIN_LOCATION_STATE}
       integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const SplitLayoutWithCms = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() => Promise.resolve()}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -63,11 +63,11 @@ export const SplitLayoutWithCms = () => (
         },
       })}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithSMSSendRateLimitExceeded = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() =>
         Promise.resolve(AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED)
@@ -77,11 +77,11 @@ export const WithSMSSendRateLimitExceeded = () => (
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithUnexpectedError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() => Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR)}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -89,11 +89,11 @@ export const WithUnexpectedError = () => (
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithBackendServiceFailure = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() =>
         Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE)
@@ -103,11 +103,11 @@ export const WithBackendServiceFailure = () => (
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithThrottlingError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryChoice
       handlePhoneChoice={() => Promise.resolve(AuthUiErrors.THROTTLED)}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -115,5 +115,5 @@ export const WithThrottlingError = () => (
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

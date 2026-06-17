@@ -4,7 +4,7 @@
 
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import UnitRowTwoStepAuth from '.';
 import { createSubject } from './mocks';
 import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
@@ -15,12 +15,12 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         {/* Added to represent the section in which rows are nested */}
         <div className="bg-white dark:bg-grey-900 tablet:rounded-xl shadow">
           <Story />
         </div>
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized } from '@fluent/react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,15 +28,15 @@ type FormData = {
   confirmPassword: string;
 };
 
-export const MfaPageCreatePassword = (props: RouteComponentProps) => {
+export const MfaPageCreatePassword = () => {
   return (
     <MfaGuard requiredScope="password" reason={MfaReason.createPassword}>
-      <PageCreatePassword {...props} />
+      <PageCreatePassword />
     </MfaGuard>
   );
 };
 
-export const PageCreatePassword = (_: RouteComponentProps) => {
+export const PageCreatePassword = () => {
   const handleMfaError = useMfaErrorHandler();
   usePageViewEvent('settings.create-password');
 

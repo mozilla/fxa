@@ -17,10 +17,10 @@ export function renderStoryWithHistory(
   account: Account | undefined = MOCK_ACCOUNT as unknown as Account,
   queryParams?: string
 ) {
-  const history = createHistoryWithQuery(route, queryParams);
+  const routeEntry = createHistoryWithQuery(route, queryParams);
   return produceComponent(
     component,
-    { route, history },
+    { route: routeEntry },
     {
       ...createAppContext(),
       account,

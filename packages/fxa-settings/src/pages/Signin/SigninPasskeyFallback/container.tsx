@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Integration,
@@ -35,11 +35,12 @@ const SigninPasskeyFallbackContainer = ({
 }: {
   integration: Integration;
   flowQueryParams: QueryParams;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -147,6 +148,7 @@ const SigninPasskeyFallbackContainer = ({
       }
 
       const { error: navError } = await handleNavigation({
+        navigate,
         email,
         signinData: {
           uid,
@@ -196,6 +198,7 @@ const SigninPasskeyFallbackContainer = ({
       finishOAuthFlowHandler,
       integration,
       location.search,
+      navigate,
       navigateWithQuery,
       sessionToken,
       email,

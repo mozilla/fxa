@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmBackupCodeResetPassword from '.';
@@ -13,7 +13,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 const ConfirmBackupCodeResetPasswordContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
+}: { integration: ResetPasswordIntegration }) => {
   const authClient = useAuthClient();
   const location = useLocation();
 

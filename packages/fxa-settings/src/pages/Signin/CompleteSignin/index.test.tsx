@@ -5,13 +5,13 @@
 import { screen } from '@testing-library/react';
 import CompleteSignin from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 async function render(errorMessage?: string) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <CompleteSignin {...{ errorMessage }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

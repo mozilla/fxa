@@ -15,7 +15,7 @@ import classNames from 'classnames';
 import { useFtlMsgResolver } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 
 export const Banner = ({
   type,

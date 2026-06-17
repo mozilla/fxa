@@ -14,7 +14,7 @@ import {
   getLocalizedDate,
   LocalizedDateOptions,
 } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import GleanMetrics from '../../../lib/glean';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {

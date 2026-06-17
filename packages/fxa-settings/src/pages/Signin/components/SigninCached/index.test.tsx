@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 import SigninCached from '.';
@@ -55,7 +55,7 @@ const renderSigninCached = (
   props: Partial<React.ComponentProps<typeof SigninCached>> = {}
 ) =>
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext()}>
         <SigninCached
           integration={createMockSigninWebIntegration()}
@@ -72,7 +72,7 @@ const renderSigninCached = (
           {...props}
         />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 
 describe('SigninCached', () => {

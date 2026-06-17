@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
 import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
@@ -61,7 +61,7 @@ const SigninRecoveryPhone = ({
   integration,
   signinState,
   setCurrentSplitLayout,
-}: SigninRecoveryPhoneProps & RouteComponentProps) => {
+}: SigninRecoveryPhoneProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
   const [errorLink, setErrorLink] = useState<BannerLinkProps>();

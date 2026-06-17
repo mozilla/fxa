@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
@@ -39,7 +39,7 @@ import {
 const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
 
-export const PageAddAvatar = (_: RouteComponentProps) => {
+export const PageAddAvatar = () => {
   usePageViewEvent('settings.avatar.change');
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();

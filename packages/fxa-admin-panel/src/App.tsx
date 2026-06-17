@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { UserContext } from './hooks/UserContext';
 import { GuardContext } from './hooks/GuardContext';
-import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/PageAccountSearch';
 import { PagePermissions } from './components/PagePermissions';

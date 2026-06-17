@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import React, { useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { useFtlMsgResolver } from '../../../models';
@@ -26,7 +25,7 @@ const ResetPassword = ({
   serviceName,
   setErrorMessage,
   setCurrentSplitLayout,
-}: ResetPasswordProps & RouteComponentProps) => {
+}: ResetPasswordProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const ftlMsgResolver = useFtlMsgResolver();

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReachRouterWindow } from '../../window';
+import { RouterWindow } from '../../window';
 import { ModelDataStore, RawData } from '../model-data-store';
 
 /**
@@ -20,7 +20,7 @@ export abstract class UrlData extends ModelDataStore {
    * @param window Current window
    * @param mode Whether or not to store state in the search query or the hash.
    */
-  constructor(public readonly window: ReachRouterWindow) {
+  constructor(public readonly window: RouterWindow) {
     super();
   }
 

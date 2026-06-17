@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   isWebIntegration,
@@ -41,10 +41,11 @@ const SigninTokenCode = ({
   unwrapBKey,
   onSessionVerified,
   setCurrentSplitLayout,
-}: SigninTokenCodeProps & RouteComponentProps) => {
+}: SigninTokenCodeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const {
     email,
@@ -170,6 +171,7 @@ const SigninTokenCode = ({
         GleanMetrics.loginConfirmation.success();
 
         const navigationOptions = {
+          navigate,
           email,
           signinData: {
             uid,
@@ -222,6 +224,7 @@ const SigninTokenCode = ({
       keyFetchToken,
       localizedInvalidCode,
       location.search,
+      navigate,
       redirectTo,
       session,
       sessionToken,

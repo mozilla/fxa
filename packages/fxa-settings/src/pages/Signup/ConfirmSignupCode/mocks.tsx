@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import ConfirmSignupCode from '.';
 import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
@@ -230,7 +230,7 @@ export const Subject = ({
   origin?: string;
 }) => {
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmSignupCode
         {...{
           integration,
@@ -247,6 +247,6 @@ export const Subject = ({
         uid={MOCK_UID}
         unwrapBKey={MOCK_UNWRAP_BKEY}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

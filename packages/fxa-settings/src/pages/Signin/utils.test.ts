@@ -23,15 +23,13 @@ import {
   ensureCanLinkAcountOrRedirect,
   getSyncNavigate,
 } from './utils';
-import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
 import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
 }));
 
 jest.mock('../../lib/channels/firefox', () => ({
@@ -55,7 +53,7 @@ jest.mock('../../lib/config', () => {
   };
 });
 
-const navigateSpy = jest.spyOn(ReachRouter, 'navigate');
+const mockNavigate = jest.fn();
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
 const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 const fxaCanLinkAccountSpy = jest.spyOn(firefox, 'fxaCanLinkAccount');
@@ -70,6 +68,7 @@ describe('Signin utils', () => {
       overrides: Partial<NavigationOptions> = {}
     ): NavigationOptions =>
       ({
+        navigate: mockNavigate,
         email: MOCK_EMAIL,
         signinData: {
           uid: MOCK_UID,
@@ -98,7 +97,7 @@ describe('Signin utils', () => {
       const { error } = await handleNavigation(navigationOptions);
 
       expect(error).toBeUndefined();
-      expect(navigateSpy).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
       expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
@@ -121,7 +120,7 @@ describe('Signin utils', () => {
         services: { smartwindow: {} },
       });
       expect(result.error).toBeUndefined();
-      expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
 
     it('navigates to settings when isSessionAALUpgrade is true, even when performNavigation: false', async () => {
@@ -133,7 +132,7 @@ describe('Signin utils', () => {
       const result = await handleNavigation(navigationOptions);
 
       expect(result.error).toBeUndefined();
-      expect(navigateSpy).toHaveBeenCalledWith('/settings');
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
       expect(hardNavigateSpy).not.toHaveBeenCalled();
       expect(fxaLoginSpy).not.toHaveBeenCalled();
     });
@@ -153,7 +152,7 @@ describe('Signin utils', () => {
 
       await handleNavigation(navigationOptions);
 
-      expect(navigateSpy).toHaveBeenCalledWith(
+      expect(mockNavigate).toHaveBeenCalledWith(
         expect.stringContaining('/signup_confirmed_sync'),
         expect.objectContaining({ replace: true })
       );
@@ -173,7 +172,7 @@ describe('Signin utils', () => {
 
       await handleNavigation(navigationOptions);
 
-      expect(navigateSpy).toHaveBeenCalledWith(
+      expect(mockNavigate).toHaveBeenCalledWith(
         expect.stringContaining('/signup_confirmed_sync'),
         expect.objectContaining({ replace: false })
       );
@@ -194,7 +193,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
         );
@@ -214,7 +213,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.any(Object)
         );
@@ -240,7 +239,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -297,7 +296,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -323,7 +322,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -345,7 +344,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaLoginSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.any(Object)
         );
@@ -374,7 +373,7 @@ describe('Signin utils', () => {
         expect(sessionResendVerifyCode).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -399,7 +398,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
         );
@@ -424,7 +423,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(sessionResendVerifyCode).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -449,7 +448,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(sessionResendVerifyCode).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.any(Object)
         );
@@ -483,7 +482,7 @@ describe('Signin utils', () => {
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
           scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
-        expect(navigateSpy).toHaveBeenCalledWith('/settings', {
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', {
           replace: true,
         });
       });
@@ -503,7 +502,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaOAuthLoginSpy).toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/post_verify/service_welcome',
           {
             state: { origin: 'signin' },
@@ -533,7 +532,7 @@ describe('Signin utils', () => {
         // The OAuth login must be deferred until after the password is set,
         // otherwise the browser receives keyless keys_jwe.
         expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           expect.stringContaining('/post_verify/set_password'),
           expect.objectContaining({
             state: expect.objectContaining({
@@ -562,7 +561,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaOAuthLoginSpy).toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/post_verify/service_welcome',
           {
             state: { origin: 'signin' },
@@ -599,7 +598,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/inline_totp_setup?client_id=abc',
           expect.objectContaining({ replace: true })
         );
@@ -619,7 +618,7 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/inline_totp_setup?client_id=abc',
           expect.objectContaining({ replace: true })
         );
@@ -673,6 +672,7 @@ describe('Signin utils', () => {
         overrides: Partial<NavigationOptions> = {}
       ): NavigationOptions =>
         ({
+          navigate: mockNavigate,
           email: MOCK_EMAIL,
           signinData: {
             uid: MOCK_UID,
@@ -704,8 +704,8 @@ describe('Signin utils', () => {
         await handleNavigation(navigationOptions);
 
         expect(hardNavigateSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalled();
-        const [navigatedUrl, options] = navigateSpy.mock.calls[0];
+        expect(mockNavigate).toHaveBeenCalled();
+        const [navigatedUrl, options] = mockNavigate.mock.calls[0];
         expect(navigatedUrl).toContain('/pair?');
         expect(navigatedUrl).not.toContain('inline_recovery_key');
         expect(navigatedUrl).not.toContain('showSuccessMessage');
@@ -728,8 +728,8 @@ describe('Signin utils', () => {
         await handleNavigation(navigationOptions);
 
         expect(hardNavigateSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalled();
-        const [navigatedUrl, options] = navigateSpy.mock.calls[0];
+        expect(mockNavigate).toHaveBeenCalled();
+        const [navigatedUrl, options] = mockNavigate.mock.calls[0];
         expect(navigatedUrl).toContain('/pair?');
         expect(navigatedUrl).not.toContain('passwordCreated');
         expect(

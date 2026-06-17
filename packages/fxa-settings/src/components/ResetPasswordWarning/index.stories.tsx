@@ -7,7 +7,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import ResetPasswordWarning from '.';
 import AppLayout from '../AppLayout';
 import { createMockLocationState } from './mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Components/ResetPasswordWarning',
@@ -16,25 +16,25 @@ export default {
 } as Meta;
 
 export const NoRecoveryKeyExists = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppLayout>
       <ResetPasswordWarning locationState={createMockLocationState(false)} />
     </AppLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const RecoveryKeyExists = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppLayout>
       <ResetPasswordWarning locationState={createMockLocationState(true)} />
     </AppLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const RecoveryKeyUnkown = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppLayout>
       <ResetPasswordWarning locationState={createMockLocationState()} />
     </AppLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );

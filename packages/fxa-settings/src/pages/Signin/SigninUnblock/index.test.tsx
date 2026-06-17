@@ -9,7 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninUnblock, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   MOCK_CMS_INFO,
   MOCK_EMAIL,
@@ -24,7 +24,7 @@ import {
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { navigate } from '@reach/router';
+
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { createMockWebIntegration } from './mocks';
@@ -46,11 +46,12 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockUseNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockUseNavigate,
-  navigate: jest.fn(),
 }));
+// Alias for tests referencing `navigate` directly
+const navigate = mockUseNavigate;
 
 const mockSessionResendVerifyCode = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../models', () => ({
@@ -77,7 +78,7 @@ const renderWithSuccess = (
   resendUnblockCodeHandler = jest.fn().mockReturnValue({ success: true });
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninUnblock
         {...{
           email,
@@ -89,7 +90,7 @@ const renderWithSuccess = (
           resendUnblockCodeHandler,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
@@ -104,7 +105,7 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
   const integration = createMockSigninWebIntegration();
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninUnblock
         {...{
           email,
@@ -116,7 +117,7 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
           resendUnblockCodeHandler,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 

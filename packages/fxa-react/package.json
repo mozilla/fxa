@@ -37,6 +37,9 @@
     "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-react-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "watch-ftl": "yarn l10n-watch"
   },
+  "peerDependencies": {
+    "react-router": "^7.18.0"
+  },
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
     "@fluent/langneg": "^0.7.0",

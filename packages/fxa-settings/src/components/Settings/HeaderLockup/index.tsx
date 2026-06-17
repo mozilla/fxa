@@ -15,7 +15,7 @@ import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
 import Sidebar from '../Sidebar';
 import GleanMetrics from '../../../lib/glean';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 
 export const HeaderLockup = () => {
   const [sidebarRevealedState, setNavState] = useState(false);

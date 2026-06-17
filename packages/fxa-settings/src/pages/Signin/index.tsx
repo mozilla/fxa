@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -54,9 +54,10 @@ const Signin = ({
   useFxAStatusResult: { supportsKeysOptionalLogin },
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
-}: SigninProps & RouteComponentProps) => {
+}: SigninProps) => {
   const config = useConfig();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -155,6 +156,7 @@ const Signin = ({
         const isFullyVerified =
           data.signIn.emailVerified && data.signIn.sessionVerified;
         const navigationOptions = {
+          navigate,
           email,
           signinData: data.signIn,
           unwrapBKey: data.unwrapBKey,
@@ -268,6 +270,7 @@ const Signin = ({
       ftlMsgResolver,
       hasLinkedAccount,
       hasPassword,
+      navigate,
       navigateWithQuery,
       sendUnblockEmailHandler,
       setLocalizedBannerError,

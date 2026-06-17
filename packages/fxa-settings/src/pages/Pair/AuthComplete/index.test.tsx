@@ -9,6 +9,7 @@ import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBl
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
+import { MemoryRouter } from 'react-router';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -36,7 +37,9 @@ describe('AuthComplete page', () => {
   // });
   it('renders the default page as expected', () => {
     renderWithLocalizationProvider(
-      <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+      <MemoryRouter>
+        <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+      </MemoryRouter>
     );
     // testAllL10n(screen, bundle);
 
@@ -55,10 +58,12 @@ describe('AuthComplete page', () => {
 
   it('renders the correct button when Firefox view is supported', () => {
     renderWithLocalizationProvider(
-      <AuthComplete
-        suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
-        supportsFirefoxView
-      />
+      <MemoryRouter>
+        <AuthComplete
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          supportsFirefoxView
+        />
+      </MemoryRouter>
     );
     expect(
       screen.queryByRole('link', { name: 'Manage devices' })
@@ -69,7 +74,9 @@ describe('AuthComplete page', () => {
 
   it('emits expected metrics events on render', () => {
     renderWithLocalizationProvider(
-      <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+      <MemoryRouter>
+        <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+      </MemoryRouter>
     );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
@@ -94,7 +101,9 @@ describe('AuthComplete page', () => {
 
     it('calls complete() on mount and destroy() on unmount', () => {
       const { unmount } = renderWithLocalizationProvider(
-        <AuthComplete integration={mockIntegration as unknown as Integration} />
+        <MemoryRouter>
+          <AuthComplete integration={mockIntegration as unknown as Integration} />
+        </MemoryRouter>
       );
       expect(mockIntegration.complete).toHaveBeenCalled();
       unmount();
@@ -112,7 +121,9 @@ describe('AuthComplete page', () => {
       );
 
       const { unmount } = renderWithLocalizationProvider(
-        <AuthComplete integration={mockIntegration as unknown as Integration} />
+        <MemoryRouter>
+          <AuthComplete integration={mockIntegration as unknown as Integration} />
+        </MemoryRouter>
       );
       expect(sessionStorage.getItem(MOCK_DEVICE_INFO_KEY)).not.toBeNull();
       unmount();
@@ -128,7 +139,9 @@ describe('AuthComplete page', () => {
       sessionStorage.setItem(MOCK_DEVICE_INFO_KEY, JSON.stringify(cachedInfo));
 
       renderWithLocalizationProvider(
-        <AuthComplete integration={mockIntegration as unknown as Integration} />
+        <MemoryRouter>
+          <AuthComplete integration={mockIntegration as unknown as Integration} />
+        </MemoryRouter>
       );
 
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
@@ -146,7 +159,9 @@ describe('AuthComplete page', () => {
       mockIntegration.getSupplicantMetadata.mockResolvedValue(fetchedInfo);
 
       renderWithLocalizationProvider(
-        <AuthComplete integration={mockIntegration as unknown as Integration} />
+        <MemoryRouter>
+          <AuthComplete integration={mockIntegration as unknown as Integration} />
+        </MemoryRouter>
       );
 
       await waitFor(() =>
@@ -169,10 +184,12 @@ describe('AuthComplete page', () => {
         data: { entrypoint: 'send-tab-toolbar-icon' },
       };
       renderWithLocalizationProvider(
-        <AuthComplete
-          integration={mockIntegration as unknown as Integration}
-          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
-        />
+        <MemoryRouter>
+          <AuthComplete
+            integration={mockIntegration as unknown as Integration}
+            suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          />
+        </MemoryRouter>
       );
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
         'You’re ready to send some tabs'
@@ -202,10 +219,12 @@ describe('AuthComplete page', () => {
         data: { entrypoint: 'preferences' },
       };
       renderWithLocalizationProvider(
-        <AuthComplete
-          integration={mockIntegration as unknown as Integration}
-          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
-        />
+        <MemoryRouter>
+          <AuthComplete
+            integration={mockIntegration as unknown as Integration}
+            suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          />
+        </MemoryRouter>
       );
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
         'Device connected'

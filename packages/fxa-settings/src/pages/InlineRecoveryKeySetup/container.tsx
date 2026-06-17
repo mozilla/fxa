@@ -9,7 +9,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import InlineRecoveryKeySetup from '.';
 import { currentAccount } from '../../lib/cache';
 import { generateRecoveryKey } from 'fxa-auth-client/browser';
@@ -21,7 +21,7 @@ import { formatRecoveryKey } from '../../lib/utilities';
 
 const InlineRecoveryKeySetupContainer = ({
   cmsInfo,
-}: { cmsInfo?: RelierCmsInfo } & RouteComponentProps) => {
+}: { cmsInfo?: RelierCmsInfo }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();

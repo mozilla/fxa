@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import {
   Integration,
   isDefault,
@@ -49,13 +49,14 @@ const AuthorizationContainer = ({
   integration,
 }: {
   integration: Integration;
-} & RouteComponentProps) => {
+}) => {
   const [oauthError, setOauthError] = useState<AuthError | OAuthError | null>(
     null
   );
   const authClient = useAuthClient();
   const config = useConfig();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -104,6 +105,7 @@ const AuthorizationContainer = ({
 
       if (data) {
         const navigationOptions = {
+          navigate,
           email: account?.email!,
           signinData: {
             emailVerified: data.emailVerified,
@@ -151,6 +153,7 @@ const AuthorizationContainer = ({
     finishOAuthFlowHandler,
     integration,
     location.search,
+    navigate,
     navigateWithQuery,
   ]);
 

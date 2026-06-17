@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useEffect, useState } from 'react';
 import { SETTINGS_PATH } from '../../../constants';
@@ -20,17 +19,15 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
-export const MfaGuardPage2faReplaceBackupCodes = (
-  props: RouteComponentProps
-) => {
+export const MfaGuardPage2faReplaceBackupCodes = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.createBackupCodes}>
-      <Page2faReplaceBackupCodes {...props} />
+      <Page2faReplaceBackupCodes />
     </MfaGuard>
   );
 };
 
-export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
+export const Page2faReplaceBackupCodes = () => {
   const alertBar = useAlertBar();
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();

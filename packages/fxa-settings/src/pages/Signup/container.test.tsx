@@ -29,8 +29,6 @@ import * as ModelsModule from '../../models';
 import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as FirefoxModule from '../../lib/channels/firefox';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
-import * as ReachRouterModule from '@reach/router';
-
 // Typical imports
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
@@ -41,7 +39,7 @@ import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { ModelDataProvider } from '../../lib/model-data';
 import { AuthServerError } from 'fxa-auth-client/browser';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
@@ -117,9 +115,10 @@ function mockCryptoModule() {
 }
 
 const mockNavigate = jest.fn();
-function mockReachRouterModule() {
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-}
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+}));
 
 // TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
 // In this case, use the following pattern. The jest.mock approach generally works,
@@ -172,7 +171,6 @@ function applyMocks() {
   mockUseValidateModule();
   mockFirefoxModule();
   mockCryptoModule();
-  mockReachRouterModule();
 }
 
 // TIP - Since render looks more or less the same each time, we can tease this out
@@ -182,7 +180,7 @@ async function render(text?: string) {
   // state/context driven by react or l10n that's required. Therefore we will invoke the
   // container component as follows.
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SignupContainer
         {...{
           integration,
@@ -198,7 +196,7 @@ async function render(text?: string) {
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 
   // TIP - Wait for the expected mocked test to show up.

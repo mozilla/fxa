@@ -40,7 +40,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
-import { navigate } from '@reach/router';
+
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { IntegrationType, RelierCmsInfo } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -124,11 +124,12 @@ jest.mock('../../models', () => {
 
 const mockNavigate = jest.fn();
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
+// Alias for backward compatibility with tests referencing `navigate` directly
+const navigate = mockNavigate;
 
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
 // add the l10n tests back in. Right now, they can't handle embedded tags.

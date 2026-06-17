@@ -245,9 +245,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 
@@ -266,9 +264,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 
@@ -291,9 +287,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 

@@ -4,11 +4,10 @@
 
 import Pair from '.';
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { createHistoryWithQuery } from '../../../models/mocks';
 import type { Integration } from '../../../models';
 
 const sendTabIntegration = {
@@ -22,68 +21,58 @@ export default {
 } as Meta;
 
 export const ChoiceScreen = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <Pair />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const ChoiceScreenWithSigninBanner = () => (
-  <LocationProvider
-    history={createHistoryWithQuery('/', undefined, { origin: 'signin' })}
-  >
+  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}>
     <Pair />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const ChoiceScreenWithSignupBanner = () => (
-  <LocationProvider
-    history={createHistoryWithQuery('/', undefined, { origin: 'signup' })}
-  >
+  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signup' } }]}>
     <Pair />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const ChoiceScreenWithPasswordCreatedBanner = () => (
-  <LocationProvider
-    history={createHistoryWithQuery('/', undefined, {
-      origin: 'post-verify-set-password',
-    })}
-  >
+  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'post-verify-set-password' } }]}>
     <Pair />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const SendTabChoiceScreen = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <Pair integration={sendTabIntegration} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const SendTabChoiceScreenWithSigninBanner = () => (
-  <LocationProvider
-    history={createHistoryWithQuery('/', undefined, { origin: 'signin' })}
-  >
+  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}>
     <Pair integration={sendTabIntegration} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <Pair error={MOCK_ERROR} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithErrorOnChoiceScreen = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <Pair error={MOCK_ERROR} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 // CMS-themed variant: passes a mock relier CMS config so the choice screen
 // renders with the relier's button color, background, and header logo.
 // Mirrors the parity Backbone has via fetchCmsConfig() in pair/index.js.
 export const ChoiceScreenWithCmsTheming = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <Pair cmsInfo={MOCK_CMS_INFO} />
-  </LocationProvider>
+  </MemoryRouter>
 );

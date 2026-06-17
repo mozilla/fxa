@@ -15,7 +15,7 @@ import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
-import { navigate } from '@reach/router';
+import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
 
 export interface FlowQueryParams {
@@ -74,23 +74,25 @@ try {
   const View = Storage.isLocalStorageEnabled(window)
     ? () => <App {...{ flowQueryParams }} />
     : () => {
-        navigate('/cookies_disabled');
+        window.location.replace('/cookies_disabled');
         return <CookiesDisabled />;
       };
 
   render(
     <React.StrictMode>
-      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-        <AppErrorBoundary>
-          <AppContext.Provider value={appContext}>
-            <NimbusProvider>
-              <ThemeProvider enabled={config.darkMode?.enabled}>
-                <View />
-              </ThemeProvider>
-            </NimbusProvider>
-          </AppContext.Provider>
-        </AppErrorBoundary>
-      </DynamicLocalizationProvider>
+      <BrowserRouter>
+        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+          <AppErrorBoundary>
+            <AppContext.Provider value={appContext}>
+              <NimbusProvider>
+                <ThemeProvider enabled={config.darkMode?.enabled}>
+                  <View />
+                </ThemeProvider>
+              </NimbusProvider>
+            </AppContext.Provider>
+          </AppErrorBoundary>
+        </DynamicLocalizationProvider>
+      </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')
   );

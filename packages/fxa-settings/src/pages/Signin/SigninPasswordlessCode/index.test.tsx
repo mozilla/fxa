@@ -80,10 +80,10 @@ let mockNavigate = jest.fn();
 let mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
 let mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     navigate: jest.fn(),
     useNavigate: () => mockNavigate,
     useLocation: () => ({ pathname: '/signin_passwordless_code', search: '' }),
@@ -169,7 +169,7 @@ describe('SigninPasswordlessCode page', () => {
           signinData.verificationMethod === 'totp-2fa' &&
           !signinData.sessionVerified
         ) {
-          const mockNavigateModule = jest.requireMock('@reach/router');
+          const mockNavigateModule = jest.requireMock('react-router');
           mockNavigateModule.navigate(
             `/signin_totp_code${navigationOptions.queryParams || ''}`,
             {
@@ -631,7 +631,7 @@ describe('SigninPasswordlessCode page', () => {
     });
 
     it('navigates to TOTP code page with OAuth integration when account has 2FA', async () => {
-      const mockNavigateModule = jest.requireMock('@reach/router');
+      const mockNavigateModule = jest.requireMock('react-router');
       mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
         uid: MOCK_UID,
         sessionToken: MOCK_SESSION_TOKEN,

@@ -19,7 +19,7 @@ import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { mockAuthClient } from './mock';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import GleanMetrics from '../../../lib/glean';
 
 let mockHasJwt = true;
@@ -332,11 +332,11 @@ describe('PasskeySubRow', () => {
 
   const renderPasskeySubRow = (passkey: Passkey = mockPasskey) => {
     return render(
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider value={mockAppContext()}>
           <PasskeySubRow passkey={passkey} />
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   };
 
