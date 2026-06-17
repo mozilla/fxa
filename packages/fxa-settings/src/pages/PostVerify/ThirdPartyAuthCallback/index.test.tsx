@@ -19,6 +19,7 @@ import {
   ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
 import { QueryParams } from '../../../index';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';
@@ -64,6 +65,7 @@ jest.mock('../../../lib/oauth/hooks', () => {
 jest.mock('../../Signin/utils', () => {
   return {
     __esModule: true,
+    ...jest.requireActual('../../Signin/utils'),
     handleNavigation: jest.fn(),
     ensureCanLinkAcountOrRedirect: jest.fn(),
   };
@@ -104,7 +106,10 @@ function mockWebIntegration({ redirectTo }: { redirectTo?: string } = {}) {
   );
 }
 
-function mockOAuthNativeIntegration({ service }: { service?: string } = {}) {
+function mockOAuthNativeIntegration({
+  service,
+  keysJwk,
+}: { service?: string; keysJwk?: string } = {}) {
   const integration = new ModelsModule.OAuthNativeIntegration(
     new GenericData({
       service,
@@ -124,27 +129,36 @@ function mockOAuthNativeIntegration({ service }: { service?: string } = {}) {
     trusted: true,
     imageUri: '',
   };
+  // Presence of a keysJwk (with scopedKeysEnabled) makes the scope request keys,
+  // so a non-Sync service like VPN reports wantsKeysIfPasswordEntered().
+  if (keysJwk !== undefined) {
+    integration.data.keysJwk = keysJwk;
+  }
   return integration;
 }
 
-function renderWith(
-  props: {
-    flowQueryParams?: QueryParams;
-    integration: ModelsModule.Integration;
-  } = {
-    flowQueryParams: {
+function renderWith(props?: {
+  flowQueryParams?: QueryParams;
+  integration: ModelsModule.Integration;
+  supportsKeysOptionalLogin?: boolean;
+}) {
+  const {
+    flowQueryParams = {
       flowId: 'bbbb',
       flowBeginTime: 1734112296874,
     },
-    integration: mockThirdPartyAuthCallbackIntegration(),
-  }
-) {
+    integration = mockThirdPartyAuthCallbackIntegration(),
+    supportsKeysOptionalLogin = false,
+  } = props ?? {};
+  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   return renderWithLocalizationProvider(
     <LocationProvider>
       <AppContext.Provider
         value={{ ...mockAppContext(), ...createAppContext() }}
       >
-        <ThirdPartyAuthCallback {...props} />;
+        <ThirdPartyAuthCallback
+          {...{ flowQueryParams, integration, useFxAStatusResult }}
+        />
       </AppContext.Provider>
     </LocationProvider>
   );
@@ -260,6 +274,7 @@ describe('ThirdPartyAuthCallback component', () => {
         handleFxaOAuthLogin: false,
         integration: integration,
         isSignInWithThirdPartyAuth: true,
+        supportsKeysOptionalLogin: false,
         queryParams: '?',
         redirectTo: redirectTo,
         signinData: {
@@ -302,6 +317,73 @@ describe('ThirdPartyAuthCallback component', () => {
           handleFxaLogin: false,
           handleFxaOAuthLogin: false,
           isSignInWithThirdPartyAuth: true,
+        })
+      );
+    });
+  });
+
+  // "keys not optional" = Firefox where Sync isn't decoupled: desktop before
+  // 147, and Mobile as of Firefox 153.
+  it('defers handleFxaLogin and handleFxaOAuthLogin for service=vpn wanting keys when keys are not optional', async () => {
+    const integration = mockOAuthNativeIntegration({
+      service: OAuthNativeServices.Vpn,
+      keysJwk: 'mock-keys-jwk',
+    });
+    renderWith({
+      integration,
+      supportsKeysOptionalLogin: false,
+    });
+    await waitFor(() => {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: false,
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: false,
+        })
+      );
+    });
+  });
+
+  it('signs in immediately for service=vpn when the browser supports keys-optional login', async () => {
+    const integration = mockOAuthNativeIntegration({
+      service: OAuthNativeServices.Vpn,
+      keysJwk: 'mock-keys-jwk',
+    });
+    renderWith({
+      integration,
+      supportsKeysOptionalLogin: true,
+    });
+    await waitFor(() => {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleFxaLogin: true,
+          handleFxaOAuthLogin: true,
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: true,
+        })
+      );
+    });
+  });
+
+  it('defers handleFxaLogin and handleFxaOAuthLogin for service=relay wanting keys when keys are not optional', async () => {
+    // A passwordless third-party account (created via another RP) signing into
+    // Relay on a non-decoupled browser must also set a password
+    const integration = mockOAuthNativeIntegration({
+      service: OAuthNativeServices.Relay,
+      keysJwk: 'mock-keys-jwk',
+    });
+    renderWith({
+      integration,
+      supportsKeysOptionalLogin: false,
+    });
+    await waitFor(() => {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: false,
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: false,
         })
       );
     });

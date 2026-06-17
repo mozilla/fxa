@@ -1364,6 +1364,7 @@ test.describe('severity-2', () => {
       },
       testAccountTracker,
     }) => {
+      test.fixme(true, 'TODO in FXA-13647');
       // Create passwordless account and set up TOTP via API
       const { email, sessionToken } =
         await testAccountTracker.signUpPasswordless();

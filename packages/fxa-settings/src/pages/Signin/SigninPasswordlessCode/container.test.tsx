@@ -13,6 +13,7 @@ import SigninPasswordlessCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_CLIENT_ID } from '../../mocks';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { createMockPasswordlessLocationState } from './mocks';
 
 let integration: Integration;
@@ -87,6 +88,7 @@ async function render() {
           integration,
           serviceName: 'sync',
           flowQueryParams: {},
+          useFxAStatusResult: mockUseFxAStatus(),
         }}
       />
     </LocationProvider>

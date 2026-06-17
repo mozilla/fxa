@@ -14,17 +14,19 @@ import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { RelierCmsInfo } from '../../../models';
 
 export function createMockIntegration(
-  cmsInfo?: RelierCmsInfo
+  cmsInfo?: RelierCmsInfo,
+  { isSync = true } = {}
 ): PostVerifySetPasswordIntegration {
   return {
     getCmsInfo: () => cmsInfo,
+    isSync: () => isSync,
   };
 }
 
 export const Subject = ({
   email = MOCK_EMAIL,
   createPasswordHandler = () => Promise.resolve({ error: null }),
-  integration,
+  integration = createMockIntegration(),
   passwordCreationReason,
   gleanReason,
 }: {

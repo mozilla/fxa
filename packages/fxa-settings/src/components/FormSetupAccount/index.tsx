@@ -16,6 +16,7 @@ export const FormSetupAccount = ({
   onSubmit,
   loading,
   isSync,
+  requirePasswordConfirmation,
   offeredSyncEngineConfigs,
   submitButtonGleanId,
   passwordFormType = 'signup',
@@ -45,8 +46,8 @@ export const FormSetupAccount = ({
         submitButtonGleanId,
         passwordFormType,
         cmsButton,
+        requirePasswordConfirmation,
       }}
-      requirePasswordConfirmation={isSync}
     />
   );
 };

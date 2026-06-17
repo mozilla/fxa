@@ -68,6 +68,7 @@ const SigninPasswordlessCode = ({
   isSignup = false,
   isSignedIntoFirefox = false,
   resendCountdownSeconds = 0,
+  useFxAStatusResult,
 }: SigninPasswordlessCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const authClient = useAuthClient();
@@ -314,10 +315,17 @@ const SigninPasswordlessCode = ({
         }
       }
 
-      // Sync flows need a password to derive encryption keys (unwrapBKey).
-      // TOTP accounts must verify first since /password/create requires
-      // a verifiedSessionToken.
-      if (integration.isSync()) {
+      // Flows that need encryption keys (unwrapBKey) require a password first:
+      // Sync always, and non-Sync Firefox clients that want keys (e.g. VPN) when
+      // the browser hasn't decoupled Sync. Route to set_password without sending
+      // any web channel messages — they're sent after the password is created,
+      // once keys are available. TOTP accounts must verify first
+      // since /password/create requires a verifiedSessionToken.
+      if (
+        integration.requiresPasswordForLogin(
+          useFxAStatusResult.supportsKeysOptionalLogin
+        )
+      ) {
         const accountData = {
           uid: result.uid,
           sessionToken: result.sessionToken,

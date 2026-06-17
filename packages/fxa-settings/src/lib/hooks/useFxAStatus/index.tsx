@@ -19,7 +19,10 @@ import {
 import firefox from '../../channels/firefox';
 import { Constants } from '../../constants';
 
-type FxAStatusIntegration = Pick<Integration, 'type' | 'isSync'>;
+type FxAStatusIntegration = Pick<
+  Integration,
+  'type' | 'isSync' | 'isFirefoxNonSync'
+>;
 
 /**
  * If integration.isSync or integration is OAuthNative, sends firefox.fxaStatus to retrieve

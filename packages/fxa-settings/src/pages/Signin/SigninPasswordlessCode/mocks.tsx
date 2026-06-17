@@ -11,6 +11,7 @@ import {
   WebIntegration,
 } from '../../../models';
 import { SigninPasswordlessCodeProps } from './interfaces';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import SigninPasswordlessCode from '.';
 import {
   MOCK_CLIENT_ID,
@@ -93,7 +94,10 @@ export const Subject = ({
   isSignup = false,
   isSignedIntoFirefox = false,
   sendError = null,
-}: Partial<SigninPasswordlessCodeProps>) => {
+  supportsKeysOptionalLogin = false,
+}: Partial<SigninPasswordlessCodeProps> & {
+  supportsKeysOptionalLogin?: boolean;
+}) => {
   return (
     <LocationProvider>
       <SigninPasswordlessCode
@@ -106,6 +110,7 @@ export const Subject = ({
           isSignup,
           isSignedIntoFirefox,
           sendError,
+          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
         }}
       />
     </LocationProvider>

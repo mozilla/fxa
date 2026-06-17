@@ -199,6 +199,8 @@ export const SigninDecider = ({
           isSignedIntoFirefox,
           setCurrentSplitLayout,
           onSessionExpired,
+          supportsKeysOptionalLogin:
+            useFxAStatusResult.supportsKeysOptionalLogin,
         }}
       />
     );

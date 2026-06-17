@@ -585,7 +585,11 @@ const AuthAndAccountSetupRoutes = ({
         {/* Post verify */}
         <ThirdPartyAuthCallback
           path="/post_verify/third_party_auth/callback/*"
-          {...{ flowQueryParams, integration }}
+          {...{
+            flowQueryParams,
+            integration,
+            useFxAStatusResult,
+          }}
         />
         <SetPasswordContainer
           path="/post_verify/set_password/*"
@@ -678,6 +682,7 @@ const AuthAndAccountSetupRoutes = ({
             flowQueryParams,
             isSignedIntoFirefox,
             setCurrentSplitLayout,
+            useFxAStatusResult,
           }}
         />
         <SigninPasswordlessCodeContainer
@@ -688,6 +693,7 @@ const AuthAndAccountSetupRoutes = ({
             flowQueryParams,
             isSignedIntoFirefox,
             setCurrentSplitLayout,
+            useFxAStatusResult,
           }}
         />
         <SigninContainer
@@ -741,7 +747,12 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SigninTotpCodeContainer
           path="/signin_totp_code/*"
-          {...{ integration, serviceName, setCurrentSplitLayout }}
+          {...{
+            integration,
+            serviceName,
+            setCurrentSplitLayout,
+            useFxAStatusResult,
+          }}
         />
         <SigninConfirmed
           path="/signin_verified/*"

@@ -17,6 +17,7 @@ import {
   handleNavigation,
   ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
@@ -43,9 +44,11 @@ type LinkedAccountData = {
 const ThirdPartyAuthCallback = ({
   integration,
   flowQueryParams,
+  useFxAStatusResult,
 }: {
   integration: Integration;
   flowQueryParams?: QueryParams;
+  useFxAStatusResult: UseFxAStatusResult;
 } & RouteComponentProps) => {
   const account = useAccount();
   const authClient = useAuthClient();
@@ -86,6 +89,12 @@ const ThirdPartyAuthCallback = ({
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
       const isFirefoxNonSync = integration.isFirefoxNonSync();
+      // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
+      // when Sync is not decoupled) need to defer the browser login/OAuth messages
+      // and let handleNavigation route to set_password.
+      const deferKeysUntilPasswordSet = integration.requiresPasswordForLogin(
+        useFxAStatusResult.supportsKeysOptionalLogin
+      );
 
       if (integration.isFirefoxNonSync() || integration.isSync()) {
         const ok = await ensureCanLinkAcountOrRedirect({
@@ -121,13 +130,14 @@ const ThirdPartyAuthCallback = ({
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
-        // For non‑Sync integrations we can sign in to the browser immediately because
-        // those integrations do not require keys to be available.
-        // For Sync, third‑party auth is only offered if the account is passwordless.
-        // In that case, we must defer browser login/OAuth messages until after the
-        // user sets a password and keys are available (see SetPassword/container.tsx).
-        handleFxaLogin: isFirefoxNonSync,
-        handleFxaOAuthLogin: isFirefoxNonSync,
+        supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+        // For non‑Sync browser services where Sync has been decoupled, we can
+        // sign in to the browser immediately because those integrations do not require keys
+        // (e.g. a password entered). For passwordless accounts, we must
+        // defer browser login/OAuth messages until after the user sets a
+        // password and keys are available.
+        handleFxaLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
+        handleFxaOAuthLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -144,6 +154,7 @@ const ThirdPartyAuthCallback = ({
       navigateWithQuery,
       webRedirectCheck,
       ftlMsgResolver,
+      useFxAStatusResult.supportsKeysOptionalLogin,
     ]
   );
 

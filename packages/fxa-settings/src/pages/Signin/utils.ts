@@ -552,9 +552,16 @@ const getOAuthNavigationTarget = async (
 ): Promise<NavigationTarget | NavigationTargetError> => {
   const locationState = createSigninLocationState(navigationOptions);
 
+  // Passwordless (third-party-auth) sign-ins that need keys must set a password
+  // first. For Sync this is always the case; for non-Sync Firefox clients that
+  // want keys it only applies when the browser hasn't decoupled Sync.
+  // Returning here, before `finishOAuthFlowHandler` runs, ensures no keyless
+  // `oauthData` is produced and no premature fxaOAuthLogin fires.
   if (
     navigationOptions.isSignInWithThirdPartyAuth &&
-    navigationOptions.integration.isSync()
+    navigationOptions.integration.requiresPasswordForLogin(
+      navigationOptions.supportsKeysOptionalLogin
+    )
   ) {
     const syncNav = getSyncNavigate(navigationOptions.queryParams, {
       showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,

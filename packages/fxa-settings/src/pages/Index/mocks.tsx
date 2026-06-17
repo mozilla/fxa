@@ -86,6 +86,7 @@ export function createMockIndexOAuthNativeIntegration({
     requiresKeys: () => false,
     wantsKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
+    requiresPasswordForLogin: () => false,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     data: new OAuthIntegrationData(
@@ -116,6 +117,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     requiresKeys: () => false,
     wantsKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
+    requiresPasswordForLogin: () => false,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     data: new IntegrationData(

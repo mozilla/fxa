@@ -22,6 +22,7 @@ export type FormSetupAccountProps = {
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   loading: boolean;
   isSync: boolean;
+  requirePasswordConfirmation?: boolean;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   submitButtonGleanId?: string;
   passwordFormType?: 'signup' | 'post-verify-set-password';

@@ -22,6 +22,7 @@ const SigninPasswordlessCodeContainer = ({
   flowQueryParams,
   isSignedIntoFirefox,
   setCurrentSplitLayout,
+  useFxAStatusResult,
 }: SigninPasswordlessCodeContainerProps & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -123,6 +124,7 @@ const SigninPasswordlessCodeContainer = ({
         isSignup,
         isSignedIntoFirefox,
         resendCountdownSeconds: 5,
+        useFxAStatusResult,
       }}
     />
   );

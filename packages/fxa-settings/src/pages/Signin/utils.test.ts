@@ -353,13 +353,17 @@ describe('Signin utils', () => {
     });
 
     describe('third party auth with non-Sync services', () => {
-      it('sends fxaOAuthLogin and navigates to settings', async () => {
+      it('sends fxaOAuthLogin and navigates to settings when the service does not need keys', async () => {
         const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const integration = createMockSigninOAuthNativeIntegration({
+          isSync: false,
+          service: OAuthNativeServices.Relay,
+        });
+        // A non-Sync service that doesn't request keys (no keysJwk) signs in
+        // directly — no password needed, so no set_password detour.
+        integration.wantsKeysIfPasswordEntered = () => false;
         const navigationOptions = createBaseNavigationOptions({
-          integration: createMockSigninOAuthNativeIntegration({
-            isSync: false,
-            service: OAuthNativeServices.Relay,
-          }),
+          integration,
           isSignInWithThirdPartyAuth: true,
           performNavigation: true,
           handleFxaOAuthLogin: true,
@@ -387,6 +391,65 @@ describe('Signin utils', () => {
             isSync: false,
             service: OAuthNativeServices.Vpn,
           }),
+          performNavigation: true,
+          handleFxaOAuthLogin: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          {
+            state: { origin: 'signin' },
+            replace: true,
+          }
+        );
+      });
+
+      // "keys not optional" = Firefox where Sync isn't decoupled: desktop
+      // before 147, and Mobile as of Firefox 153.
+      it('routes service=vpn third-party auth to set_password when keys are not optional', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: false,
+          performNavigation: true,
+          handleFxaOAuthLogin: false,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        // The OAuth login must be deferred until after the password is set,
+        // otherwise the browser receives keyless keys_jwe.
+        expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          expect.stringContaining('/post_verify/set_password'),
+          expect.objectContaining({
+            state: expect.objectContaining({
+              passwordCreationReason: 'third_party_auth',
+            }),
+            replace: true,
+          })
+        );
+      });
+
+      // keys-optional login = Sync decoupled (Firefox desktop 147+).
+      it('routes service=vpn third-party auth to service_welcome when the browser supports keys-optional login', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: true,
           performNavigation: true,
           handleFxaOAuthLogin: true,
         });

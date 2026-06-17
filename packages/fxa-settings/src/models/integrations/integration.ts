@@ -199,6 +199,30 @@ export class GenericIntegration<
     return this.requiresKeys() || this.wantsKeysIfPasswordEntered();
   }
 
+  /**
+   * Whether a passwordless account must set a password because scoped keys
+   * must be derived and sent to the browser.
+   *
+   * - Sync always requires keys (`requiresKeys`), so a passwordless Sync sign-in
+   *   must set a password first.
+   * - A non-Sync Firefox service that wants keys (`wantsKeysIfPasswordEntered`)
+   *   only requires a password when the browser has NOT decoupled Sync. When the
+   *   browser has the "keys optional" capability set (Fx desktop 147+, TBD in mobile),
+   *   it can complete login without keys, so no password is required.
+   *
+   * When this is true (and the caller has also confirmed the account has no
+   * password), when the user has authenticated, route them to
+   * `/post_verify/set_password` and defer the fxaLogin/fxaOAuthLogin web channel
+   * messages until keys are available — otherwise the browser receives a keyless
+   * OAuth login.
+   */
+  requiresPasswordForLogin(supportsKeysOptionalLogin = false): boolean {
+    return (
+      this.requiresKeys() ||
+      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+    );
+  }
+
   wantsLogin(): boolean {
     return false;
   }

@@ -156,8 +156,9 @@ export const SetPassword = ({
         }}
         loading={createPasswordLoading}
         onSubmit={handleSubmit(onSubmit)}
-        // This page is only shown during the Sync flow
-        isSync={true}
+        isSync={integration.isSync()}
+        // This form completes Sync sign up, so we want the user to confirm their new password.
+        requirePasswordConfirmation={true}
         passwordFormType="post-verify-set-password"
         cmsButton={cmsButton}
       />

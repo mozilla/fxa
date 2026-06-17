@@ -144,8 +144,13 @@ function applyDefaultMocks() {
   }));
 }
 
-function render(integration = mockSyncDesktopV3Integration()) {
-  const useFxAStatusResult = mockUseFxAStatus();
+function render(
+  integration = mockSyncDesktopV3Integration(),
+  {
+    supportsKeysOptionalLogin = false,
+  }: { supportsKeysOptionalLogin?: boolean } = {}
+) {
+  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   renderWithLocalizationProvider(
     <LocationProvider>
       <SetPasswordContainer
@@ -166,6 +171,7 @@ function mockSyncDesktopV3Integration() {
     isSync: () => true,
     requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
@@ -189,6 +195,7 @@ function mockOAuthNativeIntegration(
     isSync: () => true,
     requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
@@ -198,6 +205,34 @@ function mockOAuthNativeIntegration(
     isFirefoxMobileClient: () => isFirefoxMobileClient,
     getCmsInfo: () => undefined,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
+  } as ModelsModule.Integration;
+}
+// A non-Sync Firefox client (VPN) whose scope requests keys. This tests
+// the mobile case where Sync has not been decoupled yet.
+function mockVpnOAuthNativeIntegration() {
+  return {
+    type: ModelsModule.IntegrationType.OAuthNative,
+    getService: () => 'vpn',
+    getClientId: () => undefined,
+    isSync: () => false,
+    requiresKeys: () => false,
+    wantsKeysIfPasswordEntered: () => true,
+    wantsKeys: () => true,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
+    data: { service: 'vpn' },
+    isDesktopSync: () => false,
+    isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => true,
+    isFirefoxNonSync: () => true,
+    isFirefoxMobileClient: () => true,
+    getCmsInfo: () => undefined,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: false }),
   } as ModelsModule.Integration;
 }
 
@@ -230,6 +265,28 @@ describe('SetPassword-container', () => {
     });
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(currentSetPasswordProps).toBeDefined();
+  });
+
+  // "keys not optional" = Firefox where Sync isn't decoupled: desktop before
+  // 147, and Mobile as of Firefox 153.
+  it('renders for the non-Sync VPN flow that needs keys when keys are not optional', async () => {
+    render(mockVpnOAuthNativeIntegration(), {
+      supportsKeysOptionalLogin: false,
+    });
+    await waitFor(() => {
+      expect(SetPasswordModule.default).toHaveBeenCalled();
+    });
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('redirects to signin for the non-Sync VPN flow when the browser supports keys-optional login', async () => {
+    render(mockVpnOAuthNativeIntegration(), {
+      supportsKeysOptionalLogin: true,
+    });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+    });
+    expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
 
   it('redirects to signin when user already has a password', async () => {

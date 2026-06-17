@@ -445,4 +445,80 @@ describe('Sign in with TOTP code page', () => {
       });
     });
   });
+
+  // "keys not optional" = Firefox where Sync isn't decoupled: desktop before
+  // 147, and Mobile as of Firefox 153.
+  describe('passwordless OTP redirect to set_password for non-Sync clients that need keys', () => {
+    // A non-Sync Firefox client (VPN) whose scope requests keys.
+    const vpnIntegration = () => {
+      const integration = mockOAuthNativeSigninIntegration(false);
+      integration.isFirefoxClientServiceVpn = () => true;
+      integration.wantsKeysIfPasswordEntered = () => true;
+      return integration;
+    };
+
+    it('redirects to set_password when keys are not optional', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <Subject
+          integration={vpnIntegration()}
+          submitTotpCode={submitTotpCode}
+          supportsKeysOptionalLogin={false}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isPasswordlessOtpSignin: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/post_verify/set_password',
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: 'otp' },
+          })
+        );
+      });
+      // Web channel messages must be deferred until after the password is set.
+      expect(handleNavigationSpy).not.toHaveBeenCalled();
+    });
+
+    it('continues through handleNavigation when the browser supports keys-optional login', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <Subject
+          integration={vpnIntegration()}
+          submitTotpCode={submitTotpCode}
+          supportsKeysOptionalLogin={true}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isPasswordlessOtpSignin: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalled();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
+        '/post_verify/set_password',
+        expect.anything()
+      );
+    });
+  });
 });

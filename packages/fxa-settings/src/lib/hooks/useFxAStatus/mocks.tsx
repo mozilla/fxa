@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
+import type { UseFxAStatusResult } from '.';
 
 export function mockUseFxAStatus({
   offeredSyncEnginesOverride,
@@ -36,7 +37,7 @@ export function mockUseFxAStatus({
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
     supportsCanLinkAccountUid,
-  };
+  } satisfies UseFxAStatusResult;
 }
 
 export default mockUseFxAStatus;
