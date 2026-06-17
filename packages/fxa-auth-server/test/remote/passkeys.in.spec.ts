@@ -192,6 +192,7 @@ describe('#integration - remote passkey registration', () => {
     );
     expect(options.challenge).toBeDefined();
     expect(options.rp).toBeDefined();
+    expect(options.extensions).toEqual(expect.objectContaining({ prf: {} }));
 
     // Step 2: simulate authenticator
     const cred = VirtualAuthenticator.createCredential();

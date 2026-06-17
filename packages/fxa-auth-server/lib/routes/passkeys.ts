@@ -749,6 +749,16 @@ export const passkeyRoutes = (
                 credProps: isA.boolean().optional(),
                 hmacCreateSecret: isA.boolean().optional(),
                 minPinLength: isA.boolean().optional(),
+                prf: isA
+                  .object({
+                    eval: isA
+                      .object({
+                        first: isA.string().required(),
+                        second: isA.string().optional(),
+                      })
+                      .optional(),
+                  })
+                  .optional(),
               })
               .optional(),
           }),

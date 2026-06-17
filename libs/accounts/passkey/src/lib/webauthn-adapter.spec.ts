@@ -8,6 +8,7 @@ import {
   verifyWebauthnRegistrationResponse,
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
+  extractPrfEnabled,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
 import { VirtualAuthenticator } from './virtual-authenticator';
@@ -159,6 +160,50 @@ describe('generateWebauthnRegistrationOptions', () => {
       { id: credId, type: 'public-key' },
     ]);
   });
+
+  it('requests the PRF extension so authenticators report PRF support', async () => {
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
+    });
+
+    // credProps is added by SimpleWebAuthn itself; we only own the PRF probe.
+    expect(options.extensions).toEqual(expect.objectContaining({ prf: {} }));
+  });
+});
+
+describe('extractPrfEnabled', () => {
+  it.each([
+    {
+      label: 'prf.enabled is true',
+      input: { prf: { enabled: true } },
+      expected: true,
+    },
+    {
+      label: 'prf.enabled is false',
+      input: { prf: { enabled: false } },
+      expected: false,
+    },
+    {
+      label: 'prf is present without enabled',
+      input: { prf: {} },
+      expected: false,
+    },
+    {
+      label: 'prf.enabled is a non-boolean truthy value',
+      input: { prf: { enabled: 'false' } },
+      expected: false,
+    },
+    { label: 'prf is absent', input: {}, expected: false },
+    {
+      label: 'client extension results are undefined',
+      input: undefined,
+      expected: false,
+    },
+  ])('returns $expected when $label', ({ input, expected }) => {
+    expect(extractPrfEnabled(input)).toBe(expected);
+  });
 });
 
 describe('verifyWebauthnRegistrationResponse', () => {
@@ -186,18 +231,48 @@ describe('verifyWebauthnRegistrationResponse', () => {
     });
 
     expect(result.verified).toBe(true);
-    if (!result.verified) throw new Error('narrowing');
 
-    expect(typeof result.data.credentialId).toBe('string');
-    expect(result.data.credentialId).toBe(cred.id.toString('base64url'));
-    expect(result.data.publicKey).toBeInstanceOf(Buffer);
-    expect(result.data.signCount).toBe(0);
-    expect(result.data.transports).toEqual(['internal']);
-    expect(typeof result.data.aaguid).toBe('string');
-    expect(result.data.aaguid).toBe('00000000-0000-0000-0000-000000000000');
-    expect(result.data.backupEligible).toBe(false);
-    expect(result.data.backupState).toBe(false);
-    expect(result.data.prfEnabled).toBe(false);
+    expect(typeof result.data?.credentialId).toBe('string');
+    expect(result.data?.credentialId).toBe(cred.id.toString('base64url'));
+    expect(result.data?.publicKey).toBeInstanceOf(Buffer);
+    expect(result.data?.signCount).toBe(0);
+    expect(result.data?.transports).toEqual(['internal']);
+    expect(typeof result.data?.aaguid).toBe('string');
+    expect(result.data?.aaguid).toBe('00000000-0000-0000-0000-000000000000');
+    expect(result.data?.backupEligible).toBe(false);
+    expect(result.data?.backupState).toBe(false);
+    // No prf in clientExtensionResults → not PRF-enabled.
+    expect(result.data?.prfEnabled).toBe(false);
+  });
+
+  it('records prfEnabled when the browser reports PRF support', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+    });
+    // prf.enabled is a WebAuthn Level 3 client-extension output the browser
+    // sets; the virtual authenticator leaves clientExtensionResults empty, so
+    // attach it here. (Field absent from SimpleWebAuthn's output type.)
+    (attestation.clientExtensionResults as { prf?: { enabled: boolean } }).prf =
+      { enabled: true };
+
+    const result = await verifyWebauthnRegistrationResponse(config, {
+      response: attestation,
+      challenge,
+    });
+
+    expect(result.verified).toBe(true);
+    expect(result.data?.prfEnabled).toBe(true);
   });
 
   it('rejects a mismatched challenge', async () => {
@@ -380,9 +455,8 @@ describe('verifyWebauthnAuthenticationResponse', () => {
     });
 
     expect(result.verified).toBe(true);
-    if (!result.verified) throw new Error('narrowing');
-    expect(result.data.newSignCount).toBe(1);
-    expect(result.data.backupState).toBe(false);
+    expect(result.data?.newSignCount).toBe(1);
+    expect(result.data?.backupState).toBe(false);
   });
 
   it('tracks incrementing sign counts across assertions', async () => {
