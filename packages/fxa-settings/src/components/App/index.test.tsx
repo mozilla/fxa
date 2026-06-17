@@ -206,6 +206,7 @@ describe('metrics', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn(),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
@@ -253,6 +254,7 @@ describe('glean', () => {
     });
     const mockIntegration = {
       isSync: jest.fn(),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
@@ -329,6 +331,7 @@ describe('loading spinner states', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getCmsInfo: jest.fn(),
       getLegalTerms: jest.fn(),
@@ -371,6 +374,7 @@ describe('AuthAndAccountSetupRoutes', () => {
     const mockIntegration = {
       getServiceName: () => MozServices.FirefoxSync,
       isSync: () => true,
+      isDesktopSync: () => false,
       type: IntegrationType.OAuthNative,
       data: {},
       isFirefoxClientServiceRelay: () => false,
@@ -421,6 +425,7 @@ describe('SettingsRoutes', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
       getCmsInfo: jest.fn(),
@@ -469,6 +474,7 @@ describe('SettingsRoutes', () => {
     (currentAccount as jest.Mock).mockReturnValue(null);
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
       getLegalTerms: jest.fn(),
@@ -504,6 +510,7 @@ describe('SettingsRoutes', () => {
   it('redirects to sign out of sync warning', async () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
       getLegalTerms: jest.fn(),
@@ -552,6 +559,7 @@ describe('SettingsRoutes', () => {
 
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       isFirefoxDesktopClient: () => true,
       getCmsInfo: jest.fn(),
@@ -672,6 +680,7 @@ describe('Integration serviceName error handling', () => {
     const mockOAuthIntegration = {
       type: IntegrationType.OAuthWeb,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -713,6 +722,7 @@ describe('Integration serviceName error handling', () => {
       type: IntegrationType.OAuthWeb,
       clientInfoLoadFailed: true,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       checkClientInfo: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -744,6 +754,7 @@ describe('Integration serviceName error handling', () => {
     const mockNonOAuthIntegration = {
       type: IntegrationType.Web,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -780,6 +791,7 @@ describe('Integration serviceName error handling', () => {
     const mockOAuthNativeIntegration = {
       type: IntegrationType.OAuthNative,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;

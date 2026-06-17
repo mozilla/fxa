@@ -11,7 +11,10 @@ import { Integration, isWebIntegration } from '../../models/integrations';
 import GleanMetrics from '../../lib/glean';
 import { isValidCmsUrl } from '../../lib/utilities';
 
-export type PromoQrMobileIntegration = Pick<Integration, 'type'>;
+export type PromoQrMobileIntegration = Pick<
+  Integration,
+  'type' | 'isDesktopSync'
+>;
 
 // Must match the `desktop` breakpoint in packages/fxa-react/configs/tailwind.js.
 // This is a little fragile, but we're doing it to fire a Glean event only at
@@ -43,7 +46,8 @@ export const PromoQrMobile = ({
   const hasLoggedView = useRef(false);
 
   const visible =
-    isWebIntegration(integration) && shouldShowPromo(location.pathname);
+    (isWebIntegration(integration) || integration.isDesktopSync()) &&
+    shouldShowPromo(location.pathname);
 
   useEffect(() => {
     if (
