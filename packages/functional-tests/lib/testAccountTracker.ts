@@ -29,6 +29,7 @@ const SUPPORTED_SERVICE = 'smoketests';
 
 type AccountDetails = {
   email: string;
+  originalEmail?: string;
   password: string;
   /** For passwordless accounts that don't have a password yet */
   isPasswordless?: boolean;
@@ -398,7 +399,10 @@ export class TestAccountTracker {
     }
 
     const { sessionToken } = await this.target.authClient.signIn(
-      account.email,
+      {
+        primary: account.email,
+        original: account.originalEmail || account.email
+      },
       account.password,
       {},
       this.target.ciHeader
@@ -447,7 +451,10 @@ export class TestAccountTracker {
     }
 
     await this.target.authClient.accountDestroy(
-      account.email,
+      {
+        primary: account.email,
+        original: account.originalEmail || account.email
+      },
       account.password,
       {},
       sessionToken

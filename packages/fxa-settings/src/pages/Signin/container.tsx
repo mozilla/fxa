@@ -572,28 +572,37 @@ const SigninContainer = ({
           credentials.credentialStatus?.upgradeNeeded === true &&
           credentials.v2Credentials
         ) {
-          let upgraded = false;
-          const sessionToken = result.data.signIn.sessionToken;
-          const isVerified =
-            result.data.signIn.emailVerified &&
-            result.data.signIn.sessionVerified;
-          if (sessionToken && isVerified) {
-            upgraded = await upgradeClient.upgrade(
-              email,
+          const { sessionToken, emailVerified, sessionVerified } = result.data.signIn;
+
+          // To simplify this process. Fetch the original account sign in email.
+          const emails = await authClient.accountEmails(sessionToken);
+
+          // Edge case. The primary email and original account email differ. In this case
+          // Update the v1Credentials object to make sure the authPW is in fact correct. It
+          // needs to be derived from the original account email, not the current primary.
+          if (emails.original !== email) {
+            credentials.v1Credentials = await getCredentials(emails.original, password);
+          }
+
+          sensitiveDataClient.KeyStretchUpgradeData = {
+            email: emails.original,
+            v1Credentials: credentials.v1Credentials,
+            v2Credentials: credentials.v2Credentials,
+          };
+
+          if (sessionToken && emailVerified && sessionVerified) {
+            const success = await upgradeClient.upgrade(
+              emails.original,
               credentials.v1Credentials,
               credentials.v2Credentials,
               sessionToken
             );
-          }
 
-          if (upgraded) {
-            sensitiveDataClient.KeyStretchUpgradeData = undefined;
-          } else {
-            sensitiveDataClient.KeyStretchUpgradeData = {
-              email,
-              v1Credentials: credentials.v1Credentials,
-              v2Credentials: credentials.v2Credentials,
-            };
+            // If the attempt was successful, we can clear out the upgrade data, since we won't
+            // attempt the upgrade later on.
+            if (success) {
+              sensitiveDataClient.KeyStretchUpgradeData = undefined;
+            }
           }
         }
       }
@@ -760,7 +769,7 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const response = await authClient.signInWithAuthPW(email, authPW, {
+    const response = await authClient.signInWithAuthPW({ primary: email }, authPW, {
       verificationMethod: options.verificationMethod,
       keys: options.keys,
       service: options.service,

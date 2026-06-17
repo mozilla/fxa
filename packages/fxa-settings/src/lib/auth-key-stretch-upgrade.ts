@@ -121,12 +121,12 @@ export class AuthKeyStretchUpgrade {
    * @returns true if upgrade succeeded, false if any step failed
    */
   async upgrade(
-    email: string,
+    originalEmail: string,
     v1Credentials: V1Credentials,
     v2Credentials: V2Credentials,
     sessionToken: string
   ): Promise<boolean> {
-    const result1 = await this.startUpgrade(email, v1Credentials, sessionToken);
+    const result1 = await this.startUpgrade(originalEmail, v1Credentials, sessionToken);
 
     if (result1?.keyFetchToken && result1?.passwordChangeToken) {
       const result2 = await this.getWrappedKeys(result1.keyFetchToken);
@@ -145,10 +145,10 @@ export class AuthKeyStretchUpgrade {
   }
 
   private async getCredentialsStatus(
-    email: string
+    primaryEmail: string
   ): Promise<CredentialStatus | undefined> {
     try {
-      const result = await this.authClient.getCredentialStatusV2(email);
+      const result = await this.authClient.getCredentialStatusV2({primary:primaryEmail});
       return {
         upgradeNeeded: result.upgradeNeeded,
         currentVersion: result.currentVersion,
@@ -168,13 +168,13 @@ export class AuthKeyStretchUpgrade {
   }
 
   private async startUpgrade(
-    email: string,
+    originalEmail: string,
     v1Credentials: V1Credentials,
     sessionToken: string
   ) {
     try {
       const response = await this.authClient.passwordChangeStartWithAuthPW(
-        email,
+        { original: originalEmail },
         v1Credentials.authPW,
         sessionToken
       );

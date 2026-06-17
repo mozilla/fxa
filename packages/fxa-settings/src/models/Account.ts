@@ -300,6 +300,7 @@ export class Account implements AccountData {
           hasPassword: true,
           recoveryKey: { exists: false },
           metricsEnabled: false,
+          originalEmail: '',
           primaryEmail: { email: '', isPrimary: true, verified: false },
           emails: [],
           attachedClients: [],
@@ -680,16 +681,16 @@ export class Account implements AccountData {
     // Use the new MFA-protected endpoint
     const jwt = this.getCachedJwtByScope('password');
 
-    const response = await this.withLoadingStatus(
-      this.authClient.passwordChangeWithJWT(
+    const response = await this.withLoadingStatus((async () => {
+      const emails = await this.authClient.accountEmails(currentSessionToken);
+      return this.authClient.passwordChangeWithJWT(
         jwt,
-        this.email,
+        emails,
         oldPassword,
         newPassword,
-        currentSessionToken,
-        { keys: true }
+        currentSessionToken
       )
-    );
+    })());
 
     firefox.passwordChanged(
       this.primaryEmail.email,
@@ -724,13 +725,14 @@ export class Account implements AccountData {
   }
 
   async createPassword(newPassword: string) {
-    const passwordCreatedResult = await this.withLoadingStatus(
-      this.authClient.createPassword(
+    const passwordCreatedResult = await this.withLoadingStatus((async () => {
+      const emails = await this.authClient.accountEmails(sessionToken()!);
+      return this.authClient.createPassword(
         sessionToken()!,
-        this.primaryEmail.email,
+        emails,
         newPassword
       )
-    );
+    })());
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
@@ -740,13 +742,14 @@ export class Account implements AccountData {
 
   async createPasswordWithJwt(newPassword: string) {
     const jwt = this.getCachedJwtByScope('password');
-    const passwordCreatedResult = await this.withLoadingStatus(
-      this.authClient.createPasswordWithJwt(
+    const passwordCreatedResult = await this.withLoadingStatus((async () => {
+      const emails = await this.authClient.accountEmails(sessionToken()!);
+      return this.authClient.createPasswordWithJwt(
         jwt,
-        this.primaryEmail.email,
+        emails,
         newPassword
       )
-    );
+    })());
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
@@ -1326,17 +1329,18 @@ export class Account implements AccountData {
     replaceKey: boolean,
     useMfaJwt: boolean
   ) {
-    const reauth = await this.withLoadingStatus(
-      this.authClient.sessionReauth(
+    const reauth = await this.withLoadingStatus((async () => {
+      const emails = await this.authClient.accountEmails(sessionToken()!);
+      return this.authClient.sessionReauth(
         sessionToken()!,
-        this.primaryEmail.email,
+        emails,
         password,
         {
           keys: true,
           reason: 'recovery_key',
         }
       )
-    );
+    })());
     const keys = await this.withLoadingStatus(
       this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
     );
@@ -1409,14 +1413,15 @@ export class Account implements AccountData {
   }
 
   async destroy(password: string) {
-    await this.withLoadingStatus(
-      this.authClient.accountDestroy(
-        this.primaryEmail.email,
+    await this.withLoadingStatus((async () => {
+      const emails = await this.authClient.accountEmails(sessionToken()!);
+      await this.authClient.accountDestroy(
+        emails,
         password,
         {},
         sessionToken()!
       )
-    );
+    })());
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
   }
@@ -1429,9 +1434,16 @@ export class Account implements AccountData {
     kB: string;
     isFirefoxMobileClient: boolean;
   }) {
+
     const response = await this.authClient.resetPasswordWithRecoveryKey(
       opts.accountResetToken,
-      opts.emailToHashWith,
+      // During the (unauthenticated) password reset flow `this.primaryEmail.email`
+      // is the empty-string default, so both the v1 salt and the credential-status
+      // lookup must use `emailToHashWith` — the email the reset was initiated with.
+      {
+        primary: opts.emailToHashWith,
+        original: opts.emailToHashWith,
+      },
       opts.password,
       opts.recoveryKeyId,
       { kB: opts.kB },

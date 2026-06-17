@@ -618,7 +618,7 @@ function trim(str) {
           })
           .then(function (sessionData) {
             assert.isTrue(
-              realClient.signIn.calledWith(trim(email), password, {
+              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
                 keys: true,
                 reason: SignInReasons.SIGN_IN,
                 redirectTo: REDIRECT_TO,
@@ -651,7 +651,7 @@ function trim(str) {
           .signIn(email, password, relier)
           .then(function (sessionData) {
             assert.isTrue(
-              realClient.signIn.calledWith(trim(email), password, {
+              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
                 keys: false,
                 reason: SignInReasons.SIGN_IN,
                 redirectTo: REDIRECT_TO,
@@ -680,7 +680,7 @@ function trim(str) {
           })
           .then(function () {
             assert.isTrue(
-              realClient.signIn.calledWith(trim(email), password, {
+              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
                 keys: true,
                 reason: SignInReasons.PASSWORD_CHANGE,
                 redirectTo: REDIRECT_TO,
@@ -699,7 +699,7 @@ function trim(str) {
           .signIn(email, password, relier, { resume: 'resume token' })
           .then(function () {
             assert.isTrue(
-              realClient.signIn.calledWith(trim(email), password, {
+              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
                 keys: false,
                 reason: SignInReasons.SIGN_IN,
                 redirectTo: REDIRECT_TO,
@@ -722,7 +722,7 @@ function trim(str) {
             metricsContext: { foo: 'bar' },
           })
           .then(function () {
-            assert.isTrue(realClient.signIn.calledWith(trim(email), password), {
+            assert.isTrue(realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password), {
               keys: false,
               metricsContext: { foo: 'bar' },
               reason: SignInReasons.SIGN_IN,
@@ -740,7 +740,7 @@ function trim(str) {
           })
           .then(() => {
             assert.isTrue(
-              realClient.signIn.calledWith(trim(email), password, {
+              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
                 keys: false,
                 reason: SignInReasons.SIGN_IN,
                 redirectTo: REDIRECT_TO,
@@ -788,7 +788,7 @@ function trim(str) {
             assert.isTrue(
               realClient.sessionReauth.calledWith(
                 sessionToken,
-                trim(email),
+                { original: trim(email), primary: trim(email) },
                 password,
                 {
                   keys: true,
@@ -828,7 +828,7 @@ function trim(str) {
             assert.isTrue(
               realClient.sessionReauth.calledWith(
                 sessionToken,
-                trim(email),
+                { original: trim(email), primary: trim(email) },
                 password,
                 {
                   keys: false,
@@ -865,7 +865,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password,
                   {
                     keys: true,
@@ -887,7 +887,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password,
                   {
                     keys: true,
@@ -910,7 +910,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password
                 ),
                 {
@@ -932,7 +932,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password,
                   {
                     keys: true,
@@ -955,7 +955,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password,
                   {
                     keys: true,
@@ -978,7 +978,7 @@ function trim(str) {
               assert.isTrue(
                 realClient.sessionReauth.calledWith(
                   sessionToken,
-                  trim(email),
+                  { original: trim(email), primary: trim(email) },
                   password,
                   {
                     keys: true,
@@ -1128,7 +1128,7 @@ function trim(str) {
             );
             assert.isTrue(
               realClient.accountReset.calledWith(
-                trim(email),
+                { original: trim(email), primary: trim(email) },
                 password,
                 'reset_token',
                 { keys: true, sessionToken: true }
@@ -1158,7 +1158,7 @@ function trim(str) {
             );
             assert.isTrue(
               realClient.accountReset.calledWith(
-                trim(email),
+                { original: trim(email), primary: trim(email) },
                 password,
                 'accountResetToken',
                 { keys: true, sessionToken: true }
@@ -1245,9 +1245,13 @@ function trim(str) {
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
             assert.isTrue(
-              realClient.signIn.calledWith(email, password, {
-                reason: SignInReasons.PASSWORD_CHECK,
-              })
+              realClient.signIn.calledWith(
+                { original: email, primary: email },
+                password,
+                {
+                  reason: SignInReasons.PASSWORD_CHECK,
+                }
+              )
             );
             assert.isFalse(realClient.sessionDestroy.called);
           });
@@ -1268,9 +1272,13 @@ function trim(str) {
 
         return client.checkPassword(email, password).then(function () {
           assert.isTrue(
-            realClient.signIn.calledWith(email, password, {
-              reason: SignInReasons.PASSWORD_CHECK,
-            })
+            realClient.signIn.calledWith(
+              { original: email, primary: email },
+              password,
+              {
+                reason: SignInReasons.PASSWORD_CHECK,
+              }
+            )
           );
           assert.isTrue(realClient.sessionDestroy.calledWith('session token'));
         });
@@ -1294,9 +1302,14 @@ function trim(str) {
 
         return client.checkPassword(email, password, sessionToken).then(() => {
           assert.isTrue(
-            realClient.sessionReauth.calledWith(sessionToken, email, password, {
-              reason: SignInReasons.PASSWORD_CHECK,
-            })
+            realClient.sessionReauth.calledWith(
+              sessionToken,
+              { original: email, primary: email },
+              password,
+              {
+                reason: SignInReasons.PASSWORD_CHECK,
+              }
+            )
           );
           assert.isFalse(realClient.signIn.called);
           assert.isFalse(realClient.sessionDestroy.called);
@@ -1344,7 +1357,7 @@ function trim(str) {
           .then(function (sessionData) {
             assert.isTrue(
               realClient.passwordChange.calledWith(
-                trim(email),
+                { original: trim(email), primary: trim(email) },
                 password,
                 'new_password',
                 'sessionToken',
@@ -1399,7 +1412,7 @@ function trim(str) {
           .then((sessionData) => {
             assert.isTrue(
               realClient.passwordChange.calledWith(
-                trimmedEmail,
+                { original: trimmedEmail, primary: trimmedEmail },
                 password,
                 'new_password',
                 'sessionToken',
@@ -1465,7 +1478,12 @@ function trim(str) {
         });
 
         return client.deleteAccount(email, password).then(null, function (err) {
-          assert.isTrue(realClient.accountDestroy.calledWith(trim(email)));
+          assert.isTrue(
+            realClient.accountDestroy.calledWith({
+              original: trim(email),
+              primary: trim(email),
+            })
+          );
           // this test is necessary because errors in deleteAccount
           // should not be propagated to the final done's error
           // handler
@@ -1774,7 +1792,7 @@ function trim(str) {
             assert.isTrue(
               realClient.sessionReauth.calledOnceWith(
                 'sessionToken',
-                'email',
+                { original: 'email', primary: 'email' },
                 'password',
                 { keys: true, reason: VerificationReasons.RECOVERY_KEY }
               )

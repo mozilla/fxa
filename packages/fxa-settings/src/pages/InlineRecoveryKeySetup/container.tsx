@@ -54,7 +54,7 @@ const InlineRecoveryKeySetupContainer = ({
           // We must reauth for another `keyFetchToken` because we sent it to Sync
           const reauth = await authClient.sessionReauthWithAuthPW(
             sessionToken,
-            emailForAuth,
+            { primary: emailForAuth },
             authPW,
             {
               keys: true,

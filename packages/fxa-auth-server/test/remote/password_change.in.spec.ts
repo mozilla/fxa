@@ -508,7 +508,7 @@ describe.each(testVersions)(
           );
           fail('Should have failed.');
         } catch (err: any) {
-          expect(err.message).toBe('Invalid session token');
+          expect(err.message).toBe('Incorrect email case');
         }
       });
 

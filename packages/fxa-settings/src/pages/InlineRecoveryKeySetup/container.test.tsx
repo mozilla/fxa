@@ -142,7 +142,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     await currentProps?.createRecoveryKeyHandler();
     expect(mockAuthClient.sessionReauthWithAuthPW).toHaveBeenCalledWith(
       MOCK_SESSION_TOKEN,
-      'bloop@gmail.com',
+      { primary: 'bloop@gmail.com' },
       MOCK_AUTH_PW,
       { keys: true, reason: 'recovery_key' }
     );

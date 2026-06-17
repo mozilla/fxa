@@ -2321,6 +2321,17 @@ export class AccountHandler {
     return response;
   }
 
+  async getEmails (request: AuthRequest) {
+    this.log.begin('Account.emails', request);
+    const sessionToken = request.auth.credentials as { uid: string };
+    const account = await this.db.account(sessionToken.uid);
+    const result = {
+      originalEmail: account.email,
+      primaryEmail: account.primaryEmail?.email || account.email
+    };
+    return result;
+  }
+
   async destroy(request: AuthRequest) {
     this.log.begin('Account.destroy', request);
 
@@ -3231,6 +3242,24 @@ export const accountRoutes = (
       },
       handler: (request: AuthRequest) =>
         accountHandler.getCredentialsStatus(request),
+    },
+    {
+      method: 'GET',
+      path: '/account/emails',
+      options: {
+        ...ACCOUNT_DOCS.ACCOUNT_EMAILS_GET,
+        auth: {
+          strategies: ['sessionTokenBearer', 'sessionToken'],
+        },
+        response: {
+          schema: isA.object({
+            originalEmail: isA.string().required(),
+            primaryEmail: isA.string().required(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) =>
+        accountHandler.getEmails(request),
     },
     {
       method: 'POST',

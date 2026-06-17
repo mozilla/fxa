@@ -545,7 +545,7 @@ describe('/password', () => {
         TEST_EMAIL,
         'authenticatedPasswordChange'
       );
-      expect(mockDB.accountRecord).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(mockDB.account).toHaveBeenCalledWith(uid);
       expect(mockDB.createKeyFetchToken).toHaveBeenCalledTimes(1);
       expect(mockDB.createPasswordChangeToken).toHaveBeenCalledWith({ uid });
 
@@ -609,12 +609,53 @@ describe('/password', () => {
         TEST_EMAIL,
         'authenticatedPasswordChange'
       );
-      expect(mockDB.accountRecord).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(mockDB.account).toHaveBeenCalledWith(uid);
       expect(mockDB.createKeyFetchToken).toHaveBeenCalledTimes(1);
       expect(mockDB.createPasswordChangeToken).toHaveBeenCalledWith({ uid });
 
       expect(response.keyFetchToken).toBeTruthy();
       expect(response.passwordChangeToken).toBeTruthy();
+    });
+
+    it('fails fast with INCORRECT_EMAIL_CASE when payload email does not match account.email', async () => {
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      // Account's signup email is the canonical v1 PBKDF2 salt.
+      const mockDB = mocks.mockDB({
+        email: 'signup@example.com',
+        uid,
+        emailVerified: true,
+      });
+      const mockSession = await mockDB.createSessionToken({});
+      const mockRequest = mocks.mockRequest({
+        credentials: mockSession,
+        payload: {
+          // Client deriving with the current primary instead of the
+          // signup email — the FXA-13627 case. Server must surface the
+          // canonical email back via errno 120.
+          email: 'primary-now@example.com',
+          oldAuthPW: crypto.randomBytes(32).toString('hex'),
+        },
+        log: mocks.mockLog(),
+      });
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        push: mocks.mockPush(),
+        mailer: mocks.mockMailer(),
+        log: mocks.mockLog(),
+        customs: mocks.mockCustoms(),
+        statsd: mocks.mockStatsd(),
+      });
+
+      let err: any;
+      try {
+        await runRoute(passwordRoutes, '/password/change/start', mockRequest);
+      } catch (e) {
+        err = e;
+      }
+      expect(err).toBeDefined();
+      expect(err.errno).toBe(error.ERRNO.INCORRECT_EMAIL_CASE);
+      expect(err.output.payload.email).toBe('signup@example.com');
+      expect(mockDB.account).toHaveBeenCalledWith(uid);
     });
   });
 
@@ -1064,8 +1105,12 @@ describe('/password', () => {
       expect(response.authAt).toBeTruthy();
       expect(response.keyFetchToken).toBeTruthy();
 
-      // Verify database calls
-      expect(mockDB.account).toHaveBeenCalledTimes(1);
+      // Verify database calls. db.account is called twice now: once at
+      // the top of the handler to identify the account by sessionToken.uid
+      // (replaces the old `accountRecord(email)` lookup), and once inside
+      // changePassword to load the row for the reset.
+      expect(mockDB.account).toHaveBeenCalledTimes(2);
+      expect(mockDB.account).toHaveBeenNthCalledWith(1, uid);
       expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
       expect(mockDB.resetAccount).toHaveBeenCalledWith(
         expect.objectContaining({ uid }),
@@ -1284,6 +1329,67 @@ describe('/password', () => {
 
       // verified (deprecated compat field) should remain present and consistent
       expect(response.verified).toBe(true);
+    });
+
+    it('fails fast with INCORRECT_EMAIL_CASE when payload email does not match account.email', async () => {
+      const oldAuthPW = crypto.randomBytes(32).toString('hex');
+      const authPW = crypto.randomBytes(32).toString('hex');
+      const wrapKb = crypto.randomBytes(32).toString('hex');
+
+      // Account's signup email is the canonical v1 PBKDF2 salt.
+      mockDB = mocks.mockDB({
+        email: 'signup@example.com',
+        uid,
+        emailVerified: true,
+        isPasswordMatchV1: true,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        auth: {
+          credentials: {
+            uid,
+            email: 'signup@example.com',
+            emailVerified: true,
+            tokenVerified: true,
+            authenticatorAssuranceLevel: 2,
+            lastAuthAt: () => Date.now(),
+            data: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        payload: {
+          // Client deriving with the current primary instead of the
+          // signup email — the FXA-13627 case. Server must surface the
+          // canonical email back via errno 120 instead of silently
+          // failing the password verification.
+          email: 'primary-now@example.com',
+          oldAuthPW,
+          authPW,
+          wrapKb,
+        },
+        query: { keys: 'true' },
+      });
+
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        mailer: mockMailer,
+        push: mockPush,
+        log: mockLog,
+        statsd: mockStatsd,
+        customs: mockCustoms,
+      });
+
+      let err: any;
+      try {
+        await runRoute(passwordRoutes, '/mfa/password/change', mockRequest);
+      } catch (e) {
+        err = e;
+      }
+      expect(err).toBeDefined();
+      expect(err.errno).toBe(error.ERRNO.INCORRECT_EMAIL_CASE);
+      expect(err.output.payload.email).toBe('signup@example.com');
+      // Reset must not be invoked when the email mismatch is rejected.
+      expect(mockDB.resetAccount).not.toHaveBeenCalled();
     });
   });
 });

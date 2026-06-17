@@ -5144,3 +5144,36 @@ describe('/account/metrics_opt', () => {
     });
   });
 });
+
+describe('/account/emails', () => {
+  let log: any, db: any, config: any, routes: any, route: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    log = mocks.mockLog();
+    mocks.mockFxaMailer();
+    mocks.mockOAuthClientInfo();
+    db = {
+      account: jest.fn().mockResolvedValue({
+        uid: 'account-123',
+        email: 'signup@example.com',
+        primaryEmail: { email: 'signup+1@example.com' }
+      }),
+    };
+    config = {};
+    routes = makeRoutes({ log, db, config });
+    route = getRoute(routes, '/account/emails');
+  });
+
+  it('returns the signup email for the session uid', async () => {
+    const request = mocks.mockRequest({
+      credentials: { uid: 'account-123' },
+    });
+    const resp = await runTest(route, request);
+    expect(db.account).toHaveBeenCalledWith('account-123');
+    expect(resp).toEqual({
+      originalEmail: 'signup@example.com',
+      primaryEmail: 'signup+1@example.com'
+    });
+  });
+});

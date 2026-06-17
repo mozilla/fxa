@@ -78,6 +78,7 @@ export class SensitiveDataClient {
   // TODO(FXA-10929): Fast follow, use this pattern instead for simpler and better type safety.
   public KeyStretchUpgradeData:
     | {
+        // Important! This is the original email used during account creation.
         email: string;
         v1Credentials: V1Credentials;
         v2Credentials: V2Credentials;

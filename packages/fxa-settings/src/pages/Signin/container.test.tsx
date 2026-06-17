@@ -1012,6 +1012,10 @@ describe('signin container', () => {
         });
         // Mock passwordChangeFinish to succeed
         mockAuthClient.passwordChangeFinish = jest.fn().mockResolvedValue({});
+        mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+          original: MOCK_EMAIL,
+          primary: MOCK_EMAIL
+        })
 
         render();
 
@@ -1101,6 +1105,10 @@ describe('signin container', () => {
             errno: 999,
             message: 'Test error',
           });
+        mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+          primary: MOCK_EMAIL,
+          original: MOCK_EMAIL
+        })
 
         render();
 
@@ -1149,6 +1157,10 @@ describe('signin container', () => {
           errno: 999,
           message: 'Test error',
         });
+        mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+          oiginal: MOCK_EMAIL,
+          primary: MOCK_EMAIL
+        })
 
         render();
 
@@ -1203,6 +1215,10 @@ describe('signin container', () => {
           errno: 999,
           message: 'Test error',
         });
+        mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+          original: MOCK_EMAIL,
+          primary: MOCK_EMAIL,
+        })
 
         render();
 
@@ -1247,6 +1263,10 @@ describe('signin container', () => {
           verificationReason: VerificationReasons.SIGN_IN,
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
+        mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+          original: MOCK_EMAIL,
+          primary: MOCK_EMAIL,
+        })
 
         render();
 

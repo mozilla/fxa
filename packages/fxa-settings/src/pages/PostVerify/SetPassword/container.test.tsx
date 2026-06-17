@@ -89,6 +89,10 @@ function mockModelsModule() {
     authPW: MOCK_AUTH_PW,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
+  mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
+    primary: MOCK_EMAIL,
+    original: MOCK_EMAIL
+  })
   mockAuthClient.sessionReauthWithAuthPW = jest
     .fn()
     .mockResolvedValue({ keyFetchToken: MOCK_KEY_FETCH_TOKEN });
