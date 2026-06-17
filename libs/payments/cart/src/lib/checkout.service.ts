@@ -13,7 +13,6 @@ import {
   type SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
-import { NimbusManager } from '@fxa/payments/experiments';
 import {
   PaypalBillingAgreementManager,
   PaypalCustomerManager,
@@ -101,7 +100,6 @@ import {
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
 import { FreeTrialManager } from './free-trial.manager';
-import type { PaymentsSearchParams } from './searchParams.schema';
 
 const FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS = 24;
 
@@ -129,7 +127,6 @@ export class CheckoutService {
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
     private freeTrialManager: FreeTrialManager,
-    private nimbusManager: NimbusManager,
     private gleanService: PaymentsMetricsAggregatorService,
     @Inject(CHECKOUT_EVENT_EMITTER_TOKEN)
     private checkoutEmitter: CheckoutEventEmitter,
@@ -1054,45 +1051,24 @@ export class CheckoutService {
     countryCode: string;
     interval: SubplatInterval;
     uid?: string;
-    experimentationId?: string;
-    searchParams?: PaymentsSearchParams;
   }): Promise<FreeTrial | null> {
-    const {
-      uid,
-      offeringConfigId,
-      countryCode,
-      interval,
-      experimentationId,
-      searchParams,
-    } = args;
+    const { uid, offeringConfigId, countryCode, interval } = args;
 
-    const fetchResult = await Promise.all([
-      this.nimbusManager.fetchExperiments({
-        nimbusUserId: this.nimbusManager.generateNimbusId(
-          uid,
-          experimentationId
-        ),
-        preview: searchParams?.experimentationPreview === 'true',
-      }),
-      this.productConfigurationManager.getFreeTrial(offeringConfigId),
-    ]).catch((error) => {
-      Sentry.captureException(error, {
-        extra: {
-          uid: uid,
-          offeringConfigId: offeringConfigId,
-          countryCode: countryCode,
-          interval: interval,
-        },
+    const freeTrialUtil = await this.productConfigurationManager
+      .getFreeTrial(offeringConfigId)
+      .catch((error) => {
+        Sentry.captureException(error, {
+          extra: {
+            uid: uid,
+            offeringConfigId: offeringConfigId,
+            countryCode: countryCode,
+            interval: interval,
+          },
+        });
+        return null;
       });
-      return null;
-    });
 
-    if (!fetchResult) {
-      return null;
-    }
-
-    const [nimbusResult, freeTrialUtil] = fetchResult;
-    if (!nimbusResult?.Features?.['free-trial-feature']?.enabled) {
+    if (!freeTrialUtil) {
       return null;
     }
 
@@ -1118,8 +1094,6 @@ export class CheckoutService {
     countryCode: string;
     interval: SubplatInterval;
     eligibilityStatus: EligibilityStatus;
-    experimentationId?: string;
-    searchParams?: PaymentsSearchParams;
   }): Promise<{ offer: FreeTrial | null; userEligible: boolean }> {
     if (args.eligibilityStatus !== EligibilityStatus.CREATE) {
       return { offer: null, userEligible: false };
@@ -1130,8 +1104,6 @@ export class CheckoutService {
       countryCode: args.countryCode,
       interval: args.interval,
       uid: args.uid,
-      experimentationId: args.experimentationId,
-      searchParams: args.searchParams,
     });
     if (!offer) {
       return { offer: null, userEligible: false };

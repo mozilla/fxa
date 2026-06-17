@@ -8,7 +8,6 @@ import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
   CartService,
-  type PaymentsSearchParams,
   SubscriptionAttributionParams,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
@@ -240,16 +239,8 @@ export class NextJSActionsService {
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getCart(args: {
-    cartId: string;
-    searchParams?: PaymentsSearchParams;
-    experimentationId?: string;
-  }) {
-    return this.cartService.getCart(
-      args.cartId,
-      args.searchParams,
-      args.experimentationId
-    );
+  async getCart(args: { cartId: string }) {
+    return this.cartService.getCart(args.cartId);
   }
 
   @SanitizeExceptions()
@@ -290,11 +281,8 @@ export class NextJSActionsService {
   @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getSuccessCart(args: {
-    cartId: string;
-    searchParams?: PaymentsSearchParams;
-  }): Promise<SuccessCartDTO> {
-    const cart = await this.cartService.getCart(args.cartId, args.searchParams);
+  async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
+    const cart = await this.cartService.getCart(args.cartId);
 
     if (cart.state !== CartState.SUCCESS) {
       throw new Error('Cart is not in success state');
