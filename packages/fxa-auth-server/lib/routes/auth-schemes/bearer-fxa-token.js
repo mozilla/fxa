@@ -103,8 +103,14 @@ function strategy(kind, getCredentialsFunc, options) {
     return err;
   };
 
-  const recordUsed = () => {
-    statsd.increment('auth.strategy.used', [`scheme:bearer`, `kind:${kind}`]);
+  // `path` is the templated route (e.g. /v1/account/device), never the raw
+  // URL, so cardinality stays ~2 schemes x authed routes (~130 series total).
+  const recordUsed = (req) => {
+    statsd.increment('auth.strategy.used', [
+      `scheme:bearer`,
+      `kind:${kind}`,
+      `path:${req.route?.path ?? 'unknown'}`,
+    ]);
   };
 
   return function (server, options) {
@@ -144,7 +150,7 @@ function strategy(kind, getCredentialsFunc, options) {
           await postAuthenticate(req, token);
         }
 
-        recordUsed();
+        recordUsed(req);
         return h.authenticated({ credentials: token });
       },
       payload: async function (req, h) {
