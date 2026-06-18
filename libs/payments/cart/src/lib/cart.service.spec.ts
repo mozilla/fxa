@@ -3072,7 +3072,6 @@ describe('CartService', () => {
         countryCode: mockCart.taxAddress?.countryCode,
         interval: mockCart.interval,
         eligibilityStatus: EligibilityStatus.CREATE,
-        searchParams: undefined,
       });
     });
 
@@ -3113,8 +3112,6 @@ describe('CartService', () => {
         eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockInvoicePreview = InvoicePreviewFactory();
-      const mockSearchParams = { experimentationPreview: 'true' };
-      const mockExperimentationId = 'guest-experiment-123';
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
@@ -3127,19 +3124,13 @@ describe('CartService', () => {
         .spyOn(checkoutService, 'getProductFreeTrialOffer')
         .mockResolvedValue(mockFreeTrial);
 
-      const result = await cartService.getCart(
-        mockCart.id,
-        mockSearchParams,
-        mockExperimentationId
-      );
+      const result = await cartService.getCart(mockCart.id);
       expect(result.freeTrialOffer).toEqual(mockFreeTrial);
       expect(result.freeTrialUserEligible).toBe(false);
       expect(checkoutService.getProductFreeTrialOffer).toHaveBeenCalledWith({
         offeringConfigId: mockCart.offeringConfigId,
         countryCode: mockCart.taxAddress?.countryCode,
         interval: mockCart.interval,
-        experimentationId: mockExperimentationId,
-        searchParams: mockSearchParams,
       });
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });

@@ -41,10 +41,7 @@ export default function Error({
   async function redirectWithCart() {
     setLoading(true);
     try {
-      const cart = await getCartAction(
-        cartId,
-        Object.fromEntries(searchParams.entries())
-      );
+      const cart = await getCartAction(cartId);
       if (cart.state === 'start') {
         const newCart = await restartCartAction(cartId);
         setLoading(false);

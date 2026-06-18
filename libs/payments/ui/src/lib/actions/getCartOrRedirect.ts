@@ -4,14 +4,12 @@
 
 'use server';
 
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApp } from '../nestapp/app';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
 import { sanitizePathname } from '../utils/sanitizePathname';
-import { parseSearchParams } from '../utils/searchParams';
 import {
   StartCartDTO,
   ProcessingCartDTO,
@@ -68,11 +66,8 @@ async function getCartOrRedirectAction(
     : undefined;
   const urlSearchParams = new URLSearchParams(filteredParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
-  const experimentationId = (await headers()).get('x-experimentation-id') || undefined;
   const cart = await getApp().getActionsService().getCart({
     cartId,
-    searchParams: parseSearchParams(searchParams),
-    experimentationId,
   });
 
   if (!validateCartState(cart.state, page)) {
