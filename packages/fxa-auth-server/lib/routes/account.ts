@@ -255,6 +255,7 @@ export class AccountHandler {
     const country = geoData.location && geoData.location.country;
     const countryCode = geoData.location && geoData.location.countryCode;
     if (account.emailVerified) {
+      const { clientId } = getClientServiceTags(request);
       await this.log.notifyAttachedServices('verified', request, {
         email: account.email,
         locale: account.locale,
@@ -263,6 +264,7 @@ export class AccountHandler {
         userAgent: userAgentString,
         country,
         countryCode,
+        ...(clientId && { clientId }),
       });
     }
 

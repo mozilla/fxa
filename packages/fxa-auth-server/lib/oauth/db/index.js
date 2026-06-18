@@ -384,6 +384,20 @@ class OauthDB extends ConnectedServicesDb {
     };
   }
 
+  // True iff the user has any prior consent for this service (any scope/client).
+  // Used for the browser-service grain of the first-authorization signal.
+  async hasConsentForService(uid, service) {
+    await this.ready();
+    return this.mysql._hasConsentForService(uid, service);
+  }
+
+  // True iff the user has any prior consent for this client (any scope/service).
+  // Used for the web-RP grain of the first-authorization signal.
+  async hasConsentForClient(uid, clientId) {
+    await this.ready();
+    return this.mysql._hasConsentForClient(uid, clientId);
+  }
+
   async deleteAllConsentsForUser(uid) {
     await this.ready();
     return this.mysql._deleteAllAccountConsentsForUser(uid);
