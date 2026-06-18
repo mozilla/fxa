@@ -97,9 +97,9 @@ function requireOptions(options) {
  *   - `throwOnFailure` — true for single-strategy routes, false for
  *     multi-strategy chains where Hapi must fall through to the next.
  *   - `statsd` + `kind` — drive the
- *     `auth.strategy.used{scheme=hawk,kind=<kind>}` metric that tracks the
- *     Hawk -> Bearer migration; required so a registration cannot silently
- *     disappear from the dashboard.
+ *     `auth.strategy.used{scheme=hawk,kind=<kind>,path=<path>}` metric that
+ *     tracks the Hawk -> Bearer migration; required so a registration cannot
+ *     silently disappear from the dashboard.
  *
  * All failure modes carry `errno=110` ("Token not found") so a final 401
  * in a multi-strategy chain matches the single-strategy response shape.
@@ -127,8 +127,14 @@ function strategy(getCredentialsFunc, options) {
     return err;
   };
 
-  const recordUsed = () => {
-    statsd.increment('auth.strategy.used', [`scheme:hawk`, `kind:${kind}`]);
+  // `path` is the templated route (e.g. /v1/account/device), never the raw
+  // URL, so cardinality stays ~2 schemes x authed routes (~130 series total).
+  const recordUsed = (req) => {
+    statsd.increment('auth.strategy.used', [
+      `scheme:hawk`,
+      `kind:${kind}`,
+      `path:${req.route?.path ?? 'unknown'}`,
+    ]);
   };
 
   return function (server, options) {
@@ -156,7 +162,7 @@ function strategy(getCredentialsFunc, options) {
             return failAuth();
           }
 
-          recordUsed();
+          recordUsed(req);
           return h.authenticated({ credentials: token });
         }
 

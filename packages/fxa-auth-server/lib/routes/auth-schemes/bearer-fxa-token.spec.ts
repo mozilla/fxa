@@ -313,7 +313,7 @@ describe('lib/routes/auth-schemes/bearer-fxa-token', () => {
   describe('auth.strategy.used metric', () => {
     const authHeader = `Bearer fxs_${HEX_64}`;
 
-    it('increments {scheme=bearer, kind=<kind>} on successful auth', async () => {
+    it('increments {scheme=bearer, kind=<kind>, path=<path>} on successful auth', async () => {
       const statsd = { increment: jest.fn() };
       const authStrategy = strategy(
         'sessionToken',
@@ -321,13 +321,17 @@ describe('lib/routes/auth-schemes/bearer-fxa-token', () => {
         testOptions({ statsd })
       )(null as any, null as any);
 
-      const req = makeReq({ headers: { authorization: authHeader } });
+      const req = makeReq({
+        headers: { authorization: authHeader },
+        route: { path: '/v1/account/devices' },
+      });
       const h = makeH();
 
       await authStrategy.authenticate(req as any, h as any);
       expect(statsd.increment).toHaveBeenCalledWith('auth.strategy.used', [
         'scheme:bearer',
         'kind:sessionToken',
+        'path:/v1/account/devices',
       ]);
     });
 

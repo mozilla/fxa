@@ -167,7 +167,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
   });
 
   describe('auth.strategy.used metric', () => {
-    it('increments {scheme=hawk, kind=<kind>} on successful auth when statsd+kind are provided', async () => {
+    it('increments {scheme=hawk, kind=<kind>, path=<path>} on successful auth when statsd+kind are provided', async () => {
       const statsd = { increment: jest.fn() };
       const getCredentialsFunc = jest
         .fn()
@@ -180,6 +180,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
       const request = {
         headers: { authorization: HAWK_HEADER },
         auth: { mode: 'required' },
+        route: { path: '/v1/account/devices' },
       };
       const h = { authenticated: jest.fn() };
 
@@ -187,6 +188,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
       expect(statsd.increment).toHaveBeenCalledWith('auth.strategy.used', [
         'scheme:hawk',
         'kind:sessionToken',
+        'path:/v1/account/devices',
       ]);
     });
 
