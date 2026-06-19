@@ -73,7 +73,8 @@ export interface PublicKeyCredentialRequestOptionsJSON {
 }
 
 // ─── Credential response types ───────────────────────────────────────────────
-// Shapes produced by PublicKeyCredential.toJSON(), sent to the backend.
+// JSON shapes sent to the backend, built by manual serialization in
+// toCredentialJSON (see the note there on why we avoid the native toJSON()).
 
 export interface AuthenticatorAttestationResponseJSON {
   clientDataJSON: Base64URLString;
@@ -117,12 +118,6 @@ type PublicKeyCredentialLevel3 = typeof PublicKeyCredential & {
   ): PublicKeyCredentialRequestOptions;
 };
 
-declare global {
-  interface PublicKeyCredential {
-    toJSON(): PublicKeyCredentialJSON;
-  }
-}
-
 // ─── Feature detection ───────────────────────────────────────────────────────
 
 /**
@@ -130,10 +125,10 @@ declare global {
  * (parseCreationOptionsFromJSON, parseRequestOptionsFromJSON) on the
  * PublicKeyCredential constructor.
  *
- * We require Level 3 rather than falling back to Level 2 as a deliberate
- * scope decision. The JSON helpers eliminate all manual base64url ↔
- * ArrayBuffer conversion; supporting Level 2 would add ~30–50 lines of
- * encoding code for no functional gain on modern browsers. PRF (used for
+ * We gate on the Level 3 parse helpers (request side) as a deliberate scope
+ * decision — they eliminate manual base64url → ArrayBuffer decoding of the
+ * options. The response side is serialized by hand regardless (see
+ * toCredentialJSON), so this gate concerns only the request path. PRF (used for
  * passwordless Sync key derivation) is also a Level 3 extension, though PRF
  * is optional — non-PRF passkeys work for basic authentication regardless,
  * so the Level 3 gate is purely about code simplicity, not a hard PRF
@@ -151,15 +146,10 @@ declare global {
  * No authenticator (YubiKey, Face ID, Windows Hello, etc.) is excluded —
  * Level 3 is a browser API concern, not an authenticator capability.
  *
- * If product decides to support older Safari / iOS 16, the wrappers below
- * need a Level 2 fallback that manually encodes/decodes binary fields. At
- * that point, adopting a library such as @simplewebauthn/browser is worth
- * considering — it handles both Level 2 and Level 3 paths, the 1Password
- * plain-object fallback, and conditional UI, avoiding further bespoke
- * encoding code.
- *
- * toJSON() on the credential instance is not explicitly checked; it always
- * ships alongside the static parse helpers in practice.
+ * To also support browsers that lack the parse helpers (older Safari / iOS),
+ * the request side would need a manual parse path too — the response side is
+ * already manual. Adopting @simplewebauthn/browser, which handles both
+ * directions plus the 1Password plain-object case, is worth considering then.
  */
 export function isWebAuthnLevel3Supported(): boolean {
   if (typeof window === 'undefined') {
@@ -176,28 +166,76 @@ export function isWebAuthnLevel3Supported(): boolean {
 
 // ─── Credential extraction ──────────────────────────────────────────────────
 
-/** Type guard for objects that can serialize to credential JSON. */
-function hasToJSON(
-  value: unknown
-): value is { toJSON: () => PublicKeyCredentialJSON } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'toJSON' in value &&
-    typeof value.toJSON === 'function'
+/**
+ * Encodes a binary credential field to unpadded base64url. Chunked so large
+ * buffers (e.g. attestationObject) don't overflow String.fromCharCode's
+ * argument list.
+ */
+function bufferToBase64url(buffer: ArrayBuffer | ArrayBufferView): string {
+  // ArrayBuffer.isView, not `instanceof ArrayBuffer`: the latter is unreliable
+  // across realms (iframes, workers), which would silently read zero bytes.
+  const bytes = ArrayBuffer.isView(buffer)
+    ? new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+    : new Uint8Array(buffer);
+  let binary = '';
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+/** Serializes an attestation or assertion response, base64url-encoding binary fields. */
+function serializeResponse(
+  response: AuthenticatorResponse,
+  operation: string
+): AuthenticatorResponseJSON {
+  if ('attestationObject' in response) {
+    const attestation = response as AuthenticatorAttestationResponse;
+    return {
+      clientDataJSON: bufferToBase64url(attestation.clientDataJSON),
+      attestationObject: bufferToBase64url(attestation.attestationObject),
+      // getTransports() is optional per spec; some authenticators omit it.
+      ...(typeof attestation.getTransports === 'function'
+        ? { transports: attestation.getTransports() }
+        : {}),
+    };
+  }
+  if ('signature' in response) {
+    const assertion = response as AuthenticatorAssertionResponse;
+    return {
+      clientDataJSON: bufferToBase64url(assertion.clientDataJSON),
+      authenticatorData: bufferToBase64url(assertion.authenticatorData),
+      signature: bufferToBase64url(assertion.signature),
+      ...(assertion.userHandle
+        ? { userHandle: bufferToBase64url(assertion.userHandle) }
+        : {}),
+    };
+  }
+  throw new DOMException(
+    `${operation} returned an unrecognized authenticator response`,
+    'UnknownError'
   );
 }
 
 /**
- * Extracts `PublicKeyCredentialJSON` from a browser credential result.
+ * Builds `PublicKeyCredentialJSON` from a browser credential by hand, reading
+ * the long-standing Level 2 getters instead of the native
+ * `PublicKeyCredential.toJSON()`.
  *
- * Prefers duck-typing (`toJSON()`) over `instanceof PublicKeyCredential`
- * because password managers (e.g. 1Password) may return a plain object
- * that has all the right fields but is not a real `PublicKeyCredential`.
+ * Why not toJSON(): WebKit before 26.5.1 crashes the WebContent renderer
+ * inside its native extension-output serializer when a `prf` output is present
+ * — an uncatchable process trap, not a JS exception, so no try/catch can
+ * recover it. The Level 2 getters (rawId, response.*, getClientExtensionResults)
+ * predate that serializer and avoid the broken code path entirely.
  *
- * No client-side shape validation of the `toJSON()` return value —
- * `@simplewebauthn/server:verifyRegistrationResponse` performs strict
- * WebAuthn spec validation server-side and rejects malformed data.
+ * Duck-typed (no `instanceof PublicKeyCredential`) so password managers that
+ * return a plain object with the same fields (e.g. 1Password) serialize too.
+ * No client-side shape validation — the server (`@simplewebauthn/server`)
+ * validates strictly and rejects malformed data.
  */
 function toCredentialJSON(
   rawCredential: Credential | null,
@@ -206,13 +244,20 @@ function toCredentialJSON(
   if (!rawCredential) {
     throw new DOMException(`${operation} returned null`, 'UnknownError');
   }
-  if (hasToJSON(rawCredential)) {
-    return rawCredential.toJSON();
-  }
-  throw new DOMException(
-    `${operation} returned a credential without toJSON()`,
-    'UnknownError'
-  );
+  const credential = rawCredential as PublicKeyCredential;
+  return {
+    id: credential.id,
+    rawId: bufferToBase64url(credential.rawId),
+    type: 'public-key',
+    ...(credential.authenticatorAttachment
+      ? { authenticatorAttachment: credential.authenticatorAttachment }
+      : {}),
+    response: serializeResponse(credential.response, operation),
+    clientExtensionResults:
+      typeof credential.getClientExtensionResults === 'function'
+        ? (credential.getClientExtensionResults() as Record<string, unknown>)
+        : {},
+  };
 }
 
 // ─── Wrapper functions ────────────────────────────────────────────────────────
