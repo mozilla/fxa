@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import * as Sentry from '@sentry/browser';
 
@@ -18,13 +18,20 @@ import {
 import {
   createCredential,
   isWebAuthnLevel3Supported,
+  type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialJSON,
 } from '../../../lib/passkeys/webauthn';
+import {
+  isRetriableWithoutPrf,
+  stripPrfExtension,
+} from '../../../lib/passkeys/prf-fallback';
 import {
   handleWebAuthnError,
   WebAuthnErrorType,
 } from '../../../lib/passkeys/webauthn-errors';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { Banner } from '../../Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
 import {
@@ -78,6 +85,19 @@ export const PagePasskeyAdd = () => {
   const wasCanceled = useRef(false);
   const abortController = useRef<AbortController | null>(null);
 
+  // When a platform authenticator rejects the PRF probe (e.g. Windows Hello
+  // without the PRF platform update) we stay on this page and offer a retry
+  // instead of bouncing to settings. The cached registration lets "Try again"
+  // call createCredential immediately — preserving the click's user activation
+  // — rather than re-fetching options first.
+  const [showPrfRetry, setShowPrfRetry] = useState(false);
+  const prfRetry = useRef<{
+    jwt: string;
+    creationOptions: PublicKeyCredentialCreationOptionsJSON;
+    challenge: string;
+  } | null>(null);
+  const retryInFlight = useRef(false);
+
   const navigateToSettings = useCallback(() => {
     navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
   }, [navigateWithQuery]);
@@ -92,6 +112,66 @@ export const PagePasskeyAdd = () => {
     alertBar.error(passkeyCanceledOrTimedOutMessage());
     navigateToSettings();
   }, [alertBar, navigateToSettings]);
+
+  // Shared success tail for both the initial ceremony and the no-PRF retry.
+  const finishRegistration = useCallback(
+    async (
+      jwt: string,
+      credential: PublicKeyCredentialJSON,
+      challenge: string
+    ) => {
+      await authClient.completePasskeyRegistration(jwt, credential, challenge);
+      await account.refresh('passkeys');
+      if (!isMounted.current || wasCanceled.current) return;
+      GleanMetrics.accountPref.passkeyCreateSuccessView();
+      alertBar.success(
+        ftlMsgResolver.getMsg('page-passkey-add-success', 'Passkey created')
+      );
+      navigateToSettings();
+    },
+    [account, authClient, alertBar, ftlMsgResolver, navigateToSettings]
+  );
+
+  // "Try again" after a PRF-probe rejection: retry without PRF. The click is a
+  // fresh user activation, so createCredential runs before any other await to
+  // keep that activation valid for the browser prompt.
+  const handlePrfRetry = useCallback(async () => {
+    const cached = prfRetry.current;
+    if (retryInFlight.current || !cached) return;
+    retryInFlight.current = true;
+    setShowPrfRetry(false);
+    GleanMetrics.accountPref.passkeyCreateView();
+
+    const controller = new AbortController();
+    abortController.current = controller;
+    try {
+      const credential = await createCredential(
+        stripPrfExtension(cached.creationOptions),
+        undefined,
+        controller.signal
+      );
+      if (!isMounted.current || wasCanceled.current) return;
+      await finishRegistration(cached.jwt, credential, cached.challenge);
+    } catch (error) {
+      if (!isMounted.current || wasCanceled.current) return;
+      if (handleMfaError(error)) return;
+      // The no-PRF retry failed too — return to settings with the generic
+      // help-link message. Skip Sentry for user cancellations.
+      const isUserCancel =
+        error instanceof DOMException &&
+        (error.name === 'NotAllowedError' || error.name === 'AbortError');
+      if (!isUserCancel) {
+        Sentry.captureException(error);
+      }
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+        event: { reason: 'prf_retry_failed' },
+      });
+      alertBar.error(passkeyCouldNotCompleteMessage());
+      navigateToSettings();
+    } finally {
+      retryInFlight.current = false;
+    }
+  }, [alertBar, finishRegistration, handleMfaError, navigateToSettings]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -129,12 +209,34 @@ export const PagePasskeyAdd = () => {
 
         if (!isMounted.current || wasCanceled.current) return;
 
-        // Step 2: Browser WebAuthn prompt
-        const credential = await createCredential(
-          creationOptions,
-          undefined,
-          controller.signal
-        );
+        // Step 2: Browser WebAuthn prompt.
+        let credential: PublicKeyCredentialJSON;
+        try {
+          credential = await createCredential(
+            creationOptions,
+            undefined,
+            controller.signal
+          );
+        } catch (createError) {
+          // Some platform authenticators (e.g. Windows Hello without the PRF
+          // platform update) reject the whole ceremony — before any prompt —
+          // when PRF is requested. PRF only powers Phase-2 passwordless Sync,
+          // so stay on the page and offer a retry without it instead of
+          // failing registration outright.
+          if (
+            isRetriableWithoutPrf(createError) &&
+            creationOptions.extensions?.prf
+          ) {
+            if (!isMounted.current || wasCanceled.current) return;
+            prfRetry.current = { jwt, creationOptions, challenge };
+            GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+              event: { reason: 'prf_unsupported' },
+            });
+            setShowPrfRetry(true);
+            return;
+          }
+          throw createError;
+        }
 
         // After the WebAuthn prompt resolves we're past the abortable window;
         // if the user has clicked Cancel by this point, skip the server call
@@ -142,21 +244,7 @@ export const PagePasskeyAdd = () => {
         if (!isMounted.current || wasCanceled.current) return;
 
         // Step 3: Complete registration with server
-        await authClient.completePasskeyRegistration(
-          jwt,
-          credential,
-          challenge
-        );
-        await account.refresh('passkeys');
-
-        if (!isMounted.current || wasCanceled.current) return;
-
-        // Success
-        GleanMetrics.accountPref.passkeyCreateSuccessView();
-        alertBar.success(
-          ftlMsgResolver.getMsg('page-passkey-add-success', 'Passkey created')
-        );
-        navigateToSettings();
+        await finishRegistration(jwt, credential, challenge);
       } catch (error) {
         // handleCancel already showed the cancellation banner and navigated;
         // suppress the AbortError side effects so they don't double-fire.
@@ -254,6 +342,7 @@ export const PagePasskeyAdd = () => {
     ftlMsgResolver,
     handleMfaError,
     navigateToSettings,
+    finishRegistration,
   ]);
 
   return (
@@ -261,25 +350,64 @@ export const PagePasskeyAdd = () => {
       className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-center bg-white dark:bg-grey-700 shadow tablet:rounded-xl border border-transparent text-center"
       data-testid="page-passkey-add"
     >
-      <LoadingSpinner className="flex justify-center mb-6" />
-      <FtlMsg id="page-passkey-add-creating-heading">
-        <h2 className="text-xl font-bold mb-2">Creating passkey…</h2>
-      </FtlMsg>
-      <FtlMsg id="page-passkey-add-follow-prompts">
-        <p className="text-grey-400 dark:text-grey-200 mb-6">
-          Follow the prompts on your device.
-        </p>
-      </FtlMsg>
-      <FtlMsg id="page-passkey-add-cancel">
-        <button
-          onClick={handleCancel}
-          className="link-blue text-sm"
-          data-testid="passkey-add-cancel"
-          data-glean-id="account_pref_passkey_create_cancel"
-        >
-          Cancel
-        </button>
-      </FtlMsg>
+      {showPrfRetry ? (
+        <div className="w-full">
+          <Banner
+            type="error"
+            content={{
+              localizedHeading: ftlMsgResolver.getMsg(
+                'page-passkey-add-incomplete',
+                'Passkey setup didn’t complete.'
+              ),
+            }}
+          />
+          <FtlMsg id="page-passkey-add-incomplete-body">
+            <p className="text-sm text-grey-500 dark:text-grey-200 mb-6">
+              Your device didn’t accept the request. Let’s try again.
+            </p>
+          </FtlMsg>
+          <FtlMsg id="page-passkey-add-try-again">
+            <button
+              onClick={handlePrfRetry}
+              className="cta-primary cta-xl w-full"
+              data-testid="passkey-add-retry"
+            >
+              Try again
+            </button>
+          </FtlMsg>
+          <FtlMsg id="page-passkey-add-cancel">
+            <button
+              onClick={handleCancel}
+              className="link-blue text-sm mt-4"
+              data-testid="passkey-add-cancel"
+            >
+              Cancel
+            </button>
+          </FtlMsg>
+        </div>
+      ) : (
+        <>
+          <LoadingSpinner className="flex justify-center mb-6" />
+          <FtlMsg id="page-passkey-add-creating-heading">
+            <h2 className="text-xl font-bold mb-2">Creating passkey…</h2>
+          </FtlMsg>
+          <FtlMsg id="page-passkey-add-follow-prompts">
+            <p className="text-grey-400 dark:text-grey-200 mb-6">
+              Follow the prompts on your device.
+            </p>
+          </FtlMsg>
+          <FtlMsg id="page-passkey-add-cancel">
+            <button
+              onClick={handleCancel}
+              className="link-blue text-sm"
+              data-testid="passkey-add-cancel"
+              data-glean-id="account_pref_passkey_create_cancel"
+            >
+              Cancel
+            </button>
+          </FtlMsg>
+        </>
+      )}
     </div>
   );
 };

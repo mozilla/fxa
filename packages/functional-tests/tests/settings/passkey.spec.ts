@@ -66,6 +66,46 @@ test.describe('severity-1 #smoke', () => {
       expect(credentials).toHaveLength(1);
     });
 
+    test('retries without PRF when the authenticator rejects the PRF probe', async ({
+      target,
+      pages: { page, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+    }) => {
+      const { email } = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+
+      await settings.goto();
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.passkey.status).toHaveText('Not set');
+
+      await settingsPasskeyAdd.initPasskeys(page);
+
+      // prf-unsupported mode rejects the first (with-PRF) create() with
+      // UnknownError — the way Windows Hello does without the PRF platform
+      // update — then mints a credential on the retry without PRF.
+      await settingsPasskeyAdd.passkeyAuth.prfFallback(async () => {
+        await settings.passkey.createButton.click();
+        await settings.confirmMfaGuard(email);
+        // The page stays on the add view and offers a retry rather than
+        // bouncing back to settings.
+        await expect(settingsPasskeyAdd.incompleteMessage).toBeVisible();
+        await settingsPasskeyAdd.tryAgainButton.click();
+      });
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText('Passkey created');
+      await expect(settings.passkey.status).toHaveText('Enabled');
+      await expect(settings.passkey.subRow).toBeVisible();
+
+      const credentials = settingsPasskeyAdd.passkeyAuth.getCredentials();
+      expect(credentials).toHaveLength(1);
+    });
+
     test('cancels passkey registration', async ({
       target,
       pages: { page, settings, settingsPasskeyAdd, signin },

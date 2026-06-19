@@ -26,6 +26,17 @@ export class SettingsPasskeyAddPage extends PasskeyPage {
     return this.page.getByTestId('passkey-add-cancel');
   }
 
+  // On-page error shown when the authenticator rejects the PRF probe. It's
+  // rendered in an error Banner (body text, not a heading). Matched by regex so
+  // the source needn't carry the curly apostrophe in the copy.
+  get incompleteMessage() {
+    return this.page.getByText(/Passkey setup didn.t complete/);
+  }
+
+  get tryAgainButton() {
+    return this.page.getByTestId('passkey-add-retry');
+  }
+
   /**
    * Happy-path passkey registration. Assumes the user is signed in and the
    * settings page is loaded. Installs the WebAuthn polyfill (idempotent),

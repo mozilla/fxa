@@ -101,6 +101,11 @@ const mockCreationOptions = {
   pubKeyCredParams: [{ alg: -7, type: 'public-key' as const }],
 };
 
+const mockCreationOptionsWithPrf = {
+  ...mockCreationOptions,
+  extensions: { prf: {} },
+};
+
 const mockCredential = {
   id: 'Y3JlZA',
   rawId: 'Y3JlZA',
@@ -292,6 +297,102 @@ describe('PagePasskeyAdd', () => {
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
+  });
+
+  it('stays on the add page with a Try again button when the PRF probe is rejected', async () => {
+    mockBeginPasskeyRegistration.mockResolvedValue(mockCreationOptionsWithPrf);
+    mockCreateCredential.mockRejectedValue(
+      new DOMException('operation failed', 'UnknownError')
+    );
+
+    renderPage();
+
+    await expect(
+      screen.findByRole('button', { name: 'Try again' })
+    ).resolves.toBeInTheDocument();
+    expect(screen.getByText(/passkey setup didn.t complete/i)).toBeVisible();
+    // No auto-retry: the initial ceremony is the only create() until the user acts.
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({ event: { reason: 'prf_unsupported' } });
+    // We stay on the page rather than bouncing to settings.
+    expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
+  });
+
+  it('completes registration without PRF when Try again succeeds', async () => {
+    mockBeginPasskeyRegistration.mockResolvedValue(mockCreationOptionsWithPrf);
+    // First (with-PRF) attempt rejected; the retry (PRF stripped) succeeds via
+    // the default mockResolvedValue from beforeEach.
+    mockCreateCredential.mockRejectedValueOnce(
+      new DOMException('operation failed', 'UnknownError')
+    );
+
+    renderPage();
+    const retryButton = await screen.findByRole('button', {
+      name: 'Try again',
+    });
+    fireEvent.click(retryButton);
+
+    await waitFor(() => {
+      expect(mockAlertSuccess).toHaveBeenCalledWith('Passkey created');
+    });
+    expect(mockCreateCredential).toHaveBeenCalledTimes(2);
+    // First call requested PRF; the retry stripped it.
+    expect(mockCreateCredential.mock.calls[0][0].extensions?.prf).toEqual({});
+    expect(
+      mockCreateCredential.mock.calls[1][0].extensions?.prf
+    ).toBeUndefined();
+    expect(mockCompletePasskeyRegistration).toHaveBeenCalled();
+    // Initial ceremony view + the retry view.
+    expect(GleanMetrics.accountPref.passkeyCreateView).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns to settings with the help message when Try again also fails', async () => {
+    mockBeginPasskeyRegistration.mockResolvedValue(mockCreationOptionsWithPrf);
+    const unknownError = new DOMException('operation failed', 'UnknownError');
+    mockCreateCredential.mockRejectedValue(unknownError); // both attempts fail
+
+    renderPage();
+    const retryButton = await screen.findByRole('button', {
+      name: 'Try again',
+    });
+    fireEvent.click(retryButton);
+
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith(
+        'mock-could-not-complete-message'
+      );
+    });
+    expect(mockCreateCredential).toHaveBeenCalledTimes(2);
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({ event: { reason: 'prf_retry_failed' } });
+    expect(mockCaptureException).toHaveBeenCalledWith(unknownError);
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('does not retry without PRF when the rejected options never requested it', async () => {
+    // mockCreationOptions (the default) has no PRF extension, so an UnknownError
+    // is categorised normally rather than triggering a strip-and-retry.
+    const unknownError = new DOMException('operation failed', 'UnknownError');
+    mockCreateCredential.mockRejectedValue(unknownError);
+    mockHandleWebAuthnError.mockReturnValue({
+      category: WebAuthnErrorCategory.Unexpected,
+      errorType: WebAuthnErrorType.Unknown,
+      ftlId: 'passkey-registration-error-unexpected',
+      fallbackText: 'Passkey setup failed. Try again or choose another method.',
+      logToSentry: true,
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockHandleWebAuthnError).toHaveBeenCalled();
+    });
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
   });
 
   it('shows the cancel/timeout banner and navigates to settings on TimeoutError', async () => {

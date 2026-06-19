@@ -44,7 +44,7 @@ const WEBAUTHN_DOM_EXCEPTION_NAMES = [
   'UnknownError',
 ];
 
-type Mode = 'pending' | 'success' | 'cancel' | 'corrupt';
+type Mode = 'pending' | 'success' | 'cancel' | 'corrupt' | 'prf-unsupported';
 type Trigger = () => Promise<void>;
 type PostCheck = () => Promise<void>;
 
@@ -54,6 +54,7 @@ type CreationOptions = {
   challenge: string;
   rp?: { id?: string };
   allowCredentials?: Array<{ id: string }>;
+  extensions?: { prf?: unknown };
 };
 type RequestOptions = {
   challenge: string;
@@ -141,6 +142,30 @@ export class PasskeyPolyfill {
   }
 
   /**
+   * Simulate a platform authenticator that can't provision PRF (e.g. Windows
+   * Hello without the PRF platform update): the first `create()` (with the PRF
+   * probe) rejects with `UnknownError`, and the app's retry without PRF
+   * succeeds. The trigger drives the initial ceremony, the on-page retry
+   * assertion, and the "Try again" click; resolves once the retry mints a
+   * credential. See `handleCreate` for the PRF-conditional rejection.
+   */
+  async prfFallback(trigger: Trigger) {
+    const credentialAdded = new Promise<void>((resolve) => {
+      this.onCredentialAdded = resolve;
+    });
+
+    const previous = this.mode;
+    this.mode = 'prf-unsupported';
+    try {
+      await trigger();
+      await credentialAdded;
+    } finally {
+      this.onCredentialAdded = undefined;
+      this.mode = previous;
+    }
+  }
+
+  /**
    * Simulate a successful assertion ceremony (sign-in). Unlike {@link success},
    * does not wait for a new credential to be added — assertions reuse existing
    * credentials minted by prior `success()` calls. The trigger is responsible
@@ -216,6 +241,16 @@ export class PasskeyPolyfill {
   ): Promise<RegistrationResponseJSON> {
     await this.waitForReleasableMode();
 
+    // Simulate a platform authenticator that can't provision PRF: reject the
+    // ceremony when the PRF probe is present so the app falls back, but mint a
+    // credential once it retries without PRF.
+    if (this.mode === 'prf-unsupported' && options.extensions?.prf) {
+      throw makeDomExceptionLike(
+        'UnknownError',
+        'The operation failed for an unknown transient reason.'
+      );
+    }
+
     const cred = VirtualAuthenticator.createCredential();
     this.credentials.push(cred);
 
@@ -284,12 +319,15 @@ export class PasskeyPolyfill {
 }
 
 /**
- * Playwright serialises thrown Errors, so a plain `new Error()` from Node
- * loses its `name`. Build an Error with `name` set explicitly so the browser
- * shim can re-raise it as a DOMException with the correct type.
+ * Conveys a DOMException name across the Playwright exposeFunction boundary.
+ * A custom Error `name` does not reliably survive serialisation (only `message`
+ * does), so encode the name as a `"Name: message"` prefix that the browser shim
+ * parses back out — `err.name` is still set as a best effort. Without this, a
+ * non-default name like `UnknownError` would be lost and the shim would fall
+ * back to `NotAllowedError`, mis-categorising the failure.
  */
 function makeDomExceptionLike(name: string, message: string) {
-  const err = new Error(message);
+  const err = new Error(`${name}: ${message}`);
   err.name = name;
   return err;
 }
@@ -315,14 +353,44 @@ const BROWSER_POLYFILL = `(() => {
     if (window.__fxaPasskeyPolyfillInstalled) return;
     window.__fxaPasskeyPolyfillInstalled = true;
 
+    // Decode an unpadded base64url string to an ArrayBuffer. The Node-side
+    // VirtualAuthenticator returns base64url fields, but toCredentialJSON now
+    // reads the binary getters (rawId, response.*) directly instead of calling
+    // toJSON(), so the fake credential must expose real ArrayBuffers — exactly
+    // like a native PublicKeyCredential.
+    function b64urlToBuffer(s) {
+      const base64 = s.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+      const binary = atob(padded);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes.buffer;
+    }
+
+    function buildResponse(r) {
+      const response = {};
+      if (r.clientDataJSON)
+        response.clientDataJSON = b64urlToBuffer(r.clientDataJSON);
+      if (r.attestationObject) {
+        response.attestationObject = b64urlToBuffer(r.attestationObject);
+        response.getTransports = () => r.transports || [];
+      }
+      if (r.authenticatorData)
+        response.authenticatorData = b64urlToBuffer(r.authenticatorData);
+      if (r.signature) response.signature = b64urlToBuffer(r.signature);
+      if (r.userHandle) response.userHandle = b64urlToBuffer(r.userHandle);
+      return response;
+    }
+
     class FakePublicKeyCredential {
       constructor(json) {
         this._json = json;
         this.id = json.id;
-        this.rawId = null;
+        this.rawId = b64urlToBuffer(json.rawId || json.id);
         this.type = 'public-key';
         this.authenticatorAttachment = json.authenticatorAttachment;
-        this.response = null;
+        this.response = buildResponse(json.response || {});
+        this._clientExtensionResults = json.clientExtensionResults || {};
       }
       static isUserVerifyingPlatformAuthenticatorAvailable() {
         return Promise.resolve(true);
@@ -332,6 +400,7 @@ const BROWSER_POLYFILL = `(() => {
       }
       static parseCreationOptionsFromJSON(o) { return o; }
       static parseRequestOptionsFromJSON(o) { return o; }
+      getClientExtensionResults() { return this._clientExtensionResults; }
       toJSON() { return this._json; }
     }
 
@@ -367,13 +436,20 @@ const BROWSER_POLYFILL = `(() => {
         return await fn(options, window.location.origin);
       } catch (err) {
         // exposeFunction serialises Errors; rebuild a DOMException so the
-        // fxa-settings webauthn-errors handler categorises correctly.
-        const incoming = err && err.name;
-        const errName =
-          incoming && WEBAUTHN_ERROR_NAMES.indexOf(incoming) !== -1
-            ? incoming
-            : 'NotAllowedError';
-        const msg = (err && err.message) || 'WebAuthn operation failed';
+        // fxa-settings webauthn-errors handler categorises correctly. The
+        // custom Error name may not survive serialisation, so recover it from
+        // the "Name: message" prefix the Node side encodes (see
+        // makeDomExceptionLike), falling back to NotAllowedError.
+        const raw = (err && err.message) || 'WebAuthn operation failed';
+        const prefix = /^([A-Za-z]+Error): /.exec(raw);
+        let errName = err && err.name;
+        if (!errName || WEBAUTHN_ERROR_NAMES.indexOf(errName) === -1) {
+          errName =
+            prefix && WEBAUTHN_ERROR_NAMES.indexOf(prefix[1]) !== -1
+              ? prefix[1]
+              : 'NotAllowedError';
+        }
+        const msg = prefix ? raw.slice(prefix[0].length) : raw;
         throw new DOMException(msg, errName);
       }
     }
