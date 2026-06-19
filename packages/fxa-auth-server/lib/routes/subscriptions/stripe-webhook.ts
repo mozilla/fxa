@@ -264,7 +264,7 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const creditNote = event.data.object as Stripe.CreditNote;
-    const invoice = await this.stripeHelper.expandResource(
+    let invoice = await this.stripeHelper.expandResource(
       creditNote.invoice,
       'invoices'
     );
@@ -290,14 +290,31 @@ export class StripeWebhookHandler extends StripeHandler {
     }
 
     // We can't issue a refund if there's no paypal transaction to refund.
-    const transactionId =
+    let transactionId =
       this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+
+    // Re-fetch if there's no transaction id on the invoice
+    if (!transactionId) {
+      invoice = await this.stripeHelper.getInvoiceWithDiscount(invoice.id);
+      transactionId = this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+    }
+
     if (!transactionId) {
       this.log.error('handleCreditNoteEvent', {
         invoiceId: invoice.id,
         message:
           'Credit note issued on invoice without a PayPal transaction id.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note issued on invoice without a PayPal transaction id.'
+      );
+      reportSentryError(
+        new Error(
+          `Credit note on invoice without PayPal transaction id: ${invoice.id}`
+        ),
+        request
+      );
       return;
     }
 
@@ -310,6 +327,10 @@ export class StripeWebhookHandler extends StripeHandler {
         invoiceId: invoice.id,
         message: 'Credit note exceeds invoice amount.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note amount exceeds invoice amount; refund not issued.'
+      );
       reportSentryError(
         new Error(`Credit amount exceeds invoice: ${invoice.id}.`),
         request
