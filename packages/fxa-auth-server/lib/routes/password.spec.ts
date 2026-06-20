@@ -637,13 +637,14 @@ describe('/password', () => {
         },
         log: mocks.mockLog(),
       });
+      const mockStatsd = createMock<StatsD>();
       const passwordRoutes = makeRoutes({
         db: mockDB,
         push: mocks.mockPush(),
         mailer: mocks.mockMailer(),
         log: mocks.mockLog(),
         customs: mocks.mockCustoms(),
-        statsd: mocks.mockStatsd(),
+        statsd: mockStatsd,
       });
 
       let err: any;
