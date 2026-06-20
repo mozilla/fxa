@@ -42,13 +42,11 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
 
 npx pm2 ls
 
-# TEMP DIAGNOSTIC: surface auth-server startup crash in step stdout.
-echo "===== DIAGNOSTIC: auth pm2 description ====="
-npx pm2 describe auth || true
-echo "===== DIAGNOSTIC: auth pm2 logs (nostream) ====="
-npx pm2 logs auth --lines 400 --nostream || true
-echo "===== DIAGNOSTIC: auth log files on disk ====="
-for f in ~/.pm2/logs/auth-out.log ~/.pm2/logs/auth-error.log; do
+# TEMP DIAGNOSTIC: surface service startup crashes in step stdout.
+echo "===== DIAGNOSTIC: content pm2 logs (nostream) ====="
+npx pm2 logs content --lines 400 --nostream || true
+echo "===== DIAGNOSTIC: content log files on disk ====="
+for f in ~/.pm2/logs/content-out.log ~/.pm2/logs/content-error.log; do
   echo "---- $f ----"
   cat "$f" 2>/dev/null || true
 done
