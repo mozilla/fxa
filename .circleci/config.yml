@@ -463,6 +463,7 @@ commands:
             - packages/**/emails/css
             - configs/gql/allowlist
             - apps/**/public/locales
+            - libs/**/public/locales
             - apps/**/.next
             - libs/**/glean/__generated__
 
