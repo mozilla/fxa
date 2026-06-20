@@ -82,7 +82,7 @@
     "handlebars": "^4.7.9",
     "helmet": "^8.0.0",
     "hot-shots": "^10.2.1",
-    "http-proxy-middleware": "^2.0.7",
+    "http-proxy-middleware": "^4.1.1",
     "i18n-abide": "0.0.26",
     "joi": "^17.13.3",
     "jquery": "3.7.0",

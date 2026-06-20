@@ -31171,7 +31171,7 @@ __metadata:
     helmet: "npm:^8.0.0"
     hot-shots: "npm:^10.2.1"
     htmlparser2: "npm:9.1.0"
-    http-proxy-middleware: "npm:^2.0.7"
+    http-proxy-middleware: "npm:^4.1.1"
     i18n-abide: "npm:0.0.26"
     install: "npm:0.13.0"
     joi: "npm:^17.13.3"
@@ -33933,7 +33933,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.3, http-proxy-middleware@npm:^2.0.7, http-proxy-middleware@npm:^2.0.9":
+"http-proxy-middleware@npm:^2.0.3, http-proxy-middleware@npm:^2.0.9":
   version: 2.0.9
   resolution: "http-proxy-middleware@npm:2.0.9"
   dependencies:
@@ -33962,6 +33962,19 @@ __metadata:
     is-plain-object: "npm:^5.0.0"
     micromatch: "npm:^4.0.8"
   checksum: 10c0/89ff3c8fe65b22b8042a6173ae1b8f77c5171f7eecf3c8b5d6dcffe3c9d688acae7bcf498cc08d1525f566dc0781efaec4e2ddc49224b1f16f020de7987a446b
+  languageName: node
+  linkType: hard
+
+"http-proxy-middleware@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "http-proxy-middleware@npm:4.1.1"
+  dependencies:
+    debug: "npm:^4.4.3"
+    httpxy: "npm:^0.5.3"
+    is-glob: "npm:^4.0.3"
+    is-plain-obj: "npm:^4.1.0"
+    micromatch: "npm:^4.0.8"
+  checksum: 10c0/51bbabf7141567f2bc985cb9289c1f4360817ed2356f97da9011d906e6861b18d6a7de351379d593b65b74c52ba643c46bcd75c562d71f52526ca7c109b62bbf
   languageName: node
   linkType: hard
 
@@ -34081,6 +34094,13 @@ __metadata:
     agent-base: "npm:^7.1.2"
     debug: "npm:4"
   checksum: 10c0/f729219bc735edb621fa30e6e84e60ee5d00802b8247aac0d7b79b0bd6d4b3294737a337b93b86a0bd9e68099d031858a39260c976dc14cdbba238ba1f8779ac
+  languageName: node
+  linkType: hard
+
+"httpxy@npm:^0.5.3":
+  version: 0.5.3
+  resolution: "httpxy@npm:0.5.3"
+  checksum: 10c0/8120753638d1a50b13396d7c55536db076a04609dfb7eea19f5b461f9541acf4646fa6bfb8991f14bad62e0037b524481c5d625892b4ff94a6ab744149ed9387
   languageName: node
   linkType: hard
 
@@ -35191,7 +35211,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-plain-obj@npm:^4.0.0":
+"is-plain-obj@npm:^4.0.0, is-plain-obj@npm:^4.1.0":
   version: 4.1.0
   resolution: "is-plain-obj@npm:4.1.0"
   checksum: 10c0/32130d651d71d9564dc88ba7e6fda0e91a1010a3694648e9f4f47bb6080438140696d3e3e15c741411d712e47ac9edc1a8a9de1fe76f3487b0d90be06ac9975e
