@@ -11,6 +11,20 @@ mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 chmod +x node_modules/@nestjs/cli/bin/nest.js
 
+# Generate the email-renderer l10n assets before starting services.
+#
+# fxa-auth-server reads libs/accounts/email-renderer/public/locales at startup
+# (NodeRendererBindings.validateConfig) and crashes if it is missing. That
+# directory is generated content (gitignored) produced by the email-renderer
+# l10n targets. The `start` target no longer depends on `build`, and libs/ l10n
+# is not carried over in the build workspace, so prime/merge it explicitly here.
+# --skip-nx-cache forces the files to actually be written rather than replayed
+# from a cache hit that does not restore file outputs.
+NODE_ENV=test npx nx run accounts-email-renderer:l10n-merge --skip-nx-cache
+echo "===== DIAGNOSTIC: email-renderer locales after prime ====="
+ls -la libs/accounts/email-renderer/public/locales | head || true
+echo "===== DIAGNOSTIC: end locales ====="
+
 # Make sure we have built the latest
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t start \
