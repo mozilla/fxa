@@ -1072,7 +1072,6 @@ workflows:
           workflow: test_pull_request
           requires:
             - Build (PR)
-            - Approve Functional Tests (PR)
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
