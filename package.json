@@ -31,7 +31,8 @@
     "trigger:docker-push-subplat": "_scripts/trigger-docker-push-subplat.sh",
     "trigger:smoke-tests": "_scripts/trigger-smoke-tests.sh",
     "trigger:dot-release": "_scripts/trigger-dot-release.sh",
-    "trigger:dot-release-subplat": "_scripts/trigger-dot-release-subplat.sh"
+    "trigger:dot-release-subplat": "_scripts/trigger-dot-release-subplat.sh",
+    "foo": "echo bar"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
