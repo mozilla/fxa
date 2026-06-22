@@ -49,7 +49,7 @@ const SigninPasskeyFallbackContainer = ({
   const sessionToken = signinState?.sessionToken;
   const email = signinState?.email;
   const uid = signinState?.uid;
-  const passkeySurface = signinState?.passkeySurface ?? 'emailfirst';
+  const passkeySurface = location.state?.passkeySurface ?? 'emailfirst';
 
   // Mirrors Signin/container.tsx's avatar fetch: mint a profile:avatar-scoped
   // OAuth token, GET /v1/avatar from the profile server, fall back to default
