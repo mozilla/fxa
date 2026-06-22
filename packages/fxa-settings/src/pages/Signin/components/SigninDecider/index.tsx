@@ -160,6 +160,7 @@ export const SigninDecider = ({
     (isOAuth && integration.wantsLogin());
 
   // Do we have a session token, and can we defer the key fetch because sync is decoupled?
+  // (non-Sync only; Sync always requires keys)
   const keysOptional =
     hasCachedSession && useFxAStatusResult.supportsKeysOptionalLogin;
 

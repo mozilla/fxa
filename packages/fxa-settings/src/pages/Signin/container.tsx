@@ -396,8 +396,14 @@ const SigninContainer = ({
   // This provides those users with slightly less friction since they'd see an error
   // message and then be asked to enter their password. If the session token is
   // invalid, we discard it so the user sees the password field right away.
+  //
+  // We do the same check for scoped keys logins (e.g. Sync) only if the user does not
+  // have a password. Sync will never see cached sign-in otherwise.
   const needsSessionValidation =
-    integration.isFirefoxNonSync() && !!sessionToken;
+    !!sessionToken &&
+    (integration.isFirefoxNonSync() ||
+      (integration.requiresKeys() && !hasPassword));
+
   const [sessionValidationComplete, setSessionValidationComplete] = useState(
     !needsSessionValidation
   );
@@ -406,6 +412,8 @@ const SigninContainer = ({
   useEffect(() => {
     // This ensures the useEffect is only ran once
     if (hasValidated.current) return;
+    // Wait until hasPassword is known for the needsSessionValidation check
+    if (hasPassword === undefined) return;
     hasValidated.current = true;
 
     if (!needsSessionValidation) {
@@ -420,7 +428,7 @@ const SigninContainer = ({
       }
       setSessionValidationComplete(true);
     })();
-  }, [needsSessionValidation, session, sessionToken]);
+  }, [needsSessionValidation, session, sessionToken, hasPassword]);
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
@@ -572,7 +580,8 @@ const SigninContainer = ({
           credentials.credentialStatus?.upgradeNeeded === true &&
           credentials.v2Credentials
         ) {
-          const { sessionToken, emailVerified, sessionVerified } = result.data.signIn;
+          const { sessionToken, emailVerified, sessionVerified } =
+            result.data.signIn;
 
           // To simplify this process. Fetch the original account sign in email.
           const emails = await authClient.accountEmails(sessionToken);
@@ -581,7 +590,10 @@ const SigninContainer = ({
           // Update the v1Credentials object to make sure the authPW is in fact correct. It
           // needs to be derived from the original account email, not the current primary.
           if (emails.original !== email) {
-            credentials.v1Credentials = await getCredentials(emails.original, password);
+            credentials.v1Credentials = await getCredentials(
+              emails.original,
+              password
+            );
           }
 
           sensitiveDataClient.KeyStretchUpgradeData = {
@@ -769,14 +781,18 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const response = await authClient.signInWithAuthPW({ primary: email }, authPW, {
-      verificationMethod: options.verificationMethod,
-      keys: options.keys,
-      service: options.service,
-      metricsContext: options.metricsContext,
-      unblockCode: options.unblockCode,
-      originalLoginEmail: options.originalLoginEmail,
-    });
+    const response = await authClient.signInWithAuthPW(
+      { primary: email },
+      authPW,
+      {
+        verificationMethod: options.verificationMethod,
+        keys: options.keys,
+        service: options.service,
+        metricsContext: options.metricsContext,
+        unblockCode: options.unblockCode,
+        originalLoginEmail: options.originalLoginEmail,
+      }
+    );
 
     if (response) {
       const unwrapBKey = v2Credentials

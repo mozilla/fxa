@@ -86,6 +86,7 @@ let integration: Integration;
 function mockSyncDesktopV3Integration() {
   integration = {
     type: IntegrationType.SyncDesktopV3,
+    isFirefoxClient: () => true,
     getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
@@ -105,6 +106,7 @@ function mockOAuthWebIntegration(
 ) {
   integration = {
     type: IntegrationType.OAuthWeb,
+    isFirefoxClient: () => false,
     getService: () => MozServices.Monitor,
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => false,
@@ -123,6 +125,7 @@ function mockOAuthWebIntegration(
 function mockOAuthNativeIntegration() {
   integration = {
     type: IntegrationType.OAuthNative,
+    isFirefoxClient: () => true,
     getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
@@ -144,6 +147,7 @@ function mockOAuthNativeIntegration() {
 function mockFirefoxNonSyncIntegration() {
   integration = {
     type: IntegrationType.OAuthNative,
+    isFirefoxClient: () => true,
     getService: () => OAuthNativeServices.Relay,
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => false,
@@ -1014,8 +1018,8 @@ describe('signin container', () => {
         mockAuthClient.passwordChangeFinish = jest.fn().mockResolvedValue({});
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
-          primary: MOCK_EMAIL
-        })
+          primary: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1107,8 +1111,8 @@ describe('signin container', () => {
           });
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           primary: MOCK_EMAIL,
-          original: MOCK_EMAIL
-        })
+          original: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1159,8 +1163,8 @@ describe('signin container', () => {
         });
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           oiginal: MOCK_EMAIL,
-          primary: MOCK_EMAIL
-        })
+          primary: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1218,7 +1222,7 @@ describe('signin container', () => {
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
           primary: MOCK_EMAIL,
-        })
+        });
 
         render();
 
@@ -1266,7 +1270,7 @@ describe('signin container', () => {
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
           primary: MOCK_EMAIL,
-        })
+        });
 
         render();
 
@@ -1605,7 +1609,7 @@ describe('signin container', () => {
     });
   });
 
-  describe('Firefox non-Sync session validation', () => {
+  describe('cached session validation', () => {
     beforeEach(() => {
       mockFirefoxNonSyncIntegration();
     });
@@ -1660,16 +1664,48 @@ describe('signin container', () => {
       });
     });
 
-    it('does not call session.isValid for Sync integration', async () => {
+    it('calls session.isValid for a passwordless Sync integration', async () => {
       mockOAuthNativeIntegration();
       mockCurrentAccount({
         ...MOCK_STORED_ACCOUNT,
         email: MOCK_QUERY_PARAM_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
       });
-      mockUseValidateModule();
-      mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
-      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+      mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: false,
+        passwordlessSupported: true,
+      });
+      mockUseValidateModule({
+        queryParams: { email: MOCK_QUERY_PARAM_EMAIL, isV2: () => false },
+      });
+
+      render();
+
+      await waitFor(() => {
+        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      });
+    });
+
+    it('does not call session.isValid for a Sync integration when the account has a password', async () => {
+      // Sync password users get the password screen (cached sign-in is not shown),
+      // which mints a fresh session and never uses the cached token.
+      mockOAuthNativeIntegration();
+      mockCurrentAccount({
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      });
+      mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: true,
+        passwordlessSupported: false,
+      });
+      mockUseValidateModule({
+        queryParams: { email: MOCK_QUERY_PARAM_EMAIL, isV2: () => false },
+      });
 
       render();
 
@@ -1679,12 +1715,29 @@ describe('signin container', () => {
       expect(mockSession.isValid).not.toHaveBeenCalled();
     });
 
-    it('does not call session.isValid for OAuth web integration', async () => {
+    it('does not call session.isValid for non-Firefox OAuth web integration', async () => {
       mockOAuthWebIntegration();
       mockCurrentAccount({
         ...MOCK_STORED_ACCOUNT,
         email: MOCK_QUERY_PARAM_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
+      });
+      mockUseValidateModule();
+
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
+      expect(mockSession.isValid).not.toHaveBeenCalled();
+    });
+
+    it('does not call session.isValid when there is no cached session token', async () => {
+      // Firefox client, but nothing to validate without a cached token.
+      mockCurrentAccount({
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: undefined,
       });
       mockUseValidateModule();
 
