@@ -134,6 +134,10 @@ export const SigninTotpCode = ({
         showInlineRecoveryKeySetup,
       } = signinState;
 
+      const isPasswordlessSignin =
+        signinState.isPasswordlessOtpSignin ||
+        signinState.isSignInWithThirdPartyAuth;
+
       storeAccountData({
         sessionToken,
         email,
@@ -141,23 +145,16 @@ export const SigninTotpCode = ({
         // Update verification status of stored current account
         verified: true,
         sessionVerified: true,
+        // OTP sign-in is the only genuinely passwordless case; a third-party
+        // account may have a password, so leave it unset and let SetPassword verify.
         ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
-      // Passwordless flow: after TOTP, redirect to set_password for key
-      // derivation. The session is now verified so /password/create (which
-      // requires verifiedSessionToken) will work. Redirect when keys are
-      // needed — Sync always, and non-Sync browser services that require keys
-      // because the browser hasn't decoupled Sync. Other non-Sync
-      // flows that don't require keys continue through handleNavigation.
-      //
-      // The inbound `isPasswordlessOtpSignin` lives on SigninLocationState;
-      // the outbound `passwordCreationReason` lives on SetPasswordLocationState.
-      // They look related but belong to different state objects on different
-      // routes — the boolean gates the redirect, the enum tags the Glean
-      // reason on the destination page.
+      // Passwordless sign-in needing keys: redirect to set_password.
+      // Other flows continue through handleNavigation.
+      // passwordCreationReason tags the Glean reason on the destination page.
       if (
-        signinState.isPasswordlessOtpSignin &&
+        isPasswordlessSignin &&
         integration.requiresPasswordForLogin(
           useFxAStatusResult.supportsKeysOptionalLogin
         )
@@ -165,7 +162,9 @@ export const SigninTotpCode = ({
         navigateWithQuery('/post_verify/set_password', {
           replace: true,
           state: {
-            passwordCreationReason: 'otp',
+            passwordCreationReason: signinState.isSignInWithThirdPartyAuth
+              ? 'third_party_auth'
+              : 'otp',
           },
         });
         return;

@@ -444,6 +444,37 @@ describe('Sign in with TOTP code page', () => {
         );
       });
     });
+
+    it('does not record hasPassword on a third-party-auth sign-in', async () => {
+      // A third-party account may have a password, so the flow must not assert
+      // hasPassword: false here — SetPassword verifies it via accountStatus.
+      const user = userEvent.setup();
+      jest.spyOn(SigninUtils, 'handleNavigation').mockResolvedValue({
+        error: undefined,
+      });
+      const storeAccountDataSpy = jest
+        .spyOn(StorageUtils, 'storeAccountData')
+        .mockImplementation(() => {});
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+      renderWithLocalizationProvider(
+        <Subject
+          submitTotpCode={submitTotpCode}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSignInWithThirdPartyAuth: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(storeAccountDataSpy).toHaveBeenCalled();
+      });
+      expect(storeAccountDataSpy.mock.calls[0][0]).not.toHaveProperty(
+        'hasPassword'
+      );
+    });
   });
 
   // "keys not optional" = Firefox where Sync isn't decoupled: desktop before
@@ -519,6 +550,39 @@ describe('Sign in with TOTP code page', () => {
         '/post_verify/set_password',
         expect.anything()
       );
+    });
+
+    it('redirects a third-party-auth sign-in to set_password when keys are not optional', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <Subject
+          integration={vpnIntegration()}
+          submitTotpCode={submitTotpCode}
+          supportsKeysOptionalLogin={false}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSignInWithThirdPartyAuth: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/post_verify/set_password',
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: 'third_party_auth' },
+          })
+        );
+      });
+      expect(handleNavigationSpy).not.toHaveBeenCalled();
     });
   });
 });

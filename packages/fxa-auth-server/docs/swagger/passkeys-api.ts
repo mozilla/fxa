@@ -101,9 +101,11 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
       - \`response\` (object, required) — AuthenticationResponseJSON from the browser
       - \`challenge\` (string, required) — challenge from the start endpoint
       - \`service\` (string, optional) — OAuth service identifier (e.g. \`"sync"\`)
+      - \`keysRequired\` (boolean, required) — when \`true\`, this login still needs
+        Sync-scoped keys obtained via a follow-up step (a password step today), so
+        the server defers its login notifications/metrics until keys are available.
 
-      **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`requiresPasswordForSync\`,
-      \`hasPassword\`
+      **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`hasPassword\`
 
       **Security event:** \`account.passkey.authentication_success\` recorded on success.
     `,

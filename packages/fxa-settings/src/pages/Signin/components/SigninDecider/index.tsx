@@ -233,6 +233,8 @@ export const SigninDecider = ({
           flowQueryParams,
           isSignedIntoFirefox,
           setCurrentSplitLayout,
+          supportsKeysOptionalLogin:
+            useFxAStatusResult.supportsKeysOptionalLogin,
         }}
       />
     );

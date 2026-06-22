@@ -18,6 +18,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { SigninRecoveryPhoneProps } from './interfaces';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
+import GleanMetrics from '../../../lib/glean';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
@@ -229,6 +230,88 @@ describe('SigninRecoveryPhoneContainer', () => {
         expect.objectContaining({
           isSessionAALUpgrade: true,
         })
+      );
+    });
+  });
+
+  describe('passwordless redirect to set_password when keys are required', () => {
+    const keysRequiredIntegration = () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => true;
+      return integration;
+    };
+
+    it.each([
+      ['isPasswordlessOtpSignin', 'otp'],
+      ['isSignInWithThirdPartyAuth', 'third_party_auth'],
+    ])(
+      'redirects a %s sign-in to set_password with reason %s',
+      async (marker, expectedReason) => {
+        mockReachRouter('/signin_recovery_phone', {
+          signinState: { ...mockSigninLocationState, [marker]: true },
+          lastFourPhoneDigits: '1234',
+        });
+        renderSigninRecoveryPhoneContainer(keysRequiredIntegration());
+
+        await currentPageProps?.verifyCode('123456');
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/post_verify/set_password'),
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: expectedReason },
+          })
+        );
+        // Web channel messages must be deferred until the password is set.
+        expect(handleNavigation).not.toHaveBeenCalled();
+      }
+    );
+
+    it('records the recovery-phone success metric before the redirect', async () => {
+      const successSpy = jest
+        .spyOn(GleanMetrics.login, 'recoveryPhoneSuccessView')
+        .mockImplementation(() => {});
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(keysRequiredIntegration());
+
+      await currentPageProps?.verifyCode('123456');
+
+      // Recovery succeeded even though we redirect to set_password, so the
+      // success funnel event must still fire.
+      expect(successSpy).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.stringContaining('/post_verify/set_password'),
+        expect.anything()
+      );
+      successSpy.mockRestore();
+    });
+
+    it('continues through handleNavigation when keys are not required', async () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => false;
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(integration);
+
+      await currentPageProps?.verifyCode('123456');
+
+      expect(handleNavigation).toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        expect.stringContaining('/post_verify/set_password'),
+        expect.anything()
       );
     });
   });

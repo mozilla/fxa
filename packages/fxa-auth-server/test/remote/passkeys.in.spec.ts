@@ -296,14 +296,17 @@ describe('#integration - remote passkey authentication', () => {
       'POST',
       `${authClient.api.baseURL}/passkey/authentication/finish`,
       null,
-      { response: assertionResponse, challenge: startResult.challenge }
+      {
+        response: assertionResponse,
+        challenge: startResult.challenge,
+        keysRequired: false,
+      }
     );
 
     expect(finishResult.uid).toBeDefined();
     expect(finishResult.sessionToken).toBeDefined();
     expect(finishResult.verified).toBe(true);
     expect(finishResult.hasPassword).toBe(true);
-    expect(finishResult.requiresPasswordForSync).toBe(false);
   });
 
   it('POST /passkey/authentication/finish - mismatched challenge returns error', async () => {
@@ -331,6 +334,7 @@ describe('#integration - remote passkey authentication', () => {
         {
           response: assertionResponse,
           challenge: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          keysRequired: false,
         }
       );
     }).rejects.toBeDefined();
@@ -361,7 +365,11 @@ describe('#integration - remote passkey-then-password fallback via /session/reau
       'POST',
       `${authClient.api.baseURL}/passkey/authentication/finish`,
       null,
-      { response: assertionResponse, challenge: startResult.challenge }
+      {
+        response: assertionResponse,
+        challenge: startResult.challenge,
+        keysRequired: true,
+      }
     );
     return finishResult.sessionToken;
   }

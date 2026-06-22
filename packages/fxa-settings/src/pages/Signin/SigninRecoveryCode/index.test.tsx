@@ -307,6 +307,90 @@ describe('PageSigninRecoveryCode', () => {
     });
   });
 
+  describe('passwordless redirect to set_password when keys are required', () => {
+    const keysRequiredIntegration = () => {
+      const integration = createMockSigninOAuthNativeSyncIntegration();
+      integration.requiresPasswordForLogin = () => true;
+      return integration;
+    };
+    const submitSuccess = () =>
+      jest
+        .fn()
+        .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
+
+    it.each([
+      ['isPasswordlessOtpSignin', 'otp'],
+      ['isSignInWithThirdPartyAuth', 'third_party_auth'],
+    ])(
+      'redirects a %s sign-in to set_password with reason %s',
+      async (marker, expectedReason) => {
+        const user = userEvent.setup();
+        const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
+        renderWithLocalizationProvider(
+          <LocationProvider>
+            <SigninRecoveryCode
+              finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+              integration={keysRequiredIntegration()}
+              navigateToRecoveryPhone={jest.fn()}
+              signinState={{ ...mockSigninLocationState, [marker]: true }}
+              submitRecoveryCode={submitSuccess()}
+              supportsKeysOptionalLogin={false}
+            />
+          </LocationProvider>
+        );
+        await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
+        await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+        await waitFor(() => {
+          expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+            '/post_verify/set_password',
+            expect.objectContaining({
+              replace: true,
+              state: { passwordCreationReason: expectedReason },
+            })
+          );
+        });
+        // Web channel messages must be deferred until the password is set.
+        expect(handleNavigationSpy).not.toHaveBeenCalled();
+      }
+    );
+
+    it('continues through handleNavigation when keys are not required', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const integration = createMockSigninOAuthNativeSyncIntegration();
+      integration.requiresPasswordForLogin = () => false;
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={integration}
+            navigateToRecoveryPhone={jest.fn()}
+            signinState={{
+              ...mockSigninLocationState,
+              isPasswordlessOtpSignin: true,
+            }}
+            submitRecoveryCode={submitSuccess()}
+            supportsKeysOptionalLogin={true}
+          />
+        </LocationProvider>
+      );
+      await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalled();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
+        '/post_verify/set_password',
+        expect.anything()
+      );
+    });
+  });
+
   describe('submit with error', () => {
     it('shows an error tooltip when submit without code', async () => {
       const mockSubmitRecoveryCode = jest.fn();
