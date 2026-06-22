@@ -4,15 +4,16 @@
 
 import fxaShared from 'fxa-shared';
 
-import { recordActivity } from './account-activity';
-import { reportSentryError } from '../sentry';
+import * as Sentry from '@sentry/node';
 
-jest.mock('../sentry', () => ({
-  reportSentryError: jest.fn(),
+import { recordActivity } from './account-activity';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
 }));
 
-const mockReportSentryError = reportSentryError as jest.MockedFunction<
-  typeof reportSentryError
+const mockCaptureException = Sentry.captureException as jest.MockedFunction<
+  typeof Sentry.captureException
 >;
 
 const ScopeSet = (fxaShared as any).oauth.scopes;
@@ -117,7 +118,7 @@ describe('recordActivity', () => {
     );
   });
 
-  it('reports missing scopes to Sentry, statsd, and the log while still recording', async () => {
+  it('reports missing scopes to statsd and the log while still recording', async () => {
     const deps = makeDeps();
     deps.oauthDB.recordAccountActivity.mockResolvedValueOnce({
       missingScopes: [SCOPE_RELAY],
@@ -149,14 +150,9 @@ describe('recordActivity', () => {
         missingScopes: [SCOPE_RELAY],
       }
     );
-    expect(mockReportSentryError).toHaveBeenCalledTimes(1);
-    const [reportedError] = mockReportSentryError.mock.calls[0];
-    expect(reportedError).toBeInstanceOf(Error);
-    expect(reportedError.message).toContain(SCOPE_RELAY);
-    expect(reportedError.message).toContain(CLIENT_ID_HEX);
   });
 
-  it('does not report missing scopes when every scope resolved', async () => {
+  it('does not record or warn on missing scopes when every scope resolved', async () => {
     const deps = makeDeps();
     deps.oauthDB.recordAccountActivity.mockResolvedValueOnce({
       missingScopes: [],
@@ -171,11 +167,11 @@ describe('recordActivity', () => {
       now: NOW,
     });
 
-    expect(mockReportSentryError).not.toHaveBeenCalled();
     expect(deps.statsd.increment).not.toHaveBeenCalledWith(
       'accountActivity.missing_scopes',
       expect.anything()
     );
+    expect(deps.log.warn).not.toHaveBeenCalled();
   });
 
   it('swallows DB rejection and emits write_failed instead of recorded', async () => {
@@ -200,14 +196,31 @@ describe('recordActivity', () => {
       'accountActivity.write_failed',
       { clientId: CLIENT_ID_HEX, grantType: 'refresh_token' }
     );
-    expect(deps.log.warn).toHaveBeenCalledWith(
-      'accountActivity.write_failed',
-      expect.objectContaining({
-        clientId: CLIENT_ID_HEX,
-        grantType: 'refresh_token',
-        error: 'connection lost',
-      })
+    expect(mockCaptureException).toHaveBeenCalledTimes(1);
+    const [reportedError] = mockCaptureException.mock.calls[0];
+    expect(reportedError).toBeInstanceOf(Error);
+    expect((reportedError as Error).message).toBe('connection lost');
+  });
+
+  it('tags the Sentry report with clientId, grantType, and scopes for debugging', async () => {
+    const deps = makeDeps();
+    deps.oauthDB.recordAccountActivity.mockRejectedValueOnce(
+      new Error('connection lost')
     );
+
+    await recordActivity(deps, {
+      userId: USER_ID,
+      clientId: CLIENT_ID,
+      scopeSet: ScopeSet.fromArray([SCOPE_OLDSYNC, SCOPE_RELAY]),
+      throttleMs: THROTTLE_MS,
+      grantType: 'refresh_token',
+      now: NOW,
+    });
+
+    expect(mockCaptureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { clientId: CLIENT_ID_HEX, grantType: 'refresh_token' },
+      extra: { scopes: expect.arrayContaining([SCOPE_OLDSYNC, SCOPE_RELAY]) },
+    });
   });
 
   it('filters out empty/non-string scope values defensively', async () => {
