@@ -56,8 +56,8 @@ const MOCK_LOCATION_STATE = {
 const mockSessionReauth = jest.fn();
 const mockAccountEmails = jest.fn().mockResolvedValue({
   original: MOCK_EMAIL,
-  primary: MOCK_EMAIL
-})
+  primary: MOCK_EMAIL,
+});
 const mockHandleNavigation = jest.fn();
 const mockNavigate = jest.fn();
 let mockLocationState: Record<string, unknown> | undefined = undefined;
@@ -104,7 +104,7 @@ function applyDefaultMocks(): void {
   mockOAuthDataError = null;
   mockAccountEmails.mockResolvedValue({
     original: MOCK_EMAIL,
-    primary: MOCK_EMAIL
+    primary: MOCK_EMAIL,
   });
   mockSessionReauth.mockResolvedValue({
     keyFetchToken: 'keyfetchtoken',
@@ -278,12 +278,23 @@ describe('SigninPasskeyFallback container', () => {
       fireEvent.click(getByTestId('continue-button'));
     }
 
-    it('fires success with the passkeySurface reason after sessionReauth resolves', async () => {
-      mockLocationState = {
-        ...MOCK_LOCATION_STATE,
-        passkeySurface: 'signin',
-      };
+    beforeEach(() => {
+      mockLocationState = { passkeySurface: 'signin' };
+      jest.spyOn(CacheModule, 'currentAccount').mockReturnValue({
+        uid: MOCK_UID,
+        email: MOCK_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: true,
+      });
+    });
+
+    it('tags the enter-password view and success events with the router-state surface', async () => {
       const { getByTestId } = render();
+      await waitFor(() => {
+        expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
+          event: { reason: 'signin' },
+        });
+      });
       submitPassword(getByTestId);
       await waitFor(() => {
         expect(GleanMetrics.passkeyEnterPassword.success).toHaveBeenCalledWith({
@@ -346,10 +357,7 @@ describe('SigninPasskeyFallback container', () => {
     ])(
       'fires passkey.auth_success with reason=%s on successful reauth (passkeySurface=%s)',
       async (surface, expectedReason) => {
-        mockLocationState = {
-          ...MOCK_LOCATION_STATE,
-          passkeySurface: surface,
-        };
+        mockLocationState = { passkeySurface: surface };
         const { getByTestId } = render();
         submitPassword(getByTestId);
         await waitFor(() => {
