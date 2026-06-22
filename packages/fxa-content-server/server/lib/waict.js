@@ -1,0 +1,58 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Middleware that emits the WAICT (Web Application Integrity, Consistency and
+// Transparency) `Integrity-Policy-WAICT-v1` response header in *report* mode.
+// In report mode the browser only logs and reports integrity violations - it
+// never blocks or alters resource loading - so it is safe to ship while we
+// validate manifest coverage. Headers are only sent when `waict.enabled` is
+// set (default false), and only on HTML document responses.
+//
+// See https://github.com/waict-wg/waict-integrity-spec and Firefox bug 2017652.
+
+'use strict';
+const htmlOnly = require('./html-middleware');
+
+// The report endpoint is advertised under this name in both the
+// `Reporting-Endpoints` header and the WAICT header's `endpoints` parameter.
+const REPORT_ENDPOINT_NAME = 'waict';
+
+/**
+ * Build the `Integrity-Policy-WAICT-v1` structured-field header value.
+ *
+ * @param {Object} config waict configuration
+ * @returns {String}
+ */
+function buildHeaderValue(config) {
+  // `blocked-destinations` is a structured-field inner list of tokens, e.g.
+  // `(script style)`. Scoping to `script` limits coverage to JavaScript.
+  const destinations = config.blockedDestinations.join(' ');
+
+  // `manifest` is an sf-string and must be quoted. `mode=report` is what makes
+  // this non-blocking. `max-age` of 0 means downgrade protection is not pinned,
+  // which is appropriate while iterating in report mode.
+  return [
+    `max-age=${config.maxAge}`,
+    'mode=report',
+    `blocked-destinations=(${destinations})`,
+    `endpoints=(${REPORT_ENDPOINT_NAME})`,
+    `manifest="${config.manifestPath}"`,
+  ].join(', ');
+}
+
+module.exports = function (config) {
+  const headerValue = buildHeaderValue(config);
+  const reportingEndpoints = `${REPORT_ENDPOINT_NAME}="${config.reportUri}"`;
+
+  return htmlOnly((req, res, next) => {
+    // `Reporting-Endpoints` maps the `endpoints` name to a collection URL so
+    // the browser knows where to POST `waict-violation` reports.
+    res.setHeader('Reporting-Endpoints', reportingEndpoints);
+    res.setHeader('Integrity-Policy-WAICT-v1', headerValue);
+    next();
+  });
+};
+
+module.exports.buildHeaderValue = buildHeaderValue;
+module.exports.REPORT_ENDPOINT_NAME = REPORT_ENDPOINT_NAME;

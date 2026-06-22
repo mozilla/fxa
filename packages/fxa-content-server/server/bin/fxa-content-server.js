@@ -70,6 +70,7 @@ const csp = require('../lib/csp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const coop = require('../lib/coop');
+const waict = require('../lib/waict');
 const glean = require('../lib/glean')(config.getProperties());
 
 const STATIC_DIRECTORY = path.join(
@@ -148,6 +149,17 @@ function makeApp() {
   }
   app.use(coop());
 
+  if (config.get('waict.enabled')) {
+    app.use(
+      waict({
+        manifestPath: config.get('waict.manifestPath'),
+        maxAge: config.get('waict.maxAge'),
+        blockedDestinations: config.get('waict.blockedDestinations'),
+        reportUri: config.get('waict.reportUri'),
+      })
+    );
+  }
+
   app.disable('x-powered-by');
 
   app.use(routeLogging());
@@ -164,11 +176,17 @@ function makeApp() {
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1192840
   app.use(
     bodyParser.json({
-      // the 3 entries:
+      // the entries:
       // json file types,
       // all json content-types
       // csp reports
-      type: ['json', '*/json', 'application/csp-report'],
+      // WAICT / Reporting API violation reports
+      type: [
+        'json',
+        '*/json',
+        'application/csp-report',
+        'application/reports+json',
+      ],
     })
   );
   app.use(

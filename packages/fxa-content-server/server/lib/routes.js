@@ -62,6 +62,16 @@ module.exports = function (config, i18n, statsd, glean) {
     );
   }
 
+  if (config.get('waict.enabled')) {
+    routes.push(require('./routes/get-waict-manifest')(config));
+    routes.push(
+      require('./routes/post-waict-report')({
+        op: 'server.waict.violation',
+        path: config.get('waict.reportUri'),
+      })
+    );
+  }
+
   if (config.get('env') === 'development') {
     routes.push(require('./routes/get-502')(config));
     routes.push(require('./routes/get-503')(config));
