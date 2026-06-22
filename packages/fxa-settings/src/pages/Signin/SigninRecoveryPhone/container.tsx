@@ -35,6 +35,7 @@ import { SigninLocationState } from '../interfaces';
 const SigninRecoveryPhoneContainer = ({
   integration,
   setCurrentSplitLayout,
+  supportsKeysOptionalLogin,
 }: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
@@ -86,6 +87,10 @@ const SigninRecoveryPhoneContainer = ({
       return;
     }
 
+    const isPasswordlessSignin =
+      signinState.isPasswordlessOtpSignin ||
+      signinState.isSignInWithThirdPartyAuth;
+
     try {
       storeAccountData({
         sessionToken: signinState.sessionToken,
@@ -94,20 +99,40 @@ const SigninRecoveryPhoneContainer = ({
         // Update verification status of stored current account
         verified: true,
         sessionVerified: true,
+        // OTP sign-in is the only genuinely passwordless case; a third-party
+        // account may have a password, so leave it unset and let SetPassword verify.
+        ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
       setStoredSignedInStatus(true);
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const recoveryPhoneSigninSuccessGleanMetric =
-        GleanMetrics.login.recoveryPhoneSuccessView;
+      // Recovery-phone verification succeeded; record it before any redirect so
+      // the success funnel matches the TOTP and backup-code flows.
+      GleanMetrics.login.recoveryPhoneSuccessView();
+
+      // Passwordless sign-in needing keys must set a password first;
+      // defer the success alert and browser login messages.
+      if (
+        isPasswordlessSignin &&
+        integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+      ) {
+        navigateWithQuery('/post_verify/set_password', {
+          replace: true,
+          state: {
+            passwordCreationReason: signinState.isSignInWithThirdPartyAuth
+              ? 'third_party_auth'
+              : 'otp',
+          },
+        });
+        return;
+      }
 
       alertBar.success(
         ftlMsgResolver.getMsg(
           'signin-recovery-phone-success-message',
           'Signed in successfully. Limits may apply if you use your recovery phone again.'
-        ),
-        recoveryPhoneSigninSuccessGleanMetric
+        )
       );
 
       const navigationOptions = {

@@ -40,6 +40,7 @@ const SigninAlternativeAuthOptions = ({
   localizedSuccessBannerDescription,
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
+  supportsKeysOptionalLogin,
 }: SigninAlternativeAuthOptionsProps & RouteComponentProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
@@ -61,6 +62,7 @@ const SigninAlternativeAuthOptions = ({
     queryParams: location.search,
     surface: 'alternative_auth',
     isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin,
   });
 
   const {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Integration,
   useAuthClient,
@@ -23,13 +23,19 @@ import VerificationMethods from '../../../constants/verification-methods';
 import { getSigninState, handleNavigation } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { QueryParams } from '../../..';
 import SigninPasskeyFallback from '.';
 
 // Password step for accounts that signed in with a passkey but still need the
 // account password to unwrap Sync encryption keys.
 const SigninPasskeyFallbackContainer = ({
   integration,
-}: { integration: Integration } & RouteComponentProps) => {
+  flowQueryParams,
+}: {
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
   const authClient = useAuthClient();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -50,6 +56,10 @@ const SigninPasskeyFallbackContainer = ({
   const email = signinState?.email;
   const uid = signinState?.uid;
   const passkeySurface = location.state?.passkeySurface ?? 'emailfirst';
+  const metricsContext = useMemo(
+    () => queryParamsToMetricsContext(flowQueryParams),
+    [flowQueryParams]
+  );
 
   // Mirrors Signin/container.tsx's avatar fetch: mint a profile:avatar-scoped
   // OAuth token, GET /v1/avatar from the profile server, fall back to default
@@ -121,7 +131,7 @@ const SigninPasskeyFallbackContainer = ({
           sessionToken,
           emails,
           password,
-          { keys: true }
+          { keys: true, reason: 'signin', metricsContext }
         ));
       } catch (err) {
         const errno = (err as { errno?: number })?.errno;
@@ -191,6 +201,7 @@ const SigninPasskeyFallbackContainer = ({
       email,
       uid,
       passkeySurface,
+      metricsContext,
     ]
   );
 

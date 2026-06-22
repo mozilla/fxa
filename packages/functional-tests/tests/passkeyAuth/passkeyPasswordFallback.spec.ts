@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Sync passkey signin + password-fallback flow, driven through the UI via the
-// Sync OAuth URL (context=oauth_webchannel_v1, service=sync) so the auth-server
-// sets requiresPasswordForSync=true and the SPA routes to
-// /signin_passkey_fallback (the production trigger).
+// Sync passkey signin + password-fallback flow via the Sync OAuth URL.
+// Sync needs keys, so the client routes to /signin_passkey_fallback.
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { FirefoxCommand } from '../../lib/channels';

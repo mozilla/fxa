@@ -24,6 +24,7 @@ import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { isBase32Crockford } from '../../../lib/utilities';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
@@ -44,10 +45,13 @@ const SigninRecoveryCode = ({
   unwrapBKey,
   loading = false,
   setCurrentSplitLayout,
+  supportsKeysOptionalLogin,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
   }, []);
+
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>('');
@@ -94,6 +98,24 @@ const SigninRecoveryCode = ({
   };
 
   const onSuccessNavigate = useCallback(async () => {
+    // Passwordless sign-in needing keys must set a password;
+    // defer the browser login messages.
+    if (
+      (signinState.isPasswordlessOtpSignin ||
+        signinState.isSignInWithThirdPartyAuth) &&
+      integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+    ) {
+      navigateWithQuery('/post_verify/set_password', {
+        replace: true,
+        state: {
+          passwordCreationReason: signinState.isSignInWithThirdPartyAuth
+            ? 'third_party_auth'
+            : 'otp',
+        },
+      });
+      return;
+    }
+
     const navigationOptions = {
       email,
       signinData: {
@@ -136,6 +158,9 @@ const SigninRecoveryCode = ({
     unwrapBKey,
     ftlMsgResolver,
     authClient,
+    signinState,
+    supportsKeysOptionalLogin,
+    navigateWithQuery,
   ]);
 
   const localizedInvalidCodeError = getLocalizedErrorMessage(
@@ -163,6 +188,9 @@ const SigninRecoveryCode = ({
         // Update verification status of stored current account
         verified: true,
         sessionVerified: true,
+        // OTP sign-in is the only genuinely passwordless case; a third-party
+        // account may have a password, so leave it unset and let SetPassword verify.
+        ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
       setStoredSignedInStatus(true);

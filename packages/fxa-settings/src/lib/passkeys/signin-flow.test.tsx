@@ -124,7 +124,6 @@ const buildArgs = (
     uid: UID,
     sessionToken: SESSION_TOKEN,
     verified: true,
-    requiresPasswordForSync: false,
     hasPassword: true,
   });
   const account = jest.fn().mockResolvedValue({
@@ -142,6 +141,7 @@ const buildArgs = (
   const integration = {
     isSync: () => false,
     isFirefoxNonSync: () => false,
+    requiresPasswordForLogin: () => false,
     getService: () => undefined,
     getClientId: () => 'service-id',
     isFirefoxMobileClient: () => false,
@@ -217,7 +217,11 @@ describe('usePasskeySignIn', () => {
     expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
       MOCK_CREDENTIAL,
       CHALLENGE,
-      { service: 'service-id', metricsContext: {} }
+      {
+        service: 'service-id',
+        keysRequired: false,
+        metricsContext: {},
+      }
     );
     expect(spies.account).toHaveBeenCalledWith(SESSION_TOKEN);
     expect(handleNavigation).toHaveBeenCalledWith({
@@ -256,6 +260,7 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        requiresPasswordForLogin: () => false,
         getService: () => 'sync',
         getClientId: () => 'client-id-should-not-be-used',
         isFirefoxMobileClient: () => false,
@@ -273,7 +278,7 @@ describe('usePasskeySignIn', () => {
     expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
       MOCK_CREDENTIAL,
       CHALLENGE,
-      { service: 'sync', metricsContext: {} }
+      { service: 'sync', keysRequired: false, metricsContext: {} }
     );
   });
 
@@ -284,6 +289,7 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => false,
         isFirefoxNonSync: () => false,
+        requiresPasswordForLogin: () => false,
         getService: () => undefined,
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
@@ -301,7 +307,7 @@ describe('usePasskeySignIn', () => {
     expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
       MOCK_CREDENTIAL,
       CHALLENGE,
-      { metricsContext: {} }
+      { keysRequired: false, metricsContext: {} }
     );
     expect(storeAccountData).toHaveBeenCalled();
     expect(handleNavigation).toHaveBeenCalledWith({
@@ -332,6 +338,7 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        requiresPasswordForLogin: () => false,
         getService: () => 'sync',
         type: IntegrationType.OAuthNative,
         data: {},
@@ -375,6 +382,7 @@ describe('usePasskeySignIn', () => {
         integration: {
           isSync: () => true,
           isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -384,7 +392,6 @@ describe('usePasskeySignIn', () => {
         uid: UID,
         sessionToken: SESSION_TOKEN,
         verified: true,
-        requiresPasswordForSync: true,
         hasPassword,
       });
 
@@ -402,6 +409,71 @@ describe('usePasskeySignIn', () => {
     }
   );
 
+  it('routes a non-Sync sign-in to set_password when requiresPasswordForLogin is true', async () => {
+    const { args, spies } = buildArgs({
+      integration: {
+        isSync: () => false,
+        isFirefoxNonSync: () => true,
+        requiresPasswordForLogin: () => true,
+        getService: () => 'vpn',
+        getClientId: () => 'service-id',
+        isFirefoxMobileClient: () => false,
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+    });
+    spies.completePasskeyAuthentication.mockResolvedValue({
+      uid: UID,
+      sessionToken: SESSION_TOKEN,
+      verified: true,
+      hasPassword: false,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+    await act(async () => {
+      await result.current.onClick();
+    });
+    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+      MOCK_CREDENTIAL,
+      CHALLENGE,
+      expect.objectContaining({ keysRequired: true })
+    );
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/post_verify/set_password',
+      {
+        state: {
+          passwordCreationReason: 'passkey',
+          passkeySurface: 'emailfirst',
+        },
+      }
+    );
+    expect(handleNavigation).not.toHaveBeenCalled();
+  });
+
+  it('forwards supportsKeysOptionalLogin to integration.requiresPasswordForLogin', async () => {
+    const requiresPasswordForLogin = jest.fn().mockReturnValue(false);
+    const { args } = buildArgs({
+      integration: {
+        isSync: () => false,
+        isFirefoxNonSync: () => true,
+        requiresPasswordForLogin,
+        getService: () => 'vpn',
+        getClientId: () => 'service-id',
+        isFirefoxMobileClient: () => false,
+        type: IntegrationType.OAuthNative,
+        data: {},
+      } as unknown as PasskeySignInIntegration,
+      supportsKeysOptionalLogin: true,
+    });
+
+    const { result } = renderHook(() => usePasskeySignIn(args));
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    expect(requiresPasswordForLogin).toHaveBeenCalledWith(true);
+  });
+
   it('sends service=sync in the passkey authentication request for a Sync sign-in when the service URL param is absent', async () => {
     // Mobile Firefox omits service=sync and defaults via clientId, so
     // getService() returns undefined; isSync() must still drive service=sync.
@@ -409,6 +481,7 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        requiresPasswordForLogin: () => false,
         getService: () => undefined,
         isFirefoxMobileClient: () => false,
         type: IntegrationType.OAuthNative,
@@ -425,7 +498,7 @@ describe('usePasskeySignIn', () => {
     expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
       MOCK_CREDENTIAL,
       CHALLENGE,
-      { service: 'sync', metricsContext: {} }
+      { service: 'sync', keysRequired: false, metricsContext: {} }
     );
   });
 
@@ -434,6 +507,8 @@ describe('usePasskeySignIn', () => {
       integration: {
         isSync: () => false,
         isFirefoxNonSync: () => true,
+        // VPN without keys: exercises the mobile navigation-skip path, not the password detour.
+        requiresPasswordForLogin: () => false,
         getService: () => 'vpn',
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => true,
@@ -497,6 +572,7 @@ describe('usePasskeySignIn', () => {
         integration: {
           isSync: () => true,
           isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -506,7 +582,6 @@ describe('usePasskeySignIn', () => {
         uid: UID,
         sessionToken: SESSION_TOKEN,
         verified: true,
-        requiresPasswordForSync: true,
         hasPassword,
       });
 
@@ -861,6 +936,7 @@ describe('usePasskeySignIn', () => {
         integration: {
           isSync: () => true,
           isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -870,7 +946,6 @@ describe('usePasskeySignIn', () => {
         uid: UID,
         sessionToken: SESSION_TOKEN,
         verified: true,
-        requiresPasswordForSync: true,
         hasPassword: true,
       });
 
@@ -941,6 +1016,7 @@ describe('usePasskeySignIn', () => {
       const integration = {
         isSync: () => false,
         isFirefoxNonSync: () => false,
+        requiresPasswordForLogin: () => false,
         getService: () => undefined,
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
@@ -1029,6 +1105,7 @@ describe('usePasskeySignIn', () => {
           integration: {
             isSync: () => false,
             isFirefoxNonSync: () => false,
+            requiresPasswordForLogin: () => false,
             getService: () => undefined,
             getClientId: () => 'service-id',
             isFirefoxMobileClient: () => false,

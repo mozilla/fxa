@@ -68,6 +68,7 @@ export const Index = ({
     queryParams: location.search,
     surface: 'emailfirst',
     isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
   });
   const handlePasskeyClick = () => {
     // Cancel any pending suggested-email auto-submit so it can't override

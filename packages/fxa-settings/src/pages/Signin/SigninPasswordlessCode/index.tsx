@@ -99,6 +99,7 @@ const SigninPasswordlessCode = ({
     queryParams: location.search,
     surface: 'login_otp',
     isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
   });
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =

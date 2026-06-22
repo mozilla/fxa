@@ -78,6 +78,7 @@ const Signin = ({
     queryParams: location.search,
     surface: 'login',
     isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin,
   });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(

@@ -6,6 +6,7 @@ import {
   isPasskeyAuthenticationEnabled,
   isPasskeyFeatureEnabled,
   isPasskeyRegistrationEnabled,
+  PasskeyFlagsConfig,
 } from './passkey-utils';
 
 describe('passkey-utils', () => {
@@ -23,7 +24,8 @@ describe('passkey-utils', () => {
     });
 
     it('should throw featureNotEnabled error when config.passkeys.enabled is undefined', () => {
-      const config = { passkeys: {} };
+      // Simulate a malformed config that omits the required `enabled`.
+      const config = { passkeys: {} } as PasskeyFlagsConfig<'enabled'>;
       expect(() => isPasskeyFeatureEnabled(config)).toThrow(
         'Feature not enabled'
       );
