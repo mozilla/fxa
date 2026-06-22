@@ -79,9 +79,20 @@ export const Index = ({
   const legalTerms = integration.getLegalTerms();
 
   const emailEngageEventEmitted = useRef(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     GleanMetrics.emailFirst.view();
+  }, []);
+
+  // Defer auto-focus once. If the container redirects an already-signed-in user
+  // away, intermittently the browser's email autocomplete dropdown can be shown on
+  // the next page, presumably from a redirect mid-render. See FXA-14009
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      emailInputRef.current?.focus();
+    }, 10);
+    return () => clearTimeout(timer);
   }, []);
 
   const onSubmit = async ({ email }: IndexFormData) => {
@@ -198,7 +209,7 @@ export const Index = ({
             inputMode="email"
             label="Enter your email"
             inputRef={register()}
-            autoFocus
+            inputRefDOM={emailInputRef}
             errorText={tooltipErrorMessage}
             onChange={handleInputChange}
             autoCapitalize="off"
