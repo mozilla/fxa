@@ -5,10 +5,12 @@
 import { LocationProvider } from '@reach/router';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
+  AppContext,
   IntegrationData,
   IntegrationType,
   RelierCmsInfo,
 } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
   MOCK_EMAIL,
@@ -116,17 +118,19 @@ export const Subject = ({
   supportsKeysOptionalLogin?: boolean;
 }) => {
   return (
-    <LocationProvider>
-      <SigninTotpCode
-        {...{
-          finishOAuthFlowHandler,
-          integration,
-          serviceName,
-          signinState,
-          submitTotpCode,
-          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
-        }}
-      />
-    </LocationProvider>
+    <AppContext.Provider value={mockAppContext()}>
+      <LocationProvider>
+        <SigninTotpCode
+          {...{
+            finishOAuthFlowHandler,
+            integration,
+            serviceName,
+            signinState,
+            submitTotpCode,
+            useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
+          }}
+        />
+      </LocationProvider>
+    </AppContext.Provider>
   );
 };

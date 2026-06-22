@@ -190,7 +190,10 @@ export function resolvePasskeyService(
 /** Pick<> so tests can pass minimal mocks without `as any`. */
 export type PasskeySignInAuthClient = Pick<
   AuthClient,
-  'beginPasskeyAuthentication' | 'completePasskeyAuthentication' | 'account'
+  | 'beginPasskeyAuthentication'
+  | 'completePasskeyAuthentication'
+  | 'account'
+  | 'sessionResendVerifyCode'
 >;
 
 /**
@@ -427,6 +430,7 @@ export function usePasskeySignIn({
         performNavigation: !integration.isFirefoxMobileClient(),
         isPasskeySession: true,
         accountHasTotp,
+        authClient,
       });
 
       if (navError) {

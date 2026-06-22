@@ -12,7 +12,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import ThirdPartyAuthCallback from '.';
 import { AppContext } from '../../../models';
 import { createAppContext, mockAppContext } from '../../../models/mocks';
-import { useAccount } from '../../../models';
+import { useAccount, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   handleNavigation,
@@ -24,17 +24,19 @@ import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';
 
-jest.mock('../../../models', () => ({
-  ...jest.requireActual('../../../models'),
-  useClientInfoState: jest.fn(),
-  useProductInfoState: jest.fn(),
-  useAccount: jest.fn(),
-  useAuthClient: () => {
-    return {
-      checkTotpTokenExists: jest.fn().mockResolvedValue({ verified: true }),
-    };
-  },
-}));
+jest.mock('../../../models', () => {
+  const mockAuthClient = {
+    checkTotpTokenExists: jest.fn().mockResolvedValue({ verified: true }),
+    sessionResendVerifyCode: jest.fn().mockResolvedValue(undefined),
+  };
+  return {
+    ...jest.requireActual('../../../models'),
+    useClientInfoState: jest.fn(),
+    useProductInfoState: jest.fn(),
+    useAccount: jest.fn(),
+    useAuthClient: () => mockAuthClient,
+  };
+});
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -179,6 +181,15 @@ describe('ThirdPartyAuthCallback component', () => {
     mockHandleNavigation = jest.fn().mockResolvedValue({ error: null });
     (handleNavigation as jest.Mock).mockReturnValue(mockHandleNavigation);
     (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+    // useAuthClient returns a stable mock; restore its implementations here
+    // because afterEach's resetAllMocks() wipes them between tests.
+    const authClient = useAuthClient();
+    (authClient.checkTotpTokenExists as jest.Mock).mockResolvedValue({
+      verified: true,
+    });
+    (authClient.sessionResendVerifyCode as jest.Mock).mockResolvedValue(
+      undefined
+    );
     mockNavigateWithQuery.mockClear();
     mockCurrentAccount();
   });
@@ -277,6 +288,7 @@ describe('ThirdPartyAuthCallback component', () => {
         supportsKeysOptionalLogin: false,
         queryParams: '?',
         redirectTo: redirectTo,
+        authClient: useAuthClient(),
         signinData: {
           sessionToken: MOCK_SESSION_TOKEN,
           uid: '123',

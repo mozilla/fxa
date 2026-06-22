@@ -1014,8 +1014,8 @@ describe('signin container', () => {
         mockAuthClient.passwordChangeFinish = jest.fn().mockResolvedValue({});
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
-          primary: MOCK_EMAIL
-        })
+          primary: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1107,8 +1107,8 @@ describe('signin container', () => {
           });
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           primary: MOCK_EMAIL,
-          original: MOCK_EMAIL
-        })
+          original: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1159,8 +1159,8 @@ describe('signin container', () => {
         });
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           oiginal: MOCK_EMAIL,
-          primary: MOCK_EMAIL
-        })
+          primary: MOCK_EMAIL,
+        });
 
         render();
 
@@ -1218,7 +1218,7 @@ describe('signin container', () => {
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
           primary: MOCK_EMAIL,
-        })
+        });
 
         render();
 
@@ -1266,7 +1266,7 @@ describe('signin container', () => {
         mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
           original: MOCK_EMAIL,
           primary: MOCK_EMAIL,
-        })
+        });
 
         render();
 
@@ -1455,7 +1455,10 @@ describe('signin container', () => {
         expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
-        expect(mockSession.sendVerificationCode).toHaveBeenCalled();
+        // cachedSignIn no longer sends the verification code; the code is now
+        // sent later in handleNavigation, just before navigating to the
+        // verification page. See FXA-12972.
+        expect(mockSession.sendVerificationCode).not.toHaveBeenCalled();
         expect(handlerResult?.data?.verificationMethod).toEqual(
           VerificationMethods.EMAIL_OTP
         );
@@ -1490,7 +1493,10 @@ describe('signin container', () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(mockSession.sendVerificationCode).toHaveBeenCalled();
+        // cachedSignIn no longer sends the verification code; the code is now
+        // sent later in handleNavigation, just before navigating to the
+        // verification page. See FXA-12972.
+        expect(mockSession.sendVerificationCode).not.toHaveBeenCalled();
         expect(handlerResult?.data?.verificationMethod).toEqual(
           VerificationMethods.EMAIL_OTP
         );

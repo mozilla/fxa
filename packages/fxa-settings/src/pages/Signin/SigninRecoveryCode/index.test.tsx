@@ -29,6 +29,14 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
+const mockSessionResendVerifyCode = jest.fn().mockResolvedValue(undefined);
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => ({
+    sessionResendVerifyCode: mockSessionResendVerifyCode,
+  }),
+}));
+
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {

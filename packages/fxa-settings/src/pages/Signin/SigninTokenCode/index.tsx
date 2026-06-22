@@ -7,6 +7,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   isWebIntegration,
+  useAuthClient,
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
@@ -62,6 +63,7 @@ const SigninTokenCode = ({
   const [resendCountdown, setResendCountdown] = useState<number>(0);
   const { isThrottled, startThrottle } = useThrottle();
 
+  const authClient = useAuthClient();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
     isWebIntegration(integration) && webRedirectCheck?.isValid
@@ -186,6 +188,7 @@ const SigninTokenCode = ({
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
           performNavigation: !integration.isFirefoxMobileClient(),
+          authClient,
         };
 
         await GleanMetrics.isDone();
@@ -228,6 +231,7 @@ const SigninTokenCode = ({
       showInlineRecoveryKeySetup,
       onSessionVerified,
       startThrottle,
+      authClient,
     ]
   );
 

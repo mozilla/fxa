@@ -5,7 +5,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { isWebIntegration, useFtlMsgResolver } from '../../../models';
+import {
+  isWebIntegration,
+  useAuthClient,
+  useFtlMsgResolver,
+} from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
@@ -55,6 +59,7 @@ const SigninRecoveryCode = ({
     'Backup authentication code required'
   );
   const location = useLocation();
+  const authClient = useAuthClient();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -109,6 +114,7 @@ const SigninRecoveryCode = ({
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
       performNavigation: !integration.isFirefoxMobileClient(),
+      authClient,
     };
 
     const { error } = await handleNavigation(navigationOptions);
@@ -129,6 +135,7 @@ const SigninRecoveryCode = ({
     uid,
     unwrapBKey,
     ftlMsgResolver,
+    authClient,
   ]);
 
   const localizedInvalidCodeError = getLocalizedErrorMessage(
