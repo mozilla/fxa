@@ -9,10 +9,9 @@
 // the clientId column (JOIN clients.name for the human-readable name) and the
 // scope via scopeId (JOIN scopes.scope).
 
+import * as Sentry from '@sentry/node';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
-
-import { reportSentryError } from '../sentry';
 
 export interface ScopeSetLike {
   getScopeValues(): Iterable<string>;
@@ -66,12 +65,14 @@ function extractScopes(scopeSet: ScopeSetLike | null | undefined): string[] {
  * single OAuth grant.
  *
  * Never throws. Never blocks the response. On DB failure, increments
- * `accountActivity.write_failed` and logs a warning; the grant still succeeds.
+ * `accountActivity.write_failed` and reports to Sentry; the grant still
+ * succeeds.
  *
  * When some requested scopes are not in the scopes table, the scopes that do
- * resolve are still written, and the missing ones are reported to Sentry plus
- * `accountActivity.missing_scopes` so the scopes table can be reconciled via
- * the admin panel.
+ * resolve are still written, and the missing ones are counted via
+ * `accountActivity.missing_scopes` plus a warning log naming them (the metric
+ * can't tag scope names) so the scopes table can be reconciled via the admin
+ * panel.
  *
  * Returns the awaited Promise so tests can assert on completion; the OAuth
  * grant path does not await it.
@@ -118,20 +119,15 @@ export async function recordActivity(
         grantType,
         missingScopes,
       });
-      reportSentryError(
-        new Error(
-          `accountActivity: scope(s) missing from scopes table, activity not recorded for them: ${missingScopes.join(
-            ', '
-          )} (clientId=${clientIdHex}, grantType=${grantType || 'unknown'})`
-        )
-      );
     }
   } catch (err) {
     statsd?.increment('accountActivity.write_failed', metricTags);
-    log?.warn('accountActivity.write_failed', {
-      clientId: clientIdHex,
-      grantType,
-      error: err instanceof Error ? err.message : String(err),
-    });
+    Sentry.captureException(
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        tags: { clientId: clientIdHex, grantType: grantType || 'unknown' },
+        extra: { scopes },
+      }
+    );
   }
 }
