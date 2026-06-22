@@ -57,8 +57,8 @@ export interface Config {
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
     reactClientIdsEnabled: string[];
-    clientInfoTimeout: number,
-    clientInfoRetries: number,
+    clientInfoTimeout: number;
+    clientInfoRetries: number;
   };
   recoveryCodes: {
     count: number;
@@ -115,6 +115,7 @@ export interface Config {
     passkeyRegistrationEnabled?: boolean;
     passkeyAuthenticationEnabled?: boolean;
     passwordlessEnabled?: boolean;
+    authStateMachine?: boolean;
   };
   darkMode?: {
     enabled?: boolean;
@@ -180,7 +181,7 @@ export function getDefault() {
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),
       clientInfoRetries: 4,
-      clientInfoTimeout: 10_000
+      clientInfoTimeout: 10_000,
     },
     recoveryCodes: {
       count: 8,
@@ -229,6 +230,7 @@ export function getDefault() {
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
       passwordlessEnabled: false,
+      authStateMachine: false,
     },
     darkMode: {
       enabled: false,

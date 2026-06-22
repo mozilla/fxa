@@ -12,7 +12,12 @@ import {
 } from '../../../lib/auth-errors/auth-errors';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
+import { isAuthStateMachineEnabled } from '../../../lib/auth-machine/flag';
+import {
+  decideRecoveryChoice,
+  RecoveryChoiceAction,
+} from '../../../lib/auth-machine/reset';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import AppLayout from '../../../components/AppLayout';
 
@@ -20,6 +25,7 @@ export const ResetPasswordRecoveryChoiceContainer = (
   _: RouteComponentProps
 ) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const locationState = useLocation() as ReturnType<typeof useLocation> & {
     state: CompleteResetPasswordLocationState;
   };
@@ -181,33 +187,50 @@ export const ResetPasswordRecoveryChoiceContainer = (
 
   // Handle all navigation logic in a single effect with clear priority order
   useEffect(() => {
-    // Priority 1: Missing locationState or token
-    if (!locationState || !locationState.state.token) {
-      redirectToResetPassword();
-      return;
-    }
+    const hasToken = !!(locationState && locationState.state.token);
+    const machineEnabled = isAuthStateMachineEnabled(
+      locationState?.search,
+      config.featureFlags?.authStateMachine === true
+    );
+    const facts = {
+      hasToken,
+      hasDataFetchError: !!dataFetchError,
+      loading,
+      hasPhone: !!phoneData.phoneNumber,
+      autoSendAttempted,
+      numBackupCodes,
+    };
 
-    // Priority 2: Data fetch error
-    if (dataFetchError) {
-      handleDataFetchError();
-      return;
-    }
+    const action: RecoveryChoiceAction = machineEnabled
+      ? decideRecoveryChoice(facts)
+      : (() => {
+          if (!facts.hasToken) return 'redirect-reset';
+          if (facts.hasDataFetchError) return 'handle-data-error';
+          if (facts.loading) return 'wait';
+          if (!facts.hasPhone) return 'backup-codes';
+          if (!facts.autoSendAttempted && facts.numBackupCodes === 0) {
+            return 'auto-send-phone';
+          }
+          return 'show-choice';
+        })();
 
-    // Priority 3: Still loading - don't make any navigation decisions yet
-    if (loading) {
-      return;
-    }
-
-    // Priority 4: No phone available
-    if (!phoneData.phoneNumber) {
-      redirectToBackupCodes();
-      return;
-    }
-
-    // Priority 5: Auto-send SMS if only phone is available (no backup codes)
-    if (!autoSendAttempted && numBackupCodes === 0) {
-      autoSendPhoneCode();
-      return;
+    switch (action) {
+      case 'redirect-reset':
+        redirectToResetPassword();
+        return;
+      case 'handle-data-error':
+        handleDataFetchError();
+        return;
+      case 'wait':
+        return;
+      case 'backup-codes':
+        redirectToBackupCodes();
+        return;
+      case 'auto-send-phone':
+        autoSendPhoneCode();
+        return;
+      case 'show-choice':
+        return;
     }
   }, [
     locationState,
@@ -220,6 +243,7 @@ export const ResetPasswordRecoveryChoiceContainer = (
     handleDataFetchError,
     redirectToBackupCodes,
     autoSendPhoneCode,
+    config,
   ]);
 
   if (!locationState || !locationState.state.token) {

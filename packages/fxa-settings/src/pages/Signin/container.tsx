@@ -25,7 +25,7 @@ import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
 } from '../../models/pages/signin';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   currentAccount,
   lastStoredAccount,
@@ -72,6 +72,10 @@ import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../lib/oauth';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
+import { useAuthMachine } from '../../lib/auth-machine/useAuthMachine';
+import { buildAuthContext } from '../../lib/auth-machine/context';
+import { makeMachineDeps } from '../../lib/auth-machine/deps';
+import type { FlowState } from '../../lib/auth-machine/types';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
@@ -422,6 +426,114 @@ const SigninContainer = ({
     })();
   }, [needsSessionValidation, session, sessionToken]);
 
+  // Flag-gate scaffolding reserved for a future hook-driven takeover. The LIVE
+  // routing cutover (the machine deciding post-sign-in navigation) lives in
+  // handleNavigation in ./utils.ts; this hook does not drive navigation yet.
+  // Hooks are called unconditionally (React rules); the machine is only instantiated
+  // and observable when the flag is enabled.
+  const authStateMachineEnabled =
+    queryParamModel.authStateMachine ??
+    config.featureFlags?.authStateMachine === true;
+
+  const machineDeps = useMemo(
+    () =>
+      authStateMachineEnabled
+        ? makeMachineDeps({
+            authClient,
+            integration,
+            sensitiveDataClient,
+            sessionToken,
+            session,
+          })
+        : null,
+    // Stable across renders when flag is off; re-memoize only on flag toggle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [authStateMachineEnabled]
+  );
+
+  const machineCtx = useMemo(
+    () =>
+      authStateMachineEnabled
+        ? buildAuthContext({
+            integration,
+            stored: {
+              email,
+              uid,
+              sessionToken,
+              hasPassword: accountStatus.hasPassword,
+            },
+            live: {
+              hasLinkedAccount: accountStatus.hasLinkedAccount,
+              hasCachedSession: !!sessionToken,
+              passwordlessSupported: accountStatus.passwordlessSupported,
+            },
+          })
+        : null,
+    // Rebuild context when flag or key account facts change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      authStateMachineEnabled,
+      email,
+      uid,
+      sessionToken,
+      accountStatus.hasPassword,
+      accountStatus.hasLinkedAccount,
+      accountStatus.passwordlessSupported,
+    ]
+  );
+
+  const INITIAL_MACHINE_STATE: FlowState = 'authenticating.signinDecider';
+
+  // useAuthMachine must be called unconditionally; internally the hook just
+  // reduces state — it only fires effects when `send` is called explicitly.
+  // When the flag is off, we supply a no-op sentinel so no real work happens.
+  const noopDeps = useMemo(
+    () => ({
+      checkAccountStatus: async () => ({ exists: false }),
+      beginSignin: async () => {
+        throw new Error('not wired');
+      },
+      cachedSignin: async () => {
+        throw new Error('not wired');
+      },
+      sendUnblockEmail: async () => {
+        throw new Error('not wired');
+      },
+      upgradeCredentials: async () => {},
+    }),
+    []
+  );
+
+  useAuthMachine({
+    initial: INITIAL_MACHINE_STATE,
+    ctx: machineCtx ?? {
+      email: undefined,
+      uid: undefined,
+      sessionToken: undefined,
+      emailVerified: false,
+      sessionVerified: false,
+      accountHasTotp: false,
+      hasRecoveryPhone: false,
+      hasPassword: true,
+      hasLinkedAccount: false,
+      hasCachedSession: false,
+      passwordlessSupported: false,
+      isOAuth: false,
+      isOAuthWeb: false,
+      isOAuthNative: false,
+      isSync: false,
+      isWebChannelIntegration: false,
+      supportsKeysOptionalLogin: false,
+      requiresKeys: false,
+      wantsKeysIfPasswordEntered: false,
+      wantsLogin: false,
+      clientInfoLoadFailed: false,
+    },
+    deps: machineDeps ?? noopDeps,
+    navigate: () => {},
+    delegate: () => {},
+  });
+
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
       // Guard: passwordless accounts should never hit password-based endpoints.
@@ -572,7 +684,8 @@ const SigninContainer = ({
           credentials.credentialStatus?.upgradeNeeded === true &&
           credentials.v2Credentials
         ) {
-          const { sessionToken, emailVerified, sessionVerified } = result.data.signIn;
+          const { sessionToken, emailVerified, sessionVerified } =
+            result.data.signIn;
 
           // To simplify this process. Fetch the original account sign in email.
           const emails = await authClient.accountEmails(sessionToken);
@@ -581,7 +694,10 @@ const SigninContainer = ({
           // Update the v1Credentials object to make sure the authPW is in fact correct. It
           // needs to be derived from the original account email, not the current primary.
           if (emails.original !== email) {
-            credentials.v1Credentials = await getCredentials(emails.original, password);
+            credentials.v1Credentials = await getCredentials(
+              emails.original,
+              password
+            );
           }
 
           sensitiveDataClient.KeyStretchUpgradeData = {
@@ -695,7 +811,7 @@ const SigninContainer = ({
     );
   }
 
-  return (
+  const signinDecider = (
     <SigninDecider
       {...{
         integration,
@@ -722,6 +838,13 @@ const SigninContainer = ({
       }}
     />
   );
+
+  // When the flag is on, wrap with a sentinel so tests can assert machine presence.
+  if (authStateMachineEnabled) {
+    return <div data-testid="auth-state-machine-active">{signinDecider}</div>;
+  }
+
+  return signinDecider;
 };
 
 export async function getCurrentCredentials(
@@ -769,14 +892,18 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const response = await authClient.signInWithAuthPW({ primary: email }, authPW, {
-      verificationMethod: options.verificationMethod,
-      keys: options.keys,
-      service: options.service,
-      metricsContext: options.metricsContext,
-      unblockCode: options.unblockCode,
-      originalLoginEmail: options.originalLoginEmail,
-    });
+    const response = await authClient.signInWithAuthPW(
+      { primary: email },
+      authPW,
+      {
+        verificationMethod: options.verificationMethod,
+        keys: options.keys,
+        service: options.service,
+        metricsContext: options.metricsContext,
+        unblockCode: options.unblockCode,
+        originalLoginEmail: options.originalLoginEmail,
+      }
+    );
 
     if (response) {
       const unwrapBKey = v2Credentials

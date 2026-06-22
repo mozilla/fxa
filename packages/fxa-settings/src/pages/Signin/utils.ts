@@ -26,6 +26,10 @@ import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
 import config from '../../lib/config';
+import { funnelReducer } from '../../lib/auth-machine/funnel';
+import { routeFor } from '../../lib/auth-machine/route-adapter';
+import { isAuthStateMachineEnabled } from '../../lib/auth-machine/flag';
+import type { AuthContext } from '../../lib/auth-machine/types';
 
 interface NavigationTarget {
   to: string;
@@ -205,6 +209,32 @@ export const cachedSignIn = async (
   }
 };
 
+/**
+ * Owns navigation for non-OAuth, OAuth-web, and OAuth-native sign-ins when the
+ * authStateMachine flag is on (config flag, or a ?authStateMachine=true|false URL
+ * override). Covers plain Web, Sync/Firefox-non-sync web-channel integrations,
+ * OAuth web (RP) integrations, and OAuth native (Sync desktop/mobile,
+ * Firefox-non-sync). Pairing integrations are isOAuthIntegration but neither web
+ * nor native, so they stay on the legacy path, along with redirectTo, AAL
+ * upgrades, and forced password changes.
+ */
+function machineOwnsNavigation(o: NavigationOptions): boolean {
+  const enabled = isAuthStateMachineEnabled(
+    o.queryParams,
+    config.featureFlags?.authStateMachine === true
+  );
+  if (!enabled) return false;
+  const i = o.integration;
+  return (
+    (!isOAuthIntegration(i) ||
+      isOAuthWebIntegration(i) ||
+      isOAuthNativeIntegration(i)) &&
+    !o.redirectTo &&
+    !o.isSessionAALUpgrade &&
+    o.signinData.verificationReason !== VerificationReasons.CHANGE_PASSWORD
+  );
+}
+
 // In Backbone and React, 'confirm_signup_code' and 'signin_token_code' send key
 // and token data up to Sync with fxa_login and then the CAD/pair page (currently
 // Backbone) completes the signin with fxa_status.
@@ -217,27 +247,11 @@ export const cachedSignIn = async (
 // _before_ we hard navigate to CAD/pair in these flows.
 export async function handleNavigation(navigationOptions: NavigationOptions) {
   const { integration } = navigationOptions;
-  const isOAuth = isOAuthIntegration(integration);
-  const isWebChannelIntegration =
-    integration.isSync() || integration.isFirefoxNonSync();
-  const wantsTwoStepAuthentication =
-    isOAuthWebIntegration(integration) &&
-    integration.wantsTwoStepAuthentication();
-  const wantsKeys = integration.wantsKeys();
 
-  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
-  // RP redirects won't get into this state since they'll be taken to the RP and
-  // never Settings. This flow doesn't need Sync web channel messages or care about
-  // skipping navigating either because if a Sync user is inside Settings, we probably
-  // don't have the oauth query parameters required to begin a sign-in flow
-  // anyway. Just take all users back to /settings.
-  if (navigationOptions.isSessionAALUpgrade) {
-    navigate('/settings');
-    return { error: undefined };
-  }
-
-  // Check CMS fleature flags to determine if we should hide promos, the
-  // default is to navigate to settings
+  // Check CMS feature flags to determine if we should hide promos, the
+  // default is to navigate to settings. Gated on isSync() so this is a no-op
+  // for plain Web and OAuth. Applied before the machine branch so both the
+  // machine and legacy getNonOAuthNavigationTarget see the mutated options.
   const cmsInfo = integration?.getCmsInfo();
   if (
     cmsInfo?.shared.featureFlags?.syncHidePromoAfterLogin &&
@@ -256,6 +270,202 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   ) {
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
+  }
+
+  if (machineOwnsNavigation(navigationOptions)) {
+    const { signinData, accountHasTotp } = navigationOptions;
+    const ctx: AuthContext = {
+      emailVerified: signinData.emailVerified,
+      sessionVerified: signinData.sessionVerified,
+      verificationMethod: signinData.verificationMethod,
+      verificationReason: signinData.verificationReason,
+      accountHasTotp: accountHasTotp ?? false,
+      // Remaining AuthContext facts are not read by the post-signin router.
+      hasRecoveryPhone: false,
+      hasPassword: true,
+      hasLinkedAccount: false,
+      hasCachedSession: false,
+      passwordlessSupported: false,
+      isOAuth: false,
+      isOAuthWeb: false,
+      isOAuthNative: false,
+      isSync: false,
+      isWebChannelIntegration: false,
+      supportsKeysOptionalLogin: false,
+      requiresKeys: false,
+      wantsKeysIfPasswordEntered: false,
+      wantsLogin: false,
+      clientInfoLoadFailed: false,
+    };
+
+    const { state } = funnelReducer(
+      'verifying.router',
+      {
+        type: 'SIGNIN_OK',
+        emailVerified: signinData.emailVerified,
+        sessionVerified: signinData.sessionVerified,
+        verificationMethod: signinData.verificationMethod,
+        verificationReason: signinData.verificationReason,
+      },
+      ctx
+    );
+    const decision = routeFor(state);
+    if ('to' in decision) {
+      const { queryParams } = navigationOptions;
+      const isOAuth = isOAuthIntegration(integration);
+      const isWebChannel =
+        integration.isSync() || integration.isFirefoxNonSync();
+      const isFullyVerified =
+        signinData.emailVerified && signinData.sessionVerified;
+
+      // Verified: the machine routes to finalizing.handoff (/settings). For
+      // web-channel this is not the real destination — Sync/Firefox-non-sync
+      // resolve through getNonOAuthNavigationTarget (getSyncNavigate). OAuth web
+      // resolves through getOAuthNavigationTarget (RP redirect). Plain Web keeps
+      // the existing handoff-to-/settings behavior.
+      if (isFullyVerified) {
+        // Web-channel sends fxa_login before the OAuth/non-OAuth split, matching
+        // legacy. For native Sync (OAuth + web-channel) this must fire before
+        // OAuth resolution and the subsequent fxaOAuthLogin. OAuth web is not
+        // web-channel so this stays inert there.
+        if (isWebChannel && navigationOptions.handleFxaLogin === true) {
+          sendFxaLogin(navigationOptions);
+        }
+        // OAuth (web RP or native). Resolve the redirect async, propagate any
+        // error, fire firefox.fxaOAuthLogin for native, then navigate when not
+        // suppressed. Mirrors the legacy verified-OAuth block exactly.
+        if (isOAuth) {
+          const target = await getOAuthNavigationTarget(navigationOptions);
+          if (target.error) {
+            return { error: target.error };
+          }
+          if (
+            isOAuthNativeIntegration(integration) &&
+            navigationOptions.handleFxaOAuthLogin === true &&
+            target.oauthData
+          ) {
+            firefox.fxaOAuthLogin({
+              action: 'signin',
+              code: target.oauthData.code,
+              redirect: target.oauthData.redirect,
+              state: target.oauthData.state,
+              scope: target.oauthData.scope,
+            });
+          }
+          if (navigationOptions.performNavigation !== false) {
+            if (target.to === '/post_verify/service_welcome') {
+              navigate(target.to, {
+                state: { origin: 'signin' },
+                replace: true,
+              });
+            } else if (target.to) {
+              performNavigation({
+                to: target.to,
+                locationState: target.locationState,
+                shouldHardNavigate: target.shouldHardNavigate,
+                replace: true,
+              });
+            }
+          }
+          return { error: undefined };
+        }
+        if (isWebChannel) {
+          // sendFxaLogin fires above regardless; legacy gates the actual
+          // navigation on performNavigation but always returns afterward.
+          if (navigationOptions.performNavigation !== false) {
+            const { to, locationState, shouldHardNavigate } =
+              await getNonOAuthNavigationTarget(navigationOptions);
+            performNavigation({
+              to,
+              locationState,
+              shouldHardNavigate,
+              replace: navigationOptions.origin === 'post-verify-set-password',
+            });
+          }
+          return { error: undefined };
+        }
+        performNavigation({
+          to: `${decision.to}${queryParams || ''}`,
+          locationState: createSigninLocationState(navigationOptions),
+        });
+        return { error: undefined };
+      }
+
+      // Unverified: the machine routes to a verify page (/signin_token_code or
+      // /signin_totp_code). For web-channel, fire fxa_login before navigating,
+      // matching legacy. Skip it when the next page is signin_totp_code to avoid
+      // sending a `verified: false` message twice.
+      const to = `${decision.to}${queryParams || ''}`;
+      if (
+        isWebChannel &&
+        navigationOptions.handleFxaLogin === true &&
+        !to.includes('signin_totp_code')
+      ) {
+        sendFxaLogin(navigationOptions);
+      }
+      // Mirror legacy's unverified gating: navigate immediately for the
+      // mustVerify cases, otherwise honor performNavigation. Applies to plain
+      // Web, web-channel, and OAuth web. wantsTwoStepAuthentication is
+      // OAuth-web-only; include it so an AAL2 RP forces verification before the
+      // type-C skip below, matching legacy.
+      const mustVerify =
+        signinData.verificationReason === VerificationReasons.SIGN_UP ||
+        signinData.verificationMethod === VerificationMethods.TOTP_2FA ||
+        signinData.verificationReason === VerificationReasons.CHANGE_PASSWORD ||
+        navigationOptions.isServiceWithEmailVerification === true ||
+        (isOAuthWebIntegration(integration) &&
+          integration.wantsTwoStepAuthentication()) ||
+        integration.wantsKeys();
+
+      // OAuth web "type C" skip-verification path: when not a mustVerify case,
+      // an OAuth web RP may take the user onward without a verified session.
+      // Mirror the legacy unverified OAuth-web branch exactly (no
+      // performNavigation guard around the navigate).
+      if (!mustVerify && isOAuthWebIntegration(integration)) {
+        const target = await getOAuthNavigationTarget(navigationOptions);
+        if (target.error) {
+          return { error: target.error };
+        }
+        if (target.to) {
+          performNavigation({
+            to: target.to,
+            locationState: target.locationState,
+            shouldHardNavigate: target.shouldHardNavigate,
+            replace: true,
+          });
+        }
+        return { error: undefined };
+      }
+
+      if (mustVerify || navigationOptions.performNavigation !== false) {
+        performNavigation({
+          to,
+          locationState: createSigninLocationState(navigationOptions),
+        });
+      }
+      return { error: undefined };
+    }
+    // delegate/stay (e.g. unverified email → confirm_signup, a later slice):
+    // fall through to the unchanged legacy navigation below.
+  }
+
+  const isOAuth = isOAuthIntegration(integration);
+  const isWebChannelIntegration =
+    integration.isSync() || integration.isFirefoxNonSync();
+  const wantsTwoStepAuthentication =
+    isOAuthWebIntegration(integration) &&
+    integration.wantsTwoStepAuthentication();
+  const wantsKeys = integration.wantsKeys();
+
+  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
+  // RP redirects won't get into this state since they'll be taken to the RP and
+  // never Settings. This flow doesn't need Sync web channel messages or care about
+  // skipping navigating either because if a Sync user is inside Settings, we probably
+  // don't have the oauth query parameters required to begin a sign-in flow
+  // anyway. Just take all users back to /settings.
+  if (navigationOptions.isSessionAALUpgrade) {
+    navigate('/settings');
+    return { error: undefined };
   }
 
   // When a session is unverified, we need to redirect to the appropriate page depending on status of
