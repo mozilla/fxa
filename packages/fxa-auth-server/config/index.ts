@@ -2702,6 +2702,12 @@ const convictConf = convict({
       env: 'PASSKEYS__AUTHENTICATOR_ATTACHMENT',
       format: ['platform', 'cross-platform', ''],
     },
+    requestPrfAtRegistration: {
+      default: false,
+      doc: 'Request the WebAuthn PRF extension at passkey registration.',
+      env: 'PASSKEYS__REQUEST_PRF_AT_REGISTRATION',
+      format: Boolean,
+    },
   },
   twilio: {
     credentialMode: {

@@ -80,9 +80,13 @@ export async function generateWebauthnRegistrationOptions(
       authenticatorAttachment: config.authenticatorAttachment,
     },
     excludeCredentials: input.excludeCredentials,
-    // Probe PRF capability only (no eval) for passkey Phase 1.
+    // Probe PRF capability only (no eval).
+    // Requesting PRF may cause regressions on some OS/browser
+    // combinations (FXA-13991), so this is feature-flagged.
     // Cast: SimpleWebAuthn's bundled type predates PRF.
-    extensions: { prf: {} } as AuthenticationExtensionsClientInputs,
+    ...(config.requestPrfAtRegistration
+      ? { extensions: { prf: {} } as AuthenticationExtensionsClientInputs }
+      : {}),
   });
 }
 

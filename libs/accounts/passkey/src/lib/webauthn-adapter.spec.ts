@@ -24,6 +24,7 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     residentKey: 'preferred',
     maxPasskeysPerUser: 10,
     challengeTimeout: 30_000,
+    requestPrfAtRegistration: false,
     ...overrides,
   });
 }
@@ -161,15 +162,32 @@ describe('generateWebauthnRegistrationOptions', () => {
     ]);
   });
 
-  it('requests the PRF extension so authenticators report PRF support', async () => {
-    const options = await generateWebauthnRegistrationOptions(testConfig(), {
-      uid: Buffer.alloc(16, 0xbb).toString('hex'),
-      email: 'bob@example.com',
-      challenge: randomBytes(32).toString('base64url'),
-    });
+  it('requests the PRF extension when requestPrfAtRegistration is enabled', async () => {
+    const options = await generateWebauthnRegistrationOptions(
+      testConfig({ requestPrfAtRegistration: true }),
+      {
+        uid: Buffer.alloc(16, 0xbb).toString('hex'),
+        email: 'bob@example.com',
+        challenge: randomBytes(32).toString('base64url'),
+      }
+    );
 
     // credProps is added by SimpleWebAuthn itself; we only own the PRF probe.
     expect(options.extensions).toEqual(expect.objectContaining({ prf: {} }));
+  });
+
+  it('omits the PRF extension when requestPrfAtRegistration is disabled', async () => {
+    const options = await generateWebauthnRegistrationOptions(
+      testConfig({ requestPrfAtRegistration: false }),
+      {
+        uid: Buffer.alloc(16, 0xbb).toString('hex'),
+        email: 'bob@example.com',
+        challenge: randomBytes(32).toString('base64url'),
+      }
+    );
+
+    // SimpleWebAuthn still sets credProps; we only assert our PRF probe is absent.
+    expect(options.extensions).not.toHaveProperty('prf');
   });
 });
 

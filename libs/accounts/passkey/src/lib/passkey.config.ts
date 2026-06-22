@@ -97,6 +97,14 @@ export class PasskeyConfig {
   public authenticatorAttachment?: AuthenticatorAttachment | undefined;
 
   /**
+   * Whether to request the WebAuthn PRF extension at registration.
+   * Off by default: requesting PRF unconditionally can regress passkey creation
+   * on some OS/browser combinations.
+   */
+  @IsBoolean()
+  public requestPrfAtRegistration!: boolean;
+
+  /**
    * Creates a new PasskeyConfig instance by copying all fields from the
    * provided options object.
    *
@@ -108,6 +116,7 @@ export class PasskeyConfig {
     this.challengeTimeout = opts.challengeTimeout;
     this.enabled = opts.enabled;
     this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
+    this.requestPrfAtRegistration = opts.requestPrfAtRegistration;
     this.residentKey = opts.residentKey;
     this.rpId = opts.rpId;
   }
