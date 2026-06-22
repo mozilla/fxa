@@ -156,6 +156,7 @@ function makeApp() {
         maxAge: config.get('waict.maxAge'),
         blockedDestinations: config.get('waict.blockedDestinations'),
         reportUri: config.get('waict.reportUri'),
+        statsd,
       })
     );
   }

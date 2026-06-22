@@ -68,8 +68,12 @@ module.exports = function (config, i18n, statsd, glean) {
       require('./routes/post-waict-report')({
         op: 'server.waict.violation',
         path: config.get('waict.reportUri'),
+        statsd,
       })
     );
+    if (config.get('waict.canaryEnabled')) {
+      routes.push(require('./routes/get-waict-canary')(config));
+    }
   }
 
   if (config.get('env') === 'development') {

@@ -39,6 +39,8 @@ function stripPIIFromUrl(urlToScrub) {
 }
 
 module.exports = function (options = {}) {
+  const statsd = options.statsd;
+
   return {
     method: 'post',
     path: options.path,
@@ -56,6 +58,16 @@ module.exports = function (options = {}) {
         }
 
         const body = report.body || {};
+
+        // Emit an operational counter so violations are alertable as a
+        // time-series, tagged by reason (missing_from_manifest,
+        // no_manifest_match, invalid_manifest).
+        if (statsd) {
+          statsd.increment('waict.violation', 1, {
+            reason: body.reason || 'unknown',
+          });
+        }
+
         logger.info(options.op, {
           agent: req.get('User-Agent'),
           type: report.type,

@@ -44,12 +44,19 @@ function buildHeaderValue(config) {
 module.exports = function (config) {
   const headerValue = buildHeaderValue(config);
   const reportingEndpoints = `${REPORT_ENDPOINT_NAME}="${config.reportUri}"`;
+  const statsd = config.statsd;
 
   return htmlOnly((req, res, next) => {
     // `Reporting-Endpoints` maps the `endpoints` name to a collection URL so
     // the browser knows where to POST `waict-violation` reports.
     res.setHeader('Reporting-Endpoints', reportingEndpoints);
     res.setHeader('Integrity-Policy-WAICT-v1', headerValue);
+
+    // Count every WAICT-protected document served.
+    if (statsd) {
+      statsd.increment('waict.document_served');
+    }
+
     next();
   });
 };

@@ -172,6 +172,12 @@ const conf = (module.exports = convict({
       env: 'WAICT_REPORT_URI',
       format: String,
     },
+    canaryEnabled: {
+      default: false,
+      doc: 'Serve a canary script deliberately absent from the manifest to verify the reporting pipeline is live',
+      env: 'WAICT_CANARY_ENABLED',
+      format: Boolean,
+    },
   },
   disable_locale_check: {
     default: false,
