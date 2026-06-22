@@ -39,8 +39,13 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 };
 
 export const Security = forwardRef<HTMLDivElement>((_, ref) => {
-  const { passwordCreated, hasPassword } = useAccount();
+  const { passwordCreated, hasPassword, passkeys, recoveryKey } = useAccount();
   const config = useConfig();
+
+  // Hide the passkeys row from likely-Sync users who haven't added a
+  // passkey yet, so they don't add one pre-PRF and have to re-add it later.
+  const hidePasskeysForSync =
+    (recoveryKey.estimatedSyncDeviceCount ?? 0) > 0 && passkeys.length === 0;
   const { l10n } = useLocalization();
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not set');
 
@@ -88,7 +93,7 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
           </UnitRow>
         </Localized>
 
-        {config.featureFlags?.passkeysEnabled && (
+        {config.featureFlags?.passkeysEnabled && !hidePasskeysForSync && (
           <>
             <hr className="unit-row-hr" />
             <UnitRowPasskey />

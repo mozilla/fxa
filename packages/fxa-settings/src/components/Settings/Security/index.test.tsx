@@ -7,6 +7,7 @@ import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
+import { getDefault } from '../../../lib/config';
 
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
@@ -60,6 +61,78 @@ describe('Security', () => {
 
     const result = await screen.findAllByText('Enabled');
     expect(result).toHaveLength(2);
+  });
+
+  describe('Passkeys row sync backstop (FXA-13997)', () => {
+    const configWithPasskeys = {
+      ...getDefault(),
+      featureFlags: { ...getDefault().featureFlags, passkeysEnabled: true },
+    };
+
+    const buildAccount = ({
+      estimatedSyncDeviceCount,
+      passkeys,
+    }: {
+      estimatedSyncDeviceCount?: number;
+      passkeys: Account['passkeys'];
+    }) =>
+      ({
+        primaryEmail: { email: MOCK_EMAIL },
+        emails: [],
+        passwordCreated: 123456789,
+        hasPassword: true,
+        recoveryKey: { exists: false, estimatedSyncDeviceCount },
+        totp: { exists: false },
+        backupCodes: { hasBackupCodes: false, count: 0 },
+        passkeys,
+      }) as unknown as Account;
+
+    const renderSecurity = (account: Account) =>
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account, config: configWithPasskeys })}
+        >
+          <Security />
+        </AppContext.Provider>
+      );
+
+    it('shows the passkeys row when the user has no estimated sync devices', async () => {
+      renderSecurity(
+        buildAccount({ estimatedSyncDeviceCount: 0, passkeys: [] })
+      );
+      expect(await screen.findByText('Passkeys')).toBeInTheDocument();
+    });
+
+    it('shows the passkeys row when estimatedSyncDeviceCount is absent', async () => {
+      renderSecurity(
+        buildAccount({ estimatedSyncDeviceCount: undefined, passkeys: [] })
+      );
+      expect(await screen.findByText('Passkeys')).toBeInTheDocument();
+    });
+
+    it('hides the passkeys row when the user has sync activity and no passkeys', async () => {
+      renderSecurity(
+        buildAccount({ estimatedSyncDeviceCount: 1, passkeys: [] })
+      );
+      await screen.findByText('Account recovery key');
+      expect(screen.queryByText('Passkeys')).not.toBeInTheDocument();
+    });
+
+    it('keeps the passkeys row when the user has sync activity but already has a passkey', async () => {
+      renderSecurity(
+        buildAccount({
+          estimatedSyncDeviceCount: 2,
+          passkeys: [
+            {
+              credentialId: 'cred-1',
+              name: 'My passkey',
+              createdAt: 123456789,
+            },
+          ] as unknown as Account['passkeys'],
+        })
+      );
+      expect(await screen.findByText('Passkeys')).toBeInTheDocument();
+    });
   });
 
   describe('Password row', () => {
