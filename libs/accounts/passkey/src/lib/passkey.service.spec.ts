@@ -112,6 +112,7 @@ describe('PasskeyService', () => {
     maxPasskeysPerUser: 10,
     challengeTimeout: 30_000,
     residentKey: 'required',
+    requestPrfAtRegistration: false,
   });
 
   beforeEach(async () => {

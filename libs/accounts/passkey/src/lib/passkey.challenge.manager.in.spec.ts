@@ -56,6 +56,7 @@ beforeAll(async () => {
     allowedOrigins: ['http://localhost'],
     maxPasskeysPerUser: 10,
     challengeTimeout: 1000 * 60 * 5,
+    requestPrfAtRegistration: false,
   });
 
   const moduleRef = await buildTestModule(redis, config, mockLogger);
@@ -145,6 +146,7 @@ describe('PasskeyChallengeManager (integration)', () => {
         allowedOrigins: ['http://localhost'],
         maxPasskeysPerUser: 10,
         challengeTimeout: 1000,
+        requestPrfAtRegistration: false,
       });
 
       const moduleRef = await buildTestModule(redis, shortConfig, mockLogger);

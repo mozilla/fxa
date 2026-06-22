@@ -24,6 +24,7 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   challengeTimeout: 30_000,
   residentKey: 'required',
   authenticatorAttachment: '',
+  requestPrfAtRegistration: false,
 };
 
 function buildModule(rawPasskeys: unknown) {
