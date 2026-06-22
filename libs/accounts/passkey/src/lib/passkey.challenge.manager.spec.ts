@@ -35,6 +35,7 @@ function makeConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     maxPasskeysPerUser: 6,
     residentKey: 'required',
     rpId: 'accounts.firefox.com',
+    requestPrfAtRegistration: false,
     ...overrides,
   });
 

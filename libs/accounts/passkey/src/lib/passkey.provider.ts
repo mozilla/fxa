@@ -30,6 +30,7 @@ export type RawPasskeyConfig = {
   residentKey: ResidentKeyRequirement;
   /** Empty string is treated as "no preference" and normalized to `undefined`. */
   authenticatorAttachment: AuthenticatorAttachment | '';
+  requestPrfAtRegistration: boolean;
 };
 
 /**
