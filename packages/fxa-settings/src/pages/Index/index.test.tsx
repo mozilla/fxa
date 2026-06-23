@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { createMockIndexOAuthNativeIntegration, Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -250,6 +250,32 @@ describe('Index page', () => {
       expect(
         screen.getByRole('button', { name: 'Sign up or sign in' })
       ).toHaveAttribute('data-glean-id', 'email_first_submit');
+    });
+  });
+
+  describe('email input auto-focus', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('does not focus the email input until the defer timeout elapses', () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      expect(screen.getByLabelText('Enter your email')).not.toHaveFocus();
+    });
+
+    it('focuses the email input after the defer timeout elapses', () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      act(() => {
+        jest.advanceTimersByTime(10);
+      });
+
+      expect(screen.getByLabelText('Enter your email')).toHaveFocus();
     });
   });
 });
