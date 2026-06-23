@@ -33,8 +33,14 @@ describe('mfa-guard-utils', () => {
   });
 
   describe('isInvalidJwtError', () => {
-    it('should return true if the error is an invalid JWT error', () => {
+    it('should return true for an invalid MFA token error (errno 223)', () => {
       expect(isInvalidJwtError({ code: 401, errno: 223 })).toBe(true);
+    });
+
+    it('should return true for a generic invalid token error (errno 110)', () => {
+      // The MFA strategy resolves a JWT's parent session (stid) via
+      // db.sessionToken, which throws errno 110 when that session is gone.
+      expect(isInvalidJwtError({ code: 401, errno: 110 })).toBe(true);
     });
 
     it('should return false if the error is not an invalid JWT error', () => {
