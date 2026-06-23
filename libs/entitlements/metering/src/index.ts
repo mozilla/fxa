@@ -4,7 +4,11 @@
 
 export * from './lib/metering.config';
 export * from './lib/metering-auth.guard';
+export * from './lib/metering-threshold-tasks.manager';
+export * from './lib/metering-threshold-tasks.provider';
 export * from './lib/metering-webhook.manager';
+export * from './lib/utils/buildThresholdTaskId';
+export * from './lib/utils/classifyEnqueueError';
 export * from './lib/utils/extractBearerToken';
 export * from './lib/utils/buildIdempotencyKey';
 export * from './lib/utils/statusBucket';

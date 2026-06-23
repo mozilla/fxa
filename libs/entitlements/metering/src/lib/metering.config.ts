@@ -7,7 +7,9 @@ import { Provider } from '@nestjs/common';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsDefined,
   IsInt,
+  IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
@@ -36,6 +38,23 @@ class ScheduleDelayExceedsBucketSize implements ValidatorConstraintInterface {
 
   defaultMessage(): string {
     return 'scheduleDelayMs must be strictly greater than bucketSizeMs';
+  }
+}
+
+@ValidatorConstraint({ name: 'oidcRequiredUnlessEmulator', async: false })
+class OidcRequiredUnlessEmulator implements ValidatorConstraintInterface {
+  validate(_value: unknown, args: ValidationArguments): boolean {
+    const config = args.object as MeteringCloudTasksConfig;
+    if (config.useLocalEmulator) {
+      return true;
+    }
+    return (
+      Boolean(config.oidc?.aud) && Boolean(config.oidc?.serviceAccountEmail)
+    );
+  }
+
+  defaultMessage(): string {
+    return 'cloudTasks.oidc.aud and cloudTasks.oidc.serviceAccountEmail are required unless useLocalEmulator is true';
   }
 }
 
@@ -81,11 +100,11 @@ export class MeteringBufferConfig {
  */
 export class MeteringCloudTasksThresholdConfig {
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   public readonly taskUrl: string = '';
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   public readonly queueName: string = '';
 
   @Type(() => Number)
@@ -105,11 +124,19 @@ export class MeteringCloudTasksConfig extends CloudTasksBaseConfig {
     typeof value === 'string' ? value === 'true' : value
   )
   @IsBoolean()
+  @Validate(OidcRequiredUnlessEmulator)
   public override readonly useLocalEmulator: boolean = false;
+
+  @IsString()
+  @IsNotEmpty()
+  public override readonly projectId: string = '';
+
+  @IsString()
+  @IsNotEmpty()
+  public override readonly locationId: string = '';
 
   @Type(() => MeteringCloudTasksThresholdConfig)
   @ValidateNested()
-  @IsOptional()
   public readonly threshold: MeteringCloudTasksThresholdConfig =
     new MeteringCloudTasksThresholdConfig();
 }
@@ -136,8 +163,8 @@ export class MeteringConfig {
 
   @Type(() => MeteringCloudTasksConfig)
   @ValidateNested()
-  @IsOptional()
-  public readonly cloudTasks?: MeteringCloudTasksConfig;
+  @IsDefined()
+  public readonly cloudTasks!: MeteringCloudTasksConfig;
 }
 
 export const MockMeteringConfig = {
