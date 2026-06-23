@@ -418,8 +418,8 @@ async function create(
 
   const hawkFxAToken = require('./routes/auth-schemes/hawk-fxa-token');
   // Register auth strategies for all token types. These strategies support Hawk (without validation) and FxA token types.
-  // `statsd`+`kind` drive the `auth.strategy.used{scheme,kind}` metric that
-  // tracks Hawk vs Bearer traffic during the FXA-9392 migration.
+  // `statsd`+`kind` drive the `auth.strategy.used{scheme,kind,path}` metric
+  // that tracks Hawk vs Bearer traffic during the FXA-9392 migration.
   server.auth.scheme(
     'fxa-hawk-session-token',
     hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
