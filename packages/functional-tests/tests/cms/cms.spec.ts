@@ -40,7 +40,11 @@ test.describe('severity-1 #smoke', () => {
       }
 
       if (logoUrl) {
-        const logo = page.getByRole('img', { name: logoAlt, exact: true });
+        // A Firefox-branded mobile promo (PromoQrMobile) renders a second img
+        // with the same alt text, so scope to the CMS logo by its src.
+        const logo = page
+          .getByRole('img', { name: logoAlt, exact: true })
+          .and(page.locator(`[src="${logoUrl}"]`));
         await expect(logo).toBeVisible();
         await expect(logo).toHaveAttribute('src', logoUrl);
       }
