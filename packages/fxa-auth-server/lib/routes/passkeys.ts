@@ -401,17 +401,17 @@ export class PasskeyHandler {
    * with flags the UI needs to drive the post-login flow.
    *
    * @param request - Unauthenticated Hapi request containing `response`,
-   *   `challenge`, and optional `service` in the payload.
-   * @returns Session token, uid, and metadata including `requiresPasswordForSync`
-   *   and `hasPassword`.
+   *   `challenge`, and optional `service` / `keysRequired` in the payload.
+   * @returns Session token, uid, `verified`, and `hasPassword`.
    */
   async authenticationFinish(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthFinish');
 
-    const { response, challenge, service } = request.payload as {
+    const { response, challenge, service, keysRequired } = request.payload as {
       response: AuthenticationResponseJSON;
       challenge: string;
       service?: string;
+      keysRequired: boolean;
     };
 
     let uid: string;
@@ -451,13 +451,18 @@ export class PasskeyHandler {
     // (reason: 'otp') and linked-accounts (reason: 'google'|'apple').
     this.glean.login.complete(request, { uid, reason: 'passkey' });
 
-    const requiresPasswordForSync = service === 'sync';
-
+    // A keys-requiring login (Sync, or a non-Sync Firefox service like VPN when
+    // the browser hasn't decoupled Sync) completes its key step later, at a
+    // follow-up password step. Until then the new-device-login email is still
+    // sent, but with a generic subject (no service framing, since keys aren't
+    // retrieved yet), and the account.login metric/flow-signal/security-event
+    // are deferred to that step. The client owns the keys-required decision; it
+    // depends on the browser's keys-optional capability.
     await this.sendPostSigninNotifications(
       request,
       account,
       service,
-      requiresPasswordForSync
+      keysRequired
     );
 
     const hasPassword = account.verifierSetAt > 0;
@@ -466,7 +471,6 @@ export class PasskeyHandler {
       uid,
       sessionToken: sessionToken.data,
       verified: true,
-      requiresPasswordForSync,
       hasPassword,
     };
   }
@@ -481,11 +485,12 @@ export class PasskeyHandler {
       locale?: string;
     },
     service: string | undefined,
-    requiresPasswordForSync: boolean
+    keysRequired: boolean
   ) {
-    // Drop the service for Sync so the subject stays generic — keys aren't
-    // retrieved yet, so Firefox/Sync framing would be premature.
-    const emailService = requiresPasswordForSync ? undefined : service;
+    // The new-device-login email is always sent; when keys are still required
+    // we drop the service so the subject stays generic — keys aren't retrieved
+    // yet, so service framing would be premature.
+    const emailService = keysRequired ? undefined : service;
     try {
       const geoData = request.app.geo;
       if (this.fxaMailer.canSend('newDeviceLogin')) {
@@ -540,8 +545,9 @@ export class PasskeyHandler {
         profileChanged: false,
       });
 
-      // Non-Sync only: the Sync flow's /session/reauth step already emits these.
-      if (!requiresPasswordForSync) {
+      // When keys are required the login completes at the later /session/reauth
+      // step, which emits these; skip them here to avoid double-counting.
+      if (!keysRequired) {
         await request.emitMetricsEvent('account.login', { uid: account.uid });
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         await recordSecurityEvent('account.login', {
@@ -947,6 +953,9 @@ export const passkeyRoutes = (
               .required(),
             challenge: base64urlChallenge().required(),
             service: validators.service.optional(),
+            // When true, this login still needs Sync-scoped keys obtained via a
+            // follow-up step, so the server defers login notifications/metrics.
+            keysRequired: isA.boolean().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -955,7 +964,6 @@ export const passkeyRoutes = (
             uid: isA.string().required(),
             sessionToken: isA.string().required(),
             verified: isA.boolean().required(),
-            requiresPasswordForSync: isA.boolean().required(),
             hasPassword: isA.boolean().required(),
           }),
         },

@@ -12,6 +12,7 @@ import {
   isPasskeyAuthenticationEnabled,
 } from '../passkey-utils';
 import { passkeyRoutes, PasskeyHandler } from './passkeys';
+import { ConfigType } from '../../config';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 
@@ -54,13 +55,15 @@ describe('passkeys routes', () => {
   const CREDENTIAL_ID_B64 =
     Buffer.from('credential-id-xyz').toString('base64url');
 
+  // Only the passkeys flags are read by these routes; cast the partial fixture
+  // to the full ConfigType the factory expects.
   const config = {
     passkeys: {
       enabled: true,
       registrationEnabled: true,
       authenticationEnabled: true,
     },
-  };
+  } as unknown as ConfigType;
 
   const mockAuthenticationOptions = {
     challenge: 'auth-challenge-xyz',
@@ -1074,6 +1077,7 @@ describe('passkeys routes', () => {
         response: { authenticatorData: 'abc' },
       },
       challenge: 'auth-challenge-xyz',
+      keysRequired: false,
     };
 
     it('verifies the response and returns session token with metadata', async () => {
@@ -1093,19 +1097,8 @@ describe('passkeys routes', () => {
         uid: UID,
         sessionToken: 'new-session-token-data',
         verified: true,
-        requiresPasswordForSync: false,
         hasPassword: true,
       });
-    });
-
-    it('sets requiresPasswordForSync true when service is sync', async () => {
-      const result = await runTest('/passkey/authentication/finish', {
-        auth: { credentials: {} },
-        app: { ua: {} },
-        payload: { ...payload, service: 'sync' },
-      });
-
-      expect(result.requiresPasswordForSync).toBe(true);
     });
 
     it('sets hasPassword false for passwordless accounts', async () => {
@@ -1397,11 +1390,11 @@ describe('passkeys routes', () => {
         );
       });
 
-      it('forces the generic "Mozilla account" email for a sync sign-in (no Firefox/Sync framing before keys)', async () => {
+      it('forces the generic "Mozilla account" email while deferring, dropping the service framing (no framing before keys)', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },
           app: { ua: {} },
-          payload: { ...payload, service: 'sync' },
+          payload: { ...payload, service: 'sync', keysRequired: true },
         });
 
         expect(mockOauthClientInfoService.fetch).toHaveBeenCalledWith(
@@ -1472,7 +1465,7 @@ describe('passkeys routes', () => {
         );
       });
 
-      it('emits the account.login metrics event and flow signal for a non-sync sign-in', async () => {
+      it('emits the account.login metrics event and flow signal when keysRequired is false', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },
           app: { ua: {} },
@@ -1488,7 +1481,7 @@ describe('passkeys routes', () => {
         );
       });
 
-      it('records the account.login security event for a non-sync sign-in', async () => {
+      it('records the account.login security event when keysRequired is false', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },
           app: { ua: {} },
@@ -1501,11 +1494,11 @@ describe('passkeys routes', () => {
         );
       });
 
-      it('does not emit the account.login metrics event for a sync sign-in', async () => {
+      it('does not emit the account.login metrics event when keysRequired is true', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },
           app: { ua: {} },
-          payload: { ...payload, service: 'sync' },
+          payload: { ...payload, keysRequired: true },
         });
 
         expect(request.emitMetricsEvent).not.toHaveBeenCalledWith(
@@ -1515,17 +1508,67 @@ describe('passkeys routes', () => {
         expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
       });
 
-      it('does not record the account.login security event for a sync sign-in', async () => {
+      it('does not record the account.login security event when keysRequired is true', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },
           app: { ua: {} },
-          payload: { ...payload, service: 'sync' },
+          payload: { ...payload, keysRequired: true },
         });
 
         expect(recordSecurityEvent).not.toHaveBeenCalledWith(
           'account.login',
           expect.anything()
         );
+      });
+
+      // The client owns the defer decision (it depends on the browser's
+      // keys-optional capability); `service` does not influence it. The two
+      // tests below pair a deferring login with a non-Sync service and a
+      // non-deferring login with service=sync to prove that independence.
+      it('defers account.login and sends a generic-subject email when keysRequired is true, regardless of service', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: {
+            ...payload,
+            service: 'vpn',
+            keysRequired: true,
+          },
+        });
+
+        expect(request.emitMetricsEvent).not.toHaveBeenCalledWith(
+          'account.login',
+          expect.anything()
+        );
+        expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
+        expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+          'account.login',
+          expect.anything()
+        );
+        // New-device-login email is still sent, just with a generic subject.
+        expect(mockOauthClientInfoService.fetch).toHaveBeenCalledWith(
+          undefined
+        );
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
+          expect.objectContaining({ clientName: 'Mozilla' })
+        );
+      });
+
+      it('emits account.login when keysRequired is false, even for service=sync', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: {
+            ...payload,
+            service: 'sync',
+            keysRequired: false,
+          },
+        });
+
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith('account.login', {
+          uid: UID,
+        });
       });
     });
   });
@@ -1651,6 +1694,7 @@ describe('passkeys routes', () => {
         ...responseOverride,
       },
       challenge,
+      keysRequired: false,
     });
 
     const regPayload = (
@@ -1676,6 +1720,18 @@ describe('passkeys routes', () => {
       it('accepts a well-formed assertion payload', () => {
         const { error } = schema.validate(authPayload());
         expect(error).toBeUndefined();
+      });
+
+      it('rejects a payload missing keysRequired', () => {
+        const withoutKeysRequired = authPayload();
+        delete (withoutKeysRequired as { keysRequired?: boolean }).keysRequired;
+        const { error } = schema.validate(withoutKeysRequired);
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['keysRequired'],
+            type: 'any.required',
+          }),
+        ]);
       });
 
       it.each([

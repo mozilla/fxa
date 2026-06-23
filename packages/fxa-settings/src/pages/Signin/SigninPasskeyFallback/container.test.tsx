@@ -15,6 +15,8 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
 import SigninPasskeyFallbackContainer from './container';
 import GleanMetrics from '../../../lib/glean';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { QueryParams } from '../../..';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -52,6 +54,12 @@ const MOCK_LOCATION_STATE = {
   emailVerified: true,
   sessionVerified: true,
 };
+
+const MOCK_FLOW_QUERY_PARAMS = {
+  flowId: 'f'.repeat(64),
+  flowBeginTime: '1700000000000',
+  deviceId: 'd'.repeat(32),
+} as unknown as QueryParams;
 
 const mockSessionReauth = jest.fn();
 const mockAccountEmails = jest.fn().mockResolvedValue({
@@ -129,6 +137,7 @@ function render(integration?: Integration) {
         integration={
           (integration ?? createMockSyncIntegration()) as Integration
         }
+        flowQueryParams={MOCK_FLOW_QUERY_PARAMS}
       />
     </LocationProvider>
   );
@@ -192,7 +201,11 @@ describe('SigninPasskeyFallback container', () => {
           MOCK_SESSION_TOKEN,
           { original: MOCK_EMAIL, primary: MOCK_EMAIL },
           'pa55word',
-          { keys: true }
+          {
+            keys: true,
+            reason: 'signin',
+            metricsContext: queryParamsToMetricsContext(MOCK_FLOW_QUERY_PARAMS),
+          }
         );
       });
       expect(mockHandleNavigation).toHaveBeenCalledWith(
@@ -207,6 +220,27 @@ describe('SigninPasskeyFallback container', () => {
           }),
         })
       );
+    });
+
+    it('passes the flow metricsContext to sessionReauth so the deferred account.login is correlated', async () => {
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockSessionReauth).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN,
+          { original: MOCK_EMAIL, primary: MOCK_EMAIL },
+          'pa55word',
+          expect.objectContaining({
+            reason: 'signin',
+            metricsContext: expect.objectContaining({
+              flowId: MOCK_FLOW_QUERY_PARAMS.flowId,
+              flowBeginTime: Number(MOCK_FLOW_QUERY_PARAMS.flowBeginTime),
+              deviceId: MOCK_FLOW_QUERY_PARAMS.deviceId,
+            }),
+          })
+        );
+      });
     });
 
     it('performs navigation to finish sign-in after reauth on desktop', async () => {

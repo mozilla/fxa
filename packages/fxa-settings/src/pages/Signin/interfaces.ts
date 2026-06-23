@@ -144,7 +144,9 @@ export interface SigninCachedProps extends SigninSharedProps {
   supportsKeysOptionalLogin?: boolean;
 }
 
-export type SigninAlternativeAuthOptionsProps = SigninSharedProps;
+export type SigninAlternativeAuthOptionsProps = SigninSharedProps & {
+  supportsKeysOptionalLogin?: boolean;
+};
 
 export type BeginSigninHandler = (
   email: string,

@@ -144,7 +144,7 @@ export type SessionReauthOptions = SignInOptions;
 export type SessionReauthedAccountData = Omit<
   SignedInAccountData,
   'sessionToken'
-> & { originalEmail:string, primaryEmail:string };
+> & { originalEmail: string; primaryEmail: string };
 
 export type SessionStatus = {
   state: 'verified' | 'unverified';
@@ -261,7 +261,6 @@ export type PasskeyAuthenticationResult = {
   uid: hexstring;
   sessionToken: hexstring;
   verified: boolean;
-  requiresPasswordForSync: boolean;
   hasPassword: boolean;
 };
 
@@ -903,7 +902,7 @@ export default class AuthClient {
         options.skipCaseError = true;
         options.originalLoginEmail = email.primary;
         return this.signIn(
-          {...email, original: error.email},
+          { ...email, original: error.email },
           password,
           options,
           createHeaders(headers, options)
@@ -1655,7 +1654,7 @@ export default class AuthClient {
           sessionToken,
           {
             ...email,
-            original: error.email
+            original: error.email,
           },
           password,
           options,
@@ -1810,7 +1809,7 @@ export default class AuthClient {
         !options.skipCaseError
       ) {
         Sentry.addBreadcrumb({
-          message: 'Unexpected incorrect email case error'
+          message: 'Unexpected incorrect email case error',
         });
         options.skipCaseError = true;
 
@@ -1851,7 +1850,10 @@ export default class AuthClient {
     keyFetchToken: hexstring;
     passwordChangeToken: hexstring;
   }> {
-    const oldCredentials = await crypto.getCredentials(email.original, oldPassword);
+    const oldCredentials = await crypto.getCredentials(
+      email.original,
+      oldPassword
+    );
     try {
       const passwordData = await this.sessionPost(
         '/password/change/start',
@@ -1877,7 +1879,7 @@ export default class AuthClient {
         !options.skipCaseError
       ) {
         Sentry.addBreadcrumb({
-          message: 'Unexpected incorrect email case error'
+          message: 'Unexpected incorrect email case error',
         });
         options.skipCaseError = true;
 
@@ -2072,7 +2074,7 @@ export default class AuthClient {
         options.skipCaseError = true;
         Sentry.addBreadcrumb({
           category: 'passwordChangeJWT',
-          message: 'Unexepected incorrect email case!'
+          message: 'Unexpected incorrect email case!',
         });
         return await this.passwordChangeWithJWT(
           jwt,
@@ -3713,24 +3715,35 @@ export default class AuthClient {
    *
    * @param response `PublicKeyCredentialJSON` returned by the browser
    * @param challenge The challenge string returned by `beginPasskeyAuthentication`
-   * @param options.service Optional service identifier (e.g. `sync`). Drives
-   *   `requiresPasswordForSync` in the response.
+   * @param options.service Optional service identifier (e.g. `sync`) used
+   *   server-side to frame post-signin notifications.
+   * @param options.keysRequired When true, this login still needs Sync-scoped
+   *   keys that are obtained via a follow-up step (a password step today), so
+   *   the login is not yet complete here and the server defers its login
+   *   notifications/metrics until keys are available. The caller owns this
+   *   decision, based on the browser's keys-optional capability.
    * @param headers Optional additional headers
    */
   async completePasskeyAuthentication(
     response: PublicKeyCredentialJSON,
     challenge: string,
-    options: { service?: string; metricsContext?: MetricsContext } = {},
+    options: {
+      keysRequired: boolean;
+      service?: string;
+      metricsContext?: MetricsContext;
+    },
     headers?: Headers
   ): Promise<PasskeyAuthenticationResult> {
     const payload: {
       response: PublicKeyCredentialJSON;
       challenge: string;
+      keysRequired: boolean;
       service?: string;
       metricsContext?: MetricsContext;
     } = {
       response,
       challenge,
+      keysRequired: options.keysRequired,
       ...(options.service ? { service: options.service } : {}),
       ...(options.metricsContext
         ? { metricsContext: options.metricsContext }
@@ -3819,7 +3832,7 @@ export default class AuthClient {
       email,
       password,
     }: {
-      email: { primary:string, original:string };
+      email: { primary: string; original: string };
       password: string;
     },
     headers?: Headers
@@ -3899,7 +3912,7 @@ export default class AuthClient {
   public async accountEmails(
     sessionToken: hexstring,
     headers?: Headers
-  ): Promise<{ original: string, primary:string }> {
+  ): Promise<{ original: string; primary: string }> {
     const result = await this.sessionGet(
       '/account/emails',
       sessionToken,
@@ -3907,7 +3920,7 @@ export default class AuthClient {
     );
     return {
       original: result.originalEmail,
-      primary: result.primaryEmail
-    }
+      primary: result.primaryEmail,
+    };
   }
 }

@@ -726,7 +726,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SigninPasskeyFallbackContainer
           path="/signin_passkey_fallback/*"
-          {...{ integration }}
+          {...{ integration, flowQueryParams }}
         />
         <SigninRecoveryChoiceContainer
           path="/signin_recovery_choice/*"
@@ -734,11 +734,21 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SigninRecoveryPhoneContainer
           path="/signin_recovery_phone/*"
-          {...{ integration, setCurrentSplitLayout }}
+          {...{
+            integration,
+            setCurrentSplitLayout,
+            supportsKeysOptionalLogin:
+              useFxAStatusResult.supportsKeysOptionalLogin,
+          }}
         />
         <SigninRecoveryCodeContainer
           path="/signin_recovery_code/*"
-          {...{ integration, setCurrentSplitLayout }}
+          {...{
+            integration,
+            setCurrentSplitLayout,
+            supportsKeysOptionalLogin:
+              useFxAStatusResult.supportsKeysOptionalLogin,
+          }}
         />
         <SigninReported path="/signin_reported/*" />
         <SigninTokenCodeContainer

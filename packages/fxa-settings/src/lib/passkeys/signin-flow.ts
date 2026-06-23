@@ -168,15 +168,11 @@ const gleanEventsForSurface = (
 export type PasskeySignInIntegration = NavigationOptions['integration'];
 
 /**
- * Resolves the `service` value sent with a passkey authentication request.
- * Forces `sync` for any Sync integration; everything else uses
- * `resolveServiceOrClientId`. Why force it:
- * - The server decides per credential whether the account password is needed
- *   (phase 1: always, to derive Sync keys; phase 2: not when the passkey
- *   carries a stored key wrap) and needs `service=sync` to make that call.
- * - Mobile Firefox omits the `service=sync` URL param, so `getService()` is
- *   undefined and `resolveServiceOrClientId` would return the client id,
- *   silently skipping that decision.
+ * Resolves the `service` sent with a passkey authentication request, forcing
+ * `sync` for any Sync integration. Mobile Firefox omits the `service=sync` URL
+ * param, so `getService()` is undefined and `resolveServiceOrClientId` would
+ * otherwise resolve to the client id — losing the Sync attribution the server
+ * needs for its post-signin notifications.
  */
 export function resolvePasskeyService(
   integration: PasskeySignInIntegration
@@ -215,12 +211,8 @@ export interface UsePasskeySignInArgs {
   navigateWithQuery: ReturnType<typeof useNavigateWithQuery>;
   queryParams: string;
   surface: PasskeySignInSurface;
-  /**
-   * Whether the passkey button is rendered on this surface. Drives the
-   * `passkey.button_view` impression so it counts buttons shown, not hook
-   * mounts.
-   */
   isButtonVisible?: boolean;
+  supportsKeysOptionalLogin?: boolean;
 }
 
 export interface UsePasskeySignInResult {
@@ -238,6 +230,7 @@ export function usePasskeySignIn({
   queryParams,
   surface,
   isButtonVisible = false,
+  supportsKeysOptionalLogin,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -336,11 +329,20 @@ export function usePasskeySignIn({
       const metricsContext = queryParamsToMetricsContext(
         searchParams(queryParams) as Record<string, string | undefined>
       );
+
+      const keysRequired = integration.requiresPasswordForLogin(
+        supportsKeysOptionalLogin
+      );
       const completion = await authClient.completePasskeyAuthentication(
         credential,
         challengeOptions.challenge,
         {
           ...(serviceForRequest ? { service: serviceForRequest } : {}),
+          // True when this login still needs Sync-scoped keys that a
+          // follow-up password step will provide. The server uses it to
+          // defer its login metrics/email framing until keys exist; the
+          // client uses the same value below to route to that step.
+          keysRequired,
           metricsContext,
         }
       );
@@ -388,8 +390,10 @@ export function usePasskeySignIn({
         hasPassword: completion.hasPassword,
       });
 
-      if (completion.requiresPasswordForSync) {
-        // Sync still needs a password to derive keys
+      if (keysRequired) {
+        // A password is needed to derive scoped keys before the browser
+        // login/OAuth messages are sent. An existing-password account re-enters
+        // its password; a passwordless account creates one.
         const fallbackPath = completion.hasPassword
           ? '/signin_passkey_fallback'
           : '/post_verify/set_password';
@@ -482,6 +486,7 @@ export function usePasskeySignIn({
     queryParams,
     setLocalizedError,
     surface,
+    supportsKeysOptionalLogin,
   ]);
 
   return { isLoading, errorBanner, onClick };

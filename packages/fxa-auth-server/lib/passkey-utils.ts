@@ -6,12 +6,23 @@ import { ConfigType } from '../config';
 import { AppError } from '@fxa/accounts/errors';
 
 /**
+ * These helpers only read the passkeys feature flags, so they accept just that
+ * slice of config — the full config is structurally compatible, and tests can
+ * pass a minimal flag object.
+ */
+export type PasskeyFlagsConfig<K extends keyof ConfigType['passkeys']> = {
+  passkeys: Pick<ConfigType['passkeys'], K>;
+};
+
+/**
  * Checks if the passkey feature is enabled.
  * @param config - The application configuration object
  * @returns true if the passkey feature is enabled and the service is available
  * @throws AppError.featureNotEnabled if the feature flag is disabled
  */
-export function isPasskeyFeatureEnabled(config: ConfigType): boolean {
+export function isPasskeyFeatureEnabled(
+  config: PasskeyFlagsConfig<'enabled'>
+): boolean {
   if (!config.passkeys.enabled) {
     throw AppError.featureNotEnabled();
   }
@@ -24,7 +35,9 @@ export function isPasskeyFeatureEnabled(config: ConfigType): boolean {
  * Management routes (list/delete/rename) use isPasskeyFeatureEnabled instead.
  * @throws AppError.featureNotEnabled if either flag is disabled
  */
-export function isPasskeyRegistrationEnabled(config: ConfigType): boolean {
+export function isPasskeyRegistrationEnabled(
+  config: PasskeyFlagsConfig<'enabled' | 'registrationEnabled'>
+): boolean {
   if (!config.passkeys.enabled || !config.passkeys.registrationEnabled) {
     throw AppError.featureNotEnabled();
   }
@@ -36,7 +49,9 @@ export function isPasskeyRegistrationEnabled(config: ConfigType): boolean {
  * Requires both the master `passkeys.enabled` flag and `passkeys.authenticationEnabled`.
  * @throws AppError.featureNotEnabled if either flag is disabled
  */
-export function isPasskeyAuthenticationEnabled(config: ConfigType): boolean {
+export function isPasskeyAuthenticationEnabled(
+  config: PasskeyFlagsConfig<'enabled' | 'authenticationEnabled'>
+): boolean {
   if (!config.passkeys.enabled || !config.passkeys.authenticationEnabled) {
     throw AppError.featureNotEnabled();
   }
