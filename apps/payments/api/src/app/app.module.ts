@@ -10,7 +10,8 @@ import {
 import { AuthModule } from '@fxa/payments/auth';
 import {
   MeteringAuthGuard,
-  MeteringConfig,
+  MeteringCloudTasksClientProvider,
+  MeteringThresholdTasksManager,
   MeteringWebhookManager,
 } from '@fxa/entitlements/metering';
 import {
@@ -130,8 +131,9 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusManagerConfig,
     NimbusClient,
     NimbusClientConfig,
-    MeteringConfig,
     MeteringAuthGuard,
+    MeteringCloudTasksClientProvider,
+    MeteringThresholdTasksManager,
     MeteringWebhookManager,
   ],
 })

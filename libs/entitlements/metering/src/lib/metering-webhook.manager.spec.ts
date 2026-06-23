@@ -8,7 +8,7 @@ import { Test } from '@nestjs/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { MeteringWebhookManager } from './metering-webhook.manager';
-import { MeteringConfig } from './metering.config';
+import { MeteringConfig, MockMeteringConfig } from './metering.config';
 
 type WebhookDispatchArgs = Parameters<MeteringWebhookManager['dispatch']>[0];
 
@@ -18,6 +18,7 @@ describe('MeteringWebhookManager', () => {
   const METERING_CONFIG: MeteringConfig = {
     openmeterBaseUrl: 'http://example.com',
     clients: { [SIGNING_CLIENT_ID]: SECRET },
+    cloudTasks: MockMeteringConfig.cloudTasks,
   };
 
   let meteringWebhookManager: MeteringWebhookManager;
@@ -85,7 +86,7 @@ describe('MeteringWebhookManager', () => {
       try {
         const first = await captureSignatureHeader(meteringWebhookManager);
         const rotated = await build({
-          openmeterBaseUrl: 'http://example.com',
+          ...METERING_CONFIG,
           clients: {
             [SIGNING_CLIENT_ID]: 'different-secret-with-enough-entropy-bb',
           },
@@ -171,7 +172,7 @@ describe('MeteringWebhookManager', () => {
     it('throws when a configured client secret is empty after trimming', async () => {
       await expect(
         build({
-          openmeterBaseUrl: 'http://example.com',
+          ...METERING_CONFIG,
           clients: { [SIGNING_CLIENT_ID]: '   ' },
         })
       ).rejects.toThrow(
@@ -184,7 +185,7 @@ describe('MeteringWebhookManager', () => {
       jest.setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
       try {
         const padded = await build({
-          openmeterBaseUrl: 'http://example.com',
+          ...METERING_CONFIG,
           clients: { [SIGNING_CLIENT_ID]: `  ${SECRET}  ` },
         });
         const paddedSignature = await captureSignatureHeader(padded);
