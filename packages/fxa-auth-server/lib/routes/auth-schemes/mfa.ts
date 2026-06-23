@@ -131,15 +131,22 @@ export const strategy = (
         decoded.scope == null ||
         decoded.stid == null
       ) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_state');
         throw AppError.invalidMfaToken();
       }
 
-      const sessionToken = await getCredentialsFunc(decoded.stid);
-      if (!sessionToken) {
+      let sessionToken;
+      try {
+        sessionToken = await getCredentialsFunc(decoded.stid);
+      } catch (err) { }
+
+       if (!sessionToken) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_stid');
         throw AppError.invalidMfaToken();
       }
 
       if (sessionToken.uid == null || sessionToken.uid !== decoded.sub) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_sub');
         throw AppError.invalidMfaToken();
       }
 

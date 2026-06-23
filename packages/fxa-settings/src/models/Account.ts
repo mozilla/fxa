@@ -681,16 +681,18 @@ export class Account implements AccountData {
     // Use the new MFA-protected endpoint
     const jwt = this.getCachedJwtByScope('password');
 
-    const response = await this.withLoadingStatus((async () => {
-      const emails = await this.authClient.accountEmails(currentSessionToken);
-      return this.authClient.passwordChangeWithJWT(
-        jwt,
-        emails,
-        oldPassword,
-        newPassword,
-        currentSessionToken
-      )
-    })());
+    const response = await this.withLoadingStatus(
+      (async () => {
+        const emails = await this.authClient.accountEmails(currentSessionToken);
+        return this.authClient.passwordChangeWithJWT(
+          jwt,
+          emails,
+          oldPassword,
+          newPassword,
+          currentSessionToken
+        );
+      })()
+    );
 
     firefox.passwordChanged(
       this.primaryEmail.email,
@@ -701,17 +703,12 @@ export class Account implements AccountData {
       response.unwrapBKey
     );
 
-    // Transfer the JWT from the old session token to the new one
-    // to prevent MfaGuard from requesting another OTP code
+    // A password change destroys the old session token, which every cached MFA JWT
+    // derives from. Drop them all so the next sensitive action re-prompts for OTP
+    // instead of using a dead JWT, which the auth server would reject as as an
+    // invalid MFA token.
     if (currentSessionToken !== response.sessionToken) {
-      const oldJwt =
-        JwtTokenCache.getSnapshot()[
-          JwtTokenCache.getKey(currentSessionToken, 'password')
-        ];
-      if (oldJwt) {
-        JwtTokenCache.setToken(response.sessionToken, 'password', oldJwt);
-        JwtTokenCache.removeToken(currentSessionToken, 'password');
-      }
+      JwtTokenCache.clearTokens(currentSessionToken);
     }
 
     sessionToken(response.sessionToken);
@@ -725,14 +722,16 @@ export class Account implements AccountData {
   }
 
   async createPassword(newPassword: string) {
-    const passwordCreatedResult = await this.withLoadingStatus((async () => {
-      const emails = await this.authClient.accountEmails(sessionToken()!);
-      return this.authClient.createPassword(
-        sessionToken()!,
-        emails,
-        newPassword
-      )
-    })());
+    const passwordCreatedResult = await this.withLoadingStatus(
+      (async () => {
+        const emails = await this.authClient.accountEmails(sessionToken()!);
+        return this.authClient.createPassword(
+          sessionToken()!,
+          emails,
+          newPassword
+        );
+      })()
+    );
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
@@ -742,14 +741,12 @@ export class Account implements AccountData {
 
   async createPasswordWithJwt(newPassword: string) {
     const jwt = this.getCachedJwtByScope('password');
-    const passwordCreatedResult = await this.withLoadingStatus((async () => {
-      const emails = await this.authClient.accountEmails(sessionToken()!);
-      return this.authClient.createPasswordWithJwt(
-        jwt,
-        emails,
-        newPassword
-      )
-    })());
+    const passwordCreatedResult = await this.withLoadingStatus(
+      (async () => {
+        const emails = await this.authClient.accountEmails(sessionToken()!);
+        return this.authClient.createPasswordWithJwt(jwt, emails, newPassword);
+      })()
+    );
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
@@ -1329,18 +1326,20 @@ export class Account implements AccountData {
     replaceKey: boolean,
     useMfaJwt: boolean
   ) {
-    const reauth = await this.withLoadingStatus((async () => {
-      const emails = await this.authClient.accountEmails(sessionToken()!);
-      return this.authClient.sessionReauth(
-        sessionToken()!,
-        emails,
-        password,
-        {
-          keys: true,
-          reason: 'recovery_key',
-        }
-      )
-    })());
+    const reauth = await this.withLoadingStatus(
+      (async () => {
+        const emails = await this.authClient.accountEmails(sessionToken()!);
+        return this.authClient.sessionReauth(
+          sessionToken()!,
+          emails,
+          password,
+          {
+            keys: true,
+            reason: 'recovery_key',
+          }
+        );
+      })()
+    );
     const keys = await this.withLoadingStatus(
       this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
     );
@@ -1413,15 +1412,17 @@ export class Account implements AccountData {
   }
 
   async destroy(password: string) {
-    await this.withLoadingStatus((async () => {
-      const emails = await this.authClient.accountEmails(sessionToken()!);
-      await this.authClient.accountDestroy(
-        emails,
-        password,
-        {},
-        sessionToken()!
-      )
-    })());
+    await this.withLoadingStatus(
+      (async () => {
+        const emails = await this.authClient.accountEmails(sessionToken()!);
+        await this.authClient.accountDestroy(
+          emails,
+          password,
+          {},
+          sessionToken()!
+        );
+      })()
+    );
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
   }
@@ -1434,7 +1435,6 @@ export class Account implements AccountData {
     kB: string;
     isFirefoxMobileClient: boolean;
   }) {
-
     const response = await this.authClient.resetPasswordWithRecoveryKey(
       opts.accountResetToken,
       // During the (unauthenticated) password reset flow `this.primaryEmail.email`

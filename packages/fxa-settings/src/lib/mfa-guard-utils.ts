@@ -41,5 +41,13 @@ export const clearMfaAndJwtCacheOnInvalidJwt = (
  * @returns
  */
 export const isInvalidJwtError = (e: unknown): boolean => {
-  return (e as any)?.errno === AuthUiErrors.INVALID_MFA_TOKEN.errno;
+  const errno = (e as any)?.errno;
+  return (
+    // 223 - the auth server's dedicated invalid/expired MFA token error.
+    errno === AuthUiErrors.INVALID_MFA_TOKEN.errno ||
+    // 110 - a generic invalid token. The MFA strategy resolves a JWT's parent
+    // session (stid) via db.sessionToken, which throws 110 when that session is
+    // gone (e.g. after a password change). Treat it as a stale-JWT signal too.
+    errno === AuthUiErrors.INVALID_TOKEN.errno
+  );
 };

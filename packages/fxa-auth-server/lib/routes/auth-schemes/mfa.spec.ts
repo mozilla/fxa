@@ -131,6 +131,37 @@ describe('lib/routes/auth-schemes/mfa', () => {
     }
   });
 
+  it('increments bad_state and throws when the jwt is missing required claims', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const tokenWithoutStid = jwt.sign(
+      { sub: account.uid, scope: ['mfa:test'], iat: now, jti: uuidv4() },
+      config.mfa.jwt.secretKey,
+      {
+        algorithm: 'HS256',
+        expiresIn: config.mfa.jwt.expiresInSec,
+        audience: config.mfa.jwt.audience,
+        issuer: config.mfa.jwt.issuer,
+      }
+    );
+    request.headers.authorization = `Bearer ${tokenWithoutStid}`;
+
+    const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
+
+    try {
+      await authStrategy.authenticate(request, h);
+      throw new Error('Should have thrown an error');
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(AppError);
+      const errorResponse = err.output.payload;
+      expect(errorResponse.code).toBe(401);
+      expect(errorResponse.errno).toBe(AppError.ERRNO.INVALID_MFA_TOKEN);
+      expect(errorResponse.message).toBe('Invalid or expired MFA token');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'mfa.invalid_mfa_token.bad_state'
+      );
+    }
+  });
+
   it('should not authenticate if the parent session cannot be found', async () => {
     const getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -144,6 +175,32 @@ describe('lib/routes/auth-schemes/mfa', () => {
       expect(errorResponse.code).toBe(401);
       expect(errorResponse.errno).toBe(AppError.ERRNO.INVALID_MFA_TOKEN);
       expect(errorResponse.message).toBe('Invalid or expired MFA token');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'mfa.invalid_mfa_token.bad_stid'
+      );
+    }
+  });
+
+  it('translates a thrown invalid-token lookup (errno 110) into an MFA token error', async () => {
+    const lookupError = Object.assign(
+      new Error('The authentication token could not be found'),
+      { errno: AppError.ERRNO.INVALID_TOKEN }
+    );
+    const getCredentialsFunc = jest.fn().mockRejectedValue(lookupError);
+    const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
+
+    try {
+      await authStrategy.authenticate(request, h);
+      throw new Error('Should have thrown an error');
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(AppError);
+      const errorResponse = err.output.payload;
+      expect(errorResponse.code).toBe(401);
+      expect(errorResponse.errno).toBe(AppError.ERRNO.INVALID_MFA_TOKEN);
+      expect(errorResponse.message).toBe('Invalid or expired MFA token');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'mfa.invalid_mfa_token.bad_stid'
+      );
     }
   });
 
@@ -161,6 +218,9 @@ describe('lib/routes/auth-schemes/mfa', () => {
       expect(errorResponse.code).toBe(401);
       expect(errorResponse.errno).toBe(AppError.ERRNO.INVALID_MFA_TOKEN);
       expect(errorResponse.message).toBe('Invalid or expired MFA token');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'mfa.invalid_mfa_token.bad_sub'
+      );
     }
   });
 

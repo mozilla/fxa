@@ -30,6 +30,7 @@ jest.mock('../lib/cache', () => {
       getToken: jest.fn(),
       setToken: jest.fn(),
       removeToken: jest.fn(),
+      clearTokens: jest.fn(),
       hasToken: jest.fn(),
     },
     isSigningOut: jest.fn(() => false),
@@ -60,7 +61,9 @@ describe('Account', () => {
       jest.clearAllMocks();
       mockAuthClient = {
         passwordChangeWithJWT: jest.fn(),
-        accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' })
+        accountEmails: jest
+          .fn()
+          .mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' }),
       } as any;
       account = new Account(mockAuthClient);
       Object.defineProperty(account, 'email', {
@@ -75,36 +78,27 @@ describe('Account', () => {
       });
     });
 
-    it('should transfer JWT from old session token to new session token', async () => {
+    it('clears all cached MFA tokens for the old session when the session token rotates', async () => {
       const oldToken = 'old-token';
       const newToken = 'new-token';
-      const jwt = 'mock-jwt';
 
       mockedSessionToken.mockReturnValue(oldToken);
       mockedJwtCache.hasToken.mockReturnValue(true);
-      mockedJwtCache.getToken.mockReturnValue(jwt);
-      mockedJwtCache.getSnapshot.mockReturnValue({
-        [`${oldToken}-password`]: jwt,
-      });
+      mockedJwtCache.getToken.mockReturnValue('mock-jwt');
       mockAuthClient.passwordChangeWithJWT.mockResolvedValue({
         sessionToken: newToken,
       } as any);
 
       await account.changePassword('oldPass', 'newPass');
 
-      expect(mockedJwtCache.setToken).toHaveBeenCalledWith(
-        newToken,
-        'password',
-        jwt
-      );
-      expect(mockedJwtCache.removeToken).toHaveBeenCalledWith(
-        oldToken,
-        'password'
-      );
+      // Every cached MFA JWT references the old session via its stid claim and is
+      // dead once the password change destroys that session, so drop them all.
+      expect(mockedJwtCache.clearTokens).toHaveBeenCalledWith(oldToken);
+      expect(mockedJwtCache.setToken).not.toHaveBeenCalled();
       expect(mockedSessionToken).toHaveBeenCalledWith(newToken);
     });
 
-    it('should not transfer JWT if session token unchanged', async () => {
+    it('does not clear cached MFA tokens when the session token is unchanged', async () => {
       const token = 'same-token';
 
       mockedSessionToken.mockReturnValue(token);
@@ -116,26 +110,7 @@ describe('Account', () => {
 
       await account.changePassword('oldPass', 'newPass');
 
-      expect(mockedJwtCache.setToken).not.toHaveBeenCalled();
-      expect(mockedJwtCache.removeToken).not.toHaveBeenCalled();
-    });
-
-    it('should not transfer JWT if none exists', async () => {
-      const oldToken = 'old-token';
-      const newToken = 'new-token';
-
-      mockedSessionToken.mockReturnValue(oldToken);
-      mockedJwtCache.hasToken.mockReturnValue(true);
-      mockedJwtCache.getToken.mockReturnValue('jwt');
-      mockedJwtCache.getSnapshot.mockReturnValue({}); // No JWT in snapshot to transfer
-      mockAuthClient.passwordChangeWithJWT.mockResolvedValue({
-        sessionToken: newToken,
-      } as any);
-
-      await account.changePassword('oldPass', 'newPass');
-
-      expect(mockedJwtCache.setToken).not.toHaveBeenCalled();
-      expect(mockedJwtCache.removeToken).not.toHaveBeenCalled();
+      expect(mockedJwtCache.clearTokens).not.toHaveBeenCalled();
     });
   });
 
@@ -184,7 +159,9 @@ describe('Account', () => {
   describe('createPassword', () => {
     let account: Account;
     const authClient: any = {
-      accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' }),
+      accountEmails: jest
+        .fn()
+        .mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' }),
       createPassword: jest.fn().mockResolvedValue({ passwordCreated: 123 }),
       createPasswordWithJwt: jest
         .fn()
@@ -265,7 +242,9 @@ describe('Account', () => {
       mockAuthClient = {
         account: jest.fn().mockResolvedValue(baseAccountResponse),
         attachedClients: jest.fn().mockResolvedValue(baseClientResponse),
-        accountEmails: jest.fn().mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' })
+        accountEmails: jest
+          .fn()
+          .mockResolvedValue({ original: 'a@b.com', primary: 'a@b.com' }),
       } as unknown as jest.Mocked<AuthClient>;
       (sessionToken as jest.Mock).mockReturnValue('test-token');
       account = new Account(mockAuthClient);
