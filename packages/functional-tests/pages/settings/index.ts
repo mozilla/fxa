@@ -146,13 +146,19 @@ export class SettingsPage extends SettingsLayout {
   }
 
   /**
+   * The MFA guard modal's heading. Use to assert the protected modal is (or is
+   * not) displayed; the locator auto-waits when passed to `expect`.
+   */
+  get mfaGuardHeading() {
+    return this.page.getByRole('heading', { name: 'Enter confirmation code' });
+  }
+
+  /**
    * Indicates that the MFA guard's modal dialog is currently displayed.
    * @returns true if the MFA modal is open
    */
   async isMfaGuardVisible() {
-    return await this.page
-      .getByRole('heading', { name: 'Enter confirmation code' })
-      .isVisible();
+    return await this.mfaGuardHeading.isVisible();
   }
 
   /**
@@ -164,9 +170,7 @@ export class SettingsPage extends SettingsLayout {
   async confirmMfaGuard(email: string) {
     const code =
       await this.target.emailClient.getVerifyAccountChangeCode(email);
-    await this.page
-      .getByRole('heading', { name: 'Enter confirmation code' })
-      .waitFor();
+    await this.mfaGuardHeading.waitFor();
     await this.page
       .getByRole('textbox', { name: 'Enter 6-digit code' })
       .fill(code);
