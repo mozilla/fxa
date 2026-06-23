@@ -92,7 +92,7 @@ describe('lib/client', () => {
     });
   });
 
-  describe('Sentry error capturing in request()', () => {
+  describe('request() error handling', () => {
     let httpClient: AuthClient;
     let originalFetch: typeof globalThis.fetch;
     let originalCaptureMessage: (...args: any[]) => any;
@@ -123,152 +123,45 @@ describe('lib/client', () => {
       SentryModule.captureMessage = originalCaptureMessage;
     });
 
-    it('does not call captureMessage on a successful response', async () => {
+    it('does not manually capture a successful response to Sentry', async () => {
       globalThis.fetch = async () =>
         new Response('{"exists":true}', { status: 200 });
       await httpClient.accountStatus('0123456789abcdef');
       assert.equal(capturedMessages.length, 0);
     });
 
-    describe('known errno response', () => {
-      beforeEach(() => {
-        globalThis.fetch = async () =>
-          new Response(
-            JSON.stringify({
-              errno: 102,
-              code: 400,
-              message: 'Unknown account',
-            }),
-            { status: 400 }
-          );
-      });
-
-      it('calls captureMessage with the known-error message', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(capturedMessages.length, 1);
-        assert.ok(
-          capturedMessages[0].message.includes('known error response'),
-          `expected "known error response" in "${capturedMessages[0].message}"`
+    it('does not manually capture a known errno response to Sentry', async () => {
+      globalThis.fetch = async () =>
+        new Response(
+          JSON.stringify({
+            errno: 102,
+            code: 400,
+            message: 'Unknown account',
+          }),
+          { status: 400 }
         );
-      });
-
-      it('tags the capture with path, method, errno, and code', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        const { tags } = capturedMessages[0].context;
-        assert.ok(
-          (tags.path as string).includes('/account/status'),
-          `expected path to include /account/status, got "${tags.path}"`
-        );
-        assert.equal(typeof tags.method, 'string');
-        assert.equal(tags.errno, 102);
-        assert.equal(tags.code, 400);
-      });
-
-      it('does not call captureMessage a second time from the catch block', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(capturedMessages.length, 1);
-      });
+      try {
+        await httpClient.accountStatus('0123456789abcdef');
+      } catch {}
+      assert.equal(capturedMessages.length, 0);
     });
 
-    describe('non-ok response without errno', () => {
-      beforeEach(() => {
-        globalThis.fetch = async () => new Response('{}', { status: 500 });
-      });
-
-      it('calls captureMessage with the non-ok message', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(capturedMessages.length, 1);
-        assert.ok(
-          capturedMessages[0].message.includes('non-ok response'),
-          `expected "non-ok response" in "${capturedMessages[0].message}"`
-        );
-      });
-
-      it('tags the capture with path, method, and HTTP status', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        const { tags } = capturedMessages[0].context;
-        assert.ok(
-          (tags.path as string).includes('/account/status'),
-          `expected path to include /account/status, got "${tags.path}"`
-        );
-        assert.equal(typeof tags.method, 'string');
-        assert.equal(tags.status, 500);
-      });
-
-      it('does not call captureMessage a second time from the catch block', async () => {
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(capturedMessages.length, 1);
-      });
+    it('does not manually capture a non-ok response to Sentry', async () => {
+      globalThis.fetch = async () => new Response('{}', { status: 500 });
+      try {
+        await httpClient.accountStatus('0123456789abcdef');
+      } catch {}
+      assert.equal(capturedMessages.length, 0);
     });
 
-    describe('unexpected error (fetch throws)', () => {
-      it('calls captureMessage with the unexpected-error message when fetch throws an Error', async () => {
-        globalThis.fetch = async () => {
-          throw new Error('Network failure');
-        };
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(capturedMessages.length, 1);
-        assert.ok(
-          capturedMessages[0].message.includes('unexpected error'),
-          `expected "unexpected error" in "${capturedMessages[0].message}"`
-        );
-      });
-
-      it('includes the error message in extra when fetch throws an Error', async () => {
-        globalThis.fetch = async () => {
-          throw new Error('Network failure');
-        };
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(
-          capturedMessages[0].context.extra.message,
-          'Network failure'
-        );
-      });
-
-      it('uses "unknown error" in extra when fetch throws a non-Error value', async () => {
-        globalThis.fetch = async () => {
-          // eslint-disable-next-line @typescript-eslint/no-throw-literal
-          throw 'plain string error';
-        };
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        assert.equal(
-          capturedMessages[0].context.extra.message,
-          'unknown error'
-        );
-      });
-
-      it('tags the capture with path and method', async () => {
-        globalThis.fetch = async () => {
-          throw new Error('timeout');
-        };
-        try {
-          await httpClient.accountStatus('0123456789abcdef');
-        } catch {}
-        const { tags } = capturedMessages[0].context;
-        assert.ok(
-          (tags.path as string).includes('/account/status'),
-          `expected path to include /account/status, got "${tags.path}"`
-        );
-        assert.equal(typeof tags.method, 'string');
-      });
+    it('does not manually capture an unexpected error to Sentry', async () => {
+      globalThis.fetch = async () => {
+        throw new Error('Network failure');
+      };
+      try {
+        await httpClient.accountStatus('0123456789abcdef');
+      } catch {}
+      assert.equal(capturedMessages.length, 0);
     });
 
     describe('WAF-blocked response (406/429 with non-JSON body)', () => {
