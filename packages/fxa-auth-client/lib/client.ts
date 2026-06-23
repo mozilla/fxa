@@ -520,17 +520,6 @@ export default class AuthClient {
             errno: result.errno,
           },
         });
-        Sentry.captureMessage(
-          `Auth client encoutered known error response during a request`,
-          {
-            tags: {
-              path,
-              method: requestOptions.method || '',
-              errno: result.errno,
-              code: result.code,
-            },
-          }
-        );
         throw result;
       }
       if (!response.ok) {
@@ -547,17 +536,6 @@ export default class AuthClient {
             errno: result.errno,
           },
         });
-        // We want to monitor spikes in non-ok responses.
-        Sentry.captureMessage(
-          `Auth client encoutered non-ok response during a request`,
-          {
-            tags: {
-              path: path,
-              method: requestOptions.method || '',
-              status: response.status,
-            },
-          }
-        );
         throw new AuthClientError(
           'Unknown error',
           result,
@@ -578,19 +556,6 @@ export default class AuthClient {
             enc_path: btoa(path),
           },
         });
-        // One more check for unexpected errors that wouldn't have been caught by the above two check.
-        Sentry.captureMessage(
-          `Auth client encoutered unexpected error during request`,
-          {
-            tags: {
-              path: path,
-              method: requestOptions.method || '',
-            },
-            extra: {
-              message: e instanceof Error ? e.message : 'unknown error',
-            },
-          }
-        );
       }
       await this.errorHandler(e);
     }
@@ -2088,7 +2053,7 @@ export default class AuthClient {
       };
     }
 
-     try {
+    try {
       const accountData = await this.jwtPost(
         '/mfa/password/change',
         jwt,
