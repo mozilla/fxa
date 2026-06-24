@@ -238,11 +238,22 @@ export function navigateWithQueryHelper(
 }
 
 /**
+ * Register a React Router navigate function for use outside of components.
+ * Called once from App on mount so that `navigateWithQuery` can perform
+ * client-side navigations (with state) instead of full page reloads.
+ */
+let _registeredNavigate: NavigateFunction | null = null;
+export function registerNavigate(fn: NavigateFunction) {
+  _registeredNavigate = fn;
+}
+
+/**
  * **NOTE:** This should only be used outside of a router context.
  * Prefer using useNavigateWithQuery when possible.
  *
- * The non-hook version of useNavigateWithQuery — uses window.location.assign
- * since it runs outside the React Router context.
+ * Uses the registered React Router navigate function when available
+ * (supports location state). Falls back to window.location for
+ * navigations before React mounts.
  */
 export function navigateWithQuery(
   to: string,
@@ -264,6 +275,11 @@ export function navigateWithQuery(
     path = `${path}#${destinationHash}`;
   } else if (includeHash && window.location.hash) {
     path = `${path}${window.location.hash}`;
+  }
+
+  if (_registeredNavigate) {
+    options ? _registeredNavigate(path, options) : _registeredNavigate(path);
+    return;
   }
 
   if (options?.replace) {

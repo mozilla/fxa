@@ -838,7 +838,7 @@ describe('usePasskeySignIn', () => {
         flowQueryParams: MOCK_FLOW_QUERY_PARAMS,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -879,7 +879,7 @@ describe('usePasskeySignIn', () => {
         surface: 'login',
         isButtonVisible: false,
       });
-      renderHook(() => usePasskeySignIn(args));
+      renderHook(() => usePasskeySignIn(args), { wrapper });
 
       expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
     });

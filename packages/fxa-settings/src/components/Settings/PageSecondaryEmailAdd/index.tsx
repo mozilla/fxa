@@ -42,7 +42,7 @@ export const PageSecondaryEmailAdd = () => {
     async (email: string) => {
       try {
         await account.createSecondaryEmail(email);
-        navigateWithQuery('emails/verify', { state: { email }, replace: true });
+        navigateWithQuery(`${SETTINGS_PATH}/emails/verify`, { state: { email }, replace: true });
       } catch (e) {
         const errorHandled = handleMfaError(e);
         if (errorHandled) {
