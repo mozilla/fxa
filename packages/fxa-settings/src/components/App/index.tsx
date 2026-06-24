@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Routes, Route, useLocation } from 'react-router';
+import { Routes, Route, useLocation, useNavigate } from 'react-router';
 import {
   lazy,
   Suspense,
@@ -48,6 +48,7 @@ import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import AppLayout from '../AppLayout';
 import { PromoQrMobile } from '../PromoQrMobile';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { registerNavigate } from '../../lib/utilities';
 
 // Pages
 const SignupConfirmedSync = lazy(
@@ -206,6 +207,11 @@ export const App = ({
   const config = useConfig();
   const session = useSession();
   const integration = useIntegration();
+  const navigate = useNavigate();
+
+  // Register navigate so out-of-component code (e.g. AppContext errorHandler)
+  // can perform client-side navigations with state.
+  useEffect(() => { registerNavigate(navigate); }, [navigate]);
 
   // GQL call for minimal metrics data
   const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
