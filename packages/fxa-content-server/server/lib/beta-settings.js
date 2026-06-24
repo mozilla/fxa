@@ -171,6 +171,23 @@ function swapBetaMeta(html, tmplContent = {}) {
   return result;
 }
 
+// The canary is deliberately absent from the WAICT integrity manifest, so
+// referencing it from a page yields a guaranteed missing_from_manifest report
+// on every load - proving the reporting pipeline is live. Served from the
+// origin root by get-waict-canary.js; gated by the same config as the route.
+const waictCanaryTag =
+  config.get('waict.enabled') && config.get('waict.canaryEnabled')
+    ? '<script defer src="/waict-canary.js"></script>'
+    : '';
+
+// Inject the WAICT canary script before </head>, if enabled.
+function injectWaictCanary(html) {
+  if (!waictCanaryTag) {
+    return html;
+  }
+  return html.replace('</head>', waictCanaryTag + '</head>');
+}
+
 const preconnectLinks = [];
 function preconnect(val) {
   if (!val) {
@@ -235,12 +252,14 @@ function modifyProxyRes(proxyRes, req, res) {
     ) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
-      html = swapBetaMeta(html, {
-        __SERVER_CONFIG__: settingsConfig,
-        __FLOW_ID__: flowEventData.flowId,
-        __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-        ...resolvePreConnectDirectives(settingsConfig),
-      });
+      html = injectWaictCanary(
+        swapBetaMeta(html, {
+          __SERVER_CONFIG__: settingsConfig,
+          __FLOW_ID__: flowEventData.flowId,
+          __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
+          ...resolvePreConnectDirectives(settingsConfig),
+        })
+      );
       res.send(new Buffer.from(html));
     } else {
       // remove transfer-encoding header, a Content-Length header will be added
@@ -284,12 +303,14 @@ const modifySettingsStatic = function (req, res) {
 
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
-    swapBetaMeta(indexFile, {
-      __SERVER_CONFIG__: settingsConfig,
-      __FLOW_ID__: flowEventData.flowId,
-      __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-      ...resolvePreConnectDirectives(settingsConfig),
-    })
+    injectWaictCanary(
+      swapBetaMeta(indexFile, {
+        __SERVER_CONFIG__: settingsConfig,
+        __FLOW_ID__: flowEventData.flowId,
+        __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
+        ...resolvePreConnectDirectives(settingsConfig),
+      })
+    )
   );
 };
 

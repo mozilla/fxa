@@ -84,7 +84,26 @@ module.exports = function (grunt) {
       const dist = grunt.config.get('yeoman.dist');
       const settingsDirectory = resolveSettingsDirectory(dist);
       const hashes = {};
+      const anyHashes = [];
       let count = 0;
+
+      // Declarations emitted by the fxa-settings build (scripts/build.js) for
+      // public/ scripts referenced with a volatile ?v= cache-buster, keyed by
+      // basename. toServedUrl below can't reconstruct that query, so these
+      // files are routed per their declared mode instead of the default key.
+      const publicAssets = (function () {
+        const sidecar = path.join(
+          dist,
+          'settings',
+          settingsDirectory,
+          'waict-public-assets.json'
+        );
+        try {
+          return JSON.parse(fs.readFileSync(sidecar, 'utf8'));
+        } catch (e) {
+          return {};
+        }
+      })();
 
       grunt.file
         .expand({ cwd: dist }, '**/*.js')
@@ -104,18 +123,42 @@ module.exports = function (grunt) {
           });
           // WAICT v1 always uses SHA-256, base64-encoded (matching SRI's
           // `sha256-<base64>` convention but without the algorithm prefix).
-          hashes[servedUrl] = crypto
+          const hash = crypto
             .createHash('sha256')
             .update(bytes)
             .digest('base64');
+
+          // Route declared cache-busted public/ scripts. `any` matches the
+          // content hash regardless of URL (absorbs the ?v=); `exact` pins the
+          // precise ?v= URL the build references it with.
+          const basename = servedUrl.startsWith('/settings/')
+            ? servedUrl.slice('/settings/'.length)
+            : null;
+          const declared = basename && publicAssets[basename];
+          if (declared) {
+            if (declared.mode === 'any') {
+              anyHashes.push(hash);
+            } else if (declared.mode === 'exact') {
+              hashes[servedUrl + '?v=' + declared.v] = hash;
+            }
+            count++;
+            return;
+          }
+
+          hashes[servedUrl] = hash;
           count++;
         });
 
-      const manifest = { hashes };
+      const manifest = { hashes, any_hashes: anyHashes };
       const dest = path.join(dist, 'waict-manifest.json');
       grunt.file.write(dest, JSON.stringify(manifest, null, 2));
       grunt.log.writeln(
-        'Wrote WAICT manifest with ' + count + ' script hashes to ' + dest
+        'Wrote WAICT manifest with ' +
+          count +
+          ' script hashes (' +
+          anyHashes.length +
+          ' url-agnostic) to ' +
+          dest
       );
     }
   );

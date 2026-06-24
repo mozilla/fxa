@@ -16,10 +16,14 @@
 // destination so WAICT checks it against the manifest and fails to match.
 const CANARY_BODY = '/* waict canary */\n';
 
+// URL the canary is served from. Exported so the report endpoint can recognize
+// incoming canary violation reports and treat them as a pipeline-alive success.
+const CANARY_PATH = '/waict-canary.js';
+
 module.exports = function () {
   return {
     method: 'get',
-    path: '/waict-canary.js',
+    path: CANARY_PATH,
     process: function (req, res) {
       // Never cache, so every page load re-fetches and re-checks the canary.
       res.setHeader('Cache-Control', 'no-store');
@@ -28,3 +32,5 @@ module.exports = function () {
     },
   };
 };
+
+module.exports.CANARY_PATH = CANARY_PATH;

@@ -38,8 +38,23 @@ function stripPIIFromUrl(urlToScrub) {
   return url.format(parsedUrl);
 }
 
+// A report is from the canary if its blocked resource path matches the canary
+// path (compared by pathname, ignoring origin and any query string).
+function isCanaryReport(blockedUrl, canaryPath) {
+  if (!blockedUrl || typeof blockedUrl !== 'string' || !canaryPath) {
+    return false;
+  }
+
+  try {
+    return url.parse(blockedUrl).pathname === canaryPath;
+  } catch (e) {
+    return false;
+  }
+}
+
 module.exports = function (options = {}) {
   const statsd = options.statsd;
+  const canaryPath = options.canaryPath;
 
   return {
     method: 'post',
@@ -58,6 +73,27 @@ module.exports = function (options = {}) {
         }
 
         const body = report.body || {};
+        const blockedUrl = body.blockedURL || body.blocked_url;
+        const documentURL = stripPIIFromUrl(
+          body.documentURL || body.documentURI || report.url
+        );
+
+        // The canary is expected to fail integrity on every load, so a report
+        // for it is a *success* signal: the browser -> report-endpoint pipeline
+        // is alive. Treat it as such rather than as a real integrity violation,
+        // so canary noise never pollutes violation alerting.
+        if (isCanaryReport(blockedUrl, canaryPath)) {
+          if (statsd) {
+            statsd.increment('waict.canary.success');
+          }
+
+          logger.info(options.canaryOp || 'server.waict.canary.success', {
+            agent: req.get('User-Agent'),
+            type: report.type,
+            documentURL,
+          });
+          return;
+        }
 
         // Emit an operational counter so violations are alertable as a
         // time-series, tagged by reason (missing_from_manifest,
@@ -74,10 +110,8 @@ module.exports = function (options = {}) {
           // The resource that failed integrity and the reason (e.g.
           // missing_from_manifest, no_manifest_match, invalid_manifest).
           reason: body.reason,
-          blocked: stripPIIFromUrl(body.blockedURL || body.blocked_url),
-          documentURL: stripPIIFromUrl(
-            body.documentURL || body.documentURI || report.url
-          ),
+          blocked: stripPIIFromUrl(blockedUrl),
+          documentURL,
           destination: body.destination,
         });
       });

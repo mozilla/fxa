@@ -16,7 +16,9 @@ const htmlOnly = require('./html-middleware');
 
 // The report endpoint is advertised under this name in both the
 // `Reporting-Endpoints` header and the WAICT header's `endpoints` parameter.
-const REPORT_ENDPOINT_NAME = 'waict';
+// Must be `default` - the Reporting API's reserved fallback endpoint, which is
+// where WAICT violation reports are delivered.
+const REPORT_ENDPOINT_NAME = 'default';
 
 /**
  * Build the `Integrity-Policy-WAICT-v1` structured-field header value.
