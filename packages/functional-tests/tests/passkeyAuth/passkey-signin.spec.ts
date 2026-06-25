@@ -358,8 +358,6 @@ test.describe('severity-1 #smoke', () => {
         signinPasswordlessCode,
         settings,
         settingsPasskeyAdd,
-        totp,
-        inlineTotpSetup,
         relier,
       },
       testAccountTracker,
@@ -373,23 +371,13 @@ test.describe('severity-1 #smoke', () => {
       // AAL2, but an AMO-style RP also requires profile AAL2 (account-level
       // 2FA). With no TOTP, the user must be diverted to inline TOTP setup
       // rather than bounced back to the passwordless code screen in a loop.
+      // This test owns the passwordless-path divert and stops at the divert;
+      // completing the enrolment and asserting account AAL2 is already covered
+      // by the passkey-only divert test above (identical once on the setup
+      // page) and is too costly to repeat through the passwordless flow.
 
       // Create a passwordless account and register a passkey on it.
-      const { email, sessionToken } =
-        await testAccountTracker.signUpPasswordless();
-      const account: any = testAccountTracker.accounts.find(
-        (a) => a.email === email
-      );
-      if (!account) {
-        throw new Error(
-          `Account for email ${email} not found in testAccountTracker.accounts`
-        );
-      }
-
-      // Recovery phone availability (auth-server config + region) decides
-      // whether the inline flow shows the recovery-method chooser.
-      const { available: recoveryPhoneAvailable } =
-        await target.authClient.recoveryPhoneAvailable(sessionToken);
+      const { email } = await testAccountTracker.signUpPasswordless();
 
       await page.goto(
         `${target.contentServerUrl}/signin?email=${encodeURIComponent(email)}`
@@ -404,7 +392,8 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Sign in to the profile-AAL2 RP using the passkey button on the
-      // passwordless code screen. No TOTP yet, so the divert must fire.
+      // passwordless code screen. No TOTP yet, so the divert must fire instead
+      // of looping back to the passwordless code screen.
       await relier.goto();
       await relier.clickRequireProfileAAL2();
       await signin.fillOutEmailFirstForm(email);
@@ -413,19 +402,6 @@ test.describe('severity-1 #smoke', () => {
         await signin.passkeySigninButton.click();
         await page.waitForURL(/inline_totp_setup/);
       });
-
-      await totp.completeInlineSetupWithBackupCodes(
-        inlineTotpSetup,
-        account,
-        recoveryPhoneAvailable
-      );
-
-      // Session AAL2 from the passkey; account AAL2 from the divert-triggered
-      // enrolment. A divert regression leaves account_aal2 false and trips
-      // 123done's bounce loop.
-      expect(await relier.isLoggedIn()).toBe(true);
-      expect(await relier.hasSessionAAL2Badge()).toBe(true);
-      expect(await relier.hasAccountAAL2Badge()).toBe(true);
     });
 
     test('AMO-style profile AAL2: cached passkey session (no fresh ceremony) without TOTP is diverted to inline TOTP setup, not looped', async ({

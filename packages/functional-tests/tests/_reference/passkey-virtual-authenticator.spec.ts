@@ -16,7 +16,7 @@ import { expect, test } from '../../lib/fixtures/standard';
  * virtual-authenticator setup pattern.
  */
 
-test.describe('severity-1 #smoke', () => {
+test.describe('severity-1 #smoke #chromium', () => {
   test.skip(true, 'Reference-only — see tests/settings/passkey.spec.ts');
   /**
    * Passkeys have a potential to collide with other tests due to the use of

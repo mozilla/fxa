@@ -30,7 +30,7 @@ import type { QueryParams } from '../..';
 import {
   getCredential,
   handleWebAuthnError,
-  isWebAuthnLevel3Supported,
+  isWebAuthnSupported,
   type PublicKeyCredentialJSON,
 } from './';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
@@ -277,7 +277,7 @@ export function usePasskeySignIn({
     // Button stays visible even without support — the user may have a passkey
     // on another device and deserves an explicit error rather than a silently
     // missing option.
-    if (!isWebAuthnLevel3Supported()) {
+    if (!isWebAuthnSupported()) {
       gleanEvents.submitFrontendError('not_supported');
       setLocalizedError(
         'passkey-authentication-error-not-supported-v2',

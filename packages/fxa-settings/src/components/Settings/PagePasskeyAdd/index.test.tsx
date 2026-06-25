@@ -47,12 +47,12 @@ jest.mock('@sentry/browser', () => ({
 const mockCreateCredential = jest.fn() as jest.MockedFunction<
   typeof createCredential
 >;
-const mockIsWebAuthnLevel3Supported = jest.fn(() => true);
+const mockIsWebAuthnSupported = jest.fn(() => true);
 jest.mock('../../../lib/passkeys/webauthn', () => ({
   createCredential: (
     ...args: Parameters<typeof createCredential>
   ): ReturnType<typeof createCredential> => mockCreateCredential(...args),
-  isWebAuthnLevel3Supported: () => mockIsWebAuthnLevel3Supported(),
+  isWebAuthnSupported: () => mockIsWebAuthnSupported(),
   // Real value (5 min); the PRF fallback reads it to bound the retry budget.
   DEFAULT_TIMEOUT_MS: 300_000,
 }));
@@ -590,7 +590,7 @@ describe('MfaGuardPagePasskeyAdd pre-check', () => {
     alertBarInfo = new AlertBarInfo();
     mockAlertSuccess = jest.spyOn(alertBarInfo, 'success');
     mockAlertError = jest.spyOn(alertBarInfo, 'error');
-    mockIsWebAuthnLevel3Supported.mockReturnValue(true);
+    mockIsWebAuthnSupported.mockReturnValue(true);
   });
 
   function renderWrapper() {
@@ -610,7 +610,7 @@ describe('MfaGuardPagePasskeyAdd pre-check', () => {
   }
 
   it('pushes the unsupported alert and redirects to settings before MFA fires when WebAuthn is unsupported', () => {
-    mockIsWebAuthnLevel3Supported.mockReturnValue(false);
+    mockIsWebAuthnSupported.mockReturnValue(false);
     const { container } = renderWrapper();
     expect(mockAlertError).toHaveBeenCalledTimes(1);
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
