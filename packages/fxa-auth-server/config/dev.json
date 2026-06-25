@@ -469,6 +469,8 @@
     "enabled": true,
     "registrationEnabled": true,
     "authenticationEnabled": true,
+    "requestPrfAtRegistration": true,
+    "prfSalt": "dGVzdC1wcmYtc2FsdA",
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]
   },

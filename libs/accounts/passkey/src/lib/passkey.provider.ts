@@ -31,6 +31,7 @@ export type RawPasskeyConfig = {
   /** Empty string is treated as "no preference" and normalized to `undefined`. */
   authenticatorAttachment: AuthenticatorAttachment | '';
   requestPrfAtRegistration: boolean;
+  prfSalt: string;
 };
 
 /**
