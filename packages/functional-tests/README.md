@@ -14,11 +14,13 @@ The environments that this suite may run against are:
 
 Each has its own named script in [package.json](./package.json) or you can use `--project` when running `playwright test` manually. They are implemented in `lib/targets`.
 
-There is also a very small subset of tests that can _only_ run against Chromium browsers. These have slightly different project names, listed below, and should only be used when running the Passkey tests.
+There is also a very small subset of tests that can _only_ run against Chromium browsers (e.g. passkey specs that drive Chrome's real WebAuthn stack via a CDP virtual authenticator). These run under the Chromium-only project variants below:
 
 - local-chromium
 - stage-chromium
 - production-chromium
+
+These specs are tagged `@chromium`, which is the separation mechanism: the Firefox projects set `grepInvert: /@chromium/` (so they skip them) and the `-chromium` projects set `grep: /@chromium/` (so they run _only_ them). Tag any new Chromium-only test's `describe`/`test` title with `@chromium`. **These projects are local/manual only — CI does not run them**, so treat `@chromium` specs as a manual QA aid rather than a CI gate.
 
 ### Running the tests
 

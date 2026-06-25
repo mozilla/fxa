@@ -5,119 +5,184 @@
 import {
   createCredential,
   getCredential,
-  isWebAuthnLevel3Supported,
+  isWebAuthnSupported,
   PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialJSON,
   PublicKeyCredentialRequestOptionsJSON,
 } from './webauthn';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-const mockCredentialJSON: PublicKeyCredentialJSON = {
-  id: 'bW9jay1pZA',
-  rawId: 'bW9jay1yYXctaWQ',
-  type: 'public-key',
-  response: {
-    clientDataJSON: 'bW9jay1jbGllbnQtZGF0YQ',
-    attestationObject: 'bW9jay1hdHRlc3RhdGlvbg',
-  },
-  clientExtensionResults: {},
+// Human-readable source bytes for the credential's binary fields. The browser
+// returns these as ArrayBuffers; toCredentialJSON base64url-encodes them.
+const SRC = {
+  rawId: 'raw-id',
+  clientDataJSON: 'client-data',
+  attestationObject: 'attestation-object',
+  authenticatorData: 'auth-data',
+  signature: 'signature',
+  userHandle: 'user-handle',
 };
+
+// credential.id is already a base64url string in the WebAuthn API; it passes
+// through unchanged (it is not re-encoded from rawId).
+const CRED_ID = 'mock-credential-id';
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const toBuf = (s: string): ArrayBuffer => enc.encode(s).buffer as ArrayBuffer;
+/** Reads decoded request bytes back to text for independent assertions. */
+const decode = (buffer: BufferSource): string => dec.decode(buffer);
+
+// Reference base64url encoder built on Node's Buffer — deliberately a different
+// implementation from production's btoa-based encoder, so equality assertions
+// cross-check rather than tautologically mirror the code under test.
+const b64url = (s: string): string =>
+  Buffer.from(s, 'utf8').toString('base64url');
+
+// base64url of the human-readable strings used in request-decoding assertions.
+const CRED_ID_B64URL = b64url('cred-id');
+const PRF_SALT_B64URL = b64url('prf-salt');
 
 const mockCreationOptions: PublicKeyCredentialCreationOptionsJSON = {
   rp: { name: 'Mozilla Accounts', id: 'accounts.firefox.com' },
   user: {
-    id: 'dXNlci1pZA',
+    id: b64url('user-id'),
     name: 'test@example.com',
     displayName: 'test@example.com',
   },
-  challenge: 'Y2hhbGxlbmdl',
+  challenge: b64url('challenge'),
   pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
 };
 
 const mockRequestOptions: PublicKeyCredentialRequestOptionsJSON = {
-  challenge: 'Y2hhbGxlbmdl',
+  challenge: b64url('challenge'),
   userVerification: 'required',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function setupMockPKC(
-  overrides: Record<string, unknown> = {}
-): Record<string, jest.Mock> {
-  // Use a class so that mockCredential instances pass `instanceof PublicKeyCredential`.
-  class MockPublicKeyCredential {}
-  const statics = {
-    parseCreationOptionsFromJSON: jest.fn().mockReturnValue({}),
-    parseRequestOptionsFromJSON: jest.fn().mockReturnValue({}),
-    ...overrides,
-  };
-  Object.assign(MockPublicKeyCredential, statics);
-  (global as any).PublicKeyCredential = MockPublicKeyCredential;
-  return statics as Record<string, jest.Mock>;
+/** Installs a PublicKeyCredential constructor so isWebAuthnSupported() passes. */
+function setupPublicKeyCredential(): void {
+  (global as any).PublicKeyCredential = class MockPublicKeyCredential {};
 }
 
-function setupMockCredentials(result: PublicKeyCredentialJSON): {
+type MockCredential = Record<string, unknown> & { toJSON: jest.Mock };
+
+/**
+ * Builds a credential mock mirroring what the browser returns: binary fields as
+ * ArrayBuffers, an L2 getter for extension results, and a `toJSON` spy that the
+ * code under test must NOT call (that native call is what crashes WebKit).
+ */
+function makeAttestationCredential(
+  overrides: {
+    clientExtensionResults?: Record<string, unknown>;
+    authenticatorAttachment?: string;
+    transports?: string[];
+    omitGetTransports?: boolean;
+  } = {}
+): MockCredential {
+  const response: Record<string, unknown> = {
+    clientDataJSON: toBuf(SRC.clientDataJSON),
+    attestationObject: toBuf(SRC.attestationObject),
+  };
+  if (!overrides.omitGetTransports) {
+    response.getTransports = jest
+      .fn()
+      .mockReturnValue(overrides.transports ?? ['internal']);
+  }
+  return {
+    id: CRED_ID,
+    rawId: toBuf(SRC.rawId),
+    type: 'public-key',
+    ...(overrides.authenticatorAttachment
+      ? { authenticatorAttachment: overrides.authenticatorAttachment }
+      : {}),
+    response,
+    getClientExtensionResults: jest
+      .fn()
+      .mockReturnValue(overrides.clientExtensionResults ?? {}),
+    toJSON: jest.fn(),
+  };
+}
+
+function makeAssertionCredential(
+  overrides: {
+    clientExtensionResults?: Record<string, unknown>;
+    omitUserHandle?: boolean;
+  } = {}
+): MockCredential {
+  const response: Record<string, unknown> = {
+    clientDataJSON: toBuf(SRC.clientDataJSON),
+    authenticatorData: toBuf(SRC.authenticatorData),
+    signature: toBuf(SRC.signature),
+  };
+  if (!overrides.omitUserHandle) {
+    response.userHandle = toBuf(SRC.userHandle);
+  }
+  return {
+    id: CRED_ID,
+    rawId: toBuf(SRC.rawId),
+    type: 'public-key',
+    response,
+    getClientExtensionResults: jest
+      .fn()
+      .mockReturnValue(overrides.clientExtensionResults ?? {}),
+    toJSON: jest.fn(),
+  };
+}
+
+function wireCredentials(credential: unknown): {
   mockCreate: jest.Mock;
   mockGet: jest.Mock;
 } {
-  // Create an instance of the mock class so `instanceof PublicKeyCredential` passes.
-  const MockPKC = (global as any).PublicKeyCredential as { prototype: object };
-  const mockCredential = Object.create(MockPKC.prototype);
-  mockCredential.toJSON = jest.fn().mockReturnValue(result);
-
-  const mockCreate = jest.fn().mockResolvedValue(mockCredential);
-  const mockGet = jest.fn().mockResolvedValue(mockCredential);
-
+  const mockCreate = jest.fn().mockResolvedValue(credential);
+  const mockGet = jest.fn().mockResolvedValue(credential);
   Object.defineProperty(global.navigator, 'credentials', {
     value: { create: mockCreate, get: mockGet },
     configurable: true,
     writable: true,
   });
-
   return { mockCreate, mockGet };
 }
 
-// ─── isWebAuthnLevel3Supported ──────────────────────────────────────────────────────
+// ─── isWebAuthnSupported ─────────────────────────────────────────────────────
 
-describe('isWebAuthnLevel3Supported', () => {
+describe('isWebAuthnSupported', () => {
   afterEach(() => {
     (global as any).PublicKeyCredential = undefined;
   });
 
   it('returns false when PublicKeyCredential is absent', () => {
     (global as any).PublicKeyCredential = undefined;
-    expect(isWebAuthnLevel3Supported()).toBe(false);
+    expect(isWebAuthnSupported()).toBe(false);
   });
 
-  it('returns false when parseCreationOptionsFromJSON is missing', () => {
-    (global as any).PublicKeyCredential = {
-      parseRequestOptionsFromJSON: jest.fn(),
-    };
-    expect(isWebAuthnLevel3Supported()).toBe(false);
+  it('returns false when navigator.credentials.create is missing', () => {
+    setupPublicKeyCredential();
+    Object.defineProperty(global.navigator, 'credentials', {
+      value: { get: jest.fn() },
+      configurable: true,
+      writable: true,
+    });
+    expect(isWebAuthnSupported()).toBe(false);
   });
 
-  it('returns false when parseRequestOptionsFromJSON is missing', () => {
-    (global as any).PublicKeyCredential = {
-      parseCreationOptionsFromJSON: jest.fn(),
-    };
-    expect(isWebAuthnLevel3Supported()).toBe(false);
-  });
-
-  it('returns true when both JSON helpers are present', () => {
-    setupMockPKC();
-    expect(isWebAuthnLevel3Supported()).toBe(true);
+  it('returns true when PublicKeyCredential and navigator.credentials are present', () => {
+    setupPublicKeyCredential();
+    wireCredentials(makeAttestationCredential());
+    expect(isWebAuthnSupported()).toBe(true);
   });
 });
 
 describe('createCredential', () => {
-  let mockPKC: Record<string, jest.Mock>;
   let mockCreate: jest.Mock;
+  let credential: MockCredential;
 
   beforeEach(() => {
     jest.useFakeTimers();
-    mockPKC = setupMockPKC();
-    ({ mockCreate } = setupMockCredentials(mockCredentialJSON));
+    setupPublicKeyCredential();
+    credential = makeAttestationCredential();
+    ({ mockCreate } = wireCredentials(credential));
   });
 
   afterEach(() => {
@@ -125,19 +190,168 @@ describe('createCredential', () => {
     (global as any).PublicKeyCredential = undefined;
   });
 
-  it('resolves with credential JSON on success', async () => {
+  it('serializes the attestation response to JSON', async () => {
     const result = await createCredential(mockCreationOptions);
-    expect(result).toEqual(mockCredentialJSON);
+    expect(result).toEqual({
+      id: CRED_ID,
+      rawId: b64url(SRC.rawId),
+      type: 'public-key',
+      response: {
+        clientDataJSON: b64url(SRC.clientDataJSON),
+        attestationObject: b64url(SRC.attestationObject),
+        transports: ['internal'],
+      },
+      clientExtensionResults: {},
+    });
   });
 
-  it('passes parsed options and AbortSignal to navigator.credentials.create', async () => {
+  it('does not call the native credential.toJSON()', async () => {
+    // The native toJSON() is what crashes WebKit < 26.5.1 when a prf output is
+    // present; serialization must go through the L2 getters instead.
     await createCredential(mockCreationOptions);
-    expect(mockPKC['parseCreationOptionsFromJSON']).toHaveBeenCalledWith(
-      mockCreationOptions
-    );
-    const callArg = mockCreate.mock.calls[0][0];
-    expect(callArg).toHaveProperty('publicKey');
-    expect(callArg.signal).toBeInstanceOf(AbortSignal);
+    expect(credential.toJSON).not.toHaveBeenCalled();
+  });
+
+  it('records the PRF enabled flag from getClientExtensionResults()', async () => {
+    credential = makeAttestationCredential({
+      clientExtensionResults: { prf: { enabled: true } },
+    });
+    ({ mockCreate } = wireCredentials(credential));
+    const result = await createCredential(mockCreationOptions);
+    expect(result.clientExtensionResults).toEqual({ prf: { enabled: true } });
+  });
+
+  it('omits transports when the authenticator exposes no getTransports()', async () => {
+    credential = makeAttestationCredential({ omitGetTransports: true });
+    ({ mockCreate } = wireCredentials(credential));
+    const result = await createCredential(mockCreationOptions);
+    expect(result.response).toEqual({
+      clientDataJSON: b64url(SRC.clientDataJSON),
+      attestationObject: b64url(SRC.attestationObject),
+    });
+  });
+
+  it('includes authenticatorAttachment when the browser reports it', async () => {
+    credential = makeAttestationCredential({
+      authenticatorAttachment: 'platform',
+    });
+    ({ mockCreate } = wireCredentials(credential));
+    const result = await createCredential(mockCreationOptions);
+    expect(result.authenticatorAttachment).toBe('platform');
+  });
+
+  it('omits authenticatorAttachment when the browser does not report it', async () => {
+    const result = await createCredential(mockCreationOptions);
+    expect(result).not.toHaveProperty('authenticatorAttachment');
+  });
+
+  it('serializes a 1Password-style plain object without calling its toJSON', async () => {
+    // 1Password returns a plain object (not a PublicKeyCredential) whose native
+    // toJSON throws; manual serialization sidesteps it entirely.
+    const plain = makeAttestationCredential();
+    ({ mockCreate } = wireCredentials(plain));
+    const result = await createCredential(mockCreationOptions);
+    expect(result.id).toBe(CRED_ID);
+    expect(plain.toJSON).not.toHaveBeenCalled();
+  });
+
+  it('throws UnknownError when create resolves null', async () => {
+    mockCreate.mockResolvedValue(null);
+    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('returned null'),
+    });
+  });
+
+  it('throws UnknownError when the response is neither attestation nor assertion', async () => {
+    mockCreate.mockResolvedValue({
+      id: CRED_ID,
+      rawId: toBuf(SRC.rawId),
+      type: 'public-key',
+      response: {},
+      getClientExtensionResults: () => ({}),
+    });
+    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('unrecognized authenticator response'),
+    });
+  });
+
+  it('throws UnknownError (not TypeError) for a non-public-key credential', async () => {
+    mockCreate.mockResolvedValue({
+      id: CRED_ID,
+      rawId: toBuf(SRC.rawId),
+      type: 'password',
+      response: {
+        clientDataJSON: toBuf(SRC.clientDataJSON),
+        attestationObject: toBuf(SRC.attestationObject),
+      },
+      getClientExtensionResults: () => ({}),
+    });
+    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('unexpected shape'),
+    });
+  });
+
+  it('throws UnknownError (not TypeError) when the credential response is null', async () => {
+    mockCreate.mockResolvedValue({
+      id: CRED_ID,
+      rawId: toBuf(SRC.rawId),
+      type: 'public-key',
+      response: null,
+      getClientExtensionResults: () => ({}),
+    });
+    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('unexpected shape'),
+    });
+  });
+
+  it('decodes options to native and forwards an AbortSignal to navigator.credentials.create', async () => {
+    await createCredential(mockCreationOptions);
+    const { publicKey, signal } = mockCreate.mock.calls[0][0];
+    expect(signal).toBeInstanceOf(AbortSignal);
+    // base64url challenge/user.id are decoded back to bytes for the native call.
+    expect(decode(publicKey.challenge)).toBe('challenge');
+    expect(decode(publicKey.user.id)).toBe('user-id');
+    expect(publicKey.user.name).toBe('test@example.com');
+    expect(publicKey.pubKeyCredParams).toEqual([
+      { type: 'public-key', alg: -7 },
+    ]);
+  });
+
+  it('decodes excludeCredentials ids and the PRF eval salt to bytes', async () => {
+    await createCredential({
+      ...mockCreationOptions,
+      excludeCredentials: [
+        { id: CRED_ID_B64URL, type: 'public-key', transports: ['internal'] },
+      ],
+      extensions: { prf: { eval: { first: PRF_SALT_B64URL } } },
+    });
+    const { publicKey } = mockCreate.mock.calls[0][0];
+    expect(decode(publicKey.excludeCredentials[0].id)).toBe('cred-id');
+    expect(publicKey.excludeCredentials[0].transports).toEqual(['internal']);
+    expect(decode(publicKey.extensions.prf.eval.first)).toBe('prf-salt');
+  });
+
+  it('decodes the PRF eval.second and evalByCredential salts to bytes', async () => {
+    await createCredential({
+      ...mockCreationOptions,
+      extensions: {
+        prf: {
+          eval: { first: PRF_SALT_B64URL, second: b64url('prf-salt-2') },
+          evalByCredential: {
+            [CRED_ID_B64URL]: { first: b64url('per-cred-salt') },
+          },
+        },
+      },
+    });
+    const { publicKey } = mockCreate.mock.calls[0][0];
+    expect(decode(publicKey.extensions.prf.eval.second)).toBe('prf-salt-2');
+    expect(
+      decode(publicKey.extensions.prf.evalByCredential[CRED_ID_B64URL].first)
+    ).toBe('per-cred-salt');
   });
 
   it('throws NotSupportedError when WebAuthn APIs are absent', async () => {
@@ -225,43 +439,17 @@ describe('createCredential', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
-
-  it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {
-    // 1Password returns a plain object that mimics PublicKeyCredential
-    // but is not an actual instance of the class.
-    const proxyCredential = {
-      id: mockCredentialJSON.id,
-      rawId: new ArrayBuffer(8),
-      type: 'public-key',
-      authenticatorAttachment: 'platform',
-      response: {},
-      getClientExtensionResults: jest.fn().mockReturnValue({}),
-      toJSON: jest.fn().mockReturnValue(mockCredentialJSON),
-    };
-    mockCreate.mockResolvedValue(proxyCredential);
-
-    const result = await createCredential(mockCreationOptions);
-    expect(result).toEqual(mockCredentialJSON);
-    expect(proxyCredential.toJSON).toHaveBeenCalled();
-  });
-
-  it('throws when credential lacks toJSON()', async () => {
-    mockCreate.mockResolvedValue({ id: 'no-toJSON', type: 'public-key' });
-    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
-      name: 'UnknownError',
-      message: expect.stringContaining('without toJSON()'),
-    });
-  });
 });
 
 describe('getCredential', () => {
-  let mockPKC: Record<string, jest.Mock>;
   let mockGet: jest.Mock;
+  let credential: MockCredential;
 
   beforeEach(() => {
     jest.useFakeTimers();
-    mockPKC = setupMockPKC();
-    ({ mockGet } = setupMockCredentials(mockCredentialJSON));
+    setupPublicKeyCredential();
+    credential = makeAssertionCredential();
+    ({ mockGet } = wireCredentials(credential));
   });
 
   afterEach(() => {
@@ -269,19 +457,61 @@ describe('getCredential', () => {
     (global as any).PublicKeyCredential = undefined;
   });
 
-  it('resolves with credential JSON on success', async () => {
+  it('serializes the assertion response to JSON', async () => {
     const result = await getCredential(mockRequestOptions);
-    expect(result).toEqual(mockCredentialJSON);
+    expect(result).toEqual({
+      id: CRED_ID,
+      rawId: b64url(SRC.rawId),
+      type: 'public-key',
+      response: {
+        clientDataJSON: b64url(SRC.clientDataJSON),
+        authenticatorData: b64url(SRC.authenticatorData),
+        signature: b64url(SRC.signature),
+        userHandle: b64url(SRC.userHandle),
+      },
+      clientExtensionResults: {},
+    });
   });
 
-  it('passes parsed options and AbortSignal to navigator.credentials.get', async () => {
+  it('does not call the native credential.toJSON()', async () => {
+    // The assertion path serializes a prf output during Phase-2 sign-in; the
+    // native toJSON() would crash WebKit < 26.5.1 there too.
     await getCredential(mockRequestOptions);
-    expect(mockPKC['parseRequestOptionsFromJSON']).toHaveBeenCalledWith(
-      mockRequestOptions
-    );
-    const callArg = mockGet.mock.calls[0][0];
-    expect(callArg).toHaveProperty('publicKey');
-    expect(callArg.signal).toBeInstanceOf(AbortSignal);
+    expect(credential.toJSON).not.toHaveBeenCalled();
+  });
+
+  it('omits userHandle when the authenticator does not return one', async () => {
+    credential = makeAssertionCredential({ omitUserHandle: true });
+    ({ mockGet } = wireCredentials(credential));
+    const result = await getCredential(mockRequestOptions);
+    expect(result.response).not.toHaveProperty('userHandle');
+  });
+
+  it('throws UnknownError when get resolves null', async () => {
+    mockGet.mockResolvedValue(null);
+    await expect(getCredential(mockRequestOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('returned null'),
+    });
+  });
+
+  it('decodes options to native and forwards an AbortSignal to navigator.credentials.get', async () => {
+    await getCredential(mockRequestOptions);
+    const { publicKey, signal } = mockGet.mock.calls[0][0];
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(decode(publicKey.challenge)).toBe('challenge');
+    expect(publicKey.userVerification).toBe('required');
+  });
+
+  it('decodes allowCredentials ids and the PRF eval salt to bytes', async () => {
+    await getCredential({
+      ...mockRequestOptions,
+      allowCredentials: [{ id: CRED_ID_B64URL, type: 'public-key' }],
+      extensions: { prf: { eval: { first: PRF_SALT_B64URL } } },
+    });
+    const { publicKey } = mockGet.mock.calls[0][0];
+    expect(decode(publicKey.allowCredentials[0].id)).toBe('cred-id');
+    expect(decode(publicKey.extensions.prf.eval.first)).toBe('prf-salt');
   });
 
   it('throws NotSupportedError when WebAuthn APIs are absent', async () => {
@@ -325,29 +555,46 @@ describe('getCredential', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
+});
 
-  it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {
-    const proxyCredential = {
-      id: mockCredentialJSON.id,
-      rawId: new ArrayBuffer(8),
-      type: 'public-key',
-      authenticatorAttachment: 'platform',
-      response: {},
-      getClientExtensionResults: jest.fn().mockReturnValue({}),
-      toJSON: jest.fn().mockReturnValue(mockCredentialJSON),
-    };
-    mockGet.mockResolvedValue(proxyCredential);
-
-    const result = await getCredential(mockRequestOptions);
-    expect(result).toEqual(mockCredentialJSON);
-    expect(proxyCredential.toJSON).toHaveBeenCalled();
+describe('PRF salt decoding parity (create vs get)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    setupPublicKeyCredential();
   });
 
-  it('throws when credential lacks toJSON()', async () => {
-    mockGet.mockResolvedValue({ id: 'no-toJSON', type: 'public-key' });
-    await expect(getCredential(mockRequestOptions)).rejects.toMatchObject({
-      name: 'UnknownError',
-      message: expect.stringContaining('without toJSON()'),
+  afterEach(() => {
+    jest.useRealTimers();
+    (global as any).PublicKeyCredential = undefined;
+  });
+
+  it('decodes the same salt to identical bytes on create and get', async () => {
+    const mockCreate = jest.fn().mockResolvedValue(makeAttestationCredential());
+    const mockGet = jest.fn().mockResolvedValue(makeAssertionCredential());
+    Object.defineProperty(global.navigator, 'credentials', {
+      value: { create: mockCreate, get: mockGet },
+      configurable: true,
+      writable: true,
     });
+
+    const salt = b64url('shared-prf-salt');
+    await createCredential({
+      ...mockCreationOptions,
+      extensions: { prf: { eval: { first: salt } } },
+    });
+    await getCredential({
+      ...mockRequestOptions,
+      extensions: { prf: { eval: { first: salt } } },
+    });
+
+    const createSalt =
+      mockCreate.mock.calls[0][0].publicKey.extensions.prf.eval.first;
+    const getSalt =
+      mockGet.mock.calls[0][0].publicKey.extensions.prf.eval.first;
+    // Both request paths run through the same toNativeExtensions decoder, so the
+    // same salt must yield byte-identical eval input — Phase-2 kB derivation
+    // depends on register and sign-in handing the authenticator the same bytes.
+    expect(getSalt).toEqual(createSalt);
+    expect(decode(createSalt)).toBe('shared-prf-salt');
   });
 });

@@ -11,7 +11,7 @@ import {
   type PasskeySignInAuthClient,
   type PasskeySignInIntegration,
 } from './signin-flow';
-import { getCredential, isWebAuthnLevel3Supported } from './webauthn';
+import { getCredential, isWebAuthnSupported } from './webauthn';
 import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
@@ -25,7 +25,7 @@ import {
 jest.mock('./webauthn', () => ({
   __esModule: true,
   ...jest.requireActual('./webauthn'),
-  isWebAuthnLevel3Supported: jest.fn(),
+  isWebAuthnSupported: jest.fn(),
   getCredential: jest.fn(),
 }));
 
@@ -179,7 +179,7 @@ const buildArgs = (
 
 beforeEach(() => {
   jest.clearAllMocks();
-  (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(true);
+  (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
   (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
   (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
   (handleNavigation as jest.Mock).mockResolvedValue({ error: undefined });
@@ -187,7 +187,7 @@ beforeEach(() => {
 
 describe('usePasskeySignIn', () => {
   it('shows a banner and skips the ceremony when WebAuthn is unsupported', async () => {
-    (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(false);
+    (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
     const { args, spies } = buildArgs();
 
     const { result } = renderHook(() => usePasskeySignIn(args));
@@ -896,7 +896,7 @@ describe('usePasskeySignIn', () => {
     });
 
     it('fires submit_frontend_error with reason=not_supported when WebAuthn L3 missing', async () => {
-      (isWebAuthnLevel3Supported as jest.Mock).mockReturnValue(false);
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
       const { args } = buildArgs({ surface: 'emailfirst' });
 
       const { result } = renderHook(() => usePasskeySignIn(args));

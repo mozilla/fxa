@@ -12,7 +12,7 @@ import {
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { PasskeySubRow } from '../SubRow';
-import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
+import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
 import { PASSKEY_SUPPORT_URL } from '../../../lib/passkeys/constants';
 import { unsupportedPasskeyMessage } from '../../../lib/passkeys/unsupported-message';
 import { Banner } from '../../Banner';
@@ -26,7 +26,7 @@ export const UnitRowPasskey = () => {
   const passkeys = account.passkeys;
   const hasPasskeys = passkeys.length > 0;
   const isAtLimit = passkeys.length >= maxPasskeys;
-  const webAuthnSupported = isWebAuthnLevel3Supported();
+  const webAuthnSupported = isWebAuthnSupported();
 
   const conditionalUnitRowProps: Partial<UnitRowProps> = hasPasskeys
     ? {

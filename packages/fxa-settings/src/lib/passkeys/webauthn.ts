@@ -2,27 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// ─── JSON wire-format types ──────────────────────────────────────────────────
-// Explicit types for the JSON-serializable WebAuthn data exchanged with the
-// backend. These must not reference ArrayBuffer, PublicKeyCredential, or other
-// WebAuthn DOM interfaces so they can be used in any context.
+import { base64urlToBytes, bytesToBase64url } from '../base64url';
 
 export type Base64URLString = string;
 
 export interface PublicKeyCredentialDescriptorJSON {
   id: Base64URLString;
   type: 'public-key';
-  // Superset of the DOM AuthenticatorTransport union — includes 'smart-card'
-  // which is valid per the WebAuthn spec but absent from TypeScript 5.5 DOM lib.
+  // 'smart-card' is valid per spec but absent from the TS DOM lib's union.
   transports?: (AuthenticatorTransport | 'smart-card')[];
 }
 
 /**
- * PRF extension eval input. The `first` salt is a fully static,
- * application-level constant supplied by the server. Uniqueness of the PRF
- * output is guaranteed by each credential's own private key — the same salt
- * on a different passkey produces a different output, so no per-user or
- * per-credential variation of the salt is needed.
+ * PRF eval input. `first` is a static, server-supplied constant; uniqueness of
+ * the PRF output comes from each credential's private key, not the salt.
  */
 export interface PrfEvalInput {
   first: Base64URLString;
@@ -31,8 +24,7 @@ export interface PrfEvalInput {
 
 /** Extensions accepted by WebAuthn creation and request options. */
 export interface AuthenticationExtensionsJSON {
-  /** PRF extension — always requested during registration; requested during
-   *  authentication when PRF-wrapped sync keys are involved. */
+  /** Requested at registration; at authentication when PRF-wrapped sync keys are involved. */
   prf?: {
     eval?: PrfEvalInput;
     evalByCredential?: Record<string, PrfEvalInput>;
@@ -72,14 +64,10 @@ export interface PublicKeyCredentialRequestOptionsJSON {
   extensions?: AuthenticationExtensionsJSON;
 }
 
-// ─── Credential response types ───────────────────────────────────────────────
-// Shapes produced by PublicKeyCredential.toJSON(), sent to the backend.
-
 export interface AuthenticatorAttestationResponseJSON {
   clientDataJSON: Base64URLString;
   attestationObject: Base64URLString;
-  // Optional per the WebAuthn spec — browsers may omit transports.
-  // The backend must normalize absent transports to [] before DB storage.
+  // Optional per spec; browsers may omit transports.
   transports?: string[];
 }
 
@@ -103,101 +91,163 @@ export interface PublicKeyCredentialJSON {
   clientExtensionResults: Record<string, unknown>;
 }
 
-// ─── WebAuthn Level 3 type extensions ────────────────────────────────────────
-// TypeScript 5.5 DOM lib does not yet include these WebAuthn Level 3 helpers. Remove when
-// microsoft/TypeScript#60641 ships — the instanceof guards below will also be
-// redundant at that point.
-
-type PublicKeyCredentialLevel3 = typeof PublicKeyCredential & {
-  parseCreationOptionsFromJSON(
-    options: PublicKeyCredentialCreationOptionsJSON
-  ): PublicKeyCredentialCreationOptions;
-  parseRequestOptionsFromJSON(
-    options: PublicKeyCredentialRequestOptionsJSON
-  ): PublicKeyCredentialRequestOptions;
-};
-
-declare global {
-  interface PublicKeyCredential {
-    toJSON(): PublicKeyCredentialJSON;
-  }
-}
-
-// ─── Feature detection ───────────────────────────────────────────────────────
-
 /**
- * Returns true when the browser exposes the WebAuthn Level 3 JSON helpers
- * (parseCreationOptionsFromJSON, parseRequestOptionsFromJSON) on the
- * PublicKeyCredential constructor.
- *
- * We require Level 3 rather than falling back to Level 2 as a deliberate
- * scope decision. The JSON helpers eliminate all manual base64url ↔
- * ArrayBuffer conversion; supporting Level 2 would add ~30–50 lines of
- * encoding code for no functional gain on modern browsers. PRF (used for
- * passwordless Sync key derivation) is also a Level 3 extension, though PRF
- * is optional — non-PRF passkeys work for basic authentication regardless,
- * so the Level 3 gate is purely about code simplicity, not a hard PRF
- * dependency. Windows Hello, for example, passes this check on Chrome/Edge
- * but does not support PRF; registration and authentication succeed normally,
- * only passwordless Sync key derivation (Phase 2) would be unavailable for
- * those passkeys.
- *
- * Browsers excluded by this check (support WebAuthn but not Level 3):
- *   - Safari / iOS < 17.4 (shipped March 2024) — the main real-world gap;
- *     iOS 16 users cannot upgrade and will always fail this check.
- *   - Chrome < 129 (Sep 2024), Firefox < 128 (Jul 2024) — negligible in
- *     practice given auto-update behaviour.
- *
- * No authenticator (YubiKey, Face ID, Windows Hello, etc.) is excluded —
- * Level 3 is a browser API concern, not an authenticator capability.
- *
- * If product decides to support older Safari / iOS 16, the wrappers below
- * need a Level 2 fallback that manually encodes/decodes binary fields. At
- * that point, adopting a library such as @simplewebauthn/browser is worth
- * considering — it handles both Level 2 and Level 3 paths, the 1Password
- * plain-object fallback, and conditional UI, avoiding further bespoke
- * encoding code.
- *
- * toJSON() on the credential instance is not explicitly checked; it always
- * ships alongside the static parse helpers in practice.
+ * True when the browser supports WebAuthn Level 2 (PublicKeyCredential +
+ * navigator.credentials.create/get). We decode options and serialize responses
+ * by hand rather than using the L3 JSON helpers, so this baseline is all we
+ * need — covering browsers before those helpers (Safari/iOS < 18.4, Chrome <
+ * 129, Firefox < 119).
  */
-export function isWebAuthnLevel3Supported(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-  const pkc = (window as Window & { PublicKeyCredential?: unknown })
-    .PublicKeyCredential as Record<string, unknown> | undefined;
+export function isWebAuthnSupported(): boolean {
   return (
-    pkc !== undefined &&
-    typeof pkc['parseCreationOptionsFromJSON'] === 'function' &&
-    typeof pkc['parseRequestOptionsFromJSON'] === 'function'
+    typeof window !== 'undefined' &&
+    typeof window.PublicKeyCredential === 'function' &&
+    typeof navigator !== 'undefined' &&
+    typeof navigator.credentials?.create === 'function' &&
+    typeof navigator.credentials?.get === 'function'
   );
 }
 
-// ─── Credential extraction ──────────────────────────────────────────────────
+function toNativeDescriptor(
+  descriptor: PublicKeyCredentialDescriptorJSON
+): PublicKeyCredentialDescriptor {
+  return {
+    id: base64urlToBytes(descriptor.id),
+    type: descriptor.type,
+    ...(descriptor.transports
+      ? { transports: descriptor.transports as AuthenticatorTransport[] }
+      : {}),
+  };
+}
 
-/** Type guard for objects that can serialize to credential JSON. */
-function hasToJSON(
-  value: unknown
-): value is { toJSON: () => PublicKeyCredentialJSON } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'toJSON' in value &&
-    typeof value.toJSON === 'function'
+function toNativePrfValues(values: PrfEvalInput): {
+  first: BufferSource;
+  second?: BufferSource;
+} {
+  return {
+    first: base64urlToBytes(values.first),
+    ...(values.second !== undefined
+      ? { second: base64urlToBytes(values.second) }
+      : {}),
+  };
+}
+
+function toNativeExtensions(
+  extensions: AuthenticationExtensionsJSON
+): AuthenticationExtensionsClientInputs {
+  // Only the PRF extension carries binary (base64url) inputs; the rest pass through.
+  const { prf, ...rest } = extensions;
+  const native: Record<string, unknown> = { ...rest };
+  if (prf) {
+    native.prf = {
+      ...(prf.eval ? { eval: toNativePrfValues(prf.eval) } : {}),
+      ...(prf.evalByCredential
+        ? {
+            evalByCredential: Object.fromEntries(
+              Object.entries(prf.evalByCredential).map(([id, values]) => [
+                id,
+                toNativePrfValues(values),
+              ])
+            ),
+          }
+        : {}),
+    };
+  }
+  // Cast: the bundled DOM lib's AuthenticationExtensionsClientInputs predates PRF.
+  return native as AuthenticationExtensionsClientInputs;
+}
+
+function toNativeCreationOptions(
+  options: PublicKeyCredentialCreationOptionsJSON
+): PublicKeyCredentialCreationOptions {
+  return {
+    rp: options.rp,
+    user: {
+      id: base64urlToBytes(options.user.id),
+      name: options.user.name,
+      displayName: options.user.displayName,
+    },
+    challenge: base64urlToBytes(options.challenge),
+    pubKeyCredParams: options.pubKeyCredParams,
+    ...(options.timeout !== undefined ? { timeout: options.timeout } : {}),
+    ...(options.excludeCredentials
+      ? {
+          excludeCredentials:
+            options.excludeCredentials.map(toNativeDescriptor),
+        }
+      : {}),
+    ...(options.authenticatorSelection
+      ? { authenticatorSelection: options.authenticatorSelection }
+      : {}),
+    ...(options.attestation ? { attestation: options.attestation } : {}),
+    ...(options.extensions
+      ? { extensions: toNativeExtensions(options.extensions) }
+      : {}),
+  };
+}
+
+function toNativeRequestOptions(
+  options: PublicKeyCredentialRequestOptionsJSON
+): PublicKeyCredentialRequestOptions {
+  return {
+    challenge: base64urlToBytes(options.challenge),
+    ...(options.timeout !== undefined ? { timeout: options.timeout } : {}),
+    ...(options.rpId ? { rpId: options.rpId } : {}),
+    ...(options.allowCredentials
+      ? { allowCredentials: options.allowCredentials.map(toNativeDescriptor) }
+      : {}),
+    ...(options.userVerification
+      ? { userVerification: options.userVerification }
+      : {}),
+    ...(options.extensions
+      ? { extensions: toNativeExtensions(options.extensions) }
+      : {}),
+  };
+}
+
+function serializeResponse(
+  response: AuthenticatorResponse,
+  operation: string
+): AuthenticatorResponseJSON {
+  if ('attestationObject' in response) {
+    const attestation = response as AuthenticatorAttestationResponse;
+    return {
+      clientDataJSON: bytesToBase64url(attestation.clientDataJSON),
+      attestationObject: bytesToBase64url(attestation.attestationObject),
+      // getTransports() is optional per spec; some authenticators omit it.
+      ...(typeof attestation.getTransports === 'function'
+        ? { transports: attestation.getTransports() }
+        : {}),
+    };
+  }
+  if ('signature' in response) {
+    const assertion = response as AuthenticatorAssertionResponse;
+    return {
+      clientDataJSON: bytesToBase64url(assertion.clientDataJSON),
+      authenticatorData: bytesToBase64url(assertion.authenticatorData),
+      signature: bytesToBase64url(assertion.signature),
+      ...(assertion.userHandle
+        ? { userHandle: bytesToBase64url(assertion.userHandle) }
+        : {}),
+    };
+  }
+  throw new DOMException(
+    `${operation} returned an unrecognized authenticator response`,
+    'UnknownError'
   );
 }
 
 /**
- * Extracts `PublicKeyCredentialJSON` from a browser credential result.
+ * Builds PublicKeyCredentialJSON from a browser credential by hand, via the
+ * Level 2 getters (rawId, response.*, getClientExtensionResults) instead of
+ * native PublicKeyCredential.toJSON().
  *
- * Prefers duck-typing (`toJSON()`) over `instanceof PublicKeyCredential`
- * because password managers (e.g. 1Password) may return a plain object
- * that has all the right fields but is not a real `PublicKeyCredential`.
+ * Why not toJSON(): WebKit before 26.5.1 crashes the renderer inside its native
+ * extension-output serializer when a `prf` output is present — an uncatchable
+ * process trap, not a catchable exception. The L2 getters predate that path.
  *
- * No client-side shape validation of the `toJSON()` return value —
- * `@simplewebauthn/server:verifyRegistrationResponse` performs strict
- * WebAuthn spec validation server-side and rejects malformed data.
+ * Duck-typed (no instanceof) so password managers returning a plain object with
+ * the same fields serialize too; the server validates shape strictly.
  */
 function toCredentialJSON(
   rawCredential: Credential | null,
@@ -206,47 +256,63 @@ function toCredentialJSON(
   if (!rawCredential) {
     throw new DOMException(`${operation} returned null`, 'UnknownError');
   }
-  if (hasToJSON(rawCredential)) {
-    return rawCredential.toJSON();
+  // Categorisable failure instead of a bare TypeError from the field reads below.
+  const shape = rawCredential as {
+    type?: unknown;
+    rawId?: unknown;
+    response?: unknown;
+  };
+  if (
+    shape.type !== 'public-key' ||
+    shape.rawId == null ||
+    typeof shape.response !== 'object' ||
+    shape.response === null
+  ) {
+    throw new DOMException(
+      `${operation} returned a credential of unexpected shape`,
+      'UnknownError'
+    );
   }
-  throw new DOMException(
-    `${operation} returned a credential without toJSON()`,
-    'UnknownError'
-  );
+
+  const credential = rawCredential as PublicKeyCredential;
+  return {
+    id: credential.id,
+    rawId: bytesToBase64url(credential.rawId),
+    type: 'public-key',
+    ...(credential.authenticatorAttachment
+      ? { authenticatorAttachment: credential.authenticatorAttachment }
+      : {}),
+    response: serializeResponse(credential.response, operation),
+    // Binary extension outputs (e.g. PRF) stay ArrayBuffers and drop out when
+    // the credential is JSON-stringified for the server — intentional: kB stays
+    // client-side and server-blind.
+    clientExtensionResults:
+      typeof credential.getClientExtensionResults === 'function'
+        ? (credential.getClientExtensionResults() as Record<string, unknown>)
+        : {},
+  };
 }
 
-// ─── Wrapper functions ────────────────────────────────────────────────────────
-
-// Aligned with the server-side challenge TTL (`PASSKEYS__CHALLENGE_TIMEOUT`,
-// 5 min). Keeping the client wrapper at 60s while the server gives the user
-// 5 min meant users who stepped away briefly were cut off long before the
-// request expired. On Safari/WebKit (which ignores `options.timeout` per spec)
-// this wrapper is the only timeout in play.
+// Matches the server challenge TTL (PASSKEYS__CHALLENGE_TIMEOUT, 5 min). On
+// Safari/WebKit, which ignores options.timeout, this wrapper is the only timeout.
 const DEFAULT_TIMEOUT_MS = 300_000;
 
 /**
- * Wraps navigator.credentials.create() for passkey registration.
+ * Wraps navigator.credentials.create() for passkey registration: decodes JSON
+ * options to native, runs the ceremony, returns the credential as JSON.
  *
- * Accepts JSON-serializable creation options (backend wire format), converts
- * them via PublicKeyCredential.parseCreationOptionsFromJSON(), invokes the
- * browser prompt, and returns the serialized credential via toJSON().
+ * `externalSignal` cancels from outside (e.g. a Cancel button) and surfaces as
+ * AbortError, distinct from the internal TimeoutError.
  *
- * Pass `externalSignal` to actively cancel the ceremony from outside (e.g.
- * a Cancel button); aborting it propagates as the underlying AbortError so
- * callers can distinguish it from the internal timeout (TimeoutError).
- *
- * Throws:
- * - DOMException('NotSupportedError') when required WebAuthn APIs are absent
- * - DOMException('TimeoutError') when the operation exceeds timeoutMs
- * - DOMException('AbortError') when externalSignal aborts before completion
- * - Any DOMException thrown by the browser (propagated as-is)
+ * Throws DOMException: NotSupportedError (APIs absent), TimeoutError (exceeded
+ * timeoutMs), AbortError (externalSignal), or any error the browser raises.
  */
 export async function createCredential(
   options: PublicKeyCredentialCreationOptionsJSON,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   externalSignal?: AbortSignal
 ): Promise<PublicKeyCredentialJSON> {
-  if (!isWebAuthnLevel3Supported()) {
+  if (!isWebAuthnSupported()) {
     throw new DOMException(
       'WebAuthn is not supported in this browser',
       'NotSupportedError'
@@ -270,11 +336,9 @@ export async function createCredential(
   }
 
   try {
-    const parsedOptions = (
-      PublicKeyCredential as PublicKeyCredentialLevel3
-    ).parseCreationOptionsFromJSON(options);
+    const nativeOptions = toNativeCreationOptions(options);
     const rawCredential = await navigator.credentials.create({
-      publicKey: parsedOptions,
+      publicKey: nativeOptions,
       signal: controller.signal,
     });
 
@@ -291,22 +355,17 @@ export async function createCredential(
 }
 
 /**
- * Wraps navigator.credentials.get() for passkey authentication.
+ * Wraps navigator.credentials.get() for passkey authentication: decodes JSON
+ * options to native, runs the ceremony, returns the credential as JSON.
  *
- * Accepts JSON-serializable request options (backend wire format), converts
- * them via PublicKeyCredential.parseRequestOptionsFromJSON(), invokes the
- * browser prompt, and returns the serialized credential via toJSON().
- *
- * Throws:
- * - DOMException('NotSupportedError') when required WebAuthn APIs are absent
- * - DOMException('TimeoutError') when the operation exceeds timeoutMs
- * - Any DOMException thrown by the browser (propagated as-is)
+ * Throws DOMException: NotSupportedError (APIs absent), TimeoutError (exceeded
+ * timeoutMs), or any error the browser raises.
  */
 export async function getCredential(
   options: PublicKeyCredentialRequestOptionsJSON,
   timeoutMs = DEFAULT_TIMEOUT_MS
 ): Promise<PublicKeyCredentialJSON> {
-  if (!isWebAuthnLevel3Supported()) {
+  if (!isWebAuthnSupported()) {
     throw new DOMException(
       'WebAuthn is not supported in this browser',
       'NotSupportedError'
@@ -321,11 +380,9 @@ export async function getCredential(
   }, timeoutMs);
 
   try {
-    const parsedOptions = (
-      PublicKeyCredential as PublicKeyCredentialLevel3
-    ).parseRequestOptionsFromJSON(options);
+    const nativeOptions = toNativeRequestOptions(options);
     const rawCredential = await navigator.credentials.get({
-      publicKey: parsedOptions,
+      publicKey: nativeOptions,
       signal: controller.signal,
     });
 

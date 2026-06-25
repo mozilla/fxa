@@ -8,7 +8,7 @@
  * PURPOSE
  * -------
  * Provides a live, interactive UI for exercising the WebAuthn browser
- * utilities (createCredential, getCredential, isWebAuthnLevel3Supported) against
+ * utilities (createCredential, getCredential, isWebAuthnSupported) against
  * the real browser Credentials API. It is intended for engineers, QA, and
  * product/UX stakeholders who need to inspect WebAuthn request/response
  * payloads, reproduce error conditions, or validate passkey behaviour across
@@ -43,10 +43,11 @@
 
 import React, { useCallback, useState } from 'react';
 import { JsonFieldGuide, JsonResponseGuide } from './fieldGuides';
+import { base64urlToBytes, bytesToBase64url } from '../../lib/base64url';
 import {
   createCredential,
   getCredential,
-  isWebAuthnLevel3Supported,
+  isWebAuthnSupported,
   AuthenticatorAttestationResponseJSON,
   AuthenticatorResponseJSON,
   PublicKeyCredentialCreationOptionsJSON,
@@ -59,10 +60,7 @@ import {
 function randomBase64url(byteLength = 32): string {
   const bytes = new Uint8Array(byteLength);
   window.crypto.getRandomValues(bytes);
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+  return bytesToBase64url(bytes);
 }
 
 // The PRF salt is a fully static, application-level constant supplied by the
@@ -225,7 +223,7 @@ const ERROR_CONTEXT: Partial<Record<string, string>> = {
   InvalidStateError:
     'A passkey matching an excludeCredentials entry already exists on this authenticator; duplicate registration was rejected.',
   NotSupportedError:
-    'The browser does not support the WebAuthn Level 3 JSON helpers (parseCreationOptionsFromJSON / parseRequestOptionsFromJSON).',
+    'The browser does not support WebAuthn — PublicKeyCredential or navigator.credentials.create/get is unavailable.',
   UnknownError:
     'The browser returned null, or a non-native credential type. "Object" with rawId: ArrayBuffer in the field list means a password manager extension (e.g. 1Password) intercepted navigator.credentials and returned a Level 2 form — ArrayBuffer fields, a getClientExtensionResults method, and a broken toJSON that throws "Illegal invocation". This is a known 1Password extension bug. It is not a production concern: accounts.firefox.com does not permit browser extensions. Use the native platform authenticator (Apple Keychain, Windows Hello) for testing.',
 };
@@ -250,7 +248,7 @@ const ERROR_REFERENCE: { name: string; how: string }[] = [
   },
   {
     name: 'NotSupportedError',
-    how: 'Open in a browser that lacks WebAuthn Level 3 support (e.g. older Safari). Clicking any call button will throw immediately before a prompt appears.',
+    how: 'Open in a browser without WebAuthn support (or set window.PublicKeyCredential = undefined in devtools). Clicking any call button will throw immediately before a prompt appears.',
   },
   {
     name: 'UnknownError',
@@ -288,13 +286,6 @@ function friendlyAttachment(attachment?: string): string {
   if (attachment === 'platform') return 'Platform (this device)';
   if (attachment === 'cross-platform') return 'Cross-platform (security key)';
   return attachment ?? 'Not reported';
-}
-
-/** base64url → Uint8Array without any external dependencies. */
-function base64urlToBytes(s: string): Uint8Array {
-  const base64 = s.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-  return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
 }
 
 /** 16 raw bytes → "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" UUID string. */
@@ -888,7 +879,7 @@ export const WebAuthnHelpersExample = () => {
   const [editMode, setEditMode] = useState<EditMode>('form');
   const [switchError, setSwitchError] = useState<string | null>(null);
 
-  // isWebAuthnLevel3Supported
+  // isWebAuthnSupported
   const [supported, setSupported] = useState<boolean | null>(null);
 
   // Credentials registered during this session, available for quick-select in
@@ -1090,14 +1081,14 @@ export const WebAuthnHelpersExample = () => {
           )}
         </div>
 
-        {/* ── isWebAuthnLevel3Supported ── */}
+        {/* ── isWebAuthnSupported ── */}
         <SectionCard
-          title="isWebAuthnLevel3Supported()"
-          description="Checks for PublicKeyCredential and the Level 3 JSON helpers: parseCreationOptionsFromJSON and parseRequestOptionsFromJSON."
+          title="isWebAuthnSupported()"
+          description="Checks for the WebAuthn baseline: PublicKeyCredential and navigator.credentials.create/get."
         >
           <button
             className="cta-primary p-2"
-            onClick={() => setSupported(isWebAuthnLevel3Supported())}
+            onClick={() => setSupported(isWebAuthnSupported())}
           >
             Check support
           </button>
@@ -1110,7 +1101,7 @@ export const WebAuthnHelpersExample = () => {
               aria-live="polite"
             >
               {supported
-                ? '✓ WebAuthn Level 3 is supported'
+                ? '✓ WebAuthn is supported'
                 : '✗ Not supported in this browser'}
             </div>
           )}
