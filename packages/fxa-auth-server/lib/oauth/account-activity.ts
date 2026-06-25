@@ -68,11 +68,9 @@ function extractScopes(scopeSet: ScopeSetLike | null | undefined): string[] {
  * `accountActivity.write_failed` and reports to Sentry; the grant still
  * succeeds.
  *
- * When some requested scopes are not in the scopes table, the scopes that do
- * resolve are still written, and the missing ones are counted via
- * `accountActivity.missing_scopes` plus a warning log naming them (the metric
- * can't tag scope names) so the scopes table can be reconciled via the admin
- * panel.
+ * Scopes missing from the scopes table are skipped (resolved ones still write)
+ * and counted via `accountActivity.missing_scopes` {clientId, grantType} and
+ * `accountActivity.missing_scope` {scope}, plus a warning log naming them.
  *
  * Returns the awaited Promise so tests can assert on completion; the OAuth
  * grant path does not await it.
@@ -113,7 +111,12 @@ export async function recordActivity(
     statsd?.increment('accountActivity.recorded', metricTags);
 
     if (missingScopes && missingScopes.length > 0) {
+      // Split metrics keep cardinality additive, not multiplicative: one
+      // per-grant event by {clientId, grantType}, one per-scope event by {scope}.
       statsd?.increment('accountActivity.missing_scopes', metricTags);
+      for (const scope of missingScopes) {
+        statsd?.increment('accountActivity.missing_scope', { scope });
+      }
       log?.warn('accountActivity.missing_scopes', {
         clientId: clientIdHex,
         grantType,
