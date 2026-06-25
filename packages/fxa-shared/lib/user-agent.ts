@@ -256,11 +256,37 @@ export const formatUserAgentInfo = ({
       };
 };
 
+export type SignoutPlatform = 'desktop' | 'ios' | 'android' | 'unknown';
+
+/** Maps a parsed user-agent OS to a coarse platform label for sign-out telemetry. */
+export const platformFromOS = (os?: string | null): SignoutPlatform => {
+  if (!os) {
+    return 'unknown';
+  }
+  if (/ios|iphone|ipad/i.test(os)) {
+    return 'ios';
+  }
+  if (/android/i.test(os)) {
+    return 'android';
+  }
+  // Explicitly match known desktop OS families; anything unrecognized is
+  // classified as unknown rather than assumed to be desktop.
+  if (
+    /windows(?! ?(phone|mobile))|mac ?os|linux|chrome ?os|ubuntu|debian|fedora|red hat|gentoo|slackware|suse|solaris|bsd/i.test(
+      os
+    )
+  ) {
+    return 'desktop';
+  }
+  return 'unknown';
+};
+
 export default {
   parse,
   parseToScalars,
   isToVersionStringSupported,
   formatUserAgentInfo,
+  platformFromOS,
   safeName: safeReturnName,
   safeVersion: safeReturnVersion,
 };

@@ -27,7 +27,7 @@ module.exports = function (
   authServerCacheRedis
 ) {
   // Various extra helpers.
-  const devicesImpl = require('../devices')(log, db, push, pushbox);
+  const devicesImpl = require('../devices')(log, db, push, pushbox, glean);
   const cadReminders = require('../cad-reminders')(config, log);
   const signinUtils = require('./utils/signin')(
     log,

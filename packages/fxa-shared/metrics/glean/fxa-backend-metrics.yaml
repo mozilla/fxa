@@ -136,6 +136,51 @@ account:
         description: |
           The reason for the deletion.
         type: string
+  device_disconnected:
+    type: event
+    description: |
+      A device signed out of / disconnected from the browser (Sync or OAuth),
+      via /account/device/destroy. Captures browser- and app-initiated
+      sign-outs that the frontend account_pref.device_signout event does not.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13092
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      platform:
+        description: One of 'desktop', 'ios', 'android', or 'unknown'.
+        type: string
+  session_destroyed:
+    type: event
+    description: |
+      An account session was destroyed (web/settings sign out),
+      via /session/destroy.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13092
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      platform:
+        description: One of 'desktop', 'ios', 'android', or 'unknown'.
+        type: string
 
 relying_party:
   service:

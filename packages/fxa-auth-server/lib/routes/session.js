@@ -13,6 +13,7 @@ const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
@@ -101,6 +102,14 @@ module.exports = function (
           db,
           request,
         });
+
+        // Best-effort telemetry; don't let a Glean failure fail the sign-out.
+        glean.account
+          .sessionDestroyed(request, {
+            uid,
+            platform: platformFromOS(request.app.ua && request.app.ua.os),
+          })
+          ?.catch(() => {});
 
         return {};
       },

@@ -28,6 +28,7 @@ type MetricsData = {
   reason?: string;
   oauthClientId?: string;
   scopes?: string | Array<string>;
+  platform?: string;
 };
 
 type AdditionalMetricsCallback = (
@@ -198,6 +199,10 @@ const extraKeyReasonCb = (metrics: Record<string, any>) => ({
   reason: metrics.reason ?? '',
 });
 
+const extraKeySignoutCb = (metrics: Record<string, any>) => ({
+  platform: metrics.platform ?? 'unknown',
+});
+
 export function gleanMetrics(config: ConfigType) {
   appConfig = config;
   gleanEventLogger = createAccountsEventsEvent({
@@ -328,6 +333,12 @@ export function gleanMetrics(config: ConfigType) {
       deleteComplete: createEventFn('account_delete_complete'),
       deleteTaskHandled: createEventFn('account_delete_task_handled', {
         additionalMetrics: extraKeyReasonCb,
+      }),
+      deviceDisconnected: createEventFn('account_device_disconnected', {
+        additionalMetrics: extraKeySignoutCb,
+      }),
+      sessionDestroyed: createEventFn('account_session_destroyed', {
+        additionalMetrics: extraKeySignoutCb,
       }),
     },
     twoFactorAuth: {
