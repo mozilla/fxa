@@ -70,6 +70,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
       (name) =>
         ({
           name,
+          grepInvert: /#chromium/,
           use: {
             browserName: 'firefox',
             targetName: name,
@@ -85,6 +86,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     ),
     ...(TargetNames.map((name) => ({
       name: `${name}-chromium`,
+      grep: /#chromium/,
       use: {
         browserName: 'chromium',
         targetName: name,

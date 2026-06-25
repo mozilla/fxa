@@ -69,14 +69,16 @@ const storyWithMockPasskeys = (
 ) => {
   const story = () => {
     initLocalAccount();
-    // Stub the WebAuthn Level 3 feature check for storybook previews.
+    // Force the WebAuthn support check for storybook previews. isWebAuthnSupported
+    // needs a PublicKeyCredential constructor plus navigator.credentials.create/get.
     const w = window as any;
     if (webAuthnSupported) {
-      w.PublicKeyCredential = {
-        ...(w.PublicKeyCredential || {}),
-        parseCreationOptionsFromJSON: () => ({}),
-        parseRequestOptionsFromJSON: () => ({}),
-      };
+      w.PublicKeyCredential = class {};
+      Object.defineProperty(navigator, 'credentials', {
+        value: { create: async () => null, get: async () => null },
+        configurable: true,
+        writable: true,
+      });
     } else {
       delete w.PublicKeyCredential;
     }

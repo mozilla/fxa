@@ -15,7 +15,7 @@ import {
   useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
-import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
+import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
 import { createCredentialWithPrfFallback } from '../../../lib/passkeys/prf-fallback';
 import {
   handleWebAuthnError,
@@ -42,7 +42,7 @@ export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
   // Pre-check before MfaGuard mounts so an unsupported browser never triggers
   // an MFA prompt. Detection is best-effort; PagePasskeyAdd's catch block still
   // surfaces NotSupportedError defensively if the ceremony itself rejects.
-  const supported = isWebAuthnLevel3Supported();
+  const supported = isWebAuthnSupported();
   // prevent multiple redirects before unmount
   const hasRedirectedRef = useRef(false);
 

@@ -302,27 +302,73 @@ function tamperBase64UrlByte(b64url: string): string {
 }
 
 /**
- * Injected into the page. Replaces window.PublicKeyCredential with a stub
- * class so (a) `PublicKeyCredential.parseCreationOptionsFromJSON` and the
- * Level 3 feature-detection in fxa-settings pass, and (b) credentials
- * returned from our fake `navigator.credentials.create` pass
- * `instanceof PublicKeyCredential` inside the wrapper. The stub delegates
- * the cryptographic work to Node via the `__fxaPasskey*` functions exposed
- * by {@link PasskeyPolyfill.install}.
+ * Injected into the page. Replaces window.PublicKeyCredential with a stub class
+ * (so the L2 isWebAuthnSupported() check in fxa-settings passes) and patches
+ * navigator.credentials.{create,get}, delegating the crypto to Node via the
+ * `__fxaPasskey*` functions from {@link PasskeyPolyfill.install}.
+ *
+ * fxa-settings hands us native (decoded) options and reads the response from the
+ * L2 getters (no native toJSON — see webauthn.ts), so the shim re-encodes the
+ * option bytes to base64url for Node and exposes the returned credential through
+ * real getters backed by ArrayBuffers.
  */
 const BROWSER_POLYFILL = `(() => {
   try {
     if (window.__fxaPasskeyPolyfillInstalled) return;
     window.__fxaPasskeyPolyfillInstalled = true;
 
+    function bufToB64url(buf) {
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin).split('+').join('-').split('/').join('_').split('=').join('');
+    }
+    function b64urlToBuf(s) {
+      const b64 = String(s).split('-').join('+').split('_').join('/');
+      const pad = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+      const bin = atob(pad);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes.buffer;
+    }
+    function isBufferSource(v) {
+      return v instanceof ArrayBuffer || ArrayBuffer.isView(v);
+    }
+    // The app must hand us native (decoded) options, like a real browser. Assert
+    // it so a decoder/serializer regression fails loudly instead of re-encoding.
+    function reqB64url(v, name) {
+      if (!isBufferSource(v)) {
+        throw new TypeError(
+          'passkey polyfill: expected ' + name + ' to be a BufferSource, got ' +
+            (v === null ? 'null' : typeof v)
+        );
+      }
+      return bufToB64url(v);
+    }
+
     class FakePublicKeyCredential {
       constructor(json) {
-        this._json = json;
         this.id = json.id;
-        this.rawId = null;
+        this.rawId = b64urlToBuf(json.rawId || json.id);
         this.type = 'public-key';
         this.authenticatorAttachment = json.authenticatorAttachment;
-        this.response = null;
+        const r = json.response || {};
+        if (r.attestationObject !== undefined) {
+          const transports = r.transports || [];
+          this.response = {
+            clientDataJSON: b64urlToBuf(r.clientDataJSON),
+            attestationObject: b64urlToBuf(r.attestationObject),
+            getTransports() { return transports; },
+          };
+        } else {
+          this.response = {
+            clientDataJSON: b64urlToBuf(r.clientDataJSON),
+            authenticatorData: b64urlToBuf(r.authenticatorData),
+            signature: b64urlToBuf(r.signature),
+            userHandle: r.userHandle ? b64urlToBuf(r.userHandle) : null,
+          };
+        }
+        this._clientExtensionResults = json.clientExtensionResults || {};
       }
       static isUserVerifyingPlatformAuthenticatorAvailable() {
         return Promise.resolve(true);
@@ -330,9 +376,7 @@ const BROWSER_POLYFILL = `(() => {
       static isConditionalMediationAvailable() {
         return Promise.resolve(false);
       }
-      static parseCreationOptionsFromJSON(o) { return o; }
-      static parseRequestOptionsFromJSON(o) { return o; }
-      toJSON() { return this._json; }
+      getClientExtensionResults() { return this._clientExtensionResults; }
     }
 
     // Best-effort: may throw on some browsers where PublicKeyCredential is a
@@ -380,13 +424,38 @@ const BROWSER_POLYFILL = `(() => {
 
     const credentialsApi = {
       create: async (opts) => {
-        const publicKey = (opts && opts.publicKey) || {};
-        const json = await invoke('__fxaPasskeyCreate', publicKey);
+        const pk = (opts && opts.publicKey) || {};
+        // Structural checks mirroring a real browser, so a malformed native
+        // options object fails here instead of round-tripping silently.
+        if (!isBufferSource(pk.user && pk.user.id)) {
+          throw new TypeError('passkey polyfill: expected user.id BufferSource');
+        }
+        if (
+          !Array.isArray(pk.pubKeyCredParams) ||
+          pk.pubKeyCredParams.length === 0
+        ) {
+          throw new TypeError(
+            'passkey polyfill: expected non-empty pubKeyCredParams'
+          );
+        }
+        (pk.excludeCredentials || []).forEach((c) =>
+          reqB64url(c.id, 'excludeCredentials id')
+        );
+        const json = await invoke('__fxaPasskeyCreate', {
+          challenge: reqB64url(pk.challenge, 'create challenge'),
+          rp: pk.rp,
+        });
         return new FakePublicKeyCredential(json);
       },
       get: async (opts) => {
-        const publicKey = (opts && opts.publicKey) || {};
-        const json = await invoke('__fxaPasskeyGet', publicKey);
+        const pk = (opts && opts.publicKey) || {};
+        const json = await invoke('__fxaPasskeyGet', {
+          challenge: reqB64url(pk.challenge, 'get challenge'),
+          rpId: pk.rpId,
+          allowCredentials: (pk.allowCredentials || []).map((c) => ({
+            id: reqB64url(c.id, 'allowCredentials id'),
+          })),
+        });
         return new FakePublicKeyCredential(json);
       },
     };
