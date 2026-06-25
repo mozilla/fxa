@@ -142,6 +142,10 @@ describe('recordActivity', () => {
       'accountActivity.missing_scopes',
       { clientId: CLIENT_ID_HEX, grantType: 'fxa-credentials' }
     );
+    expect(deps.statsd.increment).toHaveBeenCalledWith(
+      'accountActivity.missing_scope',
+      { scope: SCOPE_RELAY }
+    );
     expect(deps.log.warn).toHaveBeenCalledWith(
       'accountActivity.missing_scopes',
       {
@@ -150,6 +154,38 @@ describe('recordActivity', () => {
         missingScopes: [SCOPE_RELAY],
       }
     );
+  });
+
+  it('reports missing_scopes once per grant but missing_scope once per scope', async () => {
+    const deps = makeDeps();
+    deps.oauthDB.recordAccountActivity.mockResolvedValueOnce({
+      missingScopes: [SCOPE_RELAY, SCOPE_OLDSYNC],
+    });
+
+    await recordActivity(deps, {
+      userId: USER_ID,
+      clientId: CLIENT_ID,
+      scopeSet: ScopeSet.fromArray([SCOPE_OLDSYNC, SCOPE_RELAY]),
+      throttleMs: THROTTLE_MS,
+      grantType: 'fxa-credentials',
+      now: NOW,
+    });
+
+    const callsTo = (metric: string) =>
+      deps.statsd.increment.mock.calls.filter(([m]) => m === metric);
+
+    // Per-grant event fires once regardless of how many scopes are missing.
+    expect(callsTo('accountActivity.missing_scopes')).toEqual([
+      [
+        'accountActivity.missing_scopes',
+        { clientId: CLIENT_ID_HEX, grantType: 'fxa-credentials' },
+      ],
+    ]);
+    // Per-scope event fires once for each missing scope.
+    expect(callsTo('accountActivity.missing_scope')).toEqual([
+      ['accountActivity.missing_scope', { scope: SCOPE_RELAY }],
+      ['accountActivity.missing_scope', { scope: SCOPE_OLDSYNC }],
+    ]);
   });
 
   it('does not record or warn on missing scopes when every scope resolved', async () => {
