@@ -1,0 +1,222 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import {
+  createCredentialWithPrfFallback,
+  isRetriableWithoutPrf,
+  stripPrfExtension,
+} from './prf-fallback';
+import { createCredential } from './webauthn';
+import type {
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialJSON,
+} from './webauthn';
+
+// Mock the WebAuthn ceremony boundary so the wrapper's retry decision and
+// option-stripping are exercised without a real navigator.credentials.create.
+jest.mock('./webauthn');
+const mockCreateCredential = createCredential as jest.MockedFunction<
+  typeof createCredential
+>;
+
+const PRF_SALT = 'dGVzdC1wcmYtc2FsdA';
+
+const optionsWithPrf: PublicKeyCredentialCreationOptionsJSON = {
+  rp: { name: 'Mozilla Accounts', id: 'accounts.firefox.com' },
+  user: {
+    id: 'dXNlci1pZA',
+    name: 'test@example.com',
+    displayName: 'test@example.com',
+  },
+  challenge: 'Y2hhbGxlbmdl',
+  pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+  extensions: { prf: { eval: { first: PRF_SALT } } },
+};
+
+const credentialResult: PublicKeyCredentialJSON = {
+  id: 'bW9jay1pZA',
+  rawId: 'bW9jay1yYXctaWQ',
+  type: 'public-key',
+  response: {
+    clientDataJSON: 'bW9jay1jbGllbnQtZGF0YQ',
+    attestationObject: 'bW9jay1hdHRlc3RhdGlvbg',
+  },
+  clientExtensionResults: {},
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('stripPrfExtension', () => {
+  it('removes the prf extension while preserving other extensions', () => {
+    const stripped = stripPrfExtension({
+      ...optionsWithPrf,
+      extensions: { prf: { eval: { first: PRF_SALT } }, credProps: true },
+    });
+    expect(stripped.extensions).toEqual({ credProps: true });
+  });
+
+  it('drops the extensions object entirely when prf was the only extension', () => {
+    const stripped = stripPrfExtension(optionsWithPrf);
+    expect(stripped.extensions).toBeUndefined();
+  });
+
+  it('returns the same reference when there is no prf extension', () => {
+    const noPrf: PublicKeyCredentialCreationOptionsJSON = {
+      ...optionsWithPrf,
+      extensions: undefined,
+    };
+    expect(stripPrfExtension(noPrf)).toBe(noPrf);
+  });
+});
+
+describe('isRetriableWithoutPrf', () => {
+  it('returns true for an UnknownError DOMException (the Windows Hello PRF signature)', () => {
+    expect(
+      isRetriableWithoutPrf(new DOMException('boom', 'UnknownError'))
+    ).toBe(true);
+  });
+
+  it.each([
+    // Other "unexpected" names — not the known PRF signature, so not retried.
+    'OperationError',
+    'DataError',
+    'EncodingError',
+    'ConstraintError',
+    'SomeFutureError',
+    // User-action and device/platform names.
+    'NotAllowedError',
+    'AbortError',
+    'TimeoutError',
+    'SecurityError',
+    'NotSupportedError',
+    'NotReadableError',
+  ])('returns false for a non-UnknownError DOMException %s', (name) => {
+    expect(isRetriableWithoutPrf(new DOMException('boom', name))).toBe(false);
+  });
+
+  it('returns false for a non-DOMException error', () => {
+    expect(isRetriableWithoutPrf(new TypeError('boom'))).toBe(false);
+    expect(isRetriableWithoutPrf(new Error('boom'))).toBe(false);
+  });
+});
+
+describe('createCredentialWithPrfFallback', () => {
+  it('returns the credential without retrying when the first attempt succeeds', async () => {
+    mockCreateCredential.mockResolvedValueOnce(credentialResult);
+
+    const result = await createCredentialWithPrfFallback(optionsWithPrf);
+
+    expect(result).toBe(credentialResult);
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries once without the prf extension when the first attempt fails with an unexpected error', async () => {
+    // Freeze the clock so no time elapses between attempts — the retry then
+    // receives the full remaining budget.
+    jest.useFakeTimers();
+    try {
+      const signal = new AbortController().signal;
+      mockCreateCredential
+        .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+        .mockResolvedValueOnce(credentialResult);
+
+      const result = await createCredentialWithPrfFallback(
+        optionsWithPrf,
+        1234,
+        signal
+      );
+
+      expect(result).toBe(credentialResult);
+      expect(mockCreateCredential).toHaveBeenCalledTimes(2);
+      // The retry forwards the signal and the (full) remaining timeout, with
+      // the prf extension dropped.
+      const [retryOptions, retryTimeout, retrySignal] =
+        mockCreateCredential.mock.calls[1];
+      expect(retryTimeout).toBe(1234);
+      expect(retrySignal).toBe(signal);
+      expect(retryOptions.extensions?.prf).toBeUndefined();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('bounds the retry to the time remaining in the original timeout', async () => {
+    jest.useFakeTimers();
+    try {
+      // First attempt "consumes" 400ms of the 1000ms budget before failing.
+      mockCreateCredential
+        .mockImplementationOnce(() => {
+          jest.advanceTimersByTime(400);
+          return Promise.reject(new DOMException('transient', 'UnknownError'));
+        })
+        .mockResolvedValueOnce(credentialResult);
+
+      await createCredentialWithPrfFallback(optionsWithPrf, 1000);
+
+      const [, retryTimeout] = mockCreateCredential.mock.calls[1];
+      expect(retryTimeout).toBe(600);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('skips the retry and rethrows the original error when no timeout budget remains', async () => {
+    jest.useFakeTimers();
+    try {
+      const unknownError = new DOMException('boom', 'UnknownError');
+      // First attempt consumes the whole budget before failing, so a retry
+      // would get timeoutMs=0 and abort immediately, masking the real error.
+      mockCreateCredential.mockImplementationOnce(() => {
+        jest.advanceTimersByTime(1000);
+        return Promise.reject(unknownError);
+      });
+
+      await expect(
+        createCredentialWithPrfFallback(optionsWithPrf, 1000)
+      ).rejects.toBe(unknownError);
+      expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('does not retry when the error is retriable but the options carried no prf', async () => {
+    const noPrf: PublicKeyCredentialCreationOptionsJSON = {
+      ...optionsWithPrf,
+      extensions: undefined,
+    };
+    mockCreateCredential.mockRejectedValueOnce(
+      new DOMException('transient', 'UnknownError')
+    );
+
+    await expect(createCredentialWithPrfFallback(noPrf)).rejects.toThrow(
+      'transient'
+    );
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry on a user-action error and rethrows it', async () => {
+    const cancel = new DOMException('cancelled', 'NotAllowedError');
+    mockCreateCredential.mockRejectedValueOnce(cancel);
+
+    await expect(createCredentialWithPrfFallback(optionsWithPrf)).rejects.toBe(
+      cancel
+    );
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('surfaces the retry error when the second attempt also fails', async () => {
+    const second = new DOMException('still broken', 'UnknownError');
+    mockCreateCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockRejectedValueOnce(second);
+
+    await expect(createCredentialWithPrfFallback(optionsWithPrf)).rejects.toBe(
+      second
+    );
+    expect(mockCreateCredential).toHaveBeenCalledTimes(2);
+  });
+});

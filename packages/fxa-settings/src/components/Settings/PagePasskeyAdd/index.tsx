@@ -15,10 +15,8 @@ import {
   useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
-import {
-  createCredential,
-  isWebAuthnLevel3Supported,
-} from '../../../lib/passkeys/webauthn';
+import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
+import { createCredentialWithPrfFallback } from '../../../lib/passkeys/prf-fallback';
 import {
   handleWebAuthnError,
   WebAuthnErrorType,
@@ -129,8 +127,10 @@ export const PagePasskeyAdd = () => {
 
         if (!isMounted.current || wasCanceled.current) return;
 
-        // Step 2: Browser WebAuthn prompt
-        const credential = await createCredential(
+        // Step 2: Browser WebAuthn prompt. Silently retries without the PRF
+        // extension if the first attempt fails in a way PRF could have caused
+        // (e.g. Windows Hello UnknownError, FXA-13991).
+        const credential = await createCredentialWithPrfFallback(
           creationOptions,
           undefined,
           controller.signal

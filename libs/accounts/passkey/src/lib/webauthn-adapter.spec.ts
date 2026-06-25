@@ -15,6 +15,8 @@ import { VirtualAuthenticator } from './virtual-authenticator';
 
 const TEST_RP_ID = 'accounts.firefox.com';
 const TEST_ORIGIN = 'https://accounts.firefox.com';
+// base64url of "test-prf-salt" — a stand-in, not the production salt.
+const TEST_PRF_SALT = 'dGVzdC1wcmYtc2FsdA';
 
 function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
   return new PasskeyConfig({
@@ -25,6 +27,7 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     maxPasskeysPerUser: 10,
     challengeTimeout: 30_000,
     requestPrfAtRegistration: false,
+    prfSalt: '',
     ...overrides,
   });
 }
@@ -162,9 +165,9 @@ describe('generateWebauthnRegistrationOptions', () => {
     ]);
   });
 
-  it('requests the PRF extension when requestPrfAtRegistration is enabled', async () => {
+  it('requests the PRF extension with the configured salt when requestPrfAtRegistration is enabled and a salt is set', async () => {
     const options = await generateWebauthnRegistrationOptions(
-      testConfig({ requestPrfAtRegistration: true }),
+      testConfig({ requestPrfAtRegistration: true, prfSalt: TEST_PRF_SALT }),
       {
         uid: Buffer.alloc(16, 0xbb).toString('hex'),
         email: 'bob@example.com',
@@ -172,13 +175,31 @@ describe('generateWebauthnRegistrationOptions', () => {
       }
     );
 
-    // credProps is added by SimpleWebAuthn itself; we only own the PRF probe.
-    expect(options.extensions).toEqual(expect.objectContaining({ prf: {} }));
+    // credProps is added by SimpleWebAuthn itself; we only own the PRF eval.
+    // An empty eval (`prf: {}`) is rejected by Windows Hello (FXA-13991), so
+    // the salt must be present.
+    expect(options.extensions).toEqual(
+      expect.objectContaining({ prf: { eval: { first: TEST_PRF_SALT } } })
+    );
+  });
+
+  it('omits the PRF extension when requestPrfAtRegistration is enabled but no salt is configured', async () => {
+    const options = await generateWebauthnRegistrationOptions(
+      testConfig({ requestPrfAtRegistration: true, prfSalt: '' }),
+      {
+        uid: Buffer.alloc(16, 0xbb).toString('hex'),
+        email: 'bob@example.com',
+        challenge: randomBytes(32).toString('base64url'),
+      }
+    );
+
+    // Without a salt we never emit the broken empty `prf: {}`.
+    expect(options.extensions).not.toHaveProperty('prf');
   });
 
   it('omits the PRF extension when requestPrfAtRegistration is disabled', async () => {
     const options = await generateWebauthnRegistrationOptions(
-      testConfig({ requestPrfAtRegistration: false }),
+      testConfig({ requestPrfAtRegistration: false, prfSalt: TEST_PRF_SALT }),
       {
         uid: Buffer.alloc(16, 0xbb).toString('hex'),
         email: 'bob@example.com',
@@ -186,7 +207,7 @@ describe('generateWebauthnRegistrationOptions', () => {
       }
     );
 
-    // SimpleWebAuthn still sets credProps; we only assert our PRF probe is absent.
+    // SimpleWebAuthn still sets credProps; we only assert our PRF eval is absent.
     expect(options.extensions).not.toHaveProperty('prf');
   });
 });
