@@ -12,6 +12,16 @@ mkdir -p artifacts/tests
 chmod +x node_modules/@nestjs/cli/bin/nest.js
 
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
+    -t build \
+    --parallel=2 \
+    -p \
+    123done \
+    fxa-auth-server \
+    fxa-content-server \
+    fxa-profile-server \
+    payments-next
+
+NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t start \
     --parallel=2 \
     --verbose \
