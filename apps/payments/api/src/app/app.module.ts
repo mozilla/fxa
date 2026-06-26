@@ -11,6 +11,7 @@ import { AuthModule } from '@fxa/payments/auth';
 import {
   MeteringAuthGuard,
   MeteringCloudTasksClientProvider,
+  MeteringManager,
   MeteringThresholdTasksManager,
   MeteringWebhookManager,
   OpenMeterClient,
@@ -134,6 +135,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusClientConfig,
     MeteringAuthGuard,
     MeteringCloudTasksClientProvider,
+    MeteringManager,
     MeteringThresholdTasksManager,
     MeteringWebhookManager,
     OpenMeterClient,
