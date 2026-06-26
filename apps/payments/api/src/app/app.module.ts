@@ -13,6 +13,7 @@ import {
   MeteringCloudTasksClientProvider,
   MeteringThresholdTasksManager,
   MeteringWebhookManager,
+  OpenMeterClient,
 } from '@fxa/entitlements/metering';
 import {
   CmsWebhooksController,
@@ -135,6 +136,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     MeteringCloudTasksClientProvider,
     MeteringThresholdTasksManager,
     MeteringWebhookManager,
+    OpenMeterClient,
   ],
 })
 export class AppModule {}
