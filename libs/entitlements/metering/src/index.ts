@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/metering.config';
+export * from './lib/metering.constants';
+export * from './lib/metering.error';
+export * from './lib/metering.schema';
+export * from './lib/openmeter.client';
+export * from './lib/factories';
 export * from './lib/metering-auth.guard';
 export * from './lib/metering-threshold-tasks.manager';
 export * from './lib/metering-threshold-tasks.provider';
