@@ -5151,12 +5151,13 @@ describe('/account/emails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     log = mocks.mockLog();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     db = {
       account: jest.fn().mockResolvedValue({
         uid: 'account-123',
         email: 'signup@example.com',
-        primaryEmail: { email: 'signup+1@example.com' }
+        primaryEmail: { email: 'signup+1@example.com' },
       }),
     };
     config = {};
@@ -5172,7 +5173,7 @@ describe('/account/emails', () => {
     expect(db.account).toHaveBeenCalledWith('account-123');
     expect(resp).toEqual({
       originalEmail: 'signup@example.com',
-      primaryEmail: 'signup+1@example.com'
+      primaryEmail: 'signup+1@example.com',
     });
   });
 });

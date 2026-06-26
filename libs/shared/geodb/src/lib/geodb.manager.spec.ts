@@ -113,13 +113,13 @@ describe('GeoDBManager', () => {
     it('should call reader if override postalCode is not provided', () => {
       mockConfig.locationOverride = { countryCode: 'ZA', postalCode: '' };
       manager.getTaxAddress('');
-      expect(mockGetLocationData).toBeCalled();
+      expect(mockGetLocationData).toHaveBeenCalled();
     });
 
     it('should call reader if override countryCode is not provided', () => {
       mockConfig.locationOverride = { countryCode: '', postalCode: '12332' };
       manager.getTaxAddress('');
-      expect(mockGetLocationData).toBeCalled();
+      expect(mockGetLocationData).toHaveBeenCalled();
     });
 
     it('should return undefined if no locationData is found', () => {

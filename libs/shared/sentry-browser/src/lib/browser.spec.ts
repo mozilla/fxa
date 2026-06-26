@@ -34,7 +34,7 @@ describe('sentry/browser', () => {
     it('initializes', () => {
       const spy = jest.spyOn(Sentry, 'init');
       initSentry(config);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       spy.mockReset();
       spy.mockRestore();

@@ -30,7 +30,7 @@ describe('getPriceFromSubscription', () => {
       items: StripeApiListFactory([]),
     });
 
-    expect(() => getPriceFromSubscription(mockSubscription)).toThrowError(
+    expect(() => getPriceFromSubscription(mockSubscription)).toThrow(
       UniqueSubscriptionItemNotFoundError
     );
   });
@@ -42,7 +42,7 @@ describe('getPriceFromSubscription', () => {
       items: StripeApiListFactory([mockSubItem1, mockSubItem2]),
     });
 
-    expect(() => getPriceFromSubscription(mockSubscription)).toThrowError(
+    expect(() => getPriceFromSubscription(mockSubscription)).toThrow(
       UniqueSubscriptionItemNotFoundError
     );
   });

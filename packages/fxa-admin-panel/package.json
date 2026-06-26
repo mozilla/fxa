@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "FxA Admin Panel",
   "scripts": {
-    "build": "nx build-css && nx build-react && nx build-ts-client && nx build-ts-server",
+    "build": "exit 0",
     "build-ts-client": "tsc --build",
     "build-ts-server": "tsc -p server/tsconfig.json && tsc-alias",
     "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
@@ -73,7 +73,7 @@
     "fxa-shared": "workspace:*",
     "jest": "27.5.1",
     "jest-watch-typeahead": "0.6.5",
-    "nx": "21.2.4",
+    "nx": "^23.0.1",
     "pm2": "^6.0.14",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
@@ -88,6 +88,26 @@
     "tags": [
       "scope:frontend",
       "type:admin"
-    ]
+    ],
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "build-css",
+          "build-react",
+          "build-ts-client",
+          "build-ts-server"
+        ]
+      },
+      "build-react": {
+        "dependsOn": ["^build", "build-css"]
+      },
+      "build-ts-client": {
+        "dependsOn": ["^build"]
+      },
+      "build-ts-server": {
+        "dependsOn": ["^build"]
+      }
+    }
   }
 }

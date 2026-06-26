@@ -43,12 +43,19 @@ else
   pm2 start _dev/pm2/infrastructure.config.js
 fi
 
-echo "waiting for containers to start"
-
-_scripts/check-url.sh localhost:4100/health 200 "goaws (SNS)"
-_scripts/check-url.sh localhost:9299/api/config 200 "firebase emulator"
+echo "Waiting for mysql"
 _scripts/check-mysql.sh
+
+echo "Waiting for Redis"
 _scripts/check-redis.sh
 
 echo "waiting for DB patches"
 _scripts/check-db-patcher.sh
+
+# Check that goaws simulator is up
+echo "Waiting for goaws"
+_scripts/check-url.sh localhost:4100/health 200 "goaws (SNS)"
+
+# Check firestore is up
+echo "Waiting for firestore"
+_scripts/check-url.sh localhost:9299/api/config 200 "firebase emulator"

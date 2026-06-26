@@ -7,11 +7,11 @@
   },
   "scripts": {
     "prebuild": "nx l10n-prime && nx install-ejs",
-    "build": "nx build-l10n && nx build-css && nx build-ts && nx build-copy-assets",
-    "build-fast": "nx build-l10n && nx build-css && nx build-copy-assets",
-    "build-l10n": "nx l10n-merge && nx l10n-merge-test",
+    "build": "exit 0",
+    "build-fast": "exit 0",
+    "build-l10n": "exit 0",
     "build-copy-assets": "./scripts/copy-assets.sh",
-    "build-css": "nx emails-scss",
+    "build-css": "exit 0",
     "build-ts": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "bump-template-versions": "node scripts/template-version-bump",
     "clean": "rimraf dist",
@@ -31,7 +31,7 @@
     "emails-scss": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./lib/senders/emails/sass-compile-files.ts",
     "write-emails": "yarn emails-scss && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./scripts/write-emails-to-disk.js",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "start": "yarn check:mysql && pm2 start pm2.config.js && yarn check:url localhost:9000/__heartbeat__ 200 fxa-auth-server",
+    "start": "yarn check:mysql && pm2 start pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "JEST_JUNIT_OUTPUT_DIR='../../artifacts/tests/fxa-auth-server' JEST_JUNIT_OUTPUT_NAME='jest-results.xml' jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit",
@@ -48,9 +48,9 @@
     "audit-orphaned-stripe-accounts": "CONFIG_FILES='config/secrets.json' node -r ts-node/register/transpile-only -r tsconfig-paths/register ./scripts/audit-orphaned-customers.ts",
     "remove-unverified-accounts": "CONFIG_FILES='config/secrets.json' node -r ts-node/register/transpile-only -r tsconfig-paths/register ./scripts/remove-unverified-accounts.ts",
     "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6010 --no-version-updates ./",
-    "merge-ftl": "nx l10n-merge",
-    "merge-ftl-test": "nx l10n-merge",
-    "watch-ftl": "nx l10n-watch"
+    "merge-ftl": "yarn l10n-merge",
+    "merge-ftl-test": "yarn l10n-merge",
+    "watch-ftl": "yarn l10n-watch"
   },
   "repository": {
     "type": "git",
@@ -161,7 +161,7 @@
     "moment": "^2.30.1",
     "nock": "^13.5.1",
     "nodemon": "^3.1.0",
-    "nx": "21.2.4",
+    "nx": "^23.0.1",
     "pm2": "^6.0.14",
     "prettier": "^3.5.3",
     "read": "3.0.1",
@@ -182,6 +182,47 @@
     "tags": [
       "scope:server:auth",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "dependsOn": ["^build", "prebuild"],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      },
+      "l10n-merge": {
+        "dependsOn": ["prebuild"]
+      },
+      "l10n-merge-test": {
+        "dependsOn": ["prebuild"]
+      },
+      "build-l10n": {
+        "dependsOn": ["l10n-merge", "l10n-merge-test"]
+      },
+      "build-css": {
+        "dependsOn": ["emails-scss"]
+      },
+      "build-copy-assets": {
+        "dependsOn": ["build-ts", "build-css"]
+      },
+      "build": {
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-css",
+          "build-ts",
+          "build-copy-assets"
+        ]
+      },
+      "build-fast": {
+        "dependsOn": ["prebuild", "^build", "build-l10n", "build-css", "build-copy-assets"]
+      }
+    }
   }
 }
