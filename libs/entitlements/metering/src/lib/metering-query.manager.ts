@@ -5,16 +5,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { OpenMeterClient } from './openmeter.client';
-import { OpenMeterIngestError, OpenMeterQueryError } from './metering.error';
-import { toMeteringCloudEvent } from './utils/toMeteringCloudEvent';
-
-export interface IngestEventArgs {
-  id: string;
-  userIdentifier: string;
-  slug: string;
-  amount: number;
-  timestamp?: Date;
-}
+import { OpenMeterQueryError } from './metering.error';
 
 export interface QueryUsageArgs {
   userIdentifier: string;
@@ -30,27 +21,8 @@ export interface QueryUsageResult {
 }
 
 @Injectable()
-export class MeteringManager {
+export class MeteringQueryManager {
   constructor(private readonly openMeterClient: OpenMeterClient) {}
-
-  async ingest(args: IngestEventArgs): Promise<void> {
-    try {
-      await this.openMeterClient.events.ingest(toMeteringCloudEvent(args));
-    } catch (err) {
-      throw new OpenMeterIngestError(toError(err));
-    }
-  }
-
-  async ingestBatch(args: IngestEventArgs[]): Promise<void> {
-    if (args.length === 0) {
-      return;
-    }
-    try {
-      await this.openMeterClient.events.ingest(args.map(toMeteringCloudEvent));
-    } catch (err) {
-      throw new OpenMeterIngestError(toError(err));
-    }
-  }
 
   async queryUsage(args: QueryUsageArgs): Promise<QueryUsageResult> {
     try {

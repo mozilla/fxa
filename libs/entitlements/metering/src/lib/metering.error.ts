@@ -24,3 +24,10 @@ export class OpenMeterQueryError extends MeteringError {
     this.name = 'OpenMeterQueryError';
   }
 }
+
+export class MeteringBufferOverflowError extends MeteringError {
+  constructor() {
+    super('Metering ingest buffer is full', {});
+    this.name = 'MeteringBufferOverflowError';
+  }
+}
