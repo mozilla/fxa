@@ -8,6 +8,7 @@ export * from './lib/metering.error';
 export * from './lib/metering.schema';
 export * from './lib/metering-query.manager';
 export * from './lib/metering-ingest.manager';
+export * from './lib/usage.service';
 export * from './lib/openmeter.client';
 export * from './lib/factories';
 export * from './lib/metering-auth.guard';
