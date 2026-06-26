@@ -5,7 +5,14 @@
 import type { Event } from '@openmeter/sdk';
 
 import { METERING_EVENT_SOURCE } from '../metering.constants';
-import type { IngestEventArgs } from '../metering.manager';
+
+export interface IngestEventArgs {
+  id: string;
+  userIdentifier: string;
+  slug: string;
+  amount: number;
+  timestamp?: Date;
+}
 
 export function toMeteringCloudEvent(args: IngestEventArgs): Event {
   return {
