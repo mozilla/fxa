@@ -6,11 +6,7 @@
       "request": "launch",
       "name": "Jest Current File",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--no-coverage",
-        "--forceExit",
-        "${relativeFile}"
-      ],
+      "args": ["--no-coverage", "--forceExit", "${relativeFile}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
@@ -24,10 +20,7 @@
       "request": "launch",
       "name": "Jest Unit Tests",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--no-coverage",
-        "--forceExit"
-      ],
+      "args": ["--no-coverage", "--selectProjects", "unit"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
@@ -44,8 +37,8 @@
       "args": [
         "--no-coverage",
         "--forceExit",
-        "--config",
-        "jest.integration.config.js"
+        "--selectProjects",
+        "integration"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

@@ -51,26 +51,28 @@ fi
 
 if [ "$TEST_TYPE" == 'unit' ]; then
   echo -e "\n\nRunning Jest unit tests"
+  # No --forceExit: unit specs mock all DB boundaries
+  # Dropping the flag makes a leak fail loudly.
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-unit-results.xml" \
-  npx jest --coverage --forceExit --ci --silent --reporters=default --reporters=jest-junit "${JEST_AFFECTED_ARGS[@]}"
+  npx jest --selectProjects unit --coverage --ci --silent --maxWorkers=4 --reporters=default --reporters=jest-junit "${JEST_AFFECTED_ARGS[@]}"
 
 elif [ "$TEST_TYPE" == 'scripts' ]; then
   echo -e "\n\nRunning Jest script integration tests (test/scripts/**/*.in.spec.ts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server-scripts" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-scripts-results.xml" \
-  npx jest --config jest.scripts.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
+  npx jest --selectProjects scripts --forceExit --ci --silent --maxWorkers=8 --reporters=default --reporters=jest-junit
 
 elif [ "$TEST_TYPE" == 'integration' ]; then
   echo -e "\n\nRunning Jest integration tests (excluding test/scripts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
-  npx jest --config jest.integration.config.js --forceExit --ci --reporters=default --reporters=jest-junit
+  npx jest --selectProjects integration --forceExit --ci --maxWorkers=4 --reporters=default --reporters=jest-junit
 
   echo -e "\n\nRunning Jest OAuth API integration tests (in-process server)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-oauth-api-results.xml" \
-  npx jest --config jest.oauth-api.config.js --forceExit --ci --reporters=default --reporters=jest-junit
+  npx jest --selectProjects oauth-api --forceExit --ci --maxWorkers=1 --reporters=default --reporters=jest-junit
 
   # Sweeping old Stripe test customers is housekeeping, not part of the test run,
   # and the sweep is slow (paginates the test account via the rate-limited Stripe
@@ -81,8 +83,11 @@ elif [ "$TEST_TYPE" == 'integration' ]; then
   fi
 
 else
-  echo -e "\n\nRunning all Jest tests"
+  # Fallback: unit only. The infra-backed suites can't share one jest run
+  # (oauth-api would race integration's globalSetup server on the DB), so there
+  # is no single "run everything" invocation -- pick a suite via TEST_TYPE.
+  echo -e "\n\nRunning Jest unit tests (default)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-results.xml" \
-  npx jest --coverage --forceExit --ci --silent --reporters=default --reporters=jest-junit
+  npx jest --selectProjects unit --coverage --ci --silent --reporters=default --reporters=jest-junit
 fi

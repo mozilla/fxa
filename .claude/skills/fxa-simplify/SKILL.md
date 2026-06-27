@@ -76,7 +76,13 @@ Simplify code structure by:
 - Eliminating redundant code and abstractions
 - Improving readability through clear variable and function names
 - Consolidating related logic
-- Removing unnecessary comments that describe obvious code — keep comments that explain *why*, not *what*. For deeper documentation review, see the `/check-docs` skill (`.claude/skills/check-docs/SKILL.md`).
+- **Comments — fewer, shorter, and *why* over *what*:**
+  - Remove comments that restate what the code plainly does.
+  - Tighten comments worth keeping to their essential point. A valid *why* comment can still be too long — cut background, restated context, and hedging; one or two lines usually beats a paragraph.
+  - Default to the shortest comment that still carries the reason. If the code is self-explanatory once named well, prefer no comment over a redundant one.
+  - Keep the load-bearing parts: non-obvious rationale, gotchas and edge cases, ticket references (e.g. `FXA-1234`), and links.
+  - If a comment has drifted from the code, fix or delete it — a stale comment is worse than none.
+  - For deeper documentation review, see the `/fxa-check-docs` skill (`.claude/skills/fxa-check-docs/SKILL.md`).
 - **Avoid nested ternary operators** — prefer switch statements or if/else chains for multiple conditions
 - Choose clarity over brevity — explicit code is often better than overly compact code (e.g., nested ternaries, dense one-liners)
 - Prefer `async/await` over `.then()` chains
