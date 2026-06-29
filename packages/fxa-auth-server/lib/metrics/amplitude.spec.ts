@@ -329,7 +329,9 @@ describe('metrics/amplitude', () => {
         });
         expect(args[0].time).toBeGreaterThan(Date.now() - 1000);
         expect(/^([0-9]+)\.([0-9]+)$/.test(args[0].app_version)).toBe(true);
-        const statsd = Container.get(StatsD) as { increment: jest.Mock };
+        const statsd = Container.get(StatsD) as unknown as {
+          increment: jest.Mock;
+        };
         expect(statsd.increment).toHaveBeenNthCalledWith(1, 'amplitude.event');
       });
     });
@@ -919,7 +921,9 @@ describe('metrics/amplitude', () => {
       });
 
       it('incremented amplitude dropped', () => {
-        const statsd = Container.get(StatsD) as { increment: jest.Mock };
+        const statsd = Container.get(StatsD) as unknown as {
+          increment: jest.Mock;
+        };
         expect(statsd.increment).toHaveBeenCalledTimes(2);
         expect(statsd.increment).toHaveBeenNthCalledWith(1, 'amplitude.event');
         expect(statsd.increment).toHaveBeenNthCalledWith(

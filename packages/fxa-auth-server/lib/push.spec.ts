@@ -22,7 +22,7 @@ let pushPayloadsSchema: any = null;
 function getPushPayloadsSchema() {
   if (!pushPayloadsSchema) {
     const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
-    pushPayloadsSchema = JSON.parse(fs.readFileSync(schemaPath));
+    pushPayloadsSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
   }
   return pushPayloadsSchema;
 }

@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import url from 'url';
 
 const Client = require('../client')();
@@ -73,7 +77,11 @@ describe.each(testVersions)(
       expect(status.sessionVerified).toBe(false);
 
       try {
-        await client.changePassword(newPassword, undefined, client.sessionToken);
+        await client.changePassword(
+          newPassword,
+          undefined,
+          client.sessionToken
+        );
         fail('should have thrown');
       } catch (err: unknown) {
         const error = err as AuthServerError;
@@ -115,7 +123,7 @@ describe.each(testVersions)(
       const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['subject']).toBe('Password updated');
       const link = emailData.headers['x-link'];
-      const query = url.parse(link, true).query;
+      const query = url.parse(link as string, true).query;
       expect(query.email).toBeTruthy();
 
       const statusAfter = await client.emailStatus();
@@ -183,7 +191,9 @@ describe.each(testVersions)(
       );
 
       const profileAfter = await client.accountProfile();
-      expect(profileBefore['keysChangedAt']).toBe(profileAfter['keysChangedAt']);
+      expect(profileBefore['keysChangedAt']).toBe(
+        profileAfter['keysChangedAt']
+      );
     });
 
     it('wrong password on change start', async () => {
@@ -314,7 +324,11 @@ describe.each(testVersions)(
         );
       }
 
-      async function loginUser(loginEmail: string, loginPassword: string, options?: any) {
+      async function loginUser(
+        loginEmail: string,
+        loginPassword: string,
+        options?: any
+      ) {
         return await Client.login(server.publicUrl, loginEmail, loginPassword, {
           ...testOptions,
           ...options,
@@ -373,7 +387,11 @@ describe.each(testVersions)(
         };
       }
 
-      async function validatePasswordChanged(victim: any, res: any, error: any) {
+      async function validatePasswordChanged(
+        victim: any,
+        res: any,
+        error: any
+      ) {
         try {
           await victim.setupCredentials(victim.email, 'ok');
           await victim.auth();

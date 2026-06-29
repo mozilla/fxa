@@ -74,8 +74,8 @@ function mockRequest(data: any) {
       credentials: data.credentials,
     },
     clearMetricsContext: jest.fn(),
-    emitMetricsEvent: jest.fn().mockResolvedValue(),
-    emitRouteFlowEvent: jest.fn().mockResolvedValue(),
+    emitMetricsEvent: jest.fn().mockResolvedValue(undefined),
+    emitRouteFlowEvent: jest.fn().mockResolvedValue(undefined),
     gatherMetricsContext: jest
       .fn()
       .mockImplementation((d: any) => Promise.resolve(d)),

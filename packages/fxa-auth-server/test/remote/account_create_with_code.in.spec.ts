@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import * as otplib from 'otplib';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -110,7 +113,7 @@ describe.each(testVersions)(
         (server.config as any).otp,
         { secret, epoch: Date.now() / 1000 - 60 * 60 } // Code 60mins old
       );
-      const expiredCode = futureAuthenticator.generate();
+      const expiredCode = futureAuthenticator.generate(secret as string);
 
       await expect(
         client.verifyShortCodeEmail(expiredCode)
@@ -128,7 +131,9 @@ describe.each(testVersions)(
       const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['x-template-name']).toBe('verifyShortCode');
 
-      const invalidCode = String(Number(emailData.headers['x-verify-short-code']) + 1);
+      const invalidCode = String(
+        Number(emailData.headers['x-verify-short-code']) + 1
+      );
 
       await expect(
         client.verifyShortCodeEmail(invalidCode)
@@ -179,7 +184,7 @@ describe.each(testVersions)(
         { secret, epoch: Date.now() / 1000 - 60 * 10 } // Code 10mins old
       );
 
-      const previousWindowCode = futureAuthenticator.generate(secret);
+      const previousWindowCode = futureAuthenticator.generate(secret as string);
       const response = await client.verifyShortCodeEmail(previousWindowCode);
       expect(response).toBeTruthy();
     });
@@ -207,7 +212,7 @@ describe.each(testVersions)(
         { secret, epoch: Date.now() / 1000 + 60 * 30 } // Code 30mins in future
       );
 
-      const futureWindowCode = futureAuthenticator.generate(secret);
+      const futureWindowCode = futureAuthenticator.generate(secret as string);
 
       await expect(
         client.verifyShortCodeEmail(futureWindowCode)

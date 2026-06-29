@@ -138,7 +138,7 @@ describe('Account Events', () => {
   describe('security events', () => {
     it('can record security event', async () => {
       const message = {
-        name: 'account.login',
+        name: 'account.login' as const,
         uid: '000',
         ipAddr: '123.123.123.123',
         tokenId: '123',
@@ -157,7 +157,7 @@ describe('Account Events', () => {
 
     it('includes clientId and service tags from additionalInfo', async () => {
       const message = {
-        name: 'account.login',
+        name: 'account.login' as const,
         uid: '000',
         ipAddr: '123.123.123.123',
         tokenId: '123',
@@ -177,7 +177,7 @@ describe('Account Events', () => {
 
     it('uses none for missing service when clientId is present', async () => {
       const message = {
-        name: 'account.login',
+        name: 'account.login' as const,
         uid: '000',
         ipAddr: '123.123.123.123',
         tokenId: '123',

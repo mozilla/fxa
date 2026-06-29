@@ -23,6 +23,9 @@ export interface EmailData {
   text?: string;
   html?: string;
   subject?: string;
+  // mailparser exposes parsed recipients as a top-level array, distinct from
+  // the `cc` string header above.
+  cc?: { address: string; name?: string }[];
 }
 
 export interface Mailbox {

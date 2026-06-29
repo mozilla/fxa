@@ -274,7 +274,8 @@ describe('Customs', () => {
       const originalGet = configModule.config.get.bind(configModule.config);
       jest
         .spyOn(configModule.config, 'get')
-        .mockImplementation((key: string) => {
+        .mockImplementation((...args: unknown[]) => {
+          const key = args[0];
           if (key === 'rateLimit.emailAliasNormalization') {
             return JSON.stringify([
               { domain: 'mozilla.com', regex: '\\+.*', replace: '' },

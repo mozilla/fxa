@@ -168,7 +168,9 @@ describe('CapabilityService', () => {
       capabilityService.subscribedPriceIds = jest
         .fn()
         .mockResolvedValue(['price_GWScEDK6LT8cSV']);
-      capabilityService.processPriceIdDiff = jest.fn().mockResolvedValue();
+      capabilityService.processPriceIdDiff = jest
+        .fn()
+        .mockResolvedValue(undefined);
     });
 
     it('handles a stripe price update with new prices', async () => {
@@ -232,7 +234,9 @@ describe('CapabilityService', () => {
       capabilityService.subscribedPriceIds = jest
         .fn()
         .mockResolvedValue(['prod_FUUNYnlDso7FeB']);
-      capabilityService.processPriceIdDiff = jest.fn().mockResolvedValue();
+      capabilityService.processPriceIdDiff = jest
+        .fn()
+        .mockResolvedValue(undefined);
       subscriptionPurchase = PlayStoreSubscriptionPurchase.fromApiResponse(
         VALID_SUB_API_RESPONSE,
         'testPackage',

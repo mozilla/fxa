@@ -536,7 +536,7 @@ describe('PayPalNotificationHandler', () => {
     });
 
     it('should only update the database BA if the IPN and Customer BA ID dont match', async () => {
-      dbStub.updatePayPalBA.mockResolvedValue();
+      dbStub.updatePayPalBA.mockResolvedValue(undefined);
       stripeHelper.getCustomerPaypalAgreement = jest
         .fn()
         .mockReturnValue(undefined);
@@ -584,7 +584,7 @@ describe('PayPalNotificationHandler', () => {
       dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
       dbStub.Account.findByUid = jest.fn().mockResolvedValue(account);
       stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(fetchCustomer);
-      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue(undefined);
       stripeHelper.getPaymentProvider = jest.fn().mockResolvedValue('paypal');
       stripeHelper.formatSubscriptionsForEmails = jest.fn().mockReturnValue([]);
 
@@ -706,7 +706,7 @@ describe('PayPalNotificationHandler', () => {
       dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
       dbStub.Account.findByUid = jest.fn().mockResolvedValue(account);
       stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(fetchCustomer);
-      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue(undefined);
       stripeHelper.getPaymentProvider = jest.fn().mockResolvedValue('paypal');
 
       const result = await handler.handleMpCancel(
@@ -749,7 +749,7 @@ describe('PayPalNotificationHandler', () => {
       dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
       dbStub.Account.findByUid = jest.fn().mockResolvedValue(mockAcct);
       stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(mockCustomer);
-      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue(undefined);
       stripeHelper.getPaymentProvider = jest.fn().mockReturnValue('paypal');
       stripeHelper.formatSubscriptionsForEmails = jest
         .fn()

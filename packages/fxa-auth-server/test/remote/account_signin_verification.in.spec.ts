@@ -2,8 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
-import { generateMetricsContext, AuthServerError } from '../support/helpers/test-utils';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
+import {
+  generateMetricsContext,
+  AuthServerError,
+} from '../support/helpers/test-utils';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const Client = require('../client')();
 
@@ -163,7 +169,7 @@ describe.each(testVersions)(
 
       const emailData = await server.mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
-      const query = new URL(link).searchParams;
+      const query = new URL(link as string).searchParams;
       expect(query.get('uid')).toBeTruthy();
       expect(query.get('code')).toBeTruthy();
       expect(query.get('service')).toBe(options.service);
@@ -195,7 +201,7 @@ describe.each(testVersions)(
 
       const emailData = await server.mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
-      const query = new URL(link).searchParams;
+      const query = new URL(link as string).searchParams;
       expect(query.get('uid')).toBeTruthy();
       expect(query.get('code')).toBeTruthy();
       expect(query.get('service')).toBe(options.service);

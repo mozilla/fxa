@@ -43,14 +43,16 @@ describe('geodb', () => {
     const getGeoData = geodbFactory(mockLog());
     const geoData = getGeoData(knownIpLocation.ip);
 
-    expect(knownIpLocation.location.city.has(geoData.location.city)).toBe(true);
-    expect(geoData.location.country).toBe(knownIpLocation.location.country);
-    expect(geoData.location.countryCode).toBe(
-      knownIpLocation.location.countryCode
-    );
+    const location = geoData.location;
+    if (!location) {
+      throw new Error('expected geoData.location to be defined when enabled');
+    }
+    expect(knownIpLocation.location.city.has(location.city)).toBe(true);
+    expect(location.country).toBe(knownIpLocation.location.country);
+    expect(location.countryCode).toBe(knownIpLocation.location.countryCode);
     expect(geoData.timeZone).toBe(knownIpLocation.location.tz);
-    expect(geoData.location.state).toBe(knownIpLocation.location.state);
-    expect(geoData.location.stateCode).toBe(knownIpLocation.location.stateCode);
+    expect(location.state).toBe(knownIpLocation.location.state);
+    expect(location.stateCode).toBe(knownIpLocation.location.stateCode);
   });
 
   it('returns empty object data when disabled', () => {

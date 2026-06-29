@@ -762,7 +762,7 @@ describe('deleteAccountIfUnverified', () => {
   it('should delete a Stripe customer with no subscriptions', async () => {
     const mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(false),
-      removeCustomer: jest.fn().mockResolvedValue(),
+      removeCustomer: jest.fn().mockResolvedValue(undefined),
     };
 
     await deleteAccountIfUnverified(
@@ -2522,9 +2522,11 @@ describe('/account/login', () => {
     mockMailer.sendVerifyShortCodeEmail = jest.fn(() => Promise.resolve());
     mockMailer.sendVerifyEmail.mockClear();
     // some tests change what these resolve (or reject) to, so we completely reset
-    mockFxaMailer.sendNewDeviceLoginEmail = jest.fn().mockResolvedValue();
-    mockFxaMailer.sendVerifyEmail = jest.fn().mockResolvedValue();
-    mockFxaMailer.sendVerifyLoginEmail = jest.fn().mockResolvedValue();
+    mockFxaMailer.sendNewDeviceLoginEmail = jest
+      .fn()
+      .mockResolvedValue(undefined);
+    mockFxaMailer.sendVerifyEmail = jest.fn().mockResolvedValue(undefined);
+    mockFxaMailer.sendVerifyLoginEmail = jest.fn().mockResolvedValue(undefined);
     mockDB.createSessionToken.mockClear();
     mockDB.sessions.mockClear();
     mockMetricsContext.stash.mockClear();
@@ -5113,7 +5115,7 @@ describe('/account/metrics_opt', () => {
   }
 
   it('should call setMetricsOpt and notify services on opt-out', () => {
-    const setMetricsOptStub = jest.fn().mockResolvedValue();
+    const setMetricsOptStub = jest.fn().mockResolvedValue(undefined);
     const route = buildRoute(setMetricsOptStub);
     const request = mocks.mockRequest({
       credentials: { uid, email },
@@ -5130,7 +5132,7 @@ describe('/account/metrics_opt', () => {
   });
 
   it('should call setMetricsOpt and notify services on opt-in', () => {
-    const setMetricsOptStub = jest.fn().mockResolvedValue();
+    const setMetricsOptStub = jest.fn().mockResolvedValue(undefined);
     const route = buildRoute(setMetricsOptStub);
     const request = mocks.mockRequest({
       credentials: { uid, email },
@@ -5156,7 +5158,7 @@ describe('/account/emails', () => {
       account: jest.fn().mockResolvedValue({
         uid: 'account-123',
         email: 'signup@example.com',
-        primaryEmail: { email: 'signup+1@example.com' }
+        primaryEmail: { email: 'signup+1@example.com' },
       }),
     };
     config = {};
@@ -5172,7 +5174,7 @@ describe('/account/emails', () => {
     expect(db.account).toHaveBeenCalledWith('account-123');
     expect(resp).toEqual({
       originalEmail: 'signup@example.com',
-      primaryEmail: 'signup+1@example.com'
+      primaryEmail: 'signup+1@example.com',
     });
   });
 });

@@ -71,8 +71,8 @@ function mockRequest(data: any) {
       credentials: data.credentials,
     },
     clearMetricsContext: jest.fn(),
-    emitMetricsEvent: jest.fn().mockResolvedValue(),
-    emitRouteFlowEvent: jest.fn().mockResolvedValue(),
+    emitMetricsEvent: jest.fn().mockResolvedValue(undefined),
+    emitRouteFlowEvent: jest.fn().mockResolvedValue(undefined),
     gatherMetricsContext: jest
       .fn()
       .mockImplementation((d: any) => Promise.resolve(d)),
@@ -86,10 +86,10 @@ function mockRequest(data: any) {
     params: {},
     path: data.path,
     payload: data.payload || {},
-    propagateMetricsContext: jest.fn().mockResolvedValue(),
+    propagateMetricsContext: jest.fn().mockResolvedValue(undefined),
     query: data.query || {},
     setMetricsFlowCompleteSignal: jest.fn(),
-    stashMetricsContext: jest.fn().mockResolvedValue(),
+    stashMetricsContext: jest.fn().mockResolvedValue(undefined),
     validateMetricsContext: jest.fn().mockReturnValue(true),
   };
 }

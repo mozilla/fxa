@@ -7,11 +7,12 @@
  * Sets environment variables that affect module loading.
  */
 
-process.env.NODE_ENV = 'dev';
+(process.env as Record<string, string | undefined>).NODE_ENV = 'dev';
 process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = 'true';
 process.env.TRACING_SERVICE_NAME = 'fxa-auth-server-test';
 process.env.TRACING_SAMPLE_RATE = '0';
-process.env.LOG_LEVEL = process.env.REMOTE_TEST_LOGS === 'true' ? 'info' : 'error';
+process.env.LOG_LEVEL =
+  process.env.REMOTE_TEST_LOGS === 'true' ? 'info' : 'error';
 process.env.AUTH_GLEAN_ENABLED = 'false';
 if (!process.env.CORS_ORIGIN) {
   process.env.CORS_ORIGIN = 'http://foo,http://bar';

@@ -277,7 +277,7 @@ describe('#integration - PaymentConfigManager', () => {
 
     it('throws error on invalid product config', async () => {
       const newProduct = structuredClone(productConfig);
-      delete newProduct.urls;
+      delete (newProduct as Partial<typeof newProduct>).urls;
 
       try {
         await paymentConfigManager.validateProductConfig(newProduct);
@@ -301,7 +301,7 @@ describe('#integration - PaymentConfigManager', () => {
 
     it('throws error on invalid plan config', async () => {
       const newPlan = structuredClone(planConfig);
-      delete newPlan.active;
+      delete (newPlan as Partial<typeof newPlan>).active;
 
       try {
         await paymentConfigManager.validatePlanConfig(newPlan, randomUUID());
@@ -314,7 +314,7 @@ describe('#integration - PaymentConfigManager', () => {
     it('throws error if the plan has an invalid product id', async () => {
       const newPlan = structuredClone(planConfig);
       const product = (await paymentConfigManager.allProducts())[0];
-      delete newPlan.active;
+      delete (newPlan as Partial<typeof newPlan>).active;
 
       try {
         await paymentConfigManager.validatePlanConfig(newPlan, product.id);
@@ -335,7 +335,7 @@ describe('#integration - PaymentConfigManager', () => {
 
     it('throws if the product is invalid', async () => {
       const newProduct = structuredClone(productConfig);
-      delete newProduct.urls;
+      delete (newProduct as Partial<typeof newProduct>).urls;
       expect(await paymentConfigManager.allProducts()).toHaveLength(1);
       try {
         await paymentConfigManager.storeProductConfig(newProduct, randomUUID());
@@ -369,7 +369,7 @@ describe('#integration - PaymentConfigManager', () => {
 
     it('throws if the plan is invalid', async () => {
       const newPlan = structuredClone(planConfig);
-      delete newPlan.active;
+      delete (newPlan as Partial<typeof newPlan>).active;
       expect(await paymentConfigManager.allPlans()).toHaveLength(1);
       try {
         await paymentConfigManager.storePlanConfig(newPlan, randomUUID());
