@@ -47,7 +47,11 @@ import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 
 export const Settings = ({
   integration,
-}: { integration: SettingsIntegration } & RouteComponentProps) => {
+  isSignedIntoFirefox = false,
+}: {
+  integration: SettingsIntegration;
+  isSignedIntoFirefox?: boolean;
+} & RouteComponentProps) => {
   const session = useSession();
   const authClient = useAuthClient();
   const account = useAccount();
@@ -192,7 +196,7 @@ export const Settings = ({
       <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
-          <PageSettings path="/" {...{ integration }} />
+          <PageSettings path="/" {...{ integration, isSignedIntoFirefox }} />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}

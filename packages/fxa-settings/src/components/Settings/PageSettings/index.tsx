@@ -27,14 +27,20 @@ import {
   RecoveryPhonePromoBanner,
 } from '../../PromotionBanner';
 import {
+  isFirefoxPromoDismissed,
   isRecoveryKeyPromoDismissed,
   isRecoveryPhonePromoDismissed,
 } from '../../../lib/promo-dismissal';
+import FirefoxPromoBanner, {
+  shouldShowFirefoxPromo,
+} from '../../FirefoxPromoBanner';
 
 export const PageSettings = ({
   integration,
+  isSignedIntoFirefox = false,
 }: RouteComponentProps & {
   integration?: SettingsIntegration;
+  isSignedIntoFirefox?: boolean;
 }) => {
   const account = useAccount();
   const {
@@ -144,11 +150,19 @@ export const PageSettings = ({
     estimatedSyncDeviceCount = recoveryKey.estimatedSyncDeviceCount;
   }
 
+  const dismissedFirefoxPromo = isFirefoxPromoDismissed();
   const dismissedRecoveryPhonePromo = isRecoveryPhonePromoDismissed();
   const dismissedRecoveryKeyPromo = isRecoveryKeyPromoDismissed();
 
+  // Only one promo banner shows at a time. The Firefox promo takes priority;
+  // the recovery promos yield to it (but still show on Firefox mobile, where
+  // the Firefox promo is suppressed).
+  const eligibleForFirefoxPromo =
+    !dismissedFirefoxPromo && shouldShowFirefoxPromo(isSignedIntoFirefox);
+
   // Recovery phone promo is prioritized if user is eligible for both
   const eligibleForRecoveryPhonePromo =
+    !eligibleForFirefoxPromo &&
     !dismissedRecoveryPhonePromo &&
     totp.exists &&
     totp.verified &&
@@ -156,6 +170,7 @@ export const PageSettings = ({
     recoveryPhone.available;
 
   const eligibleForRecoveryKeyPromo =
+    !eligibleForFirefoxPromo &&
     (!eligibleForRecoveryPhonePromo || dismissedRecoveryPhonePromo) &&
     !dismissedRecoveryKeyPromo &&
     estimatedSyncDeviceCount > 0 &&
@@ -185,6 +200,9 @@ export const PageSettings = ({
         />
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
+        {eligibleForFirefoxPromo && (
+          <FirefoxPromoBanner {...{ isSignedIntoFirefox }} />
+        )}
         {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
         {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
         <Profile ref={profileRef} />

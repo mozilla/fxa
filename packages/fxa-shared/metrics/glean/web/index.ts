@@ -20,8 +20,14 @@ export const stringEventPropertyNames = [
   'choice',
 ] as const;
 
+// String event extras passed to specific events but not backed by a global
+// `event`-module metric, so they are not set globally in populateMetrics.
+export const stringEventExtraPropertyNames = ['mobile_device_count'] as const;
+
 export type PropertyNameStringT = typeof stringEventPropertyNames;
-export type PropertyNameString = PropertyNameStringT[number];
+export type PropertyNameString =
+  | PropertyNameStringT[number]
+  | (typeof stringEventExtraPropertyNames)[number];
 
 export type PropertyNameBooleanT = typeof booleanEventPropertyNames;
 export type PropertyNameBoolean = PropertyNameBooleanT[number];
@@ -278,6 +284,15 @@ export const eventsMap = {
     createRecoveryKeyView: 'account_banner_create_recovery_key_view',
     addRecoveryPhoneView: 'account_banner_add_recovery_phone_view',
     reactivationSuccessView: 'account_banner_reactivation_success_view',
+  },
+
+  firefoxPromo: {
+    connectMobileView: 'firefox_promo_connect_mobile_view',
+    connectMobileSubmit: 'firefox_promo_connect_mobile_submit',
+    connectMobileDismiss: 'firefox_promo_connect_mobile_dismiss',
+    switchToFirefoxView: 'firefox_promo_switch_to_firefox_view',
+    switchToFirefoxSubmit: 'firefox_promo_switch_to_firefox_submit',
+    switchToFirefoxDismiss: 'firefox_promo_switch_to_firefox_dismiss',
   },
 
   deleteAccount: {

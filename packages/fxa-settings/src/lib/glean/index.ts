@@ -33,6 +33,7 @@ import * as cadRedirectDesktop from 'fxa-shared/metrics/glean/web/cadRedirectDes
 import * as cadRedirectMobile from 'fxa-shared/metrics/glean/web/cadRedirectMobile';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
+import * as firefoxPromo from 'fxa-shared/metrics/glean/web/firefoxPromo';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
@@ -755,6 +756,42 @@ const recordEventMetric = (
       break;
     case 'account_banner_reactivation_success_view':
       accountBanner.reactivationSuccessView.record();
+      break;
+    case 'firefox_promo_connect_mobile_view':
+      firefoxPromo.connectMobileView.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_connect_mobile_submit':
+      firefoxPromo.connectMobileSubmit.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_connect_mobile_dismiss':
+      firefoxPromo.connectMobileDismiss.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_view':
+      firefoxPromo.switchToFirefoxView.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_submit':
+      firefoxPromo.switchToFirefoxSubmit.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_dismiss':
+      firefoxPromo.switchToFirefoxDismiss.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
       break;
     case 'reg_otp_view':
       reg.otpView.record();
