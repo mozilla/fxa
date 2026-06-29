@@ -222,6 +222,9 @@ describe('PageSettings', () => {
   describe('feature promotion banners', () => {
     beforeEach(() => {
       localStorage.clear();
+      // The Firefox promo takes priority over the recovery promos, so dismiss
+      // it to isolate recovery-promo eligibility behavior.
+      localStorage.setItem(Constants.DISABLE_PROMO_FIREFOX_BANNER, 'true');
     });
 
     it('shows phone banner when eligible', async () => {
@@ -254,6 +257,59 @@ describe('PageSettings', () => {
           screen.getByTestId('submit_create_recovery_key')
         ).toBeInTheDocument()
       );
+    });
+
+    it('shows the recovery key promo for a desktop Firefox user not signed into the browser', async () => {
+      // Undo the beforeEach dismissal so the Firefox promo could be eligible.
+      localStorage.removeItem(Constants.DISABLE_PROMO_FIREFOX_BANNER);
+      const { userAgent } = navigator;
+      Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Macintosh) Gecko/20100101 Firefox/123.0',
+        configurable: true,
+      });
+
+      try {
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: accountEligibleForRecoveryKey })}
+          >
+            {/* isSignedIntoFirefox defaults to false */}
+            <PageSettings integration={mockWebIntegration} />
+          </AppContext.Provider>
+        );
+
+        await waitFor(() =>
+          expect(
+            screen.getByTestId('submit_create_recovery_key')
+          ).toBeInTheDocument()
+        );
+        expect(
+          screen.queryByTestId('firefox-promo-cta')
+        ).not.toBeInTheDocument();
+      } finally {
+        Object.defineProperty(navigator, 'userAgent', {
+          value: userAgent,
+          configurable: true,
+        });
+      }
+    });
+
+    it('shows the Firefox promo instead of a recovery promo when both are eligible', async () => {
+      // Undo the beforeEach dismissal so the Firefox promo is eligible.
+      localStorage.removeItem(Constants.DISABLE_PROMO_FIREFOX_BANNER);
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account: accountEligibleForRecoveryKey })}
+        >
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('firefox-promo-cta')).toBeInTheDocument()
+      );
+      expect(
+        screen.queryByTestId('submit_create_recovery_key')
+      ).not.toBeInTheDocument();
     });
 
     it('does not show key banner for passwordless accounts', async () => {

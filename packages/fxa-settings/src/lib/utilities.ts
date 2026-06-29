@@ -111,6 +111,18 @@ export function isMobileDevice(
   return /mobi/i.test(navigator.userAgent);
 }
 
+// User-agent based check for a phone OR tablet, for promos that target the
+// mobile app on both. Phones carry "Mobi"/"Mobile"; Android tablets omit
+// "Mobile" but keep "Android"/"Tablet"; iPadOS 13+ Safari reports a desktop
+// macOS UA, so it is detected via the MacIntel + touch-points combination.
+export function isMobileOrTabletDevice() {
+  const ua = navigator.userAgent;
+  if (/mobi|android|tablet|ipad/i.test(ua)) {
+    return true;
+  }
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {

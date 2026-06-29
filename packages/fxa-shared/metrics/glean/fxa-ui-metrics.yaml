@@ -3874,6 +3874,146 @@ account_banner:
     data_sensitivity:
       - interaction
 
+firefox_promo:
+  connect_mobile_view:
+    type: event
+    description: |
+      User sees the Firefox promo banner encouraging them to install Firefox
+      on mobile (shown to users already on Firefox) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner
+          was shown.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  connect_mobile_submit:
+    type: event
+    description: |
+      User clicks the CTA on the Firefox install-mobile promo banner (shown to
+      users already on Firefox) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner CTA
+          was clicked.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  connect_mobile_dismiss:
+    type: event
+    description: |
+      User dismisses the Firefox install-mobile promo banner (shown to users
+      already on Firefox) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner was
+          dismissed.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  switch_to_firefox_view:
+    type: event
+    description: |
+      User sees the Firefox promo banner encouraging them to switch to Firefox
+      (shown to users on a non-Firefox browser) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner
+          was shown.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  switch_to_firefox_submit:
+    type: event
+    description: |
+      User clicks the CTA on the Firefox switch promo banner (shown to users on
+      a non-Firefox browser) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner CTA
+          was clicked.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  switch_to_firefox_dismiss:
+    type: event
+    description: |
+      User dismisses the Firefox switch promo banner (shown to users on a
+      non-Firefox browser) in the settings page.
+    send_in_pings:
+      - events
+    extra_keys:
+      mobile_device_count:
+        description: |
+          Number of mobile devices attached to the account when the banner was
+          dismissed.
+        type: string
+    notification_emails:
+      - vbudhram@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+
 delete_account:
   settings_submit:
     type: event

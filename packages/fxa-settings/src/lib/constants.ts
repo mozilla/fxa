@@ -211,5 +211,13 @@ export const Constants = {
   DISABLE_PROMO_RECOVERY_PHONE_BANNER:
     '__fxa_storage.fxa_disable_notification_banner.recovery-phone-dismissed',
 
+  DISABLE_PROMO_FIREFOX_BANNER:
+    '__fxa_storage.fxa_disable_notification_banner.firefox-promo-dismissed',
+
+  FIREFOX_DESKTOP_DOWNLOAD_URL: 'https://www.firefox.com/en-US/',
+  // Placeholder mobile download target; confirm final attribution link with Product.
+  FIREFOX_MOBILE_DOWNLOAD_URL:
+    'https://www.mozilla.org/firefox/browsers/mobile/',
+
   STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
 };

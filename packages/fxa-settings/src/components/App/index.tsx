@@ -436,7 +436,12 @@ export const App = ({
           path="/*"
         />
         <SettingsRoutes
-          {...{ isSignedIn, integration, setCurrentSplitLayout }}
+          {...{
+            isSignedIn,
+            integration,
+            isSignedIntoFirefox,
+            setCurrentSplitLayout,
+          }}
           path="/settings/*"
         />
       </Router>
@@ -447,10 +452,12 @@ export const App = ({
 const SettingsRoutes = ({
   isSignedIn,
   integration,
+  isSignedIntoFirefox,
   setCurrentSplitLayout,
 }: {
   isSignedIn: boolean;
   integration: Integration;
+  isSignedIntoFirefox: boolean;
   setCurrentSplitLayout: (value: boolean) => void;
 } & RouteComponentProps) => {
   const location = useLocation();
@@ -493,7 +500,7 @@ const SettingsRoutes = ({
         <ScrollToTop default>
           <Settings
             path="/settings/*"
-            {...{ integration, setCurrentSplitLayout }}
+            {...{ integration, isSignedIntoFirefox, setCurrentSplitLayout }}
           />
         </ScrollToTop>
       </SettingsContext.Provider>

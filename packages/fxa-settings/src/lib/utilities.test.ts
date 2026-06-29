@@ -9,6 +9,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isMobileDevice,
+  isMobileOrTabletDevice,
   isValidCmsUrl,
   isSendTabEntrypoint,
   navigateWithQueryHelper,
@@ -214,6 +215,110 @@ describe('check for mobile device', () => {
   it('handles client without name', () => {
     // See FXA-10326. Somehow an undefined value sneaks in here...
     expect(isMobileDevice({ deviceType: 'mobile', name: null })).toBeTruthy();
+  });
+});
+
+describe('isMobileOrTabletDevice', () => {
+  const original = {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    maxTouchPoints: navigator.maxTouchPoints,
+  };
+
+  function setNavigator({
+    userAgent = '',
+    platform = '',
+    maxTouchPoints = 0,
+  }: {
+    userAgent?: string;
+    platform?: string;
+    maxTouchPoints?: number;
+  }) {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: userAgent,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'platform', {
+      value: platform,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'maxTouchPoints', {
+      value: maxTouchPoints,
+      configurable: true,
+    });
+  }
+
+  afterEach(() => {
+    setNavigator(original);
+  });
+
+  it.each([
+    {
+      device: 'an iPhone',
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    },
+    {
+      device: 'an Android phone',
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    },
+    {
+      device: 'an Android tablet (no Mobile token)',
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 13; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+    {
+      device: 'a Firefox Android tablet',
+      userAgent:
+        'Mozilla/5.0 (Android 13; Tablet; rv:120.0) Gecko/120.0 Firefox/120.0',
+    },
+    {
+      device: 'a legacy iPad reporting an iPad UA',
+      userAgent:
+        'Mozilla/5.0 (iPad; CPU OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1',
+    },
+  ])('returns true for $device', ({ userAgent }) => {
+    setNavigator({ userAgent });
+    expect(isMobileOrTabletDevice()).toBe(true);
+  });
+
+  it('returns true for an iPadOS 13+ Safari reporting a desktop macOS UA', () => {
+    // iPadOS Safari masquerades as desktop Mac; only touch points give it away.
+    setNavigator({
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      platform: 'MacIntel',
+      maxTouchPoints: 5,
+    });
+    expect(isMobileOrTabletDevice()).toBe(true);
+  });
+
+  it.each([
+    {
+      device: 'a desktop Mac without touch',
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      platform: 'MacIntel',
+      maxTouchPoints: 0,
+    },
+    {
+      device: 'a desktop Windows browser',
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      platform: 'Win32',
+      maxTouchPoints: 0,
+    },
+    {
+      device: 'a desktop Firefox on Linux',
+      userAgent:
+        'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0',
+      platform: 'Linux x86_64',
+      maxTouchPoints: 0,
+    },
+  ])('returns false for $device', ({ userAgent, platform, maxTouchPoints }) => {
+    setNavigator({ userAgent, platform, maxTouchPoints });
+    expect(isMobileOrTabletDevice()).toBe(false);
   });
 });
 
