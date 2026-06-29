@@ -11,13 +11,6 @@ export class MeteringError extends BaseError {
   }
 }
 
-export class OpenMeterIngestError extends MeteringError {
-  constructor(cause: Error) {
-    super('Failed to ingest event into OpenMeter', {}, cause);
-    this.name = 'OpenMeterIngestError';
-  }
-}
-
 export class OpenMeterQueryError extends MeteringError {
   constructor(cause: Error) {
     super('Failed to query usage from OpenMeter', {}, cause);
@@ -29,5 +22,12 @@ export class MeteringBufferOverflowError extends MeteringError {
   constructor() {
     super('Metering ingest buffer is full', {});
     this.name = 'MeteringBufferOverflowError';
+  }
+}
+
+export class MeterNotConfiguredError extends MeteringError {
+  constructor(slug: string) {
+    super('Meter slug is not configured', { slug });
+    this.name = 'MeterNotConfiguredError';
   }
 }
