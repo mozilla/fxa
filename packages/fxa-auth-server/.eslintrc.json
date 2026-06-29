@@ -23,11 +23,16 @@
   "root": true,
   "ignorePatterns": [
     "dist",
-    "fxa-*",
+    // Anchored to the package root so it only ignores top-level vendored fxa-*
+    // dirs. Without the leading slash it matched by basename at any depth and
+    // silently excluded real source/test files (e.g. lib/senders/fxa-mailer*.ts).
+    "/fxa-*",
     "vendor"
   ],
   "overrides": [
     {
+      // Test-only relaxation: specs routinely use crypto.randomBytes directly
+      // for fixtures; the rule guards production async-crypto paths, not tests.
       "files": ["**/*.spec.ts"],
       "env": {
         "jest": true

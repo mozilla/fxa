@@ -258,7 +258,7 @@ describe('lib/senders/fxa-mailer', () => {
 
     it('does not record an event when uid is missing', async () => {
       stubRender();
-      const { uid: _uid, ...optsWithoutUid } = baseOpts;
+      const optsWithoutUid = { ...baseOpts, uid: undefined };
       await fxaMailer.sendNewDeviceLoginEmail(optsWithoutUid as any);
 
       expect(mockAccountEventsManager.recordEmailEvent).not.toHaveBeenCalled();

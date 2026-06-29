@@ -16,7 +16,12 @@ import { AccountEventsManager } from '../account-events';
  * This is jsut a strong typed driver that allows us to validate the params we pass into FxaMailer
  * functions are type safe. Since there's still a lot of code in auth-server that isn't type safe
  * this gives us some level of sanity that we are invoking the mailer methods correctly.
+ *
+ * The functions below are never called — they exist purely so `tsc` type-checks the
+ * argument shapes of each `fxaMailer.send*` invocation. Their being unused is by design,
+ * so `no-unused-vars` is disabled for the whole file.
  */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 // Create dummy mailer
 const fxaMailer = new FxaMailer(

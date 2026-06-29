@@ -15,7 +15,7 @@ export const FxaMailerFormat = {
       }>;
     };
   }) {
-    let metricsContext = await request.app.metricsContext;
+    const metricsContext = await request.app.metricsContext;
 
     return {
       deviceId: metricsContext.deviceId,
