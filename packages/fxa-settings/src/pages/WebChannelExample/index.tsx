@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import AppLayout from '../../components/AppLayout';
-import { RouteComponentProps } from '@reach/router';
+
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import firefox from '../../lib/channels/firefox';
@@ -13,7 +13,7 @@ import { useConfig } from '../../models';
 
 export const viewName = 'web_channel_example';
 
-const WebChannelExample = (_: RouteComponentProps) => {
+const WebChannelExample = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const config = useConfig();
   const [fxaStatusResult, setFxaStatusResult] = useState('');

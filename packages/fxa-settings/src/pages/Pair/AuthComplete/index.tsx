@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { Link } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -35,7 +35,7 @@ const AuthComplete = ({
   supportsFirefoxView = false,
   error,
   integration,
-}: AuthCompleteProps & RouteComponentProps) => {
+}: AuthCompleteProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const authorityIntegration =

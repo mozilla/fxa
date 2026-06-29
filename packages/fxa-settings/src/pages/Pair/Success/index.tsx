@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -13,7 +12,7 @@ import AppLayout from '../../../components/AppLayout';
 
 type PairSuccessProps = { error?: string };
 export const viewName = 'pair-success';
-const PairSuccess = ({ error }: PairSuccessProps & RouteComponentProps) => {
+const PairSuccess = ({ error }: PairSuccessProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   return (
     <AppLayout>

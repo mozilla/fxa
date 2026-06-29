@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import ResetPasswordRecoveryChoice from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
@@ -17,7 +17,6 @@ import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import AppLayout from '../../../components/AppLayout';
 
 export const ResetPasswordRecoveryChoiceContainer = (
-  _: RouteComponentProps
 ) => {
   const authClient = useAuthClient();
   const locationState = useLocation() as ReturnType<typeof useLocation> & {

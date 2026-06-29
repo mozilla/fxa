@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
 import AccountRecoveryConfirmKey from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AccountRecoveryConfirmKeyProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
@@ -29,7 +29,7 @@ export const Subject = ({
       };
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <AccountRecoveryConfirmKey
         verifyRecoveryKey={verifyRecoveryKey || mockVerifyRecoveryKey}
         {...{
@@ -45,6 +45,6 @@ export const Subject = ({
           uid,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

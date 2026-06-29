@@ -11,7 +11,6 @@ import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
 import { ResendStatus } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
-import { LocationProvider } from '@reach/router';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -24,15 +23,10 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-const mockLocationHook = jest.fn();
-const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
-  return {
-    ...jest.requireActual('@reach/router'),
-    useNavigate: () => mockNavigateHook,
-    useLocation: () => mockLocationHook,
-  };
-});
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
 
 const mockResendCode = jest.fn(() => Promise.resolve());
 const mockVerifyCode = jest.fn((code: string) => Promise.resolve());
@@ -115,7 +109,9 @@ describe('ConfirmResetPassword', () => {
 
   it('handles resend code', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(<Subject resendCode={mockResendCode} />);
+    renderWithLocalizationProvider(
+      <Subject resendCode={mockResendCode} />
+    );
 
     const resendButton = screen.getByRole('button', {
       name: 'Resend code',
@@ -132,7 +128,7 @@ describe('ConfirmResetPassword', () => {
     await waitFor(() =>
       user.click(screen.getByRole('link', { name: /^Use a different account/ }))
     );
-    expect(mockNavigateHook).toHaveBeenCalledWith('/', {
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', {
       state: { prefillEmail: MOCK_EMAIL },
     });
     expect(
@@ -153,12 +149,10 @@ describe('ConfirmResetPassword', () => {
 
     it('shows resend error banner', async () => {
       renderWithLocalizationProvider(
-        <LocationProvider>
-          <Subject
-            resendStatus={ResendStatus.error}
-            resendErrorMessage="Something went wrong. Please try again."
-          />
-        </LocationProvider>
+        <Subject
+          resendStatus={ResendStatus.error}
+          resendErrorMessage="Something went wrong. Please try again."
+        />
       );
 
       await expect(

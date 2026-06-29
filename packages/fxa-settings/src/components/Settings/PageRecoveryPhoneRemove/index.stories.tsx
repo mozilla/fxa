@@ -5,7 +5,7 @@
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { PageRecoveryPhoneRemove } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 
@@ -31,8 +31,8 @@ export const Default = () => (
       account,
     })}
   >
-    <LocationProvider>
+    <MemoryRouter>
       <PageRecoveryPhoneRemove />
-    </LocationProvider>
+    </MemoryRouter>
   </AppContext.Provider>
 );

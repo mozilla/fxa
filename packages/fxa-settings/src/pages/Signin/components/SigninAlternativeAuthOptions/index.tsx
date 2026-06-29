@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useEffect } from 'react';
 import AppLayout from '../../../../components/AppLayout';
@@ -41,7 +41,7 @@ const SigninAlternativeAuthOptions = ({
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
   supportsKeysOptionalLogin,
-}: SigninAlternativeAuthOptionsProps & RouteComponentProps) => {
+}: SigninAlternativeAuthOptionsProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();

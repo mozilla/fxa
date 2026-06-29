@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
@@ -20,7 +20,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 
-const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
+const AccountRecoveryConfirmKeyContainer = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const account = useAccount();

@@ -4,7 +4,7 @@
 
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ConnectedServices } from '.';
 
 import {
@@ -37,11 +37,11 @@ const storyWithContext = (account: Partial<Account>) => {
   const context = { account: account as Account };
 
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext(context)}>
         <ConnectedServices />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

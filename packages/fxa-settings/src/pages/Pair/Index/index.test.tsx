@@ -20,8 +20,8 @@ jest.mock('../../../lib/metrics', () => ({
 
 let mockLocationState: unknown = null;
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
     search: '',

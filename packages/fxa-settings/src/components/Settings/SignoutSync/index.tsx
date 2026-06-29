@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../CardHeader';
 import AppLayout from '../../AppLayout';
 
 export const viewName = 'legal';
 
-const SignoutSync = (_: RouteComponentProps) => {
+const SignoutSync = () => {
   // TODO: Add button to make this more automatic. We need the android signout fix
   //       to be rolled out first though.
 

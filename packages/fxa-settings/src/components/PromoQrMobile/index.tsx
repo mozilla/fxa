@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef } from 'react';
-import { useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ffLogo from '@fxa/shared/assets/images/ff-logo.svg';
 import qrMobileKitSrc from './qr-mobile-kit.svg';

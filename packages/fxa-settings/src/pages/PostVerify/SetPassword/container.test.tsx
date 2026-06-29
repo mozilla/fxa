@@ -21,7 +21,7 @@ import {
   mockGetWebChannelServices,
 } from '../../mocks';
 import { SetPasswordProps } from './interfaces';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import SetPasswordContainer from './container';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
@@ -72,8 +72,8 @@ const mockNavigate = jest.fn();
 const mockLocation = {
   state: undefined as Record<string, unknown> | undefined,
 };
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   navigate: jest.fn(),
   useNavigate: () => mockNavigate,
   useLocation: () => ({
@@ -152,7 +152,7 @@ function render(
 ) {
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SetPasswordContainer
         {...{
           flowQueryParams: {},
@@ -160,7 +160,7 @@ function render(
           useFxAStatusResult,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 function mockSyncDesktopV3Integration() {

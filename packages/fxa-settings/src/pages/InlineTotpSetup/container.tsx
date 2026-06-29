@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
@@ -28,7 +28,7 @@ export const InlineTotpSetupContainer = ({
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams: QueryParams;
-} & RouteComponentProps) => {
+}) => {
   const [totp, setTotp] = useState<TotpInfo>();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined

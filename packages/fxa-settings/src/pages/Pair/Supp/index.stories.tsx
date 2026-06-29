@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Supp from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -14,9 +14,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

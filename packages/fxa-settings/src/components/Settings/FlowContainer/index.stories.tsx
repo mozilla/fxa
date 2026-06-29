@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { FlowContainer } from '.';
 import { ProgressBar } from '../ProgressBar';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MOCK_CONTENT, MOCK_SUBTITLE, MOCK_TITLE } from './mocks';
 
 export default {
@@ -16,9 +16,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

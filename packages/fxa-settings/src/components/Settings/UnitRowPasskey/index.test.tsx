@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import UnitRowPasskey from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Passkey } from 'fxa-auth-client/browser';
@@ -86,7 +86,7 @@ describe('UnitRowPasskey', () => {
 
   const renderUnitRowPasskey = () =>
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider
           value={mockAppContext({
             account: mockAccount as unknown as Account,
@@ -98,7 +98,7 @@ describe('UnitRowPasskey', () => {
             <UnitRowPasskey />
           </SettingsContext.Provider>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
 
   it('renders header and description', async () => {

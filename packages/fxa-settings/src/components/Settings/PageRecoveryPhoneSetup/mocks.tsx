@@ -5,7 +5,6 @@
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import PageRecoveryPhoneSetup from '.';
-import { LocationProvider } from '@reach/router';
 import { MfaContext } from '../MfaGuard';
 
 export const Subject = ({ account: accountOverrides = {} }) => {
@@ -14,12 +13,10 @@ export const Subject = ({ account: accountOverrides = {} }) => {
     ...accountOverrides,
   } as Account;
   return (
-    <LocationProvider>
-      <AppContext.Provider value={{ ...mockAppContext({ account }) }}>
-        <MfaContext.Provider value="2fa">
-          <PageRecoveryPhoneSetup />
-        </MfaContext.Provider>
-      </AppContext.Provider>
-    </LocationProvider>
+    <AppContext.Provider value={{ ...mockAppContext({ account }) }}>
+      <MfaContext.Provider value="2fa">
+        <PageRecoveryPhoneSetup />
+      </MfaContext.Provider>
+    </AppContext.Provider>
   );
 };

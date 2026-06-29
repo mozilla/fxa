@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/browser';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { isEmail } from 'class-validator';
 
 import { isEmailMask } from 'fxa-shared/email/helpers';
@@ -48,7 +48,7 @@ const IndexContainer = ({
   flowQueryParams,
   useFxAStatusResult,
   setCurrentSplitLayout,
-}: IndexContainerProps & RouteComponentProps) => {
+}: IndexContainerProps) => {
   const authClient = useAuthClient();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();

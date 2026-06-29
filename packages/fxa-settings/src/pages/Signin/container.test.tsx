@@ -12,7 +12,7 @@ import * as CacheModule from '../../lib/cache';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as SentryModule from '@sentry/browser';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninContainer from './container';
 import { BeginSigninResult } from './interfaces';
@@ -394,10 +394,10 @@ const mockLocation = () => {
   };
 };
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigate,
     useLocation: () => mockLocation(),
   };
@@ -457,7 +457,7 @@ function render(options?: {
   const useFxAStatusResult = options?.useFxAStatusResult || mockUseFxAStatus();
 
   return renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninContainer
         {...{
           integration,
@@ -466,7 +466,7 @@ function render(options?: {
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

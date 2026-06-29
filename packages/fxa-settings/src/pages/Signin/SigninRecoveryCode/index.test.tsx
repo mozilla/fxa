@@ -13,7 +13,7 @@ import {
   createMockSigninWebIntegration,
   mockSigninLocationState,
 } from '../mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   MOCK_BACKUP_CODE,
   MOCK_CMS_INFO,
@@ -64,7 +64,7 @@ describe('PageSigninRecoveryCode', () => {
   it('renders as expected', () => {
     const mockSubmitRecoveryCode = jest.fn();
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
@@ -72,7 +72,7 @@ describe('PageSigninRecoveryCode', () => {
           signinState={mockSigninLocationState}
           submitRecoveryCode={mockSubmitRecoveryCode}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -99,7 +99,7 @@ describe('PageSigninRecoveryCode', () => {
   it('has expected glean click events', async () => {
     const mockSubmitRecoveryCode = jest.fn();
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
@@ -108,7 +108,7 @@ describe('PageSigninRecoveryCode', () => {
           submitRecoveryCode={mockSubmitRecoveryCode}
           lastFourPhoneDigits="1234"
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     const user = userEvent.setup();
@@ -143,7 +143,7 @@ describe('PageSigninRecoveryCode', () => {
       cmsInfo: MOCK_CMS_INFO,
     });
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegrationWithCms}
@@ -151,7 +151,7 @@ describe('PageSigninRecoveryCode', () => {
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     const additionalInfo = screen.getByText(
@@ -166,7 +166,7 @@ describe('PageSigninRecoveryCode', () => {
       cmsInfo: MOCK_CMS_INFO,
     });
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegrationWithCms}
@@ -174,7 +174,7 @@ describe('PageSigninRecoveryCode', () => {
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(
       screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.headline!)
@@ -188,7 +188,7 @@ describe('PageSigninRecoveryCode', () => {
     it('emits a metrics event on render', () => {
       const mockSubmitRecoveryCode = jest.fn();
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
@@ -196,7 +196,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       expect(GleanMetrics.loginBackupCode.view).toHaveBeenCalledTimes(1);
     });
@@ -207,7 +207,7 @@ describe('PageSigninRecoveryCode', () => {
         .fn()
         .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
@@ -215,7 +215,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       const input = screen.getByRole('textbox');
@@ -246,7 +246,7 @@ describe('PageSigninRecoveryCode', () => {
         isMobile: true,
       });
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={integration}
@@ -254,7 +254,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       const input = screen.getByRole('textbox');
@@ -281,7 +281,7 @@ describe('PageSigninRecoveryCode', () => {
         .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={createMockSigninWebIntegration()}
@@ -292,7 +292,7 @@ describe('PageSigninRecoveryCode', () => {
             }}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -327,7 +327,7 @@ describe('PageSigninRecoveryCode', () => {
         const user = userEvent.setup();
         const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
         renderWithLocalizationProvider(
-          <LocationProvider>
+          <MemoryRouter>
             <SigninRecoveryCode
               finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
               integration={keysRequiredIntegration()}
@@ -336,7 +336,7 @@ describe('PageSigninRecoveryCode', () => {
               submitRecoveryCode={submitSuccess()}
               supportsKeysOptionalLogin={false}
             />
-          </LocationProvider>
+          </MemoryRouter>
         );
         await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
         await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -364,7 +364,7 @@ describe('PageSigninRecoveryCode', () => {
       integration.requiresPasswordForLogin = () => false;
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={integration}
@@ -376,7 +376,7 @@ describe('PageSigninRecoveryCode', () => {
             submitRecoveryCode={submitSuccess()}
             supportsKeysOptionalLogin={true}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -395,7 +395,7 @@ describe('PageSigninRecoveryCode', () => {
     it('shows an error tooltip when submit without code', async () => {
       const mockSubmitRecoveryCode = jest.fn();
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
@@ -403,7 +403,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       const button = screen.getByRole('button', { name: 'Confirm' });
       expect(button).toBeDisabled();
@@ -418,7 +418,7 @@ describe('PageSigninRecoveryCode', () => {
         error: { errno: AuthUiErrors.INVALID_RECOVERY_CODE.errno },
       });
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
@@ -426,7 +426,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
@@ -444,7 +444,7 @@ describe('PageSigninRecoveryCode', () => {
         .fn()
         .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={jest
               .fn()
@@ -454,7 +454,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       const input = screen.getByRole('textbox');
@@ -474,7 +474,7 @@ describe('PageSigninRecoveryCode', () => {
         error: {},
       });
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
@@ -482,7 +482,7 @@ describe('PageSigninRecoveryCode', () => {
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PageDeleteAccount } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
@@ -30,13 +30,13 @@ const accountWithoutPassword = {
 
 const storyWithContext = (account: Account) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext({ account })}>
         <SettingsLayout>
           <PageDeleteAccount />
         </SettingsLayout>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

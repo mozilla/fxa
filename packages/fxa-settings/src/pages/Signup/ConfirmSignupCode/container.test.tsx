@@ -8,7 +8,6 @@ import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
 import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecovery';
 import * as CacheModule from '../../../lib/cache';
-import * as ReachRouterModule from '@reach/router';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
@@ -19,6 +18,7 @@ import SignupConfirmCodeContainer from './container';
 import { Integration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 
 import {
   MOCK_EMAIL,
@@ -41,9 +41,18 @@ jest.mock('../../../models', () => {
 });
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+let mockLocationStateValue: any = {};
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/',
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
 }));
 
 jest.mock('../../../lib/glean', () => ({
@@ -71,17 +80,13 @@ function mockLocation(
   originIsSignup: boolean = true,
   withAccountInfo: boolean = true
 ) {
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      state: {
-        uid: withAccountInfo ? MOCK_UID : undefined,
-        email: withAccountInfo ? MOCK_EMAIL : undefined,
-        sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
-        origin: originIsSignup ? 'signup' : null,
-        selectedNewsletterSlugs: 'slugs',
-      },
-    } as ReturnType<typeof ReachRouterModule.useLocation>;
-  });
+  mockLocationStateValue = {
+    uid: withAccountInfo ? MOCK_UID : undefined,
+    email: withAccountInfo ? MOCK_EMAIL : undefined,
+    sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
+    origin: originIsSignup ? 'signup' : null,
+    selectedNewsletterSlugs: 'slugs',
+  };
 }
 
 function mockReactUtilsModule() {
@@ -154,12 +159,14 @@ function applyMocks() {
 
 async function render() {
   renderWithLocalizationProvider(
-    <SignupConfirmCodeContainer
-      {...{
-        integration,
-      }}
-      flowQueryParams={{ flowId: MOCK_FLOW_ID }}
-    />
+    <MemoryRouter>
+      <SignupConfirmCodeContainer
+        {...{
+          integration,
+        }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
+      />
+    </MemoryRouter>
   );
 }
 

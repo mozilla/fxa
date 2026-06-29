@@ -13,7 +13,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
 import { PasswordImage } from '../../images';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import SigninPasswordlessCode from '.';
 import AppLayout from '../../../components/AppLayout';
@@ -23,7 +23,7 @@ const SigninPasswordlessCodeContainer = ({
   isSignedIntoFirefox,
   setCurrentSplitLayout,
   useFxAStatusResult,
-}: SigninPasswordlessCodeContainerProps & RouteComponentProps) => {
+}: SigninPasswordlessCodeContainerProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: PasswordlessLocationState;

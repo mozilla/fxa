@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryCodeModule from './index';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
@@ -91,21 +90,26 @@ function mockCache(opts: any = {}, isEmpty = false) {
   );
 }
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationStateValue: any = {};
 
 const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  mockLocationPathname = pathname;
+  mockLocationStateValue = locationState;
 }
 
 function resetMockSensitiveDataClient() {
@@ -147,13 +151,13 @@ function applyDefaultMocks() {
 
 function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninRecoveryCodeContainer
         {...{
           integration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

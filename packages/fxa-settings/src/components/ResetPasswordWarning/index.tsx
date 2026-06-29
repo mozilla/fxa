@@ -11,7 +11,7 @@ import { ReactComponent as Chevron } from './chevron.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import { CompleteResetPasswordLocationState } from '../../pages/ResetPassword/CompleteResetPassword/interfaces';
 import GleanMetrics from '../../lib/glean';
 

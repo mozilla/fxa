@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useFtlMsgResolver } from '../../../models';
-import { RouteComponentProps } from '@reach/router';
+
 import Head from 'fxa-react/components/Head';
 import ButtonBack from '../../ButtonBack';
 import classNames from 'classnames';
@@ -29,7 +29,7 @@ export const FlowContainer = ({
   hideBackButton = false,
   localizedBackButtonTitle,
   children,
-}: FlowContainerProps & RouteComponentProps) => {
+}: FlowContainerProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const backButtonTitle = localizedBackButtonTitle
     ? localizedBackButtonTitle

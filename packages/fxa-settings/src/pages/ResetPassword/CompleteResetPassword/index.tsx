@@ -16,7 +16,7 @@ import {
 } from './interfaces';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 

@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
 import CompleteResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   CompleteResetPasswordLocationState,
   CompleteResetPasswordProps,
@@ -50,7 +50,7 @@ export const Subject = ({
   } as CompleteResetPasswordLocationState;
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <CompleteResetPassword
         {...{
           email,
@@ -64,6 +64,6 @@ export const Subject = ({
           integration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

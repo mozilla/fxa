@@ -23,7 +23,7 @@ jest.mock('../../../lib/metrics', () => ({
 jest.mock('@react-pdf/renderer', () => {
   return {
     pdf: jest.fn().mockResolvedValue({
-      toBlob: jest.fn().mockResolvedValue(new Blob()),
+      toBlob: jest.fn().mockResolvedValue(new globalThis.Blob()),
       updateContainer: jest.fn(),
     }),
   };

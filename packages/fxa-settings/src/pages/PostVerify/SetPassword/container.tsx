@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import { persistAccount } from '../../../lib/storage-utils';
@@ -40,8 +40,9 @@ const SetPasswordContainer = ({
   integration: Integration;
   flowQueryParams: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
-} & RouteComponentProps) => {
+}) => {
   const navigateWithQuery = useNavigateWithQuery();
+  const navigate = useNavigate();
   const authClient = useAuthClient();
   const storedLocalAccount = currentAccount();
   const email = storedLocalAccount?.email;
@@ -171,6 +172,7 @@ const SetPasswordContainer = ({
           }
 
           const navigationOptions: NavigationOptions = {
+            navigate,
             email,
             signinData: {
               uid,
@@ -214,6 +216,7 @@ const SetPasswordContainer = ({
       integration,
       finishOAuthFlowHandler,
       getKeyFetchToken,
+      navigate,
       passwordCreationReason,
       passkeySurface,
       gleanReason,

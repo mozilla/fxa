@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import PageRelyingParties from '.';
 import { MOCK_RP_ALL_FIELDS, MOCK_RP_FALSY_FIELDS } from './mocks';
 import { IClientConfig } from '../../../interfaces';

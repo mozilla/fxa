@@ -5,7 +5,7 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 
 export type LinkRememberPasswordProps = {
   email?: string;

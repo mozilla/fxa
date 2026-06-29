@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import SigninRecoveryChoice from '.';
 import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -20,7 +20,7 @@ export const SigninRecoveryChoiceContainer = ({
 }: {
   integration: Integration;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;

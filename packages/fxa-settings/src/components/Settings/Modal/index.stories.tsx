@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 // ModalToggle only included for Storybook functionality
 type ModalToggleChildrenProps = {
@@ -43,9 +43,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

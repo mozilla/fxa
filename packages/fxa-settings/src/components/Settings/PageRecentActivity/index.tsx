@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
-
 import FlowContainer from '../FlowContainer';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import {
@@ -12,7 +10,7 @@ import {
 } from './SecurityEvent';
 import React, { useState, useEffect } from 'react';
 
-export const PageRecentActivity = (_: RouteComponentProps) => {
+export const PageRecentActivity = () => {
   const account = useAccount();
   const [securityEvents, setSecurityEvents] = useState(account.securityEvents);
 

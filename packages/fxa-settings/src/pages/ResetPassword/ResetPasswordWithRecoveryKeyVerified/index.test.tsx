@@ -7,14 +7,13 @@ import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
-  createHistoryWithQuery,
   renderWithRouter,
 } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
 import userEvent from '@testing-library/user-event';
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest
     .fn()
     .mockReturnValue({ state: { email: 'testo@example.gg' } }),
@@ -53,10 +52,8 @@ afterEach(() => {
 
 const route = 'reset_password_with_recovery_key_verified';
 const render = (ui: any) => {
-  const history = createHistoryWithQuery(route);
   const result = renderWithRouter(ui, {
     route,
-    history,
   });
   return result;
 };

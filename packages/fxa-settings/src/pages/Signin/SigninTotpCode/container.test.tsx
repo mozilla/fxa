@@ -7,12 +7,11 @@ import * as SigninTotpCodeModule from './index';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as CacheModule from '../../../lib/cache';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import * as ReachRouterModule from '@reach/router';
 import * as ModelsModule from '../../../models';
 
 // Regular imports
 import { screen } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { SigninTotpCodeProps } from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -102,16 +101,23 @@ function mockReactUtilsModule() {
 }
 
 let mockNavigate = jest.fn();
-function mockReachRouter(mockLocationState?: SigninLocationState) {
+let mockLocationState: SigninLocationState | undefined;
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/signin_token_code',
+    search: '',
+    hash: '',
+    state: mockLocationState,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(locationState?: SigninLocationState) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      ...global.window.location,
-      pathname: '/signin_token_code',
-      state: mockLocationState,
-    };
-  });
+  mockLocationState = locationState;
 }
 
 // Mock auth client
@@ -177,7 +183,7 @@ describe('signin totp code container', () => {
   /** Renders the container with a fake page component */
   async function render(waitForPageToRender = true) {
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <SigninTotpCodeContainer
           {...{
             integration,
@@ -185,7 +191,7 @@ describe('signin totp code container', () => {
             useFxAStatusResult: mockUseFxAStatus(),
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     if (waitForPageToRender) {

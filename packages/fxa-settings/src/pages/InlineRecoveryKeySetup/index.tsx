@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetupCreate';
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
 import AppLayout from '../../components/AppLayout';
@@ -25,7 +24,7 @@ export const InlineRecoveryKeySetup = ({
   formattedRecoveryKey,
   navigateForward,
   cmsInfo,
-}: InlineRecoveryKeySetupProps & RouteComponentProps) => {
+}: InlineRecoveryKeySetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const doLaterHandler = () => {
     localStorage.setItem(

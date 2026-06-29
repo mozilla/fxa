@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import AppLayout from '../AppLayout';
-import { navigate } from '@reach/router';
+import { useNavigate } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import CardHeader from '../CardHeader';
@@ -39,6 +39,7 @@ const LegalWithMarkdown = ({
   fetchLegalDoc,
 }: LegalWithMarkdownProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const navigate = useNavigate();
   const [markdown, setMarkdown] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const ftlMsgResolver = useFtlMsgResolver();

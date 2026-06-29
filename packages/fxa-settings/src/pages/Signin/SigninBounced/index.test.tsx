@@ -15,9 +15,9 @@ jest.mock('../../../lib/metrics', () => ({
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook,
   };

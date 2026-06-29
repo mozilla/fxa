@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
@@ -33,7 +33,7 @@ const SuppAllow = ({
   email: emailProp,
   integration,
   error,
-}: SuppAllowProps & RouteComponentProps) => {
+}: SuppAllowProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useEffect(() => {
     GleanMetrics.cadMobilePair.view();

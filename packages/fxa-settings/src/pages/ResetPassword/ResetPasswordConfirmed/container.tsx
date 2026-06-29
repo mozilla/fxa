@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
-
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import ResetPasswordConfirmed from '.';
 import { MozServices } from '../../../lib/types';
@@ -29,7 +27,7 @@ const ResetPasswordConfirmedContainer = ({
 }: {
   integration: Integration;
   serviceName: MozServices;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,

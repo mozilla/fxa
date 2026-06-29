@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { PageSecondaryEmailAdd } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -18,7 +18,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider value={mockAppContext()}>
       <SettingsLayout>
         <MfaContext.Provider value="email">
@@ -26,5 +26,5 @@ export const Default = () => (
         </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );

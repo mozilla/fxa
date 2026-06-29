@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthTotp from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AppContext } from '../../../models/contexts/AppContext';
@@ -17,9 +17,9 @@ export default {
     withLocalization,
     (Story) => (
       <AppContext.Provider value={mockAppContext()}>
-        <LocationProvider>
+        <MemoryRouter>
           <Story />
-        </LocationProvider>
+        </MemoryRouter>
       </AppContext.Provider>
     ),
   ],

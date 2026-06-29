@@ -4,7 +4,7 @@
 
 import ConnectAnotherDevice, { Devices } from '.';
 import AppLayout from '../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ENTRYPOINTS } from '../../constants';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
@@ -21,9 +21,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

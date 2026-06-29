@@ -6,6 +6,7 @@ import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FormPhoneNumber from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { MemoryRouter } from 'react-router';
 
 const mockSubmit = jest.fn();
 
@@ -13,10 +14,12 @@ describe('FormPhoneNumber', () => {
   async function render() {
     await act(() => {
       renderWithLocalizationProvider(
-        <FormPhoneNumber
-          localizedCTAText="Send code"
-          submitPhoneNumber={mockSubmit}
-        />
+        <MemoryRouter>
+          <FormPhoneNumber
+            localizedCTAText="Send code"
+            submitPhoneNumber={mockSubmit}
+          />
+        </MemoryRouter>
       );
     });
   }
@@ -24,10 +27,11 @@ describe('FormPhoneNumber', () => {
   async function renderWithInfoBannerProps() {
     await act(async () => {
       renderWithLocalizationProvider(
-        <FormPhoneNumber
-          localizedCTAText="Send code"
-          submitPhoneNumber={mockSubmit}
-          infoBannerContent={{
+        <MemoryRouter>
+          <FormPhoneNumber
+            localizedCTAText="Send code"
+            submitPhoneNumber={mockSubmit}
+            infoBannerContent={{
             localizedDescription: 'This is a banner description',
             localizedHeading: 'This is a banner heading',
           }}
@@ -36,6 +40,7 @@ describe('FormPhoneNumber', () => {
             path: '#',
           }}
         />
+        </MemoryRouter>
       );
     });
   }

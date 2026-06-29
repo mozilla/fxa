@@ -42,8 +42,8 @@ jest.mock('../../../models', () => ({
   useAlertBar: () => mockAlertBar,
 }));
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 

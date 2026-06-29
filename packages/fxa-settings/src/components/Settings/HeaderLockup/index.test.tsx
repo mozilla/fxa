@@ -7,7 +7,6 @@ import HeaderLockup from '.';
 import { userEvent } from '@testing-library/user-event';
 import GleanMetrics from '../../../lib/glean';
 import { renderWithRouter } from '../../../models/mocks';
-import { createHistory, createMemorySource } from '@reach/router';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -22,7 +21,6 @@ describe('HeaderLockup', () => {
   it('renders as expected on other settings pages', () => {
     renderWithRouter(<HeaderLockup />, {
       route: '/settings/emails',
-      history: createHistory(createMemorySource('/settings/emails')),
     });
 
     const headerMenu = screen.getByTestId('header-menu');
@@ -49,7 +47,6 @@ describe('HeaderLockup', () => {
   it('shows the correct tooltip when at the top-level /settings route', () => {
     renderWithRouter(<HeaderLockup />, {
       route: '/settings',
-      history: createHistory(createMemorySource('/settings')),
     });
 
     const logo = screen.getByTestId('back-to-settings');

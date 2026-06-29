@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import TermsPrivacyAgreement from '.';
 import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
+import { MemoryRouter } from 'react-router';
 
 const mockLegalTerms: RelierLegalTerms = {
   label: 'Mozilla Subscription Services',
@@ -18,7 +19,7 @@ const mockLegalTerms: RelierLegalTerms = {
 describe('TermsPrivacyAgreement', () => {
   describe('Default state (no customization)', () => {
     it('renders default Mozilla Accounts ToS/PP only', () => {
-      renderWithLocalizationProvider(<TermsPrivacyAgreement />);
+      renderWithLocalizationProvider(<MemoryRouter><TermsPrivacyAgreement /></MemoryRouter>);
 
       const linkElements: HTMLElement[] = screen.getAllByRole('link');
 
@@ -41,7 +42,7 @@ describe('TermsPrivacyAgreement', () => {
 
     it('applies default font size (text-xs)', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement />
+        <MemoryRouter><TermsPrivacyAgreement /></MemoryRouter>
       );
 
       const wrapper = container.querySelector('.text-grey-500');
@@ -52,7 +53,7 @@ describe('TermsPrivacyAgreement', () => {
   describe('With custom legal terms', () => {
     it('renders custom ToS/PP along with Mozilla Accounts ToS/PP', () => {
       renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={mockLegalTerms} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={mockLegalTerms} /></MemoryRouter>
       );
 
       const linkElements: HTMLElement[] = screen.getAllByRole('link');
@@ -90,7 +91,7 @@ describe('TermsPrivacyAgreement', () => {
       };
 
       renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={customTerms} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={customTerms} /></MemoryRouter>
       );
 
       expect(
@@ -110,7 +111,7 @@ describe('TermsPrivacyAgreement', () => {
 
     it('renders as list when custom terms are provided', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={mockLegalTerms} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={mockLegalTerms} /></MemoryRouter>
       );
 
       const list = container.querySelector('ul');
@@ -124,9 +125,11 @@ describe('TermsPrivacyAgreement', () => {
   describe('Font size variants', () => {
     it('applies default font size (text-xs)', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement
-          legalTerms={{ ...mockLegalTerms, fontSize: 'default' }}
-        />
+        <MemoryRouter>
+          <TermsPrivacyAgreement
+            legalTerms={{ ...mockLegalTerms, fontSize: 'default' }}
+          />
+        </MemoryRouter>
       );
 
       const wrapper = container.querySelector('.text-grey-500');
@@ -137,9 +140,11 @@ describe('TermsPrivacyAgreement', () => {
 
     it('applies medium font size (text-sm)', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement
-          legalTerms={{ ...mockLegalTerms, fontSize: 'medium' }}
-        />
+        <MemoryRouter>
+          <TermsPrivacyAgreement
+            legalTerms={{ ...mockLegalTerms, fontSize: 'medium' }}
+          />
+        </MemoryRouter>
       );
 
       const wrapper = container.querySelector('.text-grey-500');
@@ -150,9 +155,11 @@ describe('TermsPrivacyAgreement', () => {
 
     it('applies large font size (text-base)', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement
-          legalTerms={{ ...mockLegalTerms, fontSize: 'large' }}
-        />
+        <MemoryRouter>
+          <TermsPrivacyAgreement
+            legalTerms={{ ...mockLegalTerms, fontSize: 'large' }}
+          />
+        </MemoryRouter>
       );
 
       const wrapper = container.querySelector('.text-grey-500');
@@ -165,7 +172,7 @@ describe('TermsPrivacyAgreement', () => {
   describe('Edge cases', () => {
     it('handles null legalTerms as default state', () => {
       renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={null} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={null} /></MemoryRouter>
       );
 
       const linkElements: HTMLElement[] = screen.getAllByRole('link');
@@ -180,7 +187,7 @@ describe('TermsPrivacyAgreement', () => {
   describe('Accessibility', () => {
     it('renders all links with proper attributes', () => {
       renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={mockLegalTerms} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={mockLegalTerms} /></MemoryRouter>
       );
 
       const linkElements: HTMLElement[] = screen.getAllByRole('link');
@@ -193,7 +200,7 @@ describe('TermsPrivacyAgreement', () => {
 
     it('maintains semantic HTML structure', () => {
       const { container } = renderWithLocalizationProvider(
-        <TermsPrivacyAgreement legalTerms={mockLegalTerms} />
+        <MemoryRouter><TermsPrivacyAgreement legalTerms={mockLegalTerms} /></MemoryRouter>
       );
 
       // Should have proper list structure

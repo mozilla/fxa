@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 import { MfaGuardPagePasskeyAdd, PagePasskeyAdd } from '.';
 import { Account, AppContext } from '../../../models';
@@ -555,7 +555,7 @@ describe('MfaGuardPagePasskeyAdd pre-check', () => {
 
   function renderWrapper() {
     return render(
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider value={mockAppContext()}>
           <SettingsContext.Provider
             value={mockSettingsContext({ alertBarInfo })}
@@ -565,7 +565,7 @@ describe('MfaGuardPagePasskeyAdd pre-check', () => {
             </MfaContext.Provider>
           </SettingsContext.Provider>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   }
 

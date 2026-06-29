@@ -13,7 +13,7 @@ import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
-import { useNavigate } from '@reach/router';
+import { useNavigate } from 'react-router';
 
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];
