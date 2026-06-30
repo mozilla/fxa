@@ -13,7 +13,11 @@ marketplace you trust, and verify the publisher before installing.
 - GitHub Markdown Preview (`bierner.github-markdown-preview`)
 - Firefox Debugger (`firefox-devtools.vscode-firefox-debug`) — required for the "Attach to Firefox" launch config
 - Playwright (`ms-playwright.playwright`) — picks up `playwright.env` from `settings.json`
-- Jest (`Orta.vscode-jest`) — picks up `jest.jestCommandLine` from `settings.json`
+- Jest (`Orta.vscode-jest`) — picks up `jest.jestCommandLine` from `settings.json`.
+  fxa-auth-server specs are surfaced in the test explorer and debuggable; the
+  per-test timeout is lifted automatically while a debugger is attached. Known
+  limitation: without `--forceExit`, debug sessions for some auth-server suites
+  stay alive after completion on leaked test handles (FXA-13712).
 
 ## Debugging PM2-managed processes
 

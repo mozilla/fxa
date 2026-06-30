@@ -29,7 +29,11 @@ module.exports = {
 
   // No globalSetup/teardown — this test starts its own server in-process
   setupFiles: ['<rootDir>/test/support/jest-setup-env.ts'],
-  setupFilesAfterEnv: ['<rootDir>/test/support/jest-setup-integration.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/test/support/jest-setup-integration.ts',
+    // Last so its debug timeout override wins over the config default.
+    ...baseConfig.setupFilesAfterEnv,
+  ],
 
   collectCoverageFrom: [
     'lib/**/*.{ts,js}',

@@ -31,6 +31,7 @@ module.exports = {
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
   setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-resolve.js'],
+  setupFilesAfterEnv: ['<rootDir>/test/jest.debug-timeout.js'],
   testPathIgnorePatterns: ['\\.in\\.spec\\.ts$'],
   // Coverage configuration (enabled via --coverage flag)
   collectCoverageFrom: [
