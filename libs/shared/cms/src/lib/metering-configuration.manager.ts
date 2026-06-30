@@ -7,7 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { meterBySlugQuery } from './queries/meter';
+import { MeterBySlugResultUtil, meterBySlugQuery } from './queries/meter';
 import type { StrapiMeter } from './queries/meter';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import type { DeepNonNullable } from './types';
@@ -48,5 +48,10 @@ export class MeteringConfigurationManager {
     })) as DeepNonNullable<MeterBySlugQuery>;
 
     return queryResult.meters.at(0) ?? null;
+  }
+
+  async getMeterResultUtil(slug: string): Promise<MeterBySlugResultUtil> {
+    const meter = await this.getMeterBySlug(slug);
+    return new MeterBySlugResultUtil({ meters: meter ? [meter] : [] }, slug);
   }
 }
