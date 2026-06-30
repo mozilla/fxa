@@ -21,7 +21,7 @@
     "build-ts": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "dependsOn": ["l10n-prime"],
+      "dependsOn": ["l10n-prime", "^build"],
       "options": {
         "outputPath": "dist/libs/accounts/email-renderer",
         "main": "libs/accounts/email-renderer/src/index.ts",

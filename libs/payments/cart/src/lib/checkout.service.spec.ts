@@ -774,6 +774,41 @@ describe('CheckoutService', () => {
       expect(gleanService.recordGenericSubManageEvent).not.toHaveBeenCalled();
     });
 
+    it.each([
+      {
+        paymentForm: SubPlatPaymentMethodType.Link,
+        label: 'Link',
+      },
+      {
+        paymentForm: SubPlatPaymentMethodType.GooglePay,
+        label: 'Google Pay',
+      },
+      {
+        paymentForm: SubPlatPaymentMethodType.ApplePay,
+        label: 'Apple Pay',
+      },
+    ])(
+      'records $label payment form in subscription_success metrics',
+      async ({ paymentForm: walletPaymentForm }) => {
+        await checkoutService.postPaySteps({
+          cart: mockCart,
+          version: mockCart.version,
+          subscription: mockSubscription,
+          uid: mockUid,
+          paymentProvider,
+          paymentForm: walletPaymentForm,
+          isCancelInterstitialOffer: false,
+        });
+
+        expect(statsd.increment).toHaveBeenCalledWith('subscription_success', {
+          payment_provider: paymentProvider,
+          payment_form: walletPaymentForm,
+          offering_id: mockCart.offeringConfigId,
+          interval: mockCart.interval,
+        });
+      }
+    );
+
     it('success - adds coupon code to subscription metadata if it exists', async () => {
       const mockCart = ResultCartFactory({
         couponCode: faker.string.uuid(),
@@ -2133,6 +2168,147 @@ describe('CheckoutService', () => {
 
         expect(cartManager.setNeedsInputCart).toHaveBeenCalledWith(mockCart.id);
       });
+    });
+  });
+
+  describe('UTM attribution propagation', () => {
+    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+    const mockCart = StripeResponseFactory(
+      ResultCartFactory({
+        uid: faker.string.uuid(),
+        stripeCustomerId: mockCustomer.id,
+        couponCode: faker.string.uuid(),
+      })
+    );
+    const mockPromotionCode = StripeResponseFactory(
+      StripePromotionCodeFactory()
+    );
+    const mockPrice = StripePriceFactory();
+    const mockPricingForCurrency = PricingForCurrencyFactory();
+    const mockConfirmationToken = StripeConfirmationTokenFactory();
+    const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
+    const mockPaymentIntent = StripeResponseFactory(
+      StripePaymentIntentFactory({
+        status: 'succeeded',
+        payment_method: StripePaymentMethodFactory().id,
+      })
+    );
+    const mockInvoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        payment_intent: mockPaymentIntent.id,
+      })
+    );
+    const mockEligibilityResult = SubscriptionEligibilityResultFactory({
+      subscriptionEligibilityResult: EligibilityStatus.CREATE,
+    });
+    const mockPaymentMethod = StripeResponseFactory(
+      StripePaymentMethodFactory()
+    );
+    const mockRequestArgs = CommonMetricsFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(checkoutService, 'prePaySteps')
+        .mockResolvedValue(
+          PrePayStepsResultFactory({
+            uid: mockCart.uid,
+            customer: mockCustomer,
+            promotionCode: mockPromotionCode,
+            price: mockPrice,
+            version: mockCart.version + 1,
+            eligibility: mockEligibilityResult,
+          })
+        );
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
+      jest
+        .spyOn(subscriptionManager, 'create')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(cartManager, 'dangerouslyUpdateProcessingCart')
+        .mockResolvedValue();
+      jest.spyOn(cartManager, 'setNeedsInputCart').mockResolvedValue();
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(paymentIntentManager, 'confirm')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      jest.spyOn(statsd, 'increment');
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+      jest.spyOn(asyncLocalStorage, 'getStore');
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue({ offer: null, userEligible: false });
+    });
+
+    it('passes empty strings for absent UTM params without error', async () => {
+      const emptyAttribution = SubscriptionAttributionFactory({
+        utm_campaign: '',
+        utm_content: '',
+        utm_medium: '',
+        utm_source: '',
+        utm_term: '',
+        session_flow_id: '',
+        session_entrypoint: '',
+        session_entrypoint_experiment: '',
+        session_entrypoint_variation: '',
+      });
+
+      await checkoutService.payWithStripe(
+        mockCart,
+        mockConfirmationToken.id,
+        emptyAttribution,
+        mockRequestArgs,
+        mockCart.uid
+      );
+
+      expect(subscriptionManager.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            utm_campaign: '',
+            utm_content: '',
+            utm_medium: '',
+            utm_source: '',
+            utm_term: '',
+          }),
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('passes populated UTM params through to subscription metadata', async () => {
+      const populatedAttribution = SubscriptionAttributionFactory({
+        utm_campaign: 'spring-sale',
+        utm_content: 'hero-cta',
+        utm_medium: 'email',
+        utm_source: 'newsletter',
+        utm_term: 'vpn-discount',
+      });
+
+      await checkoutService.payWithStripe(
+        mockCart,
+        mockConfirmationToken.id,
+        populatedAttribution,
+        mockRequestArgs,
+        mockCart.uid
+      );
+
+      expect(subscriptionManager.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            utm_campaign: 'spring-sale',
+            utm_content: 'hero-cta',
+            utm_medium: 'email',
+            utm_source: 'newsletter',
+            utm_term: 'vpn-discount',
+          }),
+        }),
+        expect.any(Object)
+      );
     });
   });
 

@@ -385,6 +385,109 @@ describe('CheckoutForm', () => {
     expect(screen.getByTestId('paypal-buttons')).toBeInTheDocument();
   });
 
+  describe('wallet payment type handling', () => {
+    it.each([
+      { paymentType: 'link', label: 'Link' },
+      { paymentType: 'google_pay', label: 'Google Pay' },
+      { paymentType: 'apple_pay', label: 'Apple Pay' },
+    ])(
+      'enables submit button when $label wallet type is selected and fields are complete',
+      async ({ paymentType }) => {
+        const user = userEvent.setup();
+        render(<CheckoutForm {...baseProps} />);
+        fireStripeReady();
+
+        await user.click(screen.getByTestId('consent-checkbox'));
+        fireStripeChange({ complete: true, value: { type: paymentType } });
+
+        const submitButton = screen.getByRole('button', {
+          name: /Subscribe Now/i,
+        });
+        expect(submitButton).toHaveAttribute('aria-disabled', 'false');
+      }
+    );
+
+    it.each([
+      { paymentType: 'link', label: 'Link' },
+      { paymentType: 'google_pay', label: 'Google Pay' },
+      { paymentType: 'apple_pay', label: 'Apple Pay' },
+    ])(
+      'calls checkoutCartWithStripe with confirmation token for $label payment type',
+      async ({ paymentType }) => {
+        const user = userEvent.setup();
+        mockElementsSubmit.mockResolvedValue({ error: undefined });
+        mockCreateConfirmationToken.mockResolvedValue({
+          confirmationToken: { id: `ctoken_${paymentType}_123` },
+        });
+        mockCheckoutCartWithStripe.mockResolvedValue(undefined);
+
+        render(<CheckoutForm {...baseProps} />);
+        fireStripeReady();
+        await user.click(screen.getByTestId('consent-checkbox'));
+        fireStripeChange({
+          complete: true,
+          value: { type: paymentType },
+        });
+
+        await user.click(
+          screen.getByRole('button', { name: /Subscribe Now/i })
+        );
+
+        await waitFor(() => {
+          expect(mockCheckoutCartWithStripe).toHaveBeenCalledWith(
+            'cart-id',
+            1,
+            `ctoken_${paymentType}_123`,
+            expect.any(Object),
+            expect.any(Object),
+            expect.any(Object)
+          );
+        });
+
+        await waitFor(() => {
+          expect(mockRouterPush).toHaveBeenCalledWith('./processing');
+        });
+      }
+    );
+
+    it('records the selected payment method type in the emitter event on submit', async () => {
+      const user = userEvent.setup();
+      mockElementsSubmit.mockResolvedValue({ error: undefined });
+      mockCreateConfirmationToken.mockResolvedValue({
+        confirmationToken: { id: 'ctoken_link_submit' },
+      });
+      mockCheckoutCartWithStripe.mockResolvedValue(undefined);
+
+      render(<CheckoutForm {...baseProps} />);
+      fireStripeReady();
+      await user.click(screen.getByTestId('consent-checkbox'));
+      fireStripeChange({
+        complete: true,
+        value: { type: 'link' },
+      });
+
+      await user.click(screen.getByRole('button', { name: /Subscribe Now/i }));
+
+      await waitFor(() => {
+        expect(mockRecordEmitterEventAction).toHaveBeenCalledWith(
+          'checkoutSubmit',
+          expect.any(Object),
+          expect.any(Object),
+          'stripe',
+          'link'
+        );
+      });
+    });
+
+    it('does not show PayPal buttons for non-PayPal wallet types', async () => {
+      render(<CheckoutForm {...baseProps} />);
+      fireStripeReady();
+      fireStripeChange({ complete: true, value: { type: 'google_pay' } });
+
+      expect(screen.queryByTestId('paypal-buttons')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Checkout legal links', () => {
     it('renders the Terms of Service link with the correct href', () => {
       render(<CheckoutForm {...baseProps} />);

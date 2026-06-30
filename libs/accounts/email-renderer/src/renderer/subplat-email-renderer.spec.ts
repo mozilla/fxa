@@ -248,6 +248,48 @@ describe('SubPlat Email Renderer — Lifecycle emails', () => {
     expect(email.html).toContain('http://localhost:3030/update-billing');
   });
 
+  it('renderSubscriptionRenewalReminder renders renewal notice with showTax enabled', async () => {
+    const email = await renderer.renderSubscriptionRenewalReminder(
+      {
+        productName: 'Mozilla VPN',
+        showTax: true,
+        invoiceTotalExcludingTax: '$8.50',
+        invoiceTax: '$1.49',
+        invoiceTotal: '$9.99',
+        planInterval: 'monthly',
+        reminderLength: '6',
+        subscriptionSupportUrl: mockLinkSupport,
+        updateBillingUrl: 'http://localhost:3030/update-billing',
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email).toBeDefined();
+    expect(email.html).toContain('Mozilla VPN');
+    expect(email.html).toContain('http://localhost:3030/update-billing');
+    // When showTax is true, tax amount should appear in the rendered output
+    expect(email.html).toContain('$1.49');
+  });
+
+  it('renderSubscriptionRenewalReminder renders renewal notice for yearly plan', async () => {
+    const email = await renderer.renderSubscriptionRenewalReminder(
+      {
+        productName: 'Mozilla VPN',
+        showTax: false,
+        invoiceTotal: '$59.99',
+        planInterval: 'yearly',
+        reminderLength: '14',
+        subscriptionSupportUrl: mockLinkSupport,
+        updateBillingUrl: 'http://localhost:3030/update-billing',
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email).toBeDefined();
+    expect(email.html).toContain('Mozilla VPN');
+    expect(email.html).toContain('http://localhost:3030/update-billing');
+  });
+
   it('renderSubscriptionUpgrade renders upgrade confirmation email', async () => {
     const email = await renderer.renderSubscriptionUpgrade(
       {
