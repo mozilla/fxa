@@ -57,6 +57,21 @@ export function stripPrfExtension(
 }
 
 /**
+ * Diagnostics surfaced when the PRF fallback retry fires. Lets the caller emit
+ * telemetry (e.g. Glean) without coupling this util to any metrics layer, so we
+ * can measure how often PRF must be dropped and eventually retire the retry.
+ */
+export type PrfFallbackInfo = {
+  /**
+   * The DOMException `name` of the first-attempt error that triggered the retry
+   * (e.g. `UnknownError`, `OperationError`).
+   */
+  reason: string;
+  /** Whether the retry without PRF succeeded. */
+  outcome: 'success' | 'failure';
+};
+
+/**
  * Runs the registration ceremony, silently retrying once without the PRF
  * extension if the first attempt fails in a way PRF could have caused.
  *
@@ -74,11 +89,16 @@ export function stripPrfExtension(
  * the two attempts together never exceed a single timeout window — keeping the
  * overall ceremony aligned with the server-side challenge TTL and the MFA JWT
  * lifetime rather than allowing up to ~2x the intended deadline.
+ *
+ * When the retry fires, `onPrfFallback` is invoked exactly once with the
+ * triggering error name and the retry outcome — purely for telemetry; it never
+ * changes the returned credential or the error rethrown.
  */
 export async function createCredentialWithPrfFallback(
   options: PublicKeyCredentialCreationOptionsJSON,
   timeoutMs?: number,
-  externalSignal?: AbortSignal
+  externalSignal?: AbortSignal,
+  onPrfFallback?: (info: PrfFallbackInfo) => void
 ): Promise<PublicKeyCredentialJSON> {
   const startedAt = Date.now();
   try {
@@ -91,11 +111,19 @@ export async function createCredentialWithPrfFallback(
       // throw a TimeoutError that masks the original error, so rethrow the
       // original unchanged instead.
       if (remaining > 0) {
-        return await createCredential(
-          stripPrfExtension(options),
-          remaining,
-          externalSignal
-        );
+        const reason = (error as DOMException).name;
+        try {
+          const credential = await createCredential(
+            stripPrfExtension(options),
+            remaining,
+            externalSignal
+          );
+          onPrfFallback?.({ reason, outcome: 'success' });
+          return credential;
+        } catch (retryError) {
+          onPrfFallback?.({ reason, outcome: 'failure' });
+          throw retryError;
+        }
       }
     }
     throw error;

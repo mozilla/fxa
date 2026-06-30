@@ -71,6 +71,7 @@ jest.mock('../../../lib/glean', () => ({
       passkeyCreateView: jest.fn(),
       passkeyCreateSuccessView: jest.fn(),
       passkeyCreateSubmitFrontendError: jest.fn(),
+      passkeyCreateRetryWithoutPrfRequest: jest.fn(),
     },
   },
 }));
@@ -228,6 +229,13 @@ describe('PagePasskeyAdd', () => {
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).not.toHaveBeenCalled();
     expect(mockCompletePasskeyRegistration).toHaveBeenCalledTimes(1);
+    // The retry is tracked so we can measure how often PRF must be dropped and
+    // decide when the retry can be removed.
+    expect(
+      GleanMetrics.accountPref.passkeyCreateRetryWithoutPrfRequest
+    ).toHaveBeenCalledWith({
+      event: { reason: 'UnknownError', outcome: 'success' },
+    });
   });
 
   it('shows the generic categorizer fallback and navigates to settings on NotAllowedError', async () => {

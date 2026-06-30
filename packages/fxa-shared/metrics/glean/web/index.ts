@@ -18,6 +18,7 @@ export const stringEventPropertyNames = [
   'reason',
   'nimbusUserId',
   'choice',
+  'outcome',
 ] as const;
 
 // String event extras passed to specific events but not backed by a global
@@ -274,6 +275,8 @@ export const eventsMap = {
     passkeyCreateSubmitFrontendError:
       'account_pref_passkey_create_submit_frontend_error',
     passkeyCreateSuccessView: 'account_pref_passkey_create_success_view',
+    passkeyCreateRetryWithoutPrfRequest:
+      'account_pref_passkey_create_retry_without_prf_request',
     passkeyDeleteView: 'account_pref_passkey_delete_view',
     passkeyDeleteSubmitFrontendError:
       'account_pref_passkey_delete_submit_frontend_error',

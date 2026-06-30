@@ -219,4 +219,77 @@ describe('createCredentialWithPrfFallback', () => {
     );
     expect(mockCreateCredential).toHaveBeenCalledTimes(2);
   });
+
+  it('reports a successful retry to onPrfFallback with the triggering error name', async () => {
+    const onPrfFallback = jest.fn();
+    mockCreateCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockResolvedValueOnce(credentialResult);
+
+    await createCredentialWithPrfFallback(
+      optionsWithPrf,
+      undefined,
+      undefined,
+      onPrfFallback
+    );
+
+    expect(onPrfFallback).toHaveBeenCalledTimes(1);
+    expect(onPrfFallback).toHaveBeenCalledWith({
+      reason: 'UnknownError',
+      outcome: 'success',
+    });
+  });
+
+  it('reports a failed retry to onPrfFallback with the triggering error name', async () => {
+    const onPrfFallback = jest.fn();
+    mockCreateCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockRejectedValueOnce(new DOMException('still broken', 'UnknownError'));
+
+    await expect(
+      createCredentialWithPrfFallback(
+        optionsWithPrf,
+        undefined,
+        undefined,
+        onPrfFallback
+      )
+    ).rejects.toThrow('still broken');
+
+    expect(onPrfFallback).toHaveBeenCalledTimes(1);
+    expect(onPrfFallback).toHaveBeenCalledWith({
+      reason: 'UnknownError',
+      outcome: 'failure',
+    });
+  });
+
+  it('does not retry a non-UnknownError unexpected error even when prf was requested', async () => {
+    const onPrfFallback = jest.fn();
+    const operationError = new DOMException('boom', 'OperationError');
+    mockCreateCredential.mockRejectedValueOnce(operationError);
+
+    await expect(
+      createCredentialWithPrfFallback(
+        optionsWithPrf,
+        undefined,
+        undefined,
+        onPrfFallback
+      )
+    ).rejects.toBe(operationError);
+    expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+    expect(onPrfFallback).not.toHaveBeenCalled();
+  });
+
+  it('does not invoke onPrfFallback when the first attempt succeeds', async () => {
+    const onPrfFallback = jest.fn();
+    mockCreateCredential.mockResolvedValueOnce(credentialResult);
+
+    await createCredentialWithPrfFallback(
+      optionsWithPrf,
+      undefined,
+      undefined,
+      onPrfFallback
+    );
+
+    expect(onPrfFallback).not.toHaveBeenCalled();
+  });
 });
