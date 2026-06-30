@@ -13,9 +13,11 @@ import {
   MeteringCloudTasksClientProvider,
   MeteringIngestManager,
   MeteringQueryManager,
+  MeteringExceptionFilter,
   MeteringThresholdTasksManager,
   MeteringWebhookManager,
   OpenMeterClient,
+  UsageController,
   UsageService,
 } from '@fxa/entitlements/metering';
 import {
@@ -90,6 +92,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     CmsWebhooksController,
     FxaWebhooksController,
     StripeWebhooksController,
+    UsageController,
   ],
   providers: [
     Logger,
@@ -137,6 +140,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusClientConfig,
     MeteringAuthGuard,
     MeteringCloudTasksClientProvider,
+    MeteringExceptionFilter,
     MeteringIngestManager,
     MeteringQueryManager,
     MeteringThresholdTasksManager,
