@@ -36,5 +36,8 @@
     "**/temp": true,
     "*.sass-cache": true
   },
-  "jest.jestCommandLine": "node_modules/.bin/jest --config jest.config.ts"
+  "jest.jestCommandLine": "node_modules/.bin/jest --config jest.config.ts",
+  "jest.runMode": {
+    "type": "on-demand"
+  }
 }
