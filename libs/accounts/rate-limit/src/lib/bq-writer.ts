@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BigQuery, Table } from '@google-cloud/bigquery';
+import * as Sentry from '@sentry/node';
+import { StatsD } from '@fxa/shared/metrics/statsd';
 import { RateLimitCheckEvent } from './models';
 
 export interface BqWriterConfig {
@@ -16,20 +18,34 @@ export interface BqWriterConfig {
 /**
  * Non-blocking, batched BigQuery writer for rate-limit check events.
  * Buffers events in memory and flushes on a timer or when the batch
- * size is reached. Errors are caught and logged — a BigQuery outage
+ * size is reached. Errors are caught and reported — a BigQuery outage
  * must never affect the auth flow.
+ *
+ * The target table must be pre-created by SRE. Insert failures are
+ * captured via Sentry and statsd.
  */
 export class RateLimitBqWriter {
   private buffer: RateLimitCheckEvent[] = [];
   private timer: NodeJS.Timeout | null = null;
   private readonly tableRef: Table;
 
+  /**
+   * @param config Writer configuration
+   * @param table  Optional Table instance for testing. When omitted, a real
+   *               BigQuery client is created from config.
+   * @param statsd Optional StatsD client for metrics
+   */
   constructor(
     private readonly config: BqWriterConfig,
-    bq?: BigQuery
+    table?: Table,
+    private readonly statsd?: StatsD
   ) {
-    const client = bq ?? new BigQuery({ projectId: config.projectId });
-    this.tableRef = client.dataset(config.dataset).table(config.table);
+    if (table) {
+      this.tableRef = table;
+    } else {
+      const client = new BigQuery({ projectId: config.projectId });
+      this.tableRef = client.dataset(config.dataset).table(config.table);
+    }
     this.startTimer();
   }
 
@@ -51,8 +67,9 @@ export class RateLimitBqWriter {
     try {
       await this.tableRef.insert(batch);
     } catch (err) {
-      // Log but never throw — BQ failures must not affect auth
-      console.error('rate_limit.bq_writer.flush_error', err);
+      // Never throw — BQ failures must not affect auth
+      this.statsd?.increment('rate_limit.bq_writer.flush_error');
+      Sentry.captureException(err);
     }
   }
 

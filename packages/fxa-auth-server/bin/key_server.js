@@ -275,13 +275,17 @@ async function run(config) {
   const { RateLimitBqWriter } = require('@fxa/accounts/rate-limit');
   const bqWriter =
     config.rateLimit.bigquery && config.rateLimit.bigquery.enabled
-      ? new RateLimitBqWriter({
-          projectId: config.rateLimit.bigquery.projectId,
-          dataset: config.rateLimit.bigquery.dataset,
-          table: config.rateLimit.bigquery.table,
-          flushIntervalMs: config.rateLimit.bigquery.flushIntervalMs,
-          batchSize: config.rateLimit.bigquery.batchSize,
-        })
+      ? new RateLimitBqWriter(
+          {
+            projectId: config.rateLimit.bigquery.projectId,
+            dataset: config.rateLimit.bigquery.dataset,
+            table: config.rateLimit.bigquery.table,
+            flushIntervalMs: config.rateLimit.bigquery.flushIntervalMs,
+            batchSize: config.rateLimit.bigquery.batchSize,
+          },
+          undefined,
+          statsd
+        )
       : undefined;
 
   const rateLimit = new RateLimit(
