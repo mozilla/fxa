@@ -188,4 +188,38 @@ describe('MeteringConfigurationManager', () => {
       );
     });
   });
+
+  describe('getMeterResultUtil', () => {
+    it('returns a util exposing the fetched meter and its parsed thresholds', async () => {
+      const mockMeter = StrapiMeterFactory({
+        notificationThresholds: '50,75,90',
+      });
+      mockStrapiClient.query.mockResolvedValue(
+        MeterBySlugResultFactory({ meters: [mockMeter] })
+      );
+
+      const util = await manager.getMeterResultUtil('test-slug');
+
+      expect(util.getMeter()).toEqual(mockMeter);
+      expect(util.getNotificationThresholds()).toEqual([50, 75, 90]);
+    });
+
+    it('returns a util with no meters when the slug is not configured', async () => {
+      mockStrapiClient.query.mockResolvedValue(
+        MeterBySlugResultFactory({ meters: [] })
+      );
+
+      const util = await manager.getMeterResultUtil('nonexistent-slug');
+
+      expect(util.meters).toHaveLength(0);
+    });
+
+    it('propagates errors from the Strapi client', async () => {
+      mockStrapiClient.query.mockRejectedValue(new Error('Query failed'));
+
+      await expect(manager.getMeterResultUtil('test-slug')).rejects.toThrow(
+        'Query failed'
+      );
+    });
+  });
 });

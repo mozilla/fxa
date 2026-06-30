@@ -11,6 +11,7 @@ export * from './lib/metering-ingest.manager';
 export * from './lib/usage.service';
 export * from './lib/usage.controller';
 export * from './lib/metering-exception.filter';
+export * from './lib/metering-threshold.service';
 export * from './lib/openmeter.client';
 export * from './lib/factories';
 export * from './lib/metering-auth.guard';
