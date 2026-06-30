@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import {
-  smartWindowDesktopOAuthQueryParams,
-  syncDesktopOAuthQueryParams,
-} from '../../lib/query-params';
+import { smartWindowDesktopOAuthQueryParams } from '../../lib/query-params';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signin with OAuth after Sync', () => {
@@ -30,9 +28,7 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const syncCredentials = await testAccountTracker.signUpSync();
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&force_passwordless=false`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await expect(page).toHaveURL(/signin_token_code/);
@@ -116,7 +112,7 @@ test.describe('severity-1 #smoke', () => {
       const syncCredentials = await testAccountTracker.signUpSync();
 
       // Real SyncOAuth signin so Firefox stores the user via fxaccounts:login.
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await page.waitForURL(/signin_token_code/);
@@ -132,8 +128,10 @@ test.describe('severity-1 #smoke', () => {
         sessionStorage.clear();
       });
 
+      // SmartWindow on Firefox 147+ supports keys_optional, so the cached
+      // browser user is offered a passwordless sign-in instead of a prompt.
       await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
       await expect(signin.emailFirstHeading).not.toBeVisible();
     });
@@ -151,11 +149,11 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const syncCredentials = await testAccountTracker.signUpSync();
 
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await page.waitForURL(/signin_token_code/);
-      let code = await target.emailClient.getVerifyLoginCode(
+      const code = await target.emailClient.getVerifyLoginCode(
         syncCredentials.email
       );
       await signinTokenCode.fillOutCodeForm(code);
@@ -167,16 +165,16 @@ test.describe('severity-1 #smoke', () => {
         sessionStorage.clear();
       });
 
+      // keys_optional cached signin: no password is prompted, the user
+      // confirms with the Sign in button and completes via token code.
       await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
       await expect(signin.emailFirstHeading).not.toBeVisible();
 
-      await signin.fillOutPasswordForm(syncCredentials.password);
-      await page.waitForURL(/signin_token_code/);
-      code = await target.emailClient.getVerifyLoginCode(syncCredentials.email);
-      await signinTokenCode.fillOutCodeForm(code);
-
+      // With keys_optional the cached device is trusted, so confirming the
+      // cached signin completes straight to settings without a token code.
+      await signin.signInButton.click();
       await page.waitForURL(/settings/);
     });
   });
@@ -208,9 +206,7 @@ test.describe('severity-1 #smoke', () => {
 
       expect(await relier.isLoggedIn()).toBe(true);
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
-      );
+      await gotoSyncSession(page, target);
 
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();

@@ -107,7 +107,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth webchannel with Sync desktop and send-tab entrypoint skips signup_confirmed_sync', async ({
       target,
-      syncOAuthBrowserPages: { confirmSignupCode, page, signup },
+      syncOAuthBrowserPages: { confirmSignupCode, page, signup, signin },
       testAccountTracker,
     }) => {
       const { email, password } =
@@ -129,10 +129,11 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/pair/);
-      await expect(
-        page.getByText('Account created. You’re now syncing.')
-      ).toBeVisible();
+      // FF147+: the send-tab signup skips signup_confirmed_sync and chains into
+      // an OAuth re-auth to derive Sync keys, landing on /pair once complete.
+      await signin.fillOutPasswordForm(password);
+      await page.waitForURL(/pair/);
+      await expect(page.getByText('Signed in successfully!')).toBeVisible();
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
   });
