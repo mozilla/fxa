@@ -40,6 +40,25 @@ event:
     data_sensitivity:
       - interaction
 
+  outcome:
+    description: |
+      Context-dependent (on event.name) result of an operation, e.g. "success"
+      or "failure" for the passkey PRF-less registration retry.
+    type: string
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13991
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
   choice:
     description: the choice made by the user in a given event
     type: string
@@ -3768,6 +3787,36 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  passkey_create_retry_without_prf_request:
+    type: event
+    description: |
+      Passkey creation's first WebAuthn attempt failed in a way the optional
+      PRF extension could have caused (e.g. Windows Hello UnknownError,
+      FXA-13991), so the ceremony silently retried once without PRF. Lets us
+      measure how often PRF must be dropped and decide when the retry can be
+      removed.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13991
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The DOMException name of the first-attempt error that triggered the
+          retry (e.g. UnknownError, OperationError, DataError).
+        type: string
+      outcome:
+        description: |
+          Whether the retry without PRF succeeded: "success" or "failure".
+        type: string
   passkey_delete_view:
     type: event
     description: |

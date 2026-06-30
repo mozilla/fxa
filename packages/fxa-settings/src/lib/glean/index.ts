@@ -736,6 +736,12 @@ const recordEventMetric = (
     case 'account_pref_passkey_create_success_view':
       accountPref.passkeyCreateSuccessView.record();
       break;
+    case 'account_pref_passkey_create_retry_without_prf_request':
+      accountPref.passkeyCreateRetryWithoutPrfRequest.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        outcome: gleanPingMetrics?.event?.['outcome'] || '',
+      });
+      break;
     case 'account_pref_passkey_delete_view':
       accountPref.passkeyDeleteView.record();
       break;

@@ -320,6 +320,29 @@ export const mfaGuardView = new EventMetricType<{
 );
 
 /**
+ * Passkey creation's first WebAuthn attempt failed in a way the optional
+ * PRF extension could have caused (e.g. Windows Hello UnknownError,
+ * FXA-13991), so the ceremony silently retried once without PRF. Lets us
+ * measure how often PRF must be dropped and decide when the retry can be
+ * removed.
+ *
+ * Generated from `account_pref.passkey_create_retry_without_prf_request`.
+ */
+export const passkeyCreateRetryWithoutPrfRequest = new EventMetricType<{
+  outcome?: string;
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'passkey_create_retry_without_prf_request',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['outcome', 'reason']
+);
+
+/**
  * Passkey creation fails; error alert banner displays
  *
  * Generated from `account_pref.passkey_create_submit_frontend_error`.

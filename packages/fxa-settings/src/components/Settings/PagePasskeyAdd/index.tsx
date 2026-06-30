@@ -129,11 +129,17 @@ export const PagePasskeyAdd = () => {
 
         // Step 2: Browser WebAuthn prompt. Silently retries without the PRF
         // extension if the first attempt fails in a way PRF could have caused
-        // (e.g. Windows Hello UnknownError, FXA-13991).
+        // (e.g. Windows Hello UnknownError, FXA-13991). The retry emits a
+        // dedicated metric so we can track how often PRF must be dropped and
+        // decide when the retry can be removed.
         const credential = await createCredentialWithPrfFallback(
           creationOptions,
           undefined,
-          controller.signal
+          controller.signal,
+          ({ reason, outcome }) =>
+            GleanMetrics.accountPref.passkeyCreateRetryWithoutPrfRequest({
+              event: { reason, outcome },
+            })
         );
 
         // After the WebAuthn prompt resolves we're past the abortable window;
