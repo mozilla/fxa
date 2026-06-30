@@ -12,6 +12,8 @@ export * from './lib/usage.service';
 export * from './lib/usage.controller';
 export * from './lib/metering-exception.filter';
 export * from './lib/metering-threshold.service';
+export * from './lib/metering-cloud-tasks.guard';
+export * from './lib/metering-cloud-tasks.controller';
 export * from './lib/openmeter.client';
 export * from './lib/factories';
 export * from './lib/metering-auth.guard';

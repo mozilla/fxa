@@ -10,7 +10,9 @@ import {
 import { AuthModule } from '@fxa/payments/auth';
 import {
   MeteringAuthGuard,
+  MeteringCloudTasksGuard,
   MeteringCloudTasksClientProvider,
+  MeteringCloudTasksController,
   MeteringIngestManager,
   MeteringQueryManager,
   MeteringExceptionFilter,
@@ -94,6 +96,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     FxaWebhooksController,
     StripeWebhooksController,
     UsageController,
+    MeteringCloudTasksController,
   ],
   providers: [
     Logger,
@@ -140,6 +143,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusClient,
     NimbusClientConfig,
     MeteringAuthGuard,
+    MeteringCloudTasksGuard,
     MeteringCloudTasksClientProvider,
     MeteringExceptionFilter,
     MeteringThresholdService,

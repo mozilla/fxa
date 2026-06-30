@@ -42,16 +42,16 @@ export class MeteringConfigurationManager {
     );
   }
 
-  async getMeterBySlug(slug: string): Promise<StrapiMeter | null> {
+  async getMeterResultUtil(slug: string): Promise<MeterBySlugResultUtil> {
     const queryResult = (await this.strapiClient.query(meterBySlugQuery, {
       slug,
     })) as DeepNonNullable<MeterBySlugQuery>;
 
-    return queryResult.meters.at(0) ?? null;
+    return new MeterBySlugResultUtil(queryResult, slug);
   }
 
-  async getMeterResultUtil(slug: string): Promise<MeterBySlugResultUtil> {
-    const meter = await this.getMeterBySlug(slug);
-    return new MeterBySlugResultUtil({ meters: meter ? [meter] : [] }, slug);
+  async getMeterBySlug(slug: string): Promise<StrapiMeter | null> {
+    const util = await this.getMeterResultUtil(slug);
+    return util.meters.at(0) ?? null;
   }
 }
