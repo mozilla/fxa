@@ -20,7 +20,6 @@ export interface ConfigContextValues {
     debugViewTag?: string;
   };
   sentry: {
-    dsn?: string;
     clientDsn?: string;
     env: string;
     clientName: string;
@@ -41,7 +40,6 @@ export const ConfigContext = createContext<ConfigContextValues>({
     channel: '',
   },
   sentry: {
-    dsn: '',
     clientDsn: '',
     env: '',
     clientName: '',

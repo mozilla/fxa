@@ -38,7 +38,11 @@ export default async function RootProviderLayout({
           debugViewTag: config.gleanClientConfig.debugViewTag,
         },
         sentry: {
-          ...config.sentry, //spread to make sure its a POJO
+          clientDsn: config.sentry.clientDsn,
+          env: config.sentry.env,
+          clientName: config.sentry.clientName,
+          sampleRate: config.sentry.sampleRate,
+          tracesSampleRate: config.sentry.tracesSampleRate,
         },
       }}
       fetchedMessages={fetchedMessages}
