@@ -118,6 +118,10 @@ const settingsConfig = {
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
   },
+  mobileStoreLinks: {
+    ios: config.get('mobileStoreLinks.ios'),
+    android: config.get('mobileStoreLinks.android'),
+  },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),
     generalizedReactApp: config.get('rolloutRates.generalizedReactApp'),

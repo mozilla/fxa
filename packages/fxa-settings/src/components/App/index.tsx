@@ -141,6 +141,9 @@ const SignupConfirmed = lazy(
   () => import('../../pages/Signup/SignupConfirmed')
 );
 const WebChannelExample = lazy(() => import('../../pages/WebChannelExample'));
+const PocDeepLink = lazy(() => import('../../pages/PocDeepLink'));
+const PocPairInit = lazy(() => import('../../pages/PocPairInit'));
+const PocPairStart = lazy(() => import('../../pages/PocPairStart'));
 const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
 const InlineRecoveryKeySetupContainer = lazy(
   () => import('../../pages/InlineRecoveryKeySetup/container')
@@ -587,6 +590,9 @@ const AuthAndAccountSetupRoutes = ({
         {/* Other */}
         <Clear path="/clear/*" />
         <WebChannelExample path="/web_channel_example/*" />
+        <PocDeepLink path="/poc_deep_link/*" />
+        <PocPairInit path="/poc_pair_init/*" />
+        <PocPairStart path="/poc_pair_start/*" />
         <CookiesDisabled path="cookies_disabled" />
 
         {/* Post verify */}

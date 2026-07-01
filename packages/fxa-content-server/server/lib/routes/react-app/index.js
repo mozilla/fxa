@@ -178,6 +178,20 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes(['web_channel_example']),
       fullProdRollout: false,
     },
+
+    // FXA-13863 throwaway deep-link pairing POC pages. Gated behind
+    // `showReactApp.pocPairingRoutes`; served only when that flag is on
+    // (fullProdRollout: true means flag-on serves React for everyone, no
+    // `?showReactApp=true` needed).
+    pocPairingRoutes: {
+      featureFlagOn: showReactApp.pocPairingRoutes,
+      routes: reactRoute.getRoutes([
+        'poc_deep_link',
+        'poc_pair_init',
+        'poc_pair_start',
+      ]),
+      fullProdRollout: true,
+    },
   };
 };
 

@@ -102,6 +102,10 @@ export interface Config {
     clients: string[];
     serverBaseUri: string;
   };
+  mobileStoreLinks: {
+    ios: string;
+    android: string;
+  };
   rolloutRates?: {
     keyStretchV2?: number;
     generalizedReactApp?: number;
@@ -223,6 +227,10 @@ export function getDefault() {
     pairing: {
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
+    },
+    mobileStoreLinks: {
+      ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
+      android: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
