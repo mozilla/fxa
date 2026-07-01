@@ -322,14 +322,13 @@ class OauthDB extends ConnectedServicesDb {
     );
   }
 
-  // Upserts a consent row for the (uid, scope, service, clientId)
-  // tuple. First write seeds both timestamps to `now`; subsequent
-  // writes preserve firstAuthorizedTosAt and bump lastAuthorizedTosAt.
-  async recordSignInConsent({ uid, scope, service, clientId, now }) {
+  // Upserts a consent row for each scope under (uid, service, clientId) in a
+  // single atomic statement.
+  async recordSignInConsents({ uid, scopes, service, clientId, now }) {
     await this.ready();
-    return this.mysql._upsertAccountConsent(
+    return this.mysql._upsertAccountConsents(
       uid,
-      scope,
+      scopes,
       service,
       clientId,
       now || Date.now()

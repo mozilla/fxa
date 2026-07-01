@@ -251,23 +251,16 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
         err: err.message,
       });
     }
-    // allSettled so a second sibling rejection does not become an
-    // unhandled rejection after the first failure has been caught upstream.
-    const results = await Promise.allSettled(
-      Array.from(scopesToConsent).map((scope) =>
-        oauthDB.recordSignInConsent({
-          uid: uidHex,
-          scope,
-          service: serviceValue,
-          clientId: clientIdHex,
-          now,
-        })
-      )
-    );
-    const failure = results.find((r) => r.status === 'rejected');
-    if (failure) {
-      throw failure.reason;
-    }
+    // Single atomic upsert for all scopes, one DB connection. A rejection
+    // bubbles to authorizationHandler's catch, which emits
+    // accountAuthorization.write_failed and keeps sign-in working.
+    await oauthDB.recordSignInConsents({
+      uid: uidHex,
+      scopes: Array.from(scopesToConsent),
+      service: serviceValue,
+      clientId: clientIdHex,
+      now,
+    });
     // Only flag once the write succeeded, so the signal matches what landed.
     if (firstAuthorization) {
       req.app.firstAuthorization = true;
