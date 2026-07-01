@@ -91,6 +91,9 @@ const FRONTEND_ROUTES = [
   'verify_secondary_email',
   'would_you_like_to_sync',
   'web_channel_example',
+  'poc_deep_link', // FXA-13863 throwaway deep-link POC test page
+  'poc_pair_init', // FXA-13863 throwaway open-or-store interstitial
+  'poc_pair_start', // FXA-13863 throwaway pairing-start placeholder
 ];
 
 // The array is converted into a RegExp

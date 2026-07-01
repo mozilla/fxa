@@ -369,6 +369,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
     },
+    pocPairingRoutes: {
+      default: true,
+      doc: 'FXA-13863: Enable the throwaway deep-link pairing POC pages (poc_deep_link, poc_pair_init, poc_pair_start)',
+      format: Boolean,
+      env: 'REACT_CONVERSION_POC_PAIRING_ROUTES',
+    },
   },
   brandMessagingMode: {
     default: 'none',
@@ -789,6 +795,22 @@ const conf = (module.exports = convict({
       env: 'PAIRING_SERVER_BASE_URI',
     },
   },
+  mobileStoreLinks: {
+    ios: {
+      default:
+        'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
+      doc: 'App Store URL for Firefox iOS (used by the deep-link interstitial store fallback).',
+      env: 'MOBILE_STORE_LINK_IOS',
+      format: String,
+    },
+    android: {
+      default:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+      doc: 'Play Store URL for Firefox Android (used by the deep-link interstitial store fallback).',
+      env: 'MOBILE_STORE_LINK_ANDROID',
+      format: String,
+    },
+  },
   payments_next_hosted_url: {
     default: 'http://localhost:3035',
     doc: 'the url of the Payments-Next server',
@@ -1149,6 +1171,10 @@ conf.set('process_type', path.basename(process.argv[1], '.js'));
 // Always send CSP headers in development mode
 if (conf.get('env') === 'development') {
   conf.set('csp.enabled', true);
+  // FXA-13863: enable the throwaway deep-link pairing POC pages locally so they
+  // are available for development/testing. They remain gated (default off) in
+  // stage/prod unless REACT_CONVERSION_POC_PAIRING_ROUTES is set.
+  conf.set('showReactApp.pocPairingRoutes', true);
 }
 
 const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');

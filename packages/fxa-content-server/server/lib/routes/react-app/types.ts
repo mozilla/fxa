@@ -58,6 +58,7 @@ type ShowReactApp = {
   postVerifyCADViaQRRoutes: boolean;
   postVerifyThirdPartyAuthRoutes: boolean;
   webChannelExampleRoutes: boolean;
+  pocPairingRoutes: boolean;
 };
 
 export interface ReactRouteGroups {
