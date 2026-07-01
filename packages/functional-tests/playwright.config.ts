@@ -70,6 +70,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
       (name) =>
         ({
           name,
+          // Exclude @chromium-tagged specs (passkey CDP virtual-authenticator
+          // tests); those run only under the -chromium project variants below.
+          grepInvert: /@chromium/,
           use: {
             browserName: 'firefox',
             targetName: name,
@@ -85,6 +88,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     ),
     ...(TargetNames.map((name) => ({
       name: `${name}-chromium`,
+      // Run ONLY @chromium-tagged specs (passkey CDP virtual-authenticator
+      // tests). Local/manual use only — these projects are not run in CI.
+      grep: /@chromium/,
       use: {
         browserName: 'chromium',
         targetName: name,
