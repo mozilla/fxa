@@ -7,6 +7,12 @@
  * Runs AFTER the test environment is set up (after jest-setup-env.ts).
  */
 
+// `testTimeout` is a global Jest option and is ignored when set per-project
+// under `projects` (jest.config.js), so the infra suites set their longer
+// timeout here. debug-timeout.js runs after this and raises it further when a
+// debugger is attached.
+jest.setTimeout(120000);
+
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
 });

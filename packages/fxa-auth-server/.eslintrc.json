@@ -40,6 +40,14 @@
       "rules": {
         "fxa/async-crypto-random": "off"
       }
+    },
+    {
+      // Root-level Jest setup files reference the `jest` global at runtime
+      // (test/ files get this from test/.eslintrc).
+      "files": ["jest.setup*.js"],
+      "env": {
+        "jest": true
+      }
     }
   ]
 }

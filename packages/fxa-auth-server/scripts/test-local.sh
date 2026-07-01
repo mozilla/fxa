@@ -21,4 +21,4 @@ if [[ ! -e config/key.json ]]; then
   node -r ts-node/register/transpile-only -r tsconfig-paths/register  ./scripts/oauth_gen_keys.js
 fi
 
-npx jest --no-coverage --forceExit "$@"
+npx jest --selectProjects unit --no-coverage "$@"
