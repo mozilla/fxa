@@ -256,6 +256,42 @@ describe('SubscriptionEventsService', () => {
         );
       });
 
+      it.each([
+        {
+          type: SubPlatPaymentMethodType.Link as const,
+          label: 'Link',
+        },
+        {
+          type: SubPlatPaymentMethodType.GooglePay as const,
+          label: 'Google Pay',
+        },
+        {
+          type: SubPlatPaymentMethodType.ApplePay as const,
+          label: 'Apple Pay',
+        },
+      ])(
+        'should emit the subscriptionEnded event with Stripe provider for $label payment type',
+        async ({ type }) => {
+          jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+            provider: 'stripe' as const,
+            type,
+            paymentMethodId: `pm_${type}_id`,
+          });
+          await subscriptionEventsService.handleCustomerSubscriptionDeleted(
+            mockEvent,
+            mockEventObjectData
+          );
+
+          expect(mockEmitter.emit).toHaveBeenCalledTimes(1);
+          expect(mockEmitter.emit).toHaveBeenCalledWith(
+            'subscriptionEnded',
+            expect.objectContaining({
+              paymentProvider: PaymentProvider.Stripe,
+            })
+          );
+        }
+      );
+
       it('should emit the subscriptionEnded event, with paymentProvider undefined on error', async () => {
         jest
           .spyOn(customerManager, 'retrieve')

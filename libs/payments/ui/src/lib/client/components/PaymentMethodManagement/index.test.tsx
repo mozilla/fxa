@@ -529,6 +529,246 @@ describe('PaymentMethodManagement', () => {
     expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
+  describe('linkInterruptedCard state', () => {
+    it('shows "Save payment method" when user enters card details then switches to link without a saved method', () => {
+      render(<PaymentMethodManagement locale="en" />);
+
+      simulateLoaderStart();
+
+      // User starts entering new card details
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: { type: 'card' },
+        })
+      );
+
+      expect(
+        screen.getByRole('button', { name: /save payment method/i })
+      ).toBeInTheDocument();
+
+      // User switches to link without a saved payment method
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: { type: 'link' },
+        })
+      );
+
+      // linkInterruptedCard should be true, showing "Save payment method"
+      expect(
+        screen.getByRole('button', { name: /save payment method/i })
+      ).toBeInTheDocument();
+    });
+
+    it('resets linkInterruptedCard state when user switches back to card', () => {
+      render(<PaymentMethodManagement locale="en" />);
+
+      simulateLoaderStart();
+
+      // Enter card details
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: { type: 'card' },
+        })
+      );
+
+      // Switch to link (triggers linkInterruptedCard)
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: { type: 'link' },
+        })
+      );
+
+      // Switch back to card (resets linkInterruptedCard)
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: { type: 'card' },
+        })
+      );
+
+      // Button should still show because isInputNewCardDetails is now true
+      expect(
+        screen.getByRole('button', { name: /save payment method/i })
+      ).toBeInTheDocument();
+    });
+
+    it('does not set linkInterruptedCard when switching from a saved card to link', () => {
+      render(
+        <PaymentMethodManagement
+          locale="en"
+          defaultPaymentMethod={{ id: 'pm_default_123', type: 'card' }}
+        />
+      );
+
+      simulateLoaderStart();
+
+      // Select an existing saved card (not entering new details)
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: {
+            type: 'card',
+            payment_method: {
+              id: 'pm_default_123',
+              type: 'card',
+              billing_details: {
+                address: {
+                  city: null,
+                  country: null,
+                  line1: null,
+                  line2: null,
+                  postal_code: null,
+                  state: null,
+                },
+                name: null,
+                email: null,
+                phone: null,
+              },
+            },
+          },
+        })
+      );
+
+      // Switch to link with a saved Link payment method
+      simulatePaymentChange(
+        buildChangeEvent({
+          complete: true,
+          value: {
+            type: 'link',
+            payment_method: {
+              id: 'pm_link_789',
+              type: 'link',
+              billing_details: {
+                address: {
+                  city: null,
+                  country: null,
+                  line1: null,
+                  line2: null,
+                  postal_code: null,
+                  state: null,
+                },
+                name: null,
+                email: null,
+                phone: null,
+              },
+            },
+          },
+        })
+      );
+
+      // linkInterruptedCard should NOT be set because isInputNewCardDetails
+      // was false (user was on a saved card, not entering new card details).
+      // The "Set as default" button appears because this is a non-default
+      // saved method, but "Save payment method" should not appear.
+      expect(
+        screen.queryByRole('button', { name: /save payment method/i })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: /set as default payment method/i,
+        })
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('wallet type payment methods', () => {
+    const billingDetails = {
+      address: {
+        city: null,
+        country: null,
+        line1: null,
+        line2: null,
+        postal_code: null,
+        state: null,
+      },
+      name: null,
+      email: null,
+      phone: null,
+    };
+
+    it.each([
+      { walletType: 'google_pay', walletLabel: 'Google Pay' },
+      { walletType: 'apple_pay', walletLabel: 'Apple Pay' },
+    ])(
+      'shows "Set as default" button when a non-default $walletLabel method is selected',
+      ({ walletType }) => {
+        render(
+          <PaymentMethodManagement
+            locale="en"
+            defaultPaymentMethod={{ id: 'pm_default_card', type: 'card' }}
+          />
+        );
+
+        simulateLoaderStart();
+        simulatePaymentChange(
+          buildChangeEvent({
+            complete: true,
+            value: {
+              type: walletType,
+              payment_method: {
+                id: `pm_${walletType}_456`,
+                type: walletType,
+                billing_details: billingDetails,
+              },
+            },
+          })
+        );
+
+        expect(
+          screen.getByRole('button', {
+            name: /set as default payment method/i,
+          })
+        ).toBeInTheDocument();
+      }
+    );
+
+    it.each([
+      { walletType: 'google_pay', walletLabel: 'Google Pay' },
+      { walletType: 'apple_pay', walletLabel: 'Apple Pay' },
+    ])(
+      'does not show button when re-selecting the current default $walletLabel method',
+      ({ walletType }) => {
+        render(
+          <PaymentMethodManagement
+            locale="en"
+            defaultPaymentMethod={{
+              id: `pm_${walletType}_123`,
+              type: walletType,
+            }}
+          />
+        );
+
+        simulateLoaderStart();
+        simulatePaymentChange(
+          buildChangeEvent({
+            complete: true,
+            value: {
+              type: walletType,
+              payment_method: {
+                id: `pm_${walletType}_123`,
+                type: walletType,
+                billing_details: billingDetails,
+              },
+            },
+          })
+        );
+
+        expect(
+          screen.queryByRole('button', {
+            name: /set as default payment method/i,
+          })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /save payment method/i })
+        ).not.toBeInTheDocument();
+      }
+    );
+  });
+
   it('displays error message when elements.submit returns an error', async () => {
     const user = userEvent.setup();
 
