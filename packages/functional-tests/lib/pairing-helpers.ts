@@ -18,6 +18,7 @@ import { Browser, expect, Page } from '@playwright/test';
 import { ConfigPage } from '../pages/config';
 import { BaseTarget } from './targets/base';
 import { MarionetteClient } from './marionette';
+import { FirefoxCommand } from './channels';
 import {
   PAIRING_CLIENT_ID,
   PAIRING_REDIRECT_URI,
@@ -798,17 +799,57 @@ export async function completeSupplicantApproval(
   await expect(confirmButton.first()).toBeVisible({
     timeout: TIMEOUTS.AUTHORITY_COMPLETE,
   });
+  // Install the WebChannel listener BEFORE clicking. The supplicant integration
+  // fires `fxaccounts:oauth_login` synchronously when it reaches Complete state
+  // (in `sendResultToRelier`), then schedules the React Router navigation to
+  // /oauth/success. Pre-installing avoids the polling race that
+  // `checkWebChannelMessage` is subject to on slow runners and gives us an
+  // earlier success signal than the URL change (which depends on a React
+  // Router commit landing).
+  const oauthLoginPromise = page.evaluate(
+    (expected) =>
+      new Promise<void>((resolve) => {
+        window.addEventListener('WebChannelMessageToChrome', (e: Event) => {
+          const detail = JSON.parse((e as CustomEvent).detail);
+          if (detail.message.command === expected) {
+            resolve();
+          }
+        });
+      }),
+    FirefoxCommand.OAuthLogin
+  );
+
   await confirmButton.first().click();
 
-  // Wait for the supplicant to land on /oauth/success directly. After Confirm
-  // the supplicant goes through /pair/supp/wait_for_auth → /oauth/success, so
-  // polling for "not /pair/supp/allow" can catch the intermediate state and
-  // fail the success assertion. `waitForURL` on the final target avoids that
-  // race and also proves the flow did not divert to /pair/failure.
-  await page.waitForURL(/oauth\/success/, {
-    timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+  // Resolve on whichever success signal arrives first: the WebChannel
+  // `fxaccounts:oauth_login` message (proves the supplicant integration
+  // completed) or the /oauth/success URL change. After Confirm the
+  // supplicant goes through /pair/supp/wait_for_auth → /oauth/success, so
+  // polling for "not /pair/supp/allow" can catch the intermediate state;
+  // the explicit final-URL match avoids that race.
+  try {
+    await Promise.race([
+      page.waitForURL(/oauth\/success/, {
+        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+      }),
+      oauthLoginPromise,
+    ]);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `completeSupplicantApproval timed out waiting for /oauth/success ` +
+        `or fxaccounts:oauth_login (supp url: ${page.url()}). Underlying: ${message}`
+    );
+  }
+
+  // The WebChannel message may resolve a beat before the URL update lands;
+  // give React Router a brief moment to commit so the assertions below
+  // see /oauth/success.
+  await page.waitForURL(/oauth\/success/, { timeout: 5_000 }).catch(() => {
+    /* fall through to the assertions below for a clearer diagnostic */
   });
   expect(page.url()).not.toContain('pair/failure');
+  expect(page.url()).toMatch(/oauth\/success/);
 
   // Wait for authority to reach pair/auth/complete
   await client.setContext('content');

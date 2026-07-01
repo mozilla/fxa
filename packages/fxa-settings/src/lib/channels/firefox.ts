@@ -527,9 +527,12 @@ export class Firefox extends EventTarget {
           );
         };
         this.addEventListener(FirefoxCommand.PairHeartbeat, eventHandler);
-        requestAnimationFrame(() => {
-          this.send(FirefoxCommand.PairHeartbeat, { channel_id: channelId });
-        });
+        // Send immediately rather than deferring to requestAnimationFrame.
+        // rAF callbacks are throttled in background/headless Firefox windows,
+        // causing every heartbeat to time out at 500 ms without the command
+        // ever reaching Firefox. The listener is already registered above, so
+        // there is no ordering race between listener setup and the send.
+        this.send(FirefoxCommand.PairHeartbeat, { channel_id: channelId });
       }),
       new Promise<PairHeartbeatResponse>((resolve) => {
         timeoutId = window.setTimeout(() => {
@@ -586,6 +589,17 @@ export class Firefox extends EventTarget {
    * before we proceed — matches Backbone's authority.js which uses
    * request() instead of send().  Resolves after the browser responds
    * or after a timeout (whichever comes first).
+   *
+   * Do NOT wrap send() in requestAnimationFrame here. rAF callbacks are
+   * throttled (or delayed by seconds) in background/headless Firefox
+   * windows (e.g. Marionette CI). With the 500 ms fallback timeout,
+   * the promise resolves before rAF fires — the authority page navigates
+   * away and the supplicant can send pair:supp:authorize before Firefox
+   * ever receives pairAuthorize. Firefox then never generates the auth
+   * code, leaving the supplicant stuck at wait_for_auth indefinitely.
+   * Sending immediately is safe: the listener is already registered
+   * before the send, and Firefox's WebChannel response is always
+   * cross-process async.
    */
   private sendPairingCommand(
     command: FirefoxCommand,
@@ -603,9 +617,7 @@ export class Firefox extends EventTarget {
         resolve();
       };
       this.addEventListener(command, handler);
-      requestAnimationFrame(() => {
-        this.send(command, { channel_id: channelId });
-      });
+      this.send(command, { channel_id: channelId });
     });
   }
 
