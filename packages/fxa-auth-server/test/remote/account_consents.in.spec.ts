@@ -56,10 +56,12 @@ async function seed(opts: {
   clientId?: string;
   now?: number;
 }) {
-  await db.recordSignInConsent({
+  const { scope, ...rest } = opts;
+  await db.recordSignInConsents({
     clientId: DESKTOP,
     now: Date.now(),
-    ...opts,
+    ...rest,
+    scopes: [scope],
   });
 }
 
@@ -133,6 +135,58 @@ describe('accountAuthorizations repository', () => {
       clientId: IOS,
     });
     expect(await db.listAccountConsentsByUid(id)).toHaveLength(2);
+  });
+
+  it('records one row per scope from a single multi-scope upsert', async () => {
+    const id = track(newUid());
+    const now = Date.now();
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [OLDSYNC_SCOPE, 'profile', 'openid'],
+      service: 'sync',
+      clientId: DESKTOP,
+      now,
+    });
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows.map((r) => r.scope).sort()).toEqual([
+      OLDSYNC_SCOPE,
+      'openid',
+      'profile',
+    ]);
+    expect(await db.hasConsentForSignIn(id, OLDSYNC_SCOPE, 'sync')).toBe(true);
+    expect(await db.hasConsentForSignIn(id, 'profile', 'sync')).toBe(true);
+  });
+
+  it('multi-scope upsert preserves firstAuthorizedTosAt and bumps lastAuthorizedTosAt per row', async () => {
+    const id = track(newUid());
+    const t0 = Date.now();
+    const t1 = t0 + 86_400_000;
+    const batch = {
+      uid: id,
+      scopes: [OLDSYNC_SCOPE, 'profile'],
+      service: 'sync',
+      clientId: DESKTOP,
+    };
+    await db.recordSignInConsents({ ...batch, now: t0 });
+    await db.recordSignInConsents({ ...batch, now: t1 });
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows).toHaveLength(2);
+    for (const row of rows) {
+      expect(Number(row.firstAuthorizedTosAt)).toBe(t0);
+      expect(Number(row.lastAuthorizedTosAt)).toBe(t1);
+    }
+  });
+
+  it('does not fail if scopes is empty on recordSignInConsents', async () => {
+    const id = track(newUid());
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [],
+      service: 'sync',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+    expect(await db.listAccountConsentsByUid(id)).toHaveLength(0);
   });
 
   it('cross-device: hasConsentForSignIn matches across clientIds', async () => {
