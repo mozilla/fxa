@@ -38,6 +38,8 @@ const mockStripeRetrieveUpcomingInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieveUpcoming>();
 const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
+const mockStripeInvoicesList =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.list>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
 const mockStripePaymentMethodsAttach =
@@ -80,6 +82,7 @@ jest.mock('stripe', () => ({
       },
       invoices: {
         finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
+        list: mockStripeInvoicesList,
         retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
       },
@@ -264,6 +267,24 @@ describe('StripeClient', () => {
         mockSubscription.id
       );
       expect(result.description).toEqual(mockUpdatedSubscription.description);
+    });
+  });
+
+  describe('invoicesList', () => {
+    it('works successfully', async () => {
+      const mockInvoice = StripeInvoiceFactory();
+      const mockResponse = StripeResponseFactory(
+        StripeApiListFactory([mockInvoice])
+      );
+
+      mockStripeInvoicesList.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.invoicesList({
+        subscription: 'sub_123',
+        limit: 1,
+      });
+
+      expect(result).toEqual(mockResponse);
     });
   });
 
