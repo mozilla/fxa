@@ -594,13 +594,17 @@ describe('SubscriptionManager', () => {
   });
 
   describe('hasCouponId', () => {
-    it('returns true if subscription has mentioned coupon id - in discounts', async () => {
-      const mockCoupon = StripeCouponFactory({
-        id: 'coupon_123',
-      });
+    it('returns true if a subscription discount has the mentioned coupon id', async () => {
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
-          discounts: [mockCoupon.id],
+          discounts: [
+            StripeDiscountFactory({
+              source: {
+                type: 'coupon',
+                coupon: StripeCouponFactory({ id: 'coupon_123' }),
+              },
+            }),
+          ],
         })
       );
 
@@ -610,22 +614,28 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.hasCouponId(
         mockSubscription.id,
-        mockCoupon.id
+        'coupon_123'
       );
       expect(result).toBe(true);
     });
 
-    it('returns true if subscription has mentioned coupon id - in discount', async () => {
-      const mockCoupon = StripeCouponFactory({
-        id: 'coupon_123',
-      });
+    it('returns true if a non-primary subscription discount has the mentioned coupon id', async () => {
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
-          discount: StripeDiscountFactory({
-            coupon: StripeCouponFactory({
-              id: 'coupon_123',
+          discounts: [
+            StripeDiscountFactory({
+              source: {
+                type: 'coupon',
+                coupon: StripeCouponFactory({ id: 'coupon_456' }),
+              },
             }),
-          }),
+            StripeDiscountFactory({
+              source: {
+                type: 'coupon',
+                coupon: StripeCouponFactory({ id: 'coupon_123' }),
+              },
+            }),
+          ],
         })
       );
 
@@ -635,43 +645,22 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.hasCouponId(
         mockSubscription.id,
-        mockCoupon.id
+        'coupon_123'
       );
       expect(result).toBe(true);
     });
 
-    it('returns false if subscription does not have mentioned coupon id - in discounts', async () => {
-      const mockCoupon = StripeCouponFactory({
-        id: 'coupon_123',
-      });
+    it('returns false if no subscription discount has the mentioned coupon id', async () => {
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
-          discounts: ['coupon_456'],
-        })
-      );
-
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-
-      const result = await subscriptionManager.hasCouponId(
-        mockSubscription.id,
-        mockCoupon.id
-      );
-      expect(result).toBe(false);
-    });
-
-    it('returns false if subscription does not have mentioned coupon id - in discount', async () => {
-      const mockCoupon = StripeCouponFactory({
-        id: 'coupon_123',
-      });
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory({
-          discount: StripeDiscountFactory({
-            coupon: StripeCouponFactory({
-              id: 'coupon_456',
+          discounts: [
+            StripeDiscountFactory({
+              source: {
+                type: 'coupon',
+                coupon: StripeCouponFactory({ id: 'coupon_456' }),
+              },
             }),
-          }),
+          ],
         })
       );
 
@@ -681,7 +670,7 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.hasCouponId(
         mockSubscription.id,
-        mockCoupon.id
+        'coupon_123'
       );
       expect(result).toBe(false);
     });

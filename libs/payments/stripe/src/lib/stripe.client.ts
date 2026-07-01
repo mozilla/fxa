@@ -4,7 +4,7 @@
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 import { Cacheable } from '@type-cacheable/core';
 
 import {
@@ -63,12 +63,12 @@ export class StripeClient {
       // https://github.com/stripe/stripe-node/issues/2207
       this.stripeConfig.apiKey || 'api_key_placeholder',
       {
-        apiVersion: '2024-11-20.acacia',
+        apiVersion: '2026-05-27.dahlia',
         maxNetworkRetries: 3,
       }
     );
 
-    this.stripe.on('response', (response) => {
+    this.stripe.on('response', (response: Stripe.ResponseEvent) => {
       this.statsd.timing('stripe_request', response.elapsed);
       // Note that we can't record the method/path as a tag
       // because ids are in the path which results in too great
@@ -243,12 +243,14 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
-  async invoicesRetrieveUpcoming(
-    params?: Stripe.InvoiceRetrieveUpcomingParams
-  ) {
-    const result = await this.stripe.invoices.retrieveUpcoming({
+  async invoicesCreatePreview(params?: Stripe.InvoiceCreatePreviewParams) {
+    const result = await this.stripe.invoices.createPreview({
       ...params,
-      expand: ['total_tax_amounts.tax_rate'],
+      expand: [
+        'discounts',
+        'lines.data.taxes.tax_rate',
+        'total_taxes.tax_rate_details.tax_rate',
+      ],
     });
     return result as StripeResponse<StripeUpcomingInvoice>;
   }

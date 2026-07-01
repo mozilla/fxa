@@ -24,8 +24,8 @@ export const transformToWebSubscription = (
   return {
     _subscription_type: 'web',
     created: sub.created,
-    current_period_end: sub.current_period_end,
-    current_period_start: sub.current_period_start,
+    current_period_end: sub.items.data[0].current_period_end,
+    current_period_start: sub.items.data[0].current_period_start,
     cancel_at_period_end: sub.cancel_at_period_end,
     end_at: sub.ended_at ?? null,
     plan_id: priceId,

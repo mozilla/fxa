@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
 import fs from 'fs';
@@ -302,9 +302,9 @@ export class StripeAutomaticTaxConverter {
    */
   async fetchInvoicePreview(subscriptionId: string) {
     return this.enqueueRequest(() =>
-      this.stripe.invoices.retrieveUpcoming({
+      this.stripe.invoices.createPreview({
         subscription: subscriptionId,
-        expand: ['total_tax_amounts.tax_rate'],
+        expand: ['total_taxes.tax_rate_details.tax_rate'],
       })
     );
   }
@@ -320,10 +320,10 @@ export class StripeAutomaticTaxConverter {
     subscription: Stripe.Subscription,
     product: Stripe.Product,
     plan: Stripe.Plan,
-    invoicePreview: Stripe.UpcomingInvoice
+    invoicePreview: Stripe.Invoice
   ) {
     const { hst, pst, gst, qst, rst } = this.helpers.getSpecialTaxAmounts(
-      invoicePreview.total_tax_amounts
+      invoicePreview.total_taxes ?? []
     );
 
     // We build a temporary object first for readability & maintainability purposes
@@ -339,7 +339,10 @@ export class StripeAutomaticTaxConverter {
       planIntervalUnit: plan.interval,
 
       baseAmount: invoicePreview.total_excluding_tax,
-      taxAmount: invoicePreview.tax,
+      taxAmount: (invoicePreview.total_taxes ?? []).reduce(
+        (sum, tax) => sum + tax.amount,
+        0
+      ),
       hst,
       gst,
       pst,
@@ -347,7 +350,7 @@ export class StripeAutomaticTaxConverter {
       rst,
 
       totalAmount: invoicePreview.total,
-      nextInvoice: subscription.current_period_end,
+      nextInvoice: subscription.items.data[0].current_period_end,
 
       locale: account.locale,
     };

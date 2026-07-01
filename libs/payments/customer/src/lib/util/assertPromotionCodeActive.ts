@@ -18,7 +18,8 @@ export const assertPromotionCodeActive = (code: StripePromotionCode) => {
   if (code.max_redemptions && code.times_redeemed >= code.max_redemptions)
     throw new CouponErrorLimitReached();
 
-  if (code.coupon && !code.coupon.valid) throw new CouponErrorInvalidCode();
+  if (code.promotion?.coupon && !code.promotion.coupon.valid)
+    throw new CouponErrorInvalidCode();
 
   if (!code || !code.active) throw new CouponErrorGeneric();
 };

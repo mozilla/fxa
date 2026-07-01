@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
+import { Stripe } from 'stripe';
 import { StripePlan } from '../stripe.client.types';
 
 export const StripePlanFactory = (
@@ -20,9 +21,10 @@ export const StripePlanFactory = (
   nickname: null,
   product: `prod_${faker.string.alphanumeric({ length: 14 })}`,
   tiers_mode: null,
-  aggregate_usage: null,
   amount: faker.number.int({ max: 1000 }),
-  amount_decimal: faker.commerce.price({ min: 1000 }),
+  amount_decimal: faker.commerce.price({
+    min: 1000,
+  }) as unknown as Stripe.Decimal,
   interval: 'month',
   interval_count: 1,
   transform_usage: null,

@@ -8,7 +8,7 @@ import {
   PayPalBillingAgreements,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import { AppError as error } from '@fxa/accounts/errors';
@@ -53,12 +53,21 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
     }
 
-    if (invoice.subscription) {
+    // Transitional dual-read: prefer the basil shape, falling back to the
+    // legacy top-level field for events still emitted by an acacia-era account.
+    const subscriptionRef =
+      invoice.parent?.subscription_details?.subscription ??
+      (
+        invoice as Stripe.Invoice & {
+          subscription?: string | Stripe.Subscription;
+        }
+      ).subscription;
+    if (subscriptionRef) {
       const subscription =
-        typeof invoice.subscription !== 'string'
-          ? invoice.subscription
+        typeof subscriptionRef !== 'string'
+          ? subscriptionRef
           : await this.stripeHelper.expandResource<Stripe.Subscription>(
-              invoice.subscription,
+              subscriptionRef,
               SUBSCRIPTIONS_RESOURCE
             );
 

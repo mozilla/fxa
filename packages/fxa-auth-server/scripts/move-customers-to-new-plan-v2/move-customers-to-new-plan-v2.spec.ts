@@ -785,18 +785,26 @@ describe('CustomerPlanMover v2', () => {
       ...mockSubscription,
       id: 'sub_123',
       latest_invoice: 'inv_123',
-      current_period_start: now - 86400 * 25,
-      current_period_end: now + 86400 * 10,
+      items: {
+        ...mockSubscription.items,
+        data: [
+          {
+            ...mockSubscription.items.data[0],
+            current_period_start: now - 86400 * 25,
+            current_period_end: now + 86400 * 10,
+          },
+        ],
+      },
     } as Stripe.Subscription;
 
     const mockPaidInvoice = {
       ...mockInvoice,
       id: 'inv_123',
-      paid: true,
+      status: 'paid',
       amount_due: 2000,
       created: Math.floor(Date.now() / 1000) - 86400 * 5,
-      charge: 'ch_123',
-      paid_out_of_band: false,
+      payments: { data: [{ payment: { charge: 'ch_123' } }] },
+      collection_method: 'charge_automatically',
     } as unknown as Stripe.Invoice;
 
     let enqueueRequestStub: jest.Mock;
@@ -853,7 +861,7 @@ describe('CustomerPlanMover v2', () => {
       beforeEach(async () => {
         const now = new Date().getTime();
         const nextBillAt = new Date(
-          mockSubscriptionWithInvoice.current_period_end * 1000
+          mockSubscriptionWithInvoice.items.data[0].current_period_end * 1000
         );
         const timeUntilBillMs = nextBillAt.getTime() - now;
         const daysUntilBill = Math.floor(
@@ -864,7 +872,7 @@ describe('CustomerPlanMover v2', () => {
         mockPayPalInvoice = {
           ...mockPaidInvoice,
           amount_due: calculatedRefundAmount,
-          paid_out_of_band: true,
+          collection_method: 'send_invoice',
         } as unknown as Stripe.Invoice;
 
         enqueueRequestStub.mockResolvedValue(mockPayPalInvoice);
@@ -889,7 +897,7 @@ describe('CustomerPlanMover v2', () => {
       beforeEach(async () => {
         const now = new Date().getTime();
         const nextBillAt = new Date(
-          mockSubscriptionWithInvoice.current_period_end * 1000
+          mockSubscriptionWithInvoice.items.data[0].current_period_end * 1000
         );
         const timeUntilBillMs = nextBillAt.getTime() - now;
         const daysUntilBill = Math.floor(
@@ -900,7 +908,7 @@ describe('CustomerPlanMover v2', () => {
         mockPayPalInvoice = {
           ...mockPaidInvoice,
           amount_due: calculatedRefundAmount * 2,
-          paid_out_of_band: true,
+          collection_method: 'send_invoice',
         } as unknown as Stripe.Invoice;
 
         enqueueRequestStub.mockResolvedValue(mockPayPalInvoice);
@@ -969,7 +977,7 @@ describe('CustomerPlanMover v2', () => {
       it('throws if invoice is not paid', async () => {
         const unpaidInvoice = {
           ...mockPaidInvoice,
-          paid: false,
+          status: 'open',
         } as Stripe.Invoice;
         enqueueRequestStub.mockResolvedValue(unpaidInvoice);
 
@@ -994,7 +1002,7 @@ describe('CustomerPlanMover v2', () => {
       it('throws if invoice has no charge for Stripe refund', async () => {
         const invoiceNoCharge = {
           ...mockPaidInvoice,
-          charge: null,
+          payments: { data: [{ payment: { charge: null } }] },
         } as unknown as Stripe.Invoice;
         enqueueRequestStub.mockResolvedValue(invoiceNoCharge);
 

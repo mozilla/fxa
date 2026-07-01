@@ -25,7 +25,7 @@ export const mapPriceInfo = (
       amount =
         unit_amount ??
         (unit_amount_decimal != null
-          ? Math.round(parseFloat(unit_amount_decimal))
+          ? Math.round(parseFloat(unit_amount_decimal as unknown as string))
           : null);
     }
   }

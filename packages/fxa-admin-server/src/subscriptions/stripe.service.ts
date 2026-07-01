@@ -30,7 +30,7 @@ export const StripeFactory: Provider<Stripe> = {
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
     const stripe = new Stripe(stripeConfig.stripeApiKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2026-05-27.dahlia',
       maxNetworkRetries: 3,
     });
     stripe.customers.list({ limit: 1 }).catch((error) => {

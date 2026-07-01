@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
+import { Stripe } from 'stripe';
 import { StripePriceFactory } from './price.factory';
 import {
   StripeSubscription,
@@ -17,11 +18,17 @@ export const StripeSubscriptionFactory = (
   application: null,
   application_fee_percent: null,
   automatic_tax: {
+    disabled_reason: null,
     enabled: true,
     liability: null,
   },
   billing_cycle_anchor: 1,
   billing_cycle_anchor_config: null,
+  billing_mode: {
+    type: 'flexible',
+    flexible: null,
+  },
+  billing_schedules: [],
   billing_thresholds: null,
   cancel_at: null,
   cancel_at_period_end: false,
@@ -30,14 +37,12 @@ export const StripeSubscriptionFactory = (
   collection_method: 'charge_automatically',
   created: faker.number.int(),
   currency: faker.finance.currencyCode().toLowerCase(),
-  current_period_end: faker.number.int({ min: 1000000 }),
-  current_period_start: faker.number.int({ max: 1000000 }),
   customer: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+  customer_account: null,
   days_until_due: null,
   default_payment_method: faker.string.alphanumeric(10),
   default_source: faker.string.alphanumeric(10),
   description: null,
-  discount: null,
   discounts: [],
   ended_at: null,
   invoice_settings: {
@@ -56,6 +61,7 @@ export const StripeSubscriptionFactory = (
   },
   latest_invoice: `in_${faker.string.alphanumeric({ length: 24 })}`,
   livemode: false,
+  managed_payments: null,
   metadata: {},
   next_pending_invoice_item_invoice: null,
   on_behalf_of: null,
@@ -82,15 +88,18 @@ export const StripeSubscriptionItemFactory = (
   object: 'subscription_item',
   billing_thresholds: null,
   created: faker.number.int(),
+  current_period_end: faker.number.int({ min: 1000000 }),
+  current_period_start: faker.number.int({ max: 1000000 }),
   discounts: [],
   metadata: {},
   plan: {
     id: `plan_${faker.string.alphanumeric({ length: 14 })}`,
     object: 'plan',
     active: true,
-    aggregate_usage: null,
     amount: faker.number.int({ max: 1000 }),
-    amount_decimal: faker.commerce.price({ min: 1000 }),
+    amount_decimal: faker.commerce.price({
+      min: 1000,
+    }) as unknown as Stripe.Decimal,
     billing_scheme: 'per_unit',
     created: faker.number.int(),
     currency: faker.finance.currencyCode().toLowerCase(),

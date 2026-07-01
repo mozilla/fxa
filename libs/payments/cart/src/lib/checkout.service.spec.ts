@@ -56,10 +56,12 @@ import {
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
+  StripeApiListFactory,
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
   StripeInvoiceFactory,
+  StripeInvoicePaymentFactory,
   StripePaymentIntentFactory,
   StripePaymentMethodFactory,
   StripePriceFactory,
@@ -864,7 +866,14 @@ describe('CheckoutService', () => {
     const mockConfirmationToken = StripeConfirmationTokenFactory();
     const mockInvoice = StripeResponseFactory(
       StripeInvoiceFactory({
-        payment_intent: mockPaymentIntent.id,
+        payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
       })
     );
     const mockEligibilityResult = SubscriptionEligibilityResultFactory({
@@ -944,7 +953,7 @@ describe('CheckoutService', () => {
             automatic_tax: {
               enabled: true,
             },
-            promotion_code: mockPromotionCode.id,
+            discounts: [{ promotion_code: mockPromotionCode.id }],
             items: [
               {
                 price: mockPrice.id, // TODO: fetch price from cart after FXA-8893
@@ -987,7 +996,7 @@ describe('CheckoutService', () => {
 
       it('calls calls paymentIntentManager.confirm', async () => {
         expect(paymentIntentManager.confirm).toHaveBeenCalledWith(
-          mockInvoice.payment_intent,
+          mockPaymentIntent.id,
           { confirmation_token: mockConfirmationToken.id, off_session: false }
         );
       });
@@ -1016,7 +1025,14 @@ describe('CheckoutService', () => {
       it('handles zero-amount invoices by creating a setup intent', async () => {
         const freeInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
             amount_due: 0,
             status: 'paid',
           })
@@ -1040,6 +1056,26 @@ describe('CheckoutService', () => {
             mockCart.uid
           )
         ).resolves.not.toThrow();
+      });
+
+      it('creates the subscription without a discounts key when there is no coupon', async () => {
+        jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
+          ...mockPrePayStepsResult,
+          promotionCode: undefined,
+        });
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+
+        expect(subscriptionManager.create).toHaveBeenCalledWith(
+          expect.not.objectContaining({ discounts: expect.anything() }),
+          { idempotencyKey: mockCart.id }
+        );
       });
 
       describe('upgrade', () => {
@@ -1096,7 +1132,7 @@ describe('CheckoutService', () => {
       describe('calls setup intent manager', () => {
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -1151,7 +1187,7 @@ describe('CheckoutService', () => {
         );
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -1286,7 +1322,14 @@ describe('CheckoutService', () => {
         const mockConfirmationToken = StripeConfirmationTokenFactory();
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
           })
         );
         const mockEligibilityResult = SubscriptionEligibilityResultFactory({
@@ -1430,7 +1473,14 @@ describe('CheckoutService', () => {
         );
         const mockZeroInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
             amount_due: 0,
           })
         );
@@ -1552,7 +1602,7 @@ describe('CheckoutService', () => {
         );
         const mockTrialInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -1662,7 +1712,14 @@ describe('CheckoutService', () => {
         );
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
           })
         );
 
@@ -1786,7 +1843,7 @@ describe('CheckoutService', () => {
         );
         const mockTrialInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -1862,7 +1919,7 @@ describe('CheckoutService', () => {
         );
         const mockTrialInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -1936,7 +1993,14 @@ describe('CheckoutService', () => {
         );
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
           })
         );
 
@@ -2037,7 +2101,14 @@ describe('CheckoutService', () => {
         );
         const mockInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: mockPaymentIntent.id,
+            payments: StripeApiListFactory([
+          StripeInvoicePaymentFactory({
+            payment: {
+              type: 'payment_intent',
+              payment_intent: mockPaymentIntent.id,
+            },
+          }),
+        ]),
           })
         );
 
@@ -2086,7 +2157,7 @@ describe('CheckoutService', () => {
         );
         const mockTrialInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
           })
         );
@@ -2260,7 +2331,7 @@ describe('CheckoutService', () => {
             },
             collection_method: 'send_invoice',
             days_until_due: 1,
-            promotion_code: mockPromotionCode.id,
+            discounts: [{ promotion_code: mockPromotionCode.id }],
             items: [
               {
                 price: mockPrice.id,
@@ -2283,6 +2354,28 @@ describe('CheckoutService', () => {
                 mockAttributionData.session_entrypoint_variation,
             },
           },
+          { idempotencyKey: mockCart.id }
+        );
+      });
+
+      it('creates the subscription without a discounts key when there is no coupon', async () => {
+        jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
+          PrePayStepsResultFactory({
+            ...mockPrePayStepsResult,
+            promotionCode: undefined,
+          })
+        );
+
+        await checkoutService.payWithPaypal(
+          mockCart,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid,
+          mockToken
+        );
+
+        expect(subscriptionManager.create).toHaveBeenCalledWith(
+          expect.not.objectContaining({ discounts: expect.anything() }),
           { idempotencyKey: mockCart.id }
         );
       });
@@ -2541,7 +2634,7 @@ describe('CheckoutService', () => {
         );
         const mockTrialInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
-            payment_intent: null,
+            payments: StripeApiListFactory([]),
             amount_due: 0,
             status: 'paid',
           })

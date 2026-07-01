@@ -377,7 +377,8 @@ export class StripeFirestore {
       );
     }
 
-    if (typeof invoice.subscription !== 'string') {
+    const subscription = invoice.parent?.subscription_details?.subscription;
+    if (typeof subscription !== 'string') {
       // We can only insert invoices with a subscription for caching, but we
       // shouldn't throw errors just because we can't cache non-subscription invoices.
       // TODO: Cache non-subscription invoices.
@@ -386,7 +387,7 @@ export class StripeFirestore {
 
     return customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
-      .doc(invoice.subscription)
+      .doc(subscription)
       .collection(this.invoiceCollection)
       .doc(invoice.id!)
       .set(invoice);
@@ -401,13 +402,13 @@ export class StripeFirestore {
     ignoreErrors: boolean = false,
   ) {
     const invoice = await this.stripe.invoices.retrieve(invoiceId);
-    if (invoice.subscription === null) {
+    const subscriptionId = invoice.parent?.subscription_details?.subscription;
+    if (subscriptionId == null) {
       // We can only insert invoices with a subscription for caching, but we
       // shouldn't throw errors just because we can't cache non-subscription invoices.
       // TODO: Cache non-subscription invoices.
       return invoice;
     }
-    const subscriptionId = invoice.subscription;
     if (typeof subscriptionId !== 'string') {
       throw new Error("subscriptionId must be of type string");
     }

@@ -41,7 +41,9 @@ import {
   MockStripeConfigProvider,
   StripeClient,
   StripeConfig,
+  StripeCouponFactory,
   StripeCustomerFactory,
+  StripeDiscountFactory,
   StripePriceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
@@ -430,11 +432,14 @@ describe('PaymentsMetricsAggregatorService', () => {
     });
     const mockSubscription = StripeResponseFactory(
       StripeSubscriptionFactory({
-        discount: {
-          coupon: {
-            id: mockCouponCode,
-          },
-        } as any,
+        discounts: [
+          StripeDiscountFactory({
+            source: {
+              type: 'coupon',
+              coupon: StripeCouponFactory({ id: mockCouponCode }),
+            },
+          }),
+        ],
         items: {
           object: 'list',
           data: [mockSubscriptionItem],

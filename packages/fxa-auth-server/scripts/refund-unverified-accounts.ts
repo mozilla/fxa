@@ -150,7 +150,7 @@ async function retrieveSubscriptionsByCreatedStripe(
 ): Promise<SubscriptionData[]> {
   const config = Container.get(AppConfig);
   const stripe = new Stripe(config.subscriptions.stripeApiKey, {
-    apiVersion: '2024-11-20.acacia',
+    apiVersion: '2026-05-27.dahlia',
     maxNetworkRetries: 3,
   });
   const baseQuery = `created<=${endDate} AND created>=${startDate}`;
@@ -174,7 +174,8 @@ async function retrieveSubscriptionsByCreatedStripe(
         : undefined;
     const invoicePaymentIntentId =
       typeof sub.latest_invoice !== 'string'
-        ? ((sub.latest_invoice as Stripe.Invoice)?.payment_intent as string)
+        ? ((sub.latest_invoice as Stripe.Invoice)?.payments?.data[0]?.payment
+            .payment_intent as string)
         : undefined;
     const output: SubscriptionData = {
       subscription: sub,

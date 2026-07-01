@@ -3,16 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { StripeInvoiceLineItemTaxAmount } from '../stripe.client.types';
-import { StripeTaxRateFactory } from './tax-rate.factory';
+import { StripeInvoiceLineItemTax } from '../stripe.client.types';
 
-export const StripeTotalTaxAmountsFactory = (
-  override?: Partial<StripeInvoiceLineItemTaxAmount>
-): StripeInvoiceLineItemTaxAmount => ({
+export const StripeInvoiceLineItemTaxFactory = (
+  override?: Partial<StripeInvoiceLineItemTax>
+): StripeInvoiceLineItemTax => ({
   amount: faker.number.int(),
-  inclusive: false,
-  tax_rate: StripeTaxRateFactory(),
-  taxability_reason: null,
-  taxable_amount: null,
+  tax_behavior: 'exclusive',
+  tax_rate_details: {
+    tax_rate: `txr_${faker.string.alphanumeric({ length: 24 })}`,
+  },
+  taxability_reason: 'standard_rated',
+  taxable_amount: faker.number.int(),
+  type: 'tax_rate_details',
   ...override,
 });

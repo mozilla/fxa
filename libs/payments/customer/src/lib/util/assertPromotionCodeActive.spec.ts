@@ -36,9 +36,12 @@ describe('assertPromotionCodeActive', () => {
 
   it('throws error if the promotion code coupon is not valid', async () => {
     const mockPromotionCode = StripePromotionCodeFactory({
-      coupon: StripeCouponFactory({
-        valid: false,
-      }),
+      promotion: {
+        type: 'coupon',
+        coupon: StripeCouponFactory({
+          valid: false,
+        }),
+      },
     });
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(

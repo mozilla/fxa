@@ -17,7 +17,7 @@ function getStripeClient(): Stripe {
     );
   }
   return new Stripe(key, {
-    apiVersion: '2024-11-20.acacia',
+    apiVersion: '2026-05-27.dahlia',
   });
 }
 

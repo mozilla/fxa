@@ -36,10 +36,10 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.total).toBe(previewInvoiceWithTax.total);
     expect(invoice.subtotal).toBe(previewInvoiceWithTax.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].amount
+      previewInvoiceWithTax.total_taxes[0].amount
     );
     expect(invoice.tax[0].display_name).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].tax_rate.display_name
+      previewInvoiceWithTax.total_taxes[0].tax_rate_details.tax_rate.display_name
     );
     expect(invoice.tax[0].inclusive).toBe(true);
     expect(invoice.discount).toBeUndefined();
@@ -53,27 +53,24 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.total).toBe(previewInvoiceWithDiscountAndTax.total);
     expect(invoice.subtotal).toBe(previewInvoiceWithDiscountAndTax.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].amount
+      previewInvoiceWithDiscountAndTax.total_taxes[0].amount
     );
-    expect(invoice.tax[0].display_name).toBe(
-      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].tax_rate
-        .display_name
-    );
+    expect(invoice.tax[0].display_name).toBeUndefined();
     expect(invoice.tax[0].inclusive).toBe(true);
     expect(invoice.discount.amount).toBe(
       previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount
     );
     expect(invoice.discount.amount_off).toBe(
-      previewInvoiceWithDiscountAndTax.discount.coupon.amount_off
+      previewInvoiceWithDiscountAndTax.discounts[0].source.coupon.amount_off
     );
     expect(invoice.discount.percent_off).toBe(
-      previewInvoiceWithDiscountAndTax.discount.coupon.percent_off
+      previewInvoiceWithDiscountAndTax.discounts[0].source.coupon.percent_off
     );
   });
 
   it('formats an invoice where tax display_name is an empty string', () => {
     const invoicePreview = deepCopy(previewInvoiceWithTax);
-    invoicePreview.total_tax_amounts[0].tax_rate.display_name = '';
+    invoicePreview.total_taxes[0].tax_rate_details.tax_rate.display_name = '';
 
     const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
       invoicePreview,
@@ -83,7 +80,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.total).toBe(invoicePreview.total);
     expect(invoice.subtotal).toBe(invoicePreview.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      invoicePreview.total_tax_amounts[0].amount
+      invoicePreview.total_taxes[0].amount
     );
     expect(invoice.tax[0].display_name).toBeUndefined();
     expect(invoice.tax[0].inclusive).toBe(true);
@@ -92,7 +89,8 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats an invoice with a prorated amount', () => {
     const firstInvoice = deepCopy(previewInvoiceWithTax);
     const proratedInvoice = deepCopy(previewInvoiceWithTax);
-    proratedInvoice.lines.data[0].proration = true;
+    proratedInvoice.lines.data[0].parent.subscription_item_details.proration =
+      true;
 
     const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
       firstInvoice,
@@ -104,10 +102,10 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.total).toBe(previewInvoiceWithTax.total);
     expect(invoice.subtotal).toBe(previewInvoiceWithTax.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].amount
+      previewInvoiceWithTax.total_taxes[0].amount
     );
     expect(invoice.tax[0].display_name).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].tax_rate.display_name
+      previewInvoiceWithTax.total_taxes[0].tax_rate_details.tax_rate.display_name
     );
     expect(invoice.tax[0].inclusive).toBe(true);
     expect(invoice.discount).toBeUndefined();
@@ -127,10 +125,10 @@ describe('stripeInvoiceToLatestInvoiceItemsDTO', () => {
     expect(invoice.total).toBe(previewInvoiceWithTax.total);
     expect(invoice.subtotal).toBe(previewInvoiceWithTax.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].amount
+      previewInvoiceWithTax.total_taxes[0].amount
     );
     expect(invoice.tax[0].display_name).toBe(
-      previewInvoiceWithTax.total_tax_amounts[0].tax_rate.display_name
+      previewInvoiceWithTax.total_taxes[0].tax_rate_details.tax_rate.display_name
     );
     expect(invoice.tax[0].inclusive).toBe(true);
     expect(invoice.discount).toBeUndefined();
@@ -143,21 +141,18 @@ describe('stripeInvoiceToLatestInvoiceItemsDTO', () => {
     expect(invoice.total).toBe(previewInvoiceWithDiscountAndTax.total);
     expect(invoice.subtotal).toBe(previewInvoiceWithDiscountAndTax.subtotal);
     expect(invoice.tax[0].amount).toBe(
-      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].amount
+      previewInvoiceWithDiscountAndTax.total_taxes[0].amount
     );
-    expect(invoice.tax[0].display_name).toBe(
-      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].tax_rate
-        .display_name
-    );
+    expect(invoice.tax[0].display_name).toBeUndefined();
     expect(invoice.tax[0].inclusive).toBe(true);
     expect(invoice.discount.amount).toBe(
       previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount
     );
     expect(invoice.discount.amount_off).toBe(
-      previewInvoiceWithDiscountAndTax.discount.coupon.amount_off
+      previewInvoiceWithDiscountAndTax.discounts[0].source.coupon.amount_off
     );
     expect(invoice.discount.percent_off).toBe(
-      previewInvoiceWithDiscountAndTax.discount.coupon.percent_off
+      previewInvoiceWithDiscountAndTax.discounts[0].source.coupon.percent_off
     );
   });
 });

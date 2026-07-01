@@ -29,6 +29,7 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "stripe": ["node_modules/stripe/esm/stripe.esm.node.d.ts"],
       "@fxa/accounts/email-renderer": [
         "libs/accounts/email-renderer/src/index.ts"
       ],

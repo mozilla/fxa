@@ -23,7 +23,7 @@ try {
 
 const { asyncIterable } = require('../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
-const stripeError = require('stripe').Stripe.errors;
+const stripeError = require('stripe').errors;
 const uuidv4 = require('uuid').v4;
 
 const chance = new Chance();
@@ -164,7 +164,60 @@ const subscriptionCouponForever = require(
 const subscriptionCouponRepeating = require(
   `${STRIPE_FIXTURES}/subscription_coupon_repeating.json`
 );
-const paidInvoice = require(`${STRIPE_FIXTURES}/invoice_paid.json`);
+// invoice_paid.json stays acacia-shaped on disk for the webhook dual-read tests;
+// augment the in-memory copy with the basil shapes the StripeHelper now reads.
+const paidInvoice = (() => {
+  const invoice = deepCopy(require(`${STRIPE_FIXTURES}/invoice_paid.json`));
+  for (const line of invoice.lines.data) {
+    line.pricing = {
+      price_details: {
+        price: line.price?.id ?? line.price,
+        product: (line.price ?? line.plan)?.product,
+      },
+      type: 'price_details',
+    };
+    line.parent = {
+      type: 'subscription_item_details',
+      subscription_item_details: {
+        subscription: line.subscription,
+        subscription_item: line.subscription_item,
+        proration: line.proration ?? false,
+        proration_details: null,
+      },
+      invoice_item_details: null,
+    };
+    line.taxes = (line.tax_amounts ?? []).map((tax: any) => ({
+      amount: tax.amount,
+      tax_behavior: tax.inclusive ? 'inclusive' : 'exclusive',
+      tax_rate_details: { tax_rate: tax.tax_rate },
+    }));
+  }
+  invoice.parent = {
+    type: 'subscription_details',
+    subscription_details: { subscription: invoice.subscription },
+  };
+  invoice.payments = {
+    object: 'list',
+    data: [
+      {
+        payment: {
+          payment_intent: invoice.payment_intent,
+          charge: invoice.charge,
+        },
+        status: 'paid',
+      },
+    ],
+    has_more: false,
+    total_count: 1,
+    url: '',
+  };
+  invoice.total_taxes = (invoice.total_tax_amounts ?? []).map((tax: any) => ({
+    amount: tax.amount,
+    tax_behavior: tax.inclusive ? 'inclusive' : 'exclusive',
+    tax_rate_details: { tax_rate: tax.tax_rate },
+  }));
+  return invoice;
+})();
 const unpaidInvoice = require(`${STRIPE_FIXTURES}/invoice_open.json`);
 const successfulPaymentIntent = require(
   `${STRIPE_FIXTURES}/paymentIntent_succeeded.json`
@@ -509,9 +562,11 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: jest
-                .fn()
-                .mockResolvedValue({ payment_intent: 'pi_mock' }),
+              retrieve: jest.fn().mockResolvedValue({
+                payments: {
+                  data: [{ payment: { payment_intent: 'pi_mock' } }],
+                },
+              }),
             },
             paymentIntents: {
               retrieve: jest.fn().mockResolvedValue({ payment_method: null }),
@@ -536,9 +591,11 @@ describe('StripeHelper', () => {
                 .mockResolvedValue({ payment_method: 'pm_mock' }),
             },
             invoices: {
-              retrieve: jest
-                .fn()
-                .mockResolvedValue({ payment_intent: 'pi_mock' }),
+              retrieve: jest.fn().mockResolvedValue({
+                payments: {
+                  data: [{ payment: { payment_intent: 'pi_mock' } }],
+                },
+              }),
             },
           };
           jest
@@ -557,9 +614,11 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: jest
-                .fn()
-                .mockResolvedValue({ payment_intent: 'pi_mock' }),
+              retrieve: jest.fn().mockResolvedValue({
+                payments: {
+                  data: [{ payment: { payment_intent: 'pi_mock' } }],
+                },
+              }),
             },
             paymentIntents: {
               retrieve: jest
@@ -584,9 +643,11 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: jest
-                .fn()
-                .mockResolvedValue({ payment_intent: 'pi_mock' }),
+              retrieve: jest.fn().mockResolvedValue({
+                payments: {
+                  data: [{ payment: { payment_intent: 'pi_mock' } }],
+                },
+              }),
             },
             paymentIntents: {
               retrieve: jest
@@ -616,9 +677,11 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: jest
-                .fn()
-                .mockResolvedValue({ payment_intent: 'pi_mock' }),
+              retrieve: jest.fn().mockResolvedValue({
+                payments: {
+                  data: [{ payment: { payment_intent: 'pi_mock' } }],
+                },
+              }),
             },
             paymentIntents: {
               retrieve: jest
@@ -1016,7 +1079,7 @@ describe('StripeHelper', () => {
   describe('previewInvoiceBySubscriptionId', () => {
     it('fetches invoice preview', async () => {
       const stripeStub = jest
-        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .spyOn(stripeHelper.stripe.invoices, 'createPreview')
         .mockResolvedValue(undefined);
       await stripeHelper.previewInvoiceBySubscriptionId({
         subscriptionId: 'sub123',
@@ -1024,12 +1087,13 @@ describe('StripeHelper', () => {
       expect(stripeStub).toHaveBeenCalledTimes(1);
       expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
+        expand: ['discounts', 'lines.data.taxes.tax_rate'],
       });
     });
 
     it('fetches invoice preview for cancelled subscription', async () => {
       const stripeStub = jest
-        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .spyOn(stripeHelper.stripe.invoices, 'createPreview')
         .mockResolvedValue(undefined);
       await stripeHelper.previewInvoiceBySubscriptionId({
         subscriptionId: 'sub123',
@@ -1038,7 +1102,8 @@ describe('StripeHelper', () => {
       expect(stripeStub).toHaveBeenCalledTimes(1);
       expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
-        subscription_cancel_at_period_end: false,
+        expand: ['discounts', 'lines.data.taxes.tax_rate'],
+        subscription_details: { cancel_at_period_end: false },
       });
     });
   });
@@ -1086,11 +1151,13 @@ describe('StripeHelper', () => {
       expires_at: null,
       max_redemptions: null,
       times_redeemed: 0,
-      coupon: {
-        valid: true,
-        max_redemptions: null,
-        times_redeemed: 0,
-        redeem_by: null,
+      promotion: {
+        coupon: {
+          valid: true,
+          max_redemptions: null,
+          times_redeemed: 0,
+          redeem_by: null,
+        },
       },
     };
 
@@ -1118,11 +1185,13 @@ describe('StripeHelper', () => {
     it('return invalid with maximallyRedeemed for max redeemed coupon', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
-        coupon: {
-          ...promotionCodeTemplate.coupon,
-          valid: false,
-          max_redemptions: 1,
-          times_redeemed: 1,
+        promotion: {
+          coupon: {
+            ...promotionCodeTemplate.promotion.coupon,
+            valid: false,
+            max_redemptions: 1,
+            times_redeemed: 1,
+          },
         },
       };
       const expected = { ...expectedTemplate, maximallyRedeemed: true };
@@ -1136,9 +1205,11 @@ describe('StripeHelper', () => {
     it('return invalid with expired for expired coupon', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
-        coupon: {
-          valid: false,
-          redeem_by: 1000,
+        promotion: {
+          coupon: {
+            valid: false,
+            redeem_by: 1000,
+          },
         },
       };
       const expected = { ...expectedTemplate, expired: true };
@@ -1387,6 +1458,9 @@ describe('StripeHelper', () => {
         {
           ...paidInvoice,
           collection_method: 'charge_automatically',
+          payments: {
+            data: [{ payment: { charge: paidInvoice.charge } }],
+          },
         },
       ]);
       expect(stripeHelper.stripe.refunds.create).toHaveBeenCalledTimes(1);
@@ -1404,8 +1478,8 @@ describe('StripeHelper', () => {
         {
           ...paidInvoice,
           collection_method: 'charge_automatically',
-          charge: {
-            id: paidInvoice.charge,
+          payments: {
+            data: [{ payment: { charge: { id: paidInvoice.charge } } }],
           },
         },
       ]);
@@ -1699,9 +1773,13 @@ describe('StripeHelper', () => {
   describe('fetchOpenInvoices', () => {
     it('returns customer paypal agreement id', async () => {
       const invoice = deepCopy(invoicePaidSubscriptionCreate);
-      invoice.subscription = { status: 'active' };
+      invoice.parent = {
+        subscription_details: { subscription: { status: 'active' } },
+      };
       const invoice2 = deepCopy(invoicePaidSubscriptionCreate);
-      invoice2.subscription = { status: 'cancelled' };
+      invoice2.parent = {
+        subscription_details: { subscription: { status: 'cancelled' } },
+      };
       async function* genInvoice() {
         yield invoice;
         yield invoice2;
@@ -1725,7 +1803,10 @@ describe('StripeHelper', () => {
         collection_method: 'send_invoice',
         status: 'open',
         created: 0,
-        expand: ['data.customer', 'data.subscription'],
+        expand: [
+          'data.customer',
+          'data.parent.subscription_details.subscription',
+        ],
       });
     });
   });
@@ -1843,7 +1924,9 @@ describe('StripeHelper', () => {
     it('extracts the country if its present', () => {
       const latest_invoice = {
         ...subscriptionCreatedInvoice,
-        payment_intent: { ...closedPaymementIntent },
+        payments: {
+          data: [{ payment: { payment_intent: { ...closedPaymementIntent } } }],
+        },
       };
       const subscription = { ...subscription2, latest_invoice };
       const result =
@@ -1869,7 +1952,9 @@ describe('StripeHelper', () => {
 
       const latest_invoice = {
         ...subscriptionCreatedInvoice,
-        payment_intent: { latest_charge: null },
+        payments: {
+          data: [{ payment: { payment_intent: { latest_charge: null } } }],
+        },
       };
       const subscription = { ...subscription2, latest_invoice };
       const result =
@@ -2272,13 +2357,19 @@ describe('StripeHelper', () => {
     it('returns only invoices of active subscriptions', async () => {
       const expectedString = {
         id: 'idString',
-        subscription: 'idSub',
+        parent: { subscription_details: { subscription: 'idSub' } },
       };
       jest.spyOn(stripeHelper.stripe.subscriptions, 'list').mockResolvedValue({
         data: [{ id: 'idNull' }, { id: 'subIdExpanded' }, { id: 'idSub' }],
       });
       jest.spyOn(stripeHelper.stripe.invoices, 'list').mockResolvedValue({
-        data: [{ id: 'idNull', subscription: null }, { ...expectedString }],
+        data: [
+          {
+            id: 'idNull',
+            parent: { subscription_details: { subscription: null } },
+          },
+          { ...expectedString },
+        ],
       });
       const result = await stripeHelper.fetchInvoicesForActiveSubscriptions(
         existingUid,
@@ -2515,7 +2606,9 @@ describe('StripeHelper', () => {
     describe("when Invoice status is 'paid'", () => {
       describe("Payment Intent Status is 'succeeded'", () => {
         const invoice = deepCopy(paidInvoice);
-        invoice.payment_intent = successfulPaymentIntent;
+        invoice.payments = {
+          data: [{ payment: { payment_intent: successfulPaymentIntent } }],
+        };
         it('should return true', () => {
           expect(stripeHelper.paidInvoice(invoice)).toBe(true);
         });
@@ -2523,7 +2616,9 @@ describe('StripeHelper', () => {
 
       describe("Payment Intent Status is NOT 'succeeded'", () => {
         const invoice = deepCopy(paidInvoice);
-        invoice.payment_intent = unsuccessfulPaymentIntent;
+        invoice.payments = {
+          data: [{ payment: { payment_intent: unsuccessfulPaymentIntent } }],
+        };
         it('should return false', () => {
           expect(stripeHelper.paidInvoice(invoice)).toBe(false);
         });
@@ -2533,7 +2628,9 @@ describe('StripeHelper', () => {
     describe("when Invoice status is NOT 'paid'", () => {
       describe("Payment Intent Status is 'succeeded'", () => {
         const invoice = deepCopy(unpaidInvoice);
-        invoice.payment_intent = successfulPaymentIntent;
+        invoice.payments = {
+          data: [{ payment: { payment_intent: successfulPaymentIntent } }],
+        };
         it('should return false', () => {
           expect(stripeHelper.paidInvoice(invoice)).toBe(false);
         });
@@ -2541,7 +2638,9 @@ describe('StripeHelper', () => {
 
       describe("Payment Intent Status is NOT 'succeeded'", () => {
         const invoice = deepCopy(unpaidInvoice);
-        invoice.payment_intent = unsuccessfulPaymentIntent;
+        invoice.payments = {
+          data: [{ payment: { payment_intent: unsuccessfulPaymentIntent } }],
+        };
         it('should return false', () => {
           expect(stripeHelper.paidInvoice(invoice)).toBe(false);
         });
@@ -2995,7 +3094,9 @@ describe('StripeHelper', () => {
     describe('invoice is created', () => {
       it('returns the invoice if marked as paid', async () => {
         const expected = deepCopy(paidInvoice);
-        expected.payment_intent = successfulPaymentIntent;
+        expected.payments = {
+          data: [{ payment: { payment_intent: successfulPaymentIntent } }],
+        };
         jest
           .spyOn(stripeHelper.stripe.invoices, 'pay')
           .mockResolvedValue(expected);
@@ -3005,7 +3106,9 @@ describe('StripeHelper', () => {
 
       it('throws an error if invoice is not marked as paid', async () => {
         const expected = deepCopy(paidInvoice);
-        expected.payment_intent = unsuccessfulPaymentIntent;
+        expected.payments = {
+          data: [{ payment: { payment_intent: unsuccessfulPaymentIntent } }],
+        };
         jest
           .spyOn(stripeHelper.stripe.invoices, 'pay')
           .mockResolvedValue(expected);
@@ -3061,10 +3164,12 @@ describe('StripeHelper', () => {
     describe('when the payment_intent is loaded', () => {
       it('returns the payment_intent from the Invoice object', async () => {
         const invoice = deepCopy(unpaidInvoice);
-        invoice.payment_intent = unsuccessfulPaymentIntent;
+        invoice.payments = {
+          data: [{ payment: { payment_intent: unsuccessfulPaymentIntent } }],
+        };
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
-        expect(actual).toEqual(invoice.payment_intent);
+        expect(actual).toEqual(unsuccessfulPaymentIntent);
         expect(
           stripeHelper.stripe.paymentIntents.retrieve.mock.calls.length === 0
         ).toBe(true);
@@ -3074,6 +3179,9 @@ describe('StripeHelper', () => {
     describe('when the payment_intent is not loaded', () => {
       it('fetches the payment_intent from Stripe', async () => {
         const invoice = deepCopy(unpaidInvoice);
+        invoice.payments = {
+          data: [{ payment: { payment_intent: unsuccessfulPaymentIntent.id } }],
+        };
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
         expect(actual).toEqual(unsuccessfulPaymentIntent);
@@ -3152,8 +3260,10 @@ describe('StripeHelper', () => {
               {
                 _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: subscription1.created,
-                current_period_end: subscription1.current_period_end,
-                current_period_start: subscription1.current_period_start,
+                current_period_end:
+                  subscription1.items.data[0].current_period_end,
+                current_period_start:
+                  subscription1.items.data[0].current_period_start,
                 cancel_at_period_end: false,
                 end_at: null,
                 plan_id: subscription1.plan.id,
@@ -3190,8 +3300,10 @@ describe('StripeHelper', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
             created: pastDueSubscription.created,
-            current_period_end: pastDueSubscription.current_period_end,
-            current_period_start: pastDueSubscription.current_period_start,
+            current_period_end:
+              pastDueSubscription.items.data[0].current_period_end,
+            current_period_start:
+              pastDueSubscription.items.data[0].current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: pastDueSubscription.plan.id,
@@ -3223,7 +3335,7 @@ describe('StripeHelper', () => {
             jest
               .spyOn(stripeHelper, 'expandResource')
               .mockResolvedValue({ id: productId, name: productName });
-            pastDueInvoice.charge = failedChargeCopy;
+            pastDueInvoice.payments.data[0].payment.charge = failedChargeCopy;
             pastDueSub.latest_invoice = pastDueInvoice;
             pastDueSub.plan.product = product1.id;
             const input = { data: [pastDueSub] };
@@ -3243,7 +3355,7 @@ describe('StripeHelper', () => {
             jest
               .spyOn(stripeHelper, 'expandResource')
               .mockResolvedValue({ id: productId, name: productName });
-            pastDueInvoice.charge = 'ch_123';
+            pastDueInvoice.payments.data[0].payment.charge = 'ch_123';
             pastDueSub.latest_invoice = pastDueInvoice;
             const input = { data: [pastDueSub] };
             const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -3272,8 +3384,8 @@ describe('StripeHelper', () => {
             {
               _subscription_type: MozillaSubscriptionTypes.WEB,
               created: sub.created,
-              current_period_end: sub.current_period_end,
-              current_period_start: sub.current_period_start,
+              current_period_end: sub.items.data[0].current_period_end,
+              current_period_start: sub.items.data[0].current_period_start,
               cancel_at_period_end: true,
               end_at: null,
               plan_id: sub.plan.id,
@@ -3315,8 +3427,10 @@ describe('StripeHelper', () => {
             {
               _subscription_type: MozillaSubscriptionTypes.WEB,
               created: cancelledSubscription.created,
-              current_period_end: cancelledSubscription.current_period_end,
-              current_period_start: cancelledSubscription.current_period_start,
+              current_period_end:
+                cancelledSubscription.items.data[0].current_period_end,
+              current_period_start:
+                cancelledSubscription.items.data[0].current_period_start,
               cancel_at_period_end: false,
               end_at: cancelledSubscription.ended_at,
               plan_id: cancelledSubscription.plan.id,
@@ -3429,8 +3543,10 @@ describe('StripeHelper', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
             created: subscriptionCouponOnce.created,
-            current_period_end: subscriptionCouponOnce.current_period_end,
-            current_period_start: subscriptionCouponOnce.current_period_start,
+            current_period_end:
+              subscriptionCouponOnce.items.data[0].current_period_end,
+            current_period_start:
+              subscriptionCouponOnce.items.data[0].current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: subscriptionCouponOnce.plan.id,
@@ -3467,9 +3583,10 @@ describe('StripeHelper', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
             created: subscriptionCouponForever.created,
-            current_period_end: subscriptionCouponForever.current_period_end,
+            current_period_end:
+              subscriptionCouponForever.items.data[0].current_period_end,
             current_period_start:
-              subscriptionCouponForever.current_period_start,
+              subscriptionCouponForever.items.data[0].current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: subscriptionCouponForever.plan.id,
@@ -3482,14 +3599,15 @@ describe('StripeHelper', () => {
             latest_invoice: paidInvoice.number,
             latest_invoice_items: latestInvoiceItems,
             promotion_amount_off:
-              subscriptionCouponForever.discount.coupon.amount_off,
+              subscriptionCouponForever.discounts[0].source.coupon.amount_off,
             promotion_code:
               subscriptionCouponForever.metadata.appliedPromotionCode,
             promotion_duration: 'forever',
             promotion_end: null,
-            promotion_name: subscriptionCouponForever.discount.coupon.name,
+            promotion_name:
+              subscriptionCouponForever.discounts[0].source.coupon.name,
             promotion_percent_off:
-              subscriptionCouponForever.discount.coupon.percent_off,
+              subscriptionCouponForever.discounts[0].source.coupon.percent_off,
           },
         ];
         const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -3509,9 +3627,10 @@ describe('StripeHelper', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
             created: subscriptionCouponRepeating.created,
-            current_period_end: subscriptionCouponRepeating.current_period_end,
+            current_period_end:
+              subscriptionCouponRepeating.items.data[0].current_period_end,
             current_period_start:
-              subscriptionCouponRepeating.current_period_start,
+              subscriptionCouponRepeating.items.data[0].current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: subscriptionCouponRepeating.plan.id,
@@ -3524,14 +3643,15 @@ describe('StripeHelper', () => {
             latest_invoice: paidInvoice.number,
             latest_invoice_items: latestInvoiceItems,
             promotion_amount_off:
-              subscriptionCouponRepeating.discount.coupon.amount_off,
+              subscriptionCouponRepeating.discounts[0].source.coupon.amount_off,
             promotion_code:
               subscriptionCouponRepeating.metadata.appliedPromotionCode,
             promotion_duration: 'repeating',
-            promotion_end: subscriptionCouponRepeating.discount.end,
-            promotion_name: subscriptionCouponRepeating.discount.coupon.name,
+            promotion_end: subscriptionCouponRepeating.discounts[0].end,
+            promotion_name:
+              subscriptionCouponRepeating.discounts[0].source.coupon.name,
             promotion_percent_off:
-              subscriptionCouponRepeating.discount.coupon.percent_off,
+              subscriptionCouponRepeating.discounts[0].source.coupon.percent_off,
           },
         ];
         const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -4419,7 +4539,7 @@ describe('StripeHelper', () => {
         }),
         {}
       );
-      mockStripe.invoices.retrieveUpcoming = jest
+      mockStripe.invoices.createPreview = jest
         .fn()
         .mockResolvedValue(mockInvoiceUpcoming);
       stripeHelper.stripe = mockStripe;
@@ -4427,76 +4547,28 @@ describe('StripeHelper', () => {
 
     describe('extractInvoiceDetailsForEmail', () => {
       const fixture: any = { ...invoicePaidSubscriptionCreate };
-      fixture.lines.data[0] = {
-        ...fixture.lines.data[0],
-        plan: {
-          id: planId,
-          nickname: planName,
-          product: productId,
-          metadata: mockPlan.metadata,
-        },
-      };
-
       const fixtureDiscount: any = {
         ...invoicePaidSubscriptionCreateDiscount,
       };
-      fixtureDiscount.lines.data[0] = {
-        ...fixtureDiscount.lines.data[0],
-        plan: {
-          id: planId,
-          nickname: planName,
-          product: productId,
-          metadata: mockPlan.metadata,
-        },
-      };
-
       const fixtureTaxDiscount: any = {
         ...invoicePaidSubscriptionCreateTaxDiscount,
       };
-      fixtureTaxDiscount.lines.data[0] = {
-        ...fixtureTaxDiscount.lines.data[0],
-        plan: {
-          id: planId,
-          nickname: planName,
-          product: productId,
-          metadata: mockPlan.metadata,
-        },
-      };
-
       const fixtureTax: any = { ...invoicePaidSubscriptionCreateTax };
-      fixtureTax.lines.data[0] = {
-        ...fixtureTax.lines.data[0],
-        plan: {
-          id: planId,
-          nickname: planName,
-          product: productId,
-          metadata: mockPlan.metadata,
-        },
-      };
 
       const fixtureProrated: any = deepCopy(invoicePaidSubscriptionCreate);
       fixtureProrated.lines.data.unshift({
         ...fixtureProrated.lines.data[0],
-        type: 'invoiceitem',
-        proration: true,
         amount: -100,
-        plan: {
-          id: 'mock-prorated-plan-id',
-          nickname: 'Prorated plan',
-          product: productId,
-          metadata: mockPlan.metadata,
+        parent: {
+          type: 'invoice_item_details',
+          invoice_item_details: { proration: true },
+          subscription_item_details: null,
         },
       });
 
       const fixtureProrationRefund: any = { ...invoiceDraftProrationRefund };
       fixtureProrationRefund.lines.data[1] = {
         ...fixtureProrationRefund.lines.data[1],
-        plan: {
-          id: planId,
-          nickname: planName,
-          product: productId,
-          metadata: mockPlan.metadata,
-        },
         period: {
           end: 1587767020,
           start: 1585088620,
@@ -4580,6 +4652,12 @@ describe('StripeHelper', () => {
         };
 
         expandMock.mockResolvedValueOnce(mockCustomer);
+        expandMock.mockResolvedValueOnce({
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        });
         expandMock.mockResolvedValueOnce(mockCharge);
       });
 
@@ -4590,7 +4668,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expected);
       });
 
@@ -4602,43 +4680,38 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(true);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expected);
       });
 
       it('extracts expected details from an expanded invoice', async () => {
         const expandedFixture = deepCopy(invoicePaidSubscriptionCreate);
-        expandedFixture.lines.data[0].plan = {
-          id: planId,
-          nickname: planName,
-          metadata: mockPlan.metadata,
-          product: mockProduct,
-        };
         expandedFixture.customer = mockCustomer;
-        expandedFixture.charge = mockCharge;
+        expandedFixture.payments.data[0].payment.charge = mockCharge;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(expandedFixture);
         expect(
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expected);
       });
 
       it('does not throw an exception when details on a payment method are missing', async () => {
         const noChargeFixture = deepCopy(invoicePaidSubscriptionCreate);
-        noChargeFixture.lines.data[0].plan = {
+        noChargeFixture.customer = mockCustomer;
+        noChargeFixture.payments.data[0].payment.charge = null;
+        // Reset the "once" queue from beforeEach and set up:
+        // customer, plan, null (no charge), default
+        expandMock.mockReset().mockResolvedValue({});
+        expandMock.mockResolvedValueOnce(mockCustomer);
+        expandMock.mockResolvedValueOnce({
           id: planId,
           nickname: planName,
           metadata: mockPlan.metadata,
           product: mockProduct,
-        };
-        noChargeFixture.customer = mockCustomer;
-        noChargeFixture.charge = null;
-        // Reset the "once" queue from beforeEach and set up: customer, null (no charge), default
-        expandMock.mockReset().mockResolvedValue({});
-        expandMock.mockResolvedValueOnce(mockCustomer);
+        });
         expandMock.mockResolvedValueOnce(null);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(noChargeFixture);
@@ -4646,7 +4719,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual({
           ...expected,
           lastFour: null,
@@ -4659,7 +4732,11 @@ describe('StripeHelper', () => {
         const subscriptionItem = deepCopy(upgradeFixture.lines.data[0]);
         const subscriptionPeriodEnd = 1593032000;
         upgradeFixture.lines.data.push(subscriptionItem);
-        upgradeFixture.lines.data[0].type = 'invoiceitem';
+        upgradeFixture.lines.data[0].parent = {
+          type: 'invoice_item_details',
+          invoice_item_details: { proration: false },
+          subscription_item_details: null,
+        };
         upgradeFixture.lines.data[1].period.end = subscriptionPeriodEnd;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(upgradeFixture);
@@ -4667,7 +4744,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual({
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
@@ -4681,7 +4758,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expected);
       });
 
@@ -4692,7 +4769,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expectedDiscount_foreverCoupon);
       });
 
@@ -4711,7 +4788,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual(expectedDiscount100);
       });
 
@@ -4736,7 +4813,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual({
           ...expected,
           productMetadata: {
@@ -4753,7 +4830,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual({
           ...expected,
           invoiceTaxAmountInCents: 54,
@@ -4767,7 +4844,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(3);
+        expect(expandMock).toHaveBeenCalledTimes(4);
         expect(result).toEqual({
           ...expectedDiscount_foreverCoupon,
           invoiceTaxAmountInCents: 48,
@@ -4782,7 +4859,7 @@ describe('StripeHelper', () => {
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
         expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(2);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expected,
           invoiceStatus: 'draft',
@@ -4829,7 +4906,7 @@ describe('StripeHelper', () => {
         expect(
           (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
         ).toBe(true);
-        expect(expandMock).toHaveBeenCalledTimes(2);
+        expect(expandMock).toHaveBeenCalledTimes(3);
       });
 
       it('throws an exception with unexpected data', async () => {
@@ -4849,7 +4926,7 @@ describe('StripeHelper', () => {
 
       it('throws an exception if invoice line items doesnt have type = "subscription" or "invoiceitem"', async () => {
         const badFixture = deepCopy(invoicePaidSubscriptionCreate);
-        badFixture.lines.data[0].type = 'none';
+        badFixture.lines.data[0].parent.type = 'none';
         try {
           await stripeHelper.extractInvoiceDetailsForEmail(badFixture);
           throw new Error('should have thrown');
@@ -4875,12 +4952,16 @@ describe('StripeHelper', () => {
 
       it('extracts the correct months and coupon type for a 3 month coupon', async () => {
         const fixtureDiscount3Month = deepCopy(fixtureDiscount);
-        fixtureDiscount3Month.discount = {
-          coupon: {
-            duration: 'repeating',
-            duration_in_months: 3,
+        fixtureDiscount3Month.discounts = [
+          {
+            source: {
+              coupon: {
+                duration: 'repeating',
+                duration_in_months: 3,
+              },
+            },
           },
-        };
+        ];
         const actual = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureDiscount3Month
         );
@@ -4890,12 +4971,16 @@ describe('StripeHelper', () => {
 
       it('extracts the correct months and coupon type for a one time coupon', async () => {
         const fixtureDiscountOneTime = deepCopy(fixtureDiscount);
-        fixtureDiscountOneTime.discount = {
-          coupon: {
-            duration: 'once',
-            duration_in_months: null,
+        fixtureDiscountOneTime.discounts = [
+          {
+            source: {
+              coupon: {
+                duration: 'once',
+                duration_in_months: null,
+              },
+            },
           },
-        };
+        ];
         const actual = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureDiscountOneTime
         );
@@ -4910,9 +4995,11 @@ describe('StripeHelper', () => {
           ...fixtureDiscountOneTime,
           discounts: [
             {
-              coupon: {
-                duration: 'once',
-                duration_in_months: null,
+              source: {
+                coupon: {
+                  duration: 'once',
+                  duration_in_months: null,
+                },
               },
             },
           ],
@@ -5185,11 +5272,11 @@ describe('StripeHelper', () => {
         }
       }
 
-      it('calls the expected helper method for cancellation, with retrieveUpcoming error', async () => {
+      it('calls the expected helper method for cancellation, with createPreview error', async () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'StripeInvalidRequestError';
         stripeErr.code = 'invoice_upcoming_none';
-        mockStripe.invoices.retrieveUpcoming = jest
+        mockStripe.invoices.createPreview = jest
           .fn()
           .mockRejectedValue(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
@@ -5212,10 +5299,10 @@ describe('StripeHelper', () => {
         );
       });
 
-      it('rejects if invoices.retrieveUpcoming errors with unexpected error', async () => {
+      it('rejects if invoices.createPreview errors with unexpected error', async () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'unexpected';
-        mockStripe.invoices.retrieveUpcoming = jest
+        mockStripe.invoices.createPreview = jest
           .fn()
           .mockRejectedValue(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
@@ -5242,10 +5329,10 @@ describe('StripeHelper', () => {
         const mockInvoiceUpcomingWithData = {
           ...mockInvoiceUpcoming,
           lines: {
-            data: [{ type: 'invoiceitem' }],
+            data: [{ parent: { type: 'invoice_item_details' } }],
           },
         };
-        mockStripe.invoices.retrieveUpcoming = jest
+        mockStripe.invoices.createPreview = jest
           .fn()
           .mockResolvedValue(mockInvoiceUpcomingWithData);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
@@ -5637,8 +5724,13 @@ describe('StripeHelper', () => {
             expectedBaseUpdateDetails,
             mockInvoice
           );
-        expect(mockStripe.invoices.retrieveUpcoming.mock.calls).toEqual([
-          [{ subscription: event.data.object.id }],
+        expect(mockStripe.invoices.createPreview.mock.calls).toEqual([
+          [
+            {
+              subscription: event.data.object.id,
+              expand: ['discounts', 'lines.data.taxes.tax_rate'],
+            },
+          ],
         ]);
         expect(result).toEqual(defaultExpected);
       });
@@ -5835,6 +5927,8 @@ describe('StripeHelper', () => {
     describe('extractSubscriptionUpdateCancellationDetailsForEmail', () => {
       it('extracts expected details for a subscription cancellation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.items.data[0].current_period_end =
+          event.data.object.current_period_end;
         const result =
           await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
             event.data.object,
@@ -5857,7 +5951,7 @@ describe('StripeHelper', () => {
           invoiceTotalInCents: mockInvoice.total,
           invoiceTotalCurrency: mockInvoice.currency,
           serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: false,
@@ -5868,6 +5962,8 @@ describe('StripeHelper', () => {
       it('extracts expected details for a free trial subscription cancellation with trialEnd', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const subscription = event.data.object;
+        subscription.items.data[0].current_period_end =
+          subscription.current_period_end;
         subscription.trial_start = 1582749566;
         subscription.trial_end = 1585341566;
         subscription.canceled_at = 1583000000;
@@ -5892,7 +5988,7 @@ describe('StripeHelper', () => {
           invoiceTotalInCents: mockInvoice.total,
           invoiceTotalCurrency: mockInvoice.currency,
           serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: false,
@@ -5908,6 +6004,8 @@ describe('StripeHelper', () => {
           created: 1666968725952,
         };
         const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.items.data[0].current_period_end =
+          event.data.object.current_period_end;
         const result =
           await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
             event.data.object,
@@ -5930,7 +6028,7 @@ describe('StripeHelper', () => {
           invoiceTotalInCents: mockUpcomingInvoice.total,
           invoiceTotalCurrency: mockUpcomingInvoice.currency,
           serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: true,

@@ -1073,9 +1073,18 @@ export class StripeWebhookHandler extends StripeHandler {
         email: account.primaryEmail,
       },
     ];
-    const subscription = invoice.subscription
+    // Transitional dual-read: prefer the basil shape, falling back to the
+    // legacy top-level field for events still emitted by an acacia-era account.
+    const subscriptionRef =
+      invoice.parent?.subscription_details?.subscription ??
+      (
+        invoice as Stripe.Invoice & {
+          subscription?: string | Stripe.Subscription;
+        }
+      ).subscription;
+    const subscription = subscriptionRef
       ? await this.stripeHelper.expandResource(
-          invoice.subscription,
+          subscriptionRef,
           SUBSCRIPTIONS_RESOURCE
         )
       : null;
