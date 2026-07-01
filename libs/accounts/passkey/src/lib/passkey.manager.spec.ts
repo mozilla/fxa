@@ -42,6 +42,7 @@ const mockConfig = new PasskeyConfig({
   challengeTimeout: CHALLENGE_TIMEOUT_MS,
   maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
   requestPrfAtRegistration: false,
+  prfSalt: '',
 });
 
 const mockMetrics = {

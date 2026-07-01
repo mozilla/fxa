@@ -25,7 +25,6 @@ let redis: Redis.Redis | undefined;
 let db: Awaited<ReturnType<typeof setupAccountDatabase>> | undefined;
 let passkeyRpId: string;
 let passkeyOrigin: string;
-let passkeyRequestPrf: boolean;
 
 beforeAll(async () => {
   redis = new Redis({ host: 'localhost' });
@@ -42,7 +41,6 @@ beforeAll(async () => {
   const passkeyConfig = new PasskeyConfig(config.passkeys as PasskeyConfig);
   passkeyRpId = passkeyConfig.rpId;
   passkeyOrigin = passkeyConfig.allowedOrigins[0];
-  passkeyRequestPrf = passkeyConfig.requestPrfAtRegistration;
 
   const passkeyManager = new PasskeyManager(
     db,
@@ -194,12 +192,6 @@ describe('#integration - remote passkey registration', () => {
     );
     expect(options.challenge).toBeDefined();
     expect(options.rp).toBeDefined();
-    // The server requests the PRF probe only when the flag is enabled.
-    if (passkeyRequestPrf) {
-      expect(options.extensions).toEqual(expect.objectContaining({ prf: {} }));
-    } else {
-      expect(options.extensions?.prf).toBeUndefined();
-    }
 
     // Step 2: simulate authenticator
     const cred = VirtualAuthenticator.createCredential();

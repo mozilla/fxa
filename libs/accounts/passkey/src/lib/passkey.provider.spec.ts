@@ -25,6 +25,7 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   residentKey: 'required',
   authenticatorAttachment: '',
   requestPrfAtRegistration: false,
+  prfSalt: '',
 };
 
 function buildModule(rawPasskeys: unknown) {
@@ -103,6 +104,18 @@ describe('PasskeyConfigProvider', () => {
       expect(config!.challengeTimeout).toBe(30_000);
       expect(config!.maxPasskeysPerUser).toBe(10);
       expect(config!.residentKey).toBe('required');
+      expect(config!.requestPrfAtRegistration).toBe(false);
+      expect(config!.prfSalt).toBe('');
+    });
+
+    it('copies a configured prfSalt', async () => {
+      // base64url stand-in, not the production salt.
+      const testSalt = 'dGVzdC1wcmYtc2FsdA';
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        prfSalt: testSalt,
+      });
+      expect(config!.prfSalt).toBe(testSalt);
     });
 
     it('maps authenticatorAttachment null to undefined', async () => {
@@ -171,6 +184,17 @@ describe('PasskeyConfigProvider', () => {
         })
       ).rejects.toThrow(
         'property allowedOrigins has failed the following constraints'
+      );
+    });
+
+    it('rejects a prfSalt that is not base64url', async () => {
+      await expect(() =>
+        buildModule({
+          ...VALID_RAW_CONFIG,
+          prfSalt: 'not base64url!',
+        })
+      ).rejects.toThrow(
+        'property prfSalt has failed the following constraints'
       );
     });
   });

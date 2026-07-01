@@ -1415,6 +1415,26 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(spy);
       });
 
+      it('submits a ping with the account_pref_passkey_create_retry_without_prf_request event name, reason, and outcome', async () => {
+        const spy = sandbox.spy(
+          accountPref.passkeyCreateRetryWithoutPrfRequest,
+          'record'
+        );
+        GleanMetrics.accountPref.passkeyCreateRetryWithoutPrfRequest({
+          event: { reason: 'UnknownError', outcome: 'success' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_create_retry_without_prf_request'
+        );
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'UnknownError',
+          outcome: 'success',
+        });
+      });
+
       it('submits a ping with the account_pref_passkey_delete_view event name', async () => {
         const spy = sandbox.spy(accountPref.passkeyDeleteView, 'record');
         GleanMetrics.accountPref.passkeyDeleteView();

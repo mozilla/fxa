@@ -53,6 +53,8 @@ jest.mock('../../../lib/passkeys/webauthn', () => ({
     ...args: Parameters<typeof createCredential>
   ): ReturnType<typeof createCredential> => mockCreateCredential(...args),
   isWebAuthnLevel3Supported: () => mockIsWebAuthnLevel3Supported(),
+  // Real value (5 min); the PRF fallback reads it to bound the retry budget.
+  DEFAULT_TIMEOUT_MS: 300_000,
 }));
 
 const mockHandleWebAuthnError = jest.fn();
@@ -69,6 +71,7 @@ jest.mock('../../../lib/glean', () => ({
       passkeyCreateView: jest.fn(),
       passkeyCreateSuccessView: jest.fn(),
       passkeyCreateSubmitFrontendError: jest.fn(),
+      passkeyCreateRetryWithoutPrfRequest: jest.fn(),
     },
   },
 }));
@@ -196,6 +199,43 @@ describe('PagePasskeyAdd', () => {
       mockCredential,
       'Y2hhbGxlbmdl'
     );
+  });
+
+  it('silently retries without PRF and succeeds when the first attempt fails with an unexpected error', async () => {
+    // Windows Hello rejects a PRF eval with UnknownError (FXA-13991); the
+    // ceremony should transparently retry without PRF and still succeed.
+    const optionsWithPrf = {
+      ...mockCreationOptions,
+      extensions: { prf: { eval: { first: 'dGVzdC1wcmYtc2FsdA' } } },
+    };
+    mockBeginPasskeyRegistration.mockResolvedValue(optionsWithPrf);
+    mockCreateCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockResolvedValueOnce(mockCredential);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockAlertSuccess).toHaveBeenCalledWith('Passkey created');
+    });
+    expect(mockCreateCredential).toHaveBeenCalledTimes(2);
+    // The retry drops the PRF extension.
+    expect(
+      mockCreateCredential.mock.calls[1][0].extensions?.prf
+    ).toBeUndefined();
+    // No error surfaced and no frontend-error metric emitted.
+    expect(mockAlertError).not.toHaveBeenCalled();
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).not.toHaveBeenCalled();
+    expect(mockCompletePasskeyRegistration).toHaveBeenCalledTimes(1);
+    // The retry is tracked so we can measure how often PRF must be dropped and
+    // decide when the retry can be removed.
+    expect(
+      GleanMetrics.accountPref.passkeyCreateRetryWithoutPrfRequest
+    ).toHaveBeenCalledWith({
+      event: { reason: 'UnknownError', outcome: 'success' },
+    });
   });
 
   it('shows the generic categorizer fallback and navigates to settings on NotAllowedError', async () => {

@@ -105,6 +105,19 @@ export class PasskeyConfig {
   public requestPrfAtRegistration!: boolean;
 
   /**
+   * Static base64url salt supplied as the PRF eval input at registration.
+   * Windows Hello rejects an empty PRF eval, so a salt is required there to
+   * request PRF at all. Uniqueness of the PRF output comes from each
+   * credential's private key, so a single global salt is sufficient.
+   * An empty string means "do not request the PRF extension".
+   */
+  @IsString()
+  @Matches(/^[A-Za-z0-9_-]*$/, {
+    message: 'prfSalt must be a base64url string',
+  })
+  public prfSalt!: string;
+
+  /**
    * Creates a new PasskeyConfig instance by copying all fields from the
    * provided options object.
    *
@@ -117,6 +130,7 @@ export class PasskeyConfig {
     this.enabled = opts.enabled;
     this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
     this.requestPrfAtRegistration = opts.requestPrfAtRegistration;
+    this.prfSalt = opts.prfSalt;
     this.residentKey = opts.residentKey;
     this.rpId = opts.rpId;
   }

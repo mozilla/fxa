@@ -2708,6 +2708,12 @@ const convictConf = convict({
       env: 'PASSKEYS__REQUEST_PRF_AT_REGISTRATION',
       format: Boolean,
     },
+    prfSalt: {
+      default: '',
+      doc: 'Static base64url salt supplied as the WebAuthn PRF eval input',
+      env: 'PASSKEYS__PRF_SALT',
+      format: String,
+    },
   },
   twilio: {
     credentialMode: {
