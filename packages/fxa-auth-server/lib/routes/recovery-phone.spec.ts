@@ -117,7 +117,7 @@ describe('/recovery_phone', () => {
     const route = getRoute(routes, req.path, req.method);
     expect(route).toBeDefined();
     request = mockRequest(req);
-    request.emitMetricsEvent = jest.fn().mockResolvedValue();
+    request.emitMetricsEvent = jest.fn().mockResolvedValue(undefined);
     return await route.handler(request);
   }
 

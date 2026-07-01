@@ -26,7 +26,7 @@ const execOptions = {
     NODE_ENV: 'dev',
     LOG_LEVEL: 'error',
     AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',
-  },
+  } as unknown as typeof process.env,
 };
 
 const PASSWORD_VALID = 'password';

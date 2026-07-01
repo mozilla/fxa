@@ -279,7 +279,7 @@ describe('cms', () => {
         'ftl-content'
       );
       mockLocalization.findExistingPR.mockResolvedValue(null);
-      mockLocalization.createGitHubPR.mockResolvedValue();
+      mockLocalization.createGitHubPR.mockResolvedValue(undefined);
 
       request = {
         headers: {
@@ -393,7 +393,7 @@ describe('cms', () => {
         },
         payload: { ...webhookPayload, event: 'entry.publish' },
       };
-      mockCmsManager.invalidateCache.mockResolvedValue();
+      mockCmsManager.invalidateCache.mockResolvedValue(undefined);
 
       const result = await route.handler(req);
       expect(result).toEqual({ success: true });

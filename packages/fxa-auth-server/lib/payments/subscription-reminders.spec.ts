@@ -181,8 +181,8 @@ describe('SubscriptionReminders', () => {
       );
       const actualStartS = actual.start.toSeconds();
       const actualEndS = actual.end.toSeconds();
-      expect(actualStartS).toEqual(expected.start.toSeconds());
-      expect(actualEndS).toEqual(expected.end.toSeconds());
+      expect(actualStartS).toEqual(expected.start?.toSeconds());
+      expect(actualEndS).toEqual(expected.end?.toSeconds());
       expect(actualEndS - actualStartS).toEqual(S_IN_A_DAY);
       DateTime.utc = realDateTimeUtc;
     });
@@ -1631,7 +1631,7 @@ describe('SubscriptionReminders', () => {
       reminder.mailer.sendSubscriptionEndingReminderEmail = jest
         .fn()
         .mockResolvedValue(true);
-      reminder.updateSentEmail = jest.fn().mockResolvedValue();
+      reminder.updateSentEmail = jest.fn().mockResolvedValue(undefined);
       mockStripeHelper.formatSubscriptionForEmail = jest
         .fn()
         .mockResolvedValue(mockFormattedSubscription);
@@ -1888,13 +1888,19 @@ describe('SubscriptionReminders', () => {
       expect(sendRenewalStub).toHaveBeenCalledTimes(2);
 
       // First call: yearly plans with 15-day duration
-      const firstCallArgs = sendRenewalStub.mock.calls[0];
+      const firstCallArgs = sendRenewalStub.mock.calls[0] as [
+        Array<{ id: string }>,
+        Duration,
+      ];
       expect(firstCallArgs[0].length).toEqual(1);
       expect(firstCallArgs[0][0].id).toEqual(yearlyPlan.id);
       expect(firstCallArgs[1].as('days')).toEqual(15);
 
       // Second call: monthly plans with 7-day duration
-      const secondCallArgs = sendRenewalStub.mock.calls[1];
+      const secondCallArgs = sendRenewalStub.mock.calls[1] as [
+        Array<{ id: string }>,
+        Duration,
+      ];
       expect(secondCallArgs[0].length).toEqual(2);
       expect(secondCallArgs[0][0].id).toEqual(longPlan1.id);
       expect(secondCallArgs[0][1].id).toEqual(longPlan2.id);

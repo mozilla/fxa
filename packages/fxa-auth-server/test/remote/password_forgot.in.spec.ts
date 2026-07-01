@@ -85,11 +85,17 @@ describe.each(testVersions)(
       const code = emailData.headers['x-password-forgot-otp'];
 
       await expect(client.resetPassword(newPassword)).rejects.toBeDefined();
-      await resetPassword(client, code, newPassword, undefined, options);
+      await resetPassword(
+        client,
+        code as string,
+        newPassword,
+        undefined,
+        options
+      );
 
       const resetEmailData = await server.mailbox.waitForEmail(email);
       const link = resetEmailData.headers['x-link'];
-      const query = url.parse(link, true).query;
+      const query = url.parse(link as string, true).query;
       expect(query.email).toBeTruthy();
       expect(resetEmailData.headers['x-template-name']).toBe('passwordReset');
 

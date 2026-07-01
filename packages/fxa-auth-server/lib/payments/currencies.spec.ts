@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CurrencyHelper } from './currencies';
+import { ConfigType } from '../../config';
 
 const payPalEnabledSubscriptionsConfig = {
   paypalNvpSigCredentials: {
@@ -20,7 +21,9 @@ describe('currencyMapValidation in constructor', () => {
       ['ZAR', ['US', 'CA']],
       ['EUR', ['FR']],
     ]);
-    const ch = new CurrencyHelper({ currenciesToCountries });
+    const ch = new CurrencyHelper({
+      currenciesToCountries,
+    } as unknown as ConfigType);
     expect(ch.currencyToCountryMap).toEqual(expected);
   });
 
@@ -32,12 +35,12 @@ describe('currencyMapValidation in constructor', () => {
           enabled: false,
         },
       },
-    });
+    } as unknown as ConfigType);
     expect(ch.payPalEnabled).toBe(false);
     ch = new CurrencyHelper({
       currenciesToCountries: {},
       subscriptions: payPalEnabledSubscriptionsConfig,
-    });
+    } as unknown as ConfigType);
     expect(ch.payPalEnabled).toBe(true);
   });
 
@@ -90,7 +93,9 @@ describe('currencyMapValidation in constructor', () => {
 
 describe('isCurrencyCompatibleWithCountry', () => {
   const currenciesToCountries = { EUR: ['FR', 'DE'] };
-  const ch = new CurrencyHelper({ currenciesToCountries });
+  const ch = new CurrencyHelper({
+    currenciesToCountries,
+  } as unknown as ConfigType);
 
   it('returns true if valid', () => {
     expect(ch.isCurrencyCompatibleWithCountry('EUR', 'FR')).toBe(true);
@@ -119,7 +124,7 @@ describe('getPayPalAmountStringFromAmountInCents', () => {
   const ch = new CurrencyHelper({
     currenciesToCountries,
     subscriptions: payPalEnabledSubscriptionsConfig,
-  });
+  } as unknown as ConfigType);
 
   it('converts amount in cents to amount string', () => {
     expect(ch.getPayPalAmountStringFromAmountInCents(1099)).toBe('10.99');

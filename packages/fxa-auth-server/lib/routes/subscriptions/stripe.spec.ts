@@ -543,7 +543,9 @@ describe('DirectStripeRoutes', () => {
 
     describe('customer is not found', () => {
       it('returns an empty array', async () => {
-        directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue();
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+          undefined
+        );
         const expected: any[] = [];
         const actual =
           await directStripeRoutesInstance.listActive(VALID_REQUEST);

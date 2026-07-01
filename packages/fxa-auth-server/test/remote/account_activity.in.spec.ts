@@ -35,7 +35,7 @@ async function ensureScope(scope: string) {
   // tolerate the unique-key collision when the scope is already present
   // (seeded from config, or left by a prior run on the shared test DB).
   try {
-    await db.registerScope({ scope, hasScopedKeys: false });
+    await (db as any).registerScope({ scope, hasScopedKeys: false });
   } catch (err: any) {
     if (err?.code !== 'ER_DUP_ENTRY') {
       throw err;

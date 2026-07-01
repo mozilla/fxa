@@ -16,7 +16,7 @@ const execOptions = {
     NODE_ENV: 'dev',
     STRIPE_API_KEY: 'sk_test_dummy',
     SUBHUB_STRIPE_APIKEY: 'sk_test_dummy',
-  },
+  } as unknown as typeof process.env,
 };
 
 const command = [

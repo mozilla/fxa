@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import nock from 'nock';
+import zendesk from 'node-zendesk';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
 
@@ -222,13 +223,15 @@ describe('support', () => {
         setupNockForSuccess();
         const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.mock.calls[0][0].request;
+        const zendeskReq = (
+          spy.mock.calls[0][0] as zendesk.Requests.CreatePayload
+        ).request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
         expect(
-          zendeskReq.custom_fields.map((field: any) => field.value)
+          zendeskReq.custom_fields?.map((field: any) => field.value)
         ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
 
@@ -266,13 +269,15 @@ describe('support', () => {
           .reply(200, MOCK_UPDATE_REPLY);
         const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.mock.calls[0][0].request;
+        const zendeskReq = (
+          spy.mock.calls[0][0] as zendesk.Requests.CreatePayload
+        ).request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
         expect(
-          zendeskReq.custom_fields.map((field: any) => field.value)
+          zendeskReq.custom_fields?.map((field: any) => field.value)
         ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
@@ -304,13 +309,15 @@ describe('support', () => {
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.mock.calls[0][0].request;
+        const zendeskReq = (
+          spy.mock.calls[0][0] as zendesk.Requests.CreatePayload
+        ).request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
         expect(
-          zendeskReq.custom_fields.map((field: any) => field.value)
+          zendeskReq.custom_fields?.map((field: any) => field.value)
         ).toEqual(customFieldsOnTicket);
         expect(customs.check).toHaveBeenCalledTimes(1);
         expect(res).toEqual({ success: true, ticket: 91 });
@@ -332,13 +339,15 @@ describe('support', () => {
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.mock.calls[0][0].request;
+        const zendeskReq = (
+          spy.mock.calls[0][0] as zendesk.Requests.CreatePayload
+        ).request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
         expect(
-          zendeskReq.custom_fields.map((field: any) => field.value)
+          zendeskReq.custom_fields?.map((field: any) => field.value)
         ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
@@ -370,8 +379,14 @@ describe('support', () => {
           ...requestOptions,
           payload: { ...requestOptions.payload, brand_id: 12345 },
         });
-        const zendeskReq = spy.mock.calls[0][0].request;
-        expect(zendeskReq.brand_id).toBe(12345);
+        const zendeskReq = (
+          spy.mock.calls[0][0] as zendesk.Requests.CreatePayload
+        ).request;
+        // node-zendesk's CreateModel type omits `brand_id`, though the Zendesk
+        // API accepts it and the route forwards it (see support.ts).
+        expect(
+          (zendeskReq as typeof zendeskReq & { brand_id?: number }).brand_id
+        ).toBe(12345);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
         spy.mockRestore();

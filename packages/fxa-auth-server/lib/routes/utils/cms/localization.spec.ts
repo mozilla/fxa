@@ -407,7 +407,9 @@ describe('CMSLocalization', () => {
         localization.octokit.repos.getContent.mockResolvedValue({
           data: mockFileData,
         });
-        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
 
         await localization.updateExistingPR(123, 'test content');
 
@@ -432,7 +434,9 @@ describe('CMSLocalization', () => {
         localization.octokit.repos.getContent.mockRejectedValue(
           new Error('Not Found')
         );
-        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
 
         await localization.updateExistingPR(123, 'test content');
 
@@ -462,11 +466,13 @@ describe('CMSLocalization', () => {
         localization.octokit.git.getRef.mockResolvedValue({
           data: mockRefData,
         });
-        localization.octokit.git.createRef.mockResolvedValue();
+        localization.octokit.git.createRef.mockResolvedValue(undefined);
         localization.octokit.repos.getContent.mockRejectedValue(
           new Error('Not Found')
         );
-        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
         localization.octokit.pulls.create.mockResolvedValue({
           data: mockPRData,
         });
@@ -505,11 +511,13 @@ describe('CMSLocalization', () => {
         localization.octokit.git.getRef.mockResolvedValue({
           data: mockRefData,
         });
-        localization.octokit.git.createRef.mockResolvedValue();
+        localization.octokit.git.createRef.mockResolvedValue(undefined);
         localization.octokit.repos.getContent.mockResolvedValue({
           data: mockFileData,
         });
-        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
         localization.octokit.pulls.create.mockResolvedValue({
           data: mockPRData,
         });

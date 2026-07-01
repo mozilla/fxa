@@ -47,7 +47,7 @@ describe('#integration - scripts/prune-tokens', () => {
   const toRandomBuff = (size: number) =>
     uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
   const toZeroBuff = (size: number) =>
-    Buffer.from(Array(size).fill(0), 'hex').toString('hex');
+    Buffer.from(Array(size).fill(0) as number[]).toString('hex');
 
   const cwd = path.resolve(__dirname, '../..');
 

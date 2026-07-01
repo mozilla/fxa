@@ -595,7 +595,7 @@ describe('lib/devices:', () => {
         });
 
         expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
-        const args = log.notifyAttachedServices.mock.calls[0];
+        const args = jest.mocked(log.notifyAttachedServices).mock.calls[0];
         expect(args.length).toBe(3);
         expect(args[0]).toBe('device:delete');
         expect(args[1]).toBe(request);

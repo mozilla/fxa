@@ -39,7 +39,10 @@ function generateKeysIfNeeded(): void {
     {
       label: 'auth keys',
       script: path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js'),
-      env: { ...process.env, NODE_ENV: 'dev' },
+      env: {
+        ...process.env,
+        NODE_ENV: 'dev',
+      } as unknown as typeof process.env,
     },
     {
       label: 'OAuth keys',
@@ -48,7 +51,7 @@ function generateKeysIfNeeded(): void {
         ...process.env,
         NODE_ENV: 'dev',
         FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY: 'true',
-      },
+      } as unknown as typeof process.env,
     },
   ];
 
@@ -191,7 +194,7 @@ export default async function globalSetup(): Promise<void> {
         ...process.env,
         NODE_ENV: 'dev',
         MAIL_HELPER_LOGS: printLogs ? 'true' : '',
-      },
+      } as unknown as typeof process.env,
       stdio: printLogs ? 'inherit' : 'ignore',
       detached: true,
     }

@@ -948,7 +948,15 @@ describe('#integration - /v1', function () {
         const code_verifier = 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC';
         const code_challenge = 'SWac3rF5sKcyAtsXGMO9feaKqpzgCoA2zowbi20F_0c';
         const secret2 = unique.secret();
-        const client2 = {
+        const client2: {
+          name: string;
+          hashedSecret: any;
+          redirectUri: string;
+          imageUri: string;
+          trusted: boolean;
+          publicClient: boolean;
+          id?: Buffer;
+        } = {
           name: 'client2Public',
           hashedSecret: encrypt.hash(secret2),
           redirectUri: 'https://example.domain',
@@ -964,7 +972,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  client_id: client2.id.toString('hex'),
+                  client_id: client2.id?.toString('hex'),
                   response_type: 'code',
                   code_challenge_method: 'S256',
                   code_challenge: code_challenge,
@@ -980,7 +988,7 @@ describe('#integration - /v1', function () {
             return Server.api.post({
               url: '/token',
               payload: {
-                client_id: client2.id.toString('hex'),
+                client_id: client2.id?.toString('hex'),
                 code: code,
                 code_verifier: code_verifier,
               },
@@ -1334,7 +1342,14 @@ describe('#integration - /v1', function () {
 
         it('must be a code owned by this client', function () {
           const secret2 = unique.secret();
-          const client2 = {
+          const client2: {
+            name: string;
+            hashedSecret: any;
+            redirectUri: string;
+            imageUri: string;
+            trusted: boolean;
+            id?: Buffer;
+          } = {
             name: 'client2',
             hashedSecret: encrypt.hash(secret2),
             redirectUri: 'https://example.domain',
@@ -1348,7 +1363,7 @@ describe('#integration - /v1', function () {
                 .post({
                   url: '/authorization',
                   payload: authParams({
-                    client_id: client2.id.toString('hex'),
+                    client_id: client2.id?.toString('hex'),
                   }),
                 })
                 .then(function (res) {
@@ -1381,7 +1396,15 @@ describe('#integration - /v1', function () {
             'QnuuNM5gfnJmWwIjiOKk2SKn8A89tph3-8BjNUUtooJ';
           const code_challenge = 'xWVKKAQVD9XSXT4Z4Oh8dLJ5pqrr0gQes2QwZOVJyAk';
           const secret2 = unique.secret();
-          const client2 = {
+          const client2: {
+            name: string;
+            hashedSecret: any;
+            redirectUri: string;
+            imageUri: string;
+            trusted: boolean;
+            publicClient: boolean;
+            id?: Buffer;
+          } = {
             name: 'client2Public',
             hashedSecret: encrypt.hash(secret2),
             redirectUri: 'https://example.domain',
@@ -1399,7 +1422,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  client_id: client2.id.toString('hex'),
+                  client_id: client2.id?.toString('hex'),
                   response_type: 'code',
                   code_challenge_method: 'S256',
                   code_challenge: code_challenge,
@@ -1414,7 +1437,7 @@ describe('#integration - /v1', function () {
                 return Server.api.post({
                   url: '/token',
                   payload: {
-                    client_id: client2.id.toString('hex'),
+                    client_id: client2.id?.toString('hex'),
                     code: code,
                     code_verifier: code_verifier,
                   },
@@ -1435,7 +1458,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  client_id: client2.id.toString('hex'),
+                  client_id: client2.id?.toString('hex'),
                   response_type: 'code',
                   code_challenge_method: 'S256',
                   code_challenge: code_challenge,
@@ -1450,7 +1473,7 @@ describe('#integration - /v1', function () {
                 return Server.api.post({
                   url: '/token',
                   payload: {
-                    client_id: client2.id.toString('hex'),
+                    client_id: client2.id?.toString('hex'),
                     code: code,
                     code_verifier: code_verifier_bad,
                   },
@@ -1470,7 +1493,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  client_id: client2.id.toString('hex'),
+                  client_id: client2.id?.toString('hex'),
                   response_type: 'code',
                   code_challenge_method: 'S256',
                   code_challenge: code_challenge,
@@ -1485,7 +1508,7 @@ describe('#integration - /v1', function () {
                 return Server.api.post({
                   url: '/token',
                   payload: {
-                    client_id: client2.id.toString('hex'),
+                    client_id: client2.id?.toString('hex'),
                     code: code,
                     code_verifier: code_verifier,
                   },
@@ -1502,7 +1525,15 @@ describe('#integration - /v1', function () {
           });
 
           it('must be a code owned by this client', function () {
-            const client3 = {
+            const client3: {
+              name: string;
+              hashedSecret: any;
+              redirectUri: string;
+              imageUri: string;
+              trusted: boolean;
+              publicClient: boolean;
+              id?: Buffer;
+            } = {
               name: 'client3Public',
               hashedSecret: encrypt.hash(secret2),
               redirectUri: 'https://example.domain',
@@ -1517,7 +1548,7 @@ describe('#integration - /v1', function () {
                   .post({
                     url: '/authorization',
                     payload: authParams({
-                      client_id: client3.id.toString('hex'),
+                      client_id: client3.id?.toString('hex'),
                       response_type: 'code',
                       code_challenge_method: 'S256',
                       code_challenge: code_challenge,
@@ -1534,7 +1565,7 @@ describe('#integration - /v1', function () {
                   url: '/token',
                   payload: {
                     // client2 is trying to use client3's code
-                    client_id: client2.id.toString('hex'),
+                    client_id: client2.id?.toString('hex'),
                     code: code,
                     code_verifier: code_verifier,
                   },
