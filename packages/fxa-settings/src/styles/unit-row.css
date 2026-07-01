@@ -15,6 +15,11 @@
 
   &-actions {
     @apply w-full items-baseline mt-2;
+
+    a[class*='cta-'],
+    button[class*='cta-'] {
+      @apply shrink-0 whitespace-nowrap;
+    }
   }
 
   &-hr {
