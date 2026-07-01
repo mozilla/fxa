@@ -46,6 +46,7 @@ describe('lib/devices:', () => {
       db: ReturnType<typeof mocks.mockDB>,
       push: ReturnType<typeof mocks.mockPush>,
       devices: DevicesModule,
+      glean: ReturnType<typeof mocks.mockGlean>,
       pushbox: ReturnType<typeof mocks.mockPushbox>;
 
     beforeEach(() => {
@@ -63,9 +64,10 @@ describe('lib/devices:', () => {
       });
       push = mocks.mockPush();
       pushbox = mocks.mockPushbox();
+      glean = mocks.mockGlean();
       oauthDB.getRefreshToken.mockReset();
       oauthDB.removeRefreshToken.mockReset();
-      devices = devicesModule(log, db, push, pushbox);
+      devices = devicesModule(log, db, push, pushbox, glean);
     });
 
     it('returns the expected interface', () => {
@@ -648,6 +650,28 @@ describe('lib/devices:', () => {
         expect(log.error).toHaveBeenCalledWith(
           'deviceDestroy.revokeRefreshTokenById.error',
           expect.anything()
+        );
+      });
+
+      it('emits the account.deviceDisconnected glean event with the platform from the disconnected device uaOS', async () => {
+        db.deleteDevice = jest.fn(async () => {
+          return { sessionTokenId, refreshTokenId: null };
+        });
+        const disconnectRequest = mocks.mockRequest({
+          log,
+          devices: [{ id: deviceId, uaOS: 'iOS' }, { id: deviceId2 }],
+          credentials,
+        });
+
+        await devices.destroy(disconnectRequest, deviceId);
+
+        expect(glean.account.deviceDisconnected).toHaveBeenCalledTimes(1);
+        expect(glean.account.deviceDisconnected).toHaveBeenCalledWith(
+          disconnectRequest,
+          {
+            uid: credentials.uid,
+            platform: 'ios',
+          }
         );
       });
     });

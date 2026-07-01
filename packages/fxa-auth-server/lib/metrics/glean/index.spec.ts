@@ -65,6 +65,8 @@ jest.mock('./server_events', () => ({
     ),
     recordAccountDeleteComplete: mockFn('recordAccountDeleteComplete'),
     recordAccountDeleteTaskHandled: mockFn('recordAccountDeleteTaskHandled'),
+    recordAccountDeviceDisconnected: mockFn('recordAccountDeviceDisconnected'),
+    recordAccountSessionDestroyed: mockFn('recordAccountSessionDestroyed'),
     recordPasswordResetEmailConfirmationSent: mockFn(
       'recordPasswordResetEmailConfirmationSent'
     ),
@@ -513,6 +515,32 @@ describe('Glean server side events', () => {
       expect(gleanMocks['recordAccountDeleteComplete']).toHaveBeenCalledTimes(
         1
       );
+    });
+
+    it('logs a "account_device_disconnected" event with the platform', async () => {
+      await glean.account.deviceDisconnected(request, {
+        platform: 'ios',
+      });
+      expect(recordMock).toHaveBeenCalledTimes(1);
+      expect(recordMock.mock.calls[0][0]['event_name']).toBe(
+        'account_device_disconnected'
+      );
+      expect(
+        gleanMocks['recordAccountDeviceDisconnected']
+      ).toHaveBeenCalledTimes(1);
+      const recorded =
+        gleanMocks['recordAccountDeviceDisconnected'].mock.calls[0][0];
+      expect(recorded.platform).toBe('ios');
+    });
+
+    it('defaults platform to unknown when omitted', async () => {
+      await glean.account.sessionDestroyed(request);
+      expect(gleanMocks['recordAccountSessionDestroyed']).toHaveBeenCalledTimes(
+        1
+      );
+      const recorded =
+        gleanMocks['recordAccountSessionDestroyed'].mock.calls[0][0];
+      expect(recorded.platform).toBe('unknown');
     });
   });
 

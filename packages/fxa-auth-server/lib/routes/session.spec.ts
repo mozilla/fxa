@@ -775,6 +775,16 @@ describe('/session/destroy', () => {
     });
   });
 
+  it('emits the account.sessionDestroyed glean event', () => {
+    return runTest(route, request).then(() => {
+      expect(gleanMock.account.sessionDestroyed).toHaveBeenCalledTimes(1);
+      expect(gleanMock.account.sessionDestroyed).toHaveBeenCalledWith(request, {
+        uid: 'foo',
+        platform: 'desktop',
+      });
+    });
+  });
+
   it('responds correctly when custom session is destroyed', () => {
     db.sessionToken = jest.fn(() => {
       return Promise.resolve({

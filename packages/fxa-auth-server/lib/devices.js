@@ -16,6 +16,7 @@ const PUSH_SERVER_REGEX = require('../config').default.get(
   'push.allowedServerRegex'
 );
 const { synthesizeClientName } = require('fxa-shared/connected-services');
+const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { reportSentryError } = require('./sentry');
 
 const SCHEMA = {
@@ -47,7 +48,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, push, pushbox) => {
+module.exports = (log, db, push, pushbox, glean) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -174,6 +175,7 @@ module.exports = (log, db, push, pushbox) => {
     // We want to include the disconnected device in the list
     // of devices to notify, so list them before disconnecting.
     const peers = await request.app.devices;
+    const disconnectedDevice = peers.find((d) => d && d.id === deviceId);
 
     const uid = request.auth.credentials.uid;
     const deletedDevice = await db.deleteDevice(uid, deviceId);
@@ -218,6 +220,14 @@ module.exports = (log, db, push, pushbox) => {
       id: deviceId,
       timestamp: Date.now(),
     });
+
+    // Best-effort telemetry; don't let a Glean failure fail the disconnect.
+    glean.account
+      .deviceDisconnected(request, {
+        uid,
+        platform: platformFromOS(disconnectedDevice?.uaOS),
+      })
+      ?.catch(() => {});
 
     return deletedDevice;
   }
