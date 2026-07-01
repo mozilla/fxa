@@ -44,8 +44,10 @@ describe('CheckoutTokenManager', () => {
       const result = await checkoutTokenManager.get(currencyCode);
 
       expect(result).toEqual(successfulSetExpressCheckoutResponse.TOKEN);
-      expect(paypalClient.setExpressCheckout).toBeCalledTimes(1);
-      expect(paypalClient.setExpressCheckout).toBeCalledWith({ currencyCode });
+      expect(paypalClient.setExpressCheckout).toHaveBeenCalledTimes(1);
+      expect(paypalClient.setExpressCheckout).toHaveBeenCalledWith({
+        currencyCode,
+      });
     });
   });
 });

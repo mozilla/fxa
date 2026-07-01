@@ -3,9 +3,14 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/payments/next",
   "projectType": "application",
+  "tags": ["app", "payments", "type:sp3"],
   "targets": {
     "build": {
-      "dependsOn": ["l10n-bundle", "glean-generate", "payments-metrics:glean-generate-frontend"]
+      "dependsOn": [
+        "l10n-bundle",
+        "glean-generate",
+        "payments-metrics:glean-generate-frontend"
+      ]
     },
     "dev": {
       "options": {
@@ -39,7 +44,11 @@
     },
     "start": {
       "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__",
-      "dependsOn": ["l10n-bundle", "glean-generate", "payments-metrics:glean-generate-frontend"]
+      "dependsOn": [
+        "l10n-bundle",
+        "glean-generate",
+        "payments-metrics:glean-generate-frontend"
+      ]
     },
     "stop": {
       "command": "pm2 stop apps/payments/next/pm2.config.js"
@@ -56,9 +65,7 @@
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl",
       "dependsOn": ["l10n-prime"],
       "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/app/**/en.ftl"],
-      "outputs": [
-        "{projectRoot}/public/locales/en/payments-next.ftl"
-      ]
+      "outputs": ["{projectRoot}/public/locales/en/payments-next.ftl"]
     },
     "l10n-prime": {
       "command": "./_scripts/l10n/prime.sh apps/payments/next"
@@ -74,9 +81,7 @@
         "{projectRoot}/public/locales/**/payments-next.ftl",
         "{projectRoot}/public/locales/**/react.ftl"
       ],
-      "outputs": [
-        "{projectRoot}/public/locales/**/main.ftl"
-      ]
+      "outputs": ["{projectRoot}/public/locales/**/main.ftl"]
     },
     "watchers": {
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
@@ -99,6 +104,5 @@
         "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
       ]
     }
-  },
-  "tags": ["app", "payments", "type:sp3"]
+  }
 }

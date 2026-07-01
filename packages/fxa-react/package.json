@@ -13,13 +13,13 @@
   },
   "scripts": {
     "prebuild": "nx l10n-prime",
-    "build": "nx build-l10n && nx build-css && nx build-ts",
-    "build-fast": "yarn build",
+    "build": "exit 0",
+    "build-fast": "exit 0",
     "build-css": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-ts": "tsc --build && tsc-alias",
-    "build-storybook": "nx build-l10n && NODE_ENV=production yarn build-css && storybook build",
-    "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
-    "compile": "nx build-ts",
+    "build-storybook": "NODE_ENV=production yarn build-css && storybook build",
+    "build-l10n": "exit 0",
+    "compile": "exit 0",
     "clean": "rimraf dist",
     "l10n-bundle": "yarn l10n:bundle packages/fxa-react branding,react",
     "l10n-prime": "yarn l10n:prime packages/fxa-react",
@@ -74,7 +74,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "27.5.1",
     "jest-environment-jsdom": "^27.5.1",
-    "nx": "21.2.4",
+    "nx": "^23.0.1",
     "pm2": "^6.0.14",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
@@ -112,6 +112,43 @@
     "tags": [
       "scope:shared:lib",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "dependsOn": ["^build"],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      },
+      "l10n-merge": {
+        "dependsOn": ["prebuild"]
+      },
+      "l10n-merge-test": {
+        "dependsOn": ["prebuild"]
+      },
+      "l10n-bundle": {
+        "dependsOn": ["l10n-merge"]
+      },
+      "build-l10n": {
+        "dependsOn": ["l10n-bundle", "l10n-merge-test"]
+      },
+      "build": {
+        "dependsOn": ["prebuild", "^build", "build-l10n", "build-css", "build-ts"]
+      },
+      "build-fast": {
+        "dependsOn": ["build"]
+      },
+      "build-storybook": {
+        "dependsOn": ["prebuild", "^build", "build-l10n"]
+      },
+      "compile": {
+        "dependsOn": ["build-ts"]
+      }
+    }
   }
 }

@@ -79,7 +79,6 @@
       "outputs": []
     },
     "storybook": {
-      "dependsOn": ["build"],
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/storybook-static"]
     },
@@ -95,7 +94,6 @@
       "cache": true
     },
     "test-e2e": {
-      "dependsOn": ["build"],
       "inputs": ["production", "^production"],
       "outputs": [
         "{workspaceRoot}/artifacts/tests",
@@ -259,5 +257,8 @@
     "ciMode": "read-write",
     "region": "us-east-1",
     "endpoint": "https://storage.googleapis.com"
-  }
+  },
+  "parallel": 5,
+  "useDaemonProcess": false,
+  "analytics": false
 }

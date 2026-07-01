@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ // @ts-ignore
+import './styles/tailwind.out.css';
+
 import React from 'react';
 import { render } from 'react-dom';
 import sentryMetrics from 'fxa-shared/sentry/browser';
@@ -13,7 +16,6 @@ import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
-import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { navigate } from '@reach/router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';

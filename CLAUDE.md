@@ -67,7 +67,7 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 - **Core subset:** `yarn start mza`
 - **Ports:** `yarn ports`
 - **Nx:** `nx build <pkg>`, `nx lint <pkg>`, `nx test-unit <pkg>`, `nx test-integration <pkg>`, `nx start <pkg>`
-- **Pkg scripts:** `cd packages/<name> && yarn <script>`
+- **Pkg scripts:** `cd packages/<name> && yarn <script>` — Run these through Nx (`nx build <pkg>`, `nx build-storybook <pkg>`); invoking them with plain `yarn` will **not** run their dependency steps.
 - **L10N:** `yarn l10n:prime`
 - **DB migrations:** add new SQL under `packages/db-migrations/databases/fxa/patches/` → `nx run db-migrations:migrate`
   **Never edit existing published migration files.**

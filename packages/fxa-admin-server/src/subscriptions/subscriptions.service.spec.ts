@@ -149,14 +149,14 @@ describe('Subscription Service', () => {
 
     const subscriptions = await service.getSubscriptions(uid);
     expect(subscriptions).toEqual([]);
-    expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(
+    expect(mockAllAbbrevPlans).toHaveBeenCalledTimes(1);
+    expect(mockFetchCustomers).toHaveBeenCalledWith(
       uid,
       ['subscriptions'],
       subscriptionStatusTypes
     );
-    expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
-    expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
+    expect(mockAppStoreGetSubscriptions).toHaveBeenCalledWith(uid);
+    expect(mockPlayStoreGetSubscriptions).toHaveBeenCalledWith(uid);
   });
 
   it('should provide stripe subscriptions', async () => {
@@ -223,15 +223,15 @@ describe('Subscription Service', () => {
         manageSubscriptionLink,
       },
     ]);
-    expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(
+    expect(mockAllAbbrevPlans).toHaveBeenCalledTimes(1);
+    expect(mockFetchCustomers).toHaveBeenCalledWith(
       uid,
       ['subscriptions'],
       subscriptionStatusTypes
     );
-    expect(mockCreateManageSubscriptionLink).toBeCalledWith(customerId);
-    expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
-    expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
+    expect(mockCreateManageSubscriptionLink).toHaveBeenCalledWith(customerId);
+    expect(mockAppStoreGetSubscriptions).toHaveBeenCalledWith(uid);
+    expect(mockPlayStoreGetSubscriptions).toHaveBeenCalledWith(uid);
   });
 
   it('should provide app store subscriptions', async () => {
@@ -288,14 +288,14 @@ describe('Subscription Service', () => {
         subscriptionId,
       },
     ]);
-    expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(
+    expect(mockAllAbbrevPlans).toHaveBeenCalledTimes(1);
+    expect(mockFetchCustomers).toHaveBeenCalledWith(
       uid,
       ['subscriptions'],
       subscriptionStatusTypes
     );
-    expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
-    expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
+    expect(mockAppStoreGetSubscriptions).toHaveBeenCalledWith(uid);
+    expect(mockPlayStoreGetSubscriptions).toHaveBeenCalledWith(uid);
   });
 
   it('should throw an error when apple IAP subscription has no stripe plan', async () => {
@@ -395,14 +395,14 @@ describe('Subscription Service', () => {
         status,
       },
     ]);
-    expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(
+    expect(mockAllAbbrevPlans).toHaveBeenCalledTimes(1);
+    expect(mockFetchCustomers).toHaveBeenCalledWith(
       uid,
       ['subscriptions'],
       subscriptionStatusTypes
     );
-    expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
-    expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
+    expect(mockAppStoreGetSubscriptions).toHaveBeenCalledWith(uid);
+    expect(mockPlayStoreGetSubscriptions).toHaveBeenCalledWith(uid);
   });
 
   it('should throw an error when play store IAP subscription has no stripe plan', async () => {
@@ -460,11 +460,11 @@ describe('Subscription Service', () => {
 
       const subscriptions = await service.getSubscriptions(uid);
       expect(subscriptions).toEqual([]);
-      expect(mockAllAbbrevPlans).toBeCalledTimes(0);
-      expect(mockFetchCustomers).toBeCalledTimes(0);
-      expect(mockCreateManageSubscriptionLink).toBeCalledTimes(0);
-      expect(mockAppStoreGetSubscriptions).toBeCalledTimes(0);
-      expect(mockPlayStoreGetSubscriptions).toBeCalledTimes(0);
+      expect(mockAllAbbrevPlans).toHaveBeenCalledTimes(0);
+      expect(mockFetchCustomers).toHaveBeenCalledTimes(0);
+      expect(mockCreateManageSubscriptionLink).toHaveBeenCalledTimes(0);
+      expect(mockAppStoreGetSubscriptions).toHaveBeenCalledTimes(0);
+      expect(mockPlayStoreGetSubscriptions).toHaveBeenCalledTimes(0);
     });
   });
 });

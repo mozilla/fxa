@@ -5153,6 +5153,7 @@ describe('/account/emails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     log = mocks.mockLog();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     db = {
       account: jest.fn().mockResolvedValue({

@@ -105,7 +105,7 @@ describe('AppleIapService', () => {
           mockOriginalTransactionId,
           mockUserId
         )
-      ).rejects.toThrowError(AppleIapInvalidOriginalTransactionIdError);
+      ).rejects.toThrow(AppleIapInvalidOriginalTransactionIdError);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.any(AppleIapInvalidOriginalTransactionIdError)
@@ -127,7 +127,7 @@ describe('AppleIapService', () => {
           mockOriginalTransactionId,
           mockUserId
         )
-      ).rejects.toThrowError(AppleIapConflictError);
+      ).rejects.toThrow(AppleIapConflictError);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.any(AppleIapConflictError)
