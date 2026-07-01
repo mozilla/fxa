@@ -146,7 +146,7 @@
     "semver": "^7.7.1",
     "set-value": "^4.1.0",
     "sms-segments-calculator": "^1.2.0",
-    "stripe": "17.4.0",
+    "stripe": "22.3.1",
     "superagent": "^10.2.0",
     "tslib": "^2.8.1",
     "twilio": "5.3.5",
@@ -315,10 +315,12 @@
     "plist": "^3.0.6",
     "sha.js": "^2.4.12",
     "underscore": ">=1.13.2",
-    "intel@npm:^1.2.0": "patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch"
+    "intel@npm:^1.2.0": "patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch",
+    "stripe@npm:22.3.1": "patch:stripe@npm%3A22.3.1#~/.yarn/patches/stripe-npm-22.3.1-291b1ac8f8.patch"
   },
   "resolutionComments": {
-    "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)"
+    "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)",
+    "stripe@npm:22.3.1": "patched to re-add the top-level `types` field that stripe 22 dropped (exports-only package), so TypeScript resolves the SDK without a `paths` alias — regenerate the patch on the next stripe upgrade"
   },
   "packageManager": "yarn@4.9.2"
 }

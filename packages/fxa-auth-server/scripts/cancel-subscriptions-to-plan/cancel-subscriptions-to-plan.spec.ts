@@ -442,9 +442,9 @@ describe('PlanCanceller', () => {
     let refundCreateStub: jest.Mock;
     let refundInvoiceStub: jest.Mock;
     const mockFullRefundInvoice = {
-      charge: 'ch_123',
+      payments: { data: [{ payment: { charge: 'ch_123' } }] },
       amount_due: 1000,
-      paid_out_of_band: false,
+      collection_method: 'charge_automatically',
     };
 
     beforeEach(() => {
@@ -471,7 +471,7 @@ describe('PlanCanceller', () => {
 
       it('creates refund', () => {
         expect(refundCreateStub).toHaveBeenCalledWith({
-          charge: mockFullRefundInvoice.charge,
+          charge: mockFullRefundInvoice.payments.data[0].payment.charge,
         });
       });
 
@@ -484,7 +484,7 @@ describe('PlanCanceller', () => {
     describe('PayPal refund', () => {
       const mockPaypalInvoice = {
         ...mockFullRefundInvoice,
-        paid_out_of_band: true,
+        collection_method: 'send_invoice',
       };
 
       beforeEach(async () => {
@@ -522,7 +522,7 @@ describe('PlanCanceller', () => {
       it('throws if invoice has no charge', async () => {
         invoiceRetrieveStub.mockResolvedValue({
           ...mockFullRefundInvoice,
-          charge: null,
+          payments: { data: [{ payment: { charge: null } }] },
         });
         await expect(
           planCanceller.attemptFullRefund(mockSubscription)
@@ -538,14 +538,22 @@ describe('PlanCanceller', () => {
     const now = Math.floor(Date.now() / 1000);
     const mockProratedSubscription = {
       ...mockSubscription,
-      current_period_start: now - 86400 * 2,
-      current_period_end: now + 86400 * 28,
+      items: {
+        ...mockSubscription.items,
+        data: [
+          {
+            ...mockSubscription.items.data[0],
+            current_period_start: now - 86400 * 2,
+            current_period_end: now + 86400 * 28,
+          },
+        ],
+      },
     };
     const mockProratedInvoice = {
-      charge: 'ch_123',
+      payments: { data: [{ payment: { charge: 'ch_123' } }] },
       amount_due: 10000,
-      paid: true,
-      paid_out_of_band: false,
+      status: 'paid',
+      collection_method: 'charge_automatically',
       created: Math.floor(Date.now() / 1000) - 86400,
     };
 
@@ -589,7 +597,7 @@ describe('PlanCanceller', () => {
 
         const oneDayMs = 1000 * 60 * 60 * 24;
         const periodEnd = new Date(
-          mockProratedSubscription.current_period_end * 1000
+          mockProratedSubscription.items.data[0].current_period_end * 1000
         );
         const nowTime = new Date();
         const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
@@ -598,7 +606,7 @@ describe('PlanCanceller', () => {
 
         expect(refundCreateStub).toHaveBeenCalledWith(
           expect.objectContaining({
-            charge: mockProratedInvoice.charge,
+            charge: mockProratedInvoice.payments.data[0].payment.charge,
             amount: expectedRefund,
           })
         );
@@ -608,7 +616,7 @@ describe('PlanCanceller', () => {
     describe('PayPal refund - partial', () => {
       const mockPaypalInvoice = {
         ...mockProratedInvoice,
-        paid_out_of_band: true,
+        collection_method: 'send_invoice',
       };
 
       beforeEach(async () => {
@@ -621,7 +629,7 @@ describe('PlanCanceller', () => {
       it('calls PayPal refund with partial amount', () => {
         const oneDayMs = 1000 * 60 * 60 * 24;
         const periodEnd = new Date(
-          mockProratedSubscription.current_period_end * 1000
+          mockProratedSubscription.items.data[0].current_period_end * 1000
         );
         const nowTime = new Date();
         const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
@@ -662,7 +670,7 @@ describe('PlanCanceller', () => {
       it('throws if invoice is not paid', async () => {
         invoiceRetrieveStub.mockResolvedValue({
           ...mockProratedInvoice,
-          paid: false,
+          status: 'open',
         });
         await expect(
           planCanceller.attemptProratedRefund(mockProratedSubscription as any)
@@ -683,7 +691,7 @@ describe('PlanCanceller', () => {
       it('throws if invoice has no charge for Stripe refund', async () => {
         invoiceRetrieveStub.mockResolvedValue({
           ...mockProratedInvoice,
-          charge: null,
+          payments: { data: [{ payment: { charge: null } }] },
         });
         await expect(
           planCanceller.attemptProratedRefund(mockProratedSubscription as any)

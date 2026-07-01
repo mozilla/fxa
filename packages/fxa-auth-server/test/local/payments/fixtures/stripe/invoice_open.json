@@ -11,7 +11,6 @@
   "attempted": true,
   "auto_advance": false,
   "billing_reason": "subscription_create",
-  "charge": "ch_1EPZyOJNcmPzuWtRKcc9Fyos",
   "collection_method": "charge_automatically",
   "created": 1555354567,
   "currency": "usd",
@@ -28,7 +27,6 @@
   "default_source": null,
   "default_tax_rates": [],
   "description": null,
-  "discount": null,
   "due_date": null,
   "ending_balance": 0,
   "footer": null,
@@ -41,7 +39,7 @@
         "object": "line_item",
         "amount": 499,
         "currency": "usd",
-        "description": "1 × Firefox Private Network (at $4.99 / month)",
+        "description": "1 \u00d7 Firefox Private Network (at $4.99 / month)",
         "discountable": true,
         "livemode": false,
         "metadata": {},
@@ -49,66 +47,27 @@
           "end": 1584220861,
           "start": 1581715261
         },
-        "plan": {
-          "id": "plan_FxFGE9jvhYvCMe",
-          "object": "plan",
-          "active": true,
-          "aggregate_usage": null,
-          "amount": 499,
-          "amount_decimal": "499",
-          "billing_scheme": "per_unit",
-          "created": 1570549157,
-          "currency": "usd",
-          "interval": "month",
-          "interval_count": 1,
-          "livemode": false,
-          "metadata": {
-            "upgrades": "plan_FiII5wajzrxfrl"
+        "quantity": 1,
+        "tax_rates": [],
+        "pricing": {
+          "price_details": {
+            "price": "plan_FxFGE9jvhYvCMe",
+            "product": "prod_GvH2k78kKusAlV"
           },
-          "nickname": "Monthly",
-          "product": "prod_FxFGtsTRZ8NHbi",
-          "tiers": null,
-          "tiers_mode": null,
-          "transform_usage": null,
-          "trial_period_days": null,
-          "usage_type": "licensed"
-        },
-        "price": {
-          "id": "plan_FxFGE9jvhYvCMe",
-          "object": "price",
-          "active": true,
-          "billing_scheme": "per_unit",
-          "created": 1570549157,
-          "currency": "usd",
-          "custom_unit_amount": null,
-          "livemode": false,
-          "lookup_key": null,
-          "metadata": {
-            "upgrades": "plan_FiII5wajzrxfrl"
-          },
-          "nickname": null,
-          "product": "prod_GvH2k78kKusAlV",
-          "recurring": {
-            "aggregate_usage": null,
-            "interval": "month",
-            "interval_count": 1,
-            "trial_period_days": null,
-            "usage_type": "licensed"
-          },
-          "tax_behavior": "exclusive",
-          "tiers_mode": null,
-          "transform_quantity": null,
-          "type": "recurring",
-          "unit_amount": 499,
+          "type": "price_details",
           "unit_amount_decimal": "499"
         },
-        "proration": false,
-        "quantity": 1,
-        "subscription": "sub_GY2uVWIDdywa3l",
-        "subscription_item": "si_GY2u5UxXBWUS22",
-        "tax_amounts": [],
-        "tax_rates": [],
-        "type": "subscription"
+        "parent": {
+          "type": "subscription_item_details",
+          "subscription_item_details": {
+            "subscription": "sub_GY2uVWIDdywa3l",
+            "subscription_item": "si_GY2u5UxXBWUS22",
+            "proration": false,
+            "proration_details": null
+          },
+          "invoice_item_details": null
+        },
+        "taxes": []
       }
     ],
     "has_more": false,
@@ -119,8 +78,6 @@
   "metadata": {},
   "next_payment_attempt": null,
   "number": "3B74E3D0-0001",
-  "paid": true,
-  "payment_intent": "pi_1EPZyNJNcmPzuWtR9U3SsJ4w",
   "period_end": 1555354567,
   "period_start": 1555354567,
   "post_payment_credit_notes_amount": 0,
@@ -135,11 +92,31 @@
     "paid_at": 1555354568,
     "voided_at": null
   },
-  "subscription": "sub_EtMh0Ty6MEtjdv",
   "subtotal": 1000,
-  "tax": null,
   "tax_percent": null,
   "total": 1000,
-  "total_tax_amounts": [],
-  "webhooks_delivered_at": 1555354569
+  "webhooks_delivered_at": 1555354569,
+  "parent": {
+    "type": "subscription_details",
+    "subscription_details": {
+      "subscription": "sub_EtMh0Ty6MEtjdv"
+    }
+  },
+  "payments": {
+    "object": "list",
+    "data": [
+      {
+        "payment": {
+          "payment_intent": "pi_1EPZyNJNcmPzuWtR9U3SsJ4w",
+          "charge": "ch_1EPZyOJNcmPzuWtRKcc9Fyos"
+        },
+        "status": "open"
+      }
+    ],
+    "has_more": false,
+    "total_count": 1,
+    "url": ""
+  },
+  "discounts": [],
+  "total_taxes": []
 }

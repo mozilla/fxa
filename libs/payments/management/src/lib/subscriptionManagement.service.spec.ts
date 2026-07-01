@@ -1189,7 +1189,12 @@ describe('SubscriptionManagementService', () => {
         status: 'past_due',
         trial_end: trialEnd,
         trial_start: trialStart,
-        current_period_start: trialEnd,
+        items: {
+          object: 'list',
+          data: [StripeSubscriptionItemFactory({ current_period_start: trialEnd })],
+          has_more: false,
+          url: '',
+        },
       });
       const mockTrialContent = TrialSubscriptionContentFactory({
         conversionStatus: 'past_due',
@@ -1511,7 +1516,6 @@ describe('SubscriptionManagementService', () => {
         status: 'past_due',
         trial_end: trialEnd,
         trial_start: trialStart,
-        current_period_start: trialEnd,
         latest_invoice: latestInvoiceId,
         currency: 'usd',
       });

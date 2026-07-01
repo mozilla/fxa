@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { writeFile } from 'fs/promises';
 import PQueue from 'p-queue';
 
@@ -223,7 +223,7 @@ export class PlanCanceller {
       this.stripe.invoices.retrieve(latestInvoiceId)
     );
 
-    if (invoice.paid_out_of_band) {
+    if (invoice.collection_method === 'send_invoice') {
       console.log(`Issuing full Paypal refund for ${invoice.id}`);
       if (this.dryRun) {
         console.log('(dry run mode, no refund issued)');
@@ -231,10 +231,8 @@ export class PlanCanceller {
         await this.paypalHelper.refundInvoice(invoice);
       }
     } else {
-      const chargeId =
-        typeof invoice.charge === 'string'
-          ? invoice.charge
-          : invoice.charge?.id;
+      const charge = invoice.payments?.data[0]?.payment.charge;
+      const chargeId = typeof charge === 'string' ? charge : charge?.id;
       if (!chargeId) {
         throw new Error(`No charge for ${invoice.id}`);
       }
@@ -277,14 +275,18 @@ export class PlanCanceller {
       this.stripe.invoices.retrieve(latestInvoiceId)
     );
 
-    if (!invoice.paid) {
+    if (invoice.status !== 'paid') {
       throw new Error("Customer is pending renewal right now!");
     }
 
     const oneDayMs = 1000 * 60 * 60 * 24;
 
-    const periodStart = new Date(subscription.current_period_start * 1000);
-    const periodEnd = new Date(subscription.current_period_end * 1000);
+    const periodStart = new Date(
+      subscription.items.data[0].current_period_start * 1000
+    );
+    const periodEnd = new Date(
+      subscription.items.data[0].current_period_end * 1000
+    );
     const now = new Date();
 
     const timeElapsedMs = now.getTime() - periodStart.getTime();
@@ -311,7 +313,7 @@ export class PlanCanceller {
       throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it is less than or equal to zero`);
     }
 
-    if (invoice.paid_out_of_band) {
+    if (invoice.collection_method === 'send_invoice') {
       const behavior = refundAmount === invoice.amount_due ? {
         refundType: RefundType.Full
       } as const : {
@@ -326,8 +328,8 @@ export class PlanCanceller {
         await this.paypalHelper.refundInvoice(invoice, behavior);
       }
     } else {
-      const chargeId =
-        typeof invoice.charge === 'string' ? invoice.charge : invoice.charge?.id;
+      const charge = invoice.payments?.data[0]?.payment.charge;
+      const chargeId = typeof charge === 'string' ? charge : charge?.id;
       if (!chargeId) {
         throw new Error(`No charge for ${invoice.id}`);
       }

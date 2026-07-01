@@ -34,8 +34,8 @@ const mockStripeCustomersCreate =
   mockJestFnGenerator<typeof Stripe.prototype.customers.create>();
 const mockStripeCustomersUpdate =
   mockJestFnGenerator<typeof Stripe.prototype.customers.update>();
-const mockStripeRetrieveUpcomingInvoice =
-  mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieveUpcoming>();
+const mockStripeCreatePreviewInvoice =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.createPreview>();
 const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
@@ -69,8 +69,8 @@ const mockStripeSetupIntentsCreate =
 const mockStripeSetupIntentsRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.setupIntents.retrieve>();
 
-jest.mock('stripe', () => ({
-  Stripe: function () {
+jest.mock('stripe', () => {
+  const Stripe = function () {
     return {
       on: jest.fn(),
       customers: {
@@ -81,7 +81,7 @@ jest.mock('stripe', () => ({
       invoices: {
         finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
         retrieve: mockStripeInvoicesRetrieve,
-        retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
+        createPreview: mockStripeCreatePreviewInvoice,
       },
       paymentMethods: {
         attach: mockStripePaymentMethodsAttach,
@@ -110,8 +110,12 @@ jest.mock('stripe', () => ({
         retrieve: mockStripeSetupIntentsRetrieve,
       },
     };
-  },
-}));
+  };
+  // Factories build `*_decimal` fields via `Stripe.Decimal.from`; keep the real
+  // helper on the mocked constructor so it isn't dropped.
+  Object.assign(Stripe, { Decimal: jest.requireActual('stripe').Decimal });
+  return { __esModule: true, default: Stripe, Stripe };
+});
 
 describe('StripeClient', () => {
   let stripeClient: StripeClient;
@@ -187,6 +191,22 @@ describe('StripeClient', () => {
       });
       expect(result).toEqual(mockSubscriptionList);
     });
+
+    it('expands the nested discount coupon', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscriptionList = StripeResponseFactory(
+        StripeApiListFactory([StripeSubscriptionFactory()])
+      );
+
+      mockStripeSubscriptionsList.mockResolvedValue(mockSubscriptionList);
+
+      await stripeClient.subscriptionsList({ customer: mockCustomer.id });
+
+      expect(mockStripeSubscriptionsList).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        expand: ['data.discounts.source.coupon'],
+      });
+    });
   });
 
   describe('subscriptionsListGenerator', () => {
@@ -248,6 +268,20 @@ describe('StripeClient', () => {
       );
       expect(result).toEqual(mockResponse);
     });
+
+    it('expands the nested discount coupon', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      mockStripeSubscriptionsRetrieve.mockResolvedValue(mockResponse);
+
+      await stripeClient.subscriptionsRetrieve(mockSubscription.id);
+
+      expect(mockStripeSubscriptionsRetrieve).toHaveBeenCalledWith(
+        mockSubscription.id,
+        { expand: ['discounts.source.coupon'] }
+      );
+    });
   });
 
   describe('subscriptionsUpdate', () => {
@@ -278,17 +312,35 @@ describe('StripeClient', () => {
 
       expect(result).toEqual(mockResponse);
     });
+
+    it('expands confirmation_secret, discounts, and nested tax rates', async () => {
+      const mockInvoice = StripeInvoiceFactory();
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeInvoicesRetrieve.mockResolvedValue(mockResponse);
+
+      await stripeClient.invoicesRetrieve(mockInvoice.id);
+
+      expect(mockStripeInvoicesRetrieve).toHaveBeenCalledWith(mockInvoice.id, {
+        expand: [
+          'confirmation_secret',
+          'discounts',
+          'lines.data.taxes.tax_rate_details.tax_rate',
+          'total_taxes.tax_rate_details.tax_rate',
+        ],
+      });
+    });
   });
 
-  describe('invoicesRetrieveUpcoming', () => {
+  describe('invoicesCreatePreview', () => {
     it('calls stripe successfully', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockInvoice = StripeUpcomingInvoiceFactory();
       const mockResponse = StripeResponseFactory(mockInvoice);
 
-      mockStripeRetrieveUpcomingInvoice.mockResolvedValue(mockResponse);
+      mockStripeCreatePreviewInvoice.mockResolvedValue(mockResponse);
 
-      const result = await stripeClient.invoicesRetrieveUpcoming({
+      const result = await stripeClient.invoicesCreatePreview({
         customer: mockCustomer.id,
       });
 
@@ -372,6 +424,22 @@ describe('StripeClient', () => {
       });
       expect(result).toEqual(mockResponse);
     });
+
+    it('expands the nested promotion coupon', async () => {
+      const mockPromoCode = StripePromotionCodeFactory();
+      const mockResponse = StripeResponseFactory(
+        StripeApiListFactory([mockPromoCode])
+      );
+
+      mockStripePromotionCodesList.mockResolvedValue(mockResponse);
+
+      await stripeClient.promotionCodesList({ code: mockPromoCode.code });
+
+      expect(mockStripePromotionCodesList).toHaveBeenCalledWith({
+        code: mockPromoCode.code,
+        expand: ['data.promotion.coupon'],
+      });
+    });
   });
 
   describe('promotionCodesRetrieve', () => {
@@ -385,6 +453,20 @@ describe('StripeClient', () => {
         mockPromoCode.id
       );
       expect(result).toEqual(mockResponse);
+    });
+
+    it('expands the nested promotion coupon', async () => {
+      const mockPromoCode = StripePromotionCodeFactory();
+      const mockResponse = StripeResponseFactory(mockPromoCode);
+
+      mockStripePromotionCodesRetrieve.mockResolvedValue(mockResponse);
+
+      await stripeClient.promotionCodesRetrieve(mockPromoCode.id);
+
+      expect(mockStripePromotionCodesRetrieve).toHaveBeenCalledWith(
+        mockPromoCode.id,
+        { expand: ['promotion.coupon'] }
+      );
     });
   });
 

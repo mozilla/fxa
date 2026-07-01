@@ -325,7 +325,7 @@ export class SubscriptionManagementService {
         const isFailedTrialConversion =
           sub.status === 'past_due' &&
           sub.trial_end !== null &&
-          sub.current_period_start === sub.trial_end;
+          item.current_period_start === sub.trial_end;
 
         const isTrial = sub.status === 'trialing' || isFailedTrialConversion;
         if (isTrial) {
@@ -560,7 +560,8 @@ export class SubscriptionManagementService {
       subsequentTax,
     } = upcomingInvoice;
 
-    const nextPromotionName = subscription.discount?.coupon.name ?? null;
+    const nextPromotionName =
+      subscription.discounts[0]?.source?.coupon.name ?? null;
 
     const totalExclusiveTax = taxAmounts
       .filter((tax) => !tax.inclusive)
@@ -591,7 +592,7 @@ export class SubscriptionManagementService {
           : totalExclusiveTax
             ? (totalExcludingTax ?? totalAmount)
             : totalAmount,
-      currentPeriodEnd: subscription.current_period_end,
+      currentPeriodEnd: subscription.items.data[0].current_period_end,
       currentInvoiceDate,
       currentInvoiceUrl,
       nextInvoiceDate,
@@ -840,7 +841,7 @@ export class SubscriptionManagementService {
         cmsPurchase.purchaseDetails.productName;
       const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
       const webIcon = cmsPurchase.purchaseDetails.webIcon;
-      const currentPeriodEnd = subscription.current_period_end;
+      const currentPeriodEnd = subscription.items.data[0].current_period_end;
 
       const upcomingInvoice =
         await this.invoiceManager.previewUpcomingSubscription({
@@ -962,7 +963,7 @@ export class SubscriptionManagementService {
         cmsPurchase.purchaseDetails.localizations[0]?.productName ||
         cmsPurchase.purchaseDetails.productName;
       const webIcon = cmsPurchase.purchaseDetails.webIcon;
-      const currentPeriodEnd = subscription.current_period_end;
+      const currentPeriodEnd = subscription.items.data[0].current_period_end;
 
       const upcomingInvoice =
         await this.invoiceManager.previewUpcomingSubscription({

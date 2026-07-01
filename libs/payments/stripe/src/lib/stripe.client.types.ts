@@ -107,7 +107,7 @@ export type StripeDiscount = NegotiateExpanded<
   DeepOverride<
     Stripe.Discount,
     {
-      coupon: StripeCoupon;
+      source: DeepOverride<Stripe.Discount.Source, { coupon: StripeCoupon }>;
     }
   >,
   'customer' | 'promotion_code'
@@ -119,40 +119,59 @@ export type StripeDiscount = NegotiateExpanded<
 export type StripeTaxRate = Stripe.TaxRate;
 
 /**
- * Stripe.StripeTaxRate with expanded fields removed
+ * Stripe.InvoiceLineItem.Tax with tax_rate_details.tax_rate expanded.
  */
-export type StripeInvoiceLineItemTaxAmount = NegotiateExpanded<
-  never,
-  DeepOverride<
-    Stripe.InvoiceLineItem.TaxAmount,
-    {
-      tax_rate: StripeTaxRate;
-    }
-  >,
-  never
+export type StripeInvoiceLineItemTax = Omit<
+  Stripe.InvoiceLineItem.Tax,
+  'tax_rate_details'
+> & {
+  tax_rate_details:
+    | (Omit<
+        NonNullable<Stripe.InvoiceLineItem.Tax['tax_rate_details']>,
+        'tax_rate'
+      > & { tax_rate: StripeTaxRate })
+    | null;
+};
+
+/**
+ * Stripe.InvoiceLineItem.Pricing with expanded fields removed
+ */
+export type StripeInvoiceLineItemPricing = DeepOverride<
+  Stripe.InvoiceLineItem.Pricing,
+  {
+    price_details?: NegotiateExpanded<
+      never,
+      Stripe.InvoiceLineItem.Pricing.PriceDetails,
+      'price'
+    >;
+  }
 >;
 
 /**
  * Stripe.InvoiceLineItem with expanded fields removed
  */
-export type StripeInvoiceLineItem = NegotiateExpanded<
-  never,
-  DeepOverride<
-    Stripe.InvoiceLineItem,
-    {
-      discount_amounts: Array<
-        NegotiateExpanded<
-          never,
-          Stripe.InvoiceLineItem.DiscountAmount,
-          'discount'
-        >
-      > | null;
-      price: StripePrice | null;
-      tax_amounts: Array<StripeInvoiceLineItemTaxAmount>;
-    }
+export type StripeInvoiceLineItem = Omit<
+  NegotiateExpanded<
+    never,
+    DeepOverride<
+      Stripe.InvoiceLineItem,
+      {
+        discount_amounts: Array<
+          NegotiateExpanded<
+            never,
+            Stripe.InvoiceLineItem.DiscountAmount,
+            'discount'
+          >
+        > | null;
+        pricing: StripeInvoiceLineItemPricing | null;
+      }
+    >,
+    'discounts' | 'subscription'
   >,
-  'discounts' | 'invoice_item' | 'subscription' | 'subscription_item'
->;
+  'taxes'
+> & {
+  taxes: Array<StripeInvoiceLineItemTax> | null;
+};
 
 /**
  * Stripe.Event with expanded fields removed
@@ -160,32 +179,61 @@ export type StripeInvoiceLineItem = NegotiateExpanded<
 export type StripeEvent = NegotiateExpanded<never, Stripe.Event, never>;
 
 /**
+ * Stripe.Invoice.Parent with the subscription reference left unexpanded
+ */
+export type StripeInvoiceParent = DeepOverride<
+  Stripe.Invoice.Parent,
+  {
+    subscription_details: NegotiateExpanded<
+      never,
+      Stripe.Invoice.Parent.SubscriptionDetails,
+      'subscription'
+    > | null;
+  }
+>;
+
+/**
+ * Stripe.InvoicePayment with the payment references left unexpanded
+ */
+export type StripeInvoicePayment = DeepOverride<
+  Stripe.InvoicePayment,
+  {
+    payment: NegotiateExpanded<
+      never,
+      Stripe.InvoicePayment.Payment,
+      'charge' | 'payment_intent' | 'payment_record'
+    >;
+  }
+>;
+
+/**
  * Stripe.Invoice with expanded fields removed
  */
-export type StripeInvoice = NegotiateExpanded<
-  never,
-  DeepOverride<
-    Stripe.Invoice,
-    {
-      lines: Stripe.ApiList<StripeInvoiceLineItem>;
-      discount: StripeDiscount | null;
-      total_tax_amounts: StripeInvoiceLineItemTaxAmount[];
-    }
+export type StripeInvoice = Omit<
+  NegotiateExpanded<
+    never,
+    DeepOverride<
+      Stripe.Invoice,
+      {
+        discounts: Array<StripeDiscount>;
+        parent: StripeInvoiceParent | null;
+        payments: Stripe.ApiList<StripeInvoicePayment>;
+      }
+    >,
+    | 'customer'
+    | 'account_tax_ids'
+    | 'application'
+    | 'default_payment_method'
+    | 'default_source'
+    | 'latest_revision'
+    | 'on_behalf_of'
+    | 'test_clock'
   >,
-  | 'charge'
-  | 'customer'
-  | 'payment_intent'
-  | 'subscription'
-  | 'account_tax_ids'
-  | 'application'
-  | 'default_payment_method'
-  | 'default_source'
-  | 'discounts'
-  | 'latest_revision'
-  | 'on_behalf_of'
-  | 'quote'
-  | 'test_clock'
->;
+  'lines' | 'total_taxes'
+> & {
+  lines: Stripe.ApiList<StripeInvoiceLineItem>;
+  total_taxes: Array<StripeInvoiceLineItemTax> | null;
+};
 
 /**
  * Stripe.PaymentIntent with expanded fields removed
@@ -195,7 +243,6 @@ export type StripePaymentIntent = NegotiateExpanded<
   Stripe.PaymentIntent,
   | 'application'
   | 'customer'
-  | 'invoice'
   | 'latest_charge'
   | 'on_behalf_of'
   | 'payment_method'
@@ -203,32 +250,10 @@ export type StripePaymentIntent = NegotiateExpanded<
 >;
 
 /**
- * Stripe.UpcomingInvoice with expanded fields removed
+ * The Create Preview Invoice API returns a Stripe.Invoice; preview invoices
+ * share the same shape as a finalized invoice.
  */
-export type StripeUpcomingInvoice = NegotiateExpanded<
-  never,
-  DeepOverride<
-    Stripe.UpcomingInvoice,
-    {
-      lines: Stripe.ApiList<StripeInvoiceLineItem>;
-      discount: StripeDiscount | null;
-      total_tax_amounts: StripeInvoiceLineItemTaxAmount[];
-    }
-  >,
-  | 'charge'
-  | 'customer'
-  | 'payment_intent'
-  | 'subscription'
-  | 'account_tax_ids'
-  | 'application'
-  | 'default_payment_method'
-  | 'default_source'
-  | 'discounts'
-  | 'latest_revision'
-  | 'on_behalf_of'
-  | 'quote'
-  | 'test_clock'
->;
+export type StripeUpcomingInvoice = StripeInvoice;
 
 export type StripeSubscriptionItem = NegotiateExpanded<
   never,
@@ -246,7 +271,10 @@ export type StripeSubscription = NegotiateExpanded<
   never,
   DeepOverride<
     Stripe.Subscription,
-    { items: StripeApiList<StripeSubscriptionItem> }
+    {
+      discounts: Array<StripeDiscount>;
+      items: StripeApiList<StripeSubscriptionItem>;
+    }
   >,
   | 'customer'
   | 'default_payment_method'
@@ -254,7 +282,6 @@ export type StripeSubscription = NegotiateExpanded<
   | 'pending_setup_intent'
   | 'application'
   | 'default_source'
-  | 'discounts'
   | 'on_behalf_of'
   | 'schedule'
   | 'test_clock'
@@ -292,7 +319,15 @@ export type StripeProduct = NegotiateExpanded<
  */
 export type StripePromotionCode = NegotiateExpanded<
   never,
-  Stripe.PromotionCode,
+  DeepOverride<
+    Stripe.PromotionCode,
+    {
+      promotion: DeepOverride<
+        Stripe.PromotionCode.Promotion,
+        { coupon: StripeCoupon }
+      >;
+    }
+  >,
   'customer'
 >;
 
@@ -316,7 +351,7 @@ export type StripeCreditNote = NegotiateExpanded<
       lines: Stripe.ApiList<StripeCreditNoteLineItem>;
     }
   >,
-  'invoice' | 'customer' | 'customer_balance_transaction' | 'refund'
+  'invoice' | 'customer' | 'customer_balance_transaction'
 >;
 
 /**

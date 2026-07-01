@@ -4,7 +4,7 @@
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 import { Cacheable } from '@type-cacheable/core';
 
 import {
@@ -25,6 +25,7 @@ import {
   type StripeSetupIntent,
 } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
+import { STRIPE_API_VERSION } from './stripe.constants';
 import {
   CaptureTimingWithStatsD,
   StatsD,
@@ -63,12 +64,12 @@ export class StripeClient {
       // https://github.com/stripe/stripe-node/issues/2207
       this.stripeConfig.apiKey || 'api_key_placeholder',
       {
-        apiVersion: '2024-11-20.acacia',
+        apiVersion: STRIPE_API_VERSION,
         maxNetworkRetries: 3,
       }
     );
 
-    this.stripe.on('response', (response) => {
+    this.stripe.on('response', (response: Stripe.ResponseEvent) => {
       this.statsd.timing('stripe_request', response.elapsed);
       // Note that we can't record the method/path as a tag
       // because ids are in the path which results in too great
@@ -151,7 +152,7 @@ export class StripeClient {
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
     const result = await this.stripe.subscriptions.list({
       ...params,
-      expand: undefined,
+      expand: ['data.discounts.source.coupon'],
     });
 
     return result as StripeApiList<StripeSubscription>;
@@ -211,7 +212,7 @@ export class StripeClient {
   ) {
     const result = await this.stripe.subscriptions.retrieve(id, {
       ...params,
-      expand: undefined,
+      expand: ['discounts.source.coupon'],
     });
 
     return result as StripeResponse<StripeSubscription>;
@@ -231,24 +232,28 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
-  async invoicesRetrieve(
-    id: string,
-    params?: Stripe.PaymentMethodAttachParams
-  ) {
+  async invoicesRetrieve(id: string, params?: Stripe.InvoiceRetrieveParams) {
     const result = await this.stripe.invoices.retrieve(id, {
       ...params,
-      expand: undefined,
+      expand: [
+        'confirmation_secret',
+        'discounts',
+        'lines.data.taxes.tax_rate_details.tax_rate',
+        'total_taxes.tax_rate_details.tax_rate',
+      ],
     });
     return result as StripeResponse<StripeInvoice>;
   }
 
   @CaptureTimingWithStatsD()
-  async invoicesRetrieveUpcoming(
-    params?: Stripe.InvoiceRetrieveUpcomingParams
-  ) {
-    const result = await this.stripe.invoices.retrieveUpcoming({
+  async invoicesCreatePreview(params?: Stripe.InvoiceCreatePreviewParams) {
+    const result = await this.stripe.invoices.createPreview({
       ...params,
-      expand: ['total_tax_amounts.tax_rate'],
+      expand: [
+        'discounts',
+        'lines.data.taxes.tax_rate_details.tax_rate',
+        'total_taxes.tax_rate_details.tax_rate',
+      ],
     });
     return result as StripeResponse<StripeUpcomingInvoice>;
   }
@@ -395,7 +400,10 @@ export class StripeClient {
   async promotionCodesList(params: Stripe.PromotionCodeListParams) {
     const result = await this.stripe.promotionCodes.list({
       ...params,
-      expand: undefined,
+      // Basil nests the coupon under `promotion.coupon`, which is only returned
+      // as a full object when expanded. Coupon validity/currency checks rely on
+      // it (assertPromotionCodeActive, PromotionCodeManager).
+      expand: ['data.promotion.coupon'],
     });
     return result as StripeResponse<StripeApiList<StripePromotionCode>>;
   }
@@ -415,7 +423,8 @@ export class StripeClient {
   ) {
     const result = await this.stripe.promotionCodes.retrieve(id, {
       ...params,
-      expand: undefined,
+      // See promotionCodesList: basil only returns the nested coupon when expanded.
+      expand: ['promotion.coupon'],
     });
     return result as StripeResponse<StripePromotionCode>;
   }

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
 import fs from 'fs';
@@ -198,8 +198,8 @@ export class CustomerPlanMover {
       this.stripe.invoices.retrieve(latestInvoiceId)
     );
 
-    const chargeId =
-      typeof invoice.charge === 'string' ? invoice.charge : invoice.charge?.id;
+    const charge = invoice.payments?.data[0]?.payment.charge;
+    const chargeId = typeof charge === 'string' ? charge : charge?.id;
     if (!chargeId) {
       console.log(`No charge for ${invoice.id}`);
       return;

@@ -19,6 +19,7 @@ export const StripeSetupIntentFactory = (
   created: faker.date.past().getTime() / 1000,
   customer: null,
   description: null,
+  excluded_payment_method_types: null,
   flow_directions: null,
   latest_attempt: null,
   last_setup_error: null,
@@ -45,4 +46,3 @@ export const StripeSetupIntentFactory = (
   usage: 'off_session',
   ...override,
 });
-

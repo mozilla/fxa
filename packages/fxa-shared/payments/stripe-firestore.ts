@@ -28,6 +28,19 @@ export class FirestoreStripeErrorBuilder extends Error {
 }
 
 /**
+ * Prepare a Stripe object for Firestore persistence.
+ *
+ * Stripe v22 (basil) parses `*_decimal` fields (e.g. `plan.amount_decimal`,
+ * `price.unit_amount_decimal`) into `DecimalImpl` class instances. Firestore
+ * rejects values with a custom prototype, so round-trip through JSON to convert
+ * them back to their string representation — the shape consumers already expect
+ * — before writing.
+ */
+function toFirestoreObject<T>(doc: T): T {
+  return JSON.parse(JSON.stringify(doc));
+}
+
+/**
  * StripeFirestore manages access to the Stripe customer data stored in Firestore.
  *
  * The data is architected with sub-collections as follows:
@@ -128,7 +141,7 @@ export class StripeFirestore {
           .doc(uid)
           .collection(this.subscriptionCollection)
           .doc(subscription.id),
-        subscription
+        toFirestoreObject(subscription)
       );
 
       return subscription;
@@ -216,7 +229,10 @@ export class StripeFirestore {
           ...customer,
           stripeEventCreatedTime: eventTime
         }
-        tx.set(this.customerCollectionDbRef.doc(customerUid), customerRecord);
+        tx.set(
+          this.customerCollectionDbRef.doc(customerUid),
+          toFirestoreObject(customerRecord)
+        );
       }
 
       // Firestore transactions require writes to occur after all reads.
@@ -230,7 +246,7 @@ export class StripeFirestore {
             .doc(customerUid)
             .collection(this.subscriptionCollection)
             .doc(subscriptionToUpdate.id),
-          subscriptionRecord
+          toFirestoreObject(subscriptionRecord)
         );
       }
     });
@@ -324,7 +340,10 @@ export class StripeFirestore {
         );
       }
 
-      tx.set(this.customerCollectionDbRef.doc(uid), customer);
+      tx.set(
+        this.customerCollectionDbRef.doc(uid),
+        toFirestoreObject(customer)
+      );
       if (subscriptions) {
         for (const subscription of subscriptions) {
           tx.set(
@@ -332,7 +351,7 @@ export class StripeFirestore {
               .doc(uid)
               .collection(this.subscriptionCollection)
               .doc(subscription.id),
-            subscription
+            toFirestoreObject(subscription)
           );
         }
       }
@@ -350,7 +369,7 @@ export class StripeFirestore {
     uid: string,
     customer: Partial<Stripe.Customer | Stripe.DeletedCustomer>
   ) {
-    return this.customerCollectionDbRef.doc(uid).set(customer);
+    return this.customerCollectionDbRef.doc(uid).set(toFirestoreObject(customer));
   }
 
   /**
@@ -377,7 +396,8 @@ export class StripeFirestore {
       );
     }
 
-    if (typeof invoice.subscription !== 'string') {
+    const subscription = invoice.parent?.subscription_details?.subscription;
+    if (typeof subscription !== 'string') {
       // We can only insert invoices with a subscription for caching, but we
       // shouldn't throw errors just because we can't cache non-subscription invoices.
       // TODO: Cache non-subscription invoices.
@@ -386,10 +406,10 @@ export class StripeFirestore {
 
     return customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
-      .doc(invoice.subscription)
+      .doc(subscription)
       .collection(this.invoiceCollection)
       .doc(invoice.id!)
-      .set(invoice);
+      .set(toFirestoreObject(invoice));
   }
 
   /**
@@ -401,13 +421,13 @@ export class StripeFirestore {
     ignoreErrors: boolean = false,
   ) {
     const invoice = await this.stripe.invoices.retrieve(invoiceId);
-    if (invoice.subscription === null) {
+    const subscriptionId = invoice.parent?.subscription_details?.subscription;
+    if (subscriptionId == null) {
       // We can only insert invoices with a subscription for caching, but we
       // shouldn't throw errors just because we can't cache non-subscription invoices.
       // TODO: Cache non-subscription invoices.
       return invoice;
     }
-    const subscriptionId = invoice.subscription;
     if (typeof subscriptionId !== 'string') {
       throw new Error("subscriptionId must be of type string");
     }
@@ -475,7 +495,7 @@ export class StripeFirestore {
           .doc(subscriptionId)
           .collection(this.invoiceCollection)
           .doc(invoiceId),
-        record
+        toFirestoreObject(record)
       );
 
       return invoice;

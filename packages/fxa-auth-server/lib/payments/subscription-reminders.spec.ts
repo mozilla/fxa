@@ -284,7 +284,7 @@ describe('SubscriptionReminders', () => {
       expect(reminder.alreadySentEmail).toHaveBeenCalledTimes(1);
       expect(reminder.alreadySentEmail).toHaveBeenCalledWith(
         subscription.customer.metadata.userid,
-        Math.floor(subscription.current_period_start * 1000),
+        Math.floor(subscription.items.data[0].current_period_start * 1000),
         {
           subscriptionId: subscription.id,
           reminderDays: 7,
@@ -319,16 +319,14 @@ describe('SubscriptionReminders', () => {
         .fn()
         .mockResolvedValue({
           total_excluding_tax: invoicePreview.total_excluding_tax,
-          tax: invoicePreview.tax,
           total: invoicePreview.total,
           currency: invoicePreview.currency,
-          discount: null,
           discounts: [],
+          total_taxes: [],
         });
       mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       });
       const planConfig = {
         wibble: 'quux',
@@ -388,8 +386,8 @@ describe('SubscriptionReminders', () => {
         {
           message: 'Sending a renewal reminder email.',
           subscriptionId: subscription.id,
-          currentPeriodStart: subscription.current_period_start,
-          currentPeriodEnd: subscription.current_period_end,
+          currentPeriodStart: subscription.items.data[0].current_period_start,
+          currentPeriodEnd: subscription.items.data[0].current_period_end,
           currentDateMs: Date.now(),
           reminderLength: 7,
         }
@@ -408,7 +406,7 @@ describe('SubscriptionReminders', () => {
         planInterval: 'month',
         showTax: false,
         invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
-        invoiceTaxInCents: invoicePreview.tax,
+        invoiceTaxInCents: 0,
         invoiceTotalInCents: invoicePreview.total,
         invoiceTotalCurrency: invoicePreview.currency,
         productMetadata: formattedSubscription.productMetadata,
@@ -586,16 +584,14 @@ describe('SubscriptionReminders', () => {
         .fn()
         .mockResolvedValue({
           total_excluding_tax: invoicePreview.total_excluding_tax,
-          tax: invoicePreview.tax,
           total: invoicePreview.total,
           currency: invoicePreview.currency,
-          discount: null,
           discounts: [],
+          total_taxes: [],
         });
       mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       });
       mockLog.info = jest.fn().mockReturnValue({});
       mockLog.error = jest.fn().mockReturnValue({});
@@ -660,14 +656,12 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_123' },
-        discounts: [],
+        discounts: [{ id: 'discount_123' }],
       };
 
       const mockUpcomingInvoice = {
         total: invoicePreview.total,
         currency: invoicePreview.currency,
-        discount: null,
         discounts: [],
       };
 
@@ -733,14 +727,12 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: null,
         discounts: [{ id: 'discount_123' }],
       };
 
       const mockUpcomingInvoice = {
         total: invoicePreview.total,
         currency: invoicePreview.currency,
-        discount: null,
         discounts: [],
       };
 
@@ -803,15 +795,13 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_old' },
-        discounts: [],
+        discounts: [{ id: 'discount_old' }],
       };
 
       const mockUpcomingInvoice = {
         total: invoicePreview.total,
         currency: invoicePreview.currency,
-        discount: { id: 'discount_new' },
-        discounts: [],
+        discounts: [{ id: 'discount_new' }],
       };
 
       reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
@@ -933,8 +923,7 @@ describe('SubscriptionReminders', () => {
       };
       subscription.latest_invoice = {
         id: 'in_expanded',
-        discount: { id: 'discount_456' },
-        discounts: [],
+        discounts: [{ id: 'discount_456' }],
       };
 
       const account = {
@@ -946,7 +935,6 @@ describe('SubscriptionReminders', () => {
       const mockUpcomingInvoice = {
         total: invoicePreview.total,
         currency: invoicePreview.currency,
-        discount: null,
         discounts: [],
       };
 
@@ -1288,22 +1276,19 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       };
 
       const mockUpcomingInvoiceWithTax = {
         total_excluding_tax: 1000,
-        tax: 200,
         total: 1200,
         currency: 'usd',
-        discount: null,
         discounts: [],
-        total_tax_amounts: [
+        total_taxes: [
           {
             amount: 200,
-            inclusive: false,
-            tax_rate: { display_name: 'Sales Tax' },
+            tax_behavior: 'exclusive',
+            tax_rate_details: { tax_rate: { display_name: 'Sales Tax' } },
           },
         ],
       };
@@ -1368,17 +1353,15 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       };
 
       const mockUpcomingInvoiceNoTax = {
         total_excluding_tax: 1000,
-        tax: 0,
         total: 1000,
         currency: 'usd',
-        discount: null,
         discounts: [],
+        total_taxes: [],
       };
 
       reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
@@ -1441,16 +1424,13 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       };
 
       const mockUpcomingInvoiceNullTax = {
         total_excluding_tax: 1000,
-        tax: null,
         total: 1000,
         currency: 'usd',
-        discount: null,
         discounts: [],
       };
 
@@ -1514,19 +1494,20 @@ describe('SubscriptionReminders', () => {
 
       const mockInvoice = {
         id: 'in_test123',
-        discount: { id: 'discount_ending' },
-        discounts: [],
+        discounts: [{ id: 'discount_ending' }],
       };
 
       const mockUpcomingInvoiceWithInclusiveTax = {
         total_excluding_tax: 887,
-        tax: 113,
         total: 1000,
         currency: 'eur',
-        discount: null,
         discounts: [],
-        total_tax_amounts: [
-          { amount: 113, inclusive: true, tax_rate: { display_name: 'VAT' } },
+        total_taxes: [
+          {
+            amount: 113,
+            tax_behavior: 'inclusive',
+            tax_rate_details: { tax_rate: { display_name: 'VAT' } },
+          },
         ],
       };
 
@@ -1583,11 +1564,11 @@ describe('SubscriptionReminders', () => {
     const mockSubscription = {
       id: mockSubscriptionId,
       customer: mockCustomerId,
-      current_period_start: mockSubCurrentPeriodStart,
-      current_period_end: mockSubCurrentPeriodEnd,
       items: {
         data: [
           {
+            current_period_start: mockSubCurrentPeriodStart,
+            current_period_end: mockSubCurrentPeriodEnd,
             price: {
               recurring: {
                 interval: 'month',

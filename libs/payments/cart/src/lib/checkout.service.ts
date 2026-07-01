@@ -463,7 +463,9 @@ export class CheckoutService {
               automatic_tax: {
                 enabled: enableAutomaticTax,
               },
-              promotion_code: promotionCode?.id,
+              ...(promotionCode
+                ? { discounts: [{ promotion_code: promotionCode.id }] }
+                : {}),
               items: [
                 {
                   price: price.id,
@@ -549,14 +551,23 @@ export class CheckoutService {
         subscription.latest_invoice
       );
 
-      if (invoice.payment_intent && invoice.amount_due !== 0) {
-        intent = await this.paymentIntentManager.confirm(
-          invoice.payment_intent,
-          {
-            confirmation_token: confirmationTokenId,
-            off_session: false,
-          }
-        );
+      // For a default_incomplete subscription, the pending PaymentIntent's
+      // client secret is on the invoice's `confirmation_secret` (populated only
+      // when expanded — see StripeClient.invoicesRetrieve). Its `client_secret`
+      // is `{payment_intent_id}_secret_{...}`, so the id is the portion before
+      // `_secret_`. `invoice.payments` only records *attempted* payments and is
+      // empty here, so it cannot be used to locate the intent to confirm.
+      const confirmationSecret = invoice.confirmation_secret;
+      const paymentIntentId =
+        confirmationSecret?.type === 'payment_intent' &&
+        confirmationSecret.client_secret
+          ? confirmationSecret.client_secret.split('_secret_')[0]
+          : undefined;
+      if (paymentIntentId && invoice.amount_due !== 0) {
+        intent = await this.paymentIntentManager.confirm(paymentIntentId, {
+          confirmation_token: confirmationTokenId,
+          off_session: false,
+        });
       } else if (subscription.pending_setup_intent) {
         // Subscription metadata is required by welcome email dispatcher for zero-cost subscriptions
         await this.setupIntentManager.update(
@@ -732,7 +743,9 @@ export class CheckoutService {
               ...(freeTrial
                 ? { trial_period_days: freeTrial.trialLengthDays }
                 : {}),
-              promotion_code: promotionCode?.id,
+              ...(promotionCode
+                ? { discounts: [{ promotion_code: promotionCode.id }] }
+                : {}),
               items: [
                 {
                   price: price.id,
