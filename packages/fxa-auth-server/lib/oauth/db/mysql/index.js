@@ -220,6 +220,13 @@ const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
 // same service.
 const QUERY_HAS_CONSENT_FOR_SCOPE =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+// Existence checks for the first-authorization signal (FXA-13784). Bounded by
+// the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
+// fetching all of a user's consents and filtering in JS.
+const QUERY_HAS_CONSENT_FOR_SERVICE =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_CLIENT =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND clientId=? LIMIT 1';
 const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
   'DELETE FROM accountAuthorizations WHERE uid=?';
 const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
@@ -685,6 +692,26 @@ class MysqlStore extends MysqlOAuthShared {
       buf(uid),
       scope,
       service,
+    ]);
+    return rows.length > 0;
+  }
+
+  // True iff the user has any consent row for this service (any scope/client).
+  // Drives the browser-service grain of the first-authorization signal.
+  async _hasConsentForService(uid, service) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE, [
+      buf(uid),
+      service,
+    ]);
+    return rows.length > 0;
+  }
+
+  // True iff the user has any consent row for this client (any scope/service).
+  // Drives the web-RP grain of the first-authorization signal.
+  async _hasConsentForClient(uid, clientId) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT, [
+      buf(uid),
+      buf(clientId),
     ]);
     return rows.length > 0;
   }

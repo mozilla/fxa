@@ -11,6 +11,10 @@ import {
 
 const mocks = require('../../../test/mocks');
 const { gleanMetrics } = require('../../metrics/glean');
+const {
+  OAuthNativeClients,
+  OAuthNativeServices,
+} = require('@fxa/accounts/oauth');
 
 const TEST_EMAIL = 'test@email.com';
 const TEST_UID = '123123';
@@ -156,6 +160,54 @@ describe('verifyAccount', () => {
           uid: TEST_UID,
         })
       );
+    });
+  });
+
+  describe('verified notification', () => {
+    beforeEach(async () => {
+      utils = await setup({ db, log, mailer, push, verificationReminders });
+    });
+
+    it('sends all fields to attached services', async () => {
+      account.locale = 'en-US';
+      const requestWithClient = mocks.mockRequest({
+        log,
+        app: { clientIdTag: OAuthNativeClients.FirefoxDesktop },
+        payload: { metricsContext: {} },
+      });
+
+      await utils.verifyAccount(requestWithClient, account, {
+        service: OAuthNativeServices.SmartWindow,
+        newsletters: ['test-pilot'],
+      });
+
+      expect(log.notifyAttachedServices).toHaveBeenNthCalledWith(
+        1,
+        'verified',
+        expect.anything(),
+        {
+          uid: TEST_UID,
+          email: TEST_EMAIL,
+          locale: 'en-US',
+          newsletters: ['test-pilot'],
+          service: OAuthNativeServices.SmartWindow,
+          clientId: OAuthNativeClients.FirefoxDesktop,
+          country: 'United States',
+          countryCode: 'US',
+          userAgent: 'test user-agent',
+        }
+      );
+    });
+
+    it('omits clientId when request.app.clientIdTag is not set', async () => {
+      // The default mockRequest has no clientIdTag.
+      await utils.verifyAccount(request, account, { service: 'sync' });
+
+      const verifiedCall = log.notifyAttachedServices.mock.calls.find(
+        (call: any[]) => call[0] === 'verified'
+      );
+      expect(verifiedCall).toBeDefined();
+      expect(verifiedCall[2]).not.toHaveProperty('clientId');
     });
   });
 });

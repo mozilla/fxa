@@ -13,6 +13,9 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const {
+  isFirstAuthorization,
+} = require('../../oauth/first-authorization');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -205,6 +208,14 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
         serviceValue = inferred[0];
       }
     }
+    // Expose the resolved service for native clients so the `login` event can
+    // report the browser service (matching the grain of `firstAuthorization`,
+    // incl. scope-only flows like VPN cached sign-in) instead of the shared
+    // client id. Only set for native clients — `service` is meaningless and
+    // spoofable for web RPs, which fall back to the client id on the event.
+    if (OAUTH_NATIVE_CLIENT_IDS.has(clientIdHex) && serviceValue) {
+      req.app.oauthService = serviceValue;
+    }
     if (!oauthDB.isClientAllowedForService(serviceValue, clientIdHex)) {
       statsd?.increment('accountAuthorization.skipped', {
         reason: 'client_not_allowed',
@@ -221,6 +232,25 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     }
     const now = Date.now();
     const uidHex = hex(grant.userId);
+    // Detect the user's first use of this service / RP, to drive
+    // `firstAuthorization` on the `login` event. Best-effort: its own try/catch
+    // keeps a read failure from suppressing the load-bearing consent writes
+    // below, and the targeted existence query short-circuits (no DB call) when
+    // the result is knowably false.
+    let firstAuthorization = false;
+    try {
+      firstAuthorization = await isFirstAuthorization(oauthDB, {
+        uid: uidHex,
+        serviceValue,
+        clientIdHex,
+        isNativeClient: OAUTH_NATIVE_CLIENT_IDS.has(clientIdHex),
+      });
+    } catch (err) {
+      statsd?.increment('accountAuthorization.first_auth_read_failed');
+      log.warn('accountAuthorization.first_auth_read_failed', {
+        err: err.message,
+      });
+    }
     // allSettled so a second sibling rejection does not become an
     // unhandled rejection after the first failure has been caught upstream.
     const results = await Promise.allSettled(
@@ -237,6 +267,10 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     const failure = results.find((r) => r.status === 'rejected');
     if (failure) {
       throw failure.reason;
+    }
+    // Only flag once the write succeeded, so the signal matches what landed.
+    if (firstAuthorization) {
+      req.app.firstAuthorization = true;
     }
     statsd?.increment('accountAuthorization.recorded', {
       service: serviceValue || 'unset',
@@ -573,10 +607,15 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
           countryCode,
           deviceCount: devices.length,
           email,
-          service: clientId,
+          // Resolved browser service (an OAuthNative service) when there is
+          // one, so consumers can distinguish services that share a clientId
+          // (Smart Window vs Sync on Desktop); else serviceTag, else the clientId
+          // (mapped by log.js) for web RPs.
+          service: req.app.oauthService || req.app.serviceTag || clientId,
           clientId,
           uid,
           userAgent: req.headers['user-agent'],
+          firstAuthorization: !!req.app.firstAuthorization,
         });
         return result;
       },

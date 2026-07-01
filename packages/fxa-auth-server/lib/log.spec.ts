@@ -59,6 +59,7 @@ jest.mock('fxa-shared', () => ({
 }));
 
 import logModule from './log';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 
 const validEvent = {
   op: 'amplitudeEvent',
@@ -856,6 +857,60 @@ describe('log', () => {
           utm_source: 'utm source',
           utm_term: 'utm term',
         },
+      },
+    });
+  });
+
+  it('.notifyAttachedServices preserves an explicit clientId and firstAuthorization alongside an OAuthNative service', async () => {
+    const now = 1600000000000;
+    jest.spyOn(Date, 'now').mockReturnValue(now);
+
+    const metricsContext = {
+      time: now,
+      entrypoint: 'wibble',
+      entrypoint_experiment: undefined,
+      entrypoint_variation: undefined,
+      flow_id:
+        'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+      flow_time: 23,
+      flowBeginTime: now - 23,
+      flowCompleteSignal: undefined,
+      flowType: undefined,
+      plan_id: undefined,
+      product_id: undefined,
+      utm_campaign: 'utm campaign',
+      utm_content: 'utm content',
+      utm_medium: 'utm medium',
+      utm_source: 'utm source',
+      utm_term: 'utm term',
+    };
+    const mockGatherMetricsContext = jest
+      .fn()
+      .mockResolvedValue(metricsContext);
+    const request = { gatherMetricsContext: mockGatherMetricsContext };
+
+    // Browser-flow login: service is an OAuthNative service name (the `service`
+    // query param), not a hex client id, so the hex->clientId conversion must not
+    // fire and the explicit clientId/firstAuthorization pass through.
+    await log.notifyAttachedServices('login', request, {
+      service: OAuthNativeServices.SmartWindow,
+      clientId: OAuthNativeClients.FirefoxDesktop,
+      firstAuthorization: true,
+      ts: now,
+    });
+
+    expect(mockGatherMetricsContext).toHaveBeenCalledTimes(1);
+    expect(mockNotifierSend).toHaveBeenCalledTimes(1);
+    expect(mockNotifierSend).toHaveBeenCalledWith({
+      event: 'login',
+      data: {
+        service: OAuthNativeServices.SmartWindow,
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        firstAuthorization: true,
+        timestamp: now,
+        ts: now,
+        iss: 'example.com',
+        metricsContext,
       },
     });
   });

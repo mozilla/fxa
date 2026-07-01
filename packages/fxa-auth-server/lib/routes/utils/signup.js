@@ -8,6 +8,7 @@ const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const { Container } = require('typedi');
 const { FxaMailer } = require('../../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
+const { getClientServiceTags } = require('../../metrics/client-tags');
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
 module.exports = (log, db, mailer, push, verificationReminders, glean) => {
@@ -31,6 +32,10 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
       const { deviceId, flowId, flowBeginTime, productId, planId } =
         await request.app.metricsContext;
 
+      // Include the OAuth client id (when the signup came through an OAuth flow)
+      // so attached services receive client_id alongside service.
+      const { clientId } = getClientServiceTags(request);
+
       await Promise.all([
         log.notifyAttachedServices('verified', request, {
           country,
@@ -41,6 +46,7 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
           service,
           uid,
           userAgent: request.headers['user-agent'],
+          ...(clientId && { clientId }),
         }),
         request.emitMetricsEvent('account.verified', {
           deviceId,

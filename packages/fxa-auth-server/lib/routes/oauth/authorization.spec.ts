@@ -357,6 +357,8 @@ describe('/authorization POST consent write', () => {
       ),
       getServiceForCanonicalScope: jest.fn(() => undefined),
       recordSignInConsent: jest.fn().mockResolvedValue(undefined),
+      hasConsentForService: jest.fn().mockResolvedValue(false),
+      hasConsentForClient: jest.fn().mockResolvedValue(false),
       ...overrides,
     };
   }
@@ -378,7 +380,11 @@ describe('/authorization POST consent write', () => {
     statsd?: any;
     log?: any;
     payload?: Record<string, any>;
+    app?: Record<string, any>;
   }) {
+    // Real hapi requests always have `app`; recordAuthorizationRows stashes
+    // service/firstAuthorization there. Returned so tests can assert on it.
+    const app = opts.app ?? {};
     let routes: any;
     await jest.isolateModulesAsync(async () => {
       jest.doMock('../../oauth/assertion', () =>
@@ -404,9 +410,11 @@ describe('/authorization POST consent write', () => {
       });
       await routes[1].config.handler({
         headers: {},
+        app,
         payload: buildPayload(opts.payload),
       });
     });
+    return { app };
   }
 
   it('writes one row per requested scope plus the service canonical and consults the allowlist', async () => {
@@ -495,6 +503,71 @@ describe('/authorization POST consent write', () => {
       'accountAuthorization.recorded',
       expect.anything()
     );
+  });
+
+  it('checks the consent ledger before writing and flags firstAuthorization for a first-time RP', async () => {
+    // buildOauthDB defaults hasConsentForClient to false (no prior consent).
+    const oauthDB = buildOauthDB();
+
+    const { app } = await runHandler({
+      oauthDB,
+      payload: { scope: 'profile' },
+    });
+
+    expect(oauthDB.hasConsentForClient).toHaveBeenCalledWith(
+      UID_HEX,
+      CLIENT_ID
+    );
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalled();
+    expect(app.firstAuthorization).toBe(true);
+  });
+
+  it('does not flag firstAuthorization on a repeat authorization of the same RP', async () => {
+    const oauthDB = buildOauthDB({
+      hasConsentForClient: jest.fn().mockResolvedValue(true),
+    });
+
+    const { app } = await runHandler({
+      oauthDB,
+      payload: { scope: 'profile' },
+    });
+
+    expect(app.firstAuthorization).toBeUndefined();
+  });
+
+  it('does not flag firstAuthorization when the consent write fails', async () => {
+    const oauthDB = buildOauthDB({
+      recordSignInConsent: jest.fn().mockRejectedValue(new Error('db down')),
+    });
+
+    const { app } = await runHandler({
+      oauthDB,
+      log: { ...mockLog, warn: jest.fn() },
+      payload: { scope: 'profile' },
+    });
+
+    expect(app.firstAuthorization).toBeUndefined();
+  });
+
+  it('still writes consent (and reports first_auth_read_failed) when the firstAuthorization check fails', async () => {
+    const oauthDB = buildOauthDB({
+      hasConsentForClient: jest.fn().mockRejectedValue(new Error('read down')),
+    });
+    const log = { ...mockLog, warn: jest.fn() };
+    const statsd = { increment: jest.fn() };
+
+    const { app } = await runHandler({
+      oauthDB,
+      log,
+      statsd,
+      payload: { scope: 'profile' },
+    });
+
+    expect(oauthDB.recordSignInConsent).toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.first_auth_read_failed'
+    );
+    expect(app.firstAuthorization).toBeUndefined();
   });
 
   it('skips the consent write when clientId is not allowed for the service', async () => {

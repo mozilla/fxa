@@ -6,6 +6,7 @@ import { RelyingPartiesQuery } from '../../../../../libs/shared/cms/src/__genera
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { DB } from '../../db';
+import { getClientServiceTags } from '../../metrics/client-tags';
 
 export async function deleteAccountIfUnverified(
   db: DB,
@@ -133,6 +134,7 @@ export async function notifyAttachedServicesForAccountSession(options: {
   const notifications: Promise<void>[] = [];
 
   if (isNewAccount && emailVerified) {
+    const { clientId } = getClientServiceTags(request);
     notifications.push(
       log.notifyAttachedServices('verified', request, {
         country,
@@ -142,6 +144,7 @@ export async function notifyAttachedServicesForAccountSession(options: {
         service,
         uid: account.uid,
         userAgent,
+        ...(clientId && { clientId }),
       })
     );
   }
