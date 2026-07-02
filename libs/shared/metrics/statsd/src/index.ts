@@ -6,3 +6,4 @@ export * from './lib/statsd';
 export * from './lib/statsd.config';
 export * from './lib/statsd.provider';
 export * from './lib/statsd.decorator';
+export * from './lib/statsd-route.interceptor';

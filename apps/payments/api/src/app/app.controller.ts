@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipRouteMetrics } from '@fxa/shared/metrics/statsd';
 import { AppService } from './app.service';
 
 @Controller()
+@SkipRouteMetrics()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
