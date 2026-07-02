@@ -1911,6 +1911,7 @@ export class AccountHandler {
     ) {
       const capabilities =
         await this.capabilityService.subscriptionCapabilities(uid as string);
+      console.log('here we go');
       if (Object.keys(capabilities).length > 0) {
         res.subscriptionsByClientId = capabilities;
       }
@@ -2323,13 +2324,13 @@ export class AccountHandler {
     return response;
   }
 
-  async getEmails (request: AuthRequest) {
+  async getEmails(request: AuthRequest) {
     this.log.begin('Account.emails', request);
     const sessionToken = request.auth.credentials as { uid: string };
     const account = await this.db.account(sessionToken.uid);
     const result = {
       originalEmail: account.email,
-      primaryEmail: account.primaryEmail?.email || account.email
+      primaryEmail: account.primaryEmail?.email || account.email,
     };
     return result;
   }
@@ -3260,8 +3261,7 @@ export const accountRoutes = (
           }),
         },
       },
-      handler: (request: AuthRequest) =>
-        accountHandler.getEmails(request),
+      handler: (request: AuthRequest) => accountHandler.getEmails(request),
     },
     {
       method: 'POST',
