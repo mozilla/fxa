@@ -235,6 +235,45 @@ describe('Recorded Future credentials search and reset script lib', () => {
       expect(res).toEqual(expected);
     });
 
+    it('drops credentials marked type "clear" but missing a clear_text_value', async () => {
+      // Regression: such a credential could pass a naive `type === 'clear'`
+      // filter while having no usable cleartext value, then reach
+      // Buffer.from(undefined) and abort the entire run.
+      const kept = {
+        subject: 'a@b.com',
+        exposed_secret: {
+          details: { clear_text_value: 'abc' },
+          type: 'clear',
+        },
+      };
+      client.POST.mockResolvedValue({
+        data: {
+          identities: [
+            {
+              credentials: [
+                kept,
+                // details present but no clear_text_value
+                { subject: 'c@d.com', exposed_secret: { type: 'clear', details: {} } },
+                // no details at all
+                { subject: 'e@f.com', exposed_secret: { type: 'clear' } },
+              ],
+            },
+          ],
+        },
+      });
+      const lookupFn = lib.createCredentialsLookupFn(client as any);
+      const res = await lookupFn(
+        [
+          { login: 'a@b.com', domain: 'quux.io' },
+          { login: 'c@d.com', domain: 'quux.io' },
+          { login: 'e@f.com', domain: 'quux.io' },
+        ],
+        { first_downloaded_gte: '2025-04-15' }
+      );
+
+      expect(res).toEqual([kept]);
+    });
+
     it('limits the subjects login in API call', async () => {
       client.POST.mockResolvedValue({ data: { identities: [] } });
       const lookupFn = lib.createCredentialsLookupFn(client as any);
