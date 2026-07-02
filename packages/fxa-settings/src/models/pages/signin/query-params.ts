@@ -55,4 +55,9 @@ export class SigninQueryParams extends ModelDataProvider {
   @IsBoolean()
   @bind(T.snakeCase)
   forcePasswordless: boolean | undefined = undefined;
+
+  @IsOptional()
+  @IsBoolean()
+  @bind()
+  authStateMachine: boolean | undefined = undefined;
 }

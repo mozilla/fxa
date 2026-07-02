@@ -4,7 +4,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
+import { isAuthStateMachineEnabled } from '../../../lib/auth-machine/flag';
+import { routeAfterResetOtp } from '../../../lib/auth-machine/reset';
 import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmResetPassword from '.';
 import {
@@ -27,6 +29,7 @@ const ConfirmResetPasswordContainer = ({
 
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
+  const config = useConfig();
 
   const navigateWithQuery = useNavigateWithQuery();
   let location = useLocation();
@@ -50,7 +53,28 @@ const ConfirmResetPasswordContainer = ({
     recoveryKeyHint?: string,
     totpExists?: boolean
   ) => {
-    if (totpExists && recoveryKeyExists === false) {
+    const machineEnabled = isAuthStateMachineEnabled(
+      location.search,
+      config.featureFlags?.authStateMachine === true
+    );
+
+    // When the machine is enabled, delegate the routing decision to the pure
+    // function; when off, reproduce the same three-way conditional inline.
+    const legacyTarget = (() => {
+      if (totpExists && recoveryKeyExists === false) {
+        return '/confirm_totp_reset_password' as const;
+      }
+      if (recoveryKeyExists === true) {
+        return '/account_recovery_confirm_key' as const;
+      }
+      return '/complete_reset_password' as const;
+    })();
+
+    const target = machineEnabled
+      ? routeAfterResetOtp({ totpExists, recoveryKeyExists })
+      : legacyTarget;
+
+    if (target === '/confirm_totp_reset_password') {
       navigateWithQuery('/confirm_totp_reset_password', {
         state: {
           code,
@@ -64,7 +88,7 @@ const ConfirmResetPasswordContainer = ({
         },
         replace: true,
       });
-    } else if (recoveryKeyExists === true) {
+    } else if (target === '/account_recovery_confirm_key') {
       navigateWithQuery('/account_recovery_confirm_key', {
         state: {
           code,

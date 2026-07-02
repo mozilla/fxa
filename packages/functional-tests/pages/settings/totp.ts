@@ -193,10 +193,15 @@ export class TotpPage extends SettingsLayout {
   }
 
   async setUpTwoStepAuthWithQrAndBackupCodesChoice(
-    credentials: Credentials
+    credentials: Credentials,
+    recoveryPhoneAvailable = true
   ): Promise<TotpCredentials> {
     const secret = await this.setUp2faAppWithQrCode(credentials);
-    await this.chooseBackupCodesOption();
+    // The recovery-method chooser only renders when recovery phone is available
+    // (auth-server geo + region check); otherwise setup goes straight to backup codes.
+    if (recoveryPhoneAvailable) {
+      await this.chooseBackupCodesOption();
+    }
     const recoveryCodes = await this.backupCodesDownloadStep();
     await this.confirmBackupCodeStep(recoveryCodes[0]);
     return { secret, recoveryCodes };

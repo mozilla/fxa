@@ -21,6 +21,7 @@ jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
+    useConfig: jest.fn(),
   };
 });
 
@@ -38,7 +39,13 @@ function mockModelsModule({
     phoneNumber: MOCK_MASKED_NUMBER_ENDING_IN_1234,
   }),
   mockRecoveryPhonePasswordResetSendCode = jest.fn().mockResolvedValue(true),
-}) {
+  authStateMachineEnabled = false,
+}: {
+  mockGetRecoveryCodesExist?: jest.Mock;
+  mockRecoveryPhoneGet?: jest.Mock;
+  mockRecoveryPhonePasswordResetSendCode?: jest.Mock;
+  authStateMachineEnabled?: boolean;
+} = {}) {
   mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken =
     mockGetRecoveryCodesExist;
   mockAuthClient.recoveryPhoneGetWithPasswordForgotToken = mockRecoveryPhoneGet;
@@ -47,6 +54,9 @@ function mockModelsModule({
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
+  (ModelsModule.useConfig as jest.Mock).mockReturnValue({
+    featureFlags: { authStateMachine: authStateMachineEnabled },
+  });
 }
 
 let mockResetPasswordRecoveryChoice: jest.SpyInstance;
@@ -278,6 +288,53 @@ describe('ResetPasswordRecoveryChoice container', () => {
         mockRecoveryPhoneGet: jest
           .fn()
           .mockRejectedValue(new Error('Phone network error')),
+      });
+      render();
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/confirm_backup_code_reset_password',
+          {
+            replace: true,
+            state: { token: 'tok' },
+          }
+        );
+      });
+    });
+  });
+
+  describe('authStateMachine flag enabled', () => {
+    it('auto-sends code and navigates when only phone available (flag on, 0 backup codes)', async () => {
+      mockModelsModule({
+        mockGetRecoveryCodesExist: jest.fn().mockResolvedValue({
+          hasBackupCodes: false,
+          count: 0,
+        }),
+        authStateMachineEnabled: true,
+      });
+      render();
+      await waitFor(() => {
+        expect(
+          mockAuthClient.recoveryPhonePasswordResetSendCode
+        ).toHaveBeenCalledWith('tok');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/reset_password_recovery_phone',
+          {
+            state: {
+              token: 'tok',
+              lastFourPhoneDigits: '1234',
+              numBackupCodes: 0,
+              sendError: undefined,
+            },
+            replace: true,
+          }
+        );
+      });
+    });
+
+    it('redirects to backup codes when no phone is available (flag on)', async () => {
+      mockModelsModule({
+        mockRecoveryPhoneGet: jest.fn().mockResolvedValue({ exists: false }),
+        authStateMachineEnabled: true,
       });
       render();
       await waitFor(() => {

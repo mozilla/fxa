@@ -207,9 +207,7 @@ describe('Settings App', () => {
     });
 
     renderWithRouter(
-      <AppContext.Provider
-        value={mockAppContext({ account: brokenAccount })}
-      >
+      <AppContext.Provider value={mockAppContext({ account: brokenAccount })}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }
@@ -343,6 +341,148 @@ describe('Settings App', () => {
       });
     });
     warnSpy.mockRestore();
+  });
+
+  describe('auth state machine flag-on (machineEnabled = true)', () => {
+    const FLAG_ROUTE = SETTINGS_PATH + '?authStateMachine=true';
+
+    it('redirects to root when account data is unavailable in localStorage (flag-on)', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const brokenAccount = { ...MOCK_ACCOUNT } as unknown as Account;
+      Object.defineProperty(brokenAccount, 'primaryEmail', {
+        get() {
+          throw new Error('Account data not loaded from localStorage');
+        },
+      });
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account: brokenAccount })}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: FLAG_ROUTE }
+      );
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      });
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Account data unavailable, redirecting to sign-in'
+      );
+      warnSpy.mockRestore();
+    });
+
+    it('redirects to root when account email is not verified (flag-on)', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+        if (
+          msg ===
+          'Account or email verification is required to access /settings!'
+        )
+          return;
+      });
+      const unverifiedAccount = {
+        ...MOCK_ACCOUNT,
+        primaryEmail: { ...MOCK_ACCOUNT.primaryEmail, verified: false },
+        emails: MOCK_ACCOUNT.emails.map((email) =>
+          email.isPrimary ? { ...email, verified: false } : email
+        ),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account: unverifiedAccount })}
+        >
+          <Subject />
+        </AppContext.Provider>,
+        { route: FLAG_ROUTE }
+      );
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      });
+      warnSpy.mockRestore();
+    });
+
+    it('redirects to root when session is not verified (flag-on)', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+        if (
+          msg ===
+          'Account or email verification is required to access /settings!'
+        )
+          return;
+      });
+      mockSessionStatus.mockResolvedValue({
+        details: {
+          sessionVerified: false,
+          sessionVerificationMeetsMinimumAAL: true,
+        },
+      });
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: FLAG_ROUTE }
+      );
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      });
+      warnSpy.mockRestore();
+    });
+
+    it('redirects to /signin_totp_code when AAL is not met (flag-on, security-critical)', async () => {
+      // This is the critical AAL step-up assertion: the machine path MUST redirect
+      // to /signin_totp_code and MUST NOT fall through to render settings.
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+        if (msg === '2FA must be entered to access /settings!') return;
+      });
+      mockSessionStatus.mockResolvedValue({
+        details: {
+          sessionVerified: true,
+          sessionVerificationMeetsMinimumAAL: false,
+        },
+      });
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: FLAG_ROUTE }
+      );
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/signin_totp_code',
+          {
+            state: {
+              email: MOCK_ACCOUNT.primaryEmail.email,
+              sessionToken: 'mock-session-token',
+              uid: 'mock-uid',
+              verified: true,
+              isSessionAALUpgrade: true,
+            },
+          }
+        );
+      });
+      warnSpy.mockRestore();
+    });
+
+    it('renders settings when all checks pass (flag-on)', async () => {
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: FLAG_ROUTE }
+      );
+
+      await navigate(FLAG_ROUTE);
+
+      expect(getByTestId('settings-profile')).toBeInTheDocument();
+    });
   });
 
   it('routes to PageSettings', async () => {

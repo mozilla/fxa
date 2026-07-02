@@ -13,6 +13,9 @@ import InputPassword from '../../components/InputPassword';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import VerificationMethods from '../../constants/verification-methods';
+import AuthenticationMethods from '../../constants/authentication-methods';
+import { isAuthStateMachineEnabled } from '../../lib/auth-machine/flag';
 import GleanMetrics from '../../lib/glean';
 import {
   useSensitiveDataClient,
@@ -34,6 +37,23 @@ import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import SigninUserLockup from './components/SigninUserLockup';
 
 export const viewName = 'signin';
+
+// The sign-in response omits the account's real 2FA status. Read it from the
+// profile so the auth-machine's live-TOTP safety net can force /signin_totp_code
+// even when the server echoes email-otp; fall back to false on error (legacy
+// behaviour keys off verificationMethod).
+async function fetchAccountHasTotp(
+  authClient: ReturnType<typeof useAuthClient>,
+  sessionToken: string
+): Promise<boolean> {
+  try {
+    const { authenticationMethods } =
+      await authClient.accountProfile(sessionToken);
+    return authenticationMethods.includes(AuthenticationMethods.OTP);
+  } catch {
+    return false;
+  }
+}
 
 // Password-input signin. The container only renders this component when the
 // flow needs a password.
@@ -154,6 +174,21 @@ const Signin = ({
 
         const isFullyVerified =
           data.signIn.emailVerified && data.signIn.sessionVerified;
+
+        // Only pay for the live-TOTP fact when the machine is on and a verify step
+        // follows (and totp isn't already signalled) — never on the legacy/happy path.
+        const machineEnabled = isAuthStateMachineEnabled(
+          location.search,
+          config.featureFlags?.authStateMachine === true
+        );
+        const shouldResolveTotp =
+          machineEnabled &&
+          !isFullyVerified &&
+          data.signIn.verificationMethod !== VerificationMethods.TOTP_2FA;
+        const accountHasTotp = shouldResolveTotp
+          ? await fetchAccountHasTotp(authClient, data.signIn.sessionToken)
+          : false;
+
         const navigationOptions = {
           email,
           signinData: data.signIn,
@@ -166,6 +201,7 @@ const Signin = ({
               : '',
           queryParams: location.search,
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
+          accountHasTotp,
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
           performNavigation: !(
@@ -263,7 +299,9 @@ const Signin = ({
       }
     },
     [
+      authClient,
       beginSigninHandler,
+      config.featureFlags?.authStateMachine,
       email,
       ftlMsgResolver,
       hasLinkedAccount,
