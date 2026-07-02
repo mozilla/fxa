@@ -4,10 +4,8 @@
 
 import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
-import {
-  syncDesktopOAuthQueryParams,
-  syncDesktopV3QueryParams,
-} from '../../lib/query-params';
+import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 const eventDetailLinkAccount: LinkAccountResponse = {
   id: 'account_updates',
@@ -88,7 +86,9 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
-      await signup.goto('/', syncDesktopV3QueryParams);
+      // Initiate via /pair so the real Firefox drives the sync handshake; a new
+      // email at the email-first form routes into signup.
+      await gotoSyncSession(page, target);
 
       await signup.fillOutEmailForm(email);
 
