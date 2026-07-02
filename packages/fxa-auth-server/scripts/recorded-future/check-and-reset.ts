@@ -256,13 +256,25 @@ async function findLeakedAccounts(
   );
 
   for (const foundCredentials of cleartextCredentials) {
-    const acct = accountsByLogin[foundCredentials.subject as string];
-    const passwordMatched = await verifyPassword(foundCredentials, acct);
+    try {
+      const acct = accountsByLogin[foundCredentials.subject as string];
+      const passwordMatched = await verifyPassword(foundCredentials, acct);
 
-    if (passwordMatched) {
-      accountsToReset.push(acct);
+      if (passwordMatched) {
+        accountsToReset.push(acct);
+        statsd.increment(
+          'recorded-future.identity.credentials-lookup.password-match'
+        );
+      }
+    } catch (err) {
+      // A single malformed credential must not abort the entire run, which
+      // would silently skip every remaining account.
+      log.error('recordedFuture.verifyPassword.error', {
+        subject: foundCredentials.subject,
+        error: err,
+      });
       statsd.increment(
-        'recorded-future.identity.credentials-lookup.password-match'
+        'recorded-future.identity.credentials-lookup.verify-error'
       );
     }
   }
