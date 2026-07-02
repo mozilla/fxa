@@ -3,6 +3,9 @@
  * This is only a minimal backend to get started.
  */
 
+// Must be the first import so Sentry patches Nest before it boots.
+import './monitoring';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';

@@ -13,6 +13,7 @@ import { FxaWebhookConfig, StripeEventConfig } from '@fxa/payments/webhooks';
 import { StatsDConfig } from '@fxa/shared/metrics/statsd';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 import { FxaOAuthConfig } from '@fxa/payments/auth';
+import { SentryConfig } from './sentry.config';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -49,6 +50,11 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly statsDConfig!: Partial<StatsDConfig>;
+
+  @Type(() => SentryConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly sentryConfig!: Partial<SentryConfig>;
 
   @Type(() => StrapiClientConfig)
   @ValidateNested()
