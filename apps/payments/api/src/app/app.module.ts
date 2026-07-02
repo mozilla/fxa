@@ -1,4 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -58,6 +60,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import { CurrencyManager } from '@fxa/payments/currency';
+import { StatsDRouteInterceptor } from '@fxa/shared/metrics/statsd';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
@@ -76,6 +79,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     AuthModule,
     TypedConfigModule.forRoot({
       schema: RootConfig,
@@ -99,6 +103,14 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     MeteringCloudTasksController,
   ],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: StatsDRouteInterceptor,
+    },
     Logger,
     AccountCustomerManager,
     AccountDatabaseNestFactory,
