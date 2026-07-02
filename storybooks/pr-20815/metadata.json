@@ -1,0 +1,11 @@
+{
+  "commit": "18539dccb5bf284e018afb42029a493a00808386",
+  "summary": "feat(payments-api): add basic obs and monitoring Because:",
+  "description": "* Add basic observability and monitoring to payments-api\n\nThis commit:\n\n* Add Sentry to payments-api\n* Add StatsD metrics to all routes, excluding heartbeat and version\n\nCloses #PAY-3791",
+  "timestamp": 1783013356000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

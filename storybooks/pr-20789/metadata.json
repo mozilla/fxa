@@ -1,0 +1,10 @@
+{
+  "commit": "95572c93c8fd3b4505ebbe5a9a067f2fa32b5155",
+  "summary": "test(functional): stop passwordless passkey AAL2 divert test at the divert",
+  "description": "Because:\n - The passwordless AAL2 divert test ran 60s+ and timed out: passwordless\n   setup pays three email-OTP round-trips, then it completed the full inline\n   TOTP enrolment on top.\n - That TOTP-completion tail and the account-AAL2 assertions duplicate the\n   cheaper passkey-only divert test, which already covers them.\n\nThis commit:\n - Stops the test at the /inline_totp_setup divert (the behaviour unique to\n   the passwordless path), matching the cached-session divert test.\n - Drops runtime to ~20s and removes the half-enrolled-TOTP teardown failure.",
+  "timestamp": 1782865969000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

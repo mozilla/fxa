@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 176b5250dc113a17e41b62927b708af0909773f5</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 176b5250dc113a17e41b62927b708af0909773f5</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/2/2026, 6:09:59 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(functional): upgrade Playwright to 1.61.1 and stabilize Sync/OAuth/CMS tests</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Playwright 1.44 -&gt; 1.61.1 (Firefox 151) and decoupled Sync (keys_optional)
+  broke several Sync/OAuth/CMS functional tests.
+* Hardcoded fake OAuth params (keys_jwk) no longer complete key derivation on
+  FF151, causing password re-prompt loops in Sync flows.
+
+This commit:
+
+* Upgrades Playwright to 1.61.1 and bumps the CI images.
+* Routes Sync sign-in/up tests through the real /pair handshake (gotoSyncSession)
+  instead of hardcoded fake OAuth params.
+* Restructures the CMS 2FA TOTP-Sync test to enroll TOTP out-of-band so a single
+  sign-in exercises the branded signin_totp_code flow (no unusable second /pair).
+* Reworks the SmartWindow-after-Sync test into a two-phase flow that asserts the
+  real fxa_oauth_login WebChannel scope instead of only reaching a signed-in view.
+* Converts the Sync passkey password-fallback test to the real Firefox Sync
+  browser (syncOAuthBrowserPages + /pair), dropping the unnecessary no-keys_optional
+  mock since the passkey simply cannot derive Sync keys.
+* Tightens passkey assertions: wrong-password now asserts the Incorrect password
+  alert (not any &#039;password&#039; text), asserts the passkey button on prompt=login,
+  and corrects a misleading &#039;passkey-only account&#039; test name.
+* Bounds email-first waits (waitForURL(action=email), fillOutEmailFirstForm
+  toPass) so broken flows fail fast instead of hitting the 60s test timeout.
+* Retries once locally and on CI to absorb rare parallel-worker flakes.</pre></dd>
+  </dl>
+</body>
+</html>

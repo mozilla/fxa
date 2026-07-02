@@ -1,0 +1,12 @@
+{
+  "commit": "e6d7f7e7da8d17de90e07e12daee089f803b54cb",
+  "summary": "Merge pull request #20766 from mozilla/FXA-13784-worktree1",
+  "description": "feat(auth): Send client_id, service, firstAuthorization to attached services",
+  "timestamp": 1782926846000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

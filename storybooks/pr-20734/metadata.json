@@ -1,0 +1,12 @@
+{
+  "commit": "ba9d6572fd68e348d1a2cbbe411445d72ba2df78",
+  "summary": "chore(deps): bump @grpc/grpc-js from 1.13.4 to 1.13.5",
+  "description": "Bumps [@grpc/grpc-js](https://github.com/grpc/grpc-node) from 1.13.4 to 1.13.5.\n- [Release notes](https://github.com/grpc/grpc-node/releases)\n- [Commits](https://github.com/grpc/grpc-node/compare/@grpc/grpc-js@1.13.4...@grpc/grpc-js@1.13.5)\n\n---\nupdated-dependencies:\n- dependency-name: \"@grpc/grpc-js\"\n  dependency-version: 1.13.5\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1781187230000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

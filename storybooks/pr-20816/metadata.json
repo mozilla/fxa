@@ -1,0 +1,10 @@
+{
+  "commit": "60dfafee1faec1c72cab373c6fa79f62aa4739d1",
+  "summary": "feat(settings): update promo banner styles to match Figma",
+  "description": "Because:\n - The Firefox promo and recovery key/phone banners did not match the\n   updated Figma spec (FXA-14091).\n\nThis commit:\n - Moves the CTA below the description, left-aligned, with the optional\n   link inline on the same row.\n - Normalizes banner padding to 20px and sets the CTA font size to text-sm.\n - Fixes banner image sizing, which was capped at 64px by a max-width /\n   width conflict; images now render at Figma proportions and center on\n   mobile.",
+  "timestamp": 1783012424000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

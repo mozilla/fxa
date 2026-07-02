@@ -1,0 +1,12 @@
+{
+  "commit": "804c6bb7377c8905662e2695841e8188b2af864e",
+  "summary": "chore(deps): bump nodemailer from 8.0.5 to 9.0.1",
+  "description": "Bumps [nodemailer](https://github.com/nodemailer/nodemailer) from 8.0.5 to 9.0.1.\n- [Release notes](https://github.com/nodemailer/nodemailer/releases)\n- [Changelog](https://github.com/nodemailer/nodemailer/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/nodemailer/nodemailer/compare/v8.0.5...v9.0.1)\n\n---\nupdated-dependencies:\n- dependency-name: nodemailer\n  dependency-version: 9.0.1\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1782022637000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

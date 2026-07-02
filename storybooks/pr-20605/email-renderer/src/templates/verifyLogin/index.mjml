@@ -1,0 +1,30 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="verifyLogin-title-2" data-l10n-args="<%= JSON.stringify({clientName}) %>">
+        Did you sign in to <%- clientName %>?
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyLogin-description-2">
+        Help us keep your account safe by confirming you signed in on:
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "verifyLogin-action",
+  buttonText: "Confirm sign-in"
+}) %>
+<%- include('/partials/automatedEmailChangePassword/index.mjml') %>

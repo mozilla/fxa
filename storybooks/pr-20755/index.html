@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c47a9a701851c8bccb4f12debb890143e1523261</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c47a9a701851c8bccb4f12debb890143e1523261</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/24/2026, 2:45:49 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): Preserve location state in standalone navigateWithQuery</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The standalone navigateWithQuery replaced reach/router&#039;s navigate() with window.location.assign/replace, which silently drops options.state. The AppContext errorHandler passes isSessionAALUpgrade state through this path for the AAL upgrade flow.
+
+This commit:
+- Add registerNavigate to utilities.ts that stores a navigate ref
+- Register the navigate function from App on mount via useEffect
+- navigateWithQuery uses the registered function when available, falls back to window.location before React mounts</pre></dd>
+  </dl>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "commit": "150e5f7a9524ce77b867e8b28d2b5c0b1314753c",
+  "summary": "chore(deps-dev): bump ws from 8.18.2 to 8.21.0",
+  "description": "Bumps [ws](https://github.com/websockets/ws) from 8.18.2 to 8.21.0.\n- [Release notes](https://github.com/websockets/ws/releases)\n- [Commits](https://github.com/websockets/ws/compare/8.18.2...8.21.0)\n\n---\nupdated-dependencies:\n- dependency-name: ws\n  dependency-version: 8.21.0\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1781714555000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
