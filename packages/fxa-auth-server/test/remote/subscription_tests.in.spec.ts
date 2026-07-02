@@ -600,6 +600,7 @@ describe.each(testVersions)(
     });
 
     it('should not include subscriptions with session token', async () => {
+      console.log('testing the test');
       const response = await client.accountProfile();
       expect(response.subscriptions).toBeUndefined();
     });

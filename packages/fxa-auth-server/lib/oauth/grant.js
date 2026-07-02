@@ -265,6 +265,7 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
   }
 
   if (grant.scope.contains('profile:subscriptions')) {
+    console.log('test this');
     const capabilities =
       await capabilityService.determineClientVisibleSubscriptionCapabilities(
         clientId,
