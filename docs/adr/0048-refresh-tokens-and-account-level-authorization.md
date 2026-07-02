@@ -34,7 +34,7 @@ This ADR covers four interrelated decisions: (1) switching from session tokens t
 ### Token type for browser service authorization
 
 - **Session tokens** Firefox uses the session token to mint OAuth access tokens for browser services
-- **Refresh tokens**: Firefox obtains a scoped refresh token per service context and uses it to create access tokens
+- **Refresh tokens**: Firefox obtains a refresh token scoped per service context and uses it to create access tokens
 
 ### Migration from session tokens to refresh tokens for existing desktop browser services
 
