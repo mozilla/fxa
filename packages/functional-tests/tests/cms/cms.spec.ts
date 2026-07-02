@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 import { Page } from '@playwright/test';
 
 const ENTRYPOINT_123Done = 'purple';
@@ -254,13 +254,17 @@ test.describe('severity-1 #smoke', () => {
 
       test('signup with Sync', async ({
         target,
-        syncOAuthBrowserPages: { page, signup },
+        syncOAuthBrowserPages: { page, signin },
         testAccountTracker,
       }) => {
         const credentials = testAccountTracker.generateAccountDetails();
 
-        syncDesktopOAuthQueryParams.set('entrypoint', ENTRYPOINT_SYNC);
-        await signup.goto('/authorization', syncDesktopOAuthQueryParams);
+        // Real /pair handshake, then re-enter with the Sync CMS entrypoint for branding.
+        await gotoSyncSession(page, target);
+        await page.waitForURL(/action=email/, { timeout: 15000 });
+        const syncSigninUrl = new URL(page.url());
+        syncSigninUrl.searchParams.set('entrypoint', ENTRYPOINT_SYNC);
+        await page.goto(syncSigninUrl.toString());
 
         await assertCmsCustomization(page, {
           headline: 'Continue to your Mozilla account',
@@ -273,14 +277,7 @@ test.describe('severity-1 #smoke', () => {
           buttonText: 'Sign up or sign in',
         });
 
-        await page
-          .getByRole('textbox', { name: 'Email' })
-          .fill(credentials.email);
-        let submitButton = page.getByRole('button', {
-          name: 'Sign up or sign in',
-          exact: true,
-        });
-        await submitButton.click();
+        await signin.fillOutEmailFirstForm(credentials.email);
 
         await assertCmsCustomization(page, {
           headline: 'Create a password',
@@ -298,7 +295,7 @@ test.describe('severity-1 #smoke', () => {
         await page
           .getByTestId('verify-password-input-field')
           .fill(credentials.password);
-        submitButton = page.getByRole('button', {
+        let submitButton = page.getByRole('button', {
           name: 'Create account',
           exact: true,
         });
@@ -334,14 +331,18 @@ test.describe('severity-1 #smoke', () => {
       });
 
       test('signin with Sync', async ({
-        syncOAuthBrowserPages: { page, signin },
+        target,
+        syncOAuthBrowserPages: { page, signin, connectAnotherDevice },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
 
-        // Navigate to the CMS entrypoint
-        syncDesktopOAuthQueryParams.set('entrypoint', ENTRYPOINT_SYNC);
-        await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+        // Real /pair handshake, then re-enter with the Sync CMS entrypoint for branding.
+        await gotoSyncSession(page, target);
+        await page.waitForURL(/action=email/, { timeout: 15000 });
+        const syncSigninUrl = new URL(page.url());
+        syncSigninUrl.searchParams.set('entrypoint', ENTRYPOINT_SYNC);
+        await page.goto(syncSigninUrl.toString());
 
         await assertCmsCustomization(page, {
           headline: 'Continue to your Mozilla account',
@@ -354,14 +355,7 @@ test.describe('severity-1 #smoke', () => {
           buttonText: 'Sign up or sign in',
         });
 
-        await page
-          .getByRole('textbox', { name: 'Email' })
-          .fill(credentials.email);
-        let submitButton = page.getByRole('button', {
-          name: 'Sign up or sign in',
-          exact: true,
-        });
-        await submitButton.click();
+        await signin.fillOutEmailFirstForm(credentials.email);
 
         await assertCmsCustomization(page, {
           headline: 'Enter your password',
@@ -372,29 +366,31 @@ test.describe('severity-1 #smoke', () => {
           buttonColor: '#FF630B',
           buttonText: 'Sign in',
         });
-        await page.getByTestId('input-field').fill(credentials.password);
+        await signin.fillOutPasswordForm(credentials.password);
 
-        submitButton = page.getByRole('button', {
-          name: 'Sign in',
-          exact: true,
-        });
-        await submitButton.click();
-
-        await page.waitForURL(/pair/);
-
-        await page.getByRole('link', { name: 'Not now' }).click();
+        await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+        await connectAnotherDevice.clickNotNowPair();
       });
 
       test('signin login confirmation with Sync', async ({
         target,
-        syncOAuthBrowserPages: { page, signin, relier },
+        syncOAuthBrowserPages: {
+          page,
+          signin,
+          signinTokenCode,
+          connectAnotherDevice,
+        },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUpSync();
 
-        // Navigate to the CMS entrypoint
-        syncDesktopOAuthQueryParams.set('entrypoint', ENTRYPOINT_SYNC);
-        await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+        // Real /pair handshake redirects to sync sign-in; re-enter with the Sync
+        // CMS entrypoint for branding.
+        await gotoSyncSession(page, target);
+        await page.waitForURL(/action=email/, { timeout: 15000 });
+        const syncSigninUrl = new URL(page.url());
+        syncSigninUrl.searchParams.set('entrypoint', ENTRYPOINT_SYNC);
+        await page.goto(syncSigninUrl.toString());
 
         await assertCmsCustomization(page, {
           headline: 'Continue to your Mozilla account',
@@ -407,14 +403,7 @@ test.describe('severity-1 #smoke', () => {
           buttonText: 'Sign up or sign in',
         });
 
-        await page
-          .getByRole('textbox', { name: 'Email' })
-          .fill(credentials.email);
-        let submitButton = page.getByRole('button', {
-          name: 'Sign up or sign in',
-          exact: true,
-        });
-        await submitButton.click();
+        await signin.fillOutEmailFirstForm(credentials.email);
 
         await page.waitForURL(/signin/);
 
@@ -427,13 +416,7 @@ test.describe('severity-1 #smoke', () => {
           buttonColor: '#FF630B',
           buttonText: 'Sign in',
         });
-        await page.getByTestId('input-field').fill(credentials.password);
-
-        submitButton = page.getByRole('button', {
-          name: 'Sign in',
-          exact: true,
-        });
-        await submitButton.click();
+        await signin.fillOutPasswordForm(credentials.password);
 
         await page.waitForURL(/signin_token_code/);
 
@@ -449,16 +432,11 @@ test.describe('severity-1 #smoke', () => {
         const code = await target.emailClient.getVerifyLoginCode(
           credentials.email
         );
-        await page.getByLabel('Enter 6-digit code').fill(code);
-        submitButton = page.getByRole('button', {
-          name: 'Confirm',
-          exact: true,
-        });
-        await submitButton.click();
+        await signinTokenCode.fillOutCodeForm(code);
 
-        await page.waitForURL(/pair/);
-
-        await page.getByRole('link', { name: 'Not now', exact: true }).click();
+        await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+        await connectAnotherDevice.clickNotNowPair();
+        await page.waitForURL(/settings/);
       });
     });
   });

@@ -5,6 +5,7 @@
 import { getTotpCode } from '../../lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -39,9 +40,7 @@ test.describe('severity-2 #smoke', () => {
         preVerified: 'true',
       });
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -70,9 +69,7 @@ test.describe('severity-2 #smoke', () => {
         preVerified: 'true',
       });
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -97,9 +94,7 @@ test.describe('severity-2 #smoke', () => {
         preVerified: 'true',
       });
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 

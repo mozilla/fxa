@@ -577,7 +577,7 @@ test.describe('severity-1 #smoke', () => {
       );
     });
 
-    test('forces /inline_totp_setup when password sign-in on a passkey-only account hits an AAL2 RP', async ({
+    test('forces /inline_totp_setup when password sign-in on an account with a passkey enrolled hits an AAL2 RP', async ({
       target,
       pages: { page, relier, settings, settingsPasskeyAdd, signin },
       testAccountTracker,
@@ -622,6 +622,7 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.relierUrl}/api/prompt_login`);
       await signin.fillOutEmailFirstForm(email);
       await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passkeySigninButton).toBeVisible();
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
         await signin.passkeySigninButton.click();
         await page.waitForURL((url) => url.href.startsWith(target.relierUrl));
