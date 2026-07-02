@@ -7,6 +7,8 @@
  * Sets environment variables that affect module loading.
  */
 
+import 'reflect-metadata';
+
 (process.env as Record<string, string | undefined>).NODE_ENV = 'dev';
 process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = 'true';
 process.env.TRACING_SERVICE_NAME = 'fxa-auth-server-test';

@@ -1153,6 +1153,14 @@ const convictConf = convict({
       env: 'SUBSCRIPTIONS_BILLING_PRICE_INFO_FEATURE',
       default: false,
     },
+    freeAccessProgramJournal: {
+      collectionName: {
+        doc: 'Firestore collection holding the free-access-program reconciler journal.',
+        format: String,
+        env: 'FREE_ACCESS_PROGRAM_JOURNAL_COLLECTION_NAME',
+        default: 'subplat-free-access-program-journal',
+      },
+    },
   },
   currenciesToCountries: {
     doc: 'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',
@@ -2437,6 +2445,12 @@ const convictConf = convict({
         doc: 'Strapi client Firestore offline cache TTL in seconds, used for when Strapi is down',
         env: 'STRAPI_CLIENT_FIRESTORE_OFFLINE_CACHE_TTL',
         format: Number,
+      },
+      webhookSecret: {
+        default: 'PLACEHOLDER',
+        doc: 'Strapi client webhook secret',
+        env: 'STRAPI_CLIENT_WEBHOOK_SECRET',
+        format: String,
       },
     },
   },

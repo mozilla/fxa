@@ -1,0 +1,49 @@
+{
+  "name": "free-access-program",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/free-access-program/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/free-access-program/src/index.ts",
+        "outputPath": "dist/libs/free-access-program",
+        "tsConfig": "libs/free-access-program/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/free-access-program/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/free-access-program/**/*.ts",
+          "libs/free-access-program/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/free-access-program/jest.config.ts"
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ import Stripe from 'stripe';
 import Container from 'typedi';
 
 import { CapabilityManager } from '@fxa/payments/capability';
+import { FreeAccessProgramService } from '@fxa/free-access-program';
 import {
   EligibilityManager,
   IntervalComparison,
@@ -58,6 +59,7 @@ export class CapabilityService {
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
   private capabilityManager?: CapabilityManager;
+  private freeAccessProgramService?: FreeAccessProgramService;
   private eligibilityManager?: EligibilityManager;
 
   constructor() {
@@ -80,6 +82,9 @@ export class CapabilityService {
     }
     if (Container.has(CapabilityManager)) {
       this.capabilityManager = Container.get(CapabilityManager);
+    }
+    if (Container.has(FreeAccessProgramService)) {
+      this.freeAccessProgramService = Container.get(FreeAccessProgramService);
     }
     if (Container.has(EligibilityManager)) {
       this.eligibilityManager = Container.get(EligibilityManager);
@@ -219,10 +224,17 @@ export class CapabilityService {
    * Return a map of capabilities to client ids for the user.
    */
   public async subscriptionCapabilities(
-    uid: string
+    uid: string,
+    email?: string | null
   ): Promise<ClientIdCapabilityMap> {
     const subscribedPrices = await this.subscribedPriceIds(uid);
-    return this.planIdsToClientCapabilities(subscribedPrices);
+    const subscriptionCaps =
+      await this.planIdsToClientCapabilities(subscribedPrices);
+    const emailCaps =
+      email && this.freeAccessProgramService
+        ? await this.freeAccessProgramService.findCapabilitiesForEmail(email)
+        : {};
+    return ClientIdCapabilityMap.merge(subscriptionCaps, emailCaps);
   }
 
   /**
