@@ -26,7 +26,7 @@ import {
 } from '../../pages/Signin/utils';
 import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import { queryParamsToMetricsContext } from '../metrics';
-import { searchParams } from '../utilities';
+import type { QueryParams } from '../..';
 import {
   getCredential,
   handleWebAuthnError,
@@ -210,6 +210,9 @@ export interface UsePasskeySignInArgs {
   ftlMsgResolver: FtlMsgResolver;
   navigateWithQuery: ReturnType<typeof useNavigateWithQuery>;
   queryParams: string;
+  // Frozen load-time flow snapshot for the metrics join; not the live
+  // `queryParams` above, which the SPA may strip of flow params after load.
+  flowQueryParams?: QueryParams;
   surface: PasskeySignInSurface;
   isButtonVisible?: boolean;
   supportsKeysOptionalLogin?: boolean;
@@ -228,6 +231,7 @@ export function usePasskeySignIn({
   ftlMsgResolver,
   navigateWithQuery,
   queryParams,
+  flowQueryParams = {},
   surface,
   isButtonVisible = false,
   supportsKeysOptionalLogin,
@@ -326,9 +330,7 @@ export function usePasskeySignIn({
       }
 
       const serviceForRequest = resolvePasskeyService(integration);
-      const metricsContext = queryParamsToMetricsContext(
-        searchParams(queryParams) as Record<string, string | undefined>
-      );
+      const metricsContext = queryParamsToMetricsContext(flowQueryParams);
 
       const keysRequired = integration.requiresPasswordForLogin(
         supportsKeysOptionalLogin
@@ -484,6 +486,7 @@ export function usePasskeySignIn({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams,
+    flowQueryParams,
     setLocalizedError,
     surface,
     supportsKeysOptionalLogin,

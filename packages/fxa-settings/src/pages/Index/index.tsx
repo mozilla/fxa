@@ -66,6 +66,7 @@ export const Index = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    flowQueryParams,
     surface: 'emailfirst',
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,

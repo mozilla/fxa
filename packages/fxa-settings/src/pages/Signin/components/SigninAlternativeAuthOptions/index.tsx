@@ -60,6 +60,7 @@ const SigninAlternativeAuthOptions = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    flowQueryParams,
     surface: 'alternative_auth',
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin,
