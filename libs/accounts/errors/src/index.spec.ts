@@ -434,6 +434,22 @@ describe('AppErrors', () => {
       });
     });
 
+    it('creates passkeyUserVerificationRequired', () => {
+      const result = AppError.passkeyUserVerificationRequired();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 233,
+        message: 'Passkey requires user verification (PIN or biometric)',
+        output: {
+          statusCode: 422,
+          payload: {
+            error: 'Unprocessable Entity',
+            errno: 233,
+          },
+        },
+      });
+    });
+
     it('creates passkeyChallengeExpired', () => {
       const result = AppError.passkeyChallengeExpired();
       expect(result).toBeInstanceOf(AppError);
