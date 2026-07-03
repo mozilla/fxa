@@ -58,6 +58,7 @@ function mockIntegration() {
     isSync: () => true,
     requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,

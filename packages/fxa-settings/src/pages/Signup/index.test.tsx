@@ -110,9 +110,10 @@ async function submit() {
 
 const user = userEvent.setup();
 
-// Note: we are removing the password confirmation requirement for signup
-// except for Sync (in in FXA-10467). All tests by default will assume that
-// password confirmation is not present or required except for Sync/Desktop Relay.
+// Password confirmation is required only when the password derives encryption
+// keys: Sync (keys mandatory), and non-Sync Firefox services (Relay/VPN/
+// SmartWindow) when the browser lacks the keys-optional capability
+// (`supportsKeysOptionalLogin` false). Plain web/OAuth-web signups omit it.
 
 describe('Signup page', () => {
   beforeEach(() => {
@@ -187,7 +188,7 @@ describe('Signup page', () => {
       );
     });
 
-    expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Repeat password')).toBeVisible();
 
     // newsletters and third party auth should not be displayed
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
@@ -244,6 +245,42 @@ describe('Signup page', () => {
     expect(
       screen.getByRole('button', { name: /Continue with Apple/ })
     ).toBeInTheDocument();
+  });
+
+  it('requires password confirmation for a service when keys-optional login is unsupported', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Vpn,
+            false
+          )}
+          supportsKeysOptionalLogin={false}
+        />
+      );
+    });
+
+    expect(screen.getByLabelText('Repeat password')).toBeVisible();
+  });
+
+  it('does not require password confirmation for a service when keys-optional login is supported', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Relay,
+            false,
+            undefined,
+            // keys-optional login supported → the service doesn't require a
+            // password, so the confirmation field is dropped.
+            /* requiresPasswordForLogin */ false
+          )}
+          supportsKeysOptionalLogin={true}
+        />
+      );
+    });
+
+    expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
   });
 
   it('renders as expected when cms enabled', async () => {
@@ -625,7 +662,7 @@ describe('Signup page', () => {
           beginSignupHandler={mockBeginSignupHandler}
         />
       );
-      await fillOutForm(false);
+      await fillOutForm(true);
       await submit();
 
       await waitFor(() => {
