@@ -157,6 +157,13 @@ export const MOCK_CMS_INFO = {
     },
   },
 
+  PostVerifySetPasswordPage: {
+    headline: 'Create a password to sync',
+    description:
+      'A Mozilla account works with sync to help protect your browsing, passwords, and more.',
+    primaryButtonText: 'Continue',
+    pageTitle: 'Create a password to sync',
+  },
   SigninPage: {
     headline: 'Enter your password',
     description: 'for your Mozilla account',
