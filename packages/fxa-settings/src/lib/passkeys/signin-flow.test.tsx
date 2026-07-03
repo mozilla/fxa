@@ -15,6 +15,8 @@ import { getCredential, isWebAuthnLevel3Supported } from './webauthn';
 import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
+import { queryParamsToMetricsContext } from '../metrics';
+import type { QueryParams } from '../..';
 import { IntegrationType } from '../../models';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
@@ -113,6 +115,11 @@ const MOCK_CREDENTIAL = {
   response: {},
   clientExtensionResults: {},
 };
+const MOCK_FLOW_QUERY_PARAMS = {
+  flowId: 'f'.repeat(64),
+  flowBeginTime: '1700000000000',
+  deviceId: 'd'.repeat(32),
+} as unknown as QueryParams;
 
 const buildArgs = (
   overrides: Partial<Parameters<typeof usePasskeySignIn>[0]> = {}
@@ -812,6 +819,33 @@ describe('usePasskeySignIn', () => {
     // Should NOT be reported to Sentry — it's an expected divergence between
     // server state and authenticator state.
     expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+  });
+
+  describe('metricsContext flow identity', () => {
+    it('builds metricsContext from flowQueryParams, not the live location.search', async () => {
+      // location.search carries a different flow; it must be ignored so the
+      // server login.complete joins the client passkey metrics on flow_id.
+      const { args, spies } = buildArgs({
+        queryParams:
+          '?flowId=stale-url-flow&flowBeginTime=1&deviceId=stale-url-device',
+        flowQueryParams: MOCK_FLOW_QUERY_PARAMS,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args));
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
+        MOCK_CREDENTIAL,
+        CHALLENGE,
+        {
+          service: 'service-id',
+          keysRequired: false,
+          metricsContext: queryParamsToMetricsContext(MOCK_FLOW_QUERY_PARAMS),
+        }
+      );
+    });
   });
 
   describe('Glean metrics', () => {
