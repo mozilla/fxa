@@ -124,17 +124,17 @@ export const SetPassword = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      {passwordCreationReason === 'third_party_auth' ? (
-        cmsDescription ? (
-          <p className="text-sm mt-6 mb-5">{cmsDescription}</p>
-        ) : (
-          <FtlMsg id="set-password-info-v2">
-            <p className="text-sm mt-6 mb-5">
-              This encrypts your data. It needs to be different from your Google
-              or Apple account password.
-            </p>
-          </FtlMsg>
-        )
+      {/* CMS copy is client-scoped, so it wins on every arrival path; the
+          hardcoded copy (which differs per path) is the no-CMS fallback. */}
+      {cmsDescription ? (
+        <p className="text-sm mt-6 mb-5">{cmsDescription}</p>
+      ) : passwordCreationReason === 'third_party_auth' ? (
+        <FtlMsg id="set-password-info-v2">
+          <p className="text-sm mt-6 mb-5">
+            This encrypts your data. It needs to be different from your Google
+            or Apple account password.
+          </p>
+        </FtlMsg>
       ) : (
         <FtlMsg id="set-password-passwordless-info">
           <p className="text-sm mt-6 mb-5">

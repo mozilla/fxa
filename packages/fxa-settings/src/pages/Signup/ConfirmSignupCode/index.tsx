@@ -294,9 +294,15 @@ const ConfirmSignupCode = ({
               scope,
             });
             if (integration.isFirefoxClientServiceVpn()) {
-              navigate('/post_verify/service_welcome', {
-                state: { origin: 'signup' },
-              });
+              // Don't navigate mobile users. The client controls the web view
+              // and users will see a "blip" of the service welcome page before
+              // the client closes the view in response to the fxaOAuthLogin web
+              // channel message. See FXA-11944.
+              if (!integration.isFirefoxMobileClient()) {
+                navigate('/post_verify/service_welcome', {
+                  state: { origin: 'signup' },
+                });
+              }
             } else {
               goToSettingsWithAlertSuccess();
             }

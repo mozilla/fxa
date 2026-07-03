@@ -39,6 +39,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     getWebChannelServices: mockGetWebChannelServices(),
     requiresKeys: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin: () => false,
     getCmsInfo: () => undefined,
     getLegalTerms: () => undefined,
   };
@@ -57,6 +58,7 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     getCmsInfo: () => undefined,
     getLegalTerms: () => undefined,
   };
@@ -81,6 +83,7 @@ export function createMockSignupOAuthWebIntegration(
     getWebChannelServices: mockGetWebChannelServices(),
     requiresKeys: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin: () => false,
     getCmsInfo: () => cmsInfo,
     getLegalTerms: () => undefined,
   };
@@ -89,7 +92,8 @@ export function createMockSignupOAuthWebIntegration(
 export function createMockSignupOAuthNativeIntegration(
   service?: string,
   isSync = true,
-  cmsInfo?: RelierCmsInfo
+  cmsInfo?: RelierCmsInfo,
+  requiresPasswordForLogin = true
 ): SignupOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
   const isSmartWindow = service === OAuthNativeServices.SmartWindow;
@@ -113,6 +117,7 @@ export function createMockSignupOAuthNativeIntegration(
     }),
     requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => requiresPasswordForLogin,
     getCmsInfo: () => cmsInfo,
     getLegalTerms: () => undefined,
   };

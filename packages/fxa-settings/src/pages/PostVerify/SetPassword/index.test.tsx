@@ -6,7 +6,11 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { createMockIntegration, Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MOCK_EMAIL } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_CMS_INFO,
+  createMockIntegrationWithCms,
+} from '../../mocks';
 import { RelierCmsInfo } from '../../../models';
 import GleanMetrics from '../../../lib/glean';
 
@@ -55,14 +59,14 @@ describe('SetPassword page', () => {
   });
 
   it('renders CMS overrides when PostVerifySetPasswordPage is set', () => {
-    const cmsInfo = {
-      shared: { buttonColor: '#333' },
+    const cmsInfo: RelierCmsInfo = {
+      ...MOCK_CMS_INFO,
       PostVerifySetPasswordPage: {
         headline: 'Set a sync password',
         description: 'Your password encrypts your synced data.',
         primaryButtonText: 'Sync now',
       },
-    } as unknown as RelierCmsInfo;
+    };
 
     renderWithLocalizationProvider(
       <Subject integration={createMockIntegration(cmsInfo)} />
@@ -78,6 +82,37 @@ describe('SetPassword page', () => {
     expect(
       screen.queryByRole('heading', { name: 'Create password to sync' })
     ).not.toBeInTheDocument();
+  });
+
+  it.each([['otp'], ['passkey']] as const)(
+    'renders the CMS description instead of the passwordless copy on the %s path',
+    (passwordCreationReason) => {
+      renderWithLocalizationProvider(
+        <Subject
+          passwordCreationReason={passwordCreationReason}
+          integration={createMockIntegrationWithCms()}
+        />
+      );
+
+      expect(
+        screen.getByText(MOCK_CMS_INFO.PostVerifySetPasswordPage.description)
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          'This password encrypts your synced data and keeps it secure.'
+        )
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it('falls back to the passwordless info copy on the OTP path when no CMS description is set', () => {
+    renderWithLocalizationProvider(<Subject passwordCreationReason="otp" />);
+
+    expect(
+      screen.getByText(
+        'This password encrypts your synced data and keeps it secure.'
+      )
+    ).toBeInTheDocument();
   });
 
   describe('Glean events', () => {
