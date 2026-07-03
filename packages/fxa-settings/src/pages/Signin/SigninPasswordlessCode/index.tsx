@@ -97,6 +97,7 @@ const SigninPasswordlessCode = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    flowQueryParams,
     surface: 'login_otp',
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,

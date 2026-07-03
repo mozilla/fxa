@@ -76,6 +76,7 @@ const Signin = ({
     ftlMsgResolver,
     navigateWithQuery,
     queryParams: location.search,
+    flowQueryParams,
     surface: 'login',
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin,
