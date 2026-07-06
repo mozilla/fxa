@@ -32,6 +32,10 @@ test.describe('relay integration', () => {
     ).toBeVisible();
 
     await signup.passwordTextbox.fill(password);
+    // keys_optional can't be sent in Firefox tests yet (FXA-13647), so this
+    // key-deriving desktop signup requires a password and renders the
+    // confirmation field.
+    await signup.verifyPasswordTextbox.fill(password);
     await signup.createAccountButton.click();
 
     await page.waitForURL(/confirm_signup_code/);

@@ -27,3 +27,8 @@ export const Default = storyWithProps();
 export const WithCms = storyWithProps({
   integration: createMockIntegrationWithCms(),
 });
+
+export const OtpWithCms = storyWithProps({
+  passwordCreationReason: 'otp',
+  integration: createMockIntegrationWithCms(),
+});

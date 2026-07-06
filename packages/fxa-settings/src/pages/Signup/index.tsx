@@ -338,7 +338,13 @@ export const Signup = ({
           handleSubmit,
           onSubmit,
           offeredSyncEngineConfigs,
-          requirePasswordConfirmation: isSync,
+          // Require password confirmation whenever the password is used for key
+          // derivation — Sync (keys mandatory) and non-Sync Firefox services
+          // that derive keys when the browser can't complete a keyless login
+          // (`supportsKeysOptionalLogin` false).
+          requirePasswordConfirmation:
+            integration.isSync() ||
+            integration.requiresPasswordForLogin(supportsKeysOptionalLogin),
           setSelectedNewsletterSlugs,
           cmsButton: {
             text: cmsInfo?.SignupSetPasswordPage.primaryButtonText,

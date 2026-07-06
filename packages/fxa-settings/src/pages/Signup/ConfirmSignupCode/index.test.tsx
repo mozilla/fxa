@@ -418,6 +418,31 @@ describe('ConfirmSignupCode page', () => {
       });
     });
 
+    it('does not navigate to service_welcome when service=vpn on mobile (page automatically closes on fxaOAuthLogin)', async () => {
+      const integration = createMockOAuthNativeIntegration(
+        false,
+        OAuthNativeServices.Vpn
+      );
+      jest.spyOn(integration, 'isFirefoxMobileClient').mockReturnValue(true);
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signup',
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+        });
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
     it('does not submit on paste when service=sync', async () => {
       const user = userEvent.setup();
       const integration = createMockOAuthNativeIntegration();
