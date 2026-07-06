@@ -321,6 +321,7 @@ describe('/token POST', () => {
 
     it('does not emit keys-jwe statsd when scope keys are absent', async () => {
       const request = {
+        app: {},
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'authorization_code',
@@ -575,6 +576,7 @@ describe('token exchange grant_type', () => {
         },
       });
       const request = {
+        app: {},
         headers: {},
         payload: {
           grant_type: GRANT_TOKEN_EXCHANGE,
@@ -608,6 +610,7 @@ describe('token exchange grant_type', () => {
         },
       });
       const request = {
+        app: {},
         headers: {},
         payload: {
           grant_type: GRANT_TOKEN_EXCHANGE,
@@ -679,6 +682,7 @@ describe('token exchange grant_type', () => {
       });
 
       const request = {
+        app: {},
         headers: {},
         payload: {
           grant_type: GRANT_TOKEN_EXCHANGE,
@@ -709,6 +713,7 @@ describe('/oauth/token POST', () => {
     it('updates last access time of a session', async () => {
       const sessionToken = { uid: 'abc' };
       const request = {
+        app: {},
         auth: { credentials: sessionToken },
         headers: {},
         payload: {
@@ -746,6 +751,7 @@ describe('/oauth/token POST', () => {
       const routes = require('./token')(tokenRoutesArgMocks);
       const sessionToken = { uid: 'abc' };
       const request = {
+        app: {},
         auth: { credentials: sessionToken },
         headers: {},
         payload: {
@@ -822,6 +828,7 @@ describe('/oauth/token POST', () => {
       });
 
       const request = {
+        app: {},
         auth: { credentials: null },
         headers: {},
         payload: {
@@ -914,6 +921,7 @@ describe('/oauth/token POST', () => {
       });
 
       const request = {
+        app: {},
         auth: { credentials: null },
         headers: {},
         payload: {
@@ -1010,6 +1018,7 @@ describe('/oauth/token POST', () => {
       });
 
       const request = {
+        app: {},
         auth: { credentials: null },
         headers: {},
         payload: {
@@ -1168,6 +1177,7 @@ describe('/oauth/token POST', () => {
 
       await expect(
         routes[1].handler({
+          app: {},
           auth: { credentials: null },
           headers: {},
           payload: {
@@ -1262,6 +1272,7 @@ describe('/oauth/token POST', () => {
       });
 
       await routes[1].handler({
+        app: {},
         auth: { credentials: null },
         headers: {},
         payload: {
@@ -1323,6 +1334,7 @@ describe('/oauth/token POST', () => {
       });
 
       const request = {
+        app: {},
         auth: { credentials: { uid: UID } },
         headers: {},
         payload: {
@@ -1379,6 +1391,7 @@ describe('/oauth/token POST', () => {
       const routes = require('./token')(tokenRoutesArgMocks);
 
       const request = {
+        app: {},
         auth: { credentials: { uid: UID } },
         headers: {},
         payload: {

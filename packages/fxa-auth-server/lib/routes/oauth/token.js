@@ -861,6 +861,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         },
       },
       handler: async function (req) {
+        // TEMP (FXA-AUTH-2ST diag): if a ValidationError still fires after this,
+        // it's RESPONSE-schema validation (handler ran); if this was never set, it
+        // was REQUEST-payload validation (failAction threw before the handler ran).
+        req.app.oauthTokenHandlerReached = true;
         const sessionToken = req.auth.credentials;
         delete req.headers.authorization;
         let grant;
