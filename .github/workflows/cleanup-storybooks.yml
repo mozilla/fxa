@@ -26,25 +26,71 @@ jobs:
           path: gh-pages
           fetch-depth: 1
 
-      - name: Remove storybooks for closed/merged PRs
+      - name: Remove storybooks for closed/stale PRs and enforce cap
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          # Prune stale open PRs and cap retained storybooks so the Pages site
+          # stays under the ~1 GB limit that makes the deploy sync step time out.
+          MAX_AGE_DAYS: '14'
+          MAX_KEEP: '15'
         run: |
           set -euo pipefail
+          NOW=$(date +%s)
           REMOVED=0
+          # Open PR dirs kept this run as "updated_ts<TAB>pr<TAB>dir", for the cap below.
+          KEPT=()
+
           for dir in gh-pages/storybooks/pr-*/; do
             [ -d "$dir" ] || continue
             PR_NUMBER=$(basename "$dir" | sed 's/^pr-//')
-            STATE=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.state')
+
+            # Only a confirmed 404 means the PR is gone; on any other (transient)
+            # failure keep the dir and let the next scheduled run retry.
+            if ! META=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '{state,updated_at}' 2>&1); then
+              if printf '%s' "$META" | grep -q 'HTTP 404'; then
+                rm -rf "$dir"
+                echo "Removed pr-${PR_NUMBER} (PR not found)"
+                REMOVED=$((REMOVED + 1))
+              else
+                # Transient failure: keep the dir, leave it out of the cap, and retry
+                # next run — deleting on an unverified state could purge a live PR.
+                echo "::warning::Keeping pr-${PR_NUMBER}: lookup failed, will retry next run (${META})"
+              fi
+              continue
+            fi
+
+            STATE=$(echo "$META" | jq -r '.state')
+            UPDATED_TS=$(date -d "$(echo "$META" | jq -r '.updated_at')" +%s)
+            AGE_DAYS=$(( (NOW - UPDATED_TS) / 86400 ))
+
             if [ "$STATE" = "closed" ]; then
               rm -rf "$dir"
-              echo "Removed storybook for PR #${PR_NUMBER} (state: ${STATE})"
+              echo "Removed pr-${PR_NUMBER} (closed)"
+              REMOVED=$((REMOVED + 1))
+            elif [ "$AGE_DAYS" -gt "$MAX_AGE_DAYS" ]; then
+              rm -rf "$dir"
+              echo "Removed pr-${PR_NUMBER} (stale: ${AGE_DAYS}d > ${MAX_AGE_DAYS}d)"
               REMOVED=$((REMOVED + 1))
             else
-              echo "Keeping storybook for PR #${PR_NUMBER} (state: ${STATE})"
+              KEPT+=("${UPDATED_TS}"$'\t'"${PR_NUMBER}"$'\t'"${dir}")
+              echo "Keeping pr-${PR_NUMBER} (state: ${STATE}, age: ${AGE_DAYS}d)"
             fi
           done
+
+          # Cap: keep the MAX_KEEP most-recently-updated dirs, evict the rest.
+          # Read sorted lines into an array so head can't SIGPIPE sort under pipefail.
+          if [ "${#KEPT[@]}" -gt "$MAX_KEEP" ]; then
+            OVER=$(( ${#KEPT[@]} - MAX_KEEP ))
+            mapfile -t SORTED < <(printf '%s\n' "${KEPT[@]}" | sort -n)
+            for ((i = 0; i < OVER; i++)); do
+              IFS=$'\t' read -r _ts pr dir <<<"${SORTED[i]}"
+              rm -rf "$dir"
+              echo "Removed pr-${pr} (over cap of ${MAX_KEEP})"
+            done
+            REMOVED=$((REMOVED + OVER))
+          fi
+
           echo "Total removed: ${REMOVED}"
           echo "REMOVED=${REMOVED}" >> "$GITHUB_ENV"
 
@@ -75,7 +121,7 @@ jobs:
           # Create orphan branch (no history) with current content
           git checkout --orphan gh-pages-new
           git add -A
-          git commit -m "chore: remove storybooks for ${REMOVED} closed PR(s)"
+          git commit -m "chore: prune storybooks for ${REMOVED} closed/stale/over-cap PR(s)"
 
           # Replace gh-pages with the new orphan branch
           git push --force origin gh-pages-new:gh-pages
