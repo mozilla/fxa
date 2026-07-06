@@ -171,6 +171,27 @@ async function create(
         },
       },
       response: { options: { abortEarly: false } },
+      // TEMP (FXA-AUTH-2ST diag): if the log above reports side:'response-schema',
+      // REPLACE the `response:` line above with the block below to capture the
+      // failing response's key NAMES (not values) — i.e. which field matches no
+      // response alternative. Global (affects all routes); re-throws to preserve
+      // existing 500 behavior.
+      // response: {
+      //   options: { abortEarly: false },
+      //   failAction: (request, h, err) => {
+      //     log.error('oauth.response.validationError.debug', {
+      //       path: request.route?.path,
+      //       grantType: request.payload?.grant_type,
+      //       responseKeys: request.response?.source
+      //         ? Object.keys(request.response.source)
+      //         : undefined,
+      //       failedPaths: (err.details || []).map((d) =>
+      //         Array.isArray(d.path) ? d.path.join('.') : d.path
+      //       ),
+      //     });
+      //     throw err;
+      //   },
+      // },
     },
     load: {
       sampleInterval: 1000,
@@ -357,6 +378,23 @@ async function create(
         response.output &&
         response.output.statusCode >= 500
       ) {
+        // TEMP (FXA-AUTH-2ST diag): grant_type is scrubbed in Sentry; capture it
+        // here, plus whether this was request- or response-schema validation and
+        // the failing Joi paths/types. NOTE: paths/types only — never
+        // d.context.value, which may contain a token.
+        log.error('oauth.token.validationError.debug', {
+          path: request.route?.path,
+          method: request.method,
+          grantType: request.payload?.grant_type,
+          side: request.app?.oauthTokenHandlerReached
+            ? 'response-schema'
+            : 'request-payload',
+          rootType: response.details?.[0]?.type,
+          failedPaths: (response.details || []).map((d) => ({
+            path: Array.isArray(d.path) ? d.path.join('.') : d.path,
+            type: d.type,
+          })),
+        });
         logValidationError(response, log);
       }
 
