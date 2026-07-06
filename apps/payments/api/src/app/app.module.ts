@@ -1,4 +1,12 @@
-import { Logger, Module } from '@nestjs/common';
+import {
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -58,6 +66,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import { CurrencyManager } from '@fxa/payments/currency';
+import { StatsDRouteMiddleware } from '@fxa/shared/metrics/statsd';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
@@ -76,6 +85,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     AuthModule,
     TypedConfigModule.forRoot({
       schema: RootConfig,
@@ -99,6 +109,10 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     MeteringCloudTasksController,
   ],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
     Logger,
     AccountCustomerManager,
     AccountDatabaseNestFactory,
@@ -155,4 +169,15 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     UsageService,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(StatsDRouteMiddleware)
+      .exclude(
+        { path: '__heartbeat__', method: RequestMethod.GET },
+        { path: '__lbheartbeat__', method: RequestMethod.GET },
+        { path: '__version__', method: RequestMethod.GET }
+      )
+      .forRoutes('*');
+  }
+}
