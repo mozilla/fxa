@@ -122,7 +122,7 @@ export class MeteringIngestManager implements OnApplicationShutdown {
   }
 
   private async processBatch(batch: BufferedIngestEvent[]): Promise<void> {
-    await this.openMeterClient.events.ingest(
+    await this.openMeterClient.ingest(
       batch.map((e) =>
         toMeteringCloudEvent({
           id: e.id,

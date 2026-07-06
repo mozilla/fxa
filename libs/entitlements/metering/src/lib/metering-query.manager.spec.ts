@@ -23,17 +23,17 @@ async function rejectionOf(promise: Promise<unknown>): Promise<Error> {
 
 describe('MeteringQueryManager', () => {
   let meteringQueryManager: MeteringQueryManager;
-  let query: jest.Mock;
+  let queryUsage: jest.Mock;
 
   beforeEach(async () => {
-    query = jest.fn();
+    queryUsage = jest.fn();
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         MeteringQueryManager,
         {
           provide: OpenMeterClient,
-          useValue: { meters: { query } },
+          useValue: { queryUsage },
         },
       ],
     }).compile();
@@ -47,10 +47,8 @@ describe('MeteringQueryManager', () => {
       to: new Date('2026-06-01T00:00:00.000Z'),
     };
 
-    it('queries the meter by slug for the subject and sums all rows in the window', async () => {
-      query.mockResolvedValue({
-        data: [{ value: 10 }, { value: 5 }, { value: 0 }],
-      });
+    it('queries usage for the subject in the window and returns it', async () => {
+      queryUsage.mockResolvedValue(15);
 
       const result = await meteringQueryManager.queryUsage({
         userIdentifier: 'user-1',
@@ -58,16 +56,17 @@ describe('MeteringQueryManager', () => {
         ...window,
       });
 
-      expect(query).toHaveBeenCalledWith('tokens_total', {
+      expect(queryUsage).toHaveBeenCalledWith({
+        slug: 'tokens_total',
+        subject: ['user-1'],
         from: window.from,
         to: window.to,
-        subject: ['user-1'],
       });
       expect(result).toEqual({ usage: 15, from: window.from, to: window.to });
     });
 
-    it('returns zero usage when there are no rows', async () => {
-      query.mockResolvedValue({ data: [] });
+    it('returns zero usage when the client reports none', async () => {
+      queryUsage.mockResolvedValue(0);
 
       const result = await meteringQueryManager.queryUsage({
         userIdentifier: 'user-1',
@@ -78,9 +77,9 @@ describe('MeteringQueryManager', () => {
       expect(result.usage).toBe(0);
     });
 
-    it('wraps SDK failures in OpenMeterQueryError and preserves the cause', async () => {
+    it('wraps client failures in OpenMeterQueryError and preserves the cause', async () => {
       const cause = new Error('boom');
-      query.mockRejectedValue(cause);
+      queryUsage.mockRejectedValue(cause);
 
       const error = await rejectionOf(
         meteringQueryManager.queryUsage({
@@ -95,7 +94,7 @@ describe('MeteringQueryManager', () => {
     });
 
     it('normalizes a non-Error rejection into the wrapped error cause', async () => {
-      query.mockRejectedValue('query failure');
+      queryUsage.mockRejectedValue('query failure');
 
       const error = await rejectionOf(
         meteringQueryManager.queryUsage({
