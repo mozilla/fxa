@@ -518,12 +518,14 @@ export function addExperiment(choice: string, group: string) {
 /**
  * Pick out the MetricsContext key-values from URL query params. Accepts either
  * a raw query-param record or a typed {@link QueryParams} object so callers can
- * pass `flowQueryParams` directly. The typed shape declares a few fields as
- * number/boolean, but at runtime every value is a string parsed from the URL,
- * so it's read through the same string-record contract the constructor expects.
+ * pass `flowQueryParams` directly, or `undefined` (treated as empty), so an
+ * optional `flowQueryParams` can be forwarded without a caller-side default.
+ * The typed shape declares a few fields as number/boolean, but at runtime every
+ * value is a string parsed from the URL, so it's read through the same
+ * string-record contract the constructor expects.
  */
 export function queryParamsToMetricsContext(
-  queryParams: Record<string, string | undefined> | QueryParams
+  queryParams?: Record<string, string | undefined> | QueryParams
 ): Partial<MetricsContext> {
   const context = new MetricsContext(
     queryParams as Record<string, string | undefined>

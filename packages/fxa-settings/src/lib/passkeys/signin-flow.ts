@@ -231,7 +231,7 @@ export function usePasskeySignIn({
   ftlMsgResolver,
   navigateWithQuery,
   queryParams,
-  flowQueryParams = {},
+  flowQueryParams,
   surface,
   isButtonVisible = false,
   supportsKeysOptionalLogin,
