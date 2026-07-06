@@ -52,7 +52,7 @@ describe('MeteringIngestManager', () => {
       providers: [
         MeteringIngestManager,
         { provide: MeteringConfig, useValue: meteringConfig },
-        { provide: OpenMeterClient, useValue: { events: { ingest } } },
+        { provide: OpenMeterClient, useValue: { ingest } },
         { provide: Logger, useValue: logger },
         { provide: StatsDService, useValue: statsd },
       ],

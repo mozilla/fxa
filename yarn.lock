@@ -10607,15 +10607,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmeter/sdk@npm:1.0.0-beta.228":
-  version: 1.0.0-beta.228
-  resolution: "@openmeter/sdk@npm:1.0.0-beta.228"
+"@openmeter/client@npm:1.0.0-beta.229":
+  version: 1.0.0-beta.229
+  resolution: "@openmeter/client@npm:1.0.0-beta.229"
+  dependencies:
+    ky: "npm:2.0.2"
+    zod: "npm:4.4.3"
+  checksum: 10c0/0e9234aa8933ba6cd9eaba0cc9938b3922a1b7c20f52c7dc489f518ac2a473029461cea1c89f94c9bca386d2283870065d8c897f8dc2e2c6cad48cf1abcfc3e5
+  languageName: node
+  linkType: hard
+
+"@openmeter/sdk@npm:1.0.0-beta.229":
+  version: 1.0.0-beta.229
+  resolution: "@openmeter/sdk@npm:1.0.0-beta.229"
   dependencies:
     openapi-fetch: "npm:0.17.0"
     openapi-typescript-helpers: "npm:0.1.0"
   peerDependencies:
     react: ">=18.0.0"
-  checksum: 10c0/ed10089167f24351a06b878dd330c91a9bbc52c510ec36ffa442e85cc396412e51712b1de5fa272ae9c234eae39d5166b53be5388c3f9930b3b328c49436a0c3
+  checksum: 10c0/220ddf57546176ba1ee98675c5e9bf411c6cfd0e7b4017df2ab5507440ff1ebaa08d45c5f2563f94bd11da42fde811bdb157fef4d62280f0fc16525372ba25a4
   languageName: node
   linkType: hard
 
@@ -31699,7 +31709,8 @@ __metadata:
     "@nx/web": "npm:21.2.4"
     "@nx/webpack": "npm:21.2.4"
     "@nx/workspace": "npm:21.2.4"
-    "@openmeter/sdk": "npm:1.0.0-beta.228"
+    "@openmeter/client": "npm:1.0.0-beta.229"
+    "@openmeter/sdk": "npm:1.0.0-beta.229"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-node": "npm:^0.75.0"
     "@opentelemetry/sdk-trace-base": "npm:^2.0.0"
@@ -37942,6 +37953,13 @@ __metadata:
   version: 2.0.0
   resolution: "kuler@npm:2.0.0"
   checksum: 10c0/0a4e99d92ca373f8f74d1dc37931909c4d0d82aebc94cf2ba265771160fc12c8df34eaaac80805efbda367e2795cb1f1dd4c3d404b6b1cf38aec94035b503d2d
+  languageName: node
+  linkType: hard
+
+"ky@npm:2.0.2":
+  version: 2.0.2
+  resolution: "ky@npm:2.0.2"
+  checksum: 10c0/5bac227454193003c819eed5a26b30ae9ac639648be2944547f1aad204a470261ae2a8f7537dac0fd4a6433264bb8f1081b25411bfb49ef5d05a0e21d18b2ab9
   languageName: node
   linkType: hard
 
@@ -55215,6 +55233,13 @@ __metadata:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: 10c0/71cc2f2bbb537300c3f569e25693d37b3bc91f225cefce251a71c30bc6bb3e7f8e9420ca0eb57f2ac9e492b085b8dfa075fd1e8195c40b83c951dd59c6e4fbf8
+  languageName: node
+  linkType: hard
+
+"zod@npm:4.4.3":
+  version: 4.4.3
+  resolution: "zod@npm:4.4.3"
+  checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
   languageName: node
   linkType: hard
 

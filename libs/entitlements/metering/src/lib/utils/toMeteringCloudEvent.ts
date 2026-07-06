@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import type { Event } from '@openmeter/sdk';
-
 import { METERING_EVENT_SOURCE } from '../metering.constants';
 
 export interface IngestEventArgs {
@@ -14,7 +12,18 @@ export interface IngestEventArgs {
   timestamp?: Date;
 }
 
-export function toMeteringCloudEvent(args: IngestEventArgs): Event {
+export interface MeteringCloudEvent {
+  id: string;
+  source: string;
+  type: string;
+  subject: string;
+  time: Date;
+  data: { amount: number };
+}
+
+export function toMeteringCloudEvent(
+  args: IngestEventArgs
+): MeteringCloudEvent {
   return {
     id: args.id,
     source: METERING_EVENT_SOURCE,
