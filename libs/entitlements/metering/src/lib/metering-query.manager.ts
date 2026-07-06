@@ -26,13 +26,12 @@ export class MeteringQueryManager {
 
   async queryUsage(args: QueryUsageArgs): Promise<QueryUsageResult> {
     try {
-      const result = await this.openMeterClient.meters.query(args.slug, {
+      const usage = await this.openMeterClient.queryUsage({
+        slug: args.slug,
+        subject: [args.userIdentifier],
         from: args.from,
         to: args.to,
-        subject: [args.userIdentifier],
       });
-
-      const usage = result.data.reduce((sum, row) => sum + row.value, 0);
 
       return { usage, from: args.from, to: args.to };
     } catch (err) {

@@ -8,6 +8,7 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDefined,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsObject,
@@ -148,6 +149,16 @@ export class MeteringConfig {
   @IsOptional()
   @IsString()
   public readonly openmeterApiKey?: string;
+
+  @IsOptional()
+  @IsIn(['v1', 'v3'])
+  public readonly openmeterApiVersion?: 'v1' | 'v3';
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  public readonly openmeterMeterIdCacheTtlSeconds?: number;
 
   @Transform(
     ({ value }) => (value instanceof Object ? value : JSON.parse(value)),
