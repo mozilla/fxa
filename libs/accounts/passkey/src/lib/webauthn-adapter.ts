@@ -80,12 +80,18 @@ export async function generateWebauthnRegistrationOptions(
       authenticatorAttachment: config.authenticatorAttachment,
     },
     excludeCredentials: input.excludeCredentials,
-    // Probe PRF capability only (no eval).
-    // Requesting PRF may cause regressions on some OS/browser
-    // combinations (FXA-13991), so this is feature-flagged.
+    // Request PRF with a static eval salt. An empty PRF eval (`prf: {}`)
+    // makes Windows Hello reject the ceremony with UnknownError (FXA-13991),
+    // so we only request PRF when a salt is configured and omit it entirely
+    // otherwise. Feature-flagged because requesting PRF at all can regress
+    // some OS/browser combinations.
     // Cast: SimpleWebAuthn's bundled type predates PRF.
-    ...(config.requestPrfAtRegistration
-      ? { extensions: { prf: {} } as AuthenticationExtensionsClientInputs }
+    ...(config.requestPrfAtRegistration && config.prfSalt
+      ? {
+          extensions: {
+            prf: { eval: { first: config.prfSalt } },
+          } as AuthenticationExtensionsClientInputs,
+        }
       : {}),
   });
 }

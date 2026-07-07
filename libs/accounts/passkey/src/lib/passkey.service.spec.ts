@@ -113,6 +113,7 @@ describe('PasskeyService', () => {
     challengeTimeout: 30_000,
     residentKey: 'required',
     requestPrfAtRegistration: false,
+    prfSalt: '',
   });
 
   beforeEach(async () => {

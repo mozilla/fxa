@@ -31,7 +31,8 @@ export interface PrfEvalInput {
 
 /** Extensions accepted by WebAuthn creation and request options. */
 export interface AuthenticationExtensionsJSON {
-  /** PRF extension — always requested during registration; requested during
+  /** PRF extension — requested during registration when enabled and a salt is
+   *  configured (and dropped on the no-PRF retry fallback); requested during
    *  authentication when PRF-wrapped sync keys are involved. */
   prf?: {
     eval?: PrfEvalInput;
@@ -222,7 +223,7 @@ function toCredentialJSON(
 // 5 min meant users who stepped away briefly were cut off long before the
 // request expired. On Safari/WebKit (which ignores `options.timeout` per spec)
 // this wrapper is the only timeout in play.
-const DEFAULT_TIMEOUT_MS = 300_000;
+export const DEFAULT_TIMEOUT_MS = 300_000;
 
 /**
  * Wraps navigator.credentials.create() for passkey registration.
