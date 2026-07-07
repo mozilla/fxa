@@ -4,12 +4,6 @@
 
 // Middleware that emits the WAICT (Web Application Integrity, Consistency and
 // Transparency) `Integrity-Policy-WAICT-v1` response header in *report* mode.
-// In report mode the browser only logs and reports integrity violations - it
-// never blocks or alters resource loading - so it is safe to ship while we
-// validate manifest coverage. Headers are only sent when `waict.enabled` is
-// set (default false), and only on HTML document responses.
-//
-// See https://github.com/waict-wg/waict-integrity-spec and Firefox bug 2017652.
 
 'use strict';
 const htmlOnly = require('./html-middleware');

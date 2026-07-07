@@ -5,9 +5,7 @@
 /**
  * Serve the WAICT canary script. The canary is deliberately absent from the
  * integrity manifest, so referencing it from a page produces a guaranteed
- * `missing_from_manifest` violation report on every load. A steady stream of
- * canary reports proves the browser -> report-endpoint pipeline is live;
- * their disappearance means reporting is broken, not that the origin is clean.
+ * `missing_from_manifest` violation report on every load.
  */
 
 'use strict';
