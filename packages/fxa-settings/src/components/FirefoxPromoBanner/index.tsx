@@ -101,8 +101,7 @@ export const FirefoxPromoBannerView = ({
   // Mirrors the shared PromotionBanner styling for visual consistency.
   const ctaProps = {
     'data-testid': 'firefox-promo-cta',
-    className:
-      'cta-neutral cta-base cta-base-p text-sm text-base tablet:self-center transition-standard mt-0',
+    className: 'cta-neutral cta-base cta-base-p text-sm transition-standard',
     onClick: () => emitMetric('submit'),
   };
   const downloadUrl =
@@ -124,10 +123,10 @@ export const FirefoxPromoBannerView = ({
   );
 
   return (
-    // transparent border is for Window high-contrast mode
+    // transparent border is for Windows high-contrast mode
     <div
-      className={`relative flex flex-col tablet:flex-row rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
-         transition-transform border border-transparent duration-300 ease-in-out p-2 tablet:p-3 ${
+      className={`relative flex flex-col mobileLandscape:flex-row mobileLandscape:items-center gap-4 p-5 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
+         transition-transform border border-transparent duration-300 ease-in-out ${
            isClosing ? 'translate-x-full' : 'translate-x-0'
          }`}
     >
@@ -137,7 +136,7 @@ export const FirefoxPromoBannerView = ({
           aria-label="Dismiss banner"
           data-testid="firefox-promo-dismiss"
           onClick={onDismiss}
-          className="self-end absolute top-1 end-1 p-2"
+          className="absolute top-3 end-1 p-2"
         >
           <IconClose
             className="text-black dark:text-grey-100 w-4 h-4"
@@ -145,23 +144,19 @@ export const FirefoxPromoBannerView = ({
           />
         </button>
       </FtlMsg>
-      <div className="flex flex-col tablet:flex-row tablet:items-center grow gap-4 p-4">
-        <div className="flex flex-row mobileLandscape:flex-col tablet:flex-row tablet:items-center grow gap-4">
-          <img
-            src={variant.image}
-            alt=""
-            className="max-w-16 max-h-12 mobileLandscape:self-center mobileLandscape:w-32 mobileLandscape:max-h-24"
-          />
-          <div className="flex flex-col text-sm">
-            <FtlMsg id={variant.headingId}>
-              <p className="font-bold">{variant.heading}</p>
-            </FtlMsg>
-            <FtlMsg id={variant.descriptionId}>
-              <p>{variant.description}</p>
-            </FtlMsg>
-          </div>
-        </div>
-        {cta}
+      <img
+        src={variant.image}
+        alt=""
+        className="h-20 w-auto object-contain self-center mobileLandscape:h-28"
+      />
+      <div className="flex flex-col grow text-sm">
+        <FtlMsg id={variant.headingId}>
+          <p className="font-bold pe-8">{variant.heading}</p>
+        </FtlMsg>
+        <FtlMsg id={variant.descriptionId}>
+          <p>{variant.description}</p>
+        </FtlMsg>
+        <div className="mt-3">{cta}</div>
       </div>
     </div>
   );

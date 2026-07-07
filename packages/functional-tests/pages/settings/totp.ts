@@ -246,7 +246,11 @@ export class TotpPage extends SettingsLayout {
     }
     const recoveryCodes = await this.backupCodesDownloadStep();
     await this.confirmBackupCodeStep(recoveryCodes[0]);
-    await this.page.getByRole('button', { name: /Continue/ }).click();
+    // The RP redirect bounces while establishing AAL2, so opt out of click's
+    // navigation wait; callers assert the landing via relier.isLoggedIn().
+    await this.page
+      .getByRole('button', { name: /Continue/ })
+      .click({ noWaitAfter: true });
     return secret;
   }
 }
