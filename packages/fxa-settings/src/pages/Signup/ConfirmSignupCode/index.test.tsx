@@ -240,11 +240,15 @@ describe('ConfirmSignupCode page', () => {
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Enter confirmation code');
-    screen.getByText('For your Mozilla account');
+    expect(headingEl).toHaveTextContent(
+      MOCK_CMS_INFO.SignupConfirmCodePage.headline
+    );
+    screen.getByText(MOCK_CMS_INFO.SignupConfirmCodePage.description);
     screen.getByLabelText('Enter 6-digit code');
 
-    screen.getByRole('button', { name: 'Confirm' });
+    screen.getByRole('button', {
+      name: MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText,
+    });
     screen.getByRole('button', { name: 'Email new code.' });
     screen.getByTestId('cms-logo');
     screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo);
@@ -263,7 +267,10 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: jest.fn().mockReturnValueOnce(tryAgainError()),
       });
-      submit();
+      submit(
+        MOCK_SIGNUP_CODE,
+        MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText
+      );
 
       await waitFor(() => {
         screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
@@ -276,7 +283,10 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: jest.fn(),
       });
-      submit();
+      submit(
+        MOCK_SIGNUP_CODE,
+        MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText
+      );
 
       await waitFor(() => {
         expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
@@ -315,7 +325,10 @@ describe('ConfirmSignupCode page', () => {
         integration,
         origin: 'signup',
       });
-      submit(MOCK_SIGNUP_CODE);
+      submit(
+        MOCK_SIGNUP_CODE,
+        MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText
+      );
 
       await waitFor(() => {
         expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
@@ -333,7 +346,10 @@ describe('ConfirmSignupCode page', () => {
         integration,
         origin: 'signin',
       });
-      submit(MOCK_SIGNUP_CODE);
+      submit(
+        MOCK_SIGNUP_CODE,
+        MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText
+      );
 
       await waitFor(() => {
         expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
