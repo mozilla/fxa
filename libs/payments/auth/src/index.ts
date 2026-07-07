@@ -7,3 +7,4 @@ export * from './lib/current-user.decorator';
 export * from './lib/fxa-oauth-auth.guard';
 export * from './lib/fxa-access-token.schemas';
 export * from './lib/fxa-oauth.config';
+export * from './lib/fxa-oauth.error';
