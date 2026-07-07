@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UnauthorizedException } from '@nestjs/common';
 import { FxaOAuthJwtStrategy } from './fxa-oauth-jwt.strategy';
 import { MockFxaOAuthConfig } from './fxa-oauth.config';
 import { FxaAccessTokenClaimsFactory } from './factories/fxa-access-token-claims.factory';
+import {
+  JwtInsufficientScopeError,
+  JwtInvalidClaimsError,
+} from './fxa-oauth.error';
 
 // Mock jwks-rsa to avoid real JWKS fetching during construction
 jest.mock('jwks-rsa', () => ({
@@ -50,24 +53,30 @@ describe('FxaOAuthJwtStrategy', () => {
     });
   });
 
-  it('throws UnauthorizedException when required scope is missing', () => {
+  it('throws JwtInsufficientScopeError when required scope is missing', () => {
     const claims = FxaAccessTokenClaimsFactory({ scope: 'profile openid' });
     expect(() => strategy.validate(makeReq(), claims)).toThrow(
-      UnauthorizedException
+      JwtInsufficientScopeError
     );
   });
 
-  it('throws UnauthorizedException when scope is empty', () => {
+  it('throws JwtInsufficientScopeError when scope is empty', () => {
     const claims = FxaAccessTokenClaimsFactory({ scope: '' });
     expect(() => strategy.validate(makeReq(), claims)).toThrow(
-      UnauthorizedException
+      JwtInsufficientScopeError
     );
   });
 
-  it('throws UnauthorizedException when scope is undefined', () => {
+  it('throws JwtInvalidClaimsError when scope is undefined (fails schema)', () => {
     const claims = FxaAccessTokenClaimsFactory({ scope: undefined } as any);
     expect(() => strategy.validate(makeReq(), claims)).toThrow(
-      UnauthorizedException
+      JwtInvalidClaimsError
+    );
+  });
+
+  it('throws JwtInvalidClaimsError when the claims fail schema validation', () => {
+    expect(() => strategy.validate(makeReq(), { not: 'valid claims' })).toThrow(
+      JwtInvalidClaimsError
     );
   });
 });

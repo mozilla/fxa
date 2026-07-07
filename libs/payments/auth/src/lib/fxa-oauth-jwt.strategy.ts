@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { passportJwtSecret } from 'jwks-rsa';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -13,6 +13,10 @@ import {
   fxaAccessTokenClaimsSchema,
   FxaOAuthUser,
 } from './fxa-access-token.schemas';
+import {
+  JwtInsufficientScopeError,
+  JwtInvalidClaimsError,
+} from './fxa-oauth.error';
 
 @Injectable()
 export class FxaOAuthJwtStrategy extends PassportStrategy(
@@ -40,12 +44,12 @@ export class FxaOAuthJwtStrategy extends PassportStrategy(
   public validate(req: Request, claims: unknown): FxaOAuthUser {
     const result = fxaAccessTokenClaimsSchema.safeParse(claims);
     if (!result.success) {
-      throw new UnauthorizedException('Invalid token claims');
+      throw new JwtInvalidClaimsError();
     }
 
     const scopes = result.data.scope?.split(' ') ?? [];
     if (!scopes.includes(this.requiredScope)) {
-      throw new UnauthorizedException('Insufficient scope');
+      throw new JwtInsufficientScopeError();
     }
 
     return {
