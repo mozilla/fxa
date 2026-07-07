@@ -129,10 +129,10 @@ const PromotionBanner = ({
   const showLink = !!(link && linkText);
 
   return !visible ? null : (
-    // transparent border is for Window high-contrast mode
+    // transparent border is for Windows high-contrast mode
     <div
-      className={`relative flex flex-col tablet:flex-row rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
-         transition-transform border border-transparent duration-300 ease-in-out p-2 tablet:p-3 ${
+      className={`relative flex flex-col mobileLandscape:flex-row mobileLandscape:items-center gap-4 p-5 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
+         transition-transform border border-transparent duration-300 ease-in-out ${
            isClosing ? 'translate-x-full' : 'translate-x-0'
          }`}
     >
@@ -146,7 +146,7 @@ const PromotionBanner = ({
             setIsClosing(true);
             setTimeout(() => setVisible(false), 300);
           }}
-          className="self-end absolute top-1 end-1 p-2"
+          className="absolute top-3 end-1 p-2"
           data-glean-id={`account_banner_${metricsKey}_dismiss`}
         >
           <IconClose
@@ -155,34 +155,31 @@ const PromotionBanner = ({
           />
         </button>
       </FtlMsg>
-      <div className="flex flex-col tablet:flex-row tablet:items-center grow gap-4 p-4">
-        <div className="flex flex-row mobileLandscape:flex-col tablet:flex-row tablet:items-center grow gap-4">
-          {image && (
-            <img
-              src={image}
-              alt=""
-              className="max-w-16 max-h-12 mobileLandscape:self-center mobileLandscape:w-32 mobileLandscape:max-h-24"
-            />
+      {image && (
+        <img
+          src={image}
+          alt=""
+          className="h-20 w-auto object-contain self-center mobileLandscape:h-28"
+        />
+      )}
+      <div className="flex flex-col grow text-sm">
+        <p className="font-bold pe-8">{heading}</p>
+        <p>{description}</p>
+        <div className="flex flex-row flex-wrap items-center gap-4 mt-3">
+          <Link
+            className="cta-neutral cta-base cta-base-p text-sm transition-standard"
+            to={`${route}${location.search ?? ''}`}
+            data-testid={`submit_${metricsKey}`}
+            data-glean-id={`account_banner_${metricsKey}_submit`}
+          >
+            {ctaText}
+          </Link>
+          {showLink && (
+            <LinkExternal href={link} className="link-grey">
+              {linkText}
+            </LinkExternal>
           )}
-          <div className="flex flex-col text-sm">
-            <p className="font-bold">{heading}</p>
-            <p>{description}</p>
-            {showLink && (
-              <LinkExternal href={link} className="link-grey">
-                {linkText}
-              </LinkExternal>
-            )}
-          </div>
         </div>
-
-        <Link
-          className="cta-neutral cta-base cta-base-p text-sm text-base tablet:self-center transition-standard mt-0"
-          to={`${route}${location.search ? location.search : ''}`}
-          data-testid={`submit_${metricsKey}`}
-          data-glean-id={`account_banner_${metricsKey}_submit`}
-        >
-          {ctaText}
-        </Link>
       </div>
     </div>
   );
