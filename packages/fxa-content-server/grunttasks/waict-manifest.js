@@ -2,17 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Generate the WAICT integrity manifest from the built artifacts. The manifest
-// maps every first-party script's served URL to the SHA-256 hash of its bytes.
-//
-// This must run at the very end of the build (after `copy:settings`) so that
-// `dist` contains both the content-server bundles and the copied fxa-settings
-// bundles - WAICT report mode covers the whole origin's scripts.
-//
-// This file is a thin grunt/filesystem adapter; the decision logic lives in
-// ../server/lib/waict-manifest-builder.js (unit-tested there).
-//
-// See https://github.com/waict-wg/waict-integrity-spec.
+// Generate the WAICT integrity manifest from the built artifacts.
 
 'use strict';
 const fs = require('fs');
@@ -64,7 +54,7 @@ module.exports = function (grunt) {
   }
 
   grunt.registerTask(
-    'waict-manifest',
+    'generate-waict-manifest',
     'Generate the WAICT integrity manifest of served script hashes',
     function () {
       const dist = grunt.config.get('yeoman.dist');

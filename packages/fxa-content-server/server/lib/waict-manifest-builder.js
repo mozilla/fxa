@@ -2,24 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Pure, grunt-agnostic core of the WAICT manifest generation. The grunt task
-// (grunttasks/waict-manifest.js) is a thin adapter that supplies the file list,
-// a byte reader, and a warn() sink; all decision logic lives here so it can be
-// unit-tested without a grunt/filesystem harness.
-//
-// See https://github.com/waict-wg/waict-integrity-spec.
-
 'use strict';
 const crypto = require('crypto');
 
-// Frontend unit-test bundles are only emitted in development and are not part
-// of any shipped page.
+// Matches the `test.bundle.js` / `testDependencies.bundle.js` webpack outputs.
+// These come from the `test` (../tests/webpack.js browser test suite) and
+// `testDependencies` (jquery/chai/mocha/sinon) entries that webpack.config.js
+// adds only when ENV === 'development'. A production build never emits them, so
+// this filter only matters for dev builds - it keeps the in-browser test
+// scaffolding out of the manifest since it is not part of any shipped page.
 const TEST_BUNDLE = /\/(test|testDependencies)\.bundle(\.|\b)/;
 
 /**
  * Pick which fxa-settings env directory under dist/settings is actually served.
- * A given build usually emits a single env (e.g. dist/settings/dev), so when
- * exactly one is present we use it; otherwise we fall back to `fallback`.
  *
  * @param {String[]} envDirs directory names found under dist/settings
  * @param {String} [envOverride] value of STATIC_SETTINGS_DIRECTORY, if set
@@ -60,9 +55,6 @@ function toServedUrl(distRelative, settingsDirectory) {
 }
 
 /**
- * SHA-256 of the given bytes, base64-encoded. WAICT v1 always uses SHA-256
- * (matching SRI's `sha256-<base64>` convention but without the prefix).
- *
  * @param {Buffer|String} bytes
  * @returns {String}
  */
@@ -88,11 +80,9 @@ function settingsServedUrl(rest, baseUrl) {
 }
 
 /**
- * Build the WAICT manifest from an abstract file list. No filesystem or grunt
- * dependency: `readBytes(distRelative)` returns the file's bytes and `warn(msg)`
- * surfaces recoverable problems (unknown asset mode, missing version).
+ * Build the WAICT manifest from an abstract file list.
  *
- * Pinning strategy - prefer per-URL `hashes` (strong), fall back to url-agnostic
+ * Prefer per-URL `hashes` (strong), fall back to url-agnostic
  * `any_hashes` (content-addressed) only where a script's served URL cannot be
  * known at build time:
  *   - fxa-settings scripts: URL is knowable (same-origin `/settings/...`, or the
@@ -121,8 +111,7 @@ function buildManifest({
   warn = () => {},
 }) {
   const hashes = {};
-  // De-duplicate: several URLs can share content, and content-addressing keys
-  // by hash alone.
+  // Deduplicate potential shared content
   const anyHashes = new Set();
   let count = 0;
 
@@ -141,7 +130,7 @@ function buildManifest({
 
     // Content-server's own scripts (everything not under /settings/) are
     // referenced via the runtime-interpolated staticResourceUrl, so we can't
-    // pin their URL at build time - content-address them.
+    // pin their URL at build time.
     if (!servedUrl.startsWith('/settings/')) {
       anyHashes.add(hash);
       return;
@@ -158,6 +147,9 @@ function buildManifest({
       if (declared.mode === 'any') {
         anyHashes.add(hash);
       } else if (declared.mode === 'exact' && declared.v) {
+        // lang-fix.js goes into `hashes` (not `any_hashes`) to demonstrate that
+        // a cache-busted `?v=` script can still be URL-pinned rather than only
+        // content-addressed.
         hashes[url + '?v=' + declared.v] = hash;
       } else if (declared.mode === 'exact') {
         // exact mode with no version can't produce a matchable ?v= key; fall
@@ -168,7 +160,7 @@ function buildManifest({
         );
         anyHashes.add(hash);
       } else {
-        // Unknown mode: don't silently drop the file from the manifest.
+        // Unknown mode: by default the file goes to the URL-keyed hashes list.
         warn(
           `waict-manifest: unknown mode "${declared.mode}" for "${rest}"; ` +
             'keying by served URL'

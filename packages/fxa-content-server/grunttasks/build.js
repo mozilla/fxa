@@ -89,8 +89,8 @@ module.exports = function (grunt) {
     // run it through webpack again.
     'copy:settings',
 
-    // generate the WAICT integrity manifest. Must be last so it hashes both
-    // the content-server bundles and the copied fxa-settings bundles.
-    'waict-manifest',
+    // task to generate the WAICT integrity manifest. Must be last so it hashes
+    // both the content-server bundles and the copied fxa-settings bundles.
+    'generate-waict-manifest',
   ]);
 };
