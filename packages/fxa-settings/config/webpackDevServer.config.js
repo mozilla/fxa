@@ -19,6 +19,16 @@ const sockPort = process.env.WDS_SOCKET_PORT;
 module.exports = function (proxy, allowedHost) {
   const disableFirewall =
     !proxy || process.env.DANGEROUSLY_DISABLE_HOST_CHECK === 'true';
+  const httpsConfig = getHttpsConfig();
+  // webpack-dev-server v5 replaced the top-level `https` option with `server`.
+  // getHttpsConfig() returns `false` (http), `true` (https with a generated
+  // cert), or a `{ cert, key }` object (https with those files).
+  let server = 'http';
+  if (httpsConfig === true) {
+    server = 'https';
+  } else if (typeof httpsConfig === 'object') {
+    server = { type: 'https', options: httpsConfig };
+  }
   return {
     // WebpackDevServer 2.4.3 introduced a security fix that prevents remote
     // websites from potentially accessing local content through DNS rebinding:
@@ -97,7 +107,7 @@ module.exports = function (proxy, allowedHost) {
       publicPath: paths.publicUrlOrPath.slice(0, -1),
     },
 
-    https: getHttpsConfig(),
+    server,
     host,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
@@ -105,33 +115,29 @@ module.exports = function (proxy, allowedHost) {
       disableDotRule: true,
       index: paths.publicUrlOrPath,
     },
-    // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
     proxy,
-    onBeforeSetupMiddleware(devServer) {
-      // Keep `evalSourceMapMiddleware`
-      // middlewares before `redirectServedPath` otherwise will not have any effect
-      // This lets us fetch source contents from webpack for the error overlay
-      devServer.app.use(evalSourceMapMiddleware(devServer));
-
+    // v5 removed onBeforeSetupMiddleware/onAfterSetupMiddleware; register the
+    // same middlewares via setupMiddlewares (unshift = before, push = after).
+    setupMiddlewares: (middlewares, devServer) => {
+      // Fetch source contents from webpack for the error overlay, and register
+      // any user-provided proxy middleware, before the internal middlewares.
+      // evalSourceMapMiddleware must stay ahead of redirectServedPath below.
+      middlewares.unshift(evalSourceMapMiddleware(devServer));
       if (fs.existsSync(paths.proxySetup)) {
-        // This registers user provided middleware for proxy reasons
         require(paths.proxySetup)(devServer.app);
       }
-    },
-    onAfterSetupMiddleware(devServer) {
-      // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
-      devServer.app.use(redirectServedPath(paths.publicUrlOrPath));
 
-      // This service worker file is effectively a 'no-op' that will reset any
-      // previous service worker registered for the same host:port combination.
-      // We do this in development to avoid hitting the production cache if
-      // it used the same host and port.
-      // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
-      devServer.app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath));
-    },
-    // Enable gzip compression of generated files with our own middleware
-    setupMiddlewares: (middlewares, devServer) => {
+      // gzip compression of generated files with our own middleware, kept at the
+      // front to avoid content-encoding issues (see #19012 / #19127).
       middlewares.unshift(compression({ threshold: '4kb' }));
+
+      // After the internal middlewares: redirect to `PUBLIC_URL`, and reset any
+      // service worker previously registered for this host:port.
+      middlewares.push(
+        redirectServedPath(paths.publicUrlOrPath),
+        noopServiceWorkerMiddleware(paths.publicUrlOrPath)
+      );
+
       return middlewares;
     },
   };
