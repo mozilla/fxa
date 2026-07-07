@@ -12,21 +12,12 @@ const {
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
+const { settingsStaticDirectory } = require('./static-paths');
+const { CANARY_PATH } = require('./routes/get-waict-canary');
 
 const env = config.get('env');
 
-const settingsStaticPath = (() => {
-  const static_directory = config.get('static_directory');
-  const static_settings_directory = config.get('static_settings_directory');
-  return join(
-    __dirname,
-    '..',
-    '..',
-    static_directory,
-    'settings',
-    static_settings_directory
-  );
-})();
+const settingsStaticPath = settingsStaticDirectory(config);
 
 let settingsIndexFile;
 function getSettingsIndexFile() {
@@ -177,7 +168,7 @@ function swapBetaMeta(html, tmplContent = {}) {
 // origin root by get-waict-canary.js; gated by the same config as the route.
 const waictCanaryTag =
   config.get('waict.enabled') && config.get('waict.canaryEnabled')
-    ? '<script defer src="/waict-canary.js"></script>'
+    ? `<script defer src="${CANARY_PATH}"></script>`
     : '';
 
 // Inject the WAICT canary script before </head>, if enabled.

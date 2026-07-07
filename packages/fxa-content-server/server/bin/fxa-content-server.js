@@ -72,13 +72,9 @@ const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const coop = require('../lib/coop');
 const waict = require('../lib/waict');
 const glean = require('../lib/glean')(config.getProperties());
+const { staticDirectory } = require('../lib/static-paths');
 
-const STATIC_DIRECTORY = path.join(
-  __dirname,
-  '..',
-  '..',
-  config.get('static_directory')
-);
+const STATIC_DIRECTORY = staticDirectory(config);
 
 const PAGE_TEMPLATE_DIRECTORY = path.join(
   config.get('page_template_root'),

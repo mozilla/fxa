@@ -13,18 +13,13 @@
 const fs = require('fs');
 const path = require('path');
 const logger = require('../logging/log')();
+const { staticDirectory } = require('../static-paths');
 
 const MANIFEST_CONTENT_TYPE = 'application/waict-integrity-manifest';
 
 module.exports = function (config) {
-  // Mirror the STATIC_DIRECTORY resolution in server/bin/fxa-content-server.js,
-  // adjusted for this file's location (server/lib/routes).
   const manifestFile = path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    config.get('static_directory'),
+    staticDirectory(config),
     'waict-manifest.json'
   );
 

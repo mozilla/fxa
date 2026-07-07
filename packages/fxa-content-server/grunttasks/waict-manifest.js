@@ -9,24 +9,26 @@
 // `dist` contains both the content-server bundles and the copied fxa-settings
 // bundles - WAICT report mode covers the whole origin's scripts.
 //
+// This file is a thin grunt/filesystem adapter; the decision logic lives in
+// ../server/lib/waict-manifest-builder.js (unit-tested there).
+//
 // See https://github.com/waict-wg/waict-integrity-spec.
 
 'use strict';
-const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const {
+  pickSettingsDirectory,
+  buildManifest,
+} = require('../server/lib/waict-manifest-builder');
 
 module.exports = function (grunt) {
-  // Frontend unit-test bundles are only emitted in development and are not
-  // part of any shipped page.
-  const TEST_BUNDLE = /\/(test|testDependencies)\.bundle(\.|\b)/;
-
   /**
    * Determine which fxa-settings build under dist/settings is actually served
    * at /settings. Content-server serves `static_settings_directory` (default
    * `prod`), but a given build only emits one env (e.g. a dev build produces
    * dist/settings/dev). Honor the env var if set, otherwise use the single
-   * built directory, falling back to the server config default.
+   * built directory, warning if it can't be uniquely resolved.
    *
    * @param {String} dist absolute path to the dist directory
    * @returns {String}
@@ -48,33 +50,17 @@ module.exports = function (grunt) {
       // No dist/settings directory; nothing to resolve.
     }
 
-    return envDirs.length === 1 ? envDirs[0] : 'prod';
-  }
-
-  /**
-   * Map a dist-relative path to the URL the browser requests it from, or
-   * return null if the file is not served.
-   *
-   * @param {String} distRelative forward-slash path relative to dist
-   * @param {String} settingsDirectory the served fxa-settings env directory
-   * @returns {String|null}
-   */
-  function toServedUrl(distRelative, settingsDirectory) {
-    if (distRelative.indexOf('settings/') === 0) {
-      // settings/<env>/<rest> -> /settings/<rest>, but only for the served env.
-      const withoutPrefix = distRelative.slice('settings/'.length);
-      const slash = withoutPrefix.indexOf('/');
-      if (slash === -1) {
-        return null;
-      }
-      const env = withoutPrefix.slice(0, slash);
-      if (env !== settingsDirectory) {
-        return null;
-      }
-      return '/settings/' + withoutPrefix.slice(slash + 1);
+    if (envDirs.length !== 1) {
+      grunt.log.error(
+        'waict-manifest: could not uniquely resolve the served settings dir ' +
+          '(found ' +
+          envDirs.length +
+          '); defaulting to prod. Settings scripts may be omitted from the ' +
+          'manifest if that is not the served env.'
+      );
     }
 
-    return '/' + distRelative;
+    return pickSettingsDirectory(envDirs, undefined, 'prod');
   }
 
   grunt.registerTask(
@@ -83,15 +69,13 @@ module.exports = function (grunt) {
     function () {
       const dist = grunt.config.get('yeoman.dist');
       const settingsDirectory = resolveSettingsDirectory(dist);
-      const hashes = {};
-      const anyHashes = [];
-      let count = 0;
 
-      // Declarations emitted by the fxa-settings build (scripts/build.js) for
-      // public/ scripts referenced with a volatile ?v= cache-buster, keyed by
-      // basename. toServedUrl below can't reconstruct that query, so these
-      // files are routed per their declared mode instead of the default key.
-      const publicAssets = (function () {
+      // Hints emitted by the fxa-settings build (scripts/build.js), carried in
+      // by copy:settings. `baseUrl` is the origin settings scripts are served
+      // from (CDN for stage/prod, '' for same-origin dev); `assets` declares
+      // cache-busted public/ scripts by basename so their volatile ?v= URL is
+      // handled per its mode. Contract shared with waict-manifest-builder.js.
+      const { baseUrl: settingsBaseUrl, assets: publicAssets } = (function () {
         const sidecar = path.join(
           dist,
           'settings',
@@ -99,64 +83,38 @@ module.exports = function (grunt) {
           'waict-public-assets.json'
         );
         try {
-          return JSON.parse(fs.readFileSync(sidecar, 'utf8'));
+          const parsed = JSON.parse(fs.readFileSync(sidecar, 'utf8'));
+          // New shape is { baseUrl, assets }; tolerate an older flat map.
+          if (parsed && parsed.assets) {
+            return { baseUrl: parsed.baseUrl || '', assets: parsed.assets };
+          }
+          return { baseUrl: '', assets: parsed || {} };
         } catch (e) {
-          return {};
+          return { baseUrl: '', assets: {} };
         }
       })();
 
-      grunt.file
+      const files = grunt.file
         .expand({ cwd: dist }, '**/*.js')
-        .forEach(function (relative) {
-          const distRelative = relative.split(path.sep).join('/');
-          if (TEST_BUNDLE.test('/' + distRelative)) {
-            return;
-          }
+        .map((relative) => relative.split(path.sep).join('/'));
 
-          const servedUrl = toServedUrl(distRelative, settingsDirectory);
-          if (!servedUrl) {
-            return;
-          }
+      const { manifest, count } = buildManifest({
+        files,
+        readBytes: (distRelative) =>
+          grunt.file.read(path.join(dist, distRelative), { encoding: null }),
+        settingsDirectory,
+        settingsBaseUrl,
+        publicAssets,
+        warn: (msg) => grunt.log.error(msg),
+      });
 
-          const bytes = grunt.file.read(path.join(dist, relative), {
-            encoding: null,
-          });
-          // WAICT v1 always uses SHA-256, base64-encoded (matching SRI's
-          // `sha256-<base64>` convention but without the algorithm prefix).
-          const hash = crypto
-            .createHash('sha256')
-            .update(bytes)
-            .digest('base64');
-
-          // Route declared cache-busted public/ scripts. `any` matches the
-          // content hash regardless of URL (absorbs the ?v=); `exact` pins the
-          // precise ?v= URL the build references it with.
-          const basename = servedUrl.startsWith('/settings/')
-            ? servedUrl.slice('/settings/'.length)
-            : null;
-          const declared = basename && publicAssets[basename];
-          if (declared) {
-            if (declared.mode === 'any') {
-              anyHashes.push(hash);
-            } else if (declared.mode === 'exact') {
-              hashes[servedUrl + '?v=' + declared.v] = hash;
-            }
-            count++;
-            return;
-          }
-
-          hashes[servedUrl] = hash;
-          count++;
-        });
-
-      const manifest = { hashes, any_hashes: anyHashes };
       const dest = path.join(dist, 'waict-manifest.json');
       grunt.file.write(dest, JSON.stringify(manifest, null, 2));
       grunt.log.writeln(
         'Wrote WAICT manifest with ' +
           count +
           ' script hashes (' +
-          anyHashes.length +
+          manifest.any_hashes.length +
           ' url-agnostic) to ' +
           dest
       );

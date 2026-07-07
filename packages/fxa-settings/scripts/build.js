@@ -154,10 +154,17 @@ checkBrowsers(paths.appPath, isInteractive)
 
       // Written after the build (emptyDirSync above would wipe it earlier) so
       // copy:settings carries it into the content-server dist for WAICT
-      // manifest generation.
+      // manifest generation. `baseUrl` records the origin these scripts are
+      // actually served from (the CDN PUBLIC_URL for stage/prod, '' for
+      // same-origin dev) so the manifest task can pin them by absolute URL.
+      // Consumed by ../fxa-content-server/server/lib/waict-manifest-builder.js.
+      const waictSidecar = {
+        baseUrl: process.env.PUBLIC_URL || '',
+        assets: WAICT_PUBLIC_ASSETS,
+      };
       fs.writeFileSync(
         path.join(paths.appBuild, 'waict-public-assets.json'),
-        JSON.stringify(WAICT_PUBLIC_ASSETS, null, 2)
+        JSON.stringify(waictSidecar, null, 2)
       );
 
       const appPackage = require(paths.appPackageJson);
