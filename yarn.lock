@@ -31343,7 +31343,7 @@ __metadata:
     helmet: "npm:^8.0.0"
     hot-shots: "npm:^10.2.1"
     htmlparser2: "npm:9.1.0"
-    http-proxy-middleware: "npm:^2.0.7"
+    http-proxy-middleware: "npm:^2.0.10"
     i18n-abide: "npm:0.0.26"
     install: "npm:0.13.0"
     joi: "npm:^17.13.3"
@@ -34106,7 +34106,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.3, http-proxy-middleware@npm:^2.0.7, http-proxy-middleware@npm:^2.0.9":
+"http-proxy-middleware@npm:^2.0.10":
+  version: 2.0.10
+  resolution: "http-proxy-middleware@npm:2.0.10"
+  dependencies:
+    "@types/http-proxy": "npm:^1.17.8"
+    http-proxy: "npm:^1.18.1"
+    is-glob: "npm:^4.0.1"
+    is-plain-obj: "npm:^3.0.0"
+    micromatch: "npm:^4.0.2"
+  peerDependencies:
+    "@types/express": ^4.17.13
+  peerDependenciesMeta:
+    "@types/express":
+      optional: true
+  checksum: 10c0/363cd25fbac18f851af93cea34ac7068656413c9af5af12d3b2a127adc70623d2c0d6e9e12037bbac5a4744b762fd9f89fb16e16c29ad06af2b17766890c1b26
+  languageName: node
+  linkType: hard
+
+"http-proxy-middleware@npm:^2.0.3, http-proxy-middleware@npm:^2.0.9":
   version: 2.0.9
   resolution: "http-proxy-middleware@npm:2.0.9"
   dependencies:
