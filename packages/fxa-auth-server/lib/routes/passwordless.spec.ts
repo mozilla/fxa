@@ -291,6 +291,7 @@ describe('/account/passwordless/send_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
         emails: [{ email: TEST_EMAIL, isPrimary: true }],
       })
@@ -309,6 +310,7 @@ describe('/account/passwordless/send_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: Date.now(),
       })
     );
@@ -409,6 +411,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -488,10 +491,13 @@ describe('/account/passwordless/confirm_code', () => {
   });
 
   it('should create session for existing account with valid code', () => {
+    // Primary differs from the signup email; the login notification must use the primary.
+    const currentPrimaryEmail = 'current-primary@mozilla.com';
     mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: currentPrimaryEmail, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -534,7 +540,11 @@ describe('/account/passwordless/confirm_code', () => {
       expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
         'login',
         mockRequest,
-        expect.objectContaining({ email: TEST_EMAIL, uid, deviceCount: 3 })
+        expect.objectContaining({
+          email: currentPrimaryEmail,
+          uid,
+          deviceCount: 3,
+        })
       );
     });
   });
@@ -548,6 +558,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -597,6 +608,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -645,6 +657,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
       })
     );
@@ -667,6 +680,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
       })
     );
@@ -721,6 +735,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: Date.now(),
       })
     );
@@ -741,6 +756,7 @@ describe('/account/passwordless/confirm_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -880,6 +896,7 @@ describe('passwordless CMS customization', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           verifierSetAt: 0,
           emails: [{ email: TEST_EMAIL, isPrimary: true }],
         })
@@ -1022,6 +1039,7 @@ describe('passwordless CMS customization', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           verifierSetAt: 0,
           emails: [{ email: TEST_EMAIL, isPrimary: true }],
         })
@@ -1149,6 +1167,7 @@ describe('passwordless security events', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
         emails: [{ email: TEST_EMAIL, isPrimary: true }],
       })
@@ -1192,6 +1211,7 @@ describe('passwordless security events', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -1381,6 +1401,7 @@ describe('passwordless statsd metrics', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
         emails: [{ email: TEST_EMAIL, isPrimary: true }],
       })
@@ -1422,6 +1443,7 @@ describe('passwordless statsd metrics', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailCode: hexString(16),
         verifierSetAt: 0,
       })
@@ -1605,6 +1627,7 @@ describe('/account/passwordless/resend_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: 0,
         emails: [{ email: TEST_EMAIL, isPrimary: true }],
       })
@@ -1635,6 +1658,7 @@ describe('/account/passwordless/resend_code', () => {
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         verifierSetAt: Date.now(),
       })
     );
@@ -1904,6 +1928,7 @@ describe('passwordless service validation', () => {
       mockDB.accountRecord = jest.fn(() => ({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailVerified: true,
         verifierSetAt: 0,
       }));
@@ -1920,6 +1945,7 @@ describe('passwordless service validation', () => {
       mockDB.accountRecord = jest.fn(() => ({
         uid,
         email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
         emailVerified: true,
         verifierSetAt: 0,
       }));
@@ -2058,6 +2084,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           verifierSetAt: 0,
           emails: [{ email: TEST_EMAIL, isPrimary: true }],
         })
@@ -2088,6 +2115,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           verifierSetAt: 0,
           emails: [{ email: TEST_EMAIL, isPrimary: true }],
         })
@@ -2155,6 +2183,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           emailCode: hexString(16),
           verifierSetAt: 0,
         })
@@ -2200,6 +2229,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
+          primaryEmail: { email: TEST_EMAIL, isVerified: true },
           verifierSetAt: 0,
           emails: [{ email: TEST_EMAIL, isPrimary: true }],
         })
