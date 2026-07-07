@@ -15,7 +15,7 @@ import {
   BillingAndSubscriptionsController,
   BillingAndSubscriptionsService,
 } from '@fxa/payments/api-server';
-import { AuthModule } from '@fxa/payments/auth';
+import { AuthModule, FxaOAuthAuthGuard } from '@fxa/payments/auth';
 import {
   MeteringAuthGuard,
   MeteringCloudTasksGuard,
@@ -114,6 +114,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
       useClass: SentryGlobalFilter,
     },
     Logger,
+    FxaOAuthAuthGuard,
     AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,

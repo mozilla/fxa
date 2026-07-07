@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { Request } from 'express';
@@ -12,6 +12,15 @@ import {
   FxaOAuthUser,
   fxaVerifyResponseSchema,
 } from './fxa-access-token.schemas';
+import {
+  NoBearerTokenError,
+  OAuthTokenRejectedError,
+  OAuthVerifyNetworkError,
+  OAuthVerifyResponseParseError,
+  OAuthVerifyResponseSchemaError,
+  OAuthVerifyServerError,
+  VerifyInsufficientScopeError,
+} from './fxa-oauth.error';
 
 /**
  * Passport strategy that validates opaque FxA OAuth access tokens by calling
@@ -30,12 +39,18 @@ export class FxaOAuthVerifyStrategy extends PassportStrategy(
 
   constructor(config: FxaOAuthConfig) {
     super(
-      async (req: Request, done: (err: Error | null, user?: any) => void) => {
+      async (
+        req: Request,
+        done: (err: Error | null, user?: any, info?: any) => void
+      ) => {
         try {
           const claims = await this.verifyToken(req);
           done(null, claims);
         } catch (err) {
-          done(null, false);
+          // Surface the specific failure to the guard instead of swallowing it,
+          // so operators can distinguish a rejected token from an auth-server
+          // outage. The verdict is unchanged: auth still fails.
+          done(null, false, err);
         }
       }
     );
@@ -46,27 +61,49 @@ export class FxaOAuthVerifyStrategy extends PassportStrategy(
   private async verifyToken(req: Request): Promise<FxaOAuthUser> {
     const token = this.extractBearerToken(req);
     if (!token) {
-      throw new UnauthorizedException('Bearer token not provided');
+      throw new NoBearerTokenError();
     }
 
-    const res = await fetch(this.verifyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(this.verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+    } catch (err) {
+      // Network-level failure reaching the auth server — an outage, not a bad
+      // token.
+      throw new OAuthVerifyNetworkError(
+        err instanceof Error ? err : new Error(String(err))
+      );
+    }
 
     if (!res.ok) {
-      throw new UnauthorizedException('Bearer token invalid');
+      // 5xx from the auth server is an upstream problem; 4xx means the token
+      // was rejected.
+      throw res.status >= 500
+        ? new OAuthVerifyServerError(res.status)
+        : new OAuthTokenRejectedError(res.status);
     }
 
-    const verifyResult = fxaVerifyResponseSchema.safeParse(await res.json());
+    let payload: unknown;
+    try {
+      payload = await res.json();
+    } catch (err) {
+      throw new OAuthVerifyResponseParseError(
+        err instanceof Error ? err : new Error(String(err))
+      );
+    }
+
+    const verifyResult = fxaVerifyResponseSchema.safeParse(payload);
     if (!verifyResult.success) {
-      throw new UnauthorizedException('Invalid verify response');
+      throw new OAuthVerifyResponseSchemaError();
     }
     const body = verifyResult.data;
 
     if (!body.scope?.includes(this.requiredScope)) {
-      throw new UnauthorizedException('Insufficient scope');
+      throw new VerifyInsufficientScopeError();
     }
 
     return {

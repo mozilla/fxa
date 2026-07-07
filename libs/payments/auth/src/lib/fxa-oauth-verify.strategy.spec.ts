@@ -5,6 +5,15 @@
 import { FxaOAuthVerifyStrategy } from './fxa-oauth-verify.strategy';
 import { MockFxaOAuthConfig } from './fxa-oauth.config';
 import { FxaVerifyResponseFactory } from './factories/verify-response.factory';
+import {
+  NoBearerTokenError,
+  OAuthTokenRejectedError,
+  OAuthVerifyNetworkError,
+  OAuthVerifyResponseParseError,
+  OAuthVerifyResponseSchemaError,
+  OAuthVerifyServerError,
+  VerifyInsufficientScopeError,
+} from './fxa-oauth.error';
 
 const mockConfig = {
   ...MockFxaOAuthConfig,
@@ -17,6 +26,19 @@ function makeReq(token?: string) {
       authorization: token ? `Bearer ${token}` : undefined,
     },
   } as any;
+}
+
+/** Run the passport verify callback and capture (user, info). */
+function runVerify(
+  strategy: FxaOAuthVerifyStrategy,
+  req: any
+): Promise<{ user: any; info: any }> {
+  return new Promise((resolve, reject) => {
+    (strategy as any)._verify(req, (err: any, user: any, info: any) => {
+      if (err) reject(err);
+      else resolve({ user, info });
+    });
+  });
 }
 
 describe('FxaOAuthVerifyStrategy', () => {
@@ -41,12 +63,7 @@ describe('FxaOAuthVerifyStrategy', () => {
       json: async () => body,
     });
 
-    const result = await new Promise((resolve, reject) => {
-      (strategy as any)._verify(makeReq('valid-token'), (err: any, user: any) => {
-        if (err) reject(err);
-        else resolve(user);
-      });
-    });
+    const { user } = await runVerify(strategy, makeReq('valid-token'));
 
     expect(fetchSpy).toHaveBeenCalledWith(
       'http://localhost:9000/v1/verify',
@@ -55,64 +72,93 @@ describe('FxaOAuthVerifyStrategy', () => {
         body: JSON.stringify({ token: 'valid-token' }),
       })
     );
-    expect(result).toEqual({
+    expect(user).toEqual({
       sub: body.user,
       client_id: body.client_id,
       scope: body.scope,
     });
   });
 
-  it('returns false when required scope is missing', async () => {
+  it('fails with VerifyInsufficientScopeError when required scope is missing', async () => {
     fetchSpy.mockResolvedValue({
       ok: true,
       json: async () => FxaVerifyResponseFactory({ scope: ['profile'] }),
     });
 
-    const result = await new Promise((resolve) => {
-      (strategy as any)._verify(makeReq('token'), (_err: any, user: any) => {
-        resolve(user);
-      });
-    });
+    const { user, info } = await runVerify(strategy, makeReq('token'));
 
-    expect(result).toBe(false);
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(VerifyInsufficientScopeError);
   });
 
-  it('returns false when auth server rejects the token', async () => {
+  it('fails with OAuthTokenRejectedError on a 4xx from the auth server', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       status: 401,
       json: async () => ({ message: 'Invalid token' }),
     });
 
-    const result = await new Promise((resolve) => {
-      (strategy as any)._verify(makeReq('bad-token'), (_err: any, user: any) => {
-        resolve(user);
-      });
-    });
+    const { user, info } = await runVerify(strategy, makeReq('bad-token'));
 
-    expect(result).toBe(false);
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(OAuthTokenRejectedError);
+    expect(info.message).toContain('401');
   });
 
-  it('returns false when no Bearer token is provided', async () => {
-    const result = await new Promise((resolve) => {
-      (strategy as any)._verify(makeReq(), (_err: any, user: any) => {
-        resolve(user);
-      });
+  it('fails with OAuthVerifyServerError on a 5xx from the auth server', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: async () => ({ message: 'Service Unavailable' }),
     });
 
-    expect(result).toBe(false);
+    const { user, info } = await runVerify(strategy, makeReq('token'));
+
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(OAuthVerifyServerError);
+    expect(info.message).toContain('503');
+  });
+
+  it('fails with OAuthVerifyResponseSchemaError when the response fails schema validation', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      json: async () => ({ unexpected: 'shape' }),
+    });
+
+    const { user, info } = await runVerify(strategy, makeReq('token'));
+
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(OAuthVerifyResponseSchemaError);
+  });
+
+  it('fails with OAuthVerifyResponseParseError when the body is not JSON', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      json: async () => {
+        throw new Error('Unexpected token < in JSON');
+      },
+    });
+
+    const { user, info } = await runVerify(strategy, makeReq('token'));
+
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(OAuthVerifyResponseParseError);
+  });
+
+  it('fails with NoBearerTokenError when no Bearer token is provided', async () => {
+    const { user, info } = await runVerify(strategy, makeReq());
+
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(NoBearerTokenError);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('returns false when auth server is unreachable', async () => {
+  it('fails with OAuthVerifyNetworkError when the auth server is unreachable', async () => {
     fetchSpy.mockRejectedValue(new Error('ECONNREFUSED'));
 
-    const result = await new Promise((resolve) => {
-      (strategy as any)._verify(makeReq('token'), (_err: any, user: any) => {
-        resolve(user);
-      });
-    });
+    const { user, info } = await runVerify(strategy, makeReq('token'));
 
-    expect(result).toBe(false);
+    expect(user).toBe(false);
+    expect(info).toBeInstanceOf(OAuthVerifyNetworkError);
   });
 });
