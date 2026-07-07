@@ -116,7 +116,7 @@ test.describe('severity-1 #smoke', () => {
       // Simulate a browser without WebAuthn by stubbing
       // window.PublicKeyCredential before any document loads. This must be
       // installed before signInAccount navigates, so the settings page's
-      // initial render sees isWebAuthnLevel3Supported() === false and
+      // initial render sees isWebAuthnSupported() === false and
       // renders the modal-trigger "Create" button (which reveals an error
       // banner on click) instead of the route link.
       await page.context().addInitScript(() => {

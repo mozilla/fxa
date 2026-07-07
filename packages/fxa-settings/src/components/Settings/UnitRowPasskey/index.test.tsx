@@ -32,12 +32,12 @@ jest.mock('../../../models', () => ({
 }));
 
 jest.mock('../../../lib/passkeys/webauthn', () => ({
-  isWebAuthnLevel3Supported: jest.fn(() => true),
+  isWebAuthnSupported: jest.fn(() => true),
 }));
 
-const { isWebAuthnLevel3Supported } = jest.requireMock(
+const { isWebAuthnSupported } = jest.requireMock(
   '../../../lib/passkeys/webauthn'
-) as { isWebAuthnLevel3Supported: jest.Mock };
+) as { isWebAuthnSupported: jest.Mock };
 
 const mockPasskeys: Passkey[] = [
   {
@@ -75,7 +75,7 @@ let alertErrorSpy: jest.SpyInstance;
 describe('UnitRowPasskey', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    isWebAuthnLevel3Supported.mockReturnValue(true);
+    isWebAuthnSupported.mockReturnValue(true);
     mockAccount = {
       ...MOCK_ACCOUNT,
       passkeys: mockPasskeys,
@@ -143,7 +143,7 @@ describe('UnitRowPasskey', () => {
   });
 
   it('shows a Create button (not a link) and does not push an alert until clicked when WebAuthn is not supported', async () => {
-    isWebAuthnLevel3Supported.mockReturnValue(false);
+    isWebAuthnSupported.mockReturnValue(false);
     renderUnitRowPasskey();
     await waitFor(() => {
       expect(
@@ -157,7 +157,7 @@ describe('UnitRowPasskey', () => {
   });
 
   it('pushes an unsupported-passkey alert when the user clicks Create and WebAuthn is not supported', async () => {
-    isWebAuthnLevel3Supported.mockReturnValue(false);
+    isWebAuthnSupported.mockReturnValue(false);
     renderUnitRowPasskey();
     const createButton = await screen.findByRole('button', { name: 'Create' });
     fireEvent.click(createButton);

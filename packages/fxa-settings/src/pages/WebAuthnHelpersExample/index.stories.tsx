@@ -19,7 +19,7 @@ export default {
  * valid secure context for WebAuthn.
  *
  * Suggested test sequence:
- *   1. Click "Check" to verify isWebAuthnLevel3Supported()
+ *   1. Click "Check" to verify isWebAuthnSupported()
  *   2. Click "Call createCredential()" — complete the device prompt to register
  *      a passkey for localhost. Inspect the attestation JSON in the result.
  *   3. Click "Call getCredential()" — complete the device prompt to authenticate.
