@@ -40,13 +40,17 @@ describe('stripPIIFromUrl', () => {
     expect(scrubbed).toBe('https://accounts.firefox.com/settings/app.js');
   });
 
-  it('returns non-URL input unchanged (e.g. CSP keywords)', () => {
-    // The URL constructor throws on these; there is nothing to scrub.
+  it('returns non-URL tokens unchanged (e.g. CSP keywords)', () => {
     expect(stripPIIFromUrl('inline')).toBe('inline');
     expect(stripPIIFromUrl('eval')).toBe('eval');
-    expect(stripPIIFromUrl('/relative/path?email=x')).toBe(
-      '/relative/path?email=x'
-    );
+  });
+
+  it('scrubs relative URLs too, preserving the relative shape', () => {
+    expect(
+      stripPIIFromUrl('/reset?email=user@example.com&uid=abc&keep=1')
+    ).toBe('/reset?keep=1');
+    // No PII -> returned unchanged.
+    expect(stripPIIFromUrl('/relative/path')).toBe('/relative/path');
   });
 
   it('strips PII case-sensitively per the known param names', () => {

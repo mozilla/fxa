@@ -18,34 +18,45 @@ const { URL } = require('url');
 const PII_QUERY_PARAMS = ['email', 'uid'];
 
 /**
- * Remove PII from a URL so it is safe to log.
- *
- * Strips the {@link PII_QUERY_PARAMS} query parameters and drops the fragment
- * entirely (fragments can carry tokens/identifiers and are never needed for
- * violation triage). Non-URL inputs (e.g. CSP keywords like `inline`/`eval`,
- * or relative paths) are returned unchanged since there is nothing parseable
- * to scrub.
+ * Remove PII (email/uid query params + fragment) from a URL so it is safe to
+ * log. Relative URLs are scrubbed too; non-URL tokens are returned unchanged.
  *
  * @param {String} urlToScrub
- * @returns {String} the scrubbed URL, or '' for empty/non-string input
+ * @returns {String} scrubbed URL, or '' for empty/non-string input
  */
 function stripPIIFromUrl(urlToScrub) {
   if (!urlToScrub || typeof urlToScrub !== 'string') {
     return '';
   }
 
+  // Parse absolute URLs directly; fall back to a throwaway base so relative
+  // URLs (which `new URL` rejects on their own) are still scrubbed.
   let parsed;
+  let isRelative = false;
   try {
     parsed = new URL(urlToScrub);
   } catch (e) {
-    // Not an absolute URL - nothing to scrub, return as-is.
+    try {
+      parsed = new URL(urlToScrub, 'https://waict.invalid');
+      isRelative = true;
+    } catch (e2) {
+      // Not a URL at all (e.g. a CSP keyword like "inline"/"eval").
+      return urlToScrub;
+    }
+  }
+
+  const hasPII =
+    PII_QUERY_PARAMS.some((param) => parsed.searchParams.has(param)) ||
+    parsed.hash !== '';
+  if (!hasPII) {
+    // Nothing to strip; return the input untouched to preserve its exact shape.
     return urlToScrub;
   }
 
   PII_QUERY_PARAMS.forEach((param) => parsed.searchParams.delete(param));
   parsed.hash = '';
 
-  return parsed.toString();
+  return isRelative ? parsed.pathname + parsed.search : parsed.toString();
 }
 
 module.exports = {
