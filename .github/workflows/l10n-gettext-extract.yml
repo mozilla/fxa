@@ -12,13 +12,13 @@ jobs:
           sudo apt update
           sudo apt install gettext -y
       - name: Clone l10n repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           repository: mozilla/fxa-content-server-l10n
           path: 'fxa-l10n'
           persist-credentials: false
       - name: Clone FxA code repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           fetch-depth: 2
           path: 'fxa-code'

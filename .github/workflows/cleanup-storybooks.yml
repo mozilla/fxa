@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           ref: gh-pages
           path: gh-pages
@@ -95,7 +95,7 @@ jobs:
           echo "REMOVED=${REMOVED}" >> "$GITHUB_ENV"
 
       - name: Checkout main branch for scripts
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           path: main-repo
           persist-credentials: false
