@@ -1,0 +1,11 @@
+{
+  "commit": "f54bea93b4d62d111d4f9ffa63b81cf5ccaf9834",
+  "summary": "fix(payments): Success page displays latest invoice details on a previous subscription",
+  "description": "",
+  "timestamp": 1783538370000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
