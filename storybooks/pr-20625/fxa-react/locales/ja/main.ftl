@@ -35,10 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = 一般的なアプリケーションエラー
-app-general-err-message = 何か問題が発生しました。また後で試してください。
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } ロゴ
 app-footer-privacy-notice = ウェブサイトのプライバシー通知
 app-footer-terms-of-service = サービス利用規約

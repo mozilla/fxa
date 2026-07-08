@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Allmänt applikationsfel
-app-general-err-message = Något gick fel. Vänligen försök igen senare.
+app-something-went-wrong-heading = Något gick fel
+app-something-went-wrong-message = Vi har underrättats om problemet. Uppdatera sidan för att försöka igen.
+app-error-id = Fel-ID: { $errorId }
+app-error-details-summary = Detaljer om felet
 app-query-parameter-err-heading = Felaktig begäran: Ogiltiga frågeparametrar
 
 

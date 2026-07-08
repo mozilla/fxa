@@ -71,8 +71,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Общая ошибка приложения
-app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
+app-something-went-wrong-heading = Что-то пошло не так
+app-something-went-wrong-message = Мы были уведомлены об этой проблеме. Обновите страницу, чтобы попробовать ещё раз.
+app-error-id = Код ошибки: { $errorId }
+app-error-details-summary = Сведения об ошибке
 app-query-parameter-err-heading = Неверный запрос: недопустимые параметры
 
 

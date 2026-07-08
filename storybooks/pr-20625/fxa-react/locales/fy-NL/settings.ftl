@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } op { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adres: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Untfang { -brand-firefox } wêr’t jo ek binne
+firefox-promo-banner-mobile-description = Syngronisearje jo ljepblêden, blêdwizers en wachtwurden op al jo apparaten. Boppedat bliuwt alles feilich fersifere.
+firefox-promo-banner-mobile-cta = In apparaat ferbine
+firefox-promo-banner-switch-heading = Fluch om te wikseljen. Maklik om yn te setten.
+firefox-promo-banner-switch-description = As jo nei { -brand-firefox }, oerskeakelje kinne jo jo blêdwizers, wachtwurden, skiednis en mear meinimme, sadat jo sûnder problemen sneupe kinne.
+firefox-promo-banner-switch-cta = Oerstappe nei { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tebek
+# Generic error shown when the legal document fails to load
+app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 ## LinkDamaged component
 
@@ -1239,7 +1252,7 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content = Dizze wachtwurdkaai wurdt fan jo account fuortsmiten. Jo moatte jo op in oare manier oanmelde.
+passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
@@ -1479,10 +1492,19 @@ passkey-registration-error-not-allowed = Ynstellen fan wachtwurd mislearre of is
 passkey-registration-error-not-allowed-existing = Ynstellen fan wachtwurdkaai is net beskikber op dit apparaat. It apparaat is al registrearre, of it ynstelproses is annulearre.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Ynstellen fan wachtwurdkaai is annulearre. Probearje it opnij.
+passkey-registration-canceled-v2 = Ynstellen fan wachtwurdkaai ferrûn of annulearre.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Mear ynfo
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Jo browser of apparaat stipet gjin wachtwurdkaaien.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Mear ynfo
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = It ynstellen fan de wachtwurdkaai koe net foltôge wurde. Probearje in oare metoade of in oar apparaat.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Mear ynfo
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Wachtwurdkaaien kinne net op dizze side ynsteld wurde. Brûk de befeilige website en probearje it opnij.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)

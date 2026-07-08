@@ -86,7 +86,7 @@ new-account-prepaid-card-free-trial-not-allowed = Le cartas prepagate non pote e
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
 
-next-payment-processing-message = Attende dum nos elabora tu pagamento…
+next-payment-processing-message = Per favor attende que nos processa tu pagamento…
 
 ## Success page - /checkout and /upgrade
 ## Common strings used in multiple checkout pages

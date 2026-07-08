@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Erôr gjenerâl de aplicazion
-app-general-err-message = Alc al è lât strucj. Torne prove plui indenant.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Domande sbaliade: parametris de interogazion no valits
 

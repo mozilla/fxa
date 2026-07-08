@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Opća greška programa
-app-general-err-message = Nešto nije u redu. Pokušaj kasnije ponovo.
 app-query-parameter-err-heading = Loš zahtjev: nevažeći parametri upita
 
 

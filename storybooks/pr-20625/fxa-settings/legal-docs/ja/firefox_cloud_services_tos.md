@@ -59,7 +59,7 @@
     Mozilla のメール受信登録は、Mozilla のメール（一番下のリンクをクリック）またはブラウザー（Firefox / 設定 / 同期 / アカウントの管理 / メールの設定管理）から設定変更できます。
     
     Mozilla は、法的情報やプライバシー条件の更新、あるいはパスワードのリセット、メールアドレスの確認、リンクされているデバイスといったセキュリティに関するメッセージなど、重要なアカウント情報を皆様にお送りすることもあります。これらは弊社サービスにとって必要な情報であるため、受信登録を解除することはできません。
-Mozilla の連絡先情報：_Mozilla Corporation Attn:Mozilla – Legal Notices 149 New Montgomery St, 4th Floor, San Francisco, CA 94105 または legal-notices@mozilla.com_
+Mozilla の連絡先情報：_Mozilla Corporation Attn:Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 または legal-notices@mozilla.com_
 
 6. #### 本サービスのコンテンツ
 

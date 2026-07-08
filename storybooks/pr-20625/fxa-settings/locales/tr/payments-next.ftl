@@ -20,6 +20,8 @@ next-payment-method-first-approve = Öncelikle aboneliğinizi onaylamanız gerek
 
 ## Error page
 
+error-page-account-not-found-heading = Hesap bulunamadı
+error-page-account-not-found-continue-button = Devam et
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = <p>{ $productName } ödemesine devam etmek için ülkenizi seçip posta kodunuzu girin</p>
 location-banner-info = Konumunuzu otomatik olarak tespit edemedik
@@ -251,6 +253,9 @@ churn-cancel-flow-success-title = Hâlâ abonesiniz
 churn-cancel-flow-thanks-valued-subscriber = { $productName } kullandığınız için teşekkürler!
 churn-cancel-flow-button-back-to-subscriptions = Aboneliklere dön
 churn-cancel-flow-action-error = Beklenmeyen bir sorun oluştu. Lütfen yeniden deneyin.
+# $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'Stay subscribed and save 10%', discountPercent = 10)
+churn-cancel-flow-button-stay-subscribed-and-save-discount = Aboneliğinizi sürdürerek %{ $discountPercent } tasarruf edin
+churn-cancel-flow-button-stay-subscribed-and-save = Aboneliğinizi sürdürerek tasarruf edin
 churn-cancel-flow-button-cancel-subscription = Aboneliği iptal et
 churn-cancel-flow-discount-already-applied-title = İndirim kodu zaten uygulanmış
 churn-cancel-flow-button-manage-subscriptions = Abonelikleri yönet
@@ -398,6 +403,19 @@ purchase-details-credit-applied-label = Uygulanan kredi
 purchase-details-total-due-label = Toplam tutar
 next-plan-details-hide-button = Ayrıntıları gizle
 next-plan-details-show-button = Ayrıntıları göster
+
+## $trialDayLength (Number) - The number of days in the free trial
+
+free-trial-start-title =
+    { $trialDayLength ->
+        [one] { $trialDayLength } günlük ücretsiz denemenizi başlatın
+       *[other] { $trialDayLength } günlük ücretsiz denemenizi başlatın
+    }
+free-trial-success-title =
+    { $trialDayLength ->
+        [one] { $trialDayLength } günlük ücretsiz denemeniz başladı
+       *[other] { $trialDayLength } günlük ücretsiz denemeniz başladı
+    }
 
 ##
 

@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } op { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adres: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Ontvang { -brand-firefox } waar u ook bent
+firefox-promo-banner-mobile-description = Synchroniseer uw tabbladen, bladwijzers en wachtwoorden op al uw apparaten. Bovendien blijft alles veilig versleuteld.
+firefox-promo-banner-mobile-cta = Een apparaat verbinden
+firefox-promo-banner-switch-heading = Snel om te schakelen. Snel gewend.
+firefox-promo-banner-switch-description = Wanneer u naar { -brand-firefox } overschakelt, kunt u uw bladwijzers, wachtwoorden, geschiedenis en meer meenemen, zodat u naadloos kunt surfen.
+firefox-promo-banner-switch-cta = Overstappen naar { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = Verenigde Staten
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Terug
+# Generic error shown when the legal document fails to load
+app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
 
 ## LinkDamaged component
 
@@ -1235,7 +1248,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich op een andere manier aan te melden.
+passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd

@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Algemene toepassingsfout
-app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
+app-something-went-wrong-heading = Er is iets misgegaan
+app-something-went-wrong-message = We zijn op de hoogte van het probleem. Vernieuw de pagina om het opnieuw te proberen.
+app-error-id = Fout-ID: { $errorId }
+app-error-details-summary = Foutdetails
 app-query-parameter-err-heading = Ongeldige aanvraag: ongeldige queryparameters
 
 

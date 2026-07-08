@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = שגיאת יישום כללית
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
+app-something-went-wrong-heading = משהו השתבש
+app-something-went-wrong-message = קיבלנו הודעה על הבעיה. ניתן לרענן את הדף כדי לנסות שוב.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = מזהה שגיאה: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = פרטי שגיאה
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = בקשה שגויה: פרמטרי שאילתה לא חוקיים
 

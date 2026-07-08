@@ -187,8 +187,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Ogólny błąd aplikacji
-app-general-err-message = Coś się nie powiodło. Proszę spróbować ponownie później.
+app-something-went-wrong-heading = Coś się nie powiodło
+app-something-went-wrong-message = Zostaliśmy poinformowani o tym problemie. Odśwież stronę i spróbuj ponownie.
+app-error-id = Identyfikator błędu: { $errorId }
+app-error-details-summary = Informacje o błędzie
 app-query-parameter-err-heading = Błędne żądanie: nieprawidłowe parametry zapytania
 
 
@@ -434,6 +436,7 @@ input-phone-number-enter-number = Wpisz numer telefonu
 input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
 legal-back-button = Wstecz
+app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 
 reset-pwd-link-damaged-header = Odnośnik do zmiany hasła jest uszkodzony

@@ -51,8 +51,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erreur générale de l’application
-app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
+app-something-went-wrong-heading = Une erreur s’est produite
+app-something-went-wrong-message = Nous avons été informés du problème. Actualisez la page pour réessayer.
+app-error-id = Identifiant de l’erreur : { $errorId }
+app-error-details-summary = Détails de l’erreur
 app-query-parameter-err-heading = Requête incorrecte : paramètres de requête invalides
 
 

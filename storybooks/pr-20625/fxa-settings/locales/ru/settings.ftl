@@ -160,6 +160,17 @@ device-info-browser-os = { $browserName } в { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-адрес: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Установите { -brand-firefox }, где бы вы ни находились
+firefox-promo-banner-mobile-description = Синхронизируйте свои вкладки, закладки и пароли между своими устройствами. Кроме того, всё остаётся надёжно зашифрованным.
+firefox-promo-banner-mobile-cta = Подключить устройство
+firefox-promo-banner-switch-heading = Быстро переключается. Легко осваивается.
+firefox-promo-banner-switch-description = При переходе на { -brand-firefox }, вы можете перенести свои закладки, пароли, историю и многое другое, чтобы начать сёрфинг, не теряя ни секунды.
+firefox-promo-banner-switch-cta = Перейти на { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -356,6 +367,8 @@ input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Назад
+# Generic error shown when the legal document fails to load
+app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
 
 ## LinkDamaged component
 
@@ -1239,7 +1252,7 @@ passkey-sub-row-created-date = Создан: { $createdDate }
 passkey-sub-row-last-used-date = Последнее использование: { $lastUsedDate }
 passkey-sub-row-delete-title = Удалить ключ доступа
 passkey-delete-modal-heading = Удалить ваш ключ доступа?
-passkey-delete-modal-content = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно войти, используя другой способ.
+passkey-delete-modal-content-v2 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно будет войти, используя другой метод (пароль, другой ключ доступа или связанный аккаунт).
 passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён

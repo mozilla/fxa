@@ -103,8 +103,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Γενικό σφάλμα εφαρμογής
-app-general-err-message = Κάτι πήγε στραβά. Δοκιμάστε ξανά αργότερα.
+app-something-went-wrong-heading = Κάτι πήγε στραβά
+app-something-went-wrong-message = Έχουμε ειδοποιηθεί για το ζήτημα. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.
+app-error-id = Αναγνωριστικό σφάλματος: { $errorId }
+app-error-details-summary = Λεπτομέρειες σφάλματος
 app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυρες παράμετροι ερωτήματος
 
 

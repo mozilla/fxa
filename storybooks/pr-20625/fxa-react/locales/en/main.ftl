@@ -45,8 +45,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = General application error
-app-general-err-message = Something went wrong. Please try again later.
+app-something-went-wrong-heading = Something went wrong
+app-something-went-wrong-message = We’ve been notified of the issue. Refresh the page to try again.
+app-error-id = Error ID: { $errorId }
+app-error-details-summary = Error details
 
 app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
 

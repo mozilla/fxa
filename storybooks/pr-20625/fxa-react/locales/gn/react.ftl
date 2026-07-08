@@ -1,7 +1,10 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Ñemohembiapo jejavypaite
-app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
+app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID jejavy: { $error }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Mba’emimi jejavygua
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 

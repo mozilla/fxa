@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Хатои умумии барнома
-app-general-err-message = Чизе нодуруст иҷро шуд. Лутфан, баъдтар аз нав кӯшиш кунед.
 app-query-parameter-err-heading = Дархости нодуруст: Хусусиятҳои дархост нодуруст мебошанд
 
 

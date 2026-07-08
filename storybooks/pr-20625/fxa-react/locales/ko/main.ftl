@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = 일반 애플리케이션 오류
-app-general-err-message = 문제가 발생했습니다. 나중에 다시 시도하세요.
 app-query-parameter-err-heading = 잘못된 요청: 유효하지 않은 쿼리 파라미터
 
 

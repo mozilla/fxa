@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Algemiene tapassingsflater
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
+app-something-went-wrong-heading = Der is wat misgien
+app-something-went-wrong-message = Wy binne op de hichte fan it probleem. Ferfarskje de side om it opnij te probearjen.
+app-error-id = Flater-ID: { $errorId }
+app-error-details-summary = Flaterdetails
 app-query-parameter-err-heading = Unjildige oanfraach: ûnjildige queryparameters
 
 

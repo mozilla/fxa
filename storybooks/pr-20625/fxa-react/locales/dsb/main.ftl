@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Powšykna nałožeńska zmólka
-app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
+app-something-went-wrong-heading = Něco njejo se raźiło
+app-something-went-wrong-message = Problem jo se nam k wěsći dał. Aktualizěrujśo bok, aby hyšći raz wopytał.
+app-error-id = ID zmólki: { $errorId }
+app-error-details-summary = Drobnostki zmólkow
 app-query-parameter-err-heading = Špatne napšašowanje: Njepłaśiwe napšašowańske parametry
 
 

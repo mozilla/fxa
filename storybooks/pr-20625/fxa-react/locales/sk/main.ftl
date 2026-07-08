@@ -181,8 +181,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Všeobecná chyba aplikácie
-app-general-err-message = Niečo sa pokazilo. Skúste to znova neskôr.
+app-something-went-wrong-heading = Niečo sa pokazilo
+app-something-went-wrong-message = Boli sme upozornení na problém. Obnovte stránku a skúste to znova.
+app-error-id = Identifikátor chyby: { $errorId }
+app-error-details-summary = Podrobnosti o chybe
 app-query-parameter-err-heading = Nesprávna požiadavka: neplatné parametre dopytu
 
 

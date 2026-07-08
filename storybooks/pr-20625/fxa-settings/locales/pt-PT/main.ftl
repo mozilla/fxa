@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro geral da aplicação
-app-general-err-message = Algo correu mal. Por favor, tente novamente mais tarde.
+app-something-went-wrong-heading = Algo correu mal
+app-something-went-wrong-message = Fomos notificados do problema. Atualize a página para tentar novamente.
+app-error-id = ID do erro: { $errorId }
+app-error-details-summary = Detalhes do erro
 app-query-parameter-err-heading = Pedido inválido: parâmetros de consulta inválidos
 
 
@@ -151,6 +153,14 @@ device-info-block-location-country = { $country } (estimado)
 device-info-block-location-unknown = Localização desconhecida
 device-info-browser-os = { $browserName } em { $genericOSName }
 device-info-ip-address = Endereço de IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Obtenha o { -brand-firefox } onde quer que esteja
+firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores e palavras-passe entre os seus dispositivos. Além disso, tudo permanece encriptado com segurança.
+firefox-promo-banner-mobile-cta = Ligar um dispositivo
+firefox-promo-banner-switch-heading = Rápido para mudar. Fácil de instalar.
+firefox-promo-banner-switch-description = Ao mudar para { -brand-firefox }, pode trazer os seus marcadores, palavras-passe, histórico e muito mais, para que possa navegar sem perder o ritmo.
+firefox-promo-banner-switch-cta = Mudar para { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -296,6 +306,7 @@ input-phone-number-enter-number = Inserir número de telefone
 input-phone-number-country-united-states = Estados Unidos da América
 input-phone-number-country-canada = Canadá
 legal-back-button = Voltar
+app-general-err-message = Algo correu mal. Tente novamente mais tarde.
 
 
 reset-pwd-link-damaged-header = A ligação de redefinição da palavra-passe está danificada
@@ -916,7 +927,7 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar chave de acesso
 passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content = Esta chave será removida da sua conta. Terá de iniciar a sessão de uma forma diferente.
+passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar chave de acesso
 passkey-delete-success = Chave eliminada

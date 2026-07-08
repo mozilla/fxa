@@ -21,6 +21,7 @@ next-payment-method-first-approve = Θα πρέπει πρώτα να εγκρί
 ## Error page
 
 error-page-account-not-found-heading = Ο λογαριασμός δεν βρέθηκε
+error-page-account-not-found-message = Ο λογαριασμός που σχετίζεται με τη συνεδρία σας δεν υπάρχει. Xρησιμοποιήστε έναν άλλο λογαριασμό ή δημιουργήστε έναν νέο για να εγγραφείτε.
 error-page-account-not-found-continue-button = Συνέχεια
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Επιλέξτε τη χώρα σας και εισαγάγετε τον ταχυδρομικό σας κώδικα <p>για να συνεχίσετε στην ολοκλήρωση αγοράς του { $productName }</p>

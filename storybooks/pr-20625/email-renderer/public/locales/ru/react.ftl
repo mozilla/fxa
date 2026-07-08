@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Общая ошибка приложения
-app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
+app-something-went-wrong-heading = Что-то пошло не так
+app-something-went-wrong-message = Мы были уведомлены об этой проблеме. Обновите страницу, чтобы попробовать ещё раз.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = Код ошибки: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Сведения об ошибке
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Неверный запрос: недопустимые параметры
 

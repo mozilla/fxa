@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = ข้อผิดพลาดแอปพลิเคชันทั่วไป
-app-general-err-message = มีบางอย่างผิดปกติ โปรดลองอีกครั้งในภายหลัง
 app-query-parameter-err-heading = คำขอไม่ถูกต้อง: พารามิเตอร์การสืบค้นไม่ถูกต้อง
 
 

@@ -51,8 +51,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Errore generale dell’applicazione
-app-general-err-message = Si è verificato un problema. Riprova più tardi.
+app-something-went-wrong-heading = Si è verificato un errore
+app-something-went-wrong-message = Abbiamo ricevuto una segnalazione del problema. Ricarica la pagina per riprovare.
+app-error-id = ID errore: { $errorId }
+app-error-details-summary = Dettagli errore
 app-query-parameter-err-heading = Richiesta non valida: parametri della query non validi
 
 

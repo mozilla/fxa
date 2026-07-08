@@ -35,8 +35,9 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Ñemohembiapo jejavypaite
-app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
+app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
+app-error-id = ID jejavy: { $error }
+app-error-details-summary = Mba’emimi jejavygua
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 
 
@@ -147,6 +148,11 @@ device-info-block-location-country = { $country } (ojekuaaporã’ỹva)
 device-info-block-location-unknown = Tendatee ojekuaa’ỹva
 device-info-browser-os = { $browserName } { $genericOSName }-pe
 device-info-ip-address = IP kundaharape: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Emohenda { -brand-firefox } peteĩva mba’e’okápe
+firefox-promo-banner-mobile-cta = Embojuaju ba’e’oka
+firefox-promo-banner-switch-cta = Eguerova { -brand-firefox }-pe
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -292,6 +298,7 @@ input-phone-number-enter-number = Ehai pumbyry papapy
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
 legal-back-button = Tapykue
+app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
 
 
 reset-pwd-link-damaged-header = Juajuha eguerujey hag̃ua ñe’ẽñemi oñembyai
@@ -914,7 +921,6 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
-passkey-delete-modal-content = Ko mba’e ñemi oñemboguéta ne mba’etégui. Eikejeyva’erã ñanduti rendápe ambueháicha.
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1085,8 +1091,11 @@ oauth-error-1000 = Oĩ ndoikóiva. Emboty ko tendayke ha eha’ã jey.
 passkey-registration-error-not-allowed = Pe ñe’ẽ ñemi ñemboheko ndoikói térã ndojeporukuaái. Eha’ãjey ag̃ave térã eiporavo ambue.
 passkey-registration-error-not-allowed-existing = Ñe’ẽ ñemi ñemoheñói ndereiporukuaamo’ãi ko mba’e’okápe. Ikatu pe mba’e’oka oñemboheraguapýma térã ikatu ojehejareíma pe iñemboheko.
 passkey-registration-error-timeout = Ojehejarei ñe’ẽ ñemi ñemboheko. Eha’ãjey ag̃ave.
+passkey-registration-canceled-v2 = Ñe’ẽ ñemi jeikeha ñemboheko ijaravopa térã ojepe’a.
+passkey-registration-canceled-link = Eikuaave
 passkey-registration-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 passkey-registration-error-not-supported-link = Eikuaave
+passkey-registration-error-could-not-complete-link = Eikuaave
 passkey-registration-error-security = Ndaikatúi emboheko ñe’ẽ ñemi ko kuatiaroguepegua. Eiporu tenda hekorosãva ha eha’ãjey.
 passkey-registration-error-invalid-state = Ko ñemigua oñemboheraguapýma. Eiporu eike hag̃ua térã embojuaju ñemigua ambuéva.
 passkey-registration-error-not-readable = Ndoroikekuaái moañetehápe. Eha’ã pyahu jey térã eiporavo ambueháicha.

@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Жалпы қолданба қатесі
-app-general-err-message = Бірнәрсе қате кетті. Кейінірек қайталап көріңіз.
+app-something-went-wrong-heading = Бірнәрсе қате кетті
+app-something-went-wrong-message = Бізге мәселе туралы хабарланды. Қайталап көру үшін бетті жаңартыңыз.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = Қате идентификаторы: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Қате ақпараты
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Қате сұраныс: Жарамсыз сұраныс параметрлері
 

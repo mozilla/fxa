@@ -321,8 +321,10 @@
     .gender = masculine
 -google-play = Google Play
 
-app-general-err-heading = Obecná chyba aplikace
-app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
+app-something-went-wrong-heading = Něco se pokazilo
+app-something-went-wrong-message = Na problém jsme byli upozorněni. Obnovte stránku a zkuste to znovu.
+app-error-id = ID chyby: { $errorId }
+app-error-details-summary = Podrobnosti o chybě
 app-query-parameter-err-heading = Špatný požadavek: neplatné parametry v dotazu
 
 
@@ -436,6 +438,14 @@ device-info-block-location-country = { $country } (odhad)
 device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP adresa: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
+firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
+firefox-promo-banner-mobile-cta = Připojit zařízení
+firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
+firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
+firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -581,6 +591,7 @@ input-phone-number-enter-number = Zadejte telefonní číslo
 input-phone-number-country-united-states = Spojené státy
 input-phone-number-country-canada = Kanada
 legal-back-button = Zpět
+app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
 
 
 reset-pwd-link-damaged-header = Odkaz pro obnovení je poškozen
@@ -1208,7 +1219,7 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content = Tento přístupový kód bude odebrán z vašeho účtu. Budete se muset přihlásit jiným způsobem.
+passkey-delete-modal-content-v2 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení bude potřeba použít jinou metodu (heslo, jiné heslo nebo propojený účet).
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán

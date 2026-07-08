@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Error de aplicación general
-app-general-err-message = Algo se fue a las pailas. Por favor, vuelve a intentarlo más tarde.
+app-something-went-wrong-heading = Algo se fue a las pailas
+app-something-went-wrong-message = Hemos sido notificados del problema. Actualiza la página para intentarlo de nuevo.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID de error: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Detalles del error
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 

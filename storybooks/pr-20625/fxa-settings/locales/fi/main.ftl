@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Yleinen sovellusvirhe
-app-general-err-message = Jokin meni pieleen. Yritä uudelleen myöhemmin.
+app-something-went-wrong-heading = Jokin meni pieleen
+app-something-went-wrong-message = Olemme saaneet ilmoituksen ongelmasta. Päivitä sivu yrittääksesi uudelleen.
+app-error-id = Virhetunniste: { $errorId }
+app-error-details-summary = Virheen tiedot
 app-query-parameter-err-heading = Virheellinen pyyntö: Virheelliset kyselyparametrit
 
 
@@ -546,8 +548,8 @@ modal-mfa-protected-resend-code-link = Lähetä uusi koodi sähköpostiin.
 
 
 mvs-verify-your-email-2 = Vahvista sähköposti
-mvs-enter-verification-code-2 = Kirjoita vahvistuskoodi
-mvs-enter-verification-code-desc-2 = Kirjoita osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+mvs-enter-verification-code-2 = Syötä vahvistuskoodi
+mvs-enter-verification-code-desc-2 = Syötä osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 msv-cancel-button = Peruuta
 msv-submit-button-2 = Vahvista
 
@@ -727,10 +729,10 @@ add-secondary-email-step-2 = Vaihe 2/2
 verify-secondary-email-page-title =
     .title = Toissijainen sähköposti
 verify-secondary-email-verification-code-2 =
-    .label = Kirjoita vahvistuskoodi
+    .label = Syötä vahvistuskoodi
 verify-secondary-email-cancel-button = Peruuta
 verify-secondary-email-verify-button-2 = Vahvista
-verify-secondary-email-please-enter-code-2 = Kirjoita osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+verify-secondary-email-please-enter-code-2 = Syötä osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 verify-secondary-email-success-alert-2 = { $email } lisätty onnistuneesti
 
 
@@ -804,6 +806,7 @@ row-defaults-status = Ei mitään
 passkey-row-enabled = Käytössä
 passkey-row-not-set = Ei asetettu
 passkey-row-action-create = Luo
+passkey-row-info-link-2 = Lue lisää
 
 
 rk-header-1 = Tilin palautusavain
@@ -828,7 +831,7 @@ unit-row-recovery-key-delete-icon-button-title = Poista tilin palautusavain
 se-heading = Toissijainen sähköposti
     .header = Toissijainen sähköposti
 se-cannot-refresh-email = Valitettavasti sähköpostiosoitteen päivittämisessä ilmeni ongelma.
-se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin lähettämisessä uudelleen ilmeni ongelma
+se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin uudelleenlähetyksessä kohdattiin ongelma
 se-set-primary-successful-2 = { $email } on nyt ensisijainen sähköpostiosoitteesi
 se-set-primary-error-2 = Valitettavasti ensisijaisen sähköpostiosoitteesi vaihtamisessa ilmeni ongelma
 se-delete-email-successful-2 = { $email } poistettu
@@ -919,6 +922,15 @@ recovery-phone-number-ending-digits = Numero, joka päättyy { $lastFourPhoneNum
 oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelleen.
 
 
+
+
+passkey-registration-canceled-link = Lue lisää
+passkey-registration-error-not-supported-link = Lue lisää
+passkey-registration-error-could-not-complete-link = Lue lisää
+
+
+
+
 connect-another-device-signed-in-header = Olet kirjautunut { -brand-firefox }iin
 connect-another-device-email-confirmed-banner = Sähköposti vahvistettu
 connect-another-device-signin-confirmed-banner = Kirjautuminen vahvistettu
@@ -1002,6 +1014,9 @@ pair-auth-complete-see-tabs-button = Näytä synkronoitujen laitteiden välilehd
 pair-auth-complete-manage-devices-link = Hallinnoi laitteita
 
 
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } käyttöjärjestelmälle { $deviceOS } on yhdistetty.
+
+
 auth-totp-heading-w-default-service = Syötä todennuskoodi <span>jatkaaksesi tilin asetuksiin</span>
 auth-totp-heading-w-custom-service = Syötä todennuskoodi <span>jatkaaksesi palveluun { $serviceName }</span>
 auth-totp-instruction = Avaa todennussovellus ja syötä sen näyttämä todennuskoodi.
@@ -1054,11 +1069,15 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
+pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
 pair-unsupported-learn-more-link-v2 = Lue lisää
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Sulje tämä välilehti ja yritä uudelleen.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } vahvistettu
 service-welcome-signin-success-banner = Kirjautuminen onnistui!
+service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 
 
 

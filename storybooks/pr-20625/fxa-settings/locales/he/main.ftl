@@ -43,8 +43,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = שגיאת יישום כללית
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
+app-something-went-wrong-heading = משהו השתבש
+app-something-went-wrong-message = קיבלנו הודעה על הבעיה. ניתן לרענן את הדף כדי לנסות שוב.
+app-error-id = מזהה שגיאה: { $errorId }
+app-error-details-summary = פרטי שגיאה
 app-query-parameter-err-heading = בקשה שגויה: פרמטרי שאילתה לא חוקיים
 
 
@@ -210,6 +212,8 @@ backup-recovery-sms-disabled-icon-aria-label =
     .aria-label = הודעת SMS לשחזור מושבתת
 canadian-flag-icon-aria-label =
     .aria-label = דגל קנדי
+checkmark-icon-aria-label =
+    .aria-label = סימון
 checkmark-success-icon-aria-label =
     .aria-label = הצלחה
 checkmark-enabled-icon-aria-label =
@@ -289,6 +293,7 @@ input-phone-number-enter-number = נא להכניס מספר טלפון
 input-phone-number-country-united-states = ארצות הברית
 input-phone-number-country-canada = קנדה
 legal-back-button = חזרה
+app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
 
 
 reset-pwd-link-damaged-header = קישור לאיפוס ססמה פגום
@@ -883,7 +888,6 @@ passkey-sub-row-created-date = תאריך יצירה:
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
-passkey-delete-modal-content = מפתח גישה זה יוסר מהחשבון שלך. יהיה עליך להתחבר בדרך אחרת.
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק

@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Powšitkowny nałoženski zmylk
-app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
+app-something-went-wrong-heading = Něšto je so nimokuliło
+app-something-went-wrong-message = Problem je so nam zdźělił. Aktualizujće stronu, zo byšće hišće raz spytał.
+app-error-id = Zmylkowy ID: { $errorId }
+app-error-details-summary = Zmylkowe podrobnosće
 app-query-parameter-err-heading = Špatne naprašowanje: Njepłaćiwe naprašowanske parametry
 
 

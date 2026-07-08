@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Gwall cyffredinol rhaglen
-app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
+app-something-went-wrong-heading = Aeth rhywbeth o'i le
+app-something-went-wrong-message = Rydym wedi cael gwybod am y mater. Ail-lwythwch y dudalen i geisio eto.
+app-error-id = ID gwall: { $errorId }
+app-error-details-summary = Manylion gwall
 app-query-parameter-err-heading = Cais Gwael: Paramedrau Ymholiad Annilys
 
 
@@ -159,6 +161,14 @@ device-info-block-location-country = { $country } (amcan)
 device-info-block-location-unknown = Lleoliad anhysbys
 device-info-browser-os = { $browserName } ar { $genericOSName }
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Cael { -brand-firefox } lle bynnag rydych chi
+firefox-promo-banner-mobile-description = Cydweddu eich tabiau, nodau tudalen, a chyfrineiriau ar draws eich dyfeisiau. Hefyd, mae popeth yn aros wedi'i amgryptio'n ddiogel.
+firefox-promo-banner-mobile-cta = Cysylltu dyfais
+firefox-promo-banner-switch-heading = Cyflym i newid. Hawdd i ymgartrefu.
+firefox-promo-banner-switch-description = Pan fyddwch yn newid i { -brand-firefox }, gallwch ddod â'ch nodau tudalen, cyfrineiriau, hanes a mwy er mwyn i chi allu pori heb golli dim.
+firefox-promo-banner-switch-cta = Newid i { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -304,6 +314,7 @@ input-phone-number-enter-number = Rhowch rif ffôn
 input-phone-number-country-united-states = Yr Unol Daleithiau
 input-phone-number-country-canada = Canada
 legal-back-button = Nôl
+app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
 
 
 reset-pwd-link-damaged-header = Mae dolen ailosod y cyfrinair wedi ei difrodi
@@ -936,7 +947,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio ffordd wahanol.
+passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1108,11 +1119,11 @@ oauth-error-1000 = Aeth rhywbeth o'i le. Caewch y tab hwn a cheisio eto.
 passkey-registration-error-not-allowed = Methodd gosod y cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 passkey-registration-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Naill ai mae'r ddyfais eisoes wedi'i chofrestru neu cafodd y broses osod ei diddymu.
 passkey-registration-error-timeout = Wedi diddymu gosod y cyfrinallwedd. Ceisiwch eto.
-passkey-registration-canceled-v2 = Daeth yr amser gosod paskey i ben neu cafodd ei ganslo.
+passkey-registration-canceled-v2 = Daeth yr amser gosod cyfrinallwedd i ben neu cafodd ei diddymu.
 passkey-registration-canceled-link = Dysgu rhagor
 passkey-registration-error-not-supported-v2 = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrinallweddi.
 passkey-registration-error-not-supported-link = Dysgu rhagor
-passkey-registration-error-could-not-complete = Ni fu modd cwblhau gosod y tocyn. Rhowch gynnig ar ddull neu ddyfais wahanol.
+passkey-registration-error-could-not-complete = Doedd dim modd cwblhau gosod y cyfrinallwedd. Rhowch gynnig ar ddull neu ddyfais wahanol.
 passkey-registration-error-could-not-complete-link = Dysgu rhagor
 passkey-registration-error-security = Does dim modd gosod cyfrinallweddi  ar y dudalen hon. Defnyddiwch y wefan ddiogel a cheisiwch eto.
 passkey-registration-error-invalid-state = Mae'r cyfrinallwedd hwn eisoes wedi'i gofrestru. Defnyddiwch ef i fewngofnodi neu ychwanegu cyfrinallwedd gwahanol.

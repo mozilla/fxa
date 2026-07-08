@@ -59,7 +59,7 @@ Esta sección inicial resume las condiciones descritas a continuación. El prese
     Puede cambiar sus suscripciones de correo electrónico de Mozilla desde nuestros mensajes de correo electrónico pulsando el enlace en la parte inferior del mensaje o a través del navegador accediendo a Firefox > Preferencias > Sincronización > Gestionar cuenta > Preferencias de correo electrónico.
     
     Asimismo, le podemos enviar información importante relacionada con su cuenta como actualizaciones de términos legales y de privacidad, o mensajes de seguridad en relación con el restablecimiento de la contraseña, la verificación de la dirección de correo electrónico y los dispositivos vinculados. Estos mensajes son imprescindibles para el correcto funcionamiento de nuestros servicios y no se pueden cancelar. 
-Puede ponerse en contacto con Mozilla enviando una carta a _Mozilla Corporation Attn: Mozilla – Legal Notices 2 E. Evelyn Ave., Mountain View, CA 94105, Estados Unidos o enviando un correo electrónico a legal-notices@mozilla.com_ 
+Puede ponerse en contacto con Mozilla enviando una carta a _Mozilla Corporation Attn: Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 o enviando un correo electrónico a legal-notices@mozilla.com_ 
 
 6. #### Su contenido en nuestros Servicios
 

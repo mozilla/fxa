@@ -192,6 +192,36 @@ fraudulentAccountDeletion-contact = 궁금하신 점이 있다면, <a data-l10n-
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
 fraudulentAccountDeletion-contact-plaintext = 궁금하신 점이 있다면, 지원 팀에 문의하세요: { $mozillaSupportUrl }
+# Variables
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-subject = { $productName } 무료 평가판이 곧 끝납니다.
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-content-greeting = { $productName } 고객님께,
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-trial-ending = 무료 평가판이 <strong>{ $serviceLastActiveDateOnly }</strong>에 종료됩니다.
+freeTrialEndingReminder-content-trial-ending-plaintext = 무료 평가판이 { $serviceLastActiveDateOnly }에 종료됩니다.
+freeTrialEndingReminder-content-charge-heading = 상세정보 변경하기
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+#   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
+freeTrialEndingReminder-content-charge-subscription = { $productName } 구독: { $invoiceSubtotal }
+freeTrialEndingReminder-content-charge-subscription-2 = { $productName } 구독
+# Variables:
+#   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
+freeTrialEndingReminder-content-charge-discount = 할인: { $invoiceDiscountAmount }
+freeTrialEndingReminder-content-charge-discount-2 = 할인
+# Variables:
+#   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
+freeTrialEndingReminder-content-charge-tax = 세금: { $invoiceTaxAmount }
+freeTrialEndingReminder-content-charge-tax-2 = 세금
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-content-signature = { $productName } 팀
+# Variables:
+#  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
+freeTrialEndingReminder-content-support-plaintext = 문의하기: { $subscriptionSupportUrlWithUtm }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionAccountDeletion-subject = { $productName } 구독이 취소되었습니다.

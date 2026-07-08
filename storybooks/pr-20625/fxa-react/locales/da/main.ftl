@@ -35,8 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Generel applikationsfejl
-app-general-err-message = Noget gik galt. Prøv igen senere.
 app-query-parameter-err-heading = Forkert forespørgsel: Ugyldige søgeparametre
 
 

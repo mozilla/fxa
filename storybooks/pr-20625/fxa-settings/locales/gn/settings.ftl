@@ -157,6 +157,14 @@ device-info-browser-os = { $browserName } { $genericOSName }-pe
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP kundaharape: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Emohenda { -brand-firefox } peteĩva mba’e’okápe
+firefox-promo-banner-mobile-cta = Embojuaju ba’e’oka
+firefox-promo-banner-switch-cta = Eguerova { -brand-firefox }-pe
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +361,8 @@ input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tapykue
+# Generic error shown when the legal document fails to load
+app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
 
 ## LinkDamaged component
 
@@ -1235,7 +1245,6 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
-passkey-delete-modal-content = Ko mba’e ñemi oñemboguéta ne mba’etégui. Eikejeyva’erã ñanduti rendápe ambueháicha.
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1474,10 +1483,15 @@ passkey-registration-error-not-allowed = Pe ñe’ẽ ñemi ñemboheko ndoikói 
 passkey-registration-error-not-allowed-existing = Ñe’ẽ ñemi ñemoheñói ndereiporukuaamo’ãi ko mba’e’okápe. Ikatu pe mba’e’oka oñemboheraguapýma térã ikatu ojehejareíma pe iñemboheko.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Ojehejarei ñe’ẽ ñemi ñemboheko. Eha’ãjey ag̃ave.
+passkey-registration-canceled-v2 = Ñe’ẽ ñemi jeikeha ñemboheko ijaravopa térã ojepe’a.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Eikuaave
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Eikuaave
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Eikuaave
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Ndaikatúi emboheko ñe’ẽ ñemi ko kuatiaroguepegua. Eiporu tenda hekorosãva ha eha’ãjey.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)

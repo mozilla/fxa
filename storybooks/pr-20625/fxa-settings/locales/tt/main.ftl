@@ -35,10 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Гомуми кушымта хатасы
-app-general-err-message = Нидер булды. Зинһар соңрак тырышып карагыз.
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } логотибы
 app-footer-privacy-notice = Сайтның Хоcусыйлык Аңлатмасы
 app-footer-terms-of-service = Куллану Шартлары

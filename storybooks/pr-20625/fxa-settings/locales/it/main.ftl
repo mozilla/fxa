@@ -51,8 +51,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Errore generale dell’applicazione
-app-general-err-message = Si è verificato un problema. Riprova più tardi.
+app-something-went-wrong-heading = Si è verificato un errore
+app-something-went-wrong-message = Abbiamo ricevuto una segnalazione del problema. Ricarica la pagina per riprovare.
+app-error-id = ID errore: { $errorId }
+app-error-details-summary = Dettagli errore
 app-query-parameter-err-heading = Richiesta non valida: parametri della query non validi
 
 
@@ -163,6 +165,14 @@ device-info-block-location-country = { $country } (stimato)
 device-info-block-location-unknown = Posizione sconosciuta
 device-info-browser-os = { $browserName } su { $genericOSName }
 device-info-ip-address = Indirizzo IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Usa { -brand-firefox } ovunque ti trovi
+firefox-promo-banner-mobile-description = Sincronizza schede, segnalibri e password su tutti i tuoi dispositivi. Tutti i tuoi dati sono protetti da crittografia.
+firefox-promo-banner-mobile-cta = Connetti un dispositivo
+firefox-promo-banner-switch-heading = Basta un attimo per cambiare. Ambientarsi è semplice.
+firefox-promo-banner-switch-description = Quando passi a { -brand-firefox }, puoi portare con te segnalibri, password, cronologia e molto altro per iniziare a navigare senza perdere un colpo.
+firefox-promo-banner-switch-cta = Passa a { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -308,6 +318,7 @@ input-phone-number-enter-number = Inserire il numero di telefono
 input-phone-number-country-united-states = Stati Uniti
 input-phone-number-country-canada = Canada
 legal-back-button = Indietro
+app-general-err-message = Si è verificato un problema. Riprova più tardi.
 
 
 reset-pwd-link-damaged-header = Link per la reimpostazione della password danneggiato
@@ -926,7 +937,7 @@ passkey-sub-row-created-date = Creata: { $createdDate }
 passkey-sub-row-last-used-date = Ultimo utilizzo: { $lastUsedDate }
 passkey-sub-row-delete-title = Elimina passkey
 passkey-delete-modal-heading = Eliminare la passkey?
-passkey-delete-modal-content = Questa passkey verrà rimossa dal tuo account. Dovrai accedere in un altro modo.
+passkey-delete-modal-content-v2 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando un metodo diverso (password, un’altra passkey o un account collegato).
 passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata

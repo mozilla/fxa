@@ -71,8 +71,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Общая ошибка приложения
-app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
+app-something-went-wrong-heading = Что-то пошло не так
+app-something-went-wrong-message = Мы были уведомлены об этой проблеме. Обновите страницу, чтобы попробовать ещё раз.
+app-error-id = Код ошибки: { $errorId }
+app-error-details-summary = Сведения об ошибке
 app-query-parameter-err-heading = Неверный запрос: недопустимые параметры
 
 
@@ -186,6 +188,14 @@ device-info-block-location-country = { $country } (приблизительно)
 device-info-block-location-unknown = Местоположение неизвестно
 device-info-browser-os = { $browserName } в { $genericOSName }
 device-info-ip-address = IP-адрес: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Установите { -brand-firefox }, где бы вы ни находились
+firefox-promo-banner-mobile-description = Синхронизируйте свои вкладки, закладки и пароли между своими устройствами. Кроме того, всё остаётся надёжно зашифрованным.
+firefox-promo-banner-mobile-cta = Подключить устройство
+firefox-promo-banner-switch-heading = Быстро переключается. Легко осваивается.
+firefox-promo-banner-switch-description = При переходе на { -brand-firefox }, вы можете перенести свои закладки, пароли, историю и многое другое, чтобы начать сёрфинг, не теряя ни секунды.
+firefox-promo-banner-switch-cta = Перейти на { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -331,6 +341,7 @@ input-phone-number-enter-number = Введите номер телефона
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
 legal-back-button = Назад
+app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
 
 
 reset-pwd-link-damaged-header = Ссылка для сброса пароля повреждена
@@ -954,7 +965,7 @@ passkey-sub-row-created-date = Создан: { $createdDate }
 passkey-sub-row-last-used-date = Последнее использование: { $lastUsedDate }
 passkey-sub-row-delete-title = Удалить ключ доступа
 passkey-delete-modal-heading = Удалить ваш ключ доступа?
-passkey-delete-modal-content = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно войти, используя другой способ.
+passkey-delete-modal-content-v2 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно будет войти, используя другой метод (пароль, другой ключ доступа или связанный аккаунт).
 passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён

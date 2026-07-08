@@ -58,7 +58,7 @@
     
     另外，我们还可能会向您发送一些重要的帐户信息，如法律或隐私条款更新，或者密码重置、电子邮件验证和链接设备等安全消息。这些信息是我们服务的必要组成部分，无法取消订阅。
     
-您可以写信至 _Mozilla 企业收件人与 Mozilla 联系：Mozilla – Legal Notices 149 New Montgomery St, 4th Floor, San Francisco, CA 94105 或者，发送电子邮件至：legal-notices@mozilla.com_
+您可以写信至 _Mozilla 企业收件人与 Mozilla 联系：Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 或者，发送电子邮件至：legal-notices@mozilla.com_
 
 6. #### Services 中您的内容
 

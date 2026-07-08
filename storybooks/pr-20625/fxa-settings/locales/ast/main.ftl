@@ -14,9 +14,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error xeneral de l'aplicación
-
-
 app-footer-mozilla-logo-label = Logotipu de { -brand-mozilla }
 app-footer-privacy-notice = Avisu de privacidá del sitiu web
 app-footer-terms-of-service = Términos del serviciu

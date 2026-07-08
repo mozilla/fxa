@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Algemiene tapassingsflater
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
+app-something-went-wrong-heading = Der is wat misgien
+app-something-went-wrong-message = Wy binne op de hichte fan it probleem. Ferfarskje de side om it opnij te probearjen.
+app-error-id = Flater-ID: { $errorId }
+app-error-details-summary = Flaterdetails
 app-query-parameter-err-heading = Unjildige oanfraach: ûnjildige queryparameters
 
 
@@ -147,6 +149,14 @@ device-info-block-location-country = { $country } (roeze)
 device-info-block-location-unknown = Lokaasje ûnbekend
 device-info-browser-os = { $browserName } op { $genericOSName }
 device-info-ip-address = IP-adres: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Untfang { -brand-firefox } wêr’t jo ek binne
+firefox-promo-banner-mobile-description = Syngronisearje jo ljepblêden, blêdwizers en wachtwurden op al jo apparaten. Boppedat bliuwt alles feilich fersifere.
+firefox-promo-banner-mobile-cta = In apparaat ferbine
+firefox-promo-banner-switch-heading = Fluch om te wikseljen. Maklik om yn te setten.
+firefox-promo-banner-switch-description = As jo nei { -brand-firefox }, oerskeakelje kinne jo jo blêdwizers, wachtwurden, skiednis en mear meinimme, sadat jo sûnder problemen sneupe kinne.
+firefox-promo-banner-switch-cta = Oerstappe nei { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -292,6 +302,7 @@ input-phone-number-enter-number = Fier telefoannûmer yn
 input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
 legal-back-button = Tebek
+app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 
 reset-pwd-link-damaged-header = Keppeling foar opnij ynstellen skansearre
@@ -918,7 +929,7 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content = Dizze wachtwurdkaai wurdt fan jo account fuortsmiten. Jo moatte jo op in oare manier oanmelde.
+passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
@@ -1090,8 +1101,12 @@ oauth-error-1000 = Der is wat misgien. Slút dit ljepblêd en probearje it opnij
 passkey-registration-error-not-allowed = Ynstellen fan wachtwurd mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 passkey-registration-error-not-allowed-existing = Ynstellen fan wachtwurdkaai is net beskikber op dit apparaat. It apparaat is al registrearre, of it ynstelproses is annulearre.
 passkey-registration-error-timeout = Ynstellen fan wachtwurdkaai is annulearre. Probearje it opnij.
+passkey-registration-canceled-v2 = Ynstellen fan wachtwurdkaai ferrûn of annulearre.
+passkey-registration-canceled-link = Mear ynfo
 passkey-registration-error-not-supported-v2 = Jo browser of apparaat stipet gjin wachtwurdkaaien.
 passkey-registration-error-not-supported-link = Mear ynfo
+passkey-registration-error-could-not-complete = It ynstellen fan de wachtwurdkaai koe net foltôge wurde. Probearje in oare metoade of in oar apparaat.
+passkey-registration-error-could-not-complete-link = Mear ynfo
 passkey-registration-error-security = Wachtwurdkaaien kinne net op dizze side ynsteld wurde. Brûk de befeilige website en probearje it opnij.
 passkey-registration-error-invalid-state = Dizze wachtwurdkaai is al registrearre. Brûk it om jo oan te melden of foegje in oare wachtwurdkaai ta.
 passkey-registration-error-not-readable = Wy krije gjin tagong krije ta de authenticator. Probearje it opnij of kies in oare metoade.

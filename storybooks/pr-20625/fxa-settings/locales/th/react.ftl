@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = ข้อผิดพลาดแอปพลิเคชันทั่วไป
-app-general-err-message = มีบางอย่างผิดปกติ โปรดลองอีกครั้งในภายหลัง
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = คำขอไม่ถูกต้อง: พารามิเตอร์การสืบค้นไม่ถูกต้อง
 

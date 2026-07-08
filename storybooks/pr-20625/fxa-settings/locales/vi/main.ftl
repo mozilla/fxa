@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Lỗi ứng dụng
-app-general-err-message = Có gì đó không ổn. Vui lòng thử lại sau.
+app-something-went-wrong-heading = Có gì đó không ổn
+app-something-went-wrong-message = Chúng tôi đã nhận được thông báo về sự cố. Vui lòng làm mới trang để thử lại.
+app-error-id = ID lỗi: { $errorId }
+app-error-details-summary = Chi tiết lỗi
 app-query-parameter-err-heading = Yêu cầu không hợp lệ: Tham số truy vấn không hợp lệ
 
 
@@ -135,6 +137,14 @@ device-info-block-location-country = { $country } (ước tính)
 device-info-block-location-unknown = Vị trí không xác định
 device-info-browser-os = { $browserName } trên { $genericOSName }
 device-info-ip-address = Địa chỉ IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Nhận { -brand-firefox } ở bất kỳ đâu
+firefox-promo-banner-mobile-description = Đồng bộ hóa các thẻ, dấu trang và mật khẩu của bạn trên tất cả các thiết bị. Hơn nữa, mọi thứ đều được mã hóa an toàn.
+firefox-promo-banner-mobile-cta = Kết nối thiết bị
+firefox-promo-banner-switch-heading = Chuyển đổi nhanh chóng. Dễ dàng làm quen.
+firefox-promo-banner-switch-description = Khi bạn chuyển sang { -brand-firefox }, bạn có thể chuyển dấu trang, mật khẩu, lịch sử và nhiều thứ khác để có thể duyệt web mà không bị gián đoạn.
+firefox-promo-banner-switch-cta = Chuyển sang { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -280,6 +290,7 @@ input-phone-number-enter-number = Nhập số điện thoại
 input-phone-number-country-united-states = Hoa Kỳ
 input-phone-number-country-canada = Canada
 legal-back-button = Quay lại
+app-general-err-message = Có gì đó không ổn. Vui lòng thử lại sau.
 
 
 reset-pwd-link-damaged-header = Liên kết đặt lại mật khẩu đã bị hỏng
@@ -890,7 +901,7 @@ passkey-sub-row-created-date = Đã tạo: { $createdDate }
 passkey-sub-row-last-used-date = Sử dụng lần cuối: { $lastUsedDate }
 passkey-sub-row-delete-title = Xoá passkey
 passkey-delete-modal-heading = Xoá passkey của bạn?
-passkey-delete-modal-content = Passkey này sẽ bị xóa khỏi tài khoản của bạn. Bạn cần đăng nhập bằng phương thức khác.
+passkey-delete-modal-content-v2 = Passkey này sẽ bị xóa khỏi tài khoản của bạn. Bạn cần đăng nhập bằng phương thức khác (mật khẩu, passkey khác hoặc tài khoản được liên kết).
 passkey-delete-modal-cancel-button = Hủy bỏ
 passkey-delete-modal-confirm-button = Xoá passkey
 passkey-delete-success = Đã xoá passkey

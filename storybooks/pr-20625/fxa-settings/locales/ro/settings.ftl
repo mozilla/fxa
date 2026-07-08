@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } pe { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresă IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Obține { -brand-firefox } oriunde te afli
+firefox-promo-banner-mobile-description = Sincronizează-ți filele, marcajele și parolele pe toate dispozitivele. În plus, totul rămâne criptat în siguranță.
+firefox-promo-banner-mobile-cta = Conectează un dispozitiv
+firefox-promo-banner-switch-heading = Schimbare rapidă. Acomodare ușoară.
+firefox-promo-banner-switch-description = Când treci la { -brand-firefox }, poți să-ți iei marcajele, parolele, istoricul și multe altele, astfel încât să poți începe navigarea fără probleme.
+firefox-promo-banner-switch-cta = Treci pe { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Activat
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Săgeată la dreapta
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Închide mesajul
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Înapoi
+# Generic error shown when the legal document fails to load
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
 
 ## LinkDamaged component
 
@@ -582,6 +598,15 @@ cs-disconnect-lost-advice-content-3 = Întrucât dispozitivul a fost pierdut sau
 cs-disconnect-suspicious-advice-heading = Dispozitiv suspect deconectat
 cs-disconnect-suspicious-advice-content-2 = Dacă dispozitivul deconectat este într-adevăr suspect, pentru a-ți păstra în siguranță informațiile, ar trebui să îți schimbi parola { -product-mozilla-account } în setările contului. Ar trebui să schimbi și orice alte parole pe care le-ai salvat în { -brand-firefox } tastând about:logins în bara de adrese.
 cs-sign-out-button = Ieși din cont
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = VPN încorporat în { -brand-firefox }
 
 ## Data collection section
 
@@ -986,6 +1011,7 @@ page-passkey-add-cancel = Anulează
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Cheia de acces a fost creată
+page-passkey-add-error-system-v2 = A apărut o problemă la crearea cheii de acces. Încercă din nou mai târziu.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1029,6 +1055,29 @@ recent-activity-account-recovery-codes-signin-complete = Autentificare cu coduri
 recent-activity-password-reset-otp-sent = Codul de confirmare a resetării parolei a fost trimis
 recent-activity-password-reset-otp-verified = Codul de confirmare a resetării parolei a fost verificat
 recent-activity-must-reset-password = Necesită resetarea parolei
+recent-activity-account-recovery-phone-replace-complete = Numărul de telefon de recuperare a fost schimbat
+recent-activity-account-recovery-phone-replace-failure = Înlocuirea numărului de telefon de recuperare a eșuat
+recent-activity-account-two-factor-replace-success = Autentificare în doi pași înlocuită
+recent-activity-account-two-factor-replace-failure = Înlocuirea autentificării în doi pași a eșuat
+recent-activity-account-recovery-phone-setup-failed = Configurarea numărului de telefon de recuperare a eșuat
+recent-activity-account-recovery-phone-reset-password-complete = Resetarea parolei cu numărul de telefon de recuperare a fost finalizată
+recent-activity-account-recovery-phone-reset-password-failed = Resetarea parolei cu numărul de telefon de recuperare a eșuat
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Necesită autorizație pentru modificarea contului
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Modificare de cont autorizată
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Autorizarea modificării contului a eșuat
+recent-activity-account-passkey-registration-success = Cheie de acces adăugată
+recent-activity-account-passkey-registration-failure = Înregistrarea cheii de acces a eșuat
+recent-activity-account-passkey-removed = Cheia de acces a fost eliminată
+recent-activity-account-passkey-authentication-success = Autentificare cu cheia de acces finalizată
+recent-activity-account-passkey-authentication-failure = Autentificare cu cheia de acces eșuată
+recent-activity-account-passwordless-login-otp-sent = Cod de autentificare fără parolă trimis
+recent-activity-account-passwordless-login-otp-failed = Codul de autentificare fără parolă a eșuat
+recent-activity-account-passwordless-login-otp-verified = Cod de autentificare fără parolă verificat
+recent-activity-account-passwordless-registration-complete = Înregistrarea contului fără parolă a fost finalizată
+recent-activity-account-recovery-codes-set = Coduri de recuperare setate
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Alte activități din cont
 
@@ -1202,7 +1251,7 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content = Cheia de acces va fi eliminată din cont. Va trebui să te autentifici altfel.
+passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
@@ -1403,6 +1452,7 @@ auth-error-226 = S-a atins limita de chei de acces
 auth-error-227 = Autentificarea cu cheie de acces a eșuat
 auth-error-228 = Înregistrarea cheii de acces a eșuat
 auth-error-238 = Verificarea cheii de acces a eșuat
+auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
 auth-error-999 = Eroare neașteptată
 auth-error-1001 = Încercare de autentificare anulată
 auth-error-1002 = Sesiune expirată. Intră în cont pentru a continua.
@@ -1442,6 +1492,19 @@ passkey-registration-error-not-allowed = Setarea cheii de acces a eșuat sau nu 
 passkey-registration-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Ori dispozitivul a fost deja înregistrat, ori a fost anulată procedura de configurare.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Setarea cheii de acces a fost anulată. Încearcă din nou.
+passkey-registration-canceled-v2 = Configurarea cheii de acces a expirat sau a fost anulată.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Află mai multe
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Află mai multe
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Configurarea cheii de acces nu a putut fi finalizată. Încercă altă metodă sau un alt dispozitiv.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Află mai multe
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Nu poți seta chei de acces pe această pagină. Folosește site-ul securizat și încearcă din nou.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1461,6 +1524,8 @@ passkey-authentication-error-not-allowed = Autentificarea cu cheie de acces a e�
 passkey-authentication-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Te rugăm să încerci din nou sau să alegi altă metodă.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Timpul de așteptare pentru cheia de acces a expirat. Te rugăm să încerci din nou.
+# Browser or platform does not support passkeys
+passkey-authentication-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Nu poți folosi chei de acces pe această pagină. Verifică dacă ești pe site-ul securizat corect și încearcă din nou.
 # Unexpected credential state during authentication
@@ -1469,6 +1534,10 @@ passkey-authentication-error-invalid-state = Ceva nu a mers cu cheia ta de acces
 passkey-authentication-error-not-readable = Nu am putut accesa aplicația de autentificare. Încearcă din nou sau folosește altă metodă de autentificare.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Ceva nu a mers. Încearcă din nou sau folosește altă metodă de autentificare.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Cheia de acces nu a fost recunoscută. Folosește altă metodă de autentificare.
 
 ## Connect Another Device page
 

@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresse: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-mobile-description = Synkroniser faner, bokmerker og passord mellom enhetene dine. I tillegg forblir alt trygt kryptert.
+firefox-promo-banner-mobile-cta = Koble til en enhet
+firefox-promo-banner-switch-heading = Rask å bytte til. Enkel å ta i bruk.
+firefox-promo-banner-switch-description = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-switch-cta = Bytt til { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tilbake
+# Generic error shown when the legal document fails to load
+app-general-err-message = Noe gikk galt. Prøv igjen senere.
 
 ## LinkDamaged component
 
@@ -1233,7 +1246,7 @@ passkey-sub-row-created-date = Opprettet: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen din?
-passkey-delete-modal-content = Denne passnøkkelen vil bli fjernet fra kontoen din. Du må logge inn på en annen måte.
+passkey-delete-modal-content-v2 = Denne passnøkkelen blir fjernet fra kontoen din. Du må logge inn med en annen metode (passord, en annen passnøkkel eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel slettet

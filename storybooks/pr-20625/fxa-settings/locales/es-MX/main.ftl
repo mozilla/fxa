@@ -39,10 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error general de la aplicación
-app-general-err-message = Algo salió mal. Por favor, inténtalo de nuevo más tarde.
-
-
 app-footer-mozilla-logo-label = Logo de { -brand-mozilla }
 app-footer-privacy-notice = Aviso de privacidad del sitio web
 app-footer-terms-of-service = Términos del servicio

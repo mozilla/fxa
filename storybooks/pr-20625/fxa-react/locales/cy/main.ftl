@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Gwall cyffredinol rhaglen
-app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
+app-something-went-wrong-heading = Aeth rhywbeth o'i le
+app-something-went-wrong-message = Rydym wedi cael gwybod am y mater. Ail-lwythwch y dudalen i geisio eto.
+app-error-id = ID gwall: { $errorId }
+app-error-details-summary = Manylion gwall
 app-query-parameter-err-heading = Cais Gwael: Paramedrau Ymholiad Annilys
 
 

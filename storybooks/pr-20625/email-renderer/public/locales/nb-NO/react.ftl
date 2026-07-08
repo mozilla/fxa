@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Generell programfeil
-app-general-err-message = Noe gikk galt. Prøv igjen senere.
+app-something-went-wrong-heading = Noe gikk galt
+app-something-went-wrong-message = Vi har blitt varslet om problemet. Oppdater siden for å prøve på nytt.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = Feil-ID: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Feildetaljer
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Ugyldig forespørsel: Ugyldige søkeparametere
 

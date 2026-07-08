@@ -111,6 +111,9 @@ subscription-charges-invoice-date-plaintext = תאריך: { $invoiceDateOnly }
 subscription-charges-prorated-price = מחיר יחסי
 # $remainingAmountTotal (String) - The prorated amount of the subscription invoice, including currency, e.g. $4.00
 subscription-charges-prorated-price-plaintext = מחיר יחסי: { $remainingAmountTotal }
+subscription-charges-list-price = מחיר מחירון
+# $offeringPrice (String) - The list price of the subscription offering, including currency, e.g. $10.00
+subscription-charges-list-price-plaintext = מחיר מחירון: { $offeringPrice }
 subscription-charges-credit-from-unused-time = זיכוי על זמן לא מנוצל
 # $unusedAmountTotal (String) - The credit amount from unused time of the subscription invoice, including currency, e.g. $2.00
 subscription-charges-credit-from-unused-time-plaintext = זיכוי על זמן לא מנוצל: { $unusedAmountTotal }
@@ -343,6 +346,9 @@ subscriptionFirstInvoice-subject = התשלום עבור { $productName } אומ
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFirstInvoice-title = תודה שנרשמת ל־{ $productName }
 subscriptionFirstInvoice-content-processing = התשלום שלך מעובד כעת ועשוי לארוך עד ארבעה ימי עסקים.
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionFirstInvoice-content-install-2 = תישלח אליך הודעה נפרדת איך להתחיל לתפעל את { $productName }.
 subscriptionFirstInvoice-content-auto-renew = המינוי שלך יתחדש באופן אוטומטי בכל תקופת חיוב אלא אם בחרת לבטל.
 # Variables:
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025

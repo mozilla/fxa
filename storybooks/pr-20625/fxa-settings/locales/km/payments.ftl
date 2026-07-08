@@ -3,6 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
+## Component - AppLayout
+
+settings-home = ទំព័រដើមគណនី
+settings-project-header-title = { -product-mozilla-account }
+
+## Component - CouponForm
+
+coupon-submit = អនុវត្ត
+
 ## Error messages
 
 # App error dialog

@@ -229,6 +229,9 @@ backup-recovery-sms-disabled-icon-aria-label =
 # Used to select Canada as country code for phone number
 canadian-flag-icon-aria-label =
     .aria-label = דגל קנדי
+# Used to  indicate a general checkmark, as in something checked off in a list!
+checkmark-icon-aria-label =
+    .aria-label = סימון
 # Used to  indicate a check mark for a successful state/action
 checkmark-success-icon-aria-label =
     .aria-label = הצלחה
@@ -337,6 +340,8 @@ input-phone-number-country-united-states = ארצות הברית
 input-phone-number-country-canada = קנדה
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = חזרה
+# Generic error shown when the legal document fails to load
+app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
 
 ## LinkDamaged component
 
@@ -1180,7 +1185,6 @@ passkey-sub-row-created-date = תאריך יצירה:
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
-passkey-delete-modal-content = מפתח גישה זה יוסר מהחשבון שלך. יהיה עליך להתחבר בדרך אחרת.
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק

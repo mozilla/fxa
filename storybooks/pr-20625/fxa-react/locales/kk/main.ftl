@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Жалпы қолданба қатесі
-app-general-err-message = Бірнәрсе қате кетті. Кейінірек қайталап көріңіз.
+app-something-went-wrong-heading = Бірнәрсе қате кетті
+app-something-went-wrong-message = Бізге мәселе туралы хабарланды. Қайталап көру үшін бетті жаңартыңыз.
+app-error-id = Қате идентификаторы: { $errorId }
+app-error-details-summary = Қате ақпараты
 app-query-parameter-err-heading = Қате сұраныс: Жарамсыз сұраныс параметрлері
 
 

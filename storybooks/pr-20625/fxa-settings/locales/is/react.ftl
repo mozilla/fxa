@@ -1,8 +1,3 @@
-## FxA React - Strings shared between multiple FxA products for application error dialog
-
-app-general-err-heading = Almenn forritsvilla
-app-general-err-message = Eitthvað fór úrskeiðis. Reyndu aftur síðar.
-
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = { -brand-mozilla } táknmerki

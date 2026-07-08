@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Algemene toepassingsfout
-app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
+app-something-went-wrong-heading = Er is iets misgegaan
+app-something-went-wrong-message = We zijn op de hoogte van het probleem. Vernieuw de pagina om het opnieuw te proberen.
+app-error-id = Fout-ID: { $errorId }
+app-error-details-summary = Foutdetails
 app-query-parameter-err-heading = Ongeldige aanvraag: ongeldige queryparameters
 
 
@@ -147,6 +149,14 @@ device-info-block-location-country = { $country } (geschat)
 device-info-block-location-unknown = Locatie onbekend
 device-info-browser-os = { $browserName } op { $genericOSName }
 device-info-ip-address = IP-adres: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Ontvang { -brand-firefox } waar u ook bent
+firefox-promo-banner-mobile-description = Synchroniseer uw tabbladen, bladwijzers en wachtwoorden op al uw apparaten. Bovendien blijft alles veilig versleuteld.
+firefox-promo-banner-mobile-cta = Een apparaat verbinden
+firefox-promo-banner-switch-heading = Snel om te schakelen. Snel gewend.
+firefox-promo-banner-switch-description = Wanneer u naar { -brand-firefox } overschakelt, kunt u uw bladwijzers, wachtwoorden, geschiedenis en meer meenemen, zodat u naadloos kunt surfen.
+firefox-promo-banner-switch-cta = Overstappen naar { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -292,6 +302,7 @@ input-phone-number-enter-number = Voer telefoonnummer in
 input-phone-number-country-united-states = Verenigde Staten
 input-phone-number-country-canada = Canada
 legal-back-button = Terug
+app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
 
 
 reset-pwd-link-damaged-header = Herinitialisatiekoppeling beschadigd
@@ -914,7 +925,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich op een andere manier aan te melden.
+passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd

@@ -39,10 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = خطای عمومی در برنامه
-app-general-err-message = مشکلی پیش آمد. لطفاً بعداً دوباره امتحان کنید.
-
-
 app-footer-mozilla-logo-label = آرم { -brand-mozilla }
 app-footer-privacy-notice = نکات حفظ محرمانگی وبگاه
 app-footer-terms-of-service = شرایط ارائهٔ خدمات

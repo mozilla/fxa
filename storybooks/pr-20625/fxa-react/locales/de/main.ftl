@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Allgemeiner Anwendungsfehler
-app-general-err-message = Etwas ist schiefgegangen. Bitte versuchen Sie es später erneut.
+app-something-went-wrong-heading = Etwas ist schiefgegangen
+app-something-went-wrong-message = Wir wurden über das Problem informiert. Aktualisieren Sie die Seite, um es erneut zu versuchen.
+app-error-id = Fehler-ID: { $errorId }
+app-error-details-summary = Fehlerdetails
 app-query-parameter-err-heading = Fehlerhafte Anfrage: Ungültige Anfrageparameter
 
 

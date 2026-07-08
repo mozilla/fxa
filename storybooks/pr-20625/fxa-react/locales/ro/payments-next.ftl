@@ -20,6 +20,9 @@ next-payment-method-first-approve = Mai întâi va trebui să aprobi abonamentul
 
 ## Error page
 
+error-page-account-not-found-heading = Contul nu a fost găsit
+error-page-account-not-found-message = Contul asociat sesiunii tale nu există. Te rugăm să folosești un alt cont sau să creezi unul nou pentru a te abona.
+error-page-account-not-found-continue-button = Continuă
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selectează țara și introdu codul poștal <p>pentru a continua cu finalizarea comenzii pentru { $productName }</p>
 location-banner-info = Nu ți-am putut depista locația automat
@@ -262,6 +265,7 @@ next-payment-confirm-checkbox-error = Trebuie să termini aici ca să treci mai 
 
 next-new-user-submit = Abonează-mă acum
 next-pay-with-heading-paypal = Plătește cu { -brand-paypal }
+free-trial-ineligible-notice = Contul tău nu este eligibil pentru o perioadă de probă gratuită. Poți continua cu un abonament plătit.
 
 ## Churn flow - cancel
 

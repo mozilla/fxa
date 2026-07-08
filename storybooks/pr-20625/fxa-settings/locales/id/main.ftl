@@ -26,10 +26,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Kesalahan aplikasi umum
-app-general-err-message = Terjadi kesalahan. Silakan coba lagi nanti.
-
-
 app-footer-mozilla-logo-label = Logo { -brand-mozilla }
 app-footer-privacy-notice = Pemberitahuan Privasi Situs Web
 app-footer-terms-of-service = Ketentuan Layanan

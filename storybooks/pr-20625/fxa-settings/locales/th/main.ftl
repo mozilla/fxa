@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = ข้อผิดพลาดแอปพลิเคชันทั่วไป
-app-general-err-message = มีบางอย่างผิดปกติ โปรดลองอีกครั้งในภายหลัง
 app-query-parameter-err-heading = คำขอไม่ถูกต้อง: พารามิเตอร์การสืบค้นไม่ถูกต้อง
 
 
@@ -869,7 +867,6 @@ passkey-sub-row-created-date = สร้างเมื่อ: { $createdDate }
 passkey-sub-row-last-used-date = ใช้งานล่าสุดเมื่อ: { $lastUsedDate }
 passkey-sub-row-delete-title = ลบพาสคีย์
 passkey-delete-modal-heading = ลบพาสคีย์ของคุณหรือไม่?
-passkey-delete-modal-content = พาสคีย์นี้จะถูกเอาออกจากบัญชีของคุณ คุณจะต้องลงชื่อเข้าใช้ด้วยวิธีอื่นแทน
 passkey-delete-modal-cancel-button = ยกเลิก
 passkey-delete-modal-confirm-button = ลบพาสคีย์
 passkey-delete-success = พาสคีย์ถูกลบแล้ว

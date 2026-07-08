@@ -22,10 +22,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Errur generala da l'applicaziun
-app-general-err-message = Insatge è ì mal. Emprova per plaschair pli tard anc ina giada.
-
-
 app-footer-mozilla-logo-label = Logo da { -brand-mozilla }
 app-footer-privacy-notice = Directivas da la protecziun da datas da la website
 app-footer-terms-of-service = Cundiziuns d'utilisaziun

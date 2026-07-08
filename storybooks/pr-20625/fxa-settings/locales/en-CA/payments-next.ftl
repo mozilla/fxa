@@ -20,6 +20,9 @@ next-payment-method-first-approve = First you’ll need to approve your subscrip
 
 ## Error page
 
+error-page-account-not-found-heading = Account not found
+error-page-account-not-found-message = The account associated with your session does not exist. Please use a different account or create a new one to subscribe.
+error-page-account-not-found-continue-button = Continue
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Select your country and enter your postal code <p>to continue to checkout for { $productName }</p>
 location-banner-info = We weren’t able to detect your location automatically
@@ -260,6 +263,7 @@ next-payment-confirm-checkbox-error = You need to complete this before moving fo
 
 next-new-user-submit = Subscribe Now
 next-pay-with-heading-paypal = Pay with { -brand-paypal }
+free-trial-ineligible-notice = Your account is not eligible for a free trial. You may continue with a paid subscription.
 
 ## Churn flow - cancel
 
@@ -361,6 +365,8 @@ free-trial-content-button-resume-trial = Resume trial
 free-trial-content-button-resume-trial-aria = Resume trial for { $productName }
 free-trial-content-button-cancel-trial = Cancel trial
 free-trial-content-button-cancel-trial-aria = Cancel trial for { $productName }
+free-trial-content-button-cancel-subscription = Cancel subscription
+free-trial-content-button-cancel-subscription-aria = Cancel subscription for { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -375,6 +381,9 @@ free-trial-content-last-bill-no-tax = { $invoiceTotal }
 free-trial-content-link-view-invoice = View invoice
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = View invoice for { $productName }
+# $date (Date) - The date the free trial ended (e.g., January 16, 2026)
+free-trial-content-trial-ended = Your free trial ended on <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = We couldn’t process your payment. Update your payment method to restore access. Processing can take up to 24 hours and may vary by bank or payment method.
 free-trial-content-button-update-payment = Update payment method
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. There was a problem authoriz
 manage-payment-method-intent-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
 manage-payment-method-intent-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
 manage-payment-method-intent-error-generic = An unexpected error has occurred while processing your payment, please try again.
+manage-payment-method-tax-address-required = We could not determine your billing location. Please verify your payment method information and try again.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

@@ -35,8 +35,9 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Genel uygulama hatası
-app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.
+app-something-went-wrong-heading = Bir sorun oluştu
+app-error-id = Hata kimliği: { $errorId }
+app-error-details-summary = Hata ayrıntıları
 app-query-parameter-err-heading = Hatalı istek: Geçersiz sorgu parametresi
 
 

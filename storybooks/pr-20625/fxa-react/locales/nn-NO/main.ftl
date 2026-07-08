@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Generell applikasjonsfeil
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
+app-something-went-wrong-heading = Noko gjekk gale
+app-something-went-wrong-message = Vi har blitt varsla om problemet. Oppdater sida for å prøve på nytt.
+app-error-id = Feil-ID: { $errorId }
+app-error-details-summary = Feildetaljar
 app-query-parameter-err-heading = Dårleg førespurnad: Ugyldige søkjeparametrar
 
 

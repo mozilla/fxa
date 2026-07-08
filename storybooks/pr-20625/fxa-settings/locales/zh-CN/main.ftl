@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = 一般性程序错误
-app-general-err-message = 出了点问题，请稍后再试。
+app-something-went-wrong-heading = 出了点问题
+app-something-went-wrong-message = 我们已获知此问题。请刷新页面，再试一次。
+app-error-id = 错误 ID：{ $errorId }
+app-error-details-summary = 错误详情
 app-query-parameter-err-heading = 错误请求：查询参数无效
 
 
@@ -280,6 +282,7 @@ input-phone-number-enter-number = 请输入电话号码
 input-phone-number-country-united-states = 美国
 input-phone-number-country-canada = 加拿大
 legal-back-button = 后退
+app-general-err-message = 出了点问题，请稍后再试。
 
 
 reset-pwd-link-damaged-header = 重置密码链接已损坏
@@ -888,7 +891,6 @@ passkey-sub-row-created-date = 创建时间：{ $createdDate }
 passkey-sub-row-last-used-date = 上次使用：{ $lastUsedDate }
 passkey-sub-row-delete-title = 删除通行密钥
 passkey-delete-modal-heading = 确定要删除通行密钥吗？
-passkey-delete-modal-content = 此通行密钥将从您的账户移除。您将需要使用其他方式登录。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 删除通行密钥
 passkey-delete-success = 通行密钥已删除

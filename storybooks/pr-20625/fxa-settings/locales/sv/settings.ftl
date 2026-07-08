@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adress: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
+firefox-promo-banner-mobile-cta = Anslut en enhet
+firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tillbaka
+# Generic error shown when the legal document fails to load
+app-general-err-message = Något gick fel. Försök igen senare.
 
 ## LinkDamaged component
 
@@ -1235,7 +1248,7 @@ passkey-sub-row-created-date = Skapad: { $createdDate }
 passkey-sub-row-last-used-date = Senast använd: { $lastUsedDate }
 passkey-sub-row-delete-title = Ta bort lösenordsnyckel
 passkey-delete-modal-heading = Ta bort din lösenordsnyckel?
-passkey-delete-modal-content = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in på ett annat sätt.
+passkey-delete-modal-content-v2 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med en annan metod (lösenord, en annan lösenordsnyckel eller länkat konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
@@ -1474,12 +1487,19 @@ passkey-registration-error-not-allowed = Inställning av lösenordsnyckel missly
 passkey-registration-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Antingen har enheten redan registrerats eller så avbröts installationen.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Installationen av lösenordsnyckel avbröts. Försök igen.
-# User clicked the in-page Cancel link while the ceremony was still pending
-passkey-registration-canceled = Installationen av lösenordsnyckel avbröts. Försök igen.
+passkey-registration-canceled-v2 = Tidsgränsen för installationen av lösenordsnyckeln gick ut eller avbröts.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Läs mer
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Läs mer
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Installation av lösenordsnyckel kunde inte slutföras. Prova en annan metod eller enhet.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Läs mer
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Lösenordsnyckel kan inte konfigureras på den här sidan. Använd den säkra webbplatsen och försök igen.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)

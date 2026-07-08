@@ -169,6 +169,17 @@ device-info-browser-os = { $browserName } ar { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Cael { -brand-firefox } lle bynnag rydych chi
+firefox-promo-banner-mobile-description = Cydweddu eich tabiau, nodau tudalen, a chyfrineiriau ar draws eich dyfeisiau. Hefyd, mae popeth yn aros wedi'i amgryptio'n ddiogel.
+firefox-promo-banner-mobile-cta = Cysylltu dyfais
+firefox-promo-banner-switch-heading = Cyflym i newid. Hawdd i ymgartrefu.
+firefox-promo-banner-switch-description = Pan fyddwch yn newid i { -brand-firefox }, gallwch ddod â'ch nodau tudalen, cyfrineiriau, hanes a mwy er mwyn i chi allu pori heb golli dim.
+firefox-promo-banner-switch-cta = Newid i { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -365,6 +376,8 @@ input-phone-number-country-united-states = Yr Unol Daleithiau
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Nôl
+# Generic error shown when the legal document fails to load
+app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
 
 ## LinkDamaged component
 
@@ -1257,7 +1270,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio ffordd wahanol.
+passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1497,7 +1510,7 @@ passkey-registration-error-not-allowed = Methodd gosod y cyfrinallwedd neu nid y
 passkey-registration-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Naill ai mae'r ddyfais eisoes wedi'i chofrestru neu cafodd y broses osod ei diddymu.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Wedi diddymu gosod y cyfrinallwedd. Ceisiwch eto.
-passkey-registration-canceled-v2 = Daeth yr amser gosod paskey i ben neu cafodd ei ganslo.
+passkey-registration-canceled-v2 = Daeth yr amser gosod cyfrinallwedd i ben neu cafodd ei diddymu.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
 passkey-registration-canceled-link = Dysgu rhagor
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
@@ -1507,7 +1520,7 @@ passkey-registration-error-not-supported-link = Dysgu rhagor
 # Generic fallback shown when passkey setup fails for an indeterminate reason.
 # Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
 # "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
-passkey-registration-error-could-not-complete = Ni fu modd cwblhau gosod y tocyn. Rhowch gynnig ar ddull neu ddyfais wahanol.
+passkey-registration-error-could-not-complete = Doedd dim modd cwblhau gosod y cyfrinallwedd. Rhowch gynnig ar ddull neu ddyfais wahanol.
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Dysgu rhagor
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)

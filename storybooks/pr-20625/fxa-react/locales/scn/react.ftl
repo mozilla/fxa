@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Erruri ginirali di l’applicazzioni
-app-general-err-message = Cci fu un prubblema. Pi favuri torna a prova cchiù tardu.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Dumanna nun vàlita: paràmitri dâ query nun vàliti
 

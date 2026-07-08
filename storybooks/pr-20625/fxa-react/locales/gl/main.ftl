@@ -10,10 +10,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro xeral da aplicación
-app-general-err-message = Algo fallou. Inténteo de novo máis tarde.
-
-
 app-footer-mozilla-logo-label = logo { -brand-mozilla }
 app-footer-privacy-notice = Norma de privacidade do sitio
 app-footer-terms-of-service = Termos de uso

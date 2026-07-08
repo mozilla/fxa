@@ -186,10 +186,10 @@ view-invoice-link-action = Visualizza fattura
 view-invoice-plaintext = Visualizza fattura: { $invoiceLink }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-subject = Benvenuto in { $productName }.
+downloadSubscription-subject = Ti diamo il benvenuto in { $productName }.
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-title = Benvenuto in { $productName }.
+downloadSubscription-title = Ti diamo il benvenuto in { $productName }.
 downloadSubscription-content-2 = Inizia a utilizzare tutte le funzionalità incluse nel tuo abbonamento:
 downloadSubscription-link-action-2 = Inizia
 fraudulentAccountDeletion-subject-2 = Il tuo { -product-mozilla-account } è stato eliminato
@@ -267,7 +267,7 @@ subscriptionAccountReminderFirst-content-select-2 = Seleziona “Crea password�
 subscriptionAccountReminderFirst-action = Crea password
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Ultimo promemoria: configura il tuo account
-subscriptionAccountReminderSecond-title-2 = Benvenuto in { -brand-mozilla }!
+subscriptionAccountReminderSecond-title-2 = Ti diamo il benvenuto in { -brand-mozilla }!
 subscriptionAccountReminderSecond-content-info-3 = Hai creato un { -product-mozilla-account } qualche giorno fa ma non l’hai mai confermato. Speriamo che tu finisca di configurare il tuo account, in modo da poter utilizzare il tuo nuovo abbonamento.
 subscriptionAccountReminderSecond-content-select-2 = Seleziona “Crea password” per impostare una nuova password e completare la conferma del tuo account.
 subscriptionAccountReminderSecond-action = Crea password

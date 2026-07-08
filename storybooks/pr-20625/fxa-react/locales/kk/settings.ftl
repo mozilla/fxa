@@ -157,6 +157,17 @@ device-info-browser-os = { $genericOSName } жүйесінде { $browserName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP адресі: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Қай жерде болсаңыз да, { -brand-firefox } алыңыз
+firefox-promo-banner-mobile-description = Беттер, бетбелгілер және парольдерді құрылғыларыңыз арасында синхрондаңыз. Сонымен қатар, барлығы қауіпсіз шифрленген күйде қалады.
+firefox-promo-banner-mobile-cta = Құрылғыны байланыстыру
+firefox-promo-banner-switch-heading = Жылдам ауысу. Оңай орналасу.
+firefox-promo-banner-switch-description = { -brand-firefox } ішіне ауысқан кезде, бетбелгілер, парольдер, шолу тарихы және т.б. алып жүре аласыз, осылайша сіз еш кедергісіз шолуды бастай аласыз.
+firefox-promo-banner-switch-cta = { -brand-firefox } ішіне ауысу
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = АҚШ
 input-phone-number-country-canada = Канада
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Артқа
+# Generic error shown when the legal document fails to load
+app-general-err-message = Бірнәрсе қате кетті. Кейінірек қайталап көріңіз.
 
 ## LinkDamaged component
 
@@ -1237,7 +1250,7 @@ passkey-sub-row-created-date = Жасалған: { $createdDate }
 passkey-sub-row-last-used-date = Соңғы рет қолданылған: { $lastUsedDate }
 passkey-sub-row-delete-title = Рұқсат кілтін өшіру
 passkey-delete-modal-heading = Рұқсат кілтіңізді өшіру керек пе?
-passkey-delete-modal-content = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен кіруіңіз керек болады.
+passkey-delete-modal-content-v2 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен (пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі) кіруіңіз керек.
 passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
@@ -1476,10 +1489,19 @@ passkey-registration-error-not-allowed = Рұқсат кілтін баптау 
 passkey-registration-error-not-allowed-existing = Бұл құрылғыда рұқсат кілттерін баптау мүмкін емес. Құрылғы тіркелген немесе орнату процесінен бас тартылған болуы мүмкін.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Рұқсат кілтін баптаудан бас тартылды. Қайталап көріңіз.
+passkey-registration-canceled-v2 = Рұқсат кілтін орнату уақыты аяқталды немесе тоқтатылды.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Көбірек білу
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Браузеріңіз немесе құрылғыңыз рұқсат кілттерін қолдамайды.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Көбірек білу
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Рұқсат кілтін орнатуды аяқтау мүмкін емес. Басқа әдісті немесе құрылғыны қолданып көріңіз.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Көбірек білу
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Бұл бетте рұқсат кілттерін баптау мүмкін емес. Қауіпсіз сайтты пайдаланып, қайталап көріңіз.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)

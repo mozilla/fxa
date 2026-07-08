@@ -1,8 +1,3 @@
-## FxA React - Strings shared between multiple FxA products for application error dialog
-
-app-general-err-heading = Error general de la aplicación
-app-general-err-message = Algo salió mal. Por favor, inténtalo de nuevo más tarde.
-
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = Logo de { -brand-mozilla }

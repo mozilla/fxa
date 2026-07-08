@@ -150,8 +150,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Загальна помилка програми
-app-general-err-message = Щось пішло не так. Будь ласка, спробуйте знову пізніше.
 app-query-parameter-err-heading = Неправильний запит: недійсні параметри
 
 

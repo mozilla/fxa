@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Gabim i përgjithshëm aplikacioni
-app-general-err-message = Diç shkoi ters. Ju lutemi, riprovoni.
 app-query-parameter-err-heading = Kërkesë e Gabuar: Parametra të Pavlefshëm Kërkese
 
 

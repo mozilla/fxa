@@ -160,6 +160,17 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
+firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
+firefox-promo-banner-mobile-cta = Připojit zařízení
+firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
+firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
+firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -356,6 +367,8 @@ input-phone-number-country-united-states = Spojené státy
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Zpět
+# Generic error shown when the legal document fails to load
+app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
 
 ## LinkDamaged component
 
@@ -1243,7 +1256,7 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content = Tento přístupový kód bude odebrán z vašeho účtu. Budete se muset přihlásit jiným způsobem.
+passkey-delete-modal-content-v2 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení bude potřeba použít jinou metodu (heslo, jiné heslo nebo propojený účet).
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán

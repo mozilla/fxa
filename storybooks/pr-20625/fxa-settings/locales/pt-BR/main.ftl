@@ -50,8 +50,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro geral na aplicação.
-app-general-err-message = Algo deu errado. Tente novamente mais tarde.
 app-query-parameter-err-heading = Requisição incorreta: Parâmetros de consulta inválidos
 
 

@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Eroare generală de aplicație
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+app-something-went-wrong-heading = Ceva nu a funcționat
+app-something-went-wrong-message = Am fost anunțați despre problemă. Reîmprospătează pagina pentru a încerca din nou.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID eroare: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Detaliile erorii
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Cerere greșită: Parametri de interogare nevalizi
 

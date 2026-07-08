@@ -145,6 +145,17 @@ device-info-browser-os = { $genericOSName } 上的 { $browserName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 位置：{ $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = 不論您身在何處，都能下載 { -brand-firefox }
+firefox-promo-banner-mobile-description = 在您的所有裝置間同步分頁、書籤、密碼。所有內容都經安全加密。
+firefox-promo-banner-mobile-cta = 連結裝置
+firefox-promo-banner-switch-heading = 快速切換、容易適應。
+firefox-promo-banner-switch-description = 改用 { -brand-firefox } 時，還是可以將書籤、密碼、瀏覽紀錄等資料帶過來，上網不漏拍。
+firefox-promo-banner-switch-cta = 改用 { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -341,6 +352,8 @@ input-phone-number-country-united-states = 美國
 input-phone-number-country-canada = 加拿大
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = 上一頁
+# Generic error shown when the legal document fails to load
+app-general-err-message = 某些東西不對勁，請稍候再試一次。
 
 ## LinkDamaged component
 
@@ -527,9 +540,9 @@ connect-another-app-store-image-3 =
 
 ## Connected services section
 
-cs-heading = 已連結的服務
+cs-heading = 連結的服務
 cs-description = 您正在使用並登入的所有項目。
-cs-cannot-refresh = 很抱歉，重新整理已連結的服務清單時發生問題。
+cs-cannot-refresh = 很抱歉，重新整理連結服務清單時發生問題。
 cs-cannot-disconnect = 找不到客戶端，無法取消連線
 # This string is used in a notification message near the top of the page.
 # Variables:
@@ -537,7 +550,7 @@ cs-cannot-disconnect = 找不到客戶端，無法取消連線
 #                       (for example: "Firefox Lockwise")
 cs-logged-out-2 = 已登出 { $service }
 cs-refresh-button =
-    .title = 重新整理已連結的服務
+    .title = 重新整理連結的服務
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = 少了什麼東西，或有重複項目嗎？
 cs-disconnect-sync-heading = 中斷與 Sync 的連結
@@ -776,7 +789,7 @@ la-unlink-button = 解除連結
 la-unlink-account-button = 解除連結
 la-set-password-button = 設定密碼
 la-unlink-heading = 解除與第三方帳號的連結
-la-unlink-content-3 = 您確定要解除連結帳號嗎？解除連結不會將您自動從連結的服務登出，若想要登出，請到「已連結的服務」區塊手動登出。
+la-unlink-content-3 = 您確定要解除連結帳號嗎？解除連結不會將您自動從連結的服務登出，若想要登出，請到「連結的服務」區塊手動登出。
 la-unlink-content-4 = 解除連結帳號前，必需先設定密碼。若未設定密碼，取消連結後就無法再登入帳號了。
 nav-linked-accounts = { la-heading }
 
@@ -820,7 +833,7 @@ msv-submit-button-2 = 確認
 nav-settings = 設定
 nav-profile = 個人資料
 nav-security = 安全性
-nav-connected-services = 已連結的服務
+nav-connected-services = 連結的服務
 nav-data-collection = 資料收集與使用
 nav-paid-subs = 付費訂閱項目
 nav-email-comm = 電子郵件通訊
@@ -979,66 +992,66 @@ page-passkey-add-error-system-v2 = 建立您的 Passkey 時發生問題，請稍
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = 近期帳號活動
-recent-activity-account-create-v2 = 已建立帳號
-recent-activity-account-disable-v2 = 帳號已停用
-recent-activity-account-enable-v2 = 已啟用帳號
-recent-activity-account-login-v2 = 帳號開始登入
+recent-activity-account-create-v2 = 建立帳號
+recent-activity-account-disable-v2 = 停用帳號
+recent-activity-account-enable-v2 = 啟用帳號
+recent-activity-account-login-v2 = 開始進行帳號登入
 recent-activity-account-reset-v2 = 開始重設密碼
 # This string appears under recent account activity when there were email bounces associated with the account, but those were recently cleared (i.e. removed/deleted).
 # An email bounce is when an email is sent to an email address and fails/receives a non-delivery receipt from the recipient's mail server.
 recent-activity-emails-clearBounces-v2 = 清除郵件退信狀態
-recent-activity-account-login-failure = 帳號嘗試登入失敗
-recent-activity-account-two-factor-added = 已開啟兩階段驗證
+recent-activity-account-login-failure = 帳號登入失敗
+recent-activity-account-two-factor-added = 開啟兩階段驗證
 recent-activity-account-two-factor-requested = 已要求進行兩階段驗證
 recent-activity-account-two-factor-failure = 兩階段驗證失敗
 recent-activity-account-two-factor-success = 兩階段驗證成功
-recent-activity-account-two-factor-removed = 已移除兩階段驗證
-recent-activity-account-password-reset-requested = 帳號要求重設密碼
-recent-activity-account-password-reset-success = 帳號密碼重設成功
-recent-activity-account-recovery-key-added = 已啟用帳號救援金鑰
+recent-activity-account-two-factor-removed = 移除兩階段驗證
+recent-activity-account-password-reset-requested = 要求重設密碼
+recent-activity-account-password-reset-success = 密碼重設成功
+recent-activity-account-recovery-key-added = 啟用帳號救援金鑰
 recent-activity-account-recovery-key-verification-failure = 帳號救援金鑰驗證失敗
 recent-activity-account-recovery-key-verification-success = 帳號救援金鑰驗證成功
-recent-activity-account-recovery-key-removed = 已刪除救援金鑰
-recent-activity-account-password-added = 已設定密碼
-recent-activity-account-password-changed = 密碼已修改
-recent-activity-account-secondary-email-added = 已加入次要電子郵件地址
-recent-activity-account-secondary-email-removed = 已刪除次要電子郵件地址
-recent-activity-account-emails-swapped = 已交換主要與次要電子郵件地址
-recent-activity-session-destroy = 已登出使用階段
-recent-activity-account-recovery-phone-send-code = 已傳送救援電話驗證碼
+recent-activity-account-recovery-key-removed = 刪除救援金鑰
+recent-activity-account-password-added = 設定密碼
+recent-activity-account-password-changed = 更改密碼
+recent-activity-account-secondary-email-added = 加入次要電子郵件地址
+recent-activity-account-secondary-email-removed = 刪除次要電子郵件地址
+recent-activity-account-emails-swapped = 交換主要與次要電子郵件地址
+recent-activity-session-destroy = 登出使用階段
+recent-activity-account-recovery-phone-send-code = 傳送救援電話驗證碼
 recent-activity-account-recovery-phone-setup-complete = 救援電話號碼設定完成
-recent-activity-account-recovery-phone-signin-complete = 已使用救援電話號碼登入
+recent-activity-account-recovery-phone-signin-complete = 使用救援電話號碼登入
 recent-activity-account-recovery-phone-signin-failed = 使用救援電話號碼登入失敗
-recent-activity-account-recovery-phone-removed = 已移除救援電話號碼已移除救援電話號碼
-recent-activity-account-recovery-codes-replaced = 已取代備用驗證碼
-recent-activity-account-recovery-codes-created = 已設定備用驗證碼
-recent-activity-account-recovery-codes-signin-complete = 已使用備用驗證碼登入
-recent-activity-password-reset-otp-sent = 已寄出密碼重設確認碼
-recent-activity-password-reset-otp-verified = 已驗證密碼重設確認碼
-recent-activity-must-reset-password = 必須重設密碼
-recent-activity-account-recovery-phone-replace-complete = 已取代救援電話號碼
+recent-activity-account-recovery-phone-removed = 移除救援電話號碼
+recent-activity-account-recovery-codes-replaced = 取代備用驗證碼
+recent-activity-account-recovery-codes-created = 設定備用驗證碼
+recent-activity-account-recovery-codes-signin-complete = 使用備用驗證碼登入
+recent-activity-password-reset-otp-sent = 寄出密碼重設確認碼
+recent-activity-password-reset-otp-verified = 密碼重設確認碼驗證成功
+recent-activity-must-reset-password = 要求重設密碼
+recent-activity-account-recovery-phone-replace-complete = 取代救援電話號碼
 recent-activity-account-recovery-phone-replace-failure = 救援電話號碼取代失敗
-recent-activity-account-two-factor-replace-success = 已取代兩階段驗證
-recent-activity-account-two-factor-replace-failure = 兩階段驗證取代失敗
+recent-activity-account-two-factor-replace-success = 取代兩階段驗證機制
+recent-activity-account-two-factor-replace-failure = 兩階段驗證機制取代失敗
 recent-activity-account-recovery-phone-setup-failed = 救援電話號碼設定失敗
 recent-activity-account-recovery-phone-reset-password-complete = 透過救援電話號碼重設密碼完成
 recent-activity-account-recovery-phone-reset-password-failed = 透過救援電話號碼重設密碼失敗
 # A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
-recent-activity-account-mfa-otp-sent = 已請求帳號變更授權
+recent-activity-account-mfa-otp-sent = 請求授權帳號變更
 # The user successfully entered the code emailed to authorize a sensitive account change.
-recent-activity-account-mfa-otp-verified = 已授權帳號變更
+recent-activity-account-mfa-otp-verified = 授權變更帳號
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = 帳號變更授權失敗
-recent-activity-account-passkey-registration-success = 已新增 Passkey
+recent-activity-account-passkey-registration-success = 新增 Passkey
 recent-activity-account-passkey-registration-failure = Passkey 註冊失敗
-recent-activity-account-passkey-removed = 已移除 Passkey
+recent-activity-account-passkey-removed = 移除 Passkey
 recent-activity-account-passkey-authentication-success = 使用 Passkey 登入完成
 recent-activity-account-passkey-authentication-failure = 使用 Passkey 登入失敗
-recent-activity-account-passwordless-login-otp-sent = 已傳送無密碼登入代碼
+recent-activity-account-passwordless-login-otp-sent = 傳送無密碼登入代碼
 recent-activity-account-passwordless-login-otp-failed = 無密碼登入代碼驗證失敗
 recent-activity-account-passwordless-login-otp-verified = 無密碼登入代碼驗證成功
 recent-activity-account-passwordless-registration-complete = 無密碼帳號註冊成功
-recent-activity-account-recovery-codes-set = 已設定救援碼
+recent-activity-account-recovery-codes-set = 設定救援碼
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = 其他帳號活動
 
@@ -1207,7 +1220,7 @@ passkey-sub-row-created-date = 建立於：{ $createdDate }
 passkey-sub-row-last-used-date = 最後使用於：{ $lastUsedDate }
 passkey-sub-row-delete-title = 刪除 passkey
 passkey-delete-modal-heading = 要刪除您的 passkey 嗎？
-passkey-delete-modal-content = 將從您的帳號移除這把 passkey。您將需要改用其他方式登入。
+passkey-delete-modal-content-v2 = 將從您的帳號中移除這把 Passkey。您必須使用其他方式（密碼、另一把 Passkey 或連結的帳號）登入。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 刪除 passkey
 passkey-delete-success = 已刪除 passkey

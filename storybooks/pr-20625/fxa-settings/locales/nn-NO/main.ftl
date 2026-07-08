@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Generell applikasjonsfeil
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
+app-something-went-wrong-heading = Noko gjekk gale
+app-something-went-wrong-message = Vi har blitt varsla om problemet. Oppdater sida for å prøve på nytt.
+app-error-id = Feil-ID: { $errorId }
+app-error-details-summary = Feildetaljar
 app-query-parameter-err-heading = Dårleg førespurnad: Ugyldige søkjeparametrar
 
 
@@ -151,6 +153,14 @@ device-info-block-location-country = { $country } (estimert)
 device-info-block-location-unknown = Ukjend plassering
 device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adresse: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } same kvar du er
+firefox-promo-banner-mobile-description = Synkroniser fanene, bokmerka og passorda dine på tvers av einingane dine. I tillegg held alt fram med å vere trygt kryptert.
+firefox-promo-banner-mobile-cta = Kople til ei eining
+firefox-promo-banner-switch-heading = Rask å byte til. Lett å bruke.
+firefox-promo-banner-switch-description = Når du byter til { -brand-firefox }, kan du ta med deg bokmerka, passorda, historikken, og meir, slik at du kan surfe utan å gå glipp av noko.
+firefox-promo-banner-switch-cta = Byt til { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -296,6 +306,7 @@ input-phone-number-enter-number = Skriv inn telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 legal-back-button = Tilbake
+app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
 
 
 reset-pwd-link-damaged-header = Passordlenke for tilbakestilling er skada
@@ -918,7 +929,7 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
-passkey-delete-modal-content = Denne passnøkkelen vil bli fjerna frå kontoen din. Du må logge inn på ein annan måte.
+passkey-delete-modal-content-v2 = Denne tilgangsnøkkelen vil bli fjerna frå kontoen din. Du må logge på med ein annan metode (passord, ein annan tilgangsnøkkel eller ein tilknytt konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta

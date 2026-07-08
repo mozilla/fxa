@@ -35,8 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erôr gjenerâl de aplicazion
-app-general-err-message = Alc al è lât strucj. Torne prove plui indenant.
 app-query-parameter-err-heading = Domande sbaliade: parametris de interogazion no valits
 
 

@@ -51,8 +51,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erreur générale de l’application
-app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
+app-something-went-wrong-heading = Une erreur s’est produite
+app-something-went-wrong-message = Nous avons été informés du problème. Actualisez la page pour réessayer.
+app-error-id = Identifiant de l’erreur : { $errorId }
+app-error-details-summary = Détails de l’erreur
 app-query-parameter-err-heading = Requête incorrecte : paramètres de requête invalides
 
 
@@ -163,6 +165,14 @@ device-info-block-location-country = { $country } (approximatif)
 device-info-block-location-unknown = Lieu inconnu
 device-info-browser-os = { $browserName } sur { $genericOSName }
 device-info-ip-address = Adresse IP : { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Utilisez { -brand-firefox } où que vous soyez
+firefox-promo-banner-mobile-description = Synchronisez vos onglets, marque-pages et mots de passe entre vos appareils. Et toutes les données restent protégées grâce au chiffrement.
+firefox-promo-banner-mobile-cta = Connecter un appareil
+firefox-promo-banner-switch-heading = C’est rapide et la configuration est facile.
+firefox-promo-banner-switch-description = Lorsque vous passez à { -brand-firefox }, vous pouvez emporter vos marque-pages, mots de passe, historique et plus encore pour naviguer sans perdre le fil.
+firefox-promo-banner-switch-cta = Passer à { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -308,6 +318,7 @@ input-phone-number-enter-number = Saisissez un numéro de téléphone
 input-phone-number-country-united-states = États-Unis
 input-phone-number-country-canada = Canada
 legal-back-button = Retour
+app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
 
 
 reset-pwd-link-damaged-header = Le lien de réinitialisation du mot de passe est endommagé
@@ -926,7 +937,7 @@ passkey-sub-row-created-date = Créée le : { $createdDate }
 passkey-sub-row-last-used-date = Dernière utilisation : { $lastUsedDate }
 passkey-sub-row-delete-title = Supprimer la clé d’accès
 passkey-delete-modal-heading = Supprimer votre clé d’accès ?
-passkey-delete-modal-content = Cette clé d’accès sera supprimée de votre compte. Vous devrez utiliser une méthode différente pour vous connecter.
+passkey-delete-modal-content-v2 = Cette clé d’accès sera supprimée de votre compte. Vous devrez vous connecter en utilisant une méthode différente (mot de passe, autre clé d’accès ou compte lié).
 passkey-delete-modal-cancel-button = Annuler
 passkey-delete-modal-confirm-button = Supprimer la clé d’accès
 passkey-delete-success = Clé d’accès supprimée

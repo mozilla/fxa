@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error de aplicación general
-app-general-err-message = Algo se fue a las pailas. Por favor, vuelve a intentarlo más tarde.
+app-something-went-wrong-heading = Algo se fue a las pailas
+app-something-went-wrong-message = Hemos sido notificados del problema. Actualiza la página para intentarlo de nuevo.
+app-error-id = ID de error: { $errorId }
+app-error-details-summary = Detalles del error
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 
 
@@ -147,6 +149,14 @@ device-info-block-location-country = { $country } (estimado)
 device-info-block-location-unknown = Ubicación desconocida
 device-info-browser-os = { $browserName } en { $genericOSName }
 device-info-ip-address = Dirección IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Ten { -brand-firefox } donde sea que estés
+firefox-promo-banner-mobile-description = Sincroniza tus pestañas, marcadores y contraseñas en todos tus dispositivos. Además, todo permanece cifrado de forma segura.
+firefox-promo-banner-mobile-cta = Conecta un dispositivo
+firefox-promo-banner-switch-heading = Cambio rápido. Fácil adaptación.
+firefox-promo-banner-switch-description = Cuando cambias a { -brand-firefox }, puedes conservar tus marcadores, contraseñas, historial y más para que puedas navegar sin perder el ritmo.
+firefox-promo-banner-switch-cta = Cambiate a { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -292,6 +302,7 @@ input-phone-number-enter-number = Introduce el número de teléfono
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
 legal-back-button = Atrás
+app-general-err-message = Algo se fue a las pailas. Por favor, vuelve a intentarlo más tarde.
 
 
 reset-pwd-link-damaged-header = Enlace de reinicio de contraseña dañado
@@ -912,7 +923,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar llave de acceso
 passkey-delete-modal-heading = ¿Eliminar tu llave de acceso?
-passkey-delete-modal-content = Esta llave de acceso se eliminará de tu cuenta. Deberás conectarte de otra manera.
+passkey-delete-modal-content-v2 = Esta llave de acceso se eliminará de tu cuenta. Deberás conectarte con otro método (contraseña, otra llave de acceso o cuenta vinculada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar llave de acceso
 passkey-delete-success = Llave de acceso eliminada

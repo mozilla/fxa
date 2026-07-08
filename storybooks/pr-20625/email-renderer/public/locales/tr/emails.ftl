@@ -431,7 +431,7 @@ verify-subject = Hesabınızı oluşturmayı tamamlayın
 verify-action-2 = Hesabı onaylayın
 # Variables:
 # $code (String) - The verification code
-verifyAccountChange-subject = Hesabınızı değiştirmek için bu kodu kullanabilirsiniz: { $code }
+verifyAccountChange-subject = Hesabınızı düzenlemek için bu kodu kullanabilirsiniz: { $code }
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
 verifyAccountChange-preview =

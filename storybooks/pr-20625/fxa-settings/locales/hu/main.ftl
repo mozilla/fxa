@@ -72,8 +72,10 @@
        *[nominative] Google Play
     }
 
-app-general-err-heading = Általános alkalmazáshiba
-app-general-err-message = Hiba történt, próbálja újra később.
+app-something-went-wrong-heading = Hiba történt
+app-something-went-wrong-message = Értesítést kaptunk a problémáról. Az újrapróbálkozáshoz frissítse az oldalt.
+app-error-id = Hibaazonosító: { $errorId }
+app-error-details-summary = Hiba részletei
 app-query-parameter-err-heading = Hibás kérés: érvénytelen lekérdezési paraméterek
 
 
@@ -184,6 +186,14 @@ device-info-block-location-country = { $country } (becsült)
 device-info-block-location-unknown = Hely ismeretlen
 device-info-browser-os = { $browserName } ezen: { $genericOSName }
 device-info-ip-address = IP-cím: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = { -brand-firefox }, bárhol is legyen
+firefox-promo-banner-mobile-description = Szinkronizálja lapjait, könyvjelzőit és jelszavait az eszközei között. Ráadásul minden biztonságosan titkosítva marad.
+firefox-promo-banner-mobile-cta = Csatlakoztasson egy eszközt
+firefox-promo-banner-switch-heading = Gyors váltás. Könnyű beilleszkedni.
+firefox-promo-banner-switch-description = Ha erre vált: { -brand-firefox }, akkor elhozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeket, így zökkenőmentesen elkezdheti a böngészést.
+firefox-promo-banner-switch-cta = Váltás erre: { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -329,6 +339,7 @@ input-phone-number-enter-number = Adja meg a telefonszámot
 input-phone-number-country-united-states = Egyesült Államok
 input-phone-number-country-canada = Kanada
 legal-back-button = Vissza
+app-general-err-message = Hiba történt, próbálja újra később.
 
 
 reset-pwd-link-damaged-header = A jelszó-visszaállítási hivatkozás sérült
@@ -955,7 +966,7 @@ passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
 passkey-sub-row-delete-title = Jelkulcs törlése
 passkey-delete-modal-heading = Törli a jelkulcsot?
-passkey-delete-modal-content = Ez a jelkulcs el lesz távolítva a fiókjából. Másik módszerrel kell bejelentkeznie.
+passkey-delete-modal-content-v2 = Ez a jelkulcs eltávolításra kerül a fiókjából. Másik módszerrel kell bejelentkeznie (jelszó, másik jelkulcs vagy összekapcsolt fiók használatával).
 passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve

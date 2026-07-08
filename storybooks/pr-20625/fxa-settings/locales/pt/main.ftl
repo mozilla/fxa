@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro geral da aplicação
-app-general-err-message = Algo correu mal. Por favor, tente novamente mais tarde.
+app-something-went-wrong-heading = Algo correu mal
+app-something-went-wrong-message = Fomos notificados do problema. Atualize a página para tentar novamente.
+app-error-id = ID do erro: { $errorId }
+app-error-details-summary = Detalhes do erro
 app-query-parameter-err-heading = Pedido inválido: parâmetros de consulta inválidos
 
 
@@ -151,6 +153,14 @@ device-info-block-location-country = { $country } (estimado)
 device-info-block-location-unknown = Localização desconhecida
 device-info-browser-os = { $browserName } em { $genericOSName }
 device-info-ip-address = Endereço de IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Obtenha o { -brand-firefox } onde quer que esteja
+firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores e palavras-passe entre os seus dispositivos. Além disso, tudo permanece encriptado com segurança.
+firefox-promo-banner-mobile-cta = Ligar um dispositivo
+firefox-promo-banner-switch-heading = Rápido para mudar. Fácil de instalar.
+firefox-promo-banner-switch-description = Ao mudar para { -brand-firefox }, pode trazer os seus marcadores, palavras-passe, histórico e muito mais, para que possa navegar sem perder o ritmo.
+firefox-promo-banner-switch-cta = Mudar para { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -296,6 +306,7 @@ input-phone-number-enter-number = Inserir número de telefone
 input-phone-number-country-united-states = Estados Unidos da América
 input-phone-number-country-canada = Canadá
 legal-back-button = Voltar
+app-general-err-message = Algo correu mal. Tente novamente mais tarde.
 
 
 reset-pwd-link-damaged-header = A ligação de redefinição da palavra-passe está danificada
@@ -916,7 +927,7 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar chave de acesso
 passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content = Esta chave será removida da sua conta. Terá de iniciar a sessão de uma forma diferente.
+passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar chave de acesso
 passkey-delete-success = Chave eliminada
@@ -1086,9 +1097,12 @@ oauth-error-1000 = Ocorreu um erro. Feche este separador e tente novamente.
 passkey-registration-error-not-allowed = A configuração da palavra-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
 passkey-registration-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
 passkey-registration-error-timeout = A configuração da chave de acesso foi cancelada. Tente novamente.
-passkey-registration-canceled = A configuração da chave de acesso foi cancelada. Tente novamente.
+passkey-registration-canceled-v2 = A configuração da chave de acesso expirou ou foi cancelada.
+passkey-registration-canceled-link = Saber mais
 passkey-registration-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
 passkey-registration-error-not-supported-link = Saber mais
+passkey-registration-error-could-not-complete = Não foi possível concluir a configuração da chave de acesso. Experimente um método ou dispositivo diferente.
+passkey-registration-error-could-not-complete-link = Saber mais
 passkey-registration-error-security = Não podem ser configuradas chaves de acesso nesta página. Utilize o site seguro e tente novamente.
 passkey-registration-error-invalid-state = Esta chave já está registada. Utilize-o para iniciar sessão ou adicionar uma chave diferente.
 passkey-registration-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou escolha outro método.

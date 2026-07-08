@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = 一般性程序错误
-app-general-err-message = 出了点问题，请稍后再试。
+app-something-went-wrong-heading = 出了点问题
+app-something-went-wrong-message = 我们已获知此问题。请刷新页面，再试一次。
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = 错误 ID：{ $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = 错误详情
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = 错误请求：查询参数无效
 

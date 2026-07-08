@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error general de la aplicación
-app-general-err-message = Algo ha salido mal. Por favor, inténtalo de nuevo más tarde.
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 
 

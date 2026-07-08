@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = ਆਮ ਐਪਲੀਕੇਸ਼ਨ ਗਲਤੀ
-app-general-err-message = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਬਾਅਦ ਵਿੱਚ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
 app-query-parameter-err-heading = ਗਲਤ ਬੇਨਤੀ: ਗ਼ੈਰ-ਵਾਜਬ ਕਿਊਰੀ ਪੈਰਾਮੀਟਰ
 
 

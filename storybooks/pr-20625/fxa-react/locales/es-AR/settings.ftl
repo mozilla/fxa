@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } en { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Dirección IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Instalá { -brand-firefox } en cualquier dispositivo
+firefox-promo-banner-mobile-description = Sincronizá tus pestañas, marcadores y contraseñas en todos tus dispositivos. Además, todo permanece cifrado de forma segura.
+firefox-promo-banner-mobile-cta = Conectar un dispositivo
+firefox-promo-banner-switch-heading = Rápido de cambiar. Fácil de instalar.
+firefox-promo-banner-switch-description = Cuando cambiés a { -brand-firefox }, podés traer tus marcadores, contraseñas, historial y más para poder empezar a navegar sin perder nada.
+firefox-promo-banner-switch-cta = Cambiar a { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -353,6 +364,8 @@ input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Atrás
+# Generic error shown when the legal document fails to load
+app-general-err-message = Algo salió mal. Probá de nuevo más tarde.
 
 ## LinkDamaged component
 
@@ -1233,7 +1246,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Borrar clave de acceso
 passkey-delete-modal-heading = ¿Borrar la clave de acceso?
-passkey-delete-modal-content = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión de una forma diferente.
+passkey-delete-modal-content-v2 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con un método diferente (contraseña, otra clave de acceso o cuenta vinculada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada

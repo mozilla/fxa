@@ -59,7 +59,7 @@ Niniejsza najwyższa sekcja zawiera streszczenie poniższych warunków. Streszcz
     Subskrypcje wiadomości e-mail od firmy Mozilli można zmienić w naszych wiadomościach e-mail (przez kliknięcie łącza u dołu strony) lub w przeglądarce (należy wybrać kolejno Firefox / Preferencje / Synchronizacja / Zarządzaj kontem / Ustawienia poczty).
     
     Możemy również przesyłać użytkownikom ważne informacje dotyczące konta, takie jak aktualizacje postanowień prawnych lub zasad ochrony prywatności, a także wiadomości bezpieczeństwa, umożliwiające zresetowanie hasła, weryfikację adresu e-mail czy kojarzenie urządzeń. Wiadomości takie są wymagane w celu korzystania z naszych usług i nie można zrezygnować z ich subskrypcji. 
-Z firmą Mozilla można skontaktować się, pisząc na adres _Mozilla Corporation Attn: Mozilla – Legal Notices 149 New Montgomery St, 4th Floor, San Francisco, CA 94105 lub adres e-mail legal-notices@mozilla.com_ 
+Z firmą Mozilla można skontaktować się, pisząc na adres _Mozilla Corporation Attn: Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 lub adres e-mail legal-notices@mozilla.com_ 
 
 6. #### Zawartość użytkownika w naszych Usługach
 

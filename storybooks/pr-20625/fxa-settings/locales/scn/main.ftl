@@ -36,8 +36,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erruri ginirali di l’applicazzioni
-app-general-err-message = Cci fu un prubblema. Pi favuri torna a prova cchiù tardu.
 app-query-parameter-err-heading = Dumanna nun vàlita: paràmitri dâ query nun vàliti
 
 

@@ -22,10 +22,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Almenn forritsvilla
-app-general-err-message = Eitthvað fór úrskeiðis. Reyndu aftur síðar.
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } táknmerki
 app-footer-privacy-notice = Persónuverndartilkynning vefsvæðis
 app-footer-terms-of-service = Þjónustuskilmálar

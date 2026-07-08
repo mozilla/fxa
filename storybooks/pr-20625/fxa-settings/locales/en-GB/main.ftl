@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = General application error
-app-general-err-message = Something went wrong. Please try again later.
+app-something-went-wrong-heading = Something went wrong
+app-something-went-wrong-message = We’ve been notified of the issue. Refresh the page to try again.
+app-error-id = Error ID: { $errorId }
+app-error-details-summary = Error details
 app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
 
 
@@ -147,6 +149,14 @@ device-info-block-location-country = { $country } (estimated)
 device-info-block-location-unknown = Location unknown
 device-info-browser-os = { $browserName } on { $genericOSName }
 device-info-ip-address = IP address: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Get { -brand-firefox } wherever you are
+firefox-promo-banner-mobile-description = Synchronise your tabs, bookmarks and passwords across your devices. Plus, everything stays safely encrypted.
+firefox-promo-banner-mobile-cta = Connect a device
+firefox-promo-banner-switch-heading = Fast to switch. Easy to settle in.
+firefox-promo-banner-switch-description = When you switch to { -brand-firefox }, you can bring your bookmarks, passwords, history and more so you can get to browsing without missing a beat.
+firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -292,6 +302,7 @@ input-phone-number-enter-number = Enter phone number
 input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
 legal-back-button = Back
+app-general-err-message = Something went wrong. Please try again later.
 
 
 reset-pwd-link-damaged-header = Reset password link damaged
@@ -914,7 +925,7 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content = This passkey will be removed from your account. You’ll need to sign in using a different way.
+passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted

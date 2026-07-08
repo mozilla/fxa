@@ -347,6 +347,8 @@ input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Geri
+# Generic error shown when the legal document fails to load
+app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 ## LinkDamaged component
 
@@ -577,6 +579,15 @@ cs-disconnect-suspicious-advice-heading = Şüpheli cihazın bağlantısı kesil
 cs-disconnect-suspicious-advice-content-2 = Bağlantısını kestiğiniz cihaz gerçekten şüpheliyse bilgilerinizi güvende tutmak için hesap ayarlarınızdan { -product-mozilla-account } parolanızı değiştirmelisiniz. { -brand-firefox } tarayıcınıza kaydettiğiniz ve adres çubuğuna about:logins yazarak görebileceğiniz parolaları da değiştirmenizi öneririz.
 cs-sign-out-button = Çıkış yap
 
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }’un VPN özelliği
+
 ## Data collection section
 
 dc-heading = Veri toplanması ve kullanımı
@@ -703,6 +714,7 @@ flow-setup-2fa-backup-code-dl-button-continue = İleri
 ##
 
 flow-setup-2fa-inline-complete-success-banner = İki aşamalı kimlik doğrulama etkinleştirildi
+flow-setup-2fa-inline-complete-success-banner-description = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 flow-setup-2fa-inline-complete-backup-code = Yedek kimlik doğrulama kodları
 flow-setup-2fa-inline-complete-backup-phone = Kurtarma telefonu
 # $count (Number) - an integer representing the number of backup
@@ -1017,6 +1029,14 @@ recent-activity-account-recovery-codes-signin-complete = Kurtarma kodlarıyla gi
 recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderildi
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
+recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 
@@ -1189,7 +1209,6 @@ passkey-sub-row-created-date = Oluşturma: { $createdDate }
 passkey-sub-row-last-used-date = Son kullanım: { $lastUsedDate }
 passkey-sub-row-delete-title = Geçiş anahtarını sil
 passkey-delete-modal-heading = Geçiş anahtarınız silinsin mi?
-passkey-delete-modal-content = Bu geçiş anahtarı hesabınızdan silinecektir. Bundan sonra farklı bir yolla giriş yapmanız gerekecektir.
 passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
@@ -1404,10 +1423,14 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Daha fazla bilgi alın
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
 
 # Authentication errors
 

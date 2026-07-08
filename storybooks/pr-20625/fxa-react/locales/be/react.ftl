@@ -1,7 +1,10 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Агульная памылка праграмы
-app-general-err-message = Нешта пайшло не так. Калі ласка, паспрабуйце зноў пазней.
+app-something-went-wrong-heading = Нешта пайшло не так
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = Ідэнтыфікатар памылкі: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Падрабязнасці пра памылку
 
 ## FxA React - Strings shared between multiple FxA products for application footer
 

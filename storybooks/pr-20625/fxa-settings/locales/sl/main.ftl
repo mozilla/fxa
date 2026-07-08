@@ -155,8 +155,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Splošna napaka aplikacije
-app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
+app-something-went-wrong-heading = Prišlo je do napake
+app-something-went-wrong-message = Obveščeni smo o težavi. Osvežite stran za ponoven poskus.
+app-error-id = ID napake: { $errorId }
+app-error-details-summary = Podrobnosti napake
 app-query-parameter-err-heading = Nepravilna zahteva: neveljavni parametri poizvedbe
 
 
@@ -273,6 +275,14 @@ device-info-block-location-country = { $country } (ocena)
 device-info-block-location-unknown = Neznana lokacija
 device-info-browser-os = { $browserName } v { $genericOSName }
 device-info-ip-address = Naslov IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Prejmite { -brand-firefox } ne glede na to, ali ste
+firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
+firefox-promo-banner-mobile-cta = Povežite napravo
+firefox-promo-banner-switch-heading = Hitro preklop. Enostaven za namestitev.
+firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
+firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -418,6 +428,7 @@ input-phone-number-enter-number = Vnesite telefonsko številko
 input-phone-number-country-united-states = Združene države Amerike
 input-phone-number-country-canada = Kanada
 legal-back-button = Nazaj
+app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
 
 
 reset-pwd-link-damaged-header = Povezava za ponastavitev gesla je poškodovana
@@ -1046,7 +1057,7 @@ passkey-sub-row-created-date = Ustvarjen: { $createdDate }
 passkey-sub-row-last-used-date = Nazadnje uporabljen: { $lastUsedDate }
 passkey-sub-row-delete-title = Izbriši ključ za dostop
 passkey-delete-modal-heading = Želite izbrisati svoj ključ za dostop?
-passkey-delete-modal-content = Ta ključ za dostop bo odstranjen iz vašega računa. Prijavljati se boste morali na drug način.
+passkey-delete-modal-content-v2 = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali na drug način (geslo, drugo geslo ali povezan račun).
 passkey-delete-modal-cancel-button = Prekliči
 passkey-delete-modal-confirm-button = Izbriši ključ za dostop
 passkey-delete-success = Ključ za dostop izbrisan

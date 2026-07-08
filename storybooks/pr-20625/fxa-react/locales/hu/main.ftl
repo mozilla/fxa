@@ -72,8 +72,10 @@
        *[nominative] Google Play
     }
 
-app-general-err-heading = Általános alkalmazáshiba
-app-general-err-message = Hiba történt, próbálja újra később.
+app-something-went-wrong-heading = Hiba történt
+app-something-went-wrong-message = Értesítést kaptunk a problémáról. Az újrapróbálkozáshoz frissítse az oldalt.
+app-error-id = Hibaazonosító: { $errorId }
+app-error-details-summary = Hiba részletei
 app-query-parameter-err-heading = Hibás kérés: érvénytelen lekérdezési paraméterek
 
 
