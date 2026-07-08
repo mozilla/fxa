@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -27,7 +27,7 @@ const ConfirmResetPassword = ({
   resendErrorMessage,
   verifyCode,
   integration,
-}: ConfirmResetPasswordProps & RouteComponentProps) => {
+}: ConfirmResetPasswordProps) => {
   useEffect(() => {
     GleanMetrics.passwordReset.emailConfirmationView();
   }, []);

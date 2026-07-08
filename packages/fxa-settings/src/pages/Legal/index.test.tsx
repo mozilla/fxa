@@ -9,6 +9,7 @@ import { usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { MemoryRouter } from 'react-router';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -21,7 +22,7 @@ describe('Legal', () => {
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<Legal />);
+    renderWithLocalizationProvider(<MemoryRouter><Legal /></MemoryRouter>);
     testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {

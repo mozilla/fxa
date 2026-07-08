@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
 import {
@@ -54,7 +54,7 @@ const SignupConfirmCodeContainer = ({
   integration: Integration;
   flowQueryParams: QueryParams;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
   const ftlMsg = useFtlMsgResolver();

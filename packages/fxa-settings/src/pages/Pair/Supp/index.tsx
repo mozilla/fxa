@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -30,7 +30,7 @@ type SuppProps = {
 const Supp = ({
   integration,
   error: errorProp,
-}: SuppProps & RouteComponentProps) => {
+}: SuppProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const [error, setError] = useState<string | undefined>(errorProp);

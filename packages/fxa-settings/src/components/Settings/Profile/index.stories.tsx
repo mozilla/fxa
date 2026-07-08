@@ -11,7 +11,7 @@ import {
   MOCK_PROFILE_ALL,
 } from './mocks';
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -22,11 +22,11 @@ export default {
 
 const storyWithContext = (account: Account, storyName?: string) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext({ account })}>
         <Profile />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   if (storyName) story.storyName = storyName;
   return story;

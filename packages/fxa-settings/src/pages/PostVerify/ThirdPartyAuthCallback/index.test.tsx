@@ -21,7 +21,7 @@ import {
 import { QueryParams } from '../../../index';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { GenericData } from '../../../lib/model-data';
 
 jest.mock('../../../models', () => {
@@ -38,8 +38,8 @@ jest.mock('../../../models', () => {
   };
 });
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => {
     return {
       search: '?',
@@ -154,7 +154,7 @@ function renderWith(props?: {
   } = props ?? {};
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   return renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider
         value={{ ...mockAppContext(), ...createAppContext() }}
       >
@@ -162,7 +162,7 @@ function renderWith(props?: {
           {...{ flowQueryParams, integration, useFxAStatusResult }}
         />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 
@@ -279,6 +279,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
     await waitFor(() => {
       expect(handleNavigation).toHaveBeenCalledWith({
+        navigate: expect.any(Function),
         email: 'johndope@example.com',
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
         handleFxaLogin: false,

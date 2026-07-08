@@ -9,7 +9,7 @@ import { LinkedAccounts } from '.';
 import { MOCK_LINKED_ACCOUNTS } from './mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Components/Settings/LinkedAccounts',
@@ -18,7 +18,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider
       value={mockAppContext({
         account: {
@@ -29,7 +29,7 @@ export const Default = () => (
     >
       <LinkedAccounts />
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithPasswordUnlinkModal = () => {
@@ -42,7 +42,7 @@ export const WithPasswordUnlinkModal = () => {
   }, []);
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider
         value={mockAppContext({
           account: {
@@ -54,7 +54,7 @@ export const WithPasswordUnlinkModal = () => {
       >
         <LinkedAccounts />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
@@ -68,7 +68,7 @@ export const NoPasswordUnlinkModal = () => {
   }, []);
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider
         value={mockAppContext({
           account: {
@@ -79,6 +79,6 @@ export const NoPasswordUnlinkModal = () => {
       >
         <LinkedAccounts />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

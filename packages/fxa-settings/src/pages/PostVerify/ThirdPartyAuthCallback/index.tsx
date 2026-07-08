@@ -4,7 +4,7 @@
 
 import React, { useEffect, useRef, useCallback } from 'react';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { AppLayout } from '../../../components/AppLayout';
 import {
   useAccount,
@@ -49,11 +49,12 @@ const ThirdPartyAuthCallback = ({
   integration: Integration;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
-} & RouteComponentProps) => {
+}) => {
   const account = useAccount();
   const authClient = useAuthClient();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -109,6 +110,7 @@ const ThirdPartyAuthCallback = ({
       }
 
       const navigationOptions = {
+        navigate,
         email: linkedAccount.email,
         signinData: {
           uid: linkedAccount.uid,
@@ -152,6 +154,7 @@ const ThirdPartyAuthCallback = ({
       finishOAuthFlowHandler,
       integration,
       location.search,
+      navigate,
       navigateWithQuery,
       webRedirectCheck,
       ftlMsgResolver,

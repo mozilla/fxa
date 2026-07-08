@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
 import CardHeader from '../../../components/CardHeader';
@@ -30,7 +30,7 @@ const SuppWaitForAuth = ({
   authDeviceInfo: authDeviceInfoProp,
   error,
   integration,
-}: SuppWaitForAuthProps & RouteComponentProps) => {
+}: SuppWaitForAuthProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
 

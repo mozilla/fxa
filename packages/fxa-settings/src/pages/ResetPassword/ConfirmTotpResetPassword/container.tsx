@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import ConfirmTotpResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -11,7 +11,7 @@ import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/int
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
-const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
+const ConfirmTotpResetPasswordContainer = () => {
   const authClient = useAuthClient();
   const location = useLocation();
   const {

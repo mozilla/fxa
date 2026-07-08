@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
@@ -184,7 +184,7 @@ export const Subject = ({
     supportsKeysOptionalLogin,
   });
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <Signup
         {...{
           integration,
@@ -194,6 +194,6 @@ export const Subject = ({
           isMobile,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

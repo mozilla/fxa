@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import ResetPasswordRecoveryPhone from '.';
 import { getHandledError } from '../../../lib/error-utils';
 import { ResetPasswordRecoveryPhoneLocationState } from './interfaces';
@@ -12,7 +12,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 const ResetPasswordRecoveryPhoneContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
+}: { integration: ResetPasswordIntegration }) => {
   const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
 

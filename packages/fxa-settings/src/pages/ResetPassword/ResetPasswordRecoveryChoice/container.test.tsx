@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ModelsModule from '../../../models';
-import * as ReachRouterModule from '@reach/router';
 import * as ResetPasswordRecoveryChoiceModule from './index';
 
 import { waitFor } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   MOCK_MASKED_NUMBER_ENDING_IN_1234,
@@ -58,21 +57,26 @@ function mockResetPasswordRecoveryChoiceModule() {
   );
 }
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationState: any = {};
 
 const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationState,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  mockLocationPathname = pathname;
+  mockLocationState = locationState;
 }
 
 function applyDefaultMocks() {
@@ -88,9 +92,9 @@ function applyDefaultMocks() {
 
 function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <ResetPasswordRecoveryChoiceContainer />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

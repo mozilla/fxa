@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
 import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
@@ -19,9 +19,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;
@@ -108,7 +108,7 @@ export const WithBannerErrorOnSubmit = () => (
 );
 
 export const WithRecoveryPhoneSuccessNav = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryCode
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={mockWebIntegration}
@@ -120,11 +120,11 @@ export const WithRecoveryPhoneSuccessNav = () => (
       signinState={mockSigninLocationState}
       submitRecoveryCode={mockSubmitSuccess}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithRecoveryPhoneErrorNav = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryCode
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={mockWebIntegration}
@@ -135,5 +135,5 @@ export const WithRecoveryPhoneErrorNav = () => (
       signinState={mockSigninLocationState}
       submitRecoveryCode={mockSubmitSuccess}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import SigninPasskeyFallback from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -21,17 +21,17 @@ const handlers = {
 };
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninPasskeyFallback email="user@example.com" {...handlers} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninPasskeyFallback
       email="user@example.com"
       localizedErrorMessage="Incorrect password"
       {...handlers}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

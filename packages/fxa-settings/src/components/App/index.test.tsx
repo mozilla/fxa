@@ -7,6 +7,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import App from '.';
+import { MemoryRouter } from 'react-router';
 import * as Metrics from '../../lib/metrics';
 import {
   AppContext,
@@ -193,7 +194,7 @@ describe('metrics', () => {
 
   afterEach(() => {
     flowInit.mockReset();
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -220,11 +221,13 @@ describe('metrics', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -246,7 +249,7 @@ describe('glean', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
   it('Initializes glean', async () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
@@ -269,11 +272,13 @@ describe('glean', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -311,11 +316,13 @@ describe('loading spinner states', () => {
     });
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -350,11 +357,13 @@ describe('loading spinner states', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -368,7 +377,7 @@ describe('AuthAndAccountSetupRoutes', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
   it('calls useFxAStatus with integration', async () => {
     const mockIntegration = {
@@ -459,13 +468,13 @@ describe('SettingsRoutes', () => {
       value: originalUserAgent,
       configurable: true,
     });
-    (useIntegration as jest.Mock).mockRestore();
-    (useInitialMetricsQueryState as jest.Mock).mockRestore();
-    (useLocalSignedInQueryState as jest.Mock).mockRestore();
-    (useProductInfoState as jest.Mock).mockRestore();
-    (firefox.requestSignedInUser as jest.Mock).mockRestore();
-    (useClientInfoState as jest.Mock).mockRestore();
-    (useSession as jest.Mock).mockRestore();
+    (useIntegration as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (useProductInfoState as jest.Mock).mockReset();
+    (firefox.requestSignedInUser as jest.Mock).mockReset();
+    (useClientInfoState as jest.Mock).mockReset();
+    (useSession as jest.Mock).mockReset();
     mockSessionStatus.mockClear();
   });
 
@@ -483,22 +492,15 @@ describe('SettingsRoutes', () => {
       },
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
@@ -530,22 +532,15 @@ describe('SettingsRoutes', () => {
       }
     );
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -585,29 +580,22 @@ describe('SettingsRoutes', () => {
       isSessionVerified: () => Promise.resolve(true),
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{
-            ...mockAppContext({
-              account: {
-                ...MOCK_ACCOUNT,
-              } as unknown as Account,
-            }),
-            ...createAppContext(),
-          }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{
+          ...mockAppContext({
+            account: {
+              ...MOCK_ACCOUNT,
+            } as unknown as Account,
+          }),
+          ...createAppContext(),
+        }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -620,26 +608,19 @@ describe('SettingsRoutes', () => {
       data: { isSignedIn: true },
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={mockAppContext({
-            account: {
-              ...MOCK_ACCOUNT,
-            } as unknown as Account,
-          })}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+          } as unknown as Account,
+        })}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -667,11 +648,11 @@ describe('Integration serviceName error handling', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
-    (useInitialMetricsQueryState as jest.Mock).mockRestore();
-    (useLocalSignedInQueryState as jest.Mock).mockRestore();
-    (useSession as jest.Mock).mockRestore();
-    (currentAccount as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (useSession as jest.Mock).mockReset();
+    (currentAccount as jest.Mock).mockReset();
     (sentryMetrics.captureException as jest.Mock).mockClear();
   });
 
@@ -695,11 +676,13 @@ describe('Integration serviceName error handling', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -737,11 +720,13 @@ describe('Integration serviceName error handling', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -771,17 +756,26 @@ describe('Integration serviceName error handling', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    await expect(
-      act(async () => {
-        renderWithLocalizationProvider(
-          <AppContext.Provider
-            value={{ ...mockAppContext(), ...createAppContext() }}
-          >
-            <App flowQueryParams={updatedFlowQueryParams} />
-          </AppContext.Provider>
-        );
-      })
-    ).rejects.toThrow('Non-OAuth integration error');
+    // Use renderWithRouter (createMemoryRouter + RouterProvider) so the
+    // data router's built-in error boundary catches the thrown error.
+    renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+
+    // In react-router v6, thrown errors during render are caught by the
+    // router's built-in error boundary rather than propagating as a
+    // rejected promise. Verify the error surfaces in the UI.
+    expect(
+      screen.getByText('Unexpected Application Error!')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Non-OAuth integration error')
+    ).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -806,11 +800,13 @@ describe('Integration serviceName error handling', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 

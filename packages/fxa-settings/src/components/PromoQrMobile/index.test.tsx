@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
-import { createHistory, createMemorySource } from '@reach/router';
 import { PromoQrMobile, PromoQrMobileIntegration } from '.';
 import { IntegrationType } from '../../models/integrations';
 import { renderWithRouter } from '../../models/mocks';
@@ -38,9 +37,8 @@ function renderAtRoute(
   pathname: string,
   integration: PromoQrMobileIntegration
 ) {
-  const history = createHistory(createMemorySource(pathname));
   return renderWithRouter(<PromoQrMobile integration={integration} />, {
-    history,
+    route: pathname,
   });
 }
 
@@ -153,13 +151,12 @@ describe('PromoQrMobile', () => {
     });
 
     it('uses the CMS-provided QR image URL when the prop is set', () => {
-      const history = createHistory(createMemorySource('/'));
-      renderWithRouter(
+            renderWithRouter(
         <PromoQrMobile
           integration={createIntegration(IntegrationType.Web)}
           promoQrImageUrl="https://example.com/custom-qr.svg"
         />,
-        { history }
+        { route: '/' }
       );
 
       const img = screen.getByAltText(
@@ -175,13 +172,12 @@ describe('PromoQrMobile', () => {
       'not-a-url',
       '',
     ])('ignores invalid CMS URLs (%s) and falls back to local SVG', (url) => {
-      const history = createHistory(createMemorySource('/'));
-      renderWithRouter(
+            renderWithRouter(
         <PromoQrMobile
           integration={createIntegration(IntegrationType.Web)}
           promoQrImageUrl={url}
         />,
-        { history }
+        { route: '/' }
       );
 
       const img = screen.getByAltText(

@@ -47,7 +47,7 @@
     "helmet": "^8.0.0",
     "mozlog": "^3.0.2",
     "on-headers": "^1.1.0",
-    "react-router-dom": "^6.26.0",
+    "react-router": "7.18.0",
     "react-scripts": "^5.0.1",
     "serve-static": "^1.16.0"
   },

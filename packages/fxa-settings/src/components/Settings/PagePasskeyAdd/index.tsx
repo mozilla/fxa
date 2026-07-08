@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import * as Sentry from '@sentry/browser';
 
 import { SETTINGS_PATH } from '../../../constants';
@@ -36,7 +36,7 @@ import {
   unsupportedPasskeyMessage,
 } from '../../../lib/passkeys/unsupported-message';
 
-export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
+export const MfaGuardPagePasskeyAdd = () => {
   const alertBar = useAlertBar();
   const navigateWithQuery = useNavigateWithQuery();
   // Pre-check before MfaGuard mounts so an unsupported browser never triggers

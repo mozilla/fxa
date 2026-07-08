@@ -9,7 +9,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { ModalVerifySession } from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Components/Settings/ModalVerifySession',
@@ -49,7 +49,7 @@ const ModalToggle = ({ children }: ModalToggleProps) => {
 };
 
 export const DefaultWithValidCode123456 = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <AppContext.Provider value={{ account, session }}>
       <ModalToggle>
         {({ modalRevealed, hideModal }) =>
@@ -63,5 +63,5 @@ export const DefaultWithValidCode123456 = () => (
         }
       </ModalToggle>
     </AppContext.Provider>
-  </LocationProvider>
+  </MemoryRouter>
 );

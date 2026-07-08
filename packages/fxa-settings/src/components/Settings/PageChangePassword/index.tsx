@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { RouteComponentProps } from '@reach/router';
+
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
@@ -32,7 +32,7 @@ type FormData = {
 };
 
 // eslint-disable-next-line no-empty-pattern
-export const PageChangePassword = ({}: RouteComponentProps) => {
+export const PageChangePassword = () => {
   usePageViewEvent('settings.change-password');
   const {
     handleSubmit,
@@ -149,7 +149,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   );
 };
 
-const MfaGuardedPageChangePassword = (_: RouteComponentProps) => {
+const MfaGuardedPageChangePassword = () => {
   return (
     <MfaGuard requiredScope="password" reason={MfaReason.changePassword}>
       <PageChangePassword />

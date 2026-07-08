@@ -19,7 +19,7 @@ import {
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -108,9 +108,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
     mockCurrentAccount(storedAccount);
 
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(hardNavigateSpy).toHaveBeenCalledWith(
@@ -121,9 +121,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('gets data from sensitive data client, renders component', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
       SensitiveData.Key.Auth
@@ -133,9 +133,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('createRecoveryKey calls expected authClient methods', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(currentProps).toBeDefined();
@@ -152,9 +152,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('updateRecoveryHint calls authClient', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(currentProps).toBeDefined();

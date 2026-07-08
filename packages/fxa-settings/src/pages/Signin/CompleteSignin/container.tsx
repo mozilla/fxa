@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { CompleteSigninQueryParams } from '../../../models/pages/signin';
@@ -19,7 +19,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'complete-signin';
 
-const CompleteSigninContainer = (_: RouteComponentProps) => {
+const CompleteSigninContainer = () => {
   // TODO in FXA-9132 - Add metrics event
   // Backbone had 'verification.clicked' view event
 

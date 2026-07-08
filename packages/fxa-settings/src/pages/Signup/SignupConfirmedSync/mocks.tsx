@@ -6,11 +6,7 @@ import {
   SignupConfirmedSyncIntegration,
   SignupConfirmedSyncProps,
 } from './interfaces';
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import SignupConfirmedSync from '.';
 import { RelierCmsInfo } from '../../../models/integrations';
 
@@ -36,29 +32,16 @@ export const Subject = ({
   // If an origin is provided, wire up a memory history so
   // we’re “coming from” post-verify-set-password
   if (origin) {
-    const locationWithState = {
-      pathname: '/signup_confirmed_sync',
-      search: '',
-      hash: '',
-      state: { origin },
-    };
-    const history = createHistory(
-      createMemorySource(locationWithState.pathname)
-    );
-    history.navigate('/signup_confirmed_sync', {
-      state: { origin },
-    });
-
     return (
-      <LocationProvider {...{ history }}>
+      <MemoryRouter initialEntries={[{ pathname: '/signup_confirmed_sync', state: { origin } }]}>
         <SignupConfirmedSync {...{ integration, offeredSyncEngines }} />
-      </LocationProvider>
+      </MemoryRouter>
     );
   }
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <SignupConfirmedSync {...{ integration, offeredSyncEngines }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

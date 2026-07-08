@@ -7,7 +7,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { PageRecoveryKeyCreate } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export default {
@@ -54,11 +54,11 @@ const accountWithKeyEnabled = {
 
 const storyWithContext = (account: Account) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyCreate />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

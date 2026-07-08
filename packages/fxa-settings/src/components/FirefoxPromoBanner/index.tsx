@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';

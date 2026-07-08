@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { useForm } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -37,7 +37,7 @@ const SigninPasskeyFallback = ({
   avatarData,
   avatarLoading,
   passkeySurface = 'emailfirst',
-}: SigninPasskeyFallbackProps & RouteComponentProps) => {
+}: SigninPasskeyFallbackProps) => {
   const [passwordErrorText, setPasswordErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

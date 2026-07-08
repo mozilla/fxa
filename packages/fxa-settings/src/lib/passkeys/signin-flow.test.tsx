@@ -5,6 +5,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
+import { MemoryRouter } from 'react-router';
+import React from 'react';
 import {
   usePasskeySignIn,
   resolvePasskeyService,
@@ -184,6 +186,9 @@ const buildArgs = (
   };
 };
 
+const wrapper = ({ children }: { children: React.ReactNode }) =>
+  React.createElement(MemoryRouter, null, children);
+
 beforeEach(() => {
   jest.clearAllMocks();
   (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
@@ -197,7 +202,7 @@ describe('usePasskeySignIn', () => {
     (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
     const { args, spies } = buildArgs();
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       result.current.onClick();
@@ -214,7 +219,7 @@ describe('usePasskeySignIn', () => {
   it('completes the OAuth flow via handleNavigation when no Sync password is required', async () => {
     const { args, spies } = buildArgs();
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -232,6 +237,7 @@ describe('usePasskeySignIn', () => {
     );
     expect(spies.account).toHaveBeenCalledWith(SESSION_TOKEN);
     expect(handleNavigation).toHaveBeenCalledWith({
+      navigate: expect.any(Function),
       email: EMAIL,
       signinData: {
         uid: UID,
@@ -277,7 +283,7 @@ describe('usePasskeySignIn', () => {
       } as unknown as PasskeySignInIntegration,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
     await act(async () => {
       await result.current.onClick();
     });
@@ -305,7 +311,7 @@ describe('usePasskeySignIn', () => {
       } as unknown as PasskeySignInIntegration,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -318,6 +324,7 @@ describe('usePasskeySignIn', () => {
     );
     expect(storeAccountData).toHaveBeenCalled();
     expect(handleNavigation).toHaveBeenCalledWith({
+      navigate: expect.any(Function),
       email: EMAIL,
       signinData: {
         uid: UID,
@@ -352,7 +359,7 @@ describe('usePasskeySignIn', () => {
       } as unknown as PasskeySignInIntegration,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -402,7 +409,7 @@ describe('usePasskeySignIn', () => {
         hasPassword,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
       await act(async () => {
         await result.current.onClick();
@@ -436,7 +443,7 @@ describe('usePasskeySignIn', () => {
       hasPassword: false,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
     await act(async () => {
       await result.current.onClick();
     });
@@ -473,7 +480,7 @@ describe('usePasskeySignIn', () => {
       supportsKeysOptionalLogin: true,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
     await act(async () => {
       await result.current.onClick();
     });
@@ -496,7 +503,7 @@ describe('usePasskeySignIn', () => {
       } as unknown as PasskeySignInIntegration,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -524,7 +531,7 @@ describe('usePasskeySignIn', () => {
       } as unknown as PasskeySignInIntegration,
     });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
     await act(async () => {
       await result.current.onClick();
     });
@@ -592,7 +599,7 @@ describe('usePasskeySignIn', () => {
         hasPassword,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -644,7 +651,7 @@ describe('usePasskeySignIn', () => {
       );
       const { args, spies } = buildArgs();
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
       await act(async () => {
         await result.current.onClick();
@@ -665,7 +672,7 @@ describe('usePasskeySignIn', () => {
       new Error('network down')
     );
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -691,7 +698,7 @@ describe('usePasskeySignIn', () => {
     );
     const { args, spies } = buildArgs();
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -713,7 +720,7 @@ describe('usePasskeySignIn', () => {
     const { args, spies } = buildArgs();
     spies.completePasskeyAuthentication.mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -734,7 +741,7 @@ describe('usePasskeySignIn', () => {
     const { args, spies } = buildArgs();
     spies.account.mockRejectedValue(new Error('account fetch failed'));
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -757,7 +764,7 @@ describe('usePasskeySignIn', () => {
     const { args, spies } = buildArgs();
     spies.account.mockResolvedValue({ emails: [] });
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -781,7 +788,7 @@ describe('usePasskeySignIn', () => {
     (handleNavigation as jest.Mock).mockResolvedValue({ error: navError });
     const { args, spies } = buildArgs();
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -805,7 +812,7 @@ describe('usePasskeySignIn', () => {
       })
     );
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       await result.current.onClick();
@@ -831,7 +838,7 @@ describe('usePasskeySignIn', () => {
         flowQueryParams: MOCK_FLOW_QUERY_PARAMS,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -858,7 +865,7 @@ describe('usePasskeySignIn', () => {
       'fires passkey.button_view with reason=%s when the button is visible (surface=%s)',
       async (surface, expectedReason) => {
         const { args } = buildArgs({ surface, isButtonVisible: true });
-        renderHook(() => usePasskeySignIn(args));
+        renderHook(() => usePasskeySignIn(args), { wrapper });
 
         expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledWith({
@@ -872,7 +879,7 @@ describe('usePasskeySignIn', () => {
         surface: 'login',
         isButtonVisible: false,
       });
-      renderHook(() => usePasskeySignIn(args));
+      renderHook(() => usePasskeySignIn(args), { wrapper });
 
       expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
     });
@@ -886,7 +893,7 @@ describe('usePasskeySignIn', () => {
       const { args } = buildArgs({ surface });
       const events = gleanForSurface(surface);
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -902,7 +909,7 @@ describe('usePasskeySignIn', () => {
         new DOMException('cancelled', 'NotAllowedError')
       );
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -919,7 +926,7 @@ describe('usePasskeySignIn', () => {
         errno: AuthUiErrors.PASSKEY_NOT_FOUND.errno,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -933,7 +940,7 @@ describe('usePasskeySignIn', () => {
       (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
       const { args } = buildArgs({ surface: 'emailfirst' });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -953,7 +960,7 @@ describe('usePasskeySignIn', () => {
       'fires passkey.auth_success with reason=%s on the no-Sync-password branch (surface=%s)',
       async (surface, expectedReason) => {
         const { args } = buildArgs({ surface });
-        const { result } = renderHook(() => usePasskeySignIn(args));
+        const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
         await act(async () => {
           await result.current.onClick();
         });
@@ -983,7 +990,7 @@ describe('usePasskeySignIn', () => {
         hasPassword: true,
       });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1001,7 +1008,7 @@ describe('usePasskeySignIn', () => {
       });
       const { args } = buildArgs({ surface: 'login' });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1021,7 +1028,7 @@ describe('usePasskeySignIn', () => {
     const { args, spies } = buildArgs();
     spies.account.mockReturnValue(accountPromise);
 
-    const { result } = renderHook(() => usePasskeySignIn(args));
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(async () => {
       result.current.onClick();
@@ -1069,7 +1076,7 @@ describe('usePasskeySignIn', () => {
     it('passes accountHasTotp=false when the account has no TOTP enrolled', async () => {
       const { args } = buildAAL2Args({ exists: false, verified: false });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1085,7 +1092,7 @@ describe('usePasskeySignIn', () => {
     it('passes accountHasTotp=true when the account has TOTP enrolled', async () => {
       const { args } = buildAAL2Args({ exists: true, verified: true });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1102,7 +1109,7 @@ describe('usePasskeySignIn', () => {
       // Must read `verified`, not `exists`, to gate on completed enrolment.
       const { args } = buildAAL2Args({ exists: true, verified: false });
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1118,7 +1125,7 @@ describe('usePasskeySignIn', () => {
     it('treats a missing totp field as not-enrolled', async () => {
       const { args } = buildAAL2Args(undefined);
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });
@@ -1150,7 +1157,7 @@ describe('usePasskeySignIn', () => {
         }
       );
 
-      const { result } = renderHook(() => usePasskeySignIn(args));
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
       await act(async () => {
         await result.current.onClick();
       });

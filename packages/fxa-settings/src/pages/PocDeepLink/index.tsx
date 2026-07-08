@@ -20,7 +20,7 @@
  */
 
 import React, { useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { useLocation } from 'react-router';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import QRCode from '../../components/QRCode';
@@ -111,11 +111,12 @@ const Section = ({
   );
 };
 
-const PocDeepLink = (props: RouteComponentProps) => {
+const PocDeepLink = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const location = useLocation();
   const search =
-    typeof window !== 'undefined' ? window.location.search : props.location?.search || '';
+    typeof window !== 'undefined' ? window.location.search : location.search;
   const [targetUrl, setTargetUrl] = useState(() => getInitialTarget(search));
   const pairInitLink = buildPairInitLink(targetUrl);
 

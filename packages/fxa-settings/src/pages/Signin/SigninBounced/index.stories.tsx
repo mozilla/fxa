@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import SigninBounced from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
@@ -15,13 +15,13 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const CanGoBack = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninBounced canGoBack email={MOCK_ACCOUNT.primaryEmail.email} />
-  </LocationProvider>
+  </MemoryRouter>
 );

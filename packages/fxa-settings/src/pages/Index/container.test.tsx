@@ -8,7 +8,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
 import { act, waitFor } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
 import IndexContainer from './container';
@@ -28,8 +28,8 @@ import * as storageUtils from '../../lib/storage-utils';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
-jest.mock('@reach/router', () => {
-  const actual = jest.requireActual('@reach/router');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useLocation: () => {
@@ -218,7 +218,7 @@ describe('IndexContainer', () => {
 
   it('should check query parameters', async () => {
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -226,7 +226,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     await waitFor(() => {
@@ -239,7 +239,7 @@ describe('IndexContainer', () => {
 
   it('should render the Index component when no redirection is required', async () => {
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -247,7 +247,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -259,7 +259,7 @@ describe('IndexContainer', () => {
   it('should pass the prefill email as prop to index when provided by location state', async () => {
     mockLocationState = { prefillEmail: MOCK_EMAIL };
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -267,7 +267,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -280,7 +280,7 @@ describe('IndexContainer', () => {
     const errorMessage = 'Login cancelled';
     mockLocationState = { localizedErrorFromLocationState: errorMessage };
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -288,7 +288,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -318,7 +318,7 @@ describe('IndexContainer', () => {
     });
 
     const { getByText, queryByText } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -326,7 +326,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     // Assert that the LoadingSpinner is rendered initially
@@ -351,7 +351,7 @@ describe('IndexContainer', () => {
       });
 
       const { container } = renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -359,7 +359,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       expect(container).toBeDefined();
       expect(IndexModule.default).toHaveBeenCalled();
@@ -469,7 +469,7 @@ describe('IndexContainer', () => {
       });
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -477,7 +477,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -649,7 +649,7 @@ describe('IndexContainer', () => {
       });
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -657,7 +657,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -690,7 +690,7 @@ describe('IndexContainer', () => {
       });
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -698,7 +698,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -721,7 +721,7 @@ describe('IndexContainer', () => {
       jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -729,7 +729,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       // Cached account triggers auto-submit; navigation proves we skipped the WebChannel call.
@@ -746,7 +746,7 @@ describe('IndexContainer', () => {
       jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -754,7 +754,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -769,7 +769,7 @@ describe('IndexContainer', () => {
       (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(undefined);
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -777,7 +777,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -1440,13 +1440,13 @@ describe('IndexContainer', () => {
           });
 
           const { getByText } = renderWithLocalizationProvider(
-            <LocationProvider>
+            <MemoryRouter>
               <IndexContainer
                 integration={integration}
                 serviceName={MozServices.FirefoxSync}
                 useFxAStatusResult={mockUseFxAStatusResult}
               />
-            </LocationProvider>
+            </MemoryRouter>
           );
 
           expect(getByText('LoadingSpinner')).toBeInTheDocument();
@@ -1459,13 +1459,13 @@ describe('IndexContainer', () => {
           });
 
           renderWithLocalizationProvider(
-            <LocationProvider>
+            <MemoryRouter>
               <IndexContainer
                 integration={integration}
                 serviceName={MozServices.FirefoxSync}
                 useFxAStatusResult={mockUseFxAStatusResult}
               />
-            </LocationProvider>
+            </MemoryRouter>
           );
 
           await waitFor(() => {
@@ -1479,13 +1479,13 @@ describe('IndexContainer', () => {
           });
 
           renderWithLocalizationProvider(
-            <LocationProvider>
+            <MemoryRouter>
               <IndexContainer
                 integration={integration}
                 serviceName={MozServices.FirefoxSync}
                 useFxAStatusResult={mockUseFxAStatusResult}
               />
-            </LocationProvider>
+            </MemoryRouter>
           );
 
           await waitFor(() => {

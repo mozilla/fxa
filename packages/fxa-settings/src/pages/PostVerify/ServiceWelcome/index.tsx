@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
@@ -13,7 +13,7 @@ import { VpnWelcomeImage } from '../../../components/images';
 
 const ServiceWelcome = ({
   integration,
-}: ServiceWelcomeProps & RouteComponentProps) => {
+}: ServiceWelcomeProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;

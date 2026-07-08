@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import {
   RelyingPartyCreatedDto,

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmResetPassword from '.';
@@ -18,7 +18,7 @@ import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPasswordContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
+}: { integration: ResetPasswordIntegration }) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );

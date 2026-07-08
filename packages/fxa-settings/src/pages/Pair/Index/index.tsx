@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -72,7 +72,7 @@ const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
   integration,
-}: PairProps & RouteComponentProps) => {
+}: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(

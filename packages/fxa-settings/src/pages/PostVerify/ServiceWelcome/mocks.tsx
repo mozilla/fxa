@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import ServiceWelcome from '.';
 import { ServiceWelcomeIntegration } from './interfaces';
 
@@ -24,23 +20,16 @@ export const Subject = ({
   origin?: string;
 }) => {
   if (origin) {
-    const history = createHistory(
-      createMemorySource('/post_verify/service_welcome')
-    );
-    history.navigate('/post_verify/service_welcome', {
-      state: { origin },
-    });
-
     return (
-      <LocationProvider {...{ history }}>
+      <MemoryRouter initialEntries={[{ pathname: '/post_verify/service_welcome', state: { origin } }]}>
         <ServiceWelcome {...{ integration }} />
-      </LocationProvider>
+      </MemoryRouter>
     );
   }
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ServiceWelcome {...{ integration }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

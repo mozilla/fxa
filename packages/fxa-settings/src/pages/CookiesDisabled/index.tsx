@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import AppLayout from '../../components/AppLayout';
-import { RouteComponentProps } from '@reach/router';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Storage from '../../lib/storage';
@@ -17,7 +17,7 @@ import { useFtlMsgResolver } from '../../models';
 
 export const viewName = 'cookies-disabled';
 
-const CookiesDisabled = (_: RouteComponentProps) => {
+const CookiesDisabled = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
 

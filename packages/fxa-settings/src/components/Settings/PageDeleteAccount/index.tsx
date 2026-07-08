@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { RouteComponentProps } from '@reach/router';
+
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
@@ -78,7 +78,7 @@ const deleteProducts = [
   },
 ];
 
-export const PageDeleteAccount = (_: RouteComponentProps) => {
+export const PageDeleteAccount = () => {
   usePageViewEvent('settings.delete-account');
   const { l10n } = useLocalization();
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({

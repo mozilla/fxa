@@ -8,7 +8,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { SigninPasswordlessCodeProps } from './interfaces';
 import { Integration } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import SigninPasswordlessCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_CLIENT_ID } from '../../mocks';
@@ -50,10 +50,10 @@ const mockLocation = () => {
   };
 };
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigate,
     useLocation: () => mockLocation(),
   };
@@ -82,7 +82,7 @@ function resetMockAuthClient() {
 
 async function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninPasswordlessCodeContainer
         {...{
           integration,
@@ -91,7 +91,7 @@ async function render() {
           useFxAStatusResult: mockUseFxAStatus(),
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

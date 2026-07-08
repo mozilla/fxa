@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -24,15 +24,15 @@ export enum RecoveryKeyAction {
   Change,
 }
 
-export const MfaGuardPageRecoveryKeyCreate = (props: RouteComponentProps) => {
+export const MfaGuardPageRecoveryKeyCreate = () => {
   return (
     <MfaGuard requiredScope="recovery_key" reason={MfaReason.createRecoveryKey}>
-      <PageRecoveryKeyCreate {...props} />
+      <PageRecoveryKeyCreate />
     </MfaGuard>
   );
 };
 
-export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
+export const PageRecoveryKeyCreate = () => {
   usePageViewEvent(viewName);
 
   const { recoveryKey, email } = useAccount();

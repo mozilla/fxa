@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import * as SigninRecoveryPhoneModule from './index';
 
 import { AppContext, Integration } from '../../../models';
@@ -83,13 +83,24 @@ jest.mock('../../../lib/oauth/hooks.tsx', () => {
 });
 
 let mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => ({
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  }));
+let mockLocationPathname = '';
+let mockLocationStateValue: any = {};
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
+  mockLocationPathname = pathname;
+  mockLocationStateValue = locationState;
 }
 
 let currentPageProps: SigninRecoveryPhoneProps | undefined;
@@ -127,11 +138,11 @@ const renderSigninRecoveryPhoneContainer = (
   integration = createMockSigninWebIntegration() as Integration
 ) => {
   renderWithLocalizationProvider(
-    <ReachRouterModule.LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext()}>
         <SigninRecoveryPhoneContainer {...{ integration }} />
       </AppContext.Provider>
-    </ReachRouterModule.LocationProvider>
+    </MemoryRouter>
   );
 };
 

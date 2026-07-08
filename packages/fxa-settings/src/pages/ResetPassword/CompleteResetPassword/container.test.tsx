@@ -14,7 +14,7 @@ import {
 import { SETTINGS_PATH } from '../../../constants';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 
@@ -54,8 +54,8 @@ jest.mock('../../../models', () => ({
   }),
 }));
 
-jest.mock('@reach/router', () => {
-  const actual = jest.requireActual('@reach/router');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useLocation: () => ({
@@ -103,11 +103,11 @@ describe('CompleteResetPasswordContainer', () => {
 
   it('sends webchannel message and navigates to settings for relay integration', async () => {
     renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <CompleteResetPasswordContainer
           integration={mockOAuthNativeSigninIntegration(false) as Integration}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(await screen.findByLabelText('New password')).toBeInTheDocument();

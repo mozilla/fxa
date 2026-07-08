@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import {
@@ -41,7 +41,7 @@ const CompleteResetPasswordContainer = ({
   integration,
 }: {
   integration: Integration;
-} & RouteComponentProps) => {
+}) => {
   const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
 
   const account = useAccount();

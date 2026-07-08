@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   isWebIntegration,
@@ -46,7 +46,7 @@ const SigninRecoveryCode = ({
   loading = false,
   setCurrentSplitLayout,
   supportsKeysOptionalLogin,
-}: SigninRecoveryCodeProps & RouteComponentProps) => {
+}: SigninRecoveryCodeProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
   }, []);
@@ -64,6 +64,7 @@ const SigninRecoveryCode = ({
   );
   const location = useLocation();
   const authClient = useAuthClient();
+  const navigate = useNavigate();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -117,6 +118,7 @@ const SigninRecoveryCode = ({
     }
 
     const navigationOptions = {
+      navigate,
       email,
       signinData: {
         uid,
@@ -150,6 +152,7 @@ const SigninRecoveryCode = ({
     finishOAuthFlowHandler,
     keyFetchToken,
     location.search,
+    navigate,
     redirectTo,
     sessionToken,
     verificationMethod,

@@ -6,7 +6,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { UnitRowSecondaryEmail } from '.';
 import { mockAppContext } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import {
   MOCK_MANY_SEC_EMAILS_MANY_UNVERIFIED,
@@ -51,11 +51,11 @@ const storyWithContext = (account: Partial<Account>) => {
   const context = { account: account as Account };
 
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext(context)}>
         <UnitRowSecondaryEmail />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

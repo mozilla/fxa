@@ -10,6 +10,7 @@ import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { PasskeyMetricsSurface } from '../../lib/passkeys/signin-flow';
 import { MozServices } from '../../lib/types';
+import type { NavigateFunction } from 'react-router';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
@@ -241,6 +242,7 @@ export interface SendUnblockEmailHandlerResponse {
 }
 
 export interface NavigationOptions {
+  navigate: NavigateFunction;
   email: string;
   signinData: {
     uid: hexstring;

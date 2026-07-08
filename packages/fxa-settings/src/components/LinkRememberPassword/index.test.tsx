@@ -8,12 +8,9 @@ import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
+import { renderWithRouter } from '../../models/mocks';
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
@@ -24,24 +21,18 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
-const mockLocation = () => {
-  return {
-    search: '?' + new URLSearchParams({ client_id: MOCK_CLIENT_ID }),
-  };
+const INITIAL_ROUTE = {
+  pathname: '/some-start-route',
+  search: `?client_id=${MOCK_CLIENT_ID}`,
 };
-
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useLocation: () => mockLocation(),
-}));
 
 const Subject = ({
   email = MOCK_EMAIL,
   clickHandler,
 }: Partial<LinkRememberPasswordProps>) => (
-  <LocationProvider>
+  <MemoryRouter initialEntries={[INITIAL_ROUTE]}>
     <LinkRememberPassword {...{ email, clickHandler }} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 describe('LinkRememberPassword', () => {
@@ -86,20 +77,11 @@ describe('LinkRememberPassword', () => {
   });
 
   describe('location state', () => {
-    beforeEach(() => {
-      jest.unmock('@reach/router');
-    });
-
     it('updates location with expected state when the link is clicked', async () => {
-      // Create a custom memory source and history for testing navigation.
-      const source = createMemorySource('/some-start-route');
-      const history = createHistory(source);
-
-      // Render the component within the LocationProvider that uses custom history.
-      renderWithLocalizationProvider(
-        <LocationProvider history={history}>
-          <LinkRememberPassword email={MOCK_EMAIL} />
-        </LocationProvider>
+      // Render the component within a router for testing navigation.
+      const { router } = renderWithRouter(
+        <LinkRememberPassword email={MOCK_EMAIL} />,
+        { route: INITIAL_ROUTE }
       );
 
       // Find and assert the link is visible.
@@ -116,9 +98,9 @@ describe('LinkRememberPassword', () => {
       await waitFor(() => user.click(rememberPasswordLink));
 
       // Check that the pathname is updated if the link has a destination change.
-      expect(history.location.pathname).toStrictEqual('/');
+      expect(router.state.location.pathname).toStrictEqual('/');
 
-      expect(history.location.state).toMatchObject({
+      expect(router.state.location.state).toMatchObject({
         prefillEmail: MOCK_EMAIL,
       });
     });

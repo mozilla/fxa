@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { useLocation } from 'react-router';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -86,13 +86,12 @@ function readConfig(search: string) {
 
 type Status = 'redirecting' | 'prompt' | 'attempting' | 'desktop';
 
-const PocPairInit = (props: RouteComponentProps) => {
+const PocPairInit = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const location = useLocation();
   const search =
-    typeof window !== 'undefined'
-      ? window.location.search
-      : props.location?.search || '';
+    typeof window !== 'undefined' ? window.location.search : location.search;
   const { target, timeout, scheme, action, protocol } = readConfig(search);
 
   const config = useConfig();

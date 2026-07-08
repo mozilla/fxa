@@ -12,8 +12,10 @@ import {
   isMobileOrTabletDevice,
   isValidCmsUrl,
   isSendTabEntrypoint,
+  navigateWithQuery,
   navigateWithQueryHelper,
   once,
+  registerNavigate,
   resetOnce,
   searchParam,
   searchParams,
@@ -527,4 +529,114 @@ describe('buildPairingDownloadUrl', () => {
       expect(buildPairingDownloadUrl(entrypoint)).toBe(DEFAULT_URL);
     }
   );
+});
+
+describe('navigateWithQuery', () => {
+  const originalLocation = window.location;
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...originalLocation,
+        search: '',
+        hash: '',
+        assign: jest.fn(),
+        replace: jest.fn(),
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  // Fallback tests run first, before any registerNavigate call in this module.
+  // Once registerNavigate is called, the module-level ref stays set for the
+  // rest of the test run (mirrors production behavior — App registers once).
+  it('falls back to window.location.assign when no navigate is registered', () => {
+    navigateWithQuery('/path');
+
+    expect(window.location.assign).toHaveBeenCalledWith('/path');
+  });
+
+  it('falls back to window.location.replace when replace is true and no navigate is registered', () => {
+    navigateWithQuery('/path', { replace: true });
+
+    expect(window.location.replace).toHaveBeenCalledWith('/path');
+  });
+
+  // After this point, registerNavigate is called — mirroring App mount.
+  it('uses the registered navigate function when available', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/signin_totp_code', {
+      state: { isSessionAALUpgrade: true },
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code', {
+      state: { isSessionAALUpgrade: true },
+    });
+    expect(window.location.assign).not.toHaveBeenCalled();
+  });
+
+  it('passes replace option to the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/settings', { replace: true });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+  });
+
+  it('preserves hash when using the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/path#section');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/path#section');
+  });
+
+  it('forwards both state and replace to the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/path', { state: { foo: true }, replace: true });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/path', {
+      state: { foo: true },
+      replace: true,
+    });
+  });
+
+  it('appends current location hash when using the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, hash: '#connected-services' },
+      writable: true,
+    });
+
+    navigateWithQuery('/settings');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/settings#connected-services');
+  });
+
+  it('preserves query params from the current location', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, search: '?client_id=abc' },
+      writable: true,
+    });
+
+    navigateWithQuery('/signin');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/signin?client_id=abc');
+  });
 });

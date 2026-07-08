@@ -5,11 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import FirefoxPromoBanner from './index';
 import { Constants } from '../../lib/constants';
@@ -51,11 +47,10 @@ const mockIsMobileDevice = isMobileDevice as jest.Mock;
 const mockUseAccount = useAccount as jest.Mock;
 
 function renderBanner({ isSignedIntoFirefox = false } = {}) {
-  const history = createHistory(createMemorySource('/settings'));
   return renderWithLocalizationProvider(
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={['/settings']}>
       <FirefoxPromoBanner {...{ isSignedIntoFirefox }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

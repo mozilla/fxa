@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
-
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -30,9 +28,9 @@ function renderResetPasswordRecoveryChoice(overrides = {}) {
   };
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <ResetPasswordRecoveryChoice {...defaultProps} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 
@@ -46,21 +44,26 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationState: any = {};
 
 const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationState,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  mockLocationPathname = pathname;
+  mockLocationState = locationState;
 }
 
 describe('ResetPasswordRecoveryChoice', () => {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import SigninUnblock from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
@@ -51,7 +51,7 @@ const mockResendErrorResponse = () =>
   });
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninUnblock
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
@@ -61,11 +61,11 @@ export const Default = () => (
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const DefaultWithCms = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninUnblock
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
@@ -77,11 +77,11 @@ export const DefaultWithCms = () => (
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const SplitLayoutWithCms = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninUnblock
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
@@ -99,11 +99,11 @@ export const SplitLayoutWithCms = () => (
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithOAuthDesktopServiceRelay = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninUnblock
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
@@ -115,11 +115,11 @@ export const WithOAuthDesktopServiceRelay = () => (
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithResendError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninUnblock
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
@@ -129,5 +129,5 @@ export const WithResendError = () => (
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendErrorResponse}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

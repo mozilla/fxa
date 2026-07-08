@@ -25,7 +25,7 @@ import {
   UrlQueryData,
 } from '../model-data';
 import { OAuthError } from '../oauth';
-import { ReachRouterWindow } from '../window';
+import { RouterWindow } from '../window';
 import { IntegrationFlags } from './interfaces';
 import { DefaultIntegrationFlags } from '.';
 import config from '../config';
@@ -76,7 +76,7 @@ export class IntegrationFactory {
   public readonly flags: IntegrationFlags;
 
   constructor(opts: {
-    window: ReachRouterWindow;
+    window: RouterWindow;
     productInfo?: RelierSubscriptionInfo;
     clientInfo?: RelierClientInfo;
     clientInfoLoadFailed?: boolean;

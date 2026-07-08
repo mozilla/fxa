@@ -12,12 +12,7 @@ import {
   useAccountData,
   InvalidTokenError,
 } from '../../lib/hooks/useAccountData';
-import {
-  Redirect,
-  Router,
-  RouteComponentProps,
-  useLocation,
-} from '@reach/router';
+import { Routes, Route, Navigate, useLocation } from 'react-router';
 import PageSettings from './PageSettings';
 import MfaGuardedPageChangePassword from './PageChangePassword';
 import MfaPageCreatePassword from './PageCreatePassword';
@@ -29,8 +24,6 @@ import { MfaGuardPage2faChange } from './Page2faChange';
 import { MfaGuardPage2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
 import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
-import { ScrollToTop } from './ScrollToTop';
-import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
@@ -51,7 +44,7 @@ export const Settings = ({
 }: {
   integration: SettingsIntegration;
   isSignedIntoFirefox?: boolean;
-} & RouteComponentProps) => {
+}) => {
   const session = useSession();
   const authClient = useAuthClient();
   const account = useAccount();
@@ -194,50 +187,47 @@ export const Settings = ({
   return (
     <SettingsLayout>
       <Head />
-      <Router basepath={SETTINGS_PATH}>
-        <ScrollToTop default>
-          <PageSettings path="/" {...{ integration, isSignedIntoFirefox }} />
-          <PageDisplayName path="/display_name" />
-          <PageAvatar path="/avatar" />
-          {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}
-          <MfaPageCreatePassword path="/create_password" />
-          <MfaGuardPage2faSetup path="/two_step_authentication" />
-          <MfaGuardPage2faChange path="/two_step_authentication/change" />
-          <MfaGuardPage2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
-          {hasPassword ? (
-            <>
-              <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
-              <MfaGuardedPageChangePassword path="/change_password" />
-            </>
-          ) : (
-            <>
-              <Redirect
-                from="/change_password"
-                to="/settings/create_password"
-                noThrow
-              />
-              <Redirect from="/account_recovery" to="/settings" noThrow />
-            </>
+      <Routes>
+        <Route
+          index
+          element={<PageSettings {...{ integration, isSignedIntoFirefox }} />}
+        />
+        <Route path="display_name" element={<PageDisplayName />} />
+        <Route path="avatar" element={<PageAvatar />} />
+        {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}
+        <Route path="create_password" element={<MfaPageCreatePassword />} />
+        <Route path="two_step_authentication" element={<MfaGuardPage2faSetup />} />
+        <Route path="two_step_authentication/change" element={<MfaGuardPage2faChange />} />
+        <Route path="two_step_authentication/replace_codes" element={<MfaGuardPage2faReplaceBackupCodes />} />
+        {hasPassword ? (
+          <>
+            <Route path="account_recovery" element={<MfaGuardPageRecoveryKeyCreate />} />
+            <Route path="change_password" element={<MfaGuardedPageChangePassword />} />
+          </>
+        ) : (
+          <>
+            <Route path="change_password" element={<Navigate to="/settings/create_password" replace />} />
+            <Route path="account_recovery" element={<Navigate to="/settings" replace />} />
+          </>
+        )}
+        <Route path="emails" element={<MfaGuardPageSecondaryEmailAdd />} />
+        <Route path="emails/verify" element={<MfaGuardPageSecondaryEmailVerify />} />
+        <Route path="recent_activity" element={<PageRecentActivity />} />
+        <Route path="delete_account" element={<PageDeleteAccount />} />
+        <Route path="clients" element={<Navigate to="/settings#connected-services" replace />} />
+        {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
+        <Route path="avatar/change" element={<Navigate to="/settings/avatar/" replace />} />
+
+        <Route path="recovery_phone/setup" element={<MfaGuardPageRecoveryPhoneSetup />} />
+        <Route path="recovery_phone/remove" element={<PageMfaGuardRecoveryPhoneRemove />} />
+
+        {config.featureFlags?.passkeysEnabled &&
+          config.featureFlags?.passkeyRegistrationEnabled && (
+            <Route path="passkeys/add" element={<MfaGuardPagePasskeyAdd />} />
           )}
-          <MfaGuardPageSecondaryEmailAdd path="/emails" />
-          <MfaGuardPageSecondaryEmailVerify path="/emails/verify" />
-          <PageRecentActivity path="/recent_activity" />
-          <PageDeleteAccount path="/delete_account" />
-          <Redirect from="/clients" to="/settings#connected-services" noThrow />
-          {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
-          <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          <MfaGuardPageRecoveryPhoneSetup path="/recovery_phone/setup" />
-          <PageMfaGuardRecoveryPhoneRemove path="/recovery_phone/remove" />
-
-          {config.featureFlags?.passkeysEnabled &&
-            config.featureFlags?.passkeyRegistrationEnabled && (
-              <MfaGuardPagePasskeyAdd path="/passkeys/add" />
-            )}
-
-          <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
-        </ScrollToTop>
-      </Router>
+        <Route path="mfa_guard/test/auth_client" element={<PageMfaGuardTestWithAuthClient />} />
+      </Routes>
     </SettingsLayout>
   );
 };

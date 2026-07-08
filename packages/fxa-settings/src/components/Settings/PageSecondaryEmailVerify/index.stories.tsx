@@ -4,7 +4,8 @@
 
 import { Meta, StoryObj } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
-import { WindowLocation, LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
+// Location state is now read internally via useLocation()
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { AppContext } from '../../../models/contexts/AppContext';
@@ -17,9 +18,7 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const mockLocation = {
-  state: { email: 'johndope@example.com' },
-} as unknown as WindowLocation;
+const initialEntries = [{ pathname: '/', state: { email: 'johndope@example.com' } }];
 
 type Story = StoryObj<typeof PageSecondaryEmailVerify>;
 
@@ -34,15 +33,15 @@ const SuccessAppCtx = mockAppContext({
 
 export const ResendSuccess: Story = {
   render: () => (
-    <LocationProvider>
+    <MemoryRouter initialEntries={initialEntries}>
       <AppContext.Provider value={SuccessAppCtx}>
         <SettingsLayout>
           <MfaContext.Provider value="email">
-            <PageSecondaryEmailVerify location={mockLocation} />
+            <PageSecondaryEmailVerify />
           </MfaContext.Provider>
         </SettingsLayout>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   ),
 };
 
@@ -60,15 +59,15 @@ const ErrorAppCtx = mockAppContext({
 
 export const ResendError: Story = {
   render: () => (
-    <LocationProvider>
+    <MemoryRouter initialEntries={initialEntries}>
       <AppContext.Provider value={ErrorAppCtx}>
         <SettingsLayout>
           <MfaContext.Provider value="email">
-            <PageSecondaryEmailVerify location={mockLocation} />
+            <PageSecondaryEmailVerify />
           </MfaContext.Provider>
         </SettingsLayout>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   ),
 };
 
@@ -86,14 +85,14 @@ const ErrorBlockedAppCtx = mockAppContext({
 
 export const ResendErrorBlocked: Story = {
   render: () => (
-    <LocationProvider>
+    <MemoryRouter initialEntries={initialEntries}>
       <AppContext.Provider value={ErrorBlockedAppCtx}>
         <SettingsLayout>
           <MfaContext.Provider value="email">
-            <PageSecondaryEmailVerify location={mockLocation} />
+            <PageSecondaryEmailVerify />
           </MfaContext.Provider>
         </SettingsLayout>
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   ),
 };

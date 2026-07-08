@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { PageWafTokens } from '.';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';

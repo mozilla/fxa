@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import SigninConfirmed from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MozServices } from '../../../lib/types';
@@ -16,25 +16,25 @@ export default {
 } as Meta;
 
 export const DefaultSignedIn = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninConfirmed isSignedIn />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const DefaultSignedOut = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninConfirmed isSignedIn={false} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const IsSync = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninConfirmed isSignedIn={false} serviceName={MozServices.FirefoxSync} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const IsSyncWithCms = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninConfirmed
       isSignedIn={false}
       serviceName={MozServices.FirefoxSync}
@@ -44,5 +44,5 @@ export const IsSyncWithCms = () => (
         }) as any
       }
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

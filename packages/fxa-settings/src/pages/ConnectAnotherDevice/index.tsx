@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RouteComponentProps, Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
@@ -103,7 +103,7 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
-}: ConnectAnotherDeviceProps & RouteComponentProps) => {
+}: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();

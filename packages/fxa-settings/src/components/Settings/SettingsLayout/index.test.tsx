@@ -9,7 +9,7 @@ import SettingsLayout from '.';
 
 it('renders the app with children', async () => {
   const {
-    history: { navigate },
+    router,
   } = renderWithRouter(
     <SettingsLayout>
       <p data-testid="test-child">Hello, world!</p>
@@ -17,7 +17,7 @@ it('renders the app with children', async () => {
   );
 
   await waitFor(() => {
-    navigate(SETTINGS_PATH);
+    router.navigate(SETTINGS_PATH);
   });
 
   expect(screen.getByTestId('app')).toBeInTheDocument();

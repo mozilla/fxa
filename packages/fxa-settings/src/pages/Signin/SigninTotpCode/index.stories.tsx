@@ -4,7 +4,7 @@
 
 import SigninTotpCode from '.';
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -31,9 +31,9 @@ const storyWithProps = (props: {
   signinState?: SigninLocationState;
 }) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <Subject {...props} />
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };
