@@ -1,0 +1,7 @@
+postVerifySecondary-title = "Secondary email added"
+
+postVerifySecondary-content-3 = "You have successfully confirmed <%- secondaryEmail %> as a secondary email for your Mozilla account. Security notifications and sign-in confirmations will now be delivered to both email addresses."
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/changePassword/index.txt') %>
