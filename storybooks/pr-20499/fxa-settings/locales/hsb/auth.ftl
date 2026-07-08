@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Pola { -product-mozilla-account(case: "gen") } přizjewić?
-session-verify-send-push-body-2 = Klikńće tu, zo byšće wobkrućił, zo ty to sy
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment

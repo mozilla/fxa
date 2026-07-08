@@ -94,6 +94,10 @@ automated-email-reset-pwd-two-factor = 如非本人操作，请立即<a data-l10
 automated-email-reset-pwd-plaintext-v3 = 如非本人操作，请立即在此重设密码：
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = 同时在此重设两步验证：
+automated-email-sign-in =
+    这是一封自动发送的邮件。若您并未授权进行此操作，请<a data-l10n-name="securitySettingsLink">检查您的账户安全设置</a>。
+    有关更多信息，请访问 <a data-l10n-name="supportLink">{ -brand-mozilla } 技术支持</a>。
+automated-email-sign-in-plaintext = 如果您并未授权此操作，请检查账户安全设置：
 brand-banner-message = 您知道我们已由 { -product-firefox-accounts }更名为 { -product-mozilla-accounts }吗？<a data-l10n-name="learnMore">详细了解</a>
 change-password-plaintext = 如果您怀疑有人在试图访问您的账户，请更改您的密码。
 manage-account = 管理账户
@@ -255,6 +259,15 @@ postAddLinkedAccount-subject-2 = 新账户已关联到 { -product-mozilla-accoun
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
 postAddLinkedAccount-title-2 = 您的 { $providerName } 账户已关联到 { -product-mozilla-account }
 postAddLinkedAccount-action = 管理账户
+postAddPasskey-subject = 通行密钥已创建
+postAddPasskey-preview = 您现在可以使用您的设备来登录
+postAddPasskey-title = 您已创建通行密钥
+postAddPasskey-description = 您现可用它来登录所有 { -product-mozilla-account } 服务。
+postAddPasskey-sync-note = 请注意：您仍需输入密码才能访问 { -brand-firefox } 同步数据。
+# Links out to a support article about passkeys and { -brand-firefox } sync
+postAddPasskey-learn-more = 详细了解
+postAddPasskey-requested-from = 您已从以下位置请求：
+postAddPasskey-action = 管理账户
 postAddRecoveryPhone-subject = 已添加恢复电话号码
 postAddRecoveryPhone-preview = 账户受两步验证保护
 postAddRecoveryPhone-title-v2 = 您已添加恢复电话号码
@@ -323,6 +336,12 @@ postRemoveAccountRecovery-title-3 = 您已删除账户恢复密钥。
 postRemoveAccountRecovery-body-part1 = 在忘记密码的情况下，需要使用账户恢复密钥来恢复加密的浏览数据。
 postRemoveAccountRecovery-body-part2 = 请在账户设置中创建新的账户恢复密钥，以免丢失您保存的密码、书签、浏览历史等数据。
 postRemoveAccountRecovery-action = 管理账户
+postRemovePasskey-subject = 通行密钥已删除
+postRemovePasskey-preview = 您账户的一个通行密钥已移除
+postRemovePasskey-title = 您删除了通行密钥
+postRemovePasskey-description = 您将需要使用其他方式登录。
+postRemovePasskey-requested-from = 您已从以下位置请求：
+postRemovePasskey-action = 管理账户
 postRemoveRecoveryPhone-subject = 已移除恢复电话号码
 postRemoveRecoveryPhone-preview = 账户受两步验证保护
 postRemoveRecoveryPhone-title = 已移除恢复电话号码

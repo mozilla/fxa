@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Allgemeiner Anwendungsfehler
-app-general-err-message = Etwas ist schiefgegangen. Bitte versuchen Sie es später erneut.
+app-something-went-wrong-heading = Etwas ist schiefgegangen
+app-something-went-wrong-message = Wir wurden über das Problem informiert. Aktualisieren Sie die Seite, um es erneut zu versuchen.
+app-error-id = Fehler-ID: { $errorId }
+app-error-details-summary = Fehlerdetails
 app-query-parameter-err-heading = Fehlerhafte Anfrage: Ungültige Anfrageparameter
 
 
@@ -149,6 +151,14 @@ device-info-browser-os = { $browserName } auf { $genericOSName }
 device-info-ip-address = IP-Adresse: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Holen Sie sich { -brand-firefox }, egal wo Sie sind
+firefox-promo-banner-mobile-description = Synchronisieren Sie Ihre Tabs, Lesezeichen und Passwörter auf allen Ihren Geräten. Außerdem bleibt alles sicher verschlüsselt.
+firefox-promo-banner-mobile-cta = Ein Gerät verbinden
+firefox-promo-banner-switch-heading = Schnell zu wechseln. Einfache Eingewöhnung.
+firefox-promo-banner-switch-description = Wenn Sie zu { -brand-firefox } wechseln, können Sie Ihre Lesezeichen, Passwörter, Chronik und mehr mitnehmen, damit Sie nahtlos weiter surfen können.
+firefox-promo-banner-switch-cta = Zu { -brand-firefox } wechseln
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Passwort
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -217,6 +227,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Erfolgreich
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktiviert
+chevron-right-icon-aria-label =
+    .aria-label = Chevron rechts
 close-icon-aria-label =
     .aria-label = Nachricht schließen
 code-icon-aria-label =
@@ -290,6 +302,7 @@ input-phone-number-enter-number = Telefonnummer eingeben
 input-phone-number-country-united-states = Vereinigte Staaten
 input-phone-number-country-canada = Kanada
 legal-back-button = Zurück
+app-general-err-message = Etwas ist schiefgegangen. Bitte versuchen Sie es später erneut.
 
 
 reset-pwd-link-damaged-header = Link zum Zurücksetzen des Passworts beschädigt
@@ -444,6 +457,9 @@ cs-disconnect-lost-advice-content-3 = Da Ihr Gerät verloren ging oder gestohlen
 cs-disconnect-suspicious-advice-heading = Verdächtiges Gerät getrennt
 cs-disconnect-suspicious-advice-content-2 = Wenn das getrennte Gerät wirklich verdächtig ist, sollten Sie zum Schutz Ihrer Daten Ihr { -product-mozilla-account }-Passwort in Ihren Kontoeinstellungen ändern. Sie sollten auch alle anderen Passwörter, die Sie in { -brand-firefox } gespeichert haben, ändern, indem Sie about:logins in die Adressleiste eingeben.
 cs-sign-out-button = Abmelden
+
+
+cs-scope-firefox-vpn = Integriertes VPN von { -brand-firefox }
 
 
 dc-heading = Datenerfassung und -nutzung
@@ -742,7 +758,7 @@ page-passkey-add-cancel = Abbrechen
 
 
 page-passkey-add-success = Zugangsschlüssel erstellt
-page-passkey-add-error-system = System nicht verfügbar. Versuchen Sie es später erneut.
+page-passkey-add-error-system-v2 = Beim Erstellen Ihres Zugangsschlüssels ist ein Problem aufgetreten. Versuchen Sie es später erneut.
 
 
 recent-activity-title = Letzte Kontoaktivität
@@ -781,6 +797,26 @@ recent-activity-account-recovery-codes-signin-complete = Anmeldung mit Wiederher
 recent-activity-password-reset-otp-sent = Bestätigungscode zum Zurücksetzen des Passworts gesendet
 recent-activity-password-reset-otp-verified = Bestätigungscode zum Zurücksetzen des Passworts verifiziert
 recent-activity-must-reset-password = Zurücksetzen des Passworts erforderlich
+recent-activity-account-recovery-phone-replace-complete = Telefonnummer für die Kontowiederherstellung ersetzt
+recent-activity-account-recovery-phone-replace-failure = Das Ersetzen der Telefonnummer ist fehlgeschlagen
+recent-activity-account-two-factor-replace-success = Zwei-Schritt-Authentifizierung ersetzt
+recent-activity-account-two-factor-replace-failure = Ersetzen der Zwei-Schritt-Authentifizierung fehlgeschlagen
+recent-activity-account-recovery-phone-setup-failed = Einrichtung der Telefonnummer zur Kontowiederherstellung fehlgeschlagen
+recent-activity-account-recovery-phone-reset-password-complete = Das Zurücksetzen des Passworts mit der für die Kontowiederherstellung angegebenen Telefonnummer wurde abgeschlossen
+recent-activity-account-recovery-phone-reset-password-failed = Das Zurücksetzen des Passworts mit der für die Kontowiederherstellung angegebenen Telefonnummer ist fehlgeschlagen
+recent-activity-account-mfa-otp-sent = Autorisierung zur Kontoänderung angefordert
+recent-activity-account-mfa-otp-verified = Kontoänderung autorisiert
+recent-activity-account-mfa-otp-failed = Autorisierung zur Kontoänderung fehlgeschlagen
+recent-activity-account-passkey-registration-success = Zugangsschlüssel hinzugefügt
+recent-activity-account-passkey-registration-failure = Registrierung des Zugangsschlüssels fehlgeschlagen
+recent-activity-account-passkey-removed = Zugangsschlüssel entfernt
+recent-activity-account-passkey-authentication-success = Anmeldung mit Zugangsschlüssel abgeschlossen
+recent-activity-account-passkey-authentication-failure = Anmeldung mit Zugangsschlüssel fehlgeschlagen
+recent-activity-account-passwordless-login-otp-sent = Passwortloser Anmeldecode gesendet
+recent-activity-account-passwordless-login-otp-failed = Passwortloser Anmeldecode fehlgeschlagen
+recent-activity-account-passwordless-login-otp-verified = Passwortloser Anmeldecode verifiziert
+recent-activity-account-passwordless-registration-complete = Registrierung des passwortlosen Kontos abgeschlossen
+recent-activity-account-recovery-codes-set = Wiederherstellungscodes erstellt
 recent-activity-unknown = Andere Kontoaktivitäten
 
 
@@ -887,7 +923,7 @@ passkey-sub-row-created-date = Erstellt: { $createdDate }
 passkey-sub-row-last-used-date = Zuletzt verwendet: { $lastUsedDate }
 passkey-sub-row-delete-title = Zugangsschlüssel löschen
 passkey-delete-modal-heading = Ihren Zugangsschlüssel löschen?
-passkey-delete-modal-content = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich auf andere Weise anmelden.
+passkey-delete-modal-content-v2 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einer anderen Methode anmelden (Passwort, anderer Zugangsschlüssel oder verknüpftes Konto).
 passkey-delete-modal-cancel-button = Abbrechen
 passkey-delete-modal-confirm-button = Zugangsschlüssel löschen
 passkey-delete-success = Zugangsschlüssel gelöscht
@@ -919,9 +955,6 @@ passkey-row-max-limit-banner =
        *[other] Sie haben alle { $count } Zugangsschlüssel verwendet. Löschen Sie einen Zugangsschlüssel, um einen neuen zu erstellen.
     }
 passkey-row-max-limit-disabled-reason = Sie haben die maximale Anzahl an Zugangsschlüsseln erreicht.
-
-
-passkey-row-webauthn-not-supported = Ihr Browser oder Gerät unterstützt keine Zugangsschlüssel.
 
 
 rk-header-1 = Kontowiederherstellungsschlüssel
@@ -1035,6 +1068,7 @@ auth-error-226 = Obergrenze für Zugangsschlüssel erreicht
 auth-error-227 = Authentifizierung mit Zugangsschlüssel fehlgeschlagen
 auth-error-228 = Registrierung des Zugangsschlüssels fehlgeschlagen
 auth-error-238 = Verifizierung des Zugangsschlüssels fehlgeschlagen
+auth-error-239 = Leider konnten wir Ihr Konto nicht löschen. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, wenn das Problem weiterhin besteht.
 auth-error-999 = Unerwarteter Fehler
 auth-error-1001 = Anmeldeversuch abgebrochen
 auth-error-1002 = Sitzung abgelaufen. Melden Sie sich an, um fortzufahren.
@@ -1061,7 +1095,12 @@ oauth-error-1000 = Etwas ist schiefgegangen. Bitte schließen Sie diesen Tab und
 passkey-registration-error-not-allowed = Einrichtung des Zugangsschlüssels fehlgeschlagen oder nicht verfügbar. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-registration-error-not-allowed-existing = Die Passkey-Einrichtung ist für dieses Gerät nicht verfügbar. Entweder war das Gerät bereits registriert oder der Einrichtungsprozess wurde abgebrochen.
 passkey-registration-error-timeout = Einrichtung des Zugangsschlüssels wurde abgebrochen. Erneut versuchen
-passkey-registration-error-not-supported = Zugangsschlüssel werden hier nicht unterstützt. Versuchen Sie es mit einer anderen Methode oder einem anderen Gerät.
+passkey-registration-canceled-v2 = Beim Erstellen des Zugangsschlüssels trat eine Zeitüberschreitung auf oder der Vorgang wurde abgebrochen.
+passkey-registration-canceled-link = Weitere Informationen
+passkey-registration-error-not-supported-v2 = Ihr Browser oder Gerät unterstützt keine Zugangsschlüssel.
+passkey-registration-error-not-supported-link = Weitere Informationen
+passkey-registration-error-could-not-complete = Die Einrichtung des Zugangsschlüssels konnte nicht abgeschlossen werden. Probieren Sie eine andere Methode oder ein Gerät aus.
+passkey-registration-error-could-not-complete-link = Weitere Informationen
 passkey-registration-error-security = Auf dieser Seite können keine Zugangsschlüssel eingerichtet werden. Verwenden Sie die sichere Website und versuchen Sie es erneut.
 passkey-registration-error-invalid-state = Dieser Zugangsschlüssel ist bereits registriert. Verwenden Sie ihn, um sich anzumelden oder fügen Sie einen anderen Zugangsschlüssel hinzu.
 passkey-registration-error-not-readable = Wir konnten nicht auf die Authentifizierungsmethode zugreifen. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
@@ -1072,11 +1111,12 @@ passkey-registration-error-unexpected = Einrichtung des Zugangsschlüssels fehlg
 passkey-authentication-error-not-allowed = Anmeldung mit Zugangsschlüssel fehlgeschlagen oder nicht verfügbar. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-authentication-error-not-allowed-existing = Die Passkey-Einrichtung ist bei diesem Gerät nicht verfügbar. Bitte versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-authentication-error-timeout = Zeitüberschreitung bei Zugangsschlüssel-Anfrage. Bitte versuchen Sie es erneut.
-passkey-authentication-error-not-supported = Zugangsschlüssel werden nicht unterstützt. Versuchen Sie es mit einer anderen Methode oder einem anderen Gerät.
+passkey-authentication-error-not-supported-v2 = Ihr Browser oder Gerät unterstützt keine Zugangsschlüssel.
 passkey-authentication-error-security = Zugangsschlüssel können auf dieser Seite nicht verwendet werden. Überprüfen Sie, ob Sie sich auf der korrekten sicheren Website befinden und versuchen Sie es erneut.
 passkey-authentication-error-invalid-state = Mit Ihrem Zugangsschlüssel ist etwas schiefgegangen. Versuchen Sie es erneut oder verwenden Sie eine andere Anmeldemethode.
 passkey-authentication-error-not-readable = Wir konnten nicht auf die Authentifizierungsmethode zugreifen. Versuchen Sie es erneut oder wählen Sie eine andere Anmeldemethode.
 passkey-authentication-error-unexpected = Es trat ein Problem auf. Versuchen Sie es erneut oder wählen Sie eine andere Anmeldemethode.
+passkey-authentication-error-not-found = Zugangsschlüssel nicht erkannt. Eine andere Anmeldemethode verwenden.
 
 
 connect-another-device-signed-in-header = Sie sind bei { -brand-firefox } angemeldet
@@ -1389,7 +1429,6 @@ signin-passkey-fallback-header = Anmeldung abschließen
 signin-passkey-fallback-heading = Geben Sie zum Synchronisieren Ihr Passwort ein
 signin-passkey-fallback-body = Um Ihre Daten zu schützen, müssen Sie Ihr Passwort eingeben, wenn Sie diesen Zugangsschlüssel verwenden.
 signin-passkey-fallback-password-label = Passwort
-signin-passkey-fallback-go-to-settings = Einstellungen öffnen
 signin-passkey-fallback-continue = Weiter
 
 
@@ -1420,22 +1459,6 @@ signup-passwordless-code-subheading = Die Registrierung dauert nur einen Schritt
 
 
 signin-passwordless-totp-required = Die Zwei-Schritt-Authentifizierung ist für Ihr Konto aktiviert. Bitte melden Sie sich mit Ihrem Passwort an.
-
-
-signin-push-code-heading-w-default-service = Bestätigen Sie diese Zugangsdaten, <span>um mit den Kontoeinstellungen fortzufahren</span>
-signin-push-code-heading-w-custom-service = Bestätigen Sie diese Zugangsdaten, <span>um mit { $serviceName } fortzufahren</span>
-signin-push-code-instruction = Bitte überprüfen Sie Ihre anderen Geräte und genehmigen Sie diese Zugangsdaten in Ihrem { -brand-firefox }-Browser.
-signin-push-code-did-not-recieve = Haben Sie die Benachrichtigung nicht erhalten?
-signin-push-code-send-email-link = E-Mail-Code
-
-
-signin-push-code-confirm-instruction = Bestätigen Sie Ihre Zugangsdaten
-signin-push-code-confirm-description = Wir haben einen Anmeldeversuch von folgendem Gerät erkannt. Wenn Sie das waren, genehmigen Sie bitte die Anmeldung
-signin-push-code-confirm-verifying = Verifizieren
-signin-push-code-confirm-login = Anmeldung bestätigen
-signin-push-code-confirm-wasnt-me = Das war nicht ich, Passwort ändern.
-signin-push-code-confirm-login-approved = Ihr Anmeldung wurde genehmigt. Bitte schließen Sie dieses Fenster.
-signin-push-code-confirm-link-error = Link ist beschädigt. Bitte versuchen Sie es erneut.
 
 
 signin-recovery-method-header = Anmelden

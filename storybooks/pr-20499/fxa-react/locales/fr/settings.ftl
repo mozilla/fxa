@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } sur { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresse IP : { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Utilisez { -brand-firefox } où que vous soyez
+firefox-promo-banner-mobile-description = Synchronisez vos onglets, marque-pages et mots de passe entre vos appareils. Et toutes les données restent protégées grâce au chiffrement.
+firefox-promo-banner-mobile-cta = Connecter un appareil
+firefox-promo-banner-switch-heading = C’est rapide et la configuration est facile.
+firefox-promo-banner-switch-description = Lorsque vous passez à { -brand-firefox }, vous pouvez emporter vos marque-pages, mots de passe, historique et plus encore pour naviguer sans perdre le fil.
+firefox-promo-banner-switch-cta = Passer à { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Activé
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Chevron vers la droite
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Fermer le message
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = États-Unis
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Retour
+# Generic error shown when the legal document fails to load
+app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
 
 ## LinkDamaged component
 
@@ -578,6 +594,15 @@ cs-disconnect-lost-advice-content-3 = Puisque votre appareil a été perdu ou vo
 cs-disconnect-suspicious-advice-heading = L’appareil suspect est déconnecté.
 cs-disconnect-suspicious-advice-content-2 = Si l’appareil déconnecté est effectivement suspect, pour protéger vos informations, vous devez modifier le mot de passe de votre { -product-mozilla-account } dans les paramètres de votre compte. Vous devriez également modifier tout autre mot de passe que vous auriez enregistré dans { -brand-firefox } en tapant about:logins dans la barre d’adresse.
 cs-sign-out-button = Se déconnecter
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = VPN intégré à { -brand-firefox }
 
 ## Data collection section
 
@@ -980,7 +1005,7 @@ page-passkey-add-cancel = Annuler
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Clé d’accès créée
-page-passkey-add-error-system = Système indisponible. Veuillez réessayer plus tard.
+page-passkey-add-error-system-v2 = Un problème est survenu lors de la création de votre clé d’accès. Réessayez plus tard.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1024,6 +1049,29 @@ recent-activity-account-recovery-codes-signin-complete = Connexion avec les code
 recent-activity-password-reset-otp-sent = Code de confirmation de réinitialisation du mot de passe envoyé
 recent-activity-password-reset-otp-verified = Code de confirmation de réinitialisation du mot de passe vérifié
 recent-activity-must-reset-password = Réinitialisation du mot de passe nécessaire
+recent-activity-account-recovery-phone-replace-complete = Le numéro de téléphone de secours a été remplacé
+recent-activity-account-recovery-phone-replace-failure = Échec du remplacement du numéro de téléphone de secours
+recent-activity-account-two-factor-replace-success = Authentification en deux étapes remplacée
+recent-activity-account-two-factor-replace-failure = Échec du remplacement de l’authentification en deux étapes
+recent-activity-account-recovery-phone-setup-failed = Échec de la configuration du téléphone de secours
+recent-activity-account-recovery-phone-reset-password-complete = Réinitialisation du mot de passe avec le numéro de téléphone de secours
+recent-activity-account-recovery-phone-reset-password-failed = Échec de la réinitialisation du mot de passe avec le numéro de téléphone de secours
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Autorisation de modification de compte demandée
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Modification du compte autorisée
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Échec de l’autorisation de modification du compte
+recent-activity-account-passkey-registration-success = Clé d’accès ajoutée
+recent-activity-account-passkey-registration-failure = Échec de l’enregistrement de la clé d’accès
+recent-activity-account-passkey-removed = Clé d’accès supprimée
+recent-activity-account-passkey-authentication-success = Connexion avec la clé d’accès effectuée
+recent-activity-account-passkey-authentication-failure = Échec de la connexion avec la clé d’accès
+recent-activity-account-passwordless-login-otp-sent = Code de connexion sans mot de passe envoyé
+recent-activity-account-passwordless-login-otp-failed = Échec de la connexion sans mot de passe
+recent-activity-account-passwordless-login-otp-verified = Code de connexion sans mot de passe vérifié
+recent-activity-account-passwordless-registration-complete = Enregistrement du compte sans mot de passe terminé
+recent-activity-account-recovery-codes-set = Codes de secours définis
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Autre activité du compte
 
@@ -1196,7 +1244,7 @@ passkey-sub-row-created-date = Créée le : { $createdDate }
 passkey-sub-row-last-used-date = Dernière utilisation : { $lastUsedDate }
 passkey-sub-row-delete-title = Supprimer la clé d’accès
 passkey-delete-modal-heading = Supprimer votre clé d’accès ?
-passkey-delete-modal-content = Cette clé d’accès sera supprimée de votre compte. Vous devrez utiliser une méthode différente pour vous connecter.
+passkey-delete-modal-content-v2 = Cette clé d’accès sera supprimée de votre compte. Vous devrez vous connecter en utilisant une méthode différente (mot de passe, autre clé d’accès ou compte lié).
 passkey-delete-modal-cancel-button = Annuler
 passkey-delete-modal-confirm-button = Supprimer la clé d’accès
 passkey-delete-success = Clé d’accès supprimée
@@ -1239,11 +1287,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Vous avez atteint le nombre maximal de clés d’accès.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1397,6 +1440,7 @@ auth-error-226 = Limite de clés d’accès atteinte
 auth-error-227 = Échec de l’authentification par clé d’accès
 auth-error-228 = Échec de l’enregistrement de la clé d’accès
 auth-error-238 = Échec de la vérification de la clé d’accès
+auth-error-239 = Désolé, nous n’avons pas pu supprimer votre compte. Veuillez essayer à nouveau, ou contacter l’assistance si le problème persiste.
 auth-error-999 = Erreur inattendue
 auth-error-1001 = Tentative de connexion annulée
 auth-error-1002 = Votre session a expiré. Connectez-vous pour continuer.
@@ -1436,8 +1480,19 @@ passkey-registration-error-not-allowed = La configuration de la clé d’accès 
 passkey-registration-error-not-allowed-existing = La configuration d’une clé d’accès n’est pas possible avec cet appareil. Soit l’appareil est déjà enregistré, soit le processus de configuration a été annulé.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = La configuration de la clé d’accès a été annulée. Veuillez réessayer.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Les clés d’accès ne sont pas prises en charge ici. Essayez une autre méthode ou un autre appareil.
+passkey-registration-canceled-v2 = La configuration de la clé d’accès a expiré ou a été annulée.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = En savoir plus
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = En savoir plus
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = La configuration de la clé d’accès n’a pas pu aboutir. Veuillez essayer une autre méthode ou un autre appareil.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = En savoir plus
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Les clés d’accès ne peuvent pas être configurées sur cette page. Utilisez le site sécurisé puis réessayez.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1458,7 +1513,7 @@ passkey-authentication-error-not-allowed-existing = La configuration d’une cl�
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Délai de requête de la clé d’accès dépassé. Veuillez réessayer.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Les clés d’accès ne sont pas prises en charge. Essayez une autre méthode ou un autre appareil.
+passkey-authentication-error-not-supported-v2 = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Les clés d’accès ne peuvent pas être utilisées sur cette page. Vérifiez que vous vous trouvez sur le bon site sécurisé et réessayez.
 # Unexpected credential state during authentication
@@ -1467,6 +1522,10 @@ passkey-authentication-error-invalid-state = Une erreur s’est produite avec vo
 passkey-authentication-error-not-readable = Nous n’avons pas pu accéder à l’authentificateur. Réessayez ou utilisez une autre méthode de connexion.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Une erreur s’est produite. Réessayez ou choisissez une autre méthode de connexion.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Clé d’accès non reconnue. Utilisez une autre méthode de connexion.
 
 ## Connect Another Device page
 
@@ -1981,7 +2040,6 @@ signin-passkey-fallback-header = Terminer la connexion
 signin-passkey-fallback-heading = Saisissez votre mot de passe pour synchroniser
 signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir votre mot de passe lorsque vous utilisez cette clé d’accès.
 signin-passkey-fallback-password-label = Mot de passe
-signin-passkey-fallback-go-to-settings = Ouvrir les paramètres
 signin-passkey-fallback-continue = Continuer
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2029,25 +2087,6 @@ signup-passwordless-code-subheading = L’inscription ne se fait qu’en une seu
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = L’authentification en deux étapes est activée sur votre compte. Veuillez vous connecter avec votre mot de passe.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Vérifiez cet identifiant <span>pour accéder aux paramètres du compte</span>
-signin-push-code-heading-w-custom-service = Vérifiez cet identifiant <span>pour continuer vers { $serviceName }</span>
-signin-push-code-instruction = Consultez vos autres appareils pour approuver cette connexion depuis votre navigateur { -brand-firefox }.
-signin-push-code-did-not-recieve = Vous n’avez pas reçu de notification ?
-signin-push-code-send-email-link = Envoyer un code par e-mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Confirmez votre identifiant
-signin-push-code-confirm-description = Nous avons détecté une tentative de connexion depuis l’appareil suivant. S’il s’agit de vous, veuillez approuver la connexion
-signin-push-code-confirm-verifying = Vérification
-signin-push-code-confirm-login = Confirmer la connexion
-signin-push-code-confirm-wasnt-me = Il ne s’agissait pas de moi, changer le mot de passe.
-signin-push-code-confirm-login-approved = Votre connexion a été approuvée. Veuillez fermer cette fenêtre.
-signin-push-code-confirm-link-error = Le lien est altéré. Veuillez réessayer.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

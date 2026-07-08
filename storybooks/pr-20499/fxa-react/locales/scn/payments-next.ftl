@@ -9,6 +9,9 @@ next-payment-method-header = Scarta u to mètudu di pagamentu
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Pi prima cosa, hâ appruvari u to abbunamentu
+
+## Error page
+
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Scarta u to pajisi e metti u to còdici pustali <p>pi cuntinuari l’accàttitu di { $productName }</p>
 location-banner-info = Nun pòttimu pigghiari di manera autumàtica i nfurmazzioni ncapu â to pusizzioni

@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Gabim i përgjithshëm aplikacioni
-app-general-err-message = Diç shkoi ters. Ju lutemi, riprovoni.
 app-query-parameter-err-heading = Kërkesë e Gabuar: Parametra të Pavlefshëm Kërkese
 
 
@@ -865,7 +863,6 @@ passkey-sub-row-created-date = Krijuar më: { $createdDate }
 passkey-sub-row-last-used-date = Përdorur së fundi më: { $lastUsedDate }
 passkey-sub-row-delete-title = Fshije kyçkalimin
 passkey-delete-modal-heading = Të fshihet kyçkalimi juaj?
-passkey-delete-modal-content = Ky kyçkalim do të hiqet nga llogaria juaj. Do t’ju duhet të bëni hyrjen duke përdorur tjetër mënyrë.
 passkey-delete-modal-cancel-button = Anuloje
 passkey-delete-modal-confirm-button = Fshije kyçkalimin
 passkey-delete-success = Kyçkalimi u fshi
@@ -1027,7 +1024,6 @@ oauth-error-1000 = Diç shkoi ters. Ju lutemi, mbylleni këtë skedë dhe riprov
 
 passkey-registration-error-not-allowed = Ujdisja e kyçkalimit dështoi, ose s’është e mundshme. Riprovoni, ose zgjidhni tjetër metodë.
 passkey-registration-error-timeout = Ujdisja e kyçkalimit qe anuluar. Riprovoni.
-passkey-registration-error-not-supported = Këtu s’mbulohen kyçkalime. Provoni metodë ose pajisje tjetër.
 passkey-registration-error-security = Në këtë faqe s’mund të ujdisen kyçkalime. Përdorni sajtin e siguruar dhe riprovoni.
 passkey-registration-error-invalid-state = Ky kyçkalim është i regjistruar tashmë. Përdoreni që të bëni hyrjen, ose shtoni një kyçkalim tjetër.
 passkey-registration-error-not-readable = S’hymë dot te aplikacioni mirëfilltësues. Riprovoni, ose zgjidhni metodë tjetër
@@ -1037,7 +1033,6 @@ passkey-registration-error-unexpected = Ujdisja e kyçkalimit dështoi. Riprovon
 
 passkey-authentication-error-not-allowed = Hyrja me kyçkalim dështoi, ose s’është e përdorshme. Riprovoni, ose zgjidhni tjetër metodë.
 passkey-authentication-error-timeout = Kërkesës për kyçkalim i mbaroi koha. Ju lutemi, riprovoni.
-passkey-authentication-error-not-supported = Nuk mbulohen kyçkalime. Provoni metodë ose pajisje tjetër.
 passkey-authentication-error-security = Në këtë faqe s’mund të përdoren kyçkalime. Kontrolloni nëse jeni në sajtin e saktë të siguruar dhe riprovoni.
 passkey-authentication-error-invalid-state = Diç shkoi ters me kyçkalimin tuaj. Riprovoni, ose përdorni tjetër metodë hyrjesh.
 passkey-authentication-error-not-readable = S’hymë dot te aplikacioni mirëfilltësues. Riprovoni, ose përdorni tjetër metodë hyrjesh.
@@ -1318,7 +1313,6 @@ signin-passkey-fallback-header = Përfundoni hyrjen
 signin-passkey-fallback-heading = Që të bëhet njëkohësimi, jepni fjalëkalimin tuaj
 signin-passkey-fallback-body = Që të ruhen të parrezik të dhënat tuaja, ju duhet të jepni fjalëkalimin tuaj, kur përdorni këtë kyçkalim.
 signin-passkey-fallback-password-label = Fjalëkalim
-signin-passkey-fallback-go-to-settings = Kalo te rregullimet
 signin-passkey-fallback-continue = Vazhdo
 
 
@@ -1348,22 +1342,6 @@ signup-passwordless-code-subheading = Regjistrimi zë vetëm një hap, kur përd
 
 
 signin-passwordless-totp-required = Mirëfilltësimi dyhapësh është i aktivizuar në llogarinë tuaj. Ju lutemi, bëni hyrjen me fjalëkalimin tuaj.
-
-
-signin-push-code-heading-w-default-service = <span>Që të vazhdoni te rregullimet e llogarisë</span>, verifikoni këtë hyrje
-signin-push-code-heading-w-custom-service = <span>Që të vazhdohet te { $serviceName }</span>, verifikoni këtë hyrje
-signin-push-code-instruction = Ju lutemi, shihni te pajisjet tuaja të tjera dhe miratoni këtë hyrje që nga shfletuesi juaj { -brand-firefox }.
-signin-push-code-did-not-recieve = S’e morët njoftimin?
-signin-push-code-send-email-link = Kod email
-
-
-signin-push-code-confirm-instruction = Ripohoni hyrjen tuaj
-signin-push-code-confirm-description = Pikasëm një përpjekje për hyrje që nga pajisja vijuese. Nëse qetë ju, ju lutemi, miratoni hyrjen.
-signin-push-code-confirm-verifying = Po verifikohet
-signin-push-code-confirm-login = Ripohoni hyrjen
-signin-push-code-confirm-wasnt-me = S’qeshë unë, ndryshojeni fjalëkalimin.
-signin-push-code-confirm-login-approved = Hyrja juaj u miratua. Ju lutemi, mbylleni këtë dritare.
-signin-push-code-confirm-link-error = Lidhja është e dëmtuar. Ju lutemi, riprovoni
 
 
 signin-recovery-method-header = Hyni

@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Errore generale dell’applicazione
-app-general-err-message = Si è verificato un problema. Riprova più tardi.
+app-something-went-wrong-heading = Si è verificato un errore
+app-something-went-wrong-message = Abbiamo ricevuto una segnalazione del problema. Ricarica la pagina per riprovare.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID errore: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Dettagli errore
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Richiesta non valida: parametri della query non validi
 

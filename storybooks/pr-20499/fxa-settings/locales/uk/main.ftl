@@ -150,8 +150,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Загальна помилка програми
-app-general-err-message = Щось пішло не так. Будь ласка, спробуйте знову пізніше.
 app-query-parameter-err-heading = Неправильний запит: недійсні параметри
 
 
@@ -1251,22 +1249,6 @@ signin-bounced-message = Електронний лист із підтвердж
 signin-bounced-help = Якщо це дійсна адреса електронної пошти, <linkExternal>повідомте нас</linkExternal> і ми допоможемо розблокувати ваш обліковий запис.
 signin-bounced-create-new-account = Ця адреса електронної пошти вам більше не належить? Створіть новий обліковий запис
 back = Назад
-
-
-signin-push-code-heading-w-default-service = Підтвердьте цей вхід, <span>щоб продовжити налаштування облікового запису</span>
-signin-push-code-heading-w-custom-service = Підтвердьте цей вхід, <span>щоб перейти до { $serviceName }</span>
-signin-push-code-instruction = Перевірте свої інші пристрої та підтвердьте цей вхід у браузері { -brand-firefox }.
-signin-push-code-did-not-recieve = Не отримали сповіщення?
-signin-push-code-send-email-link = Код з електронного листа
-
-
-signin-push-code-confirm-instruction = Підтвердьте свій вхід
-signin-push-code-confirm-description = Ми виявили спробу входу із зазначеного пристрою. Будь ласка, підтвердьте, якщо це були ви
-signin-push-code-confirm-verifying = Перевірка
-signin-push-code-confirm-login = Підтвердити вхід
-signin-push-code-confirm-wasnt-me = Це не я, змінити пароль.
-signin-push-code-confirm-login-approved = Ваш вхід підтверджено. Можете закрити це вікно.
-signin-push-code-confirm-link-error = Посилання пошкоджено. Повторіть спробу.
 
 
 signin-recovery-method-header = Увійти

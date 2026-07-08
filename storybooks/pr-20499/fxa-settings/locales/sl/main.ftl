@@ -155,8 +155,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Splošna napaka aplikacije
-app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
+app-something-went-wrong-heading = Prišlo je do napake
+app-something-went-wrong-message = Obveščeni smo o težavi. Osvežite stran za ponoven poskus.
+app-error-id = ID napake: { $errorId }
+app-error-details-summary = Podrobnosti napake
 app-query-parameter-err-heading = Nepravilna zahteva: neveljavni parametri poizvedbe
 
 
@@ -212,8 +214,8 @@ recovery-key-pdf-support = Preberite več o ključu za obnovitev računa
 recovery-key-pdf-download-error = Pri prenosu ključa za obnovitev računa je prišlo do težave.
 
 
-button-passkey-signin = Prijava z geslom
-button-passkey-signin-loading = Varna prijava …
+button-passkey-signin = Prijava s ključem za dostop
+button-passkey-signin-loading = Varno prijavljanje …
 
 
 choose-newsletters-prompt-2 = Izkoristite { -brand-mozilla(sklon: "tozilnik") }:
@@ -273,6 +275,14 @@ device-info-block-location-country = { $country } (ocena)
 device-info-block-location-unknown = Neznana lokacija
 device-info-browser-os = { $browserName } v { $genericOSName }
 device-info-ip-address = Naslov IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Prejmite { -brand-firefox } ne glede na to, ali ste
+firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
+firefox-promo-banner-mobile-cta = Povežite napravo
+firefox-promo-banner-switch-heading = Hitro preklop. Enostaven za namestitev.
+firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
+firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -343,6 +353,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Uspeh
 checkmark-enabled-icon-aria-label =
     .aria-label = Omogočeno
+chevron-right-icon-aria-label =
+    .aria-label = Puščica desno
 close-icon-aria-label =
     .aria-label = Zapri sporočilo
 code-icon-aria-label =
@@ -356,7 +368,7 @@ usa-flag-icon-aria-label =
 icon-loading-arrow-aria-label =
     .aria-label = Nalaganje
 icon-passkey-aria-label =
-    .aria-label = Geslo
+    .aria-label = Ključ za dostop
 
 
 hearts-broken-image-aria-label =
@@ -416,6 +428,7 @@ input-phone-number-enter-number = Vnesite telefonsko številko
 input-phone-number-country-united-states = Združene države Amerike
 input-phone-number-country-canada = Kanada
 legal-back-button = Nazaj
+app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
 
 
 reset-pwd-link-damaged-header = Povezava za ponastavitev gesla je poškodovana
@@ -574,6 +587,9 @@ cs-disconnect-suspicious-advice-content-2 = Če je naprava, ki ste jo odklopili,
 cs-sign-out-button = Odjava
 
 
+cs-scope-firefox-vpn = { -brand-firefox }ov vgrajen VPN
+
+
 dc-heading = Zbiranje in uporaba podatkov
 dc-subheader-moz-accounts = { -product-mozilla-accounts(zacetnica: "velika") }
 dc-subheader-ff-browser = Brskalnik { -brand-firefox }
@@ -698,7 +714,7 @@ header-back-to-top-link =
     .title = Nazaj na vrh
 header-back-to-settings-link =
     .title = Nazaj na nastavitve { -product-mozilla-account(sklon: "rodilnik") }
-header-title-2 = { -product-mozilla-account }
+header-title-2 = { -product-mozilla-account(zacetnica: "velika") }
 header-help = Pomoč
 
 
@@ -833,7 +849,7 @@ delete-account-header =
 delete-account-step-1-2 = Korak 1 od 2
 delete-account-step-2-2 = Korak 2 od 2
 delete-account-confirm-title-4 = Morda ste svoj { -product-mozilla-account(sklon: "tozilnik") } povezali z enim ali več izmed naslednjih izdelkov ali storitev { -brand-mozilla(sklon: "rodilnik") }, ki vam zagotavljajo varnost in produktivnost na spletu:
-delete-account-product-mozilla-account = { -product-mozilla-account }
+delete-account-product-mozilla-account = { -product-mozilla-account(zacetnica: "velika") }
 delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
 delete-account-product-mdn-plus = { -product-mdn-plus }
 delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
@@ -868,13 +884,13 @@ display-name-update-error-2 = Prišlo je do napake pri spremembi prikaznega imen
 display-name-success-alert-2 = Prikazno ime posodobljeno
 
 
-page-passkey-add-creating-heading = Ustvarjanje gesla …
+page-passkey-add-creating-heading = Ustvarjanje ključa za dostop …
 page-passkey-add-follow-prompts = Sledite navodilom na svoji napravi.
 page-passkey-add-cancel = Prekliči
 
 
-page-passkey-add-success = Geslo ustvarjeno
-page-passkey-add-error-system = Sistem ni na voljo. Poskusite znova pozneje.
+page-passkey-add-success = Ključ za dostop ustvarjen
+page-passkey-add-error-system-v2 = Pri ustvarjanju ključa za dostop je prišlo do težave. Poskusite znova pozneje.
 
 
 recent-activity-title = Nedavna dejavnost v računu
@@ -913,6 +929,26 @@ recent-activity-account-recovery-codes-signin-complete = Prijava z obnovitvenimi
 recent-activity-password-reset-otp-sent = Potrditvena koda za ponastavitev gesla poslana
 recent-activity-password-reset-otp-verified = Potrditvena koda za ponastavitev gesla potrjena
 recent-activity-must-reset-password = Zahtevana je ponastavitev gesla
+recent-activity-account-recovery-phone-replace-complete = Telefonska številka za obnovitev zamenjana
+recent-activity-account-recovery-phone-replace-failure = Zamenjava telefonske številke za obnovitev ni uspela
+recent-activity-account-two-factor-replace-success = Overitev v dveh korakih je zamenjana
+recent-activity-account-two-factor-replace-failure = Zamenjava overjanja v dveh korakih ni uspela
+recent-activity-account-recovery-phone-setup-failed = Nastavitev obnovitvene telefonske številke ni uspela
+recent-activity-account-recovery-phone-reset-password-complete = Ponastavitev gesla s številko za obnovitev končana
+recent-activity-account-recovery-phone-reset-password-failed = Ponastavitev gesla s telefonsko številko za obnovitev ni uspela
+recent-activity-account-mfa-otp-sent = Zahtevano je pooblastilo za spremembe računa
+recent-activity-account-mfa-otp-verified = Sprememba računa je dovoljena
+recent-activity-account-mfa-otp-failed = Pooblastitev sprememb računa ni uspela
+recent-activity-account-passkey-registration-success = Geslo dodano
+recent-activity-account-passkey-registration-failure = Registracija ključa za dostop ni uspela
+recent-activity-account-passkey-removed = Geslo odstranjeno
+recent-activity-account-passkey-authentication-success = Prijava z geslom je zaključena
+recent-activity-account-passkey-authentication-failure = Prijava z geslom ni uspela
+recent-activity-account-passwordless-login-otp-sent = Koda za prijavo brez gesla poslana
+recent-activity-account-passwordless-login-otp-failed = Koda za prijavo brez gesla ni uspela
+recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez gesla je preverjena
+recent-activity-account-passwordless-registration-complete = Registracija računa brez gesla končana
+recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
 recent-activity-unknown = Drugačna dejavnost v računu
 
 
@@ -1017,15 +1053,15 @@ tfa-row-backup-phone-delete-title-v2 = Odstranite telefonsko številko za obnovi
 tfa-row-backup-phone-delete-restriction-v2 = Če želite odstraniti telefonsko številko za obnovitev, najprej dodajte rezervne overitvene kode ali onemogočite overjanje v dveh korakih, da preprečite izgubo dostopa do računa.
 tfa-row-backup-phone-description-v2 = To je najpreprostejša metoda obnovitve, če nimate možnosti uporabe aplikacije za overitev.
 tfa-row-backup-phone-sim-swap-risk-link = Spoznajte tveganje zamenjave SIM
-passkey-sub-row-created-date = Ustvarjeno: { $createdDate }
-passkey-sub-row-last-used-date = Nazadnje uporabljeno: { $lastUsedDate }
-passkey-sub-row-delete-title = Izbriši geslo
-passkey-delete-modal-heading = Izbrišem ključ?
-passkey-delete-modal-content = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali na drug način.
+passkey-sub-row-created-date = Ustvarjen: { $createdDate }
+passkey-sub-row-last-used-date = Nazadnje uporabljen: { $lastUsedDate }
+passkey-sub-row-delete-title = Izbriši ključ za dostop
+passkey-delete-modal-heading = Želite izbrisati svoj ključ za dostop?
+passkey-delete-modal-content-v2 = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali na drug način (geslo, drugo geslo ali povezan račun).
 passkey-delete-modal-cancel-button = Prekliči
-passkey-delete-modal-confirm-button = Izbriši geslo
-passkey-delete-success = Geslo je izbrisano
-passkey-delete-error = Pri brisanju gesla je prišlo do težave. Poskusite znova čez nekaj minut.
+passkey-delete-modal-confirm-button = Izbriši ključ za dostop
+passkey-delete-success = Ključ za dostop izbrisan
+passkey-delete-error = Pri brisanju ključa za dostop je prišlo do težave. Poskusite znova čez nekaj minut.
 
 
 switch-turn-off = Izključi
@@ -1041,7 +1077,7 @@ row-defaults-action-disable = Onemogoči
 row-defaults-status = Brez
 
 
-passkey-row-header = Gesla
+passkey-row-header = Ključi za dostop
 passkey-row-enabled = Omogočeno
 passkey-row-not-set = Ni nastavljeno
 passkey-row-action-create = Ustvari
@@ -1049,15 +1085,12 @@ passkey-row-description = Naredite prijavo preprostejšo in varnejšo z dostopom
 passkey-row-info-link-2 = Več o tem
 passkey-row-max-limit-banner =
     { $count ->
-        [one] Uporabili ste vsa { $count } ključa. Izbrišite geslo, da ustvarite novo.
-        [two] Uporabili ste vsa { $count } ključa. Izbrišite geslo, da ustvarite novo.
-        [few] Uporabili ste vsa { $count } ključa. Izbrišite geslo, da ustvarite novo.
-       *[other] Uporabili ste vsa { $count } ključa. Izbrišite geslo, da ustvarite novo.
+        [one] Uporabili ste vse ključe za dostop ({ $count }). Pred ustvarjanjem novega izbrišite enega izmed obstoječih.
+        [two] Uporabili ste vse ključe za dostop ({ $count }). Pred ustvarjanjem novega izbrišite enega izmed obstoječih.
+        [few] Uporabili ste vse { $count } ključe za dostop. Pred ustvarjanjem novega izbrišite enega izmed obstoječih.
+       *[other] Uporabili ste vseh { $count } ključe za dostop. Pred ustvarjanjem novega izbrišite enega izmed obstoječih.
     }
-passkey-row-max-limit-disabled-reason = Dosegli ste največje dovoljeno število ključev.
-
-
-passkey-row-webauthn-not-supported = Vaš brskalnik ali naprava ne podpira gesel.
+passkey-row-max-limit-disabled-reason = Dosegli ste največje dovoljeno število ključev za dostop.
 
 
 rk-header-1 = Ključ za obnovitev računa
@@ -1165,12 +1198,13 @@ auth-error-215 = Telefonska številka za obnovitev ne obstaja
 auth-error-216 = Dosežena omejitev števila besedilnih sporočil
 auth-error-218 = Telefonske številke za obnovitev ni mogoče odstraniti, ker manjkajo rezervne overitvene kode.
 auth-error-219 = To telefonsko številko je registriralo preveč računov. Poskusite z drugo številko.
-auth-error-224 = Geslo ni najdeno
-auth-error-225 = Geslo je že registrirano
-auth-error-226 = Dosežena omejitev gesel
-auth-error-227 = Overjanje gesla ni uspelo
-auth-error-228 = Registracija gesla ni uspela
+auth-error-224 = Ključa za dostop ni bilo mogoče najti
+auth-error-225 = Ključ za dostop je že registriran
+auth-error-226 = Dosežena je omejitev ključev za dostop
+auth-error-227 = Overjanje s ključem za dostop ni uspelo
+auth-error-228 = Registracija ključa za dostop ni uspela
 auth-error-238 = Izziv gesla je spodletel
+auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če se težava ponovi.
 auth-error-999 = Nepričakovana napaka
 auth-error-1001 = Poskus prijave preklican
 auth-error-1002 = Seja je potekla. Za nadaljevanje se prijavite.
@@ -1194,10 +1228,14 @@ oauth-error-1000 = Nekaj je šlo narobe. Zaprite ta zavihek in poskusite znova.
 
 
 
-passkey-registration-error-not-allowed = Nastavitev gesla ni uspela ali pa geslo ni na voljo. Poskusite znova ali izberite drugo metodo.
 passkey-registration-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Naprava je že registrirana ali pa je bil postopek nastavitve preklican.
-passkey-registration-error-timeout = Nastavitev gesla je bila preklicana. Poskusite znova.
-passkey-registration-error-not-supported = Gesla tukaj niso podprta. Poskusite z drugo metodo ali napravo.
+passkey-registration-error-timeout = Nastavitev ključa za dostop je bila preklicana. Poskusite znova.
+passkey-registration-canceled-v2 = Nastavitev gesla je potekla ali je bila preklicana.
+passkey-registration-canceled-link = Več o tem
+passkey-registration-error-not-supported-v2 = Vaš brskalnik ali naprava ne podpira ključev za dostop.
+passkey-registration-error-not-supported-link = Več o tem
+passkey-registration-error-could-not-complete = Nastavitev gesla ni bila končana. Poskusite z drugo metodo ali napravo.
+passkey-registration-error-could-not-complete-link = Več o tem
 passkey-registration-error-security = Na tej strani ni mogoče nastaviti gesel. Uporabite varno spletno mesto in poskusite znova.
 passkey-registration-error-invalid-state = To geslo je že registrirano. Uporabite ga za prijavo ali dodajanje drugega gesla.
 passkey-registration-error-not-readable = Nismo mogli dostopati do overitelja. Poskusite znova ali izberite drugo metodo.
@@ -1208,11 +1246,12 @@ passkey-registration-error-unexpected = Nastavitev gesla ni uspela. Poskusite zn
 passkey-authentication-error-not-allowed = Prijava z geslom je spodletela ali pa je nedosegljiva. Poskusite znova ali izberite drugo metodo.
 passkey-authentication-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Poskusite znova ali izberite drug način.
 passkey-authentication-error-timeout = Časovna omejitev za zahtevanje gesla je potekla. Prosimo, poskusite znova.
-passkey-authentication-error-not-supported = Gesla niso podprta. Poskusite z drugo metodo ali napravo.
+passkey-authentication-error-not-supported-v2 = Vaš brskalnik ali naprava ne podpira ključev za dostop.
 passkey-authentication-error-security = Gesli na tej strani ni mogoče uporabiti. Preverite, ali ste na pravem varnem spletnem mestu, in poskusite znova.
 passkey-authentication-error-invalid-state = Prišlo je do napake z vašim geslom. Poskusite znova ali uporabite drug način prijave.
 passkey-authentication-error-not-readable = Nismo mogli dostopati do overitelja. Poskusite znova ali uporabite drug način prijave.
 passkey-authentication-error-unexpected = Nekaj je šlo narobe. Poskusite znova ali izberite drug način prijave.
+passkey-authentication-error-not-found = Ključ za dostop ni prepoznan. Uporabite drug način prijave.
 
 
 connect-another-device-signed-in-header = Prijavljeni ste v { -brand-firefox }
@@ -1343,20 +1382,20 @@ pair-choice-needs-mobile-title = Nimam { -brand-firefox } za mobilno napravo
 pair-choice-needs-mobile-description = Prenesite { -brand-firefox } na mobilno napravo in zaženite sinhronizacijo.
 pair-choice-continue-button = Nadaljuj
 pair-signed-in-successfully = Prijava uspešna!
-pair-account-created-now-syncing = Račun ustvarjen. Zdaj se sinhronizira.
-pair-password-created-now-syncing = Geslo ustvarjeno. Zdaj se sinhronizira.
+pair-account-created-now-syncing = Račun ustvarjen. Sinhronizacija se je začela.
+pair-password-created-now-syncing = Geslo ustvarjeno. Sinhronizacija se je začela.
 
 
-pair-download-subheader = Prenesite { -brand-firefox } za mobilno napravo
-pair-download-description = Za sinhronizacijo { -brand-firefox } v telefonu ali tablici morate najprej prenesti { -brand-firefox } za mobilne naprave. Če želite to narediti:
-pair-download-step-scan-qr = <b>Korak { $stepNumber }</b>: Prenesite { -brand-firefox } tako, da preberete to kodo QR s kamero na mobilni napravi:
-pair-download-step-continue-sync = <b>Korak { $stepNumber }</b>: Izberite "Nadaljuj s sinhronizacijo" za sinhronizacijo izkušnje { -brand-firefox } na mobilno napravo.
+pair-download-subheader = Prenesite { -brand-firefox } za mobilne naprave
+pair-download-description = Za sinhronizacijo { -brand-firefox(sklon: "rodilnik") } na telefonu ali tablici morate najprej prenesti { -brand-firefox(sklon: "tozilnik") } za mobilne naprave. To storite tako:
+pair-download-step-scan-qr = <b>{ $stepNumber }. korak</b>: Prenesite { -brand-firefox(sklon: "tozilnik") }, tako da z mobilno napravo poslikate to QR-kodo:
+pair-download-step-continue-sync = <b>{ $stepNumber }. korak</b>: Izberite "Nadaljuj na sinhronizacijo" za sinhronizacijo { -brand-firefox(sklon: "rodilnik") } z mobilno napravo.
 pair-continue-to-sync-button = Nadaljuj na sinhronizacijo
 
 
 pair-success-header-2 = Naprava povezana
 pair-success-message-2 = Seznanjanje uspešno.
-pair-success-tab-close-message = Ta zavihek se bo samodejno zaprl do { -brand-firefox }.
+pair-success-tab-close-message = Ta zavihek bo { -brand-firefox } samodejno zaprl.
 
 
 pair-supp-allow-heading-text = Potrdi seznanitev <span>za { $email }</span>
@@ -1369,17 +1408,17 @@ pair-wait-for-auth-heading-text = Zdaj je zahtevana odobritev <span>z vaše drug
 
 pair-unsupported-header = Seznani s pomočjo aplikacije
 pair-unsupported-message = Ste uporabili sistemsko kamero? Seznanitev morate opraviti v aplikaciji { -brand-firefox }.
-pair-unsupported-oops-header = Ups! Videti je, da ne uporabljate { -brand-firefox }.
-pair-unsupported-switch-to-firefox = Preklopite na { -brand-firefox } in odprite to stran za povezavo druge naprave.
-pair-unsupported-oops-mobile = Ups! Videti je, da ne uporabljate { -brand-firefox }.
-pair-unsupported-connecting-mobile-header-v2 = Povezovanje mobilne naprave z napravo { -product-mozilla-account }
-pair-unsupported-connecting-mobile-instructions-v2 = V svojem računalniku odprite { -brand-firefox }, obiščite <b>firefox.com/pair</b> in sledite navodilom na zaslonu za povezavo mobilne naprave.
+pair-unsupported-oops-header = Opla! Videti je, da ne uporabljate { -brand-firefox(sklon: "rodilnik") }.
+pair-unsupported-switch-to-firefox = Preklopite na { -brand-firefox(sklon: "tozilnik") } in odprite to stran za povezavo druge naprave.
+pair-unsupported-oops-mobile = Opla! Videti je, da ne uporabljate { -brand-firefox(sklon: "rodilnik") }.
+pair-unsupported-connecting-mobile-header-v2 = Povezovanje mobilne naprave z { -product-mozilla-account(sklon: "orodnik") }
+pair-unsupported-connecting-mobile-instructions-v2 = Odprite { -brand-firefox(sklon: "tozilnik") } na računalniku, obiščite <b>firefox.com/pair</b> in sledite navodilom na zaslonu za povezavo mobilne naprave.
 pair-unsupported-learn-more-link-v2 = Več o tem
 pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
 
 
-service-welcome-signup-success-banner = { -product-mozilla-account } potrjen
+service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen
 service-welcome-signin-success-banner = Prijava uspešna!
 service-welcome-vpn-heading = Naslednje: Vklopite VPN
 service-welcome-vpn-description = Še koraki več za večjo zasebnost brskalnika. Pojdite na odprto ploščo in jo omogočite.
@@ -1530,7 +1569,6 @@ signin-passkey-fallback-header = Dokončaj prijavo
 signin-passkey-fallback-heading = Vnesite geslo za sinhronizacijo
 signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri uporabi tega gesla vnesti svoje geslo.
 signin-passkey-fallback-password-label = Geslo
-signin-passkey-fallback-go-to-settings = Pojdi v nastavitve
 signin-passkey-fallback-continue = Nadaljuj
 
 
@@ -1551,9 +1589,9 @@ signin-passwordless-code-required-error = Zahtevana je potrditvena koda
 signin-passwordless-code-expired = Je koda potekla?
 signin-passwordless-code-resend-countdown =
     { $seconds ->
-        [one] Pošljite novo kodo čez { $seconds } sekunde
-        [two] Pošlji novo kodo čez { $seconds } sekund
-        [few] Pošlji novo kodo čez { $seconds } sekund
+        [one] Pošlji novo kodo čez { $seconds } sekundo
+        [two] Pošlji novo kodo čez { $seconds } sekundi
+        [few] Pošlji novo kodo čez { $seconds } sekunde
        *[other] Pošlji novo kodo čez { $seconds } sekund
     }
 signin-passwordless-code-resend-link = Pošlji novo kodo.
@@ -1565,22 +1603,6 @@ signup-passwordless-code-subheading = Če uporabite to kodo, boste opravili samo
 
 
 signin-passwordless-totp-required = Overitev v dveh korakih je v vašem računu omogočena. Prijavite se s svojim geslom.
-
-
-signin-push-code-heading-w-default-service = Potrdite to prijavo <span>za nadaljevanje v nastavitve računa</span>
-signin-push-code-heading-w-custom-service = Potrdite to prijavo <span>za nadaljevanje v { $serviceName }</span>
-signin-push-code-instruction = Preverite druge svoje naprave in odobrite to prijavo iz svojega brskalnika { -brand-firefox }.
-signin-push-code-did-not-recieve = Niste prejeli obvestila?
-signin-push-code-send-email-link = Pošlji kodo
-
-
-signin-push-code-confirm-instruction = Potrdite prijavo
-signin-push-code-confirm-description = Z naslednje naprave smo zaznali poskus prijave. Če ste bili to vi, odobrite prijavo
-signin-push-code-confirm-verifying = Potrjevanje
-signin-push-code-confirm-login = Potrdi prijavo
-signin-push-code-confirm-wasnt-me = To nisem bil/-a jaz, spremeni geslo.
-signin-push-code-confirm-login-approved = Vaša prijava je bila odobrena. Zaprite to okno.
-signin-push-code-confirm-link-error = Povezava je poškodovana. Poskusite znova.
 
 
 signin-recovery-method-header = Prijava
@@ -1706,7 +1728,7 @@ signup-change-email-link = Spremeni e-pošto
 
 
 signup-confirmed-sync-header = Sinhronizacija je vključena
-signup-confirmed-sync-success-banner = { -product-mozilla-account } potrjen
+signup-confirmed-sync-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen
 signup-confirmed-sync-button = Začnite z brskanjem
 signup-confirmed-sync-description-with-payment-v2 = Vaša gesla, plačilna sredstva, naslovi, zaznamki, zgodovina in drugi podatki se lahko sinhronizirajo povsod, kjer uporabljate { -brand-firefox(sklon: "tozilnik") }.
 signup-confirmed-sync-description-v2 = Vaša gesla, naslovi, zaznamki, zgodovina in drugi podatki se lahko sinhronizirajo povsod, kjer uporabljate { -brand-firefox(sklon: "tozilnik") }.

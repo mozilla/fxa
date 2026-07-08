@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = { -product-mozilla-account }nıza giriş mi yapıyorsunuz?
-session-verify-send-push-body-2 = Siz olduğunuzu onaylamak için tıklayın
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -110,9 +108,13 @@ subscription-charges-invoice-number = <b>Fatura numarası:</b> { $invoiceNumber 
 subscription-charges-invoice-number-plaintext = Fatura numarası: { $invoiceNumber }
 subscription-charges-invoice-date = <b>Tarih:</b> { $invoiceDateOnly }
 subscription-charges-invoice-date-plaintext = Tarih: { $invoiceDateOnly }
+subscription-charges-prorated-price = Orantılı fiyat
+# $remainingAmountTotal (String) - The prorated amount of the subscription invoice, including currency, e.g. $4.00
+subscription-charges-prorated-price-plaintext = Orantılı fiyat: { $remainingAmountTotal }
 subscription-charges-list-price = Liste fiyatı
 # $offeringPrice (String) - The list price of the subscription offering, including currency, e.g. $10.00
 subscription-charges-list-price-plaintext = Liste fiyatı: { $offeringPrice }
+subscription-charges-credit-from-unused-time = Kullanılmayan süreden kaynaklanan kredi
 subscription-charges-subtotal = <b>Ara toplam</b>
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00
 subscriptionFirstInvoiceDiscount-content-subtotal = Ara toplam: { $invoiceSubtotal }
@@ -202,7 +204,16 @@ freeTrialEndingReminder-subject = Ücretsiz { $productName } denemeniz yakında 
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Değerli { $productName } müşterisi,
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-trial-ending = Ücretsiz deneme süreniz <strong>{ $serviceLastActiveDateOnly }</strong> tarihinde sona erecek.
 freeTrialEndingReminder-content-trial-ending-plaintext = Ücretsiz denemeniz { $serviceLastActiveDateOnly } tarihinde bitecek.
+# Variables:
+#   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+freeTrialEndingReminder-content-auto-charge = Bu tarihten önce iptal etmezseniz aboneliğiniz otomatik olarak başlayacak ve <strong>{ $serviceLastActiveDateOnly }</strong> tarihinde hesabınızdaki ödeme yönteminden <strong>{ $invoiceTotal }</strong> tahsil edilecektir.
+freeTrialEndingReminder-content-auto-charge-plaintext = Bu tarihten önce iptal etmezseniz aboneliğiniz otomatik olarak başlayacak ve { $serviceLastActiveDateOnly } tarihinde hesabınızdaki ödeme yönteminden { $invoiceTotal } tahsil edilecektir.
+freeTrialEndingReminder-content-charge-heading = Ücret ayrıntıları
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
@@ -328,6 +339,9 @@ subscriptionPaymentProviderCancelled-title = Ödeme yönteminizle ilgili bir sor
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentProviderCancelled-content-detect = { $productName } ödeme yönteminizle ilgili bir sorun tespit ettik.
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = { $productName } aboneliğiniz yeniden etkinleştirildi
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-freeTrial-subject = { $productName } denemeniz yeniden etkinleştirildi

@@ -163,6 +163,17 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresa: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Wobstarajće sej { -brand-firefox }, hdźežkuli sće
+firefox-promo-banner-mobile-description = Synchronizujće swoje rajtarki, zapołožki a hesła přez graty. Nimo toho wšitko wěsće zaklučowane wostawa.
+firefox-promo-banner-mobile-cta = Grat zwjazać
+firefox-promo-banner-switch-heading = Spěšnje přeńć. Lochko so zažiwić.
+firefox-promo-banner-switch-description = Hdyž k { -brand-firefox } přeńdźeće, móžeće swoje zapołožki, hesła, historiju a wjace sobu přinjesć, zo byšće móhł njepřestawajcy dale přehladować.
+firefox-promo-banner-switch-cta = K { -brand-firefox } přeńć
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -257,6 +268,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Zmóžnjeny
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Kónčkojta pazorka naprawo
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Zdźělenku začinić
@@ -356,6 +370,8 @@ input-phone-number-country-united-states = Zjednoćene staty
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Wróćo
+# Generic error shown when the legal document fails to load
+app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
 
 ## LinkDamaged component
 
@@ -588,6 +604,15 @@ cs-disconnect-lost-advice-content-3 = Dokelž waš grat je so zhubił abo kradny
 cs-disconnect-suspicious-advice-heading = Podhladny grat je so dźělił
 cs-disconnect-suspicious-advice-content-2 = Jeli wotdźěleny grat je woprawdźe podhladny, wy dyrbjał hesło swojeho { -product-mozilla-account(case: "gen", capitalization: "lower") } w swojich nastajenjach změnić, zo byšće swoje informacije wěste dźeržał. Wy dyrbjał tež about:logins do adresoweho pola zapodać, zo byšće druhe hesła změnił, kotrež sće w { -brand-firefox } składował.
 cs-sign-out-button = Wotzjewić
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = Zatwarjeny VPN { -brand-firefox }
 
 ## Data collection section
 
@@ -994,7 +1019,7 @@ page-passkey-add-cancel = Přetorhnyć
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Hesłowy kluč je so wutworił
-page-passkey-add-error-system = System k dispoziciji njeje. Spytajće pozdźišo hišće raz.
+page-passkey-add-error-system-v2 = Při wutworjenju wašeho hesłoweho kluča je problem nastał. Spytajće pozdźišo hišće raz.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1038,6 +1063,29 @@ recent-activity-account-recovery-codes-signin-complete = Přizjewjenje z wobnowj
 recent-activity-password-reset-otp-sent = Wobkrućenski kod za wróćostajenje hesła je so pósłał
 recent-activity-password-reset-otp-verified = Wobkrućenski kod za wróćostajenje hesła je so přepruwował
 recent-activity-must-reset-password = Wróćostajenje hesło trěbne
+recent-activity-account-recovery-phone-replace-complete = Wobnowjenske telefonowe čisło je wuměnjene
+recent-activity-account-recovery-phone-replace-failure = Wuměnjenje wobnowjenskeho telefonoweho čisło je so nimokuliło.
+recent-activity-account-two-factor-replace-success = Dwukročelowa awtentifikacija je wuměnjena
+recent-activity-account-two-factor-replace-failure = Wuměnjenje dwukročeloweje awtentifikacije je so nimokuliło
+recent-activity-account-recovery-phone-setup-failed = Konfiguracija wobnowjenskeho telefonoweho čisła je so nimokuliła
+recent-activity-account-recovery-phone-reset-password-complete = Wróćostajenje hesła z wobnowjenskim telefonowym čisłom dokónčene
+recent-activity-account-recovery-phone-reset-password-failed = Wróćostajenje hesła z wobnowjenskim telefonowym čisłom je so nimokuliło
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Awtorizowanje kontoweje změny trěbne
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Kontowa změna awtorizowana
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Awtorizowanje kontoweje změny je so nimokuliło
+recent-activity-account-passkey-registration-success = Hesłowy kluč přidaty
+recent-activity-account-passkey-registration-failure = Registracija hesłoweho kluča njeje so poradźiła
+recent-activity-account-passkey-removed = Hesłowy kluč je so wotstronił
+recent-activity-account-passkey-authentication-success = Přizjewjenje z hesłowym klučom je dokónčene
+recent-activity-account-passkey-authentication-failure = Přizjewjenje z hesłowym klučom je so nimokuliło
+recent-activity-account-passwordless-login-otp-sent = Přizjewjenski kod bjez hesła pósłany
+recent-activity-account-passwordless-login-otp-failed = Přizjewjenski kod bjez hesła je so nimokulił
+recent-activity-account-passwordless-login-otp-verified = Přizjewjenski kod bjez hesła přepruwowany
+recent-activity-account-passwordless-registration-complete = Kontowa registracija bjez hesła dokónčena
+recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Druha kontowa aktiwita
 
@@ -1212,7 +1260,7 @@ passkey-sub-row-created-date = Wutworjeny: { $createdDate }
 passkey-sub-row-last-used-date = Posledni raz wužity: { $lastUsedDate }
 passkey-sub-row-delete-title = Hesłowy kluč zhašeć
 passkey-delete-modal-heading = Waš hesłowy kluč zhašeć?
-passkey-delete-modal-content = Tutón hesłowy kluč je so z wašeho konta wotstronił. Dyrbiće so na druhe wašnje přizjewić.
+passkey-delete-modal-content-v2 = Tutón hesłowy kluč so z wašeho konta wotstroni. Dyrbiće so z pomocu druheje metody (hesło, druhi hesłowy kluč abo zwjazane konto) přizjewić.
 passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
@@ -1257,11 +1305,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Sće maksimalnu ličbu hesłowych klučow docpěł.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1419,6 +1462,7 @@ auth-error-226 = Limit za hesłowy kluč docpěty
 auth-error-227 = Awtentifikacija hesłoweho kluča njeje so poradźiła
 auth-error-228 = Registracija hesłoweho kluča njeje so poradźiła
 auth-error-238 = Přepruwowanje hesłoweho kluča njeje so poradźiło
+auth-error-239 = Bohužel njemóžachmy waše konto zhašeć. Prošu spytajće hišće raz abo stajće so z teamom pomocy do zwiska, jeli problem dale eksistuje.
 auth-error-999 = Njewočakowany zmylk
 auth-error-1001 = Přizjewjenski pospyt přetorhnjeny
 auth-error-1002 = Posedźenje jo wotběžało. Přizjewće so, zo byšće pokročował.
@@ -1458,8 +1502,19 @@ passkey-registration-error-not-allowed = Konfiguracija hesłoweho kluča njeje s
 passkey-registration-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Pak je grat hižo zregistrowany pak konfiguraciski proces je so přetorhnył.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Konfiguracija hesłoweho kluča je so přetorhnyła. Spytajće hišće raz.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Hesłowe kluče so tu njepodpěruja. Spytajće druhu metodu abo grat.
+passkey-registration-canceled-v2 = Konfiguracija hesłoweho kluča je čas překročiła abo je so přetorhnyła.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Dalše informacije
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Dalše informacije
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Konfiguracija hesłoweho kluča njeda so dokónčić. Spytajće druhu metodu abo druhi grat.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Dalše informacije
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Hesłowe kluče njedadźa so na tutej stronje konfigurować. Wužiwajće wěste sydło a spytajće hišće raz.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1480,7 +1535,7 @@ passkey-authentication-error-not-allowed-existing = Konfiguracija hesłoweho klu
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Překročenje časa při naprašowanju hesłoweho kluča. Spytajće prošu hišće raz.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Hesłowe kluče so njepodpěruja. Spytajće druhu metodu abo grat.
+passkey-authentication-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Hesłowe kluče njedadźa so na tutej stronje wužiwać. Přepruwujće, hač sće na korektnym wěstym sydle a spytajće hišće raz.
 # Unexpected credential state during authentication
@@ -1489,6 +1544,10 @@ passkey-authentication-error-invalid-state = Něšto je so z wašim hesłowym kl
 passkey-authentication-error-not-readable = Njemóžachmy přistup k awtentifikatorej dóstać. Spytajće hišće raz abo wubjerće druhu přizjewjensku metodu.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Něšto je so nimokuliło. Spytajće hišće raz abo wubjerće druhu přizjewjensku metodu.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Hesłowy kluč njeje so spóznał. Wužiwajće druhu přizjewjensku metodu.
 
 ## Connect Another Device page
 
@@ -2010,7 +2069,6 @@ signin-passkey-fallback-header = Přizjewjenje dokónčić
 signin-passkey-fallback-heading = Zapodajće swoje hesło, zo byšće synchronizował
 signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće swoje hesło zapodać, hdyž tutón hesłowy kluč wužiwaće.
 signin-passkey-fallback-password-label = Hesło
-signin-passkey-fallback-go-to-settings = K nastajenjam
 signin-passkey-fallback-continue = Dale
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2062,25 +2120,6 @@ signup-passwordless-code-subheading = Registrowanje jenož jedyn krok traje, hdy
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Dwukročelowa awtentifikacija je za waše konto zmóžnjena. Prošu přizjewće so ze swojim hesłom.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Přepruwujće tute přizjewjenje, <span>zo byšće z kontowymi nastajenjemi pokročował</span>
-signin-push-code-heading-w-custom-service = Přepruwujće tute přizjewjenje, <span>zo byšće z { $serviceName } pokročował</span>
-signin-push-code-instruction = Prošu kontrolujće swoje druhe graty a schwalće tute přizjewjenje ze swojeho wobhladowaka { -brand-firefox }.
-signin-push-code-did-not-recieve = Njejsće tutu zdźělenku dóstał?
-signin-push-code-send-email-link = Kod z e-mejlu pósłać
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Wobkrućće swoje přizjewjenje
-signin-push-code-confirm-description = Smy přizjewjenski pospyt ze slědowaceho grata wotkryli. Jeli sće to wy był, schwalće prošu přizjewjenje
-signin-push-code-confirm-verifying = Přepruwuje so
-signin-push-code-confirm-login = Přizjewjenje wobkrućić
-signin-push-code-confirm-wasnt-me = Ja njejsym był to, změńće hesło.
-signin-push-code-confirm-login-approved = Waše přizjewjenje je so schwaliło. Prošu začińće tute wokno.
-signin-push-code-confirm-link-error = Wotkaz je wobškodźeny. Spytajće prošu hišće raz.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

@@ -73,8 +73,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Eroare generală de aplicație
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+app-something-went-wrong-heading = Ceva nu a funcționat
+app-something-went-wrong-message = Am fost anunțați despre problemă. Reîmprospătează pagina pentru a încerca din nou.
+app-error-id = ID eroare: { $errorId }
+app-error-details-summary = Detaliile erorii
 app-query-parameter-err-heading = Cerere greșită: Parametri de interogare nevalizi
 
 
@@ -187,6 +189,14 @@ device-info-browser-os = { $browserName } pe { $genericOSName }
 device-info-ip-address = Adresă IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Obține { -brand-firefox } oriunde te afli
+firefox-promo-banner-mobile-description = Sincronizează-ți filele, marcajele și parolele pe toate dispozitivele. În plus, totul rămâne criptat în siguranță.
+firefox-promo-banner-mobile-cta = Conectează un dispozitiv
+firefox-promo-banner-switch-heading = Schimbare rapidă. Acomodare ușoară.
+firefox-promo-banner-switch-description = Când treci la { -brand-firefox }, poți să-ți iei marcajele, parolele, istoricul și multe altele, astfel încât să poți începe navigarea fără probleme.
+firefox-promo-banner-switch-cta = Treci pe { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Parolă
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -255,6 +265,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Succes
 checkmark-enabled-icon-aria-label =
     .aria-label = Activat
+chevron-right-icon-aria-label =
+    .aria-label = Săgeată la dreapta
 close-icon-aria-label =
     .aria-label = Închide mesajul
 code-icon-aria-label =
@@ -328,6 +340,7 @@ input-phone-number-enter-number = Introdu numărul de telefon
 input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
 legal-back-button = Înapoi
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
 
 
 reset-pwd-link-damaged-header = Link de resetare a parolei corupt
@@ -484,6 +497,9 @@ cs-disconnect-lost-advice-content-3 = Întrucât dispozitivul a fost pierdut sau
 cs-disconnect-suspicious-advice-heading = Dispozitiv suspect deconectat
 cs-disconnect-suspicious-advice-content-2 = Dacă dispozitivul deconectat este într-adevăr suspect, pentru a-ți păstra în siguranță informațiile, ar trebui să îți schimbi parola { -product-mozilla-account } în setările contului. Ar trebui să schimbi și orice alte parole pe care le-ai salvat în { -brand-firefox } tastând about:logins în bara de adrese.
 cs-sign-out-button = Ieși din cont
+
+
+cs-scope-firefox-vpn = VPN încorporat în { -brand-firefox }
 
 
 dc-heading = Colectarea și utilizarea datelor
@@ -784,7 +800,7 @@ page-passkey-add-cancel = Anulează
 
 
 page-passkey-add-success = Cheia de acces a fost creată
-page-passkey-add-error-system = Sistem indisponibil. Te rugăm să încerci mai târziu.
+page-passkey-add-error-system-v2 = A apărut o problemă la crearea cheii de acces. Încercă din nou mai târziu.
 
 
 recent-activity-title = Activitate recentă în cont
@@ -823,6 +839,26 @@ recent-activity-account-recovery-codes-signin-complete = Autentificare cu coduri
 recent-activity-password-reset-otp-sent = Codul de confirmare a resetării parolei a fost trimis
 recent-activity-password-reset-otp-verified = Codul de confirmare a resetării parolei a fost verificat
 recent-activity-must-reset-password = Necesită resetarea parolei
+recent-activity-account-recovery-phone-replace-complete = Numărul de telefon de recuperare a fost schimbat
+recent-activity-account-recovery-phone-replace-failure = Înlocuirea numărului de telefon de recuperare a eșuat
+recent-activity-account-two-factor-replace-success = Autentificare în doi pași înlocuită
+recent-activity-account-two-factor-replace-failure = Înlocuirea autentificării în doi pași a eșuat
+recent-activity-account-recovery-phone-setup-failed = Configurarea numărului de telefon de recuperare a eșuat
+recent-activity-account-recovery-phone-reset-password-complete = Resetarea parolei cu numărul de telefon de recuperare a fost finalizată
+recent-activity-account-recovery-phone-reset-password-failed = Resetarea parolei cu numărul de telefon de recuperare a eșuat
+recent-activity-account-mfa-otp-sent = Necesită autorizație pentru modificarea contului
+recent-activity-account-mfa-otp-verified = Modificare de cont autorizată
+recent-activity-account-mfa-otp-failed = Autorizarea modificării contului a eșuat
+recent-activity-account-passkey-registration-success = Cheie de acces adăugată
+recent-activity-account-passkey-registration-failure = Înregistrarea cheii de acces a eșuat
+recent-activity-account-passkey-removed = Cheia de acces a fost eliminată
+recent-activity-account-passkey-authentication-success = Autentificare cu cheia de acces finalizată
+recent-activity-account-passkey-authentication-failure = Autentificare cu cheia de acces eșuată
+recent-activity-account-passwordless-login-otp-sent = Cod de autentificare fără parolă trimis
+recent-activity-account-passwordless-login-otp-failed = Codul de autentificare fără parolă a eșuat
+recent-activity-account-passwordless-login-otp-verified = Cod de autentificare fără parolă verificat
+recent-activity-account-passwordless-registration-complete = Înregistrarea contului fără parolă a fost finalizată
+recent-activity-account-recovery-codes-set = Coduri de recuperare setate
 recent-activity-unknown = Alte activități din cont
 
 
@@ -930,7 +966,7 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content = Cheia de acces va fi eliminată din cont. Va trebui să te autentifici altfel.
+passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
@@ -963,9 +999,6 @@ passkey-row-max-limit-banner =
        *[other] Ai folosit toate cele { $count } de chei de acces. Șterge una ca să creezi una nouă.
     }
 passkey-row-max-limit-disabled-reason = Ai atins numărul maxim de chei de acces.
-
-
-passkey-row-webauthn-not-supported = Browserul sau dispozitivul nu acceptă chei de acces.
 
 
 rk-header-1 = Cheie de recuperare a contului
@@ -1079,6 +1112,7 @@ auth-error-226 = S-a atins limita de chei de acces
 auth-error-227 = Autentificarea cu cheie de acces a eșuat
 auth-error-228 = Înregistrarea cheii de acces a eșuat
 auth-error-238 = Verificarea cheii de acces a eșuat
+auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
 auth-error-999 = Eroare neașteptată
 auth-error-1001 = Încercare de autentificare anulată
 auth-error-1002 = Sesiune expirată. Intră în cont pentru a continua.
@@ -1105,7 +1139,12 @@ oauth-error-1000 = Ceva nu a mers. Închide fila și încearcă din nou.
 passkey-registration-error-not-allowed = Setarea cheii de acces a eșuat sau nu este disponibilă. Încearcă iar sau alege altă metodă.
 passkey-registration-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Ori dispozitivul a fost deja înregistrat, ori a fost anulată procedura de configurare.
 passkey-registration-error-timeout = Setarea cheii de acces a fost anulată. Încearcă din nou.
-passkey-registration-error-not-supported = Cheile de acces nu sunt acceptate aici. Încearcă altă metodă sau alt dispozitiv.
+passkey-registration-canceled-v2 = Configurarea cheii de acces a expirat sau a fost anulată.
+passkey-registration-canceled-link = Află mai multe
+passkey-registration-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
+passkey-registration-error-not-supported-link = Află mai multe
+passkey-registration-error-could-not-complete = Configurarea cheii de acces nu a putut fi finalizată. Încercă altă metodă sau un alt dispozitiv.
+passkey-registration-error-could-not-complete-link = Află mai multe
 passkey-registration-error-security = Nu poți seta chei de acces pe această pagină. Folosește site-ul securizat și încearcă din nou.
 passkey-registration-error-invalid-state = Cheia de acces este deja înregistrată. Folosește-o ca să intri în cont sau adaugă altă cheie de acces.
 passkey-registration-error-not-readable = Nu am putut accesa aplicația de autentificare. Încearcă din nou sau alege altă metodă.
@@ -1116,11 +1155,12 @@ passkey-registration-error-unexpected = Setarea cheii de acces a eșuat. Încear
 passkey-authentication-error-not-allowed = Autentificarea cu cheie de acces a eșuat sau nu este disponibilă. Încearcă din nou sau alege altă metodă.
 passkey-authentication-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Te rugăm să încerci din nou sau să alegi altă metodă.
 passkey-authentication-error-timeout = Timpul de așteptare pentru cheia de acces a expirat. Te rugăm să încerci din nou.
-passkey-authentication-error-not-supported = Nu sunt acceptate chei de acces. Încearcă altă metodă sau alt dispozitiv.
+passkey-authentication-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
 passkey-authentication-error-security = Nu poți folosi chei de acces pe această pagină. Verifică dacă ești pe site-ul securizat corect și încearcă din nou.
 passkey-authentication-error-invalid-state = Ceva nu a mers cu cheia ta de acces. Încearcă din nou sau folosește altă metodă de autentificare.
 passkey-authentication-error-not-readable = Nu am putut accesa aplicația de autentificare. Încearcă din nou sau folosește altă metodă de autentificare.
 passkey-authentication-error-unexpected = Ceva nu a mers. Încearcă din nou sau folosește altă metodă de autentificare.
+passkey-authentication-error-not-found = Cheia de acces nu a fost recunoscută. Folosește altă metodă de autentificare.
 
 
 connect-another-device-signed-in-header = Ești autentificat(ă) în { -brand-firefox }
@@ -1439,7 +1479,6 @@ signin-passkey-fallback-header = Finalizează autentificarea
 signin-passkey-fallback-heading = Introdu parola pentru sincronizare
 signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, trebuie să introduci parola când folosești această cheie de acces.
 signin-passkey-fallback-password-label = Parolă
-signin-passkey-fallback-go-to-settings = Mergi la setări
 signin-passkey-fallback-continue = Continuă
 
 
@@ -1472,22 +1511,6 @@ signup-passwordless-code-subheading = Îți faci cont dintr-un singur pas când 
 
 
 signin-passwordless-totp-required = Ai activată autentificarea în doi pași în cont. Te rugăm să te conectezi cu parola.
-
-
-signin-push-code-heading-w-default-service = Verifică această autentificare în cont <span>pentru a continua cu setările contului</span>
-signin-push-code-heading-w-custom-service = Verifică această autentificare în cont <span>pentru a continua cu { $serviceName }</span>
-signin-push-code-instruction = Te rugăm să verifici celelalte dispozitive și să aprobi această autentificare în cont din browserul { -brand-firefox }.
-signin-push-code-did-not-recieve = Nu ai primit notificarea?
-signin-push-code-send-email-link = Trimite codul pe e-mail
-
-
-signin-push-code-confirm-instruction = Confirmă intrarea în cont
-signin-push-code-confirm-description = Am depistat o tentativă de intrare în cont de pe următorul dispozitiv. Dacă ai fost tu, te rugăm să aprobi autentificarea în cont
-signin-push-code-confirm-verifying = Se verifică
-signin-push-code-confirm-login = Confirmă intrarea în cont
-signin-push-code-confirm-wasnt-me = Nu am fost eu. Schimbă parola.
-signin-push-code-confirm-login-approved = Intrarea în cont a fost aprobată. Te rugăm să închizi această fereastră.
-signin-push-code-confirm-link-error = Linkul este corupt. Te rugăm să încerci din nou.
 
 
 signin-recovery-method-header = Intră în cont

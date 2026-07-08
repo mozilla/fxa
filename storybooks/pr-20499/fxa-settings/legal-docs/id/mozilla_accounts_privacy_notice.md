@@ -30,6 +30,7 @@ Kami memproses data teknis dan interaksi untuk lebih memahami cara Anda mengguna
 Saat Anda menggunakan layanan terhubung, data Anda akan diproses sesuai dengan pemberitahuan privasi layanan terkait:
 
 * [Peramban Firefox](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Layanan Langganan Mozilla](https://www.mozilla.org/privacy/subscription-services/) untuk Mozilla VPN, Mozilla Monitor, dan Firefox Relay
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

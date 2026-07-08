@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Logger du ind på din { -product-mozilla-account }?
-session-verify-send-push-body-2 = Klik her for at bekræfte, at det er dig
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -222,16 +220,20 @@ freeTrialEndingReminder-content-charge-heading = Opkrævningsdetaljer
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
 freeTrialEndingReminder-content-charge-subscription = Abonnement på { $productName }: { $invoiceSubtotal }
+freeTrialEndingReminder-content-charge-subscription-2 = Abonnement på { $productName }
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
 freeTrialEndingReminder-content-charge-discount = Rabat: { $invoiceDiscountAmount }
+freeTrialEndingReminder-content-charge-discount-2 = Rabat
 # Variables:
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Afgift: { $invoiceTaxAmount }
+freeTrialEndingReminder-content-charge-tax-2 = Afgift
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
 #   $invoiceTotal (String) - The total amount due, e.g. $9.99
 freeTrialEndingReminder-content-charge-total = Samlet udestående den { $serviceLastActiveDateOnly }: { $invoiceTotal }
+freeTrialEndingReminder-content-charge-total-2 = Samlet udestående den { $serviceLastActiveDateOnly }
 freeTrialEndingReminder-content-account-link = Du kan gennemgå eller opdatere din betalingsmetode og dine kontooplysninger <a data-l10n-name="freeTrialEndingReminder-update-billing">her</a>.
 freeTrialEndingReminder-content-account-link-plaintext = Du kan gennemgå eller opdatere din betalingsmetode og dine kontooplysninger her:
 # Variables:
@@ -376,7 +378,16 @@ subscriptionPaymentProviderCancelled-content-detect = Vi har registreret et prob
 subscriptionPaymentProviderCancelled-content-reason-1 = Det kan være, at dit betalingsmetode er udløbet, eller at din nuværende betalingsmetode er forældet.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = Dit abonnement på { $productName } er blevet fornyet
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = Din prøveperiode på { $productName } er blevet fornyet
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Tak fordi du har fornyet dit abonnement på { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = Tak fordi du har fornyet din prøveperiode på { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

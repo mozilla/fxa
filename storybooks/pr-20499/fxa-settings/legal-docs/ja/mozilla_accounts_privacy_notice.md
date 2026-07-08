@@ -30,6 +30,7 @@ Mozilla では、技術データや対話データを処理することで、皆
 連携サービスを利用した場合、そのユーザーのデータは関連サービスのプライバシーに関する通知に従って処理されます：
 
 * [Firefox ブラウザー](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Mozilla VPN、Mozilla Monitor、Firefox Relay を対象とする Mozilla サブスクリプションサービス](https://www.mozilla.org/privacy/subscription-services/)
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

@@ -1,8 +1,3 @@
-## FxA React - Strings shared between multiple FxA products for application error dialog
-
-app-general-err-heading = Tuccda n usnas tamatut
-app-general-err-message = Yella wayen ur nteddu ara akken ilaq. Ma ulac aɣilif, εreḍ tikkelt-nniḍen.
-
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = alugu { -brand-mozilla }

@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Lỗi ứng dụng
-app-general-err-message = Có gì đó không ổn. Vui lòng thử lại sau.
+app-something-went-wrong-heading = Có gì đó không ổn
+app-something-went-wrong-message = Chúng tôi đã nhận được thông báo về sự cố. Vui lòng làm mới trang để thử lại.
+app-error-id = ID lỗi: { $errorId }
+app-error-details-summary = Chi tiết lỗi
 app-query-parameter-err-heading = Yêu cầu không hợp lệ: Tham số truy vấn không hợp lệ
 
 

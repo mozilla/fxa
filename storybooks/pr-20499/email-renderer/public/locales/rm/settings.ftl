@@ -1480,25 +1480,6 @@ signin-bounced-help = Sche questa adressa dad e-mail è valida, <linkExternal>an
 signin-bounced-create-new-account = Quai n'è betg pli ti'adressa dad e-mail? Creescha in nov conto
 back = Enavos
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verifitgescha quest’annunzia per <span>acceder als parameters dal conto</span>
-signin-push-code-heading-w-custom-service = Verifitgescha quest’annunzia per <span>acceder a { $serviceName }</span>
-signin-push-code-instruction = Consultescha per plaschair tes auters apparats ed approvescha questa annunzia en tes navigatur { -brand-firefox }.
-signin-push-code-did-not-recieve = N’has ti betg retschavì la notificaziun?
-signin-push-code-send-email-link = Trametter in code via e-mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Conferma tia annunzia
-signin-push-code-confirm-description = Nus avain constatà ch’i ha dà in’emprova d’annunzia sin il suandant apparat. Sch’i sa tracta da tia emprova, conferma per plaschair l’annunzia
-signin-push-code-confirm-verifying = Verificaziun
-signin-push-code-confirm-login = Confermar l’annunzia
-signin-push-code-confirm-wasnt-me = Jau n’hai fatg nagut, midar il pled-clav.
-signin-push-code-confirm-login-approved = Tia annunzia è vegnida approvada. Serra per plaschair questa fanestra.
-signin-push-code-confirm-link-error = La colliaziun è donnegiada. Emprova per plaschair anc ina giada.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

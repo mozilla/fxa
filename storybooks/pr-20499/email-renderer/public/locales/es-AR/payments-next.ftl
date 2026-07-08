@@ -17,6 +17,12 @@ next-payment-method-header = Elegí tu método de pago
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Primero tendrás que aprobar tu suscripción
+
+## Error page
+
+error-page-account-not-found-heading = Cuenta no encontrada
+error-page-account-not-found-message = La cuenta asociada a tu sesión no existe. Usá una cuenta diferente o creá una nueva para suscribirte.
+error-page-account-not-found-continue-button = Continuar
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Seleccioná tu país e ingresá tu código postal <p>para continuar con el pago de { $productName }</p>
 location-banner-info = No pudimos detectar tu ubicación automáticamente
@@ -152,7 +158,7 @@ subscription-management-nav-payment-details = Detalles del pago
 subscription-management-nav-active-subscriptions = Suscripciones activas
 subscription-management-payment-details-heading = Detalles del pago
 subscription-management-email-label = Correo electrónico
-subscription-management-credit-balance-label = Saldo acreedor
+subscription-management-credit-balance-label = Balance de crédito
 subscription-management-credit-balance-message = El crédito se aplicará automáticamente a las facturas futuras
 subscription-management-payment-method-label = Método de pago
 subscription-management-button-add-payment-method-aria = Agregar método de pago
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Tenés que completar esto antes de seguir 
 
 next-new-user-submit = Suscribirse ahora
 next-pay-with-heading-paypal = Pagar con { -brand-paypal }
+free-trial-ineligible-notice = Tu cuenta no es elegible para una prueba gratuita. Podés continuar con una suscripción paga.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Reanudar prueba
 free-trial-content-button-resume-trial-aria = Reanudar prueba de { $productName }
 free-trial-content-button-cancel-trial = Cancelar prueba
 free-trial-content-button-cancel-trial-aria = Cancelar prueba de { $productName }
+free-trial-content-button-cancel-subscription = Cancelar suscripción
+free-trial-content-button-cancel-subscription-aria = Cancelar suscripción para { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Ver factura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Ver factura de { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Tu prueba gratuita terminó el <bold>{ $date }</bold>. No pudimos procesar tu pago para iniciar tu suscripción. Actualiza tu método de pago para activar tu suscripción y restaurar el acceso a tus servicios.
-free-trial-content-payment-failed-no-date = No pudimos procesar tu pago para iniciar tu suscripción. Actualiza tu método de pago para activar tu suscripción y restaurar el acceso a tus servicios.
+free-trial-content-trial-ended = Tu prueba gratuita terminó el <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = No pudimos procesar tu pago. Actualizá tu método de pago para restaurar el acceso. El procesamiento puede tardar hasta 24 horas y puede variar según el banco o el método de pago.
 free-trial-content-button-update-payment = Actualizar método de pago
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. Hubo un problema al autoriza
 manage-payment-method-intent-error-get-in-touch = Hmm. Hubo un problema al autorizar el pago. Ponete en contacto con el emisor de tu tarjeta.
 manage-payment-method-intent-error-insufficient-funds = Parece que la tarjeta no tiene fondos suficientes. Probá otra tarjeta.
 manage-payment-method-intent-error-generic = Ocurrió un error inesperado al procesar tu pago. Intentá nuevamente.
+manage-payment-method-tax-address-required = No pudimos determinar tu ubicación de facturación. Verificá la información de tu método de pago y probá de nuevo.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

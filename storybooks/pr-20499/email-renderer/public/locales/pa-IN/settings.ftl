@@ -1588,24 +1588,6 @@ signin-bounced-help = ਜੇ ਇਹ ਵਾਜਬ ਈਮੇਲ ਸਿਰਨਾਵ
 signin-bounced-create-new-account = ਉਹ ਈਮੇਲ ਹੁਣ ਤੁਹਾਡਾ ਨਹੀਂ ਹੈ? ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ
 back = ਪਿੱਛੇ
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = ਖਾਤਾ ਸੈਟਿੰਗਾਂ ਨਾਲ ਜਾਰੀ ਰੱਖਣ ਲਈ<span>ਇਹ ਲਾਗਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ</span>
-signin-push-code-heading-w-custom-service = ਇਸ { $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖਣ <span>ਇਸ ਲਾਗਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ</span>
-signin-push-code-did-not-recieve = ਨੋਟੀਫਿਕੇਸ਼ਨ ਨਹੀਂ ਮਿਲਿਆ?
-signin-push-code-send-email-link = ਈਮੇਲ ਕੋਡ
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = ਆਪਣੇ ਲਾਗਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
-signin-push-code-confirm-description = ਸਾਨੂੰ ਅੱਗੇ ਦਿੱਤੇ ਡਿਵਾਈਸ ਤੋਂ ਲਾਗਇਨ ਦੀ ਕੋਸ਼ਿਸ ਬਾਰੇ ਪਤਾ ਲੱਗਾ ਹੈ। ਜੇ ਇਹ ਤੁਸੀਂ ਸੀ ਤਾਂ ਲਾਗਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰੋ।
-signin-push-code-confirm-verifying = ਜਾਂਚ ਜਾਰੀ ਹੈ
-signin-push-code-confirm-login = ਲਾਗਇਨ ਦੀ ਤਸਦੀਕ
-signin-push-code-confirm-wasnt-me = ਇਹ ਮੈਂ ਨਹੀਂ ਸੀ, ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ।
-signin-push-code-confirm-login-approved = ਤੁਹਾਡੇ ਲਾਗਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਵਿੰਡੋ ਨੂੰ ਬੰਦ ਕਰੋ।
-signin-push-code-confirm-link-error = ਲਿੰਕ ਨੁਕਾਸਿਆ ਗਿਆ। ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜੀ।
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

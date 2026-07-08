@@ -50,8 +50,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro geral na aplicação.
-app-general-err-message = Algo deu errado. Tente novamente mais tarde.
 app-query-parameter-err-heading = Requisição incorreta: Parâmetros de consulta inválidos
 
 
@@ -1112,22 +1110,6 @@ signin-bounced-message = O email de confirmação que enviamos para { $email } r
 signin-bounced-help = Se este for um endereço de email válido, <linkExternal>avise-nos</linkExternal> e poderemos ajudar a desbloquear sua conta.
 signin-bounced-create-new-account = Não tem mais este email? Crie outra conta
 back = Voltar
-
-
-signin-push-code-heading-w-default-service = Confirme este acesso para <span>continuar para as configurações da conta</span>
-signin-push-code-heading-w-custom-service = Confirme este acesso para <span>continuar para o { $serviceName }</span>
-signin-push-code-instruction = Verifique seus outros dispositivos e aprove este acesso no navegador { -brand-firefox }.
-signin-push-code-did-not-recieve = Não recebeu a notificação?
-signin-push-code-send-email-link = Enviar código por email
-
-
-signin-push-code-confirm-instruction = Confirme seu acesso
-signin-push-code-confirm-description = Detectamos uma tentativa de acesso feita pelo dispositivo a seguir. Se foi você, aprove o acesso
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar acesso
-signin-push-code-confirm-wasnt-me = Não foi eu, mudar a senha.
-signin-push-code-confirm-login-approved = Seu acesso foi aprovado. Feche esta janela.
-signin-push-code-confirm-link-error = Link danificado. Tente novamente.
 
 
 signin-recovery-method-header = Entrar

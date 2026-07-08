@@ -1,6 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-body-2 = Briog an-seo a dhearbhadh gur tusa a th’ ann
 subplat-automated-email = Seo post-d fèin-obrachail; ma fhuair thu seo air mhearachd, cha leig thu leas dad a dhèanamh.
 subplat-privacy-notice = Aithris na prìobhaideachd
 subplat-privacy-plaintext = Aithris na prìobhaideachd:

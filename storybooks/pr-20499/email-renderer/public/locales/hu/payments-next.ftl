@@ -17,6 +17,12 @@ next-payment-method-header = Válassza ki a fizetési módot
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Először jóvá kell hagynia az előfizetését
+
+## Error page
+
+error-page-account-not-found-heading = A fiók nem található
+error-page-account-not-found-message = A munkamenetéhez tartozó fiók nem létezik. Az előfizetéshez használjon egy másik fiókot, vagy hozzon létre egy újat.
+error-page-account-not-found-continue-button = Folytatás
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Válassza ki az országot, és adja meg az irányítószámát, <p> hogy folytassa a(z) { $productName } kifizetését</p>
 location-banner-info = Nem tudtuk automatikusan észlelni a tartózkodási helyét.
@@ -35,7 +41,7 @@ upgrade-page-acknowledgment-from-trial = A csomagváltással az aktív ingyenes 
 ## Authentication Error page
 
 auth-error-page-title = Nem tudtuk bejelentkeztetni
-checkout-error-boundary-retry-button = Próbálja újra
+checkout-error-boundary-retry-button = Újrapróbálkozás
 checkout-error-boundary-basic-error-message = Hiba történt. Próbálja újra, vagy <contactSupportLink>lépjen kapcsolatba a támogatással.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } logó
 diners-logo-alt-text = { -brand-diner } logó
@@ -259,6 +265,7 @@ next-payment-confirm-checkbox-error = Ezt be kell fejeznie, mielőtt továbblép
 
 next-new-user-submit = Előfizetés most
 next-pay-with-heading-paypal = Fizetés { -brand-paypal }lal
+free-trial-ineligible-notice = A fiókja nem jogosult az ingyenes próbaverzióra. Fizetett előfizetéssel folytathatja.
 
 ## Churn flow - cancel
 
@@ -360,6 +367,8 @@ free-trial-content-button-resume-trial = Próbaidőszak folytatása
 free-trial-content-button-resume-trial-aria = Próbaidőszak folytatása: { $productName }
 free-trial-content-button-cancel-trial = Próbaidőszak lemondása
 free-trial-content-button-cancel-trial-aria = Próbaidőszak lemondása: { $productName }
+free-trial-content-button-cancel-subscription = Előfizetés lemondása
+free-trial-content-button-cancel-subscription-aria = { $productName } előfizetés lemondása
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -375,8 +384,8 @@ free-trial-content-link-view-invoice = Számla megtekintése
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = { $productName } számla megtekintése
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Az ingyenes próbaidőszak ekkor ért véget: <bold>{ $date }</bold>. Nem tudtuk feldolgozni az előfizetésének elindításához szükséges befizetését. Frissítse a fizetési módot az előfizetés aktiválásához, és a szolgáltatásokhoz való hozzáférés helyreállításához.
-free-trial-content-payment-failed-no-date = Nem tudtuk feldolgozni az előfizetésének elindításához szükséges befizetését. Frissítse a fizetési módot az előfizetés aktiválásához, és a szolgáltatásokhoz való hozzáférés helyreállításához.
+free-trial-content-trial-ended = Az ingyenes próbaidőszak ekkor ért véget: <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Nem tudtuk feldolgozni a fizetését. Frissítse a fizetési módot a hozzáférés helyreállításához. A feldolgozás akár 24 órát is igénybe vehet, amely bankonként és fizetési módonként változhat.
 free-trial-content-button-update-payment = Fizetési mód frissítése
 
 # Component - Header
@@ -718,6 +727,7 @@ manage-payment-method-intent-error-try-again = Hmm. Hiba történt a fizetés j�
 manage-payment-method-intent-error-get-in-touch = Hmm. Hiba történt a fizetés jóváhagyásakor. Vegye fel a kapcsolatot a kártyakibocsátóval.
 manage-payment-method-intent-error-insufficient-funds = Úgy tűnik, hogy a bankkártyán kevés a fedezet. Próbálkozzon egy másik kártyával.
 manage-payment-method-intent-error-generic = Váratlan hiba történt a fizetése feldolgozása során, próbálja újra.
+manage-payment-method-tax-address-required = Nem tudtuk meghatározni a számlázási helyét. Ellenőrizze a fizetési mód adatait, és próbálja újra.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

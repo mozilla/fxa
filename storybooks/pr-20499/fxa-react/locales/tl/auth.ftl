@@ -1,6 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-body-2 = Mag-click dito para kumpirmahin na ikaw ito
 subplat-update-billing-plaintext = { subplat-update-billing }:
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Ikansela ang subskripsyon

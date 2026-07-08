@@ -181,8 +181,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Všeobecná chyba aplikácie
-app-general-err-message = Niečo sa pokazilo. Skúste to znova neskôr.
+app-something-went-wrong-heading = Niečo sa pokazilo
+app-something-went-wrong-message = Boli sme upozornení na problém. Obnovte stránku a skúste to znova.
+app-error-id = Identifikátor chyby: { $errorId }
+app-error-details-summary = Podrobnosti o chybe
 app-query-parameter-err-heading = Nesprávna požiadavka: neplatné parametre dopytu
 
 
@@ -301,6 +303,14 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Majte { -brand-firefox(case: "acc") } so sebou kdekoľvek sa nachádzate
+firefox-promo-banner-mobile-description = Synchronizujte si karty, záložky a heslá na všetkých svojich zariadeniach. Navyše, všetko zostane bezpečne šifrované.
+firefox-promo-banner-mobile-cta = Pripojiť zariadenie
+firefox-promo-banner-switch-heading = Rýchle prepnutie. Ľahké usadenie sa.
+firefox-promo-banner-switch-description = Keď prejdete na { -brand-firefox(case: "acc") }, môžete si preniesť svoje záložky, heslá, históriu a ďalšie informácie, aby ste mohli prehliadať bez problémov.
+firefox-promo-banner-switch-cta = Prejsť na { -brand-firefox(case: "acc") }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Heslo
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -369,6 +379,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Úspech
 checkmark-enabled-icon-aria-label =
     .aria-label = Povolené
+chevron-right-icon-aria-label =
+    .aria-label = Šipka vpravo
 close-icon-aria-label =
     .aria-label = Zavrieť správu
 code-icon-aria-label =
@@ -442,6 +454,7 @@ input-phone-number-enter-number = Zadajte telefónne číslo
 input-phone-number-country-united-states = Spojené štáty americké
 input-phone-number-country-canada = Kanada
 legal-back-button = Naspäť
+app-general-err-message = Niečo sa pokazilo. Skúste to znova neskôr.
 
 
 reset-pwd-link-damaged-header = Odkaz na zmenu hesla je poškodený
@@ -596,6 +609,9 @@ cs-disconnect-lost-advice-content-3 = Keďže vaše zariadenie bolo stratené al
 cs-disconnect-suspicious-advice-heading = Podozrivé zariadenie je odpojené
 cs-disconnect-suspicious-advice-content-2 = Ak je odpojené zariadenie skutočne podozrivé, mali by ste si v nastaveniach účtu zmeniť heslo pre { -product-mozilla-account(case: "acc", capitalization: "lower") }, aby boli vaše informácie v bezpečí. Mali by ste tiež zmeniť všetky ostatné heslá, ktoré ste uložili v prehliadači { -brand-firefox }, zadaním about:logins do panela s adresou.
 cs-sign-out-button = Odhlásiť sa
+
+
+cs-scope-firefox-vpn = Vstavaná VPN prehliadača { -brand-firefox }
 
 
 dc-heading = Zhromažďovanie a používanie údajov
@@ -898,7 +914,7 @@ page-passkey-add-cancel = Zrušiť
 
 
 page-passkey-add-success = Prístupový kľúč bol vytvorený
-page-passkey-add-error-system = Systém nie je k dispozícii. Skúste to znova neskôr.
+page-passkey-add-error-system-v2 = Pri vytváraní vášho prístupového kľúča sa vyskytol problém. Skúste to znova neskôr.
 
 
 recent-activity-title = Nedávna aktivita účtu
@@ -937,6 +953,26 @@ recent-activity-account-recovery-codes-signin-complete = Prihláste sa pomocou o
 recent-activity-password-reset-otp-sent = Potvrdzovací kód pre zmenu hesla bol odoslaný
 recent-activity-password-reset-otp-verified = Potvrdzovací kód pre zmenu hesla bol overený
 recent-activity-must-reset-password = Vyžaduje sa zmena hesla
+recent-activity-account-recovery-phone-replace-complete = Obnovenie pomocou telefónu bolo nahradené
+recent-activity-account-recovery-phone-replace-failure = Nahradenie obnovenia pomocou telefónu zlyhalo
+recent-activity-account-two-factor-replace-success = Dvojstupňové overenie nahradené
+recent-activity-account-two-factor-replace-failure = Nahradenie dvojstupňového overenia zlyhalo
+recent-activity-account-recovery-phone-setup-failed = Obnovenie pomocou telefónu zlyhalo
+recent-activity-account-recovery-phone-reset-password-complete = Obnovenie hesla pomocou telefónu na obnovenie bolo dokončené
+recent-activity-account-recovery-phone-reset-password-failed = Obnovenie hesla pomocou telefónu na obnovenie zlyhalo
+recent-activity-account-mfa-otp-sent = Vyžiadaná autorizácia zmeny účtu
+recent-activity-account-mfa-otp-verified = Zmena účtu autorizovaná
+recent-activity-account-mfa-otp-failed = Autorizácia zmeny účtu zlyhala
+recent-activity-account-passkey-registration-success = Prístupový kľúč bol pridaný
+recent-activity-account-passkey-registration-failure = Registrácia prístupového kľúča zlyhala
+recent-activity-account-passkey-removed = Prístupový kľúč bol odstránený
+recent-activity-account-passkey-authentication-success = Prihlásenie pomocou prístupového kľúča bolo dokončené
+recent-activity-account-passkey-authentication-failure = Prihlásenie pomocou prístupového kľúča zlyhalo
+recent-activity-account-passwordless-login-otp-sent = Kód na prihlásenie bez hesla bol odoslaný
+recent-activity-account-passwordless-login-otp-failed = Kód na prihlásenie bez hesla zlyhal
+recent-activity-account-passwordless-login-otp-verified = Kód na prihlásenie bez hesla bol overený
+recent-activity-account-passwordless-registration-complete = Registrácia účtu bez hesla dokončená
+recent-activity-account-recovery-codes-set = Obnovovacie kódy boli vytvorené
 recent-activity-unknown = Iná aktivita účtu
 
 
@@ -1045,7 +1081,7 @@ passkey-sub-row-created-date = Vytvorený: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použitý: { $lastUsedDate }
 passkey-sub-row-delete-title = Odstrániť prístupový kľúč
 passkey-delete-modal-heading = Odstrániť prístupový kľúč?
-passkey-delete-modal-content = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť iným spôsobom.
+passkey-delete-modal-content-v2 = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť inou metódou (heslo, iný prístupový kľúč alebo prepojený účet).
 passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
@@ -1079,9 +1115,6 @@ passkey-row-max-limit-banner =
        *[other] Použili ste všetky prístupové kľúče ({ $count }). Ak chcete vytvoriť nový prístupový kľúč, odstráňte jeden.
     }
 passkey-row-max-limit-disabled-reason = Dosiahli ste maximálny počet prístupových kľúčov.
-
-
-passkey-row-webauthn-not-supported = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 
 
 rk-header-1 = Kľúč na obnovenie účtu
@@ -1192,6 +1225,7 @@ auth-error-226 = Dosiahnutý limit prístupových kľúčov
 auth-error-227 = Overenie pomocou prístupového kľúča zlyhalo
 auth-error-228 = Registrácia prístupového kľúča zlyhala
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
+auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
 auth-error-999 = Neočakávaná chyba
 auth-error-1001 = Pokus o prihlásenie bol zrušený
 auth-error-1002 = Platnosť relácie vypršala. Ak chcete pokračovať, prihláste sa.
@@ -1216,8 +1250,14 @@ oauth-error-1000 = Niečo sa pokazilo. Prosím, zatvorte túto kartu a skúste t
 
 
 passkey-registration-error-not-allowed = Nastavenie prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
+passkey-registration-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Zariadenie už bolo zaregistrované alebo bol proces nastavenia zrušený.
 passkey-registration-error-timeout = Nastavenie prístupového kľúča bolo zrušené. Skúste to znova.
-passkey-registration-error-not-supported = Prístupové kľúče tu nie sú podporované. Skúste iný spôsob alebo zariadenie.
+passkey-registration-canceled-v2 = Časový limit nastavenia prístupového kľúča uplynul alebo nastavenie bolo zrušené.
+passkey-registration-canceled-link = Ďalšie informácie
+passkey-registration-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
+passkey-registration-error-not-supported-link = Ďalšie informácie
+passkey-registration-error-could-not-complete = Nastavenie prístupového kľúča sa nepodarilo dokončiť. Skúste iný spôsob alebo zariadenie.
+passkey-registration-error-could-not-complete-link = Ďalšie informácie
 passkey-registration-error-security = Na tejto stránke nie je možné nastaviť prístupové kľúče. Použite zabezpečenú stránku a skúste to znova.
 passkey-registration-error-invalid-state = Tento prístupový kľúč je už zaregistrovaný. Použite ho na prihlásenie alebo pridajte iný prístupový kľúč.
 passkey-registration-error-not-readable = Nepodarilo sa nám získať prístup k overovaču. Skúste to znova alebo vyberte inú metódu.
@@ -1226,12 +1266,14 @@ passkey-registration-error-unexpected = Nastavenie prístupového kľúča zlyha
 
 
 passkey-authentication-error-not-allowed = Prihlásenie pomocou prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
+passkey-authentication-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Skúste to znova alebo vyberte iný spôsob.
 passkey-authentication-error-timeout = Časový limit žiadosti o prístupový kľúč vypršal. Skúste to znova.
-passkey-authentication-error-not-supported = Prístupové kľúče nie sú podporované. Skúste iný spôsob alebo zariadenie.
+passkey-authentication-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 passkey-authentication-error-security = Na tejto stránke nie je možné použiť prístupové kľúče. Skontrolujte, či ste na správnej zabezpečenej stránke a skúste to znova.
 passkey-authentication-error-invalid-state = Vyskytol sa problém s vaším prístupovým kľúčom. Skúste to znova alebo použite iný spôsob prihlásenia.
 passkey-authentication-error-not-readable = Nepodarilo sa nám získať prístup k overovaču. Skúste to znova alebo použite iný spôsob prihlásenia.
 passkey-authentication-error-unexpected = Vyskytla sa chyba. Skúste to znova alebo vyberte iný spôsob prihlásenia.
+passkey-authentication-error-not-found = Prístupový kľúč nebol rozpoznaný. Použite iný spôsob prihlásenia.
 
 
 connect-another-device-signed-in-header = Ste prihlásený/-á do { -brand-firefox(case: "gen") }
@@ -1548,7 +1590,6 @@ signin-passkey-fallback-header = Dokončiť prihlásenie
 signin-passkey-fallback-heading = Zadajte heslo pre synchronizáciu
 signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je potrebné pri použití tohto prístupového kľúča zadať heslo.
 signin-passkey-fallback-password-label = Heslo
-signin-passkey-fallback-go-to-settings = Prejsť do nastavení
 signin-passkey-fallback-continue = Pokračovať
 
 
@@ -1583,22 +1624,6 @@ signup-passwordless-code-subheading = Registrácia s týmto kódom má iba jeden
 
 
 signin-passwordless-totp-required = Vo vašom účte je povolené dvojstupňové overenie. Prihláste sa pomocou hesla.
-
-
-signin-push-code-heading-w-default-service = Overte toto prihlásenie <span>a pokračujte do nastavení účtu</span>
-signin-push-code-heading-w-custom-service = Overte toto prihlásenie <span>a pokračujte do služby { $serviceName }</span>
-signin-push-code-instruction = Skontrolujte svoje ostatné zariadenia a schváľte toto prihlásenie zo svojho prehliadača { -brand-firefox }.
-signin-push-code-did-not-recieve = Nedostali ste notifikáciu?
-signin-push-code-send-email-link = Odoslať kód na e‑mail
-
-
-signin-push-code-confirm-instruction = Potvrďte svoje prihlásenie
-signin-push-code-confirm-description = Zistili sme pokus o prihlásenie z nasledujúceho zariadenia. Ak ste to boli vy, potvrďte prihlásenie
-signin-push-code-confirm-verifying = Overuje sa
-signin-push-code-confirm-login = Potvrdiť prihlásenie
-signin-push-code-confirm-wasnt-me = Toto som nebol ja, zmeniť heslo.
-signin-push-code-confirm-login-approved = Vaše prihlásenie bolo schválené. Zatvorte toto okno.
-signin-push-code-confirm-link-error = Odkaz je poškodený. Skúste to znova.
 
 
 signin-recovery-method-header = Prihlásenie

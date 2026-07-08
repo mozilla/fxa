@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } on { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP address: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Get { -brand-firefox } wherever you are
+firefox-promo-banner-mobile-description = Synchronise your tabs, bookmarks and passwords across your devices. Plus, everything stays safely encrypted.
+firefox-promo-banner-mobile-cta = Connect a device
+firefox-promo-banner-switch-heading = Fast to switch. Easy to settle in.
+firefox-promo-banner-switch-description = When you switch to { -brand-firefox }, you can bring your bookmarks, passwords, history and more so you can get to browsing without missing a beat.
+firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Enabled
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Chevron right
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Close message
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Back
+# Generic error shown when the legal document fails to load
+app-general-err-message = Something went wrong. Please try again later.
 
 ## LinkDamaged component
 
@@ -582,6 +598,15 @@ cs-disconnect-lost-advice-content-3 = Since your device was lost or stolen, to k
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content-2 = If the disconnected device is indeed suspicious, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also change any other passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 cs-sign-out-button = Sign out
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }’s built-in VPN
 
 ## Data collection section
 
@@ -984,7 +1009,7 @@ page-passkey-add-cancel = Cancel
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Passkey created
-page-passkey-add-error-system = System not available. Try again later.
+page-passkey-add-error-system-v2 = There was a problem creating your passkey. Try again later.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1028,6 +1053,29 @@ recent-activity-account-recovery-codes-signin-complete = Sign-in with recovery c
 recent-activity-password-reset-otp-sent = Reset password confirmation code sent
 recent-activity-password-reset-otp-verified = Reset password confirmation code verified
 recent-activity-must-reset-password = Password reset required
+recent-activity-account-recovery-phone-replace-complete = Recovery phone replaced
+recent-activity-account-recovery-phone-replace-failure = Recovery phone replacement failed
+recent-activity-account-two-factor-replace-success = Two-step authentication replaced
+recent-activity-account-two-factor-replace-failure = Two-step authentication replacement failed
+recent-activity-account-recovery-phone-setup-failed = Recovery phone setup failed
+recent-activity-account-recovery-phone-reset-password-complete = Password reset with recovery phone completed
+recent-activity-account-recovery-phone-reset-password-failed = Password reset with recovery phone failed
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Account change authorisation requested
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Account change authorised
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Account change authorisation failed
+recent-activity-account-passkey-registration-success = Passkey added
+recent-activity-account-passkey-registration-failure = Passkey registration failed
+recent-activity-account-passkey-removed = Passkey removed
+recent-activity-account-passkey-authentication-success = Sign-in with passkey completed
+recent-activity-account-passkey-authentication-failure = Sign-in with passkey failed
+recent-activity-account-passwordless-login-otp-sent = Passwordless sign-in code sent
+recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in code failed
+recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
+recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
+recent-activity-account-recovery-codes-set = Recovery codes set
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Other account activity
 
@@ -1200,7 +1248,7 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content = This passkey will be removed from your account. You’ll need to sign in using a different way.
+passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1242,11 +1290,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = You’ve reached the maximum number of passkeys.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Your browser or device doesn’t support passkeys.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1404,6 +1447,7 @@ auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
 auth-error-238 = Passkey challenge failed
+auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.
@@ -1443,8 +1487,19 @@ passkey-registration-error-not-allowed = Passkey setup failed or is unavailable.
 passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Passkey setup was cancelled. Try again.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Passkeys aren’t supported here. Try another method or device.
+passkey-registration-canceled-v2 = Passkey setup timed out or was cancelled.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Learn more
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Learn more
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Passkey setup couldn’t be completed. Try a different method or device.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Learn more
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Passkeys can’t be set up on this page. Use the secure site and try again.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1465,7 +1520,7 @@ passkey-authentication-error-not-allowed-existing = Passkey setup isn’t availa
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Passkeys aren’t supported. Try another method or device.
+passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.
 # Unexpected credential state during authentication
@@ -1474,6 +1529,10 @@ passkey-authentication-error-invalid-state = Something went wrong with your pass
 passkey-authentication-error-not-readable = We couldn’t access the authenticator. Try again or use another sign-in method.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Something went wrong. Try again or choose another sign-in method.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Passkey not recognised. Use another sign-in method.
 
 ## Connect Another Device page
 
@@ -1993,7 +2052,6 @@ signin-passkey-fallback-header = Finish sign-in
 signin-passkey-fallback-heading = Enter your password to synchronise
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
-signin-passkey-fallback-go-to-settings = Go to settings
 signin-passkey-fallback-continue = Continue
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2041,25 +2099,6 @@ signup-passwordless-code-subheading = Sign-up only takes a single step when you 
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Two-step authentication is enabled on your account. Please sign in with your password.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verify this login <span>to continue to account settings</span>
-signin-push-code-heading-w-custom-service = Verify this login <span>to continue to { $serviceName }</span>
-signin-push-code-instruction = Please check your other devices and approve this login from your { -brand-firefox } browser.
-signin-push-code-did-not-recieve = Didn’t receive the notification?
-signin-push-code-send-email-link = Email code
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Confirm your login
-signin-push-code-confirm-description = We detected a login attempt from the following device. If this was you, please approve the login
-signin-push-code-confirm-verifying = Verifying
-signin-push-code-confirm-login = Confirm login
-signin-push-code-confirm-wasnt-me = This wasn’t me, change password.
-signin-push-code-confirm-login-approved = Your login has been approved. Please close this window.
-signin-push-code-confirm-link-error = Link is damaged. Please try again.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

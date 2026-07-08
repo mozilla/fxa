@@ -17,6 +17,12 @@ next-payment-method-header = Επιλέξτε τη μέθοδο πληρωμής
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Θα πρέπει πρώτα να εγκρίνετε τη συνδρομή σας
+
+## Error page
+
+error-page-account-not-found-heading = Ο λογαριασμός δεν βρέθηκε
+error-page-account-not-found-message = Ο λογαριασμός που σχετίζεται με τη συνεδρία σας δεν υπάρχει. Xρησιμοποιήστε έναν άλλο λογαριασμό ή δημιουργήστε έναν νέο για να εγγραφείτε.
+error-page-account-not-found-continue-button = Συνέχεια
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Επιλέξτε τη χώρα σας και εισαγάγετε τον ταχυδρομικό σας κώδικα <p>για να συνεχίσετε στην ολοκλήρωση αγοράς του { $productName }</p>
 location-banner-info = Δεν μπορέσαμε να εντοπίσουμε αυτόματα την τοποθεσία σας
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Πρέπει να ολοκληρώσετε
 
 next-new-user-submit = Εγγραφή τώρα
 next-pay-with-heading-paypal = Πληρωμή με { -brand-paypal }
+free-trial-ineligible-notice = Ο λογαριασμός σας δεν πληροί τις προϋποθέσεις για δωρεάν δοκιμή. Μπορείτε να συνεχίσετε με μια επί πληρωμή συνδρομή.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Συνέχιση δοκιμής
 free-trial-content-button-resume-trial-aria = Συνέχιση δωρεάν δοκιμής για το { $productName }
 free-trial-content-button-cancel-trial = Ακύρωση δοκιμής
 free-trial-content-button-cancel-trial-aria = Ακύρωση δωρεάν δοκιμής για το { $productName }
+free-trial-content-button-cancel-subscription = Ακύρωση συνδρομής
+free-trial-content-button-cancel-subscription-aria = Ακύρωση συνδρομής για το { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Προβολή παραστατικού
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Προβολή παραστατικού για το { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Η δωρεάν δοκιμαστική περίοδος έληξε στις <bold>{ $date }</bold>. Δεν ήταν δυνατή η επεξεργασία της πληρωμής σας για να ξεκινήσει η συνδρομή σας. Ενημερώστε τη μέθοδο πληρωμής σας για να ενεργοποιήσετε τη συνδρομή σας και να ανακτήσετε την πρόσβαση στις υπηρεσίες σας.
-free-trial-content-payment-failed-no-date = Δεν ήταν δυνατή η επεξεργασία της πληρωμής σας για να ξεκινήσει η συνδρομή σας. Ενημερώστε τη μέθοδο πληρωμής σας για να ενεργοποιήσετε τη συνδρομή σας και να ανακτήσετε την πρόσβαση στις υπηρεσίες σας.
+free-trial-content-trial-ended = Η δωρεάν δοκιμαστική περίοδος έληξε στις <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Δεν ήταν δυνατή η επεξεργασία της πληρωμής σας. Ενημερώστε τη μέθοδο πληρωμής σας για να ανακτήσετε την πρόσβαση. Η επεξεργασία μπορεί να διαρκέσει έως και 24 ώρες και ενδέχεται να διαφέρει ανάλογα με την τράπεζα ή τη μέθοδο πληρωμής.
 free-trial-content-button-update-payment = Ενημέρωση μεθόδου πληρωμής
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Προέκυψε πρόβλημα
 manage-payment-method-intent-error-get-in-touch = Προέκυψε πρόβλημα κατά την έγκριση της πληρωμής σας. Επικοινωνήστε με τον εκδότη της κάρτας σας.
 manage-payment-method-intent-error-insufficient-funds = Φαίνεται πως η κάρτα σας δεν διαθέτει επαρκές υπόλοιπο. Δοκιμάστε μια άλλη κάρτα.
 manage-payment-method-intent-error-generic = Προέκυψε μη αναμενόμενο σφάλμα κατά την επεξεργασία της πληρωμής σας. Δοκιμάστε ξανά.
+manage-payment-method-tax-address-required = Δεν ήταν δυνατός ο προσδιορισμός της τοποθεσίας χρέωσής σας. Επαληθεύστε τα στοιχεία της μεθόδου πληρωμής σας και δοκιμάστε ξανά.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

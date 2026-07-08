@@ -386,6 +386,8 @@ password-strength-inline-passwords-match = Salasanat täsmäävät
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Sinun puhelin. Sinun säännöt.
+# Appears next to a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description = Skannaa saadaksesi sovelluksen
 
 ## Notification Promo Banner component
 
@@ -726,11 +728,11 @@ modal-mfa-protected-resend-code-link = Lähetä uusi koodi sähköpostiin.
 ## Modal Verify Session
 
 mvs-verify-your-email-2 = Vahvista sähköposti
-mvs-enter-verification-code-2 = Kirjoita vahvistuskoodi
+mvs-enter-verification-code-2 = Syötä vahvistuskoodi
 # This string is used to show a notification to the user for them to enter confirmation code to confirm their email.
 # Variables:
 #   email (String) - the user's email
-mvs-enter-verification-code-desc-2 = Kirjoita osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+mvs-enter-verification-code-desc-2 = Syötä osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 msv-cancel-button = Peruuta
 msv-submit-button-2 = Vahvista
 
@@ -844,6 +846,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Kaikki addons.mozilla.org-palveluun julkaisemasi laajennukset ja teemat poistetaan
 delete-account-continue-button = Jatka
+delete-account-delete-button-passwordless = Poista tili
 delete-account-password-input =
     .label = Kirjoita salasana
 delete-account-cancel-button = Peruuta
@@ -859,6 +862,10 @@ submit-display-name = Tallenna
 cancel-display-name = Peruuta
 display-name-update-error-2 = Näyttönimeäsi päivitettäessä tapahtui virhe
 display-name-success-alert-2 = Näyttönimi päivitetty
+
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-cancel = Peruuta
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -938,13 +945,13 @@ add-secondary-email-step-2 = Vaihe 2/2
 verify-secondary-email-page-title =
     .title = Toissijainen sähköposti
 verify-secondary-email-verification-code-2 =
-    .label = Kirjoita vahvistuskoodi
+    .label = Syötä vahvistuskoodi
 verify-secondary-email-cancel-button = Peruuta
 verify-secondary-email-verify-button-2 = Vahvista
 # This string is an instruction in a form.
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
-verify-secondary-email-please-enter-code-2 = Kirjoita osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+verify-secondary-email-please-enter-code-2 = Syötä osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 # This string is a confirmation message shown after verifying an email.
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
@@ -963,6 +970,10 @@ product-promo-monitor =
     .alt = { -product-mozilla-monitor }
 # Links out to the Monitor site
 product-promo-monitor-cta = Hanki ilmainen tarkistus
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+# Links out to the VPN site
+product-promo-vpn-cta = Hanki { -product-mozilla-vpn-short }
 
 ## Profile section
 
@@ -1056,7 +1067,11 @@ row-defaults-status = Ei mitään
 
 ## UnitRowPasskey
 
+passkey-row-enabled = Käytössä
+passkey-row-not-set = Ei asetettu
 passkey-row-action-create = Luo
+# External link to a support article about passkeys.
+passkey-row-info-link-2 = Lue lisää
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1085,7 +1100,7 @@ unit-row-recovery-key-delete-icon-button-title = Poista tilin palautusavain
 se-heading = Toissijainen sähköposti
     .header = Toissijainen sähköposti
 se-cannot-refresh-email = Valitettavasti sähköpostiosoitteen päivittämisessä ilmeni ongelma.
-se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin lähettämisessä uudelleen ilmeni ongelma
+se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin uudelleenlähetyksessä kohdattiin ongelma
 # This string is used in a notification message near the top of the page.
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
@@ -1143,6 +1158,8 @@ tfa-row-cannot-disable-2 = Kaksivaiheista todennusta ei voitu poistaa käytöst�
 ## TermsPrivacyAgreement
 ## These terms are used in signin and signup for Firefox account
 
+# This message is followed by a bulleted list of <serviceName>: Terms of Service, Privacy Notice
+terms-privacy-agreement-intro-3 = Jatkamalla hyväksyt:
 # links to Mozilla Account's Terms of Service and Privacy Notice
 terms-privacy-agreement-default-2 = Jatkamalla hyväksyt <mozillaAccountsTos>käyttöehdot</mozillaAccountsTos> ja <mozillaAccountsPrivacy>tietosuojakäytännön</mozillaAccountsPrivacy>.
 
@@ -1208,6 +1225,22 @@ auth-error-1067 = Kirjoititko sähköpostiosoitteesi väärin?
 #  $lastFourPhoneNumber (Number) - The last 4 digits of the user's recovery phone number
 recovery-phone-number-ending-digits = Numero, joka päättyy { $lastFourPhoneNumber }
 oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelleen.
+
+## Passkey error messages
+## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
+
+
+# Registration errors
+
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Lue lisää
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Lue lisää
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Lue lisää
+
+# Authentication errors
+
 
 ## Connect Another Device page
 
@@ -1346,6 +1379,12 @@ pair-auth-complete-sync-benefits-text = Löydät nyt avoimet välilehdet, salasa
 pair-auth-complete-see-tabs-button = Näytä synkronoitujen laitteiden välilehdet
 pair-auth-complete-manage-devices-link = Hallinnoi laitteita
 
+## Alternate "Send Tab" variant — shown when the pair was initiated from a Send Tab entrypoint (toolbar icon, app menu, etc.)
+
+# Variable { $deviceFamily } is generally a browser name, for example "Firefox"
+# Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } käyttöjärjestelmälle { $deviceOS } on yhdistetty.
+
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
 ## Users that have set up two-factor authentication land on this page during device pairing.
@@ -1372,9 +1411,14 @@ auth-totp-code-required-error = Todennuskoodi vaaditaan
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Hyväksyntä vaaditaan nyt <span>joltakin muulta laitteeltasi</span>
 
+## PairFailure - a view which displays on failure of the device pairing process
+
+pair-failure-try-again-link = Yritä uudelleen
+
 ## Pair index page
 
 pair-sync-header = Synkronoi { -brand-firefox } puhelimella tai tabletilla
+pair-cad-header-v2 = Yhdistä toinen laite
 pair-already-have-firefox-paragraph = Löytyykö { -brand-firefox } jo puhelimestasi tai tabletistasi?
 # Clicking this button initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
 pair-sync-your-device-button = Synkronoi laitteesi
@@ -1389,6 +1433,28 @@ pair-take-your-data-message = Ota välilehdet, kirjanmerkit ja salasanat mukaan 
 pair-get-started-button = Aloita
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR-koodi
+
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Legend for the radio button fieldset
+pair-choice-legend = Jatka valitsemalla vaihtoehto:
+# Radio option: user already has Firefox for mobile — title
+pair-choice-has-mobile-title = Minulla on jo { -brand-firefox } mobiililaitteille
+# Radio option: user does not have Firefox for mobile — title
+pair-choice-needs-mobile-title = Minulla ei ole { -brand-firefox }ia mobiililaitteille
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = Jatka
+# Success banner shown after signing in
+pair-signed-in-successfully = Kirjautuminen onnistui!
+# Success banner shown after signing up and verifying email via a Send Tab flow
+pair-account-created-now-syncing = Tili luotu. Synkronoit nyt.
+# Success banner shown after creating a password for a passwordless account via a Send Tab flow
+pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Subheader for the download screen
+pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
@@ -1417,12 +1483,22 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
+# Shown inline on mobile non-Firefox browsers before the download link
+pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = Lue lisää
+# v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
+# Matches the legacy Backbone "Oops! Something went wrong." message.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Sulje tämä välilehti ja yritä uudelleen.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
 service-welcome-signup-success-banner = { -product-mozilla-account } vahvistettu
 service-welcome-signin-success-banner = Kirjautuminen onnistui!
+# In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
+service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -1604,7 +1680,6 @@ back = Edellinen
 signin-passkey-fallback-header = Viimeistele kirjautuminen
 signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
 signin-passkey-fallback-password-label = Salasana
-signin-passkey-fallback-go-to-settings = Siirry asetuksiin
 signin-passkey-fallback-continue = Jatka
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -1616,6 +1691,7 @@ signin-passkey-fallback-continue = Jatka
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
 
 signin-passwordless-code-heading = Kirjoita vahvistuskoodi
+signin-passwordless-code-input-label-v2 = Kirjoita 6-numeroinen koodi
 signin-passwordless-code-confirm-button = Vahvista
 signin-passwordless-code-required-error = Vahvistuskoodi vaaditaan
 signin-passwordless-code-expired = Vanheniko koodi?
@@ -1628,25 +1704,6 @@ signin-passwordless-code-other-account-link = Käytä toista tiliä
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Kaksivaiheinen todennus on käytössä tililläsi. Kirjaudu sisään salasanallasi.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Vahvista tämä kirjautuminen <span>jatkaaksesi tilin asetuksiin</span>
-signin-push-code-heading-w-custom-service = Vahvista tämä kirjautuminen <span>jatkaaksesi palveluun { $serviceName }</span>
-signin-push-code-instruction = Tarkista muut laitteesi ja hyväksy tämä kirjautuminen { -brand-firefox }-selaimestasi.
-signin-push-code-did-not-recieve = Etkö saanut ilmoitusta?
-signin-push-code-send-email-link = Lähetä koodi sähköpostitse
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Vahvista kirjautumisesi
-signin-push-code-confirm-description = Havaitsimme kirjautumisyrityksen seuraavasta laitteesta. Jos se olit sinä, hyväksy kirjautuminen
-signin-push-code-confirm-verifying = Vahvistetaan
-signin-push-code-confirm-login = Vahvista kirjautuminen
-signin-push-code-confirm-wasnt-me = Tämä en ollut minä, vaihda salasana.
-signin-push-code-confirm-login-approved = Kirjautumisesi on hyväksytty. Sulje tämä ikkuna.
-signin-push-code-confirm-link-error = Linkki on vaurioitunut. Yritä uudelleen.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

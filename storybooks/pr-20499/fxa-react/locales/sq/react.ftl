@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Gabim i përgjithshëm aplikacioni
-app-general-err-message = Diç shkoi ters. Ju lutemi, riprovoni.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Kërkesë e Gabuar: Parametra të Pavlefshëm Kërkese
 

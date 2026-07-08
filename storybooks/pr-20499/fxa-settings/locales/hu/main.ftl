@@ -72,8 +72,10 @@
        *[nominative] Google Play
     }
 
-app-general-err-heading = Általános alkalmazáshiba
-app-general-err-message = Hiba történt, próbálja újra később.
+app-something-went-wrong-heading = Hiba történt
+app-something-went-wrong-message = Értesítést kaptunk a problémáról. Az újrapróbálkozáshoz frissítse az oldalt.
+app-error-id = Hibaazonosító: { $errorId }
+app-error-details-summary = Hiba részletei
 app-query-parameter-err-heading = Hibás kérés: érvénytelen lekérdezési paraméterek
 
 
@@ -186,6 +188,14 @@ device-info-browser-os = { $browserName } ezen: { $genericOSName }
 device-info-ip-address = IP-cím: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = { -brand-firefox }, bárhol is legyen
+firefox-promo-banner-mobile-description = Szinkronizálja lapjait, könyvjelzőit és jelszavait az eszközei között. Ráadásul minden biztonságosan titkosítva marad.
+firefox-promo-banner-mobile-cta = Csatlakoztasson egy eszközt
+firefox-promo-banner-switch-heading = Gyors váltás. Könnyű beilleszkedni.
+firefox-promo-banner-switch-description = Ha erre vált: { -brand-firefox }, akkor elhozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeket, így zökkenőmentesen elkezdheti a böngészést.
+firefox-promo-banner-switch-cta = Váltás erre: { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Jelszó
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -254,6 +264,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Sikeres
 checkmark-enabled-icon-aria-label =
     .aria-label = Engedélyezve
+chevron-right-icon-aria-label =
+    .aria-label = Jobbra mutató szimbólum
 close-icon-aria-label =
     .aria-label = Üzenet bezárása
 code-icon-aria-label =
@@ -327,6 +339,7 @@ input-phone-number-enter-number = Adja meg a telefonszámot
 input-phone-number-country-united-states = Egyesült Államok
 input-phone-number-country-canada = Kanada
 legal-back-button = Vissza
+app-general-err-message = Hiba történt, próbálja újra később.
 
 
 reset-pwd-link-damaged-header = A jelszó-visszaállítási hivatkozás sérült
@@ -487,6 +500,9 @@ cs-disconnect-suspicious-advice-content-2 =
     Ha a leválasztott eszköz valóban gyanús, akkor hogy biztonságban tartsa az információt, változtassa meg a { -product-mozilla-account }ja
     jelszavát a fiókbeállításokban. Érdemes módosítania az összes, a { -brand-firefox(case: "inessive") } mentett jelszavát is, az about:logins beírásával a címsávba.
 cs-sign-out-button = Kijelentkezés
+
+
+cs-scope-firefox-vpn = A { -brand-firefox } beépített VPN-je
 
 
 dc-heading = Adatgyűjtés és -felhasználás
@@ -785,7 +801,7 @@ page-passkey-add-cancel = Mégse
 
 
 page-passkey-add-success = Jelkulcs létrehozva
-page-passkey-add-error-system = A rendszer nem érhető el. Próbálja újra később.
+page-passkey-add-error-system-v2 = Hiba történt a jelkulcs létrehozásakor. Próbálja újra később.
 
 
 recent-activity-title = Legutóbbi fióktevékenység
@@ -824,6 +840,26 @@ recent-activity-account-recovery-codes-signin-complete = Bejelentkezés a helyre
 recent-activity-password-reset-otp-sent = Jelszó-visszaállítási megerősítő kód elküldve
 recent-activity-password-reset-otp-verified = Jelszó-visszaállítási megerősítő kód ellenőrizve
 recent-activity-must-reset-password = Jelszó-visszaállítás szükséges
+recent-activity-account-recovery-phone-replace-complete = Helyreállítási telefonszám lecserélve
+recent-activity-account-recovery-phone-replace-failure = A helyreállítási telefonszámcseréje nem sikerült
+recent-activity-account-two-factor-replace-success = Kétlépcsős hitelesítés lecserélve
+recent-activity-account-two-factor-replace-failure = A kétlépcsős hitelesítés cseréje sikertelen
+recent-activity-account-recovery-phone-setup-failed = A helyreállítási telefonszám beállítása sikertelen
+recent-activity-account-recovery-phone-reset-password-complete = Helyreállítási telefonszámmal történő jelszó-visszaállítás befejezve
+recent-activity-account-recovery-phone-reset-password-failed = Helyreállítási telefonszámmal történő jelszó-visszaállítás sikertelen
+recent-activity-account-mfa-otp-sent = Fiókmódosítási engedély kérve
+recent-activity-account-mfa-otp-verified = Fiókmódosítás engedélyezve
+recent-activity-account-mfa-otp-failed = A fiókmódosítás engedélyezése sikertelen
+recent-activity-account-passkey-registration-success = Jelkulcs hozzáadva
+recent-activity-account-passkey-registration-failure = A jelkulcs regisztrációja sikertelen
+recent-activity-account-passkey-removed = Jelkulcs eltávolítva
+recent-activity-account-passkey-authentication-success = Jelkulccsal történő bejelentkezés befejezve
+recent-activity-account-passkey-authentication-failure = Nem sikerült bejelentkezni a jelkulccsal
+recent-activity-account-passwordless-login-otp-sent = Jelszó nélküli bejelentkezési kód elküldve
+recent-activity-account-passwordless-login-otp-failed = A jelszó nélküli bejelentkezési kóddal történő bejelentkezés sikertelen
+recent-activity-account-passwordless-login-otp-verified = Jelszó nélküli bejelentkezési kód ellenőrizve
+recent-activity-account-passwordless-registration-complete = Jelszó nélküli fiókregisztráció befejezve
+recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
 recent-activity-unknown = Egyéb fióktevékenység
 
 
@@ -930,7 +966,7 @@ passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
 passkey-sub-row-delete-title = Jelkulcs törlése
 passkey-delete-modal-heading = Törli a jelkulcsot?
-passkey-delete-modal-content = Ez a jelkulcs el lesz távolítva a fiókjából. Másik módszerrel kell bejelentkeznie.
+passkey-delete-modal-content-v2 = Ez a jelkulcs eltávolításra kerül a fiókjából. Másik módszerrel kell bejelentkeznie (jelszó, másik jelkulcs vagy összekapcsolt fiók használatával).
 passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
@@ -962,9 +998,6 @@ passkey-row-max-limit-banner =
        *[other] Használta mind a(z) { $count } jelkulcsot. Töröljön egy jelkulcsot, hogy újat hozhasson létre.
     }
 passkey-row-max-limit-disabled-reason = Elérte a jelkulcsok maximális számát.
-
-
-passkey-row-webauthn-not-supported = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
 
 
 rk-header-1 = Fiók-helyreállítási kulcs
@@ -1078,6 +1111,7 @@ auth-error-226 = A jelkulcsok korlátja elérve
 auth-error-227 = A jelkulcsos hitelesítés sikertelen
 auth-error-228 = A jelkulcs regisztrációja sikertelen
 auth-error-238 = A jelkulcs kihívása sikertelen
+auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
 auth-error-999 = Nem várt hiba
 auth-error-1001 = Bejelentkezési kísérlet megszakítva
 auth-error-1002 = A munkamenet lejárt. Jelentkezzen be a folytatáshoz.
@@ -1102,9 +1136,14 @@ oauth-error-1000 = Hiba történt. Zárja be ezt a lapot, és próbálja újra.
 
 
 passkey-registration-error-not-allowed = A jelkulcs beállítása sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
-passkey-registration-error-not-allowed-existing = A jelszóbeállítás nem érhető el ennél az eszköznél. Vagy az eszköz már regisztrálva lett, vagy a telepítési folyamat megszakításra került.
+passkey-registration-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Vagy az eszköz már regisztrálva lett, vagy a telepítési folyamat megszakításra került.
 passkey-registration-error-timeout = A jelkulcsbeállítás meg lett szakítva. Próbálja újra.
-passkey-registration-error-not-supported = A jelkulcsok itt nem támogatottak. Próbálkozzon másik módszerrel vagy eszközzel.
+passkey-registration-canceled-v2 = A jelkulcsbeállítás túllépte az időkorlátot vagy meg lett szakítva.
+passkey-registration-canceled-link = További tudnivalók
+passkey-registration-error-not-supported-v2 = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
+passkey-registration-error-not-supported-link = További tudnivalók
+passkey-registration-error-could-not-complete = A jelkulcs beállítása nem fejezhető be. Próbálkozzon másik módszerrel vagy eszközzel.
+passkey-registration-error-could-not-complete-link = További tudnivalók
 passkey-registration-error-security = Ezen az oldalon nem állíthatók be jelkulcsok. Használja a biztonságos webhelyet, és próbálja újra.
 passkey-registration-error-invalid-state = Ez a jelkulcs már regisztrálva van. Használja a bejelentkezéshez, vagy adjon hozzá másik jelkulcsot.
 passkey-registration-error-not-readable = Nem tudtuk elérni a hitelesítőt. Próbálja újra, vagy válasszon másik módszert.
@@ -1113,13 +1152,14 @@ passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Pr�
 
 
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
-passkey-authentication-error-not-allowed-existing = A jelszóbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
+passkey-authentication-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
 passkey-authentication-error-timeout = A jelkulcskérés túllépte az időkorlátot. Próbálja újra.
-passkey-authentication-error-not-supported = A jelkulcsok nem támogatottak. Próbálkozzon másik módszerrel vagy eszközzel.
+passkey-authentication-error-not-supported-v2 = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
 passkey-authentication-error-security = Ezen az oldalon nem használhatók jelkulcsok. Ellenőrizze, hogy a megfelelő biztonságos webhelyen jár-e, és próbálja újra.
 passkey-authentication-error-invalid-state = Hiba történt a jelkulcsával. Próbálja újra, vagy használjon másik bejelentkezési módszert.
 passkey-authentication-error-not-readable = Nem tudtuk elérni a hitelesítőt. Próbálja újra, vagy használjon másik bejelentkezési módszert.
 passkey-authentication-error-unexpected = Hiba történt. Próbálja újra, vagy válasszon másik bejelentkezési módszert.
+passkey-authentication-error-not-found = A jelkulcs nem ismerhető fel. Használjon másik bejelentkezési módot.
 
 
 connect-another-device-signed-in-header = Bejelentkezett a { -brand-firefox(case: "illative") }
@@ -1138,7 +1178,7 @@ connect-another-device-ios-complete-setup-message = Jelentkezzen be a { -brand-f
 
 cookies-disabled-header = Helyi tároló és sütik szükségesek
 cookies-disabled-enable-prompt-2 = Kérjük, engedélyezze a sütiket és a helyi tárolást a böngészőjében, hogy elérje a { -product-mozilla-account }ját. Ezzel lehetővé válik olyan funkciók, mint az adatok megjegyzése a munkamenetek között.
-cookies-disabled-button-try-again = Próbálja újra
+cookies-disabled-button-try-again = Újrapróbálkozás
 cookies-disabled-learn-more = További tudnivalók
 
 
@@ -1225,7 +1265,7 @@ pair-wait-for-supp-heading-text = Most jóváhagyás szükséges <span>a másik 
 
 pair-failure-header-v2 = Nem sikerült az eszközpárosítás
 pair-failure-message-v2 = A telepítés nem fejezhető be. Jelentkezzen be az e-mail-címével.
-pair-failure-try-again-link = Próbálja újra
+pair-failure-try-again-link = Újrapróbálkozás
 
 
 pair-sync-header = Szinkronizálja a { -brand-firefox(case: "accusative") } a telefonján vagy táblagépén
@@ -1435,7 +1475,6 @@ signin-passkey-fallback-header = Bejelentkezés befejezése
 signin-passkey-fallback-heading = Adja meg a jelszavát a szinkronizáláshoz
 signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia a jelszavát, amikor ezt a jelkulcsot használja.
 signin-passkey-fallback-password-label = Jelszó
-signin-passkey-fallback-go-to-settings = Ugrás a beállításokhoz
 signin-passkey-fallback-continue = Folytatás
 
 
@@ -1466,22 +1505,6 @@ signup-passwordless-code-subheading = A regisztráció csak egy lépésből áll
 
 
 signin-passwordless-totp-required = A kétlépcsős hitelesítés engedélyezve van a fiókjában. Jelentkezzen be a jelszavával.
-
-
-signin-push-code-heading-w-default-service = Ellenőrizze ezt a bejelentkezést <span>a fiókbeállításokhoz való továbblépéshez</span>
-signin-push-code-heading-w-custom-service = Erősítse meg ezt a bejelentkezést <span>a következőhöz való továbblépéshez: { $serviceName }</span>
-signin-push-code-instruction = Ellenőrizze a többi eszközét, és hagyja jóvá ezt a bejelentkezést a { -brand-firefox } böngészőjéből.
-signin-push-code-did-not-recieve = Nem kapta meg az értesítést?
-signin-push-code-send-email-link = E-mail-kód
-
-
-signin-push-code-confirm-instruction = Erősítse meg a bejelentkezését
-signin-push-code-confirm-description = Bejelentkezési kísérletet észleltünk a következő eszközről. Ha ez Ön volt, hagyja jóvá a bejelentkezését
-signin-push-code-confirm-verifying = Ellenőrzés
-signin-push-code-confirm-login = Bejelentkezés megerősítése
-signin-push-code-confirm-wasnt-me = Nem én voltam, a jelszó megváltoztatása.
-signin-push-code-confirm-login-approved = A bejelentkezése jóvá lett hagyva. Zárja be ezt az ablakot.
-signin-push-code-confirm-link-error = A hivatkozás sérült. Próbálja meg újra.
 
 
 signin-recovery-method-header = Bejelentkezés

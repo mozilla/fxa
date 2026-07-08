@@ -35,8 +35,9 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Genel uygulama hatası
-app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.
+app-something-went-wrong-heading = Bir sorun oluştu
+app-error-id = Hata kimliği: { $errorId }
+app-error-details-summary = Hata ayrıntıları
 app-query-parameter-err-heading = Hatalı istek: Geçersiz sorgu parametresi
 
 
@@ -93,6 +94,7 @@ recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir 
 
 
 button-passkey-signin = Geçiş anahtarıyla giriş yap
+button-passkey-signin-loading = Güvenli giriş yapılıyor…
 
 
 choose-newsletters-prompt-2 = { -brand-mozilla } bültenlerine kaydolun:
@@ -287,6 +289,7 @@ input-phone-number-enter-number = Telefon numarasını yazın
 input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
 legal-back-button = Geri
+app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 
 reset-pwd-link-damaged-header = Parolayı sıfırlama bağlantısı hasarlı
@@ -326,6 +329,7 @@ password-strength-inline-passwords-match = Parolalar eşleşiyor
 
 
 promo-qr-mobile-heading = Sizin telefonunuz, sizin kurallarınız.
+promo-qr-mobile-description = Uygulamayı indirmek için okutun
 
 
 account-recovery-notification-cta = Oluştur
@@ -442,6 +446,9 @@ cs-disconnect-suspicious-advice-content-2 = Bağlantısını kestiğiniz cihaz g
 cs-sign-out-button = Çıkış yap
 
 
+cs-scope-firefox-vpn = { -brand-firefox }’un VPN özelliği
+
+
 dc-heading = Veri toplanması ve kullanımı
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } tarayıcısı
@@ -522,6 +529,7 @@ flow-setup-2fa-backup-code-dl-button-continue = İleri
 
 
 flow-setup-2fa-inline-complete-success-banner = İki aşamalı kimlik doğrulama etkinleştirildi
+flow-setup-2fa-inline-complete-success-banner-description = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 flow-setup-2fa-inline-complete-backup-code = Yedek kimlik doğrulama kodları
 flow-setup-2fa-inline-complete-backup-phone = Kurtarma telefonu
 flow-setup-2fa-inline-complete-backup-code-info =
@@ -734,7 +742,6 @@ page-passkey-add-cancel = Vazgeç
 
 
 page-passkey-add-success = Geçiş anahtarı oluşturuldu
-page-passkey-add-error-system = Sistem kullanılamıyor. Lütfen daha sonra yeniden deneyin.
 
 
 recent-activity-title = Son hesap etkinlikleri
@@ -773,6 +780,11 @@ recent-activity-account-recovery-codes-signin-complete = Kurtarma kodlarıyla gi
 recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderildi
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
+recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
+recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
+recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 recent-activity-unknown = Diğer hesap etkinlikleri
 
 
@@ -828,6 +840,8 @@ product-promo-monitor-description-v2 = Kişisel bilgilerinizin nerede ele geçir
 product-promo-monitor-cta = Ücretsiz taramayı başlat
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Anonim gezinti ve korumayı keşfedin.
+product-promo-vpn-cta = { -product-mozilla-vpn-short }’i edinin
 
 
 profile-heading = Profil
@@ -877,7 +891,6 @@ passkey-sub-row-created-date = Oluşturma: { $createdDate }
 passkey-sub-row-last-used-date = Son kullanım: { $lastUsedDate }
 passkey-sub-row-delete-title = Geçiş anahtarını sil
 passkey-delete-modal-heading = Geçiş anahtarınız silinsin mi?
-passkey-delete-modal-content = Bu geçiş anahtarı hesabınızdan silinecektir. Bundan sonra farklı bir yolla giriş yapmanız gerekecektir.
 passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
@@ -903,9 +916,6 @@ passkey-row-not-set = Ayarlanmamış
 passkey-row-action-create = Oluştur
 passkey-row-info-link-2 = Daha fazla bilgi alın
 passkey-row-max-limit-disabled-reason = Maksimum geçiş anahtarı sayısına ulaştınız.
-
-
-passkey-row-webauthn-not-supported = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
 
 rk-header-1 = Hesap kurtarma anahtarı
@@ -971,6 +981,8 @@ tfa-row-verify-session-info = İki aşamalı doğrulamayı ayarlamak için mevcu
 
 
 terms-privacy-agreement-intro-3 = Devam ettiğinizde aşağıdakileri kabul etmiş olursunuz:
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Hizmet Koşulları</termsLink> ve <privacyLink>Gizlilik Bildirimi</privacyLink>
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "uppercase") } <mozillaAccountsTos>Hizmet Koşulları</mozillaAccountsTos> ve <mozillaAccountsPrivacy>Gizlilik Bildirimi</mozillaAccountsPrivacy>
 terms-privacy-agreement-default-2 = Devam ederek <mozillaAccountsTos>Hizmet Koşulları</mozillaAccountsTos>’nı ve <mozillaAccountsPrivacy>Gizlilik Bildirimi</mozillaAccountsPrivacy>’ni kabul etmiş olursunuz.
 
 
@@ -990,6 +1002,7 @@ auth-error-125 = Bu istek güvenlik nedeniyle engellendi
 auth-error-129-2 = Geçersiz bir telefon numarası yazdınız. Lütfen kontrol edip yeniden deneyin.
 auth-error-138-2 = Onaylanmamış oturum
 auth-error-139 = İkinci e-posta, hesap e-posta adresinizden farklı olmalıdır
+auth-error-144 = Bu e-posta başka bir hesapta kayıtlı. Daha sonra yeniden deneyin veya başka bir e-posta adresi kullanın.
 auth-error-155 = TOTP jetonu bulunamadı
 auth-error-156 = Yedek kimlik doğrulama kodu bulunamadı
 auth-error-159 = Geçersiz hesap kurtarma anahtarı
@@ -1031,9 +1044,14 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+passkey-registration-canceled-link = Daha fazla bilgi alın
+passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
+passkey-registration-error-not-supported-link = Daha fazla bilgi al
+passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
 
 
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
+passkey-authentication-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
 
 connect-another-device-signed-in-header = { -brand-firefox }’a giriş yaptınız
@@ -1153,6 +1171,8 @@ pair-get-started-button = Başlayın
 pair-qr-code-aria-label = QR Kodu
 
 
+pair-choice-subheader = { -brand-firefox } deneyiminizi eşitleyin
+pair-choice-header-send-tab = Sekmeleri göndermek istediğiniz cihazda { -brand-firefox }’u indirin veya açın
 pair-choice-legend = Devam etmek için bir seçenek seçin:
 pair-choice-has-mobile-title = Mobil cihazımda { -brand-firefox } zaten yüklü
 pair-choice-has-mobile-description = Mobil cihazınızda { -brand-firefox } zaten yüklüyse eşitlemeyi hemen başlatabilirsiniz.
@@ -1166,6 +1186,8 @@ pair-password-created-now-syncing = Parola oluşturuldu. Artık eşitleme yapıy
 
 pair-download-subheader = Mobil cihazlar için { -brand-firefox }’u indirin
 pair-download-description = { -brand-firefox }’u telefonunuz veya tabletinizle eşitlemek için öncelikle mobil { -brand-firefox }’u indirmelisiniz. İndirmesi çok kolay:
+pair-download-step-scan-qr = <b>{ $stepNumber }. adım</b>: Bu QR kodunu mobil cihazınızın kamerasına okutarak { -brand-firefox }’u indirin:
+pair-download-step-continue-sync = <b>{ $stepNumber }. adım</b>: { -brand-firefox }’u mobil cihazınızla eşitlemek için “Eşitlemeye devam et”i seçin.
 pair-continue-to-sync-button = Eşitlemeye devam et
 
 
@@ -1185,8 +1207,12 @@ pair-wait-for-auth-heading-text = Şimdi <span>diğer cihazınızdan</span> onay
 pair-unsupported-header = Uygulama kullanarak eşleştir
 pair-unsupported-message = Sistem kamerasını mı kullandınız? Bir { -brand-firefox } uygulaması içinden eşleştirme yapmalısınız.
 pair-unsupported-oops-header = Görünüşe göre { -brand-firefox } kullanmıyorsunuz.
+pair-unsupported-switch-to-firefox = { -brand-firefox }’a geçin ve başka bir cihaz bağlamak için bu sayfayı açın.
 pair-unsupported-oops-mobile = Görünüşe göre { -brand-firefox } kullanmıyorsunuz.
 pair-unsupported-connecting-mobile-header-v2 = Mobil cihazınızı { -product-mozilla-account }nıza bağlama
+pair-unsupported-connecting-mobile-instructions-v2 = Bilgisayarınızda { -brand-firefox }’u açın, <b>firefox.com/pair</b> adresine gidin ve mobil cihazınızı bağlamak için ekrandaki yönergeleri izleyin.
+pair-unsupported-learn-more-link-v2 = Daha fazla bilgi al
+pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata oluştu.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
 
@@ -1328,8 +1354,8 @@ signin-bounced-create-new-account = Bu e-posta adresine artık ulaşamıyor musu
 back = Geri dön
 
 
+signin-passkey-fallback-header = Girişi tamamla
 signin-passkey-fallback-password-label = Parola
-signin-passkey-fallback-go-to-settings = Ayarlara git
 signin-passkey-fallback-continue = Devam et
 
 
@@ -1345,20 +1371,10 @@ signin-passwordless-code-resend-error = Bir sorun oluştu. Yeni kod gönderileme
 signin-passwordless-code-other-account-link = Farklı bir hesap kullan
 
 
-signin-push-code-heading-w-default-service = <span>Hesap ayarlarına devam etmek için</span> bu hesabı doğrulayın
-signin-push-code-heading-w-custom-service = <span>{ $serviceName } hizmetine devam etmek için</span> bu hesabı doğrulayın
-signin-push-code-instruction = Lütfen diğer cihazlarınızı kontrol ederek { -brand-firefox } tarayıcınızdan bu girişi doğrulayın.
-signin-push-code-did-not-recieve = Bildirim almadınız mı?
-signin-push-code-send-email-link = Kodu e-posta ile gönder
+signup-passwordless-code-subheading = Bu kodu kullandığınızda tek adımda kaydolabilirsiniz.
 
 
-signin-push-code-confirm-instruction = Girişinizi onaylayın
-signin-push-code-confirm-description = Aşağıdaki cihazdan giriş yapılmaya çalışıldığını tespit ettik. Siz yaptıysanız lütfen girişi onaylayın
-signin-push-code-confirm-verifying = Doğrulanıyor
-signin-push-code-confirm-login = Girişi onayla
-signin-push-code-confirm-wasnt-me = Bu ben değilim, parolayı değiştir.
-signin-push-code-confirm-login-approved = Girişiniz onaylandı. Lütfen bu pencereyi kapatın.
-signin-push-code-confirm-link-error = Bağlantı bozulmuş. Lütfen yeniden deneyin.
+signin-passwordless-totp-required = Hesabınızda iki aşamalı doğrulama etkin. Lütfen parolanızla giriş yapın.
 
 
 signin-recovery-method-header = Giriş yap
@@ -1422,6 +1438,7 @@ signin-totp-code-header = Giriş yap
 signin-totp-code-subheader-v2 = İki aşamalı kimlik doğrulama kodunuzu yazın
 signin-totp-code-instruction-v4 = Giriş işleminizi onaylamak için <strong>kimlik doğrulama uygulamanızı</strong> kontrol edin.
 signin-totp-code-input-label-v4 = 6 basamaklı kodu yazın
+signin-totp-code-aal-banner-header = Neden kimliğinizi doğrulamanız isteniyor?
 signin-totp-code-aal-sign-out = Bu cihazdaki oturumu kapat
 signin-totp-code-aal-sign-out-error = Üzgünüz, çıkış yapılırken bir sorun oluştu
 signin-totp-code-confirm-button = Onayla

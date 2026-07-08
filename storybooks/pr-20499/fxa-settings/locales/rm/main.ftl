@@ -22,10 +22,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Errur generala da l'applicaziun
-app-general-err-message = Insatge è ì mal. Emprova per plaschair pli tard anc ina giada.
-
-
 app-footer-mozilla-logo-label = Logo da { -brand-mozilla }
 app-footer-privacy-notice = Directivas da la protecziun da datas da la website
 app-footer-terms-of-service = Cundiziuns d'utilisaziun
@@ -1040,22 +1036,6 @@ signin-bounced-message = L'e-mail da conferma tramess a { $email } è vegnì ret
 signin-bounced-help = Sche questa adressa dad e-mail è valida, <linkExternal>ans fa a savair</linkExternal> e nus pudain ta gidar a debloccar tes conto.
 signin-bounced-create-new-account = Quai n'è betg pli ti'adressa dad e-mail? Creescha in nov conto
 back = Enavos
-
-
-signin-push-code-heading-w-default-service = Verifitgescha quest’annunzia per <span>acceder als parameters dal conto</span>
-signin-push-code-heading-w-custom-service = Verifitgescha quest’annunzia per <span>acceder a { $serviceName }</span>
-signin-push-code-instruction = Consultescha per plaschair tes auters apparats ed approvescha questa annunzia en tes navigatur { -brand-firefox }.
-signin-push-code-did-not-recieve = N’has ti betg retschavì la notificaziun?
-signin-push-code-send-email-link = Trametter in code via e-mail
-
-
-signin-push-code-confirm-instruction = Conferma tia annunzia
-signin-push-code-confirm-description = Nus avain constatà ch’i ha dà in’emprova d’annunzia sin il suandant apparat. Sch’i sa tracta da tia emprova, conferma per plaschair l’annunzia
-signin-push-code-confirm-verifying = Verificaziun
-signin-push-code-confirm-login = Confermar l’annunzia
-signin-push-code-confirm-wasnt-me = Jau n’hai fatg nagut, midar il pled-clav.
-signin-push-code-confirm-login-approved = Tia annunzia è vegnida approvada. Serra per plaschair questa fanestra.
-signin-push-code-confirm-link-error = La colliaziun è donnegiada. Emprova per plaschair anc ina giada.
 
 
 signin-recovery-method-header = S’annunziar

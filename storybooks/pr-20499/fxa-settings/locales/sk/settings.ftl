@@ -163,6 +163,17 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Majte { -brand-firefox(case: "acc") } so sebou kdekoľvek sa nachádzate
+firefox-promo-banner-mobile-description = Synchronizujte si karty, záložky a heslá na všetkých svojich zariadeniach. Navyše, všetko zostane bezpečne šifrované.
+firefox-promo-banner-mobile-cta = Pripojiť zariadenie
+firefox-promo-banner-switch-heading = Rýchle prepnutie. Ľahké usadenie sa.
+firefox-promo-banner-switch-description = Keď prejdete na { -brand-firefox(case: "acc") }, môžete si preniesť svoje záložky, heslá, históriu a ďalšie informácie, aby ste mohli prehliadať bez problémov.
+firefox-promo-banner-switch-cta = Prejsť na { -brand-firefox(case: "acc") }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -257,6 +268,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Povolené
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Šipka vpravo
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Zavrieť správu
@@ -356,6 +370,8 @@ input-phone-number-country-united-states = Spojené štáty americké
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Naspäť
+# Generic error shown when the legal document fails to load
+app-general-err-message = Niečo sa pokazilo. Skúste to znova neskôr.
 
 ## LinkDamaged component
 
@@ -586,6 +602,15 @@ cs-disconnect-lost-advice-content-3 = Keďže vaše zariadenie bolo stratené al
 cs-disconnect-suspicious-advice-heading = Podozrivé zariadenie je odpojené
 cs-disconnect-suspicious-advice-content-2 = Ak je odpojené zariadenie skutočne podozrivé, mali by ste si v nastaveniach účtu zmeniť heslo pre { -product-mozilla-account(case: "acc", capitalization: "lower") }, aby boli vaše informácie v bezpečí. Mali by ste tiež zmeniť všetky ostatné heslá, ktoré ste uložili v prehliadači { -brand-firefox }, zadaním about:logins do panela s adresou.
 cs-sign-out-button = Odhlásiť sa
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = Vstavaná VPN prehliadača { -brand-firefox }
 
 ## Data collection section
 
@@ -992,7 +1017,7 @@ page-passkey-add-cancel = Zrušiť
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Prístupový kľúč bol vytvorený
-page-passkey-add-error-system = Systém nie je k dispozícii. Skúste to znova neskôr.
+page-passkey-add-error-system-v2 = Pri vytváraní vášho prístupového kľúča sa vyskytol problém. Skúste to znova neskôr.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1036,6 +1061,29 @@ recent-activity-account-recovery-codes-signin-complete = Prihláste sa pomocou o
 recent-activity-password-reset-otp-sent = Potvrdzovací kód pre zmenu hesla bol odoslaný
 recent-activity-password-reset-otp-verified = Potvrdzovací kód pre zmenu hesla bol overený
 recent-activity-must-reset-password = Vyžaduje sa zmena hesla
+recent-activity-account-recovery-phone-replace-complete = Obnovenie pomocou telefónu bolo nahradené
+recent-activity-account-recovery-phone-replace-failure = Nahradenie obnovenia pomocou telefónu zlyhalo
+recent-activity-account-two-factor-replace-success = Dvojstupňové overenie nahradené
+recent-activity-account-two-factor-replace-failure = Nahradenie dvojstupňového overenia zlyhalo
+recent-activity-account-recovery-phone-setup-failed = Obnovenie pomocou telefónu zlyhalo
+recent-activity-account-recovery-phone-reset-password-complete = Obnovenie hesla pomocou telefónu na obnovenie bolo dokončené
+recent-activity-account-recovery-phone-reset-password-failed = Obnovenie hesla pomocou telefónu na obnovenie zlyhalo
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Vyžiadaná autorizácia zmeny účtu
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Zmena účtu autorizovaná
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Autorizácia zmeny účtu zlyhala
+recent-activity-account-passkey-registration-success = Prístupový kľúč bol pridaný
+recent-activity-account-passkey-registration-failure = Registrácia prístupového kľúča zlyhala
+recent-activity-account-passkey-removed = Prístupový kľúč bol odstránený
+recent-activity-account-passkey-authentication-success = Prihlásenie pomocou prístupového kľúča bolo dokončené
+recent-activity-account-passkey-authentication-failure = Prihlásenie pomocou prístupového kľúča zlyhalo
+recent-activity-account-passwordless-login-otp-sent = Kód na prihlásenie bez hesla bol odoslaný
+recent-activity-account-passwordless-login-otp-failed = Kód na prihlásenie bez hesla zlyhal
+recent-activity-account-passwordless-login-otp-verified = Kód na prihlásenie bez hesla bol overený
+recent-activity-account-passwordless-registration-complete = Registrácia účtu bez hesla dokončená
+recent-activity-account-recovery-codes-set = Obnovovacie kódy boli vytvorené
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Iná aktivita účtu
 
@@ -1210,7 +1258,7 @@ passkey-sub-row-created-date = Vytvorený: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použitý: { $lastUsedDate }
 passkey-sub-row-delete-title = Odstrániť prístupový kľúč
 passkey-delete-modal-heading = Odstrániť prístupový kľúč?
-passkey-delete-modal-content = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť iným spôsobom.
+passkey-delete-modal-content-v2 = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť inou metódou (heslo, iný prístupový kľúč alebo prepojený účet).
 passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
@@ -1255,11 +1303,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Dosiahli ste maximálny počet prístupových kľúčov.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1414,6 +1457,7 @@ auth-error-226 = Dosiahnutý limit prístupových kľúčov
 auth-error-227 = Overenie pomocou prístupového kľúča zlyhalo
 auth-error-228 = Registrácia prístupového kľúča zlyhala
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
+auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
 auth-error-999 = Neočakávaná chyba
 auth-error-1001 = Pokus o prihlásenie bol zrušený
 auth-error-1002 = Platnosť relácie vypršala. Ak chcete pokračovať, prihláste sa.
@@ -1447,10 +1491,25 @@ oauth-error-1000 = Niečo sa pokazilo. Prosím, zatvorte túto kartu a skúste t
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Nastavenie prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Zariadenie už bolo zaregistrované alebo bol proces nastavenia zrušený.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Nastavenie prístupového kľúča bolo zrušené. Skúste to znova.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Prístupové kľúče tu nie sú podporované. Skúste iný spôsob alebo zariadenie.
+passkey-registration-canceled-v2 = Časový limit nastavenia prístupového kľúča uplynul alebo nastavenie bolo zrušené.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Ďalšie informácie
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Ďalšie informácie
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Nastavenie prístupového kľúča sa nepodarilo dokončiť. Skúste iný spôsob alebo zariadenie.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Ďalšie informácie
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Na tejto stránke nie je možné nastaviť prístupové kľúče. Použite zabezpečenú stránku a skúste to znova.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1466,10 +1525,12 @@ passkey-registration-error-unexpected = Nastavenie prístupového kľúča zlyha
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Prihlásenie pomocou prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Skúste to znova alebo vyberte iný spôsob.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Časový limit žiadosti o prístupový kľúč vypršal. Skúste to znova.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Prístupové kľúče nie sú podporované. Skúste iný spôsob alebo zariadenie.
+passkey-authentication-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Na tejto stránke nie je možné použiť prístupové kľúče. Skontrolujte, či ste na správnej zabezpečenej stránke a skúste to znova.
 # Unexpected credential state during authentication
@@ -1478,6 +1539,10 @@ passkey-authentication-error-invalid-state = Vyskytol sa problém s vaším prí
 passkey-authentication-error-not-readable = Nepodarilo sa nám získať prístup k overovaču. Skúste to znova alebo použite iný spôsob prihlásenia.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Vyskytla sa chyba. Skúste to znova alebo vyberte iný spôsob prihlásenia.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Prístupový kľúč nebol rozpoznaný. Použite iný spôsob prihlásenia.
 
 ## Connect Another Device page
 
@@ -1996,7 +2061,6 @@ signin-passkey-fallback-header = Dokončiť prihlásenie
 signin-passkey-fallback-heading = Zadajte heslo pre synchronizáciu
 signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je potrebné pri použití tohto prístupového kľúča zadať heslo.
 signin-passkey-fallback-password-label = Heslo
-signin-passkey-fallback-go-to-settings = Prejsť do nastavení
 signin-passkey-fallback-continue = Pokračovať
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2048,25 +2112,6 @@ signup-passwordless-code-subheading = Registrácia s týmto kódom má iba jeden
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Vo vašom účte je povolené dvojstupňové overenie. Prihláste sa pomocou hesla.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Overte toto prihlásenie <span>a pokračujte do nastavení účtu</span>
-signin-push-code-heading-w-custom-service = Overte toto prihlásenie <span>a pokračujte do služby { $serviceName }</span>
-signin-push-code-instruction = Skontrolujte svoje ostatné zariadenia a schváľte toto prihlásenie zo svojho prehliadača { -brand-firefox }.
-signin-push-code-did-not-recieve = Nedostali ste notifikáciu?
-signin-push-code-send-email-link = Odoslať kód na e‑mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Potvrďte svoje prihlásenie
-signin-push-code-confirm-description = Zistili sme pokus o prihlásenie z nasledujúceho zariadenia. Ak ste to boli vy, potvrďte prihlásenie
-signin-push-code-confirm-verifying = Overuje sa
-signin-push-code-confirm-login = Potvrdiť prihlásenie
-signin-push-code-confirm-wasnt-me = Toto som nebol ja, zmeniť heslo.
-signin-push-code-confirm-login-approved = Vaše prihlásenie bolo schválené. Zatvorte toto okno.
-signin-push-code-confirm-link-error = Odkaz je poškodený. Skúste to znova.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

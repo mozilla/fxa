@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Erro geral na aplicação.
-app-general-err-message = Algo deu errado. Tente novamente mais tarde.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Requisição incorreta: Parâmetros de consulta inválidos
 

@@ -30,6 +30,7 @@ Technická data a údaje o interakcích zpracováváme pro lepší pochopení zp
 Pokud používáte propojené služby, vaše údaje budou zpracovávány v souladu s oznámením o ochraně osobních údajů příslušné služby:
 
 * [Prohlížeč Firefox](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Služby s předplatným společnosti Mozilla](https://www.mozilla.org/privacy/subscription-services/) pro Mozilla VPN, Mozilla Monitor a Firefox Relay
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

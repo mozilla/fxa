@@ -1739,25 +1739,6 @@ signin-bounced-help = Se tu sâs di vê inseride une direzion e-mail valide, <li
 signin-bounced-create-new-account = No tu controlis plui chê e-mail? Cree un gnûf account
 back = Indaûr
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verifiche chestis credenziâls <span>par passâ aes impostazions dal account</span>
-signin-push-code-heading-w-custom-service = Verifiche chestis credenziâls <span>par continuâ su { $serviceName }</span>
-signin-push-code-instruction = Controle chei altris dispositîfs e aprove chest acès dal navigadôr { -brand-firefox }.
-signin-push-code-did-not-recieve = No âstu ricevude la notifiche?
-signin-push-code-send-email-link = Mande codiç vie e-mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Conferme il to acès
-signin-push-code-confirm-description = O vin rilevât un tentatîf di acès che al rive di chest dispositîf. Se tu jeris tu, conferme l’acès
-signin-push-code-confirm-verifying = Daûr a verificâ
-signin-push-code-confirm-login = Conferme l’acès
-signin-push-code-confirm-wasnt-me = No jeri jo, cambie la password.
-signin-push-code-confirm-login-approved = Il to acès al è stât aprovât. Siere chest barcon.
-signin-push-code-confirm-link-error = Il colegament al è rot. Torne prove.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

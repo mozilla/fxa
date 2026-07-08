@@ -17,6 +17,12 @@ next-payment-method-header = Escolha o seu método de pagamento
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Primeiro, precisa de aprovar a sua subscrição
+
+## Error page
+
+error-page-account-not-found-heading = Conta não encontrada
+error-page-account-not-found-message = A conta associada à sua sessão não existe. Por favor, utilize uma conta diferente ou crie uma nova para subscrever.
+error-page-account-not-found-continue-button = Continuar
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selecione o seu país e introduza o seu código postal <p>para continuar a finalização da compra para { $productName }</p>
 location-banner-info = Não conseguimos detetar a sua localização automaticamente
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Precisa de concluir isto antes de continua
 
 next-new-user-submit = Subscrever agora
 next-pay-with-heading-paypal = Pagar com o { -brand-paypal }
+free-trial-ineligible-notice = A sua conta não é elegível para um teste gratuito. Pode continuar com uma subscrição paga.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Retomar teste
 free-trial-content-button-resume-trial-aria = Retomar teste para { $productName }
 free-trial-content-button-cancel-trial = Cancelar teste
 free-trial-content-button-cancel-trial-aria = Cancelar teste para { $productName }
+free-trial-content-button-cancel-subscription = Cancelar subscrição
+free-trial-content-button-cancel-subscription-aria = Cancelar subscrição para { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Ver fatura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Ver fatura para { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = O seu teste gratuito terminou em <bold>{ $date }</bold>. Não conseguimos processar o seu pagamento para iniciar a sua subscrição. Por favor, atualize o seu método de pagamento para ativar a sua subscrição e restaurar o acesso aos seus serviços.
-free-trial-content-payment-failed-no-date = Não conseguimos processar o seu pagamento para iniciar a sua subscrição. Por favor, atualize o seu método de pagamento para ativar a sua subscrição e restaurar o acesso aos seus serviços.
+free-trial-content-trial-ended = O seu teste gratuito terminou em <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Não conseguimos processar o seu pagamento. Atualize o seu método de pagamento para restaurar o acesso. O processamento pode demorar até 24 horas e depende do banco ou método de pagamento.
 free-trial-content-button-update-payment = Atualizar método de pagamento
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. Ocorreu um problema ao autor
 manage-payment-method-intent-error-get-in-touch = Hmm. Ocorreu um problema ao autorizar o seu pagamento. Entre em contacto com o emissor do seu cartão.
 manage-payment-method-intent-error-insufficient-funds = Parece que o seu cartão não possui fundos suficientes. Tente outro cartão.
 manage-payment-method-intent-error-generic = Ocorreu um erro inesperado ao processar o seu pagamento, por favor, tente novamente.
+manage-payment-method-tax-address-required = Não conseguimos determinar a sua localização de pagamento. Por favor, verifique as informações do seu método de pagamento e tente novamente.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

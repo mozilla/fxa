@@ -35,8 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erôr gjenerâl de aplicazion
-app-general-err-message = Alc al è lât strucj. Torne prove plui indenant.
 app-query-parameter-err-heading = Domande sbaliade: parametris de interogazion no valits
 
 
@@ -1243,22 +1241,6 @@ signin-bounced-message = La e-mail di conferme che o vin mandât a { $email } e 
 signin-bounced-help = Se tu sâs di vê inseride une direzion e-mail valide, <linkExternal>contatinus</linkExternal> e ti judarìn a sblocâ l’account.
 signin-bounced-create-new-account = No tu controlis plui chê e-mail? Cree un gnûf account
 back = Indaûr
-
-
-signin-push-code-heading-w-default-service = Verifiche chestis credenziâls <span>par passâ aes impostazions dal account</span>
-signin-push-code-heading-w-custom-service = Verifiche chestis credenziâls <span>par continuâ su { $serviceName }</span>
-signin-push-code-instruction = Controle chei altris dispositîfs e aprove chest acès dal navigadôr { -brand-firefox }.
-signin-push-code-did-not-recieve = No âstu ricevude la notifiche?
-signin-push-code-send-email-link = Mande codiç vie e-mail
-
-
-signin-push-code-confirm-instruction = Conferme il to acès
-signin-push-code-confirm-description = O vin rilevât un tentatîf di acès che al rive di chest dispositîf. Se tu jeris tu, conferme l’acès
-signin-push-code-confirm-verifying = Daûr a verificâ
-signin-push-code-confirm-login = Conferme l’acès
-signin-push-code-confirm-wasnt-me = No jeri jo, cambie la password.
-signin-push-code-confirm-login-approved = Il to acès al è stât aprovât. Siere chest barcon.
-signin-push-code-confirm-link-error = Il colegament al è rot. Torne prove.
 
 
 signin-recovery-method-header = Jentre

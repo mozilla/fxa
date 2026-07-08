@@ -51,6 +51,14 @@ next-coupon-submit = പ്രയോഗിക്കുക
 
 ##
 
+
+# Component - Header
+
+payments-header-bento-close =
+    .alt = അടയ്ക്കുക
+
+##
+
 payments-client-loading-spinner =
     .aria-label = ലഭ്യമാക്കുന്നു…
     .alt = ലഭ്യമാക്കുന്നു…

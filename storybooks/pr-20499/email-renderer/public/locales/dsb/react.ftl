@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Powšykna nałožeńska zmólka
-app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
+app-something-went-wrong-heading = Něco njejo se raźiło
+app-something-went-wrong-message = Problem jo se nam k wěsći dał. Aktualizěrujśo bok, aby hyšći raz wopytał.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID zmólki: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Drobnostki zmólkow
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Špatne napšašowanje: Njepłaśiwe napšašowańske parametry
 

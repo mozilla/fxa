@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = ¿Iniciando sesión en tu { -product-mozilla-account }?
-session-verify-send-push-body-2 = Haz clic aquí para confirmar que eres tú
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -318,9 +316,6 @@ subscriptionPaymentProviderCancelled-title = Lo sentimos, estamos teniendo probl
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentProviderCancelled-content-detect = Hemos tenido un problema con tu método de pago para { $productName }.
 subscriptionPaymentProviderCancelled-content-reason-1 = Es posible que tu método de pago haya caducado o que tu método de pago actual no esté actualizado.
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-subject = Suscripción a { $productName } reactivada
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = ¡Gracias por reactivar tu suscripción a { $productName }!

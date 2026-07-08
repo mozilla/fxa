@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = מנסה להתחבר ל{ -product-mozilla-account(case: "the") } שלך?
-session-verify-send-push-body-2 = נא ללחוץ כאן כדי לאמת את זהותך
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -113,6 +111,9 @@ subscription-charges-invoice-date-plaintext = תאריך: { $invoiceDateOnly }
 subscription-charges-prorated-price = מחיר יחסי
 # $remainingAmountTotal (String) - The prorated amount of the subscription invoice, including currency, e.g. $4.00
 subscription-charges-prorated-price-plaintext = מחיר יחסי: { $remainingAmountTotal }
+subscription-charges-list-price = מחיר מחירון
+# $offeringPrice (String) - The list price of the subscription offering, including currency, e.g. $10.00
+subscription-charges-list-price-plaintext = מחיר מחירון: { $offeringPrice }
 subscription-charges-credit-from-unused-time = זיכוי על זמן לא מנוצל
 # $unusedAmountTotal (String) - The credit amount from unused time of the subscription invoice, including currency, e.g. $2.00
 subscription-charges-credit-from-unused-time-plaintext = זיכוי על זמן לא מנוצל: { $unusedAmountTotal }
@@ -345,6 +346,9 @@ subscriptionFirstInvoice-subject = התשלום עבור { $productName } אומ
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFirstInvoice-title = תודה שנרשמת ל־{ $productName }
 subscriptionFirstInvoice-content-processing = התשלום שלך מעובד כעת ועשוי לארוך עד ארבעה ימי עסקים.
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionFirstInvoice-content-install-2 = תישלח אליך הודעה נפרדת איך להתחיל לתפעל את { $productName }.
 subscriptionFirstInvoice-content-auto-renew = המינוי שלך יתחדש באופן אוטומטי בכל תקופת חיוב אלא אם בחרת לבטל.
 # Variables:
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -374,7 +378,16 @@ subscriptionPaymentProviderCancelled-content-detect = איתרנו בעיה בא
 subscriptionPaymentProviderCancelled-content-reason-1 = יכול להיות שפג תוקף אמצעי התשלום שלך, או שאמצעי התשלום הנוכחי שלך אינו עדכני.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-title = תודה שהפעלת מחדש את המינוי שלך ל־{ $productName }
+subscriptionReactivation-subject-2 = המינוי שלך ל־{ $productName } הופעל מחדש
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = תקופת הניסיון שלך ל־{ $productName } הופעלה מחדש
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-title = תודה שהפעלת מחדש את המינוי שלך ל־{ $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = תודה שהפעלת מחדש את תקופת הניסיון שלך ל־{ $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

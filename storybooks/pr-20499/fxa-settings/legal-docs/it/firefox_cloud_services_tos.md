@@ -59,7 +59,7 @@ La sezione in alto riepiloga i termini descritti sotto. Questo riepilogo viene f
     L'utente può modificare l'iscrizione alle email di Mozilla direttamente dalle nostre email (facendo clic sul link in fondo al messaggio) o dal browser (selezionando Firefox / Preferenze / Sincronizzazione / Gestisci account / Preferenze email).
     
     Possiamo inoltre inviare importanti informazioni sull'account, come aggiornamenti ai termini legali o all'informativa sulla privacy, oppure messaggi relativi alla sicurezza, come reimpostazioni di password o verifiche di indirizzi email e dispositivi collegati. Tali comunicazioni sono necessarie per il corretto funzionamento dei nostri servizi, pertanto non è possibile scegliere di non riceverle. 
-Per contattare Mozilla, scrivere a _Mozilla Corporation Attn.: Mozilla – Legal Notices 2 E. Evelyn Ave., Mountain View, CA 94105 USA oppure a legal-notices@mozilla.com_ 
+Per contattare Mozilla, scrivere a _Mozilla Corporation Attn.: Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 oppure a legal-notices@mozilla.com_ 
 
 6. #### Contenuti dell'utente nei nostri Servizi
 

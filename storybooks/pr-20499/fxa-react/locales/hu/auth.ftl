@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Bejelentkezik a { -product-mozilla-account }jába?
-session-verify-send-push-body-2 = Kattintson ide, hogy megerősítse személyazonosságát
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -383,7 +381,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Előfordulhat, hogy a fi
 subscriptionReactivation-subject-2 = A(z) { $productName } előfizetését újraaktiváltuk
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = A(z) { $productName } próbaidőszak újra lett aktiválva
+subscriptionReactivation-freeTrial-subject = A(z) { $productName } próbaidőszakot újraaktiváltuk
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Köszönjük, hogy újraaktiválta a { $productName } előfizetését.

@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error general de la aplicación
-app-general-err-message = Algo ha salido mal. Por favor, inténtalo de nuevo más tarde.
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 
 
@@ -1226,22 +1224,6 @@ signin-bounced-message = El correo electrónico de confirmación enviado a { $em
 signin-bounced-help = Si esta es una dirección de correo válida, <linkExternal>háznoslo saber</linkExternal> y podremos ayudarte a desbloquear tu cuenta.
 signin-bounced-create-new-account = ¿Ese correo electrónico ya no es tuyo? Crea una cuenta nueva
 back = Atrás
-
-
-signin-push-code-heading-w-default-service = Verifica este inicio de sesión <span>para continuar con la configuración de la cuenta</span>
-signin-push-code-heading-w-custom-service = Verifica este inicio de sesión <span>para continuar a { $serviceName }</span>
-signin-push-code-instruction = Por favor, verifica tus otros dispositivos y aprueba esta conexión desde tu navegador { -brand-firefox }.
-signin-push-code-did-not-recieve = ¿No has recibido la notificación?
-signin-push-code-send-email-link = Enviar código por correo electrónico
-
-
-signin-push-code-confirm-instruction = Confirma tu inicio de sesión
-signin-push-code-confirm-description = Hemos detectado un intento de inicio de sesión desde el siguiente dispositivo. Si has sido tú, por favor, aprueba el inicio de sesión
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar inicio de sesión
-signin-push-code-confirm-wasnt-me = No he sido yo, cambiar la contraseña.
-signin-push-code-confirm-login-approved = Se ha aprobado tu inicio de sesión. Puedes cerrar esta ventana.
-signin-push-code-confirm-link-error = El enlace está dañado. Prueba de nuevo.
 
 
 signin-recovery-method-header = Iniciar sesión

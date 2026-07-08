@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Oletko kirjautumassa { -product-mozilla-account }-tilillesi?
-session-verify-send-push-body-2 = Napsauta tästä vahvistaaksesi, että se olet sinä
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -200,9 +198,11 @@ freeTrialEndingReminder-content-charge-subscription = { $productName }-tilaus: {
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
 freeTrialEndingReminder-content-charge-discount = Alennus: { $invoiceDiscountAmount }
+freeTrialEndingReminder-content-charge-discount-2 = Alennus
 # Variables:
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Vero: { $invoiceTaxAmount }
+freeTrialEndingReminder-content-charge-tax-2 = Vero
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-signature = { $productName } -tiimi

@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Gwall cyffredinol rhaglen
-app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
+app-something-went-wrong-heading = Aeth rhywbeth o'i le
+app-something-went-wrong-message = Rydym wedi cael gwybod am y mater. Ail-lwythwch y dudalen i geisio eto.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID gwall: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Manylion gwall
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Cais Gwael: Paramedrau Ymholiad Annilys
 

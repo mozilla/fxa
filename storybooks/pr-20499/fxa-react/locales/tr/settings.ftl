@@ -69,6 +69,11 @@ recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir 
 ## ButtonPasskeySignin
 
 button-passkey-signin = Geçiş anahtarıyla giriş yap
+# This is a loading state indicating that we are waiting for the user to
+# interact with their authenticator to approve the sign-in. They should see a
+# device prompt/pop-up with authentication options (or message indicating that
+# no passkeys are available).
+button-passkey-signin-loading = Güvenli giriş yapılıyor…
 
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
@@ -342,6 +347,8 @@ input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Geri
+# Generic error shown when the legal document fails to load
+app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 ## LinkDamaged component
 
@@ -406,6 +413,8 @@ password-strength-inline-passwords-match = Parolalar eşleşiyor
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Sizin telefonunuz, sizin kurallarınız.
+# Appears next to a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description = Uygulamayı indirmek için okutun
 
 ## Notification Promo Banner component
 
@@ -570,6 +579,15 @@ cs-disconnect-suspicious-advice-heading = Şüpheli cihazın bağlantısı kesil
 cs-disconnect-suspicious-advice-content-2 = Bağlantısını kestiğiniz cihaz gerçekten şüpheliyse bilgilerinizi güvende tutmak için hesap ayarlarınızdan { -product-mozilla-account } parolanızı değiştirmelisiniz. { -brand-firefox } tarayıcınıza kaydettiğiniz ve adres çubuğuna about:logins yazarak görebileceğiniz parolaları da değiştirmenizi öneririz.
 cs-sign-out-button = Çıkış yap
 
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }’un VPN özelliği
+
 ## Data collection section
 
 dc-heading = Veri toplanması ve kullanımı
@@ -696,6 +714,7 @@ flow-setup-2fa-backup-code-dl-button-continue = İleri
 ##
 
 flow-setup-2fa-inline-complete-success-banner = İki aşamalı kimlik doğrulama etkinleştirildi
+flow-setup-2fa-inline-complete-success-banner-description = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 flow-setup-2fa-inline-complete-backup-code = Yedek kimlik doğrulama kodları
 flow-setup-2fa-inline-complete-backup-phone = Kurtarma telefonu
 # $count (Number) - an integer representing the number of backup
@@ -967,7 +986,6 @@ page-passkey-add-cancel = Vazgeç
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Geçiş anahtarı oluşturuldu
-page-passkey-add-error-system = Sistem kullanılamıyor. Lütfen daha sonra yeniden deneyin.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1011,6 +1029,14 @@ recent-activity-account-recovery-codes-signin-complete = Kurtarma kodlarıyla gi
 recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderildi
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
+recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 
@@ -1094,6 +1120,9 @@ product-promo-monitor-description-v2 = Kişisel bilgilerinizin nerede ele geçir
 product-promo-monitor-cta = Ücretsiz taramayı başlat
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Anonim gezinti ve korumayı keşfedin.
+# Links out to the VPN site
+product-promo-vpn-cta = { -product-mozilla-vpn-short }’i edinin
 
 ## Profile section
 
@@ -1180,7 +1209,6 @@ passkey-sub-row-created-date = Oluşturma: { $createdDate }
 passkey-sub-row-last-used-date = Son kullanım: { $lastUsedDate }
 passkey-sub-row-delete-title = Geçiş anahtarını sil
 passkey-delete-modal-heading = Geçiş anahtarınız silinsin mi?
-passkey-delete-modal-content = Bu geçiş anahtarı hesabınızdan silinecektir. Bundan sonra farklı bir yolla giriş yapmanız gerekecektir.
 passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
@@ -1214,11 +1242,6 @@ passkey-row-action-create = Oluştur
 passkey-row-info-link-2 = Daha fazla bilgi alın
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Maksimum geçiş anahtarı sayısına ulaştınız.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1305,6 +1328,12 @@ tfa-row-verify-session-info = İki aşamalı doğrulamayı ayarlamak için mevcu
 
 # This message is followed by a bulleted list of <serviceName>: Terms of Service, Privacy Notice
 terms-privacy-agreement-intro-3 = Devam ettiğinizde aşağıdakileri kabul etmiş olursunuz:
+# This item is part of a bulleted list and follows terms-privacy-agreement-intro
+# $serviceName (String) - The name of the service (e.g., "Mozilla Subscription Services")
+# $serviceName is customizable via Strapi and will be localized separately
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Hizmet Koşulları</termsLink> ve <privacyLink>Gizlilik Bildirimi</privacyLink>
+# links to Mozilla Accounts Terms of Service and Privacy Notice, part of a bulleted list
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "uppercase") } <mozillaAccountsTos>Hizmet Koşulları</mozillaAccountsTos> ve <mozillaAccountsPrivacy>Gizlilik Bildirimi</mozillaAccountsPrivacy>
 # links to Mozilla Account's Terms of Service and Privacy Notice
 terms-privacy-agreement-default-2 = Devam ederek <mozillaAccountsTos>Hizmet Koşulları</mozillaAccountsTos>’nı ve <mozillaAccountsPrivacy>Gizlilik Bildirimi</mozillaAccountsPrivacy>’ni kabul etmiş olursunuz.
 
@@ -1340,6 +1369,9 @@ auth-error-125 = Bu istek güvenlik nedeniyle engellendi
 auth-error-129-2 = Geçersiz bir telefon numarası yazdınız. Lütfen kontrol edip yeniden deneyin.
 auth-error-138-2 = Onaylanmamış oturum
 auth-error-139 = İkinci e-posta, hesap e-posta adresinizden farklı olmalıdır
+# (Email) address has been added as a secondary email for another account and cannot be used to register a new account.
+# The reservation may be temporary. If the reservation is not confirmed before the reservation expires (~10 min), the email will become available again.
+auth-error-144 = Bu e-posta başka bir hesapta kayıtlı. Daha sonra yeniden deneyin veya başka bir e-posta adresi kullanın.
 auth-error-155 = TOTP jetonu bulunamadı
 # Error shown when the user submits an invalid backup authentication code
 auth-error-156 = Yedek kimlik doğrulama kodu bulunamadı
@@ -1391,11 +1423,21 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Daha fazla bilgi alın
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Daha fazla bilgi al
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
 
 # Authentication errors
 
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
+# Browser or platform does not support passkeys
+passkey-authentication-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
 ## Connect Another Device page
 
@@ -1596,6 +1638,10 @@ pair-qr-code-aria-label = QR Kodu
 
 ## Choice screen — "Do you have Firefox for mobile?"
 
+# Subheader shown on the choice screen
+pair-choice-subheader = { -brand-firefox } deneyiminizi eşitleyin
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = Sekmeleri göndermek istediğiniz cihazda { -brand-firefox }’u indirin veya açın
 # Legend for the radio button fieldset
 pair-choice-legend = Devam etmek için bir seçenek seçin:
 # Radio option: user already has Firefox for mobile — title
@@ -1621,6 +1667,10 @@ pair-password-created-now-syncing = Parola oluşturuldu. Artık eşitleme yapıy
 pair-download-subheader = Mobil cihazlar için { -brand-firefox }’u indirin
 # Description for the download screen
 pair-download-description = { -brand-firefox }’u telefonunuz veya tabletinizle eşitlemek için öncelikle mobil { -brand-firefox }’u indirmelisiniz. İndirmesi çok kolay:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>{ $stepNumber }. adım</b>: Bu QR kodunu mobil cihazınızın kamerasına okutarak { -brand-firefox }’u indirin:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>{ $stepNumber }. adım</b>: { -brand-firefox }’u mobil cihazınızla eşitlemek için “Eşitlemeye devam et”i seçin.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Eşitlemeye devam et
 
@@ -1654,12 +1704,22 @@ pair-unsupported-header = Uygulama kullanarak eşleştir
 pair-unsupported-message = Sistem kamerasını mı kullandınız? Bir { -brand-firefox } uygulaması içinden eşleştirme yapmalısınız.
 # Shown as heading when a desktop user visits from a non-Firefox browser
 pair-unsupported-oops-header = Görünüşe göre { -brand-firefox } kullanmıyorsunuz.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = { -brand-firefox }’a geçin ve başka bir cihaz bağlamak için bu sayfayı açın.
 # Shown inline on mobile non-Firefox browsers before the download link
 pair-unsupported-oops-mobile = Görünüşe göre { -brand-firefox } kullanmıyorsunuz.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
 # Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Mobil cihazınızı { -product-mozilla-account }nıza bağlama
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = Bilgisayarınızda { -brand-firefox }’u açın, <b>firefox.com/pair</b> adresine gidin ve mobil cihazınızı bağlamak için ekrandaki yönergeleri izleyin.
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = Daha fazla bilgi al
+# v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
+# Matches the legacy Backbone "Oops! Something went wrong." message.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata oluştu.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
 ## ServiceWelcome page
@@ -1877,8 +1937,8 @@ back = Geri dön
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
 
+signin-passkey-fallback-header = Girişi tamamla
 signin-passkey-fallback-password-label = Parola
-signin-passkey-fallback-go-to-settings = Ayarlara git
 signin-passkey-fallback-continue = Devam et
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -1898,24 +1958,16 @@ signin-passwordless-code-resend-link = E-posta ile yeni kod gönder.
 signin-passwordless-code-resend-error = Bir sorun oluştu. Yeni kod gönderilemedi.
 signin-passwordless-code-other-account-link = Farklı bir hesap kullan
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
+## SignupPasswordlessCode page
+## Users are prompted to enter a code sent to their email to create a new account without a password.
 
-signin-push-code-heading-w-default-service = <span>Hesap ayarlarına devam etmek için</span> bu hesabı doğrulayın
-signin-push-code-heading-w-custom-service = <span>{ $serviceName } hizmetine devam etmek için</span> bu hesabı doğrulayın
-signin-push-code-instruction = Lütfen diğer cihazlarınızı kontrol ederek { -brand-firefox } tarayıcınızdan bu girişi doğrulayın.
-signin-push-code-did-not-recieve = Bildirim almadınız mı?
-signin-push-code-send-email-link = Kodu e-posta ile gönder
+signup-passwordless-code-subheading = Bu kodu kullandığınızda tek adımda kaydolabilirsiniz.
 
-## SigninPushCodeConfirmPage
+## Error messages
 
-signin-push-code-confirm-instruction = Girişinizi onaylayın
-signin-push-code-confirm-description = Aşağıdaki cihazdan giriş yapılmaya çalışıldığını tespit ettik. Siz yaptıysanız lütfen girişi onaylayın
-signin-push-code-confirm-verifying = Doğrulanıyor
-signin-push-code-confirm-login = Girişi onayla
-signin-push-code-confirm-wasnt-me = Bu ben değilim, parolayı değiştir.
-signin-push-code-confirm-login-approved = Girişiniz onaylandı. Lütfen bu pencereyi kapatın.
-signin-push-code-confirm-link-error = Bağlantı bozulmuş. Lütfen yeniden deneyin.
+# Shown when a user with 2FA enabled tries to use passwordless flow
+# They are redirected to password signin instead
+signin-passwordless-totp-required = Hesabınızda iki aşamalı doğrulama etkin. Lütfen parolanızla giriş yapın.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2023,6 +2075,8 @@ signin-totp-code-header = Giriş yap
 signin-totp-code-subheader-v2 = İki aşamalı kimlik doğrulama kodunuzu yazın
 signin-totp-code-instruction-v4 = Giriş işleminizi onaylamak için <strong>kimlik doğrulama uygulamanızı</strong> kontrol edin.
 signin-totp-code-input-label-v4 = 6 basamaklı kodu yazın
+# Shown to users when they need to re-enter their authentication code, for their current device
+signin-totp-code-aal-banner-header = Neden kimliğinizi doğrulamanız isteniyor?
 signin-totp-code-aal-sign-out = Bu cihazdaki oturumu kapat
 signin-totp-code-aal-sign-out-error = Üzgünüz, çıkış yapılırken bir sorun oluştu
 # Form button to confirm if the authentication code entered by the user is valid

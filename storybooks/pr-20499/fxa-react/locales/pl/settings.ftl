@@ -66,6 +66,15 @@ recovery-key-pdf-support = Więcej informacji o kluczu odzyskiwania konta
 # Error message displayed in an alert bar if the PDF download failed.
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
+## ButtonPasskeySignin
+
+button-passkey-signin = Zaloguj się za pomocą klucza dostępu
+# This is a loading state indicating that we are waiting for the user to
+# interact with their authenticator to approve the sign-in. They should see a
+# device prompt/pop-up with authentication options (or message indicating that
+# no passkeys are available).
+button-passkey-signin-loading = Bezpieczne logowanie…
+
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
 
@@ -252,6 +261,9 @@ usa-flag-icon-aria-label =
 # Used for loading arrow icon
 icon-loading-arrow-aria-label =
     .aria-label = Wczytywanie
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = Klucz dostępu
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -328,6 +340,8 @@ input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Wstecz
+# Generic error shown when the legal document fails to load
+app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 ## LinkDamaged component
 
@@ -1185,6 +1199,10 @@ row-defaults-action-change = Zmień
 row-defaults-action-disable = Wyłącz
 row-defaults-status = Brak
 
+## UnitRowPasskey
+
+passkey-row-header = Klucze dostępu
+
 ## Account recovery key sub-section on main Settings page
 
 rk-header-1 = Klucz odzyskiwania konta
@@ -1644,6 +1662,9 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kar
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }
 service-welcome-signin-success-banner = Pomyślnie zalogowano
+# In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
+service-welcome-vpn-heading = Teraz: Włącz VPN
+service-welcome-vpn-description = Kolejny krok do zwiększenia prywatności w przeglądarce. Przejdź do otwartego panelu i włącz tę opcję.
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -1862,7 +1883,6 @@ back = Wstecz
 ## Users who authenticate with a passkey to access Sync must also enter their password.
 
 signin-passkey-fallback-password-label = Hasło
-signin-passkey-fallback-go-to-settings = Przejdź do ustawień
 signin-passkey-fallback-continue = Kontynuuj
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -1881,25 +1901,6 @@ signin-passwordless-code-expired = Kod wygasł?
 signin-passwordless-code-resend-link = Wyślij nowy.
 signin-passwordless-code-resend-error = Coś się nie powiodło. Nie można wysłać nowego kodu.
 signin-passwordless-code-other-account-link = Użyj innego konta
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Zweryfikuj to logowanie, <span>aby przejść do ustawień konta</span>
-signin-push-code-heading-w-custom-service = Zweryfikuj to logowanie, <span>aby przejść do usługi { $serviceName }</span>
-signin-push-code-instruction = Sprawdź inne swoje urządzenia i zatwierdź to logowanie w przeglądarce { -brand-firefox }.
-signin-push-code-did-not-recieve = Powiadomienie nie doszło?
-signin-push-code-send-email-link = Wyślij kod na e-mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Potwierdź logowanie
-signin-push-code-confirm-description = Wykryliśmy próbę logowania z poniższego urządzenia. Jeśli to Ty, zatwierdź logowanie
-signin-push-code-confirm-verifying = Weryfikowanie
-signin-push-code-confirm-login = Potwierdź logowanie
-signin-push-code-confirm-wasnt-me = To nie ja, zmień hasło.
-signin-push-code-confirm-login-approved = Logowanie zostało zatwierdzone. Zamknij to okno.
-signin-push-code-confirm-link-error = Odnośnik jest uszkodzony. Proszę spróbować ponownie.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

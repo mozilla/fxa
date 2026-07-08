@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Iniciar a sessão em { -product-mozilla-account }?
-session-verify-send-push-body-2 = Clique aqui para confirmar que é você
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -380,10 +378,16 @@ subscriptionPaymentProviderCancelled-content-detect = Detetámos um problema com
 subscriptionPaymentProviderCancelled-content-reason-1 = O seu método de pagamento pode ter expirado ou o seu método de pagamento atual está desatualizado.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-subject = Subscrição de { $productName } reativada
+subscriptionReactivation-subject-2 = A sua subscrição { $productName } foi reativada
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = O seu teste { $productName } foi reativado
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Obrigado por reativar a sua subscrição de { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = Obrigado por reativar o seu teste de { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

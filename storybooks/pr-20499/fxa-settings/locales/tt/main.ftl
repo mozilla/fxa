@@ -35,10 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Гомуми кушымта хатасы
-app-general-err-message = Нидер булды. Зинһар соңрак тырышып карагыз.
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } логотибы
 app-footer-privacy-notice = Сайтның Хоcусыйлык Аңлатмасы
 app-footer-terms-of-service = Куллану Шартлары
@@ -806,17 +802,6 @@ back = Кире
 
 
 signin-passwordless-code-input-label-v2 = 6-цифрлы кодны кертегез
-
-
-signin-push-code-did-not-recieve = Искәртү килмәдеме?
-signin-push-code-send-email-link = Кодны эл. почта аша җибәрү
-
-
-signin-push-code-confirm-instruction = Керүегезне раслагыз
-signin-push-code-confirm-verifying = Тикшерү
-signin-push-code-confirm-login = Керүне раслау
-signin-push-code-confirm-wasnt-me = Бу мин түгел, серсүзне үзгәртү.
-signin-push-code-confirm-link-error = Сылтамага зыян килгән. Зинһар янәдән тырышып карагыз.
 
 
 signin-recovery-method-code-info-v2 =

@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error de aplicación general
-app-general-err-message = Algo salió mal. Probá de nuevo más tarde.
+app-something-went-wrong-heading = Algo salió mal
+app-something-went-wrong-message = Hemos sido notificados del problema. Refrescá la página para volver a probar.
+app-error-id = ID de error: { $errorId }
+app-error-details-summary = Detalles del error
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 
 
@@ -149,6 +151,14 @@ device-info-browser-os = { $browserName } en { $genericOSName }
 device-info-ip-address = Dirección IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Instalá { -brand-firefox } en cualquier dispositivo
+firefox-promo-banner-mobile-description = Sincronizá tus pestañas, marcadores y contraseñas en todos tus dispositivos. Además, todo permanece cifrado de forma segura.
+firefox-promo-banner-mobile-cta = Conectar un dispositivo
+firefox-promo-banner-switch-heading = Rápido de cambiar. Fácil de instalar.
+firefox-promo-banner-switch-description = Cuando cambiés a { -brand-firefox }, podés traer tus marcadores, contraseñas, historial y más para poder empezar a navegar sin perder nada.
+firefox-promo-banner-switch-cta = Cambiar a { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Contraseña
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -217,6 +227,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Éxito
 checkmark-enabled-icon-aria-label =
     .aria-label = Habilitado
+chevron-right-icon-aria-label =
+    .aria-label = Comillas angulares a la derecha
 close-icon-aria-label =
     .aria-label = Cerrar mensaje
 code-icon-aria-label =
@@ -290,6 +302,7 @@ input-phone-number-enter-number = Ingresar número telefónico
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
 legal-back-button = Atrás
+app-general-err-message = Algo salió mal. Probá de nuevo más tarde.
 
 
 reset-pwd-link-damaged-header = El enlace para restablecer la contraseña está dañado
@@ -444,6 +457,9 @@ cs-disconnect-lost-advice-content-3 = Cómo el dispositivo fue robado o se perdi
 cs-disconnect-suspicious-advice-heading = Dispositivo sospechoso desconectado
 cs-disconnect-suspicious-advice-content-2 = Si el dispositivo desconectado es realmente sospechoso, para mantener tu información segura, tenés que cambiar la contraseña de tu { -product-mozilla-account } en la configuración de la cuenta. También tenés que cambiar cualquier otra contraseña que guardaste en { -brand-firefox } ingresando about:logins en la barra de direcciones.
 cs-sign-out-button = Cerrar la sesión
+
+
+cs-scope-firefox-vpn = VPN integrada de { -brand-firefox }
 
 
 dc-heading = Recolección y uso de datos
@@ -742,7 +758,7 @@ page-passkey-add-cancel = Cancelar
 
 
 page-passkey-add-success = Clave de acceso creada
-page-passkey-add-error-system = Sistema no disponible. Probá de nuevo más tarde.
+page-passkey-add-error-system-v2 = Hubo un problema creando tu clave de acceso. Probá de nuevo más tarde.
 
 
 recent-activity-title = Actividad reciente de la cuenta
@@ -781,6 +797,26 @@ recent-activity-account-recovery-codes-signin-complete = Inicio de sesión con c
 recent-activity-password-reset-otp-sent = Se envió el código de confirmación para restablecer la contraseña
 recent-activity-password-reset-otp-verified = Código de confirmación de restablecimiento de contraseña verificado
 recent-activity-must-reset-password = Se requiere restablecer la contraseña
+recent-activity-account-recovery-phone-replace-complete = Teléfono de recuperación reemplazado
+recent-activity-account-recovery-phone-replace-failure = Falló el reemplazo del teléfono de recuperación
+recent-activity-account-two-factor-replace-success = Se reemplazó la autenticación de dos pasos
+recent-activity-account-two-factor-replace-failure = Falló el reemplazo de la autenticación en dos pasos
+recent-activity-account-recovery-phone-setup-failed = Falló la configuración del teléfono de recuperación
+recent-activity-account-recovery-phone-reset-password-complete = Restablecimiento de contraseña con el teléfono de recuperación completo
+recent-activity-account-recovery-phone-reset-password-failed = Falló el restablecimiento de contraseña con el teléfono de recuperación
+recent-activity-account-mfa-otp-sent = Se solicitó autorización de cambio de cuenta
+recent-activity-account-mfa-otp-verified = Cambio de cuenta autorizado
+recent-activity-account-mfa-otp-failed = Falló la autorización de cambio de cuenta
+recent-activity-account-passkey-registration-success = Clave de acceso agregada
+recent-activity-account-passkey-registration-failure = Falló el registro de la clave de acceso
+recent-activity-account-passkey-removed = Clave de acceso eliminada
+recent-activity-account-passkey-authentication-success = Inicio de sesión con clave de acceso completada
+recent-activity-account-passkey-authentication-failure = Falló el inicio de sesión con la clave de acceso
+recent-activity-account-passwordless-login-otp-sent = Se envió el código para inicio de sesión sin contraseña
+recent-activity-account-passwordless-login-otp-failed = Falló el código de inicio de sesión sin contraseña
+recent-activity-account-passwordless-login-otp-verified = Código de inicio de sesión sin contraseña verificado
+recent-activity-account-passwordless-registration-complete = Se completó el registro de la cuenta sin contraseña
+recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
 recent-activity-unknown = Otra actividad de la cuenta
 
 
@@ -887,7 +923,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Borrar clave de acceso
 passkey-delete-modal-heading = ¿Borrar la clave de acceso?
-passkey-delete-modal-content = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión de una forma diferente.
+passkey-delete-modal-content-v2 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con un método diferente (contraseña, otra clave de acceso o cuenta vinculada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada
@@ -915,13 +951,10 @@ passkey-row-description = Hacé que el inicio de sesión sea más fácil y segur
 passkey-row-info-link-2 = Conocer más
 passkey-row-max-limit-banner =
     { $count ->
-        [one] Usaste todas las { $count } claves de acceso. Eliminá una clave de acceso para crear una nueva.
-       *[other] Usaste todas las { $count } claves de acceso. Eliminá una clave de acceso para crear una nueva.
+        [one] Usaste la clave de acceso. Borrá la clave de acceso para crear una nueva.
+       *[other] Usaste todas las { $count } claves de acceso. Borrá una clave de acceso para crear una nueva.
     }
 passkey-row-max-limit-disabled-reason = Alcanzaste el número máximo de claves de acceso.
-
-
-passkey-row-webauthn-not-supported = Su navegador o dispositivo no soporta claves de acceso.
 
 
 rk-header-1 = Clave de recuperación de cuenta
@@ -1035,6 +1068,7 @@ auth-error-226 = Se alcanzó el límite de claves de acceso
 auth-error-227 = Falló la autenticación de clave de acceso
 auth-error-228 = Falló el registro de la clave de acceso
 auth-error-238 = Falló la verificación de la clave de acceso
+auth-error-239 = Lo sentimos, no pudimos borrar tu cuenta. Probá de nuevo o contactá a soporte si el problema persiste.
 auth-error-999 = Error inesperado
 auth-error-1001 = Intento de inicio de sesión de cancelado
 auth-error-1002 = La sesión caducó. Iniciá sesión de nuevo para conituar.
@@ -1061,7 +1095,12 @@ oauth-error-1000 = Algo no funcionó. Cerrá esta pestaña y probá de nuevo.
 passkey-registration-error-not-allowed = La configuración de la clave de acceso falló o no está disponible. Probá de nuevo o elegí otro método.
 passkey-registration-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. O el dispositivo ya fue registrado o el proceso de configuración fue cancelado.
 passkey-registration-error-timeout = Se canceló la configuración de la clave de acceso. Probá de nuevo.
-passkey-registration-error-not-supported = Las claves de acceso no están soportadas acá. Probá otro método o dispositivo.
+passkey-registration-canceled-v2 = La configuración de la clave de acceso se quedó sin tiempo o se ha cancelado.
+passkey-registration-canceled-link = Conocer más
+passkey-registration-error-not-supported-v2 = Tu navegador o dispositivo no soporta claves de acceso.
+passkey-registration-error-not-supported-link = Conocer más
+passkey-registration-error-could-not-complete = La configuración de la clave de acceso no pudo completarse. Probá un método o dispositivo diferente.
+passkey-registration-error-could-not-complete-link = Conocer más
 passkey-registration-error-security = No se pueden configurar claves de acceso en esta página. Usá el sitio seguro y probá de nuevo.
 passkey-registration-error-invalid-state = Esta clave de acceso ya está registrada. Usala para iniciar sesión o agregar una clave de acceso diferente.
 passkey-registration-error-not-readable = No pudimos acceder al autenticador. Probá de nuevo o elegí otro método.
@@ -1072,11 +1111,12 @@ passkey-registration-error-unexpected = Falló la configuración de la clave de 
 passkey-authentication-error-not-allowed = Falló el inicio de sesión con clave de acceso o no está disponible. Probá de nuevo o elegí otro método.
 passkey-authentication-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. Probá de nuevo o elegí otro método.
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para el pedido de clave de acceso. Probá de nuevo.
-passkey-authentication-error-not-supported = Las claves de acceso no están soportadas. Probá otro método o dispositivo.
+passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no soporta claves de acceso.
 passkey-authentication-error-security = No se pueden usar claves de acceso en esta página. Fíjate si estás en el sitio seguro correcto y probá de nuevo.
 passkey-authentication-error-invalid-state = Algo salió mal con tu clave de acceso. Probá de nuevo o usá otro método de inicio de sesión.
 passkey-authentication-error-not-readable = No pudimos acceder al autenticador. Probá de nuevo o usá otro método de inicio de sesión.
 passkey-authentication-error-unexpected = Algo salió mal. Probá de nuevo o elegí otro método de inicio de sesión.
+passkey-authentication-error-not-found = Clave de acceso no reconocida. Usar otro método de inicio de sesión.
 
 
 connect-another-device-signed-in-header = Iniciaste sesión en { -brand-firefox }
@@ -1166,7 +1206,7 @@ pair-auth-complete-manage-devices-link = Administrar dispositivos
 
 pair-auth-complete-send-tab-heading = Estás listo para enviar algunas pestañas
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está conectado.
-pair-auth-complete-send-tab-benefits = Eres libre de enviar instantáneamente pestañas abiertas, contraseñas y marcadores entre dispositivos.
+pair-auth-complete-send-tab-benefits = Tenés la libertad de enviar instantáneamente pestañas abiertas, contraseñas y marcadores entre dispositivos.
 
 
 auth-totp-heading-w-default-service = Ingresá el código de autenticación <span>para continuar con la configuración de la cuenta</span>
@@ -1233,9 +1273,9 @@ pair-wait-for-auth-heading-text = Se requiere aprobación <span>desde el otro di
 
 pair-unsupported-header = Conectar usando una aplicación
 pair-unsupported-message = ¿Usaste la cámara del sistema? Tenés que emparejarla desde una aplicación de { -brand-firefox }.
-pair-unsupported-oops-header = ¡Ups! Parece que no está usando { -brand-firefox }.
+pair-unsupported-oops-header = ¡Epa! Parece que no estás usando { -brand-firefox }.
 pair-unsupported-switch-to-firefox = Cambiá a { -brand-firefox } y abrí esta página para conectar otro dispositivo.
-pair-unsupported-oops-mobile = ¡Ups! Parece que no está usando { -brand-firefox }.
+pair-unsupported-oops-mobile = ¡Epa! Parece que no estás usando { -brand-firefox }.
 pair-unsupported-connecting-mobile-header-v2 = Conectando tu dispositivo móvil con tu { -product-mozilla-account }
 pair-unsupported-connecting-mobile-instructions-v2 = Abrí { -brand-firefox } en tu computadora, visitá <b>firefox.com/pair</b> y seguí las instrucciones en pantalla para conectar tu dispositivo móvil.
 pair-unsupported-learn-more-link-v2 = Conocer más
@@ -1394,7 +1434,6 @@ signin-passkey-fallback-header = Finalizar inicio de sesión
 signin-passkey-fallback-heading = Ingresá tu contraseña para sincronizar
 signin-passkey-fallback-body = Para mantener tus datos seguros, necesitás ingresar tu contraseña cuando usés esta clave de acceso.
 signin-passkey-fallback-password-label = Contraseña
-signin-passkey-fallback-go-to-settings = Ir a Ajustes
 signin-passkey-fallback-continue = Continuar
 
 
@@ -1425,22 +1464,6 @@ signup-passwordless-code-subheading = Registrarse solo toma un paso cuando usás
 
 
 signin-passwordless-totp-required = La autenticación de dos pasos está habilitada en tu cuenta. Ingresá con tu contraseña.
-
-
-signin-push-code-heading-w-default-service = Verificá este inicio de sesión <span>para continuar con la configuración de la cuenta</span>
-signin-push-code-heading-w-custom-service = Verificá este inicio de sesión <span>para continuar a { $serviceName }</span>
-signin-push-code-instruction = Verificá tus otros dispositivos y aprobá este inicio de sesión desde tu navegador { -brand-firefox }.
-signin-push-code-did-not-recieve = ¿No recibiste la notificación?
-signin-push-code-send-email-link = Código de correo electrónico
-
-
-signin-push-code-confirm-instruction = Confirmá tu inicio de sesión
-signin-push-code-confirm-description = Detectamos un intento de inicio de sesión desde el siguiente dispositivo. Si fuiste vos, aprobá el inicio de sesión
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar inicio de sesión
-signin-push-code-confirm-wasnt-me = Este no era yo, cambiá la contraseña.
-signin-push-code-confirm-login-approved = Se ha aprobado tu inicio de sesión. Podés cerrar esta ventana.
-signin-push-code-confirm-link-error = El enlace está dañado. Probá de nuevo.
 
 
 signin-recovery-method-header = Iniciar sesión

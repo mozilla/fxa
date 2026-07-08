@@ -321,8 +321,10 @@
     .gender = masculine
 -google-play = Google Play
 
-app-general-err-heading = Obecná chyba aplikace
-app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
+app-something-went-wrong-heading = Něco se pokazilo
+app-something-went-wrong-message = Na problém jsme byli upozorněni. Obnovte stránku a zkuste to znovu.
+app-error-id = ID chyby: { $errorId }
+app-error-details-summary = Podrobnosti o chybě
 app-query-parameter-err-heading = Špatný požadavek: neplatné parametry v dotazu
 
 
@@ -438,6 +440,14 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
+firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
+firefox-promo-banner-mobile-cta = Připojit zařízení
+firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
+firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
+firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Heslo
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -506,6 +516,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Úspěch
 checkmark-enabled-icon-aria-label =
     .aria-label = Povoleno
+chevron-right-icon-aria-label =
+    .aria-label = Šipka vpravo
 close-icon-aria-label =
     .aria-label = Zavřít zprávu
 code-icon-aria-label =
@@ -579,6 +591,7 @@ input-phone-number-enter-number = Zadejte telefonní číslo
 input-phone-number-country-united-states = Spojené státy
 input-phone-number-country-canada = Kanada
 legal-back-button = Zpět
+app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
 
 
 reset-pwd-link-damaged-header = Odkaz pro obnovení je poškozen
@@ -737,6 +750,9 @@ cs-disconnect-suspicious-advice-content-2 =
     pro zabezpečení vašich dat byste si měli změnit heslo svého { -product-mozilla-account(case: "gen", capitalization: "lower") }.
     Doporučujeme také změnit všechna hesla uložená ve { -brand-firefox(case: "loc") }, která najdete po zadání about:logins do adresního řádku.
 cs-sign-out-button = Odhlásit se
+
+
+cs-scope-firefox-vpn = Vestavěná VPN aplikace { -brand-firefox }
 
 
 dc-heading = Sběr dat a jejich použití
@@ -1037,7 +1053,7 @@ page-passkey-add-cancel = Zrušit
 
 
 page-passkey-add-success = Přístupový klíč byl vytvořen
-page-passkey-add-error-system = Systém není dostupný. Zkuste to znovu později.
+page-passkey-add-error-system-v2 = Při vytváření vašeho přístupového klíče se vyskytl problém. Zkuste to znovu později.
 
 
 recent-activity-title = Nedávná aktivita účtu
@@ -1076,6 +1092,26 @@ recent-activity-account-recovery-codes-signin-complete = Přihlášení pomocí 
 recent-activity-password-reset-otp-sent = Potvrzovací kód pro obnovu hesla byl odeslán
 recent-activity-password-reset-otp-verified = Potvrzovací kód pro obnovení hesla byl ověřen
 recent-activity-must-reset-password = Je vyžadována obnova hesla
+recent-activity-account-recovery-phone-replace-complete = Telefon pro obnovení vyměněn
+recent-activity-account-recovery-phone-replace-failure = Náhrada telefonu pro obnovení se nezdařila
+recent-activity-account-two-factor-replace-success = Dvoufázové ověřování bylo nahrazeno
+recent-activity-account-two-factor-replace-failure = Nahrazení dvoufázového ověřování se nezdařilo
+recent-activity-account-recovery-phone-setup-failed = Nastavení telefonu pro obnovení se nezdařilo
+recent-activity-account-recovery-phone-reset-password-complete = Obnovení hesla pomocí záložního telefonního čísla bylo dokončeno
+recent-activity-account-recovery-phone-reset-password-failed = Obnovení hesla pomocí záložního telefonního čísla se nezdařilo
+recent-activity-account-mfa-otp-sent = Žádost o schválení změny účtu
+recent-activity-account-mfa-otp-verified = Změna účtu byla schválena
+recent-activity-account-mfa-otp-failed = Autorizace změny účtu selhala
+recent-activity-account-passkey-registration-success = Přístupový klíč byl přidán
+recent-activity-account-passkey-registration-failure = Registrace přístupového klíče selhala
+recent-activity-account-passkey-removed = Přístupový klíč byl odebrán
+recent-activity-account-passkey-authentication-success = Přihlášení pomocí přístupového klíče bylo dokončeno
+recent-activity-account-passkey-authentication-failure = Přihlášení pomocí přístupového klíče selhalo
+recent-activity-account-passwordless-login-otp-sent = Byl odeslán kód pro přihlášení bez hesla
+recent-activity-account-passwordless-login-otp-failed = Selhal kód pro přihlášení bez hesla
+recent-activity-account-passwordless-login-otp-verified = Ověřen kód pro přihlášení bez hesla
+recent-activity-account-passwordless-registration-complete = Registrace účtu bez hesla byla dokončena
+recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
 recent-activity-unknown = Jiná aktivita u účtu
 
 
@@ -1131,7 +1167,7 @@ product-promo-monitor-description-v2 = Zjistěte, kde jsou vaše soukromé infor
 product-promo-monitor-cta = Zkontrolovat
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
-product-promo-vpn-description = Objevte přidanou vrstvu anonymního prohlížení a ochrany.
+product-promo-vpn-description = Objevte další úroveň anonymního prohlížení a ochrany.
 product-promo-vpn-cta = Získejte { -product-mozilla-vpn-short }
 
 
@@ -1183,7 +1219,7 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content = Tento přístupový kód bude odebrán z vašeho účtu. Budete se muset přihlásit jiným způsobem.
+passkey-delete-modal-content-v2 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení bude potřeba použít jinou metodu (heslo, jiné heslo nebo propojený účet).
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
@@ -1207,18 +1243,15 @@ passkey-row-header = Přístupové klíče
 passkey-row-enabled = Povolený
 passkey-row-not-set = Nenastavený
 passkey-row-action-create = Vytvořit
-passkey-row-description = Usnadněte si přihlašování a přihlašte se ke svému účtu pomocí svého telefonu nebo jiného podporovaného zařízení.
+passkey-row-description = Usnadněte si přihlašování a přihlaste se do svého účtu pomocí svého telefonu nebo jiného podporovaného zařízení.
 passkey-row-info-link-2 = Zjistit více
 passkey-row-max-limit-banner =
     { $count ->
-        [one] Už jste použili všech { $count } přístupových klíčů. Smažte přístupový kód, pokud chcete vytvořit nový.
-        [few] Už jste použili všech { $count } přístupových klíčů. Smažte přístupový kód, pokud chcete vytvořit nový.
-       *[other] Už jste použili všech { $count } přístupových klíčů. Smažte přístupový kód, pokud chcete vytvořit nový.
+        [one] Už jste použili { $count } přístupový klíč. Smažte přístupový klíč, pokud chcete vytvořit nový.
+        [few] Už jste použili všech { $count } přístupových klíčů. Smažte přístupový klíč, pokud chcete vytvořit nový.
+       *[other] Už jste použili všech { $count } přístupových klíčů. Smažte přístupový klíč, pokud chcete vytvořit nový.
     }
 passkey-row-max-limit-disabled-reason = Dosáhli jste maximálního počtu přístupových klíčů.
-
-
-passkey-row-webauthn-not-supported = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 
 
 rk-header-1 = Obnovovací klíč k účtu
@@ -1257,7 +1290,7 @@ se-resend-code-2 =
     Je nutné potvrzení. Pokud jste potvrzovací kód nenašli v doručené ani nevyžádané
     poště, můžete ho nechat <button>znovu odeslat</button>.
 se-make-primary = Nastavit jako hlavní
-se-default-content = Získejte přístup ke svému účtu, pokud se vám nepodaří přihlásit svým hlavním e-mailem.
+se-default-content = Získejte přístup do svého účtu, pokud se vám nepodaří přihlásit svým hlavním e-mailem.
 se-content-note-1 = Poznámka: záložní e-mailová adresa neumožní obnovit vaše informace — na to budete potřebovat <a>obnovovací klíč k účtu</a>.
 se-secondary-email-none = Žádná
 
@@ -1271,7 +1304,7 @@ tfa-row-action-change = Změnit
 tfa-row-button-refresh =
     .title = Obnovit nastavení dvoufázového ověřování
 tfa-row-cannot-refresh = Nepodařilo se obnovit nastavení dvoufázového ověřování.
-tfa-row-enabled-description = Váš účet je chráněn dvoufázovým ověřováním. Při přihlašování k účtu { -product-mozilla-account } musíte zadat jednorázový přístupový kód z ověřovací aplikace.
+tfa-row-enabled-description = Váš účet je chráněn dvoufázovým ověřováním. Při přihlašování se do účtu { -product-mozilla-account } musíte zadat jednorázový přístupový kód z ověřovací aplikace.
 tfa-row-enabled-info-link = Jak to chrání váš účet
 tfa-row-disabled-description-v2 = Pomozte zabezpečit svůj účet pomocí ověřovací aplikace třetí strany jakožto druhého kroku přihlášení.
 tfa-row-cannot-verify-session-4 = Omlouváme se, nastal problém s potvrzením vaší relace
@@ -1326,6 +1359,7 @@ auth-error-226 = Dosažen limit přístupových klíčů
 auth-error-227 = Ověření přístupovým klíčem selhalo
 auth-error-228 = Registrace přístupového klíče selhala
 auth-error-238 = Ověření pomocí přístupového klíče se nezdařilo
+auth-error-239 = Je nám líto, ale váš účet se nepodařilo smazat. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává.
 auth-error-999 = Neočekávaná chyba
 auth-error-1001 = Pokus o přihlášení zrušen
 auth-error-1002 = Relace vypršela. Pro pokračování se přihlaste.
@@ -1350,9 +1384,14 @@ oauth-error-1000 = Nastala nespecifikovaná chyba. Zavřete prosím tento panel 
 
 
 passkey-registration-error-not-allowed = Nastavení přístupového klíče selhalo nebo je nedostupné. Zkuste to znovu nebo zvolte jiný způsob.
-passkey-registration-error-not-allowed-existing = Nastavení přístupového klíče není na tomto zařízení dostupné. Zařízení již bylo zaregistrováno nebo byl proces nastavení přerušen.
+passkey-registration-error-not-allowed-existing = Nastavení přístupového klíče není u tohoto zařízení k dispozici. Zařízení je buď již zaregistrováno, nebo byl proces nastavení zrušen.
 passkey-registration-error-timeout = Nastavení přístupového klíče bylo zrušeno. Zkuste to znovu.
-passkey-registration-error-not-supported = Přístupové klíče zde nejsou podporovány. Zkuste jinou metodu nebo zařízení.
+passkey-registration-canceled-v2 = Nastavení přístupového klíče vypršelo nebo bylo zrušeno.
+passkey-registration-canceled-link = Zjistit více
+passkey-registration-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
+passkey-registration-error-not-supported-link = Zjistit více
+passkey-registration-error-could-not-complete = Nastavení přístupového klíče se nepodařilo dokončit. Zkuste jinou metodu nebo jiné zařízení.
+passkey-registration-error-could-not-complete-link = Zjistit více
 passkey-registration-error-security = Přístupové klíče na této stránce nelze nastavit. Použijte zabezpečený server a zkuste to znovu.
 passkey-registration-error-invalid-state = Tento přístupový klíč je již zaregistrován. Použijte jej k přihlášení nebo přidejte jiný přístupový klíč.
 passkey-registration-error-not-readable = Nepodařilo se nám přistoupit k ověřovacímu modulu. Zkuste to znovu nebo zvolte jiný způsob.
@@ -1361,13 +1400,14 @@ passkey-registration-error-unexpected = Nastavení přístupového klíče selha
 
 
 passkey-authentication-error-not-allowed = Přihlášení pomocí přístupového klíče selhalo nebo je nedostupné. Zkuste to znovu nebo zvolte jiný způsob.
-passkey-authentication-error-not-allowed-existing = Nastavení přístupového klíče není na tomto zařízení dostupné. Zkuste to prosím znovu nebo zvolte jiný způsob.
+passkey-authentication-error-not-allowed-existing = Nastavení přístupového klíče není u tohoto zařízení k dispozici. Zkuste to prosím znovu nebo zvolte jinou metodu.
 passkey-authentication-error-timeout = Vypršel časový limit požadavku na přístupový klíč. Zkuste to prosím znovu.
-passkey-authentication-error-not-supported = Přístupové klíče nejsou podporovány. Zkuste jinou metodu nebo zařízení.
+passkey-authentication-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 passkey-authentication-error-security = Na této stránce nelze použít přístupové klíče. Zkontrolujte, zda jste na správné zabezpečené stránce, a zkuste to znovu.
 passkey-authentication-error-invalid-state = S vaším přístupovým klíčem se něco pokazilo. Zkuste to znovu nebo použijte jinou metodu přihlášení.
 passkey-authentication-error-not-readable = Nepodařilo se nám přistoupit k ověřovacímu modulu. Zkuste to znovu nebo použijte jinou metodu přihlášení.
 passkey-authentication-error-unexpected = Něco se pokazilo. Zkuste to znovu nebo zvolte jiný způsob přihlášení.
+passkey-authentication-error-not-found = Přístupový klíč nebyl rozpoznán. Použije jinou metodu přihlášení.
 
 
 connect-another-device-signed-in-header = Jste přihlášen(a) do { -brand-firefox(case: "gen") }
@@ -1456,8 +1496,8 @@ pair-auth-complete-manage-devices-link = Správa zařízení
 
 
 pair-auth-complete-send-tab-heading = Jste připraveni odeslat několik panelů
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } za { $deviceOS } je připojen.
-pair-auth-complete-send-tab-benefits = Otevřené panely, hesla a záložky si můžete mezi zařízeními okamžitě posílat.
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } pro { $deviceOS } je připojený.
+pair-auth-complete-send-tab-benefits = Můžete si mezi zařízeními okamžitě sdílet otevřené panely, hesla a záložky.
 
 
 auth-totp-heading-w-default-service = Zadejte ověřovací kód <span>pro pokračování do nastavení účtu</span>
@@ -1471,8 +1511,8 @@ auth-totp-code-required-error = Je vyžadován ověřovací kód
 pair-wait-for-supp-heading-text = Je požadováno schválení <span>z vašeho dalšího zařízení</span>
 
 
-pair-failure-header-v2 = Párování se zařízením selhalo
-pair-failure-message-v2 = Nastavení se nepodařilo dokončit. Přihlaste se prosím pomocí svého e-mailu.
+pair-failure-header-v2 = Párování zařízení se nezdařilo
+pair-failure-message-v2 = Nastavení se nepodařilo dokončit. Přihlaste se prosím pomocí své e-mailové adresy.
 pair-failure-try-again-link = Zkusit znovu
 
 
@@ -1488,30 +1528,30 @@ pair-get-started-button = Začít
 pair-qr-code-aria-label = QR kód
 
 
-pair-choice-subheader = Synchronizujte své { -brand-firefox } prostředí
-pair-choice-description = Zobrazte si svá uložená hesla, panely, historii prohlížení a další — na všech svých zařízeních.
-pair-choice-header-send-tab = Stáhněte nebo otevřete { -brand-firefox } na zařízení, kam chcete posílat panely
+pair-choice-subheader = Synchronizujte si svůj { -brand-firefox(case: "acc") }
+pair-choice-description = Prohlížejte si uložená hesla, otevřené panely, historii prohlížení a další údaje — na všech svých zařízeních.
+pair-choice-header-send-tab = Stáhněte si nebo otevřete { -brand-firefox(case: "acc") } na zařízení, na které chcete panely odeslat
 pair-choice-legend = Pro pokračování zvolte:
-pair-choice-has-mobile-title = Už mám { -brand-firefox } pro mobil
+pair-choice-has-mobile-title = Už mám { -brand-firefox } pro mobilní zařízení
 pair-choice-has-mobile-description = Pokud už máte aplikaci { -brand-firefox } na svém mobilním zařízení, spusťte synchronizaci.
-pair-choice-needs-mobile-title = Nemám { -brand-firefox } pro mobil
-pair-choice-needs-mobile-description = Stáhněte si aplikaci { -brand-firefox } do svého mobilního zařízení a poté spusťte synchronizaci.
+pair-choice-needs-mobile-title = Nemám { -brand-firefox } pro mobilní zařízení
+pair-choice-needs-mobile-description = Stáhněte si aplikaci { -brand-firefox } do svého mobilního zařízení, a poté spusťte synchronizaci.
 pair-choice-continue-button = Pokračovat
 pair-signed-in-successfully = Přihlášení bylo úspěšné!
 pair-account-created-now-syncing = Účet byl vytvořen. Nyní probíhá synchronizace.
 pair-password-created-now-syncing = Heslo vytvořeno. Nyní probíhá synchronizace.
 
 
-pair-download-subheader = Stáhnout { -brand-firefox } pro mobil
-pair-download-description = Pro synchronizaci aplikace { -brand-firefox } do svého telefonu nebo tabletu si nejdříve stáhněte aplikaci { -brand-firefox } pro mobil. Jak na to:
+pair-download-subheader = Stáhněte si { -brand-firefox(case: "acc") } pro mobilní zařízení
+pair-download-description = Pro synchronizaci aplikace { -brand-firefox } do svého telefonu nebo tabletu si nejdříve stáhněte aplikaci { -brand-firefox } pro mobilní zařízení. Jak na to:
 pair-download-step-scan-qr = <b>Krok { $stepNumber }</b>: Stáhněte si aplikaci { -brand-firefox } naskenováním tohoto QR kódu pomocí fotoaparátu svého mobilního zařízení:
-pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Zvolte „Pokračovat“ pro synchronizaci { -brand-firefox } s vaším mobilním zařízením.
-pair-continue-to-sync-button = Pokračovat k synchronizaci
+pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Zvolte „Pokračovat“ pro synchronizaci aplikace { -brand-firefox } s vaším mobilním zařízením.
+pair-continue-to-sync-button = Pokračovat se synchronizací
 
 
 pair-success-header-2 = Zařízení připojeno
 pair-success-message-2 = Párování dokončeno.
-pair-success-tab-close-message = Tento panel bude automaticky zavřen do { -brand-firefox }.
+pair-success-tab-close-message = Tento panel { -brand-firefox } automaticky zavře.
 
 
 pair-supp-allow-heading-text = Potvrdit párování <span>pro { $email }</span>
@@ -1524,13 +1564,13 @@ pair-wait-for-auth-heading-text = Je požadováno schválení <span>z vašeho da
 
 pair-unsupported-header = Spárovat pomocí aplikace
 pair-unsupported-message = Použili jste systémový fotoaparát? Párování je potřeba zahájit z { -brand-firefox(case: "gen") }.
-pair-unsupported-oops-header = Jejda! Zdá se, že { -brand-firefox } nepoužíváte.
-pair-unsupported-switch-to-firefox = Přejděte na { -brand-firefox }, otevřete tuto stránku pro připojení dalšího zařízení.
-pair-unsupported-oops-mobile = Jejda! Zdá se, že { -brand-firefox } nepoužíváte.
-pair-unsupported-connecting-mobile-header-v2 = Propojování vašeho mobilního zařízení s vaším { -product-mozilla-account }
+pair-unsupported-oops-header = Jejda! Zdá se, že nepoužíváte { -brand-firefox(case: "acc") }.
+pair-unsupported-switch-to-firefox = Přepněte na { -brand-firefox } a otevřete tuto stránku, abyste připojili další zařízení.
+pair-unsupported-oops-mobile = Jejda! Zdá se, že nepoužíváte { -brand-firefox(case: "acc") }.
+pair-unsupported-connecting-mobile-header-v2 = Propojení mobilního zařízení s vaším { -product-mozilla-account(case: "ins", capitalization: "lower") }
 pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox } na svém počítači, navštivte <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení svého mobilního zařízení.
 pair-unsupported-learn-more-link-v2 = Zjistit více
-pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda. Něco je špatně.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
 
 
@@ -1666,7 +1706,7 @@ signin-account-locked-banner-link = Před přihlášením si obnovte heslo
 
 report-signin-link-damaged-body = V odkazu, na který jste klepli, chyběly znaky a váš e-mailový klient jej mohl poškodit. Pečlivě si adresu zkopírujte a zkuste to znovu.
 report-signin-header = Nahlásit neoprávněné přihlášení?
-report-signin-body = Obdrželi jste e-mail o pokusu o přihlášení k vašemu účtu. Chcete tuto aktivitu nahlásit jako podezřelou?
+report-signin-body = Obdrželi jste e-mail o pokusu o přihlášení do vašeho účtu. Chcete tuto aktivitu nahlásit jako podezřelou?
 report-signin-submit-button = Nahlásit aktivitu
 report-signin-support-link = Proč se to stalo?
 report-signin-error = Omlouváme se, ale při odesílání hlášení nastal problém.
@@ -1681,7 +1721,6 @@ signin-passkey-fallback-header = Dokončit přihlášení
 signin-passkey-fallback-heading = Pro synchronizaci zadejte své heslo
 signin-passkey-fallback-body = Aby byla vaše data v bezpečí, musíte při použití tohoto přístupového klíče zadat své heslo.
 signin-passkey-fallback-password-label = Heslo
-signin-passkey-fallback-go-to-settings = Přejít do nastavení
 signin-passkey-fallback-continue = Pokračovat
 
 
@@ -1714,22 +1753,6 @@ signup-passwordless-code-subheading = Při použití tohoto kódu stačí k regi
 
 
 signin-passwordless-totp-required = U vašeho účtu je zapnuto dvoufázové ověřování. Přihlaste se, prosím, pomocí svého hesla.
-
-
-signin-push-code-heading-w-default-service = <span>Pro pokračování do nastavení účtu</span> ověřte toto přihlášení
-signin-push-code-heading-w-custom-service = Ověřit toto přihlášení <span>a pokračovat do služby { $serviceName }</span>
-signin-push-code-instruction = Zkontrolujte prosím svá ostatní zařízení a schvalte toto přihlášení z prohlížeče { -brand-firefox }.
-signin-push-code-did-not-recieve = Nedostali jste oznámení?
-signin-push-code-send-email-link = Odeslat kód na e-mail
-
-
-signin-push-code-confirm-instruction = Potvrďte své přihlášení
-signin-push-code-confirm-description = Zjistili jsme pokus o přihlášení z následujícího zařízení. Pokud jste to byli vy, potvrďte přihlášení
-signin-push-code-confirm-verifying = Ověřuje se
-signin-push-code-confirm-login = Potvrdit přihlášení
-signin-push-code-confirm-wasnt-me = Toto nebylo mé přihlášení, změnit heslo.
-signin-push-code-confirm-login-approved = Vaše přihlášení bylo schváleno. Zavřete prosím toto okno.
-signin-push-code-confirm-link-error = Odkaz je poškozen. Zkuste to prosím znovu.
 
 
 signin-recovery-method-header = Přihlásit se

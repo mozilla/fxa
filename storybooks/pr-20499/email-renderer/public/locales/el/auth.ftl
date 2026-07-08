@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Κάνετε σύνδεση στον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας;
-session-verify-send-push-body-2 = Κάντε κλικ εδώ για να επιβεβαιώσετε την ταυτότητά σας
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment

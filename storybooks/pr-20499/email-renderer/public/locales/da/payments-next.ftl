@@ -17,6 +17,9 @@ next-payment-method-header = Vælg din betalingsmetode
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Først skal du godkende dit abonnement
+
+## Error page
+
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Vælg dit land og indtast dit postnummer <p>for at fortsætte til betalingen af { $productName }</p>
 location-banner-info = Vi kunne ikke fastslå din position automatisk
@@ -63,6 +66,7 @@ checkout-error-contact-support = Kontakt supporten, så vi kan hjælpe dig.
 cart-error-currency-not-determined = Vi var ikke i stand til at fastslå valutaen for dette køb. Prøv igen.
 checkout-processing-general-error = Der opstod en uventet fejl under behandlingen af din betaling. Prøv igen.
 cart-total-mismatch-error = Fakturabeløbet er ændret. Prøv igen.
+cart-free-trial-mismatch-error = Din berettigelse til gratis prøveperiode er ændret. Prøv igen
 
 ## Error pages - Payment method failure messages
 
@@ -74,6 +78,7 @@ intent-payment-error-generic = Der opstod en uventet fejl under behandlingen af 
 intent-payment-error-insufficient-funds = Det ser ud til, at der ikke er penge nok på dit kort. Prøv et andet kort.
 general-paypal-error = Der opstod en uventet fejl under behandlingen af din betaling. Prøv igen.
 paypal-active-subscription-no-billing-agreement-error = Det ser ud til, at der var et problem med at fakturere din { -brand-paypal }-konto. Genaktivér automatiske betalinger for dit abonnement.
+new-account-prepaid-card-free-trial-not-allowed = Forudbetalte kort kan ikke bruges til at starte en gratis prøveperiode på nye konti. Prøv en anden betalingsmetode.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
@@ -255,6 +260,7 @@ next-payment-confirm-checkbox-error = Du skal fuldføre dette, før du går vide
 
 next-new-user-submit = Abonner nu
 next-pay-with-heading-paypal = Betal med { -brand-paypal }
+free-trial-ineligible-notice = Din konto er ikke berettiget til en gratis prøveperiode. Du kan fortsætte med et betalt abonnement.
 
 ## Churn flow - cancel
 
@@ -356,6 +362,8 @@ free-trial-content-button-resume-trial = Genoptag prøveperioden
 free-trial-content-button-resume-trial-aria = Genoptag prøveperioden på { $productName }
 free-trial-content-button-cancel-trial = Opsig prøveperiode
 free-trial-content-button-cancel-trial-aria = Opsig prøveperioden på { $productName }
+free-trial-content-button-cancel-subscription = Opsig abonnement
+free-trial-content-button-cancel-subscription-aria = Opsig abonnement på { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -371,8 +379,8 @@ free-trial-content-link-view-invoice = Se faktura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Se faktura for { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Din gratis prøveperiode sluttede den <bold>{ $date }</bold>. Vi kunne ikke behandle din betaling for at starte dit abonnement. Opdater venligst din betalingsmetode for at aktivere dit abonnement og gendanne adgangen til dine tjenester.
-free-trial-content-payment-failed-no-date = Vi kunne ikke behandle din betaling for at starte dit abonnement. Opdater venligst din betalingsmetode for at aktivere dit abonnement og gendanne adgangen til dine tjenester.
+free-trial-content-trial-ended = Din gratis prøveperiode sluttede den <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Vi kunne ikke behandle din betaling. Opdater din betalingsmetode for at genoprette adgangen. Behandlingen kan tage op til 24 timer og kan variere afhængigt af bank eller betalingsmetode.
 free-trial-content-button-update-payment = Opdater betalingsmetode
 
 # Component - Header
@@ -714,6 +722,7 @@ manage-payment-method-intent-error-try-again = Hmm. Der opstod et problem med at
 manage-payment-method-intent-error-get-in-touch = Hmm. Der opstod et problem med at godkende din betaling. Kontakt din kortudsteder.
 manage-payment-method-intent-error-insufficient-funds = Det ser ud til, at der ikke er penge nok på dit kort. Prøv et andet kort.
 manage-payment-method-intent-error-generic = Der opstod en uventet fejl under behandlingen af din betaling. Prøv igen.
+manage-payment-method-tax-address-required = Vi kunne ikke bestemme dit faktureringssted. Bekræft venligst dine oplysninger om betalingsmetode, og prøv igen.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

@@ -17,6 +17,12 @@ next-payment-method-header = Elige tu methodo de pagamento
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Primo tu debera approbar tu subscription
+
+## Error page
+
+error-page-account-not-found-heading = Conto non trovate
+error-page-account-not-found-message = Le conto associate con tu session non existe. Usa un conto differente o crea un nove pro abonar te.
+error-page-account-not-found-continue-button = Continuar
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selige tu pais e insere tu codice postal <p>pro continuar con le pagamento pro { $productName }</p>
 location-banner-info = Impossibile deteger tu position automaticamente
@@ -80,7 +86,7 @@ new-account-prepaid-card-free-trial-not-allowed = Le cartas prepagate non pote e
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
 
-next-payment-processing-message = Attende dum nos elabora tu pagamento…
+next-payment-processing-message = Per favor attende que nos processa tu pagamento…
 
 ## Success page - /checkout and /upgrade
 ## Common strings used in multiple checkout pages
@@ -259,6 +265,7 @@ next-payment-confirm-checkbox-error = Il besonia completar isto, ante proceder
 
 next-new-user-submit = Abona te ora
 next-pay-with-heading-paypal = Paga con { -brand-paypal }
+free-trial-ineligible-notice = Tu conto non es eligibile pro un essayo gratuite. Tu pote continuar con un abonamento pagate.
 
 ## Churn flow - cancel
 
@@ -360,6 +367,8 @@ free-trial-content-button-resume-trial = Recomenciar prova
 free-trial-content-button-resume-trial-aria = Recomenciar prova pro { $productName }
 free-trial-content-button-cancel-trial = Cancellar prova
 free-trial-content-button-cancel-trial-aria = Cancellar prova pro { $productName }
+free-trial-content-button-cancel-subscription = Cancellar abonamento
+free-trial-content-button-cancel-subscription-aria = Cancellar abonamento a { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -375,8 +384,8 @@ free-trial-content-link-view-invoice = Vider le factura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Vider le factura pro { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Tu prova gratuite finiva le <bold>{ $date }</bold>. Impossibile elaborar tu pagamento pro initiar tu abonamento. Actualisa tu methodo de pagamento pro activar tu abonamento e restaurar accesso a tu servicios.
-free-trial-content-payment-failed-no-date = Impossibile elaborar tu pagamento pro initiar tu abonamento. Actualisa tu methodo de pagamento pro activar tu abonamento e restaurar accesso a tu servicios.
+free-trial-content-trial-ended = Tu prova gratuite expirava le <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Impossibile tractar tu pagamento. Actualisa tu methodo de pagamento pro restaurar le accesso. Le tractamento pote prender usque 24 horas e pote variar per banca o methodo de pagamento.
 free-trial-content-button-update-payment = Actualisar methodo de pagamento
 
 # Component - Header
@@ -718,6 +727,7 @@ manage-payment-method-intent-error-try-again = Hmm. Il habeva un problema durant
 manage-payment-method-intent-error-get-in-touch = Hmm. Il habeva un problema durante le autorisation de tu pagamento. Contacta tu emissor de carta.
 manage-payment-method-intent-error-insufficient-funds = Il pare que tu carta ha credito insufficiente. Prova un altere carta.
 manage-payment-method-intent-error-generic = Un error impreviste ha occurrite durante le elaboration de tu pagamento, retenta.
+manage-payment-method-tax-address-required = Impossibile definir tu position de facturation. Verifica le informationes de tu methodo de pagamento e retenta.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

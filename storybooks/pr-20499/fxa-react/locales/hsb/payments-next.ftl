@@ -17,6 +17,12 @@ next-payment-method-header = Wubjerće swoju płaćensku metodu
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Najprjedy dyrbiće swój abonement wobkrućić
+
+## Error page
+
+error-page-account-not-found-heading = Konto njeje so namakało
+error-page-account-not-found-message = Konto, kotrež je z wašim posedźenjom zwjazane, njeeksistuje. Prošu wužiwajće druhe konto abo załožće nowe, zo byšće abonował.
+error-page-account-not-found-continue-button = Dale
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Wubjerće swój kraj a zapodajće swoje póstowe wodźenske čisło <p>, zo byšće z pokładnju za { $productName } pokročował</p>
 location-banner-info = Njemóžachmy waše stejnišćo awtomatisce namakać
@@ -262,6 +268,7 @@ next-payment-confirm-checkbox-error = Dyrbiće to dokónčić, prjedy hač móž
 
 next-new-user-submit = Nětko abonować
 next-pay-with-heading-paypal = Z { -brand-paypal } płaćić
+free-trial-ineligible-notice = Waše konto njeda so za darmotny test wubrać. Móžeće ze zapłaćenym abonementom pokročować.
 
 ## Churn flow - cancel
 
@@ -363,6 +370,8 @@ free-trial-content-button-resume-trial = Z testowym časom pokročować
 free-trial-content-button-resume-trial-aria = Z testowym časom za { $productName } pokročować
 free-trial-content-button-cancel-trial = Testowy čas wupowědźić
 free-trial-content-button-cancel-trial-aria = Testowy čas za { $productName } wupowědźić
+free-trial-content-button-cancel-subscription = Abonement wupowědźić
+free-trial-content-button-cancel-subscription-aria = Abonement za { $productName } wupowědźić
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -378,8 +387,8 @@ free-trial-content-link-view-invoice = Zličbowanku wobhladać
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Zličbowanku za { $productName } wobhladać
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Waš darmotny testo-wy čas je so <bold>{ $date }</bold> skónčił. Njemóžachmy waše płaćenje předźěłać, zo bychmy waš abonement započeli. Prošu aktualizujće swoju płaćensku metodu, zo byšće swój abonement aktiwizował a přistup k swojim słužbam wobnowił.
-free-trial-content-payment-failed-no-date = Njemóžachmy waše płaćenje předźěłać, zo bychmy waš abonement započeli. Prošu aktualizujće swoju płaćensku metodu, zo byšće swój abonement aktiwizował a přistup k swojim słužbam wobnowił.
+free-trial-content-trial-ended = Waš darmotny test je <bold>{ $date }</bold> spadnył.
+free-trial-content-could-not-process-payment = Njemóžachmy waše płaćenje předźěłać. Aktualizujće swoju płaćensku metodu, zo byšće přistup wobnowił. Předźěłanje móže do 24 hodźin trać a móže po bance abo płaćenskej metodźe wariěrować.
 free-trial-content-button-update-payment = Płaćensku metodu aktualizować
 
 # Component - Header
@@ -725,6 +734,7 @@ manage-payment-method-intent-error-try-again = Hmm. Při awtorizowanju wašeho p
 manage-payment-method-intent-error-get-in-touch = Hmm. Při awtorizowanju wašeho płaćenja je problem nastał. Stajće so z wudawaćelom swojeje karty do zwiska.
 manage-payment-method-intent-error-insufficient-funds = Zda so, kaž by waša karta njedosahace dobroměće měła. Spytajće druhu kartu.
 manage-payment-method-intent-error-generic = Při předźěłowanju wašeho płaćenja je njewočakowany zmylk nastał, prošu spytajće hišće raz.
+manage-payment-method-tax-address-required = Njemóžachmy waše wotličenske stejnišćo zwěsćić. Prošu přepruwujće informacije swojeje płaćenskeje metody a spytajće hišće raz.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

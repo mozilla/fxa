@@ -1,8 +1,3 @@
-## FxA React - Strings shared between multiple FxA products for application error dialog
-
-app-general-err-heading = Rusachoj chijun rusamajixik
-app-general-err-message = K'o man xel ta ütz. Tatojtob'ej chik jub'a' chik na.
-
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = { -brand-mozilla } logo

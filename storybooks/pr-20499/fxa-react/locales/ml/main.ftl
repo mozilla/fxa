@@ -26,10 +26,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = പൊതുപ്രയോഗ പിഴ
-app-general-err-message = എന്തോ ഒരു കുഴപ്പമുണ്ടായി. ദയവായി പിന്നീടു് വീണ്ടും ശ്രമിച്ചു നോക്കുക
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } അടയാളം
 app-footer-privacy-notice = വെബ്സ്ഥാന സ്വകാര്യത അറിയിപ്പു്
 app-footer-terms-of-service = സേവന നിബന്ധനകൾ

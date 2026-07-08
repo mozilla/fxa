@@ -155,8 +155,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Splošna napaka aplikacije
-app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
+app-something-went-wrong-heading = Prišlo je do napake
+app-something-went-wrong-message = Obveščeni smo o težavi. Osvežite stran za ponoven poskus.
+app-error-id = ID napake: { $errorId }
+app-error-details-summary = Podrobnosti napake
 app-query-parameter-err-heading = Nepravilna zahteva: neveljavni parametri poizvedbe
 
 

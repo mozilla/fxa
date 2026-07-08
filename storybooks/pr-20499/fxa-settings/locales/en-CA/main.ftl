@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = General application error
-app-general-err-message = Something went wrong. Please try again later.
 app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
 
 
@@ -221,6 +219,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Success
 checkmark-enabled-icon-aria-label =
     .aria-label = Enabled
+chevron-right-icon-aria-label =
+    .aria-label = Chevron right
 close-icon-aria-label =
     .aria-label = Close message
 code-icon-aria-label =
@@ -448,6 +448,9 @@ cs-disconnect-lost-advice-content-3 = Since your device was lost or stolen, to k
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content-2 = If the disconnected device is indeed suspicious, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also change any other passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 cs-sign-out-button = Sign out
+
+
+cs-scope-firefox-vpn = { -brand-firefox }’s built-in VPN
 
 
 dc-heading = Data Collection and Use
@@ -746,7 +749,7 @@ page-passkey-add-cancel = Cancel
 
 
 page-passkey-add-success = Passkey created
-page-passkey-add-error-system = System not available. Try again later.
+page-passkey-add-error-system-v2 = There was a problem creating your passkey. Try again later.
 
 
 recent-activity-title = Recent account activity
@@ -785,6 +788,26 @@ recent-activity-account-recovery-codes-signin-complete = Sign-in with recovery c
 recent-activity-password-reset-otp-sent = Reset password confirmation code sent
 recent-activity-password-reset-otp-verified = Reset password confirmation code verified
 recent-activity-must-reset-password = Password reset required
+recent-activity-account-recovery-phone-replace-complete = Recovery phone replaced
+recent-activity-account-recovery-phone-replace-failure = Recovery phone replacement failed
+recent-activity-account-two-factor-replace-success = Two-step authentication replaced
+recent-activity-account-two-factor-replace-failure = Two-step authentication replacement failed
+recent-activity-account-recovery-phone-setup-failed = Recovery phone setup failed
+recent-activity-account-recovery-phone-reset-password-complete = Password reset with recovery phone completed
+recent-activity-account-recovery-phone-reset-password-failed = Password reset with recovery phone failed
+recent-activity-account-mfa-otp-sent = Account change authorization requested
+recent-activity-account-mfa-otp-verified = Account change authorized
+recent-activity-account-mfa-otp-failed = Account change authorization failed
+recent-activity-account-passkey-registration-success = Passkey added
+recent-activity-account-passkey-registration-failure = Passkey registration failed
+recent-activity-account-passkey-removed = Passkey removed
+recent-activity-account-passkey-authentication-success = Sign-in with passkey completed
+recent-activity-account-passkey-authentication-failure = Sign-in with passkey failed
+recent-activity-account-passwordless-login-otp-sent = Passwordless sign-in code sent
+recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in code failed
+recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
+recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
+recent-activity-account-recovery-codes-set = Recovery codes set
 recent-activity-unknown = Other account activity
 
 
@@ -891,7 +914,6 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content = This passkey will be removed from your account. You’ll need to sign in using a different way.
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -922,9 +944,6 @@ passkey-row-max-limit-banner =
        *[other] You’ve used all { $count } passkeys. Delete a passkey to create a new one.
     }
 passkey-row-max-limit-disabled-reason = You’ve reached the maximum number of passkeys.
-
-
-passkey-row-webauthn-not-supported = Your browser or device doesn’t support passkeys.
 
 
 rk-header-1 = Account recovery key
@@ -1036,6 +1055,7 @@ auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
 auth-error-238 = Passkey challenge failed
+auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.
@@ -1060,8 +1080,14 @@ oauth-error-1000 = Something went wrong. Please close this tab and try again.
 
 
 passkey-registration-error-not-allowed = Passkey setup failed or is unavailable. Try again or choose another method.
+passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
 passkey-registration-error-timeout = Passkey setup was cancelled. Try again.
-passkey-registration-error-not-supported = Passkeys aren’t supported here. Try another method or device.
+passkey-registration-canceled-v2 = Passkey setup timed out or was cancelled.
+passkey-registration-canceled-link = Learn more
+passkey-registration-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
+passkey-registration-error-not-supported-link = Learn more
+passkey-registration-error-could-not-complete = Passkey setup couldn’t be completed. Try a different method or device.
+passkey-registration-error-could-not-complete-link = Learn more
 passkey-registration-error-security = Passkeys can’t be set up on this page. Use the secure site and try again.
 passkey-registration-error-invalid-state = This passkey is already registered. Use it to sign in or add a different passkey.
 passkey-registration-error-not-readable = We couldn’t access the authenticator. Try again or choose another method.
@@ -1070,12 +1096,14 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 
 
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
+passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
-passkey-authentication-error-not-supported = Passkeys aren’t supported. Try another method or device.
+passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 passkey-authentication-error-security = Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.
 passkey-authentication-error-invalid-state = Something went wrong with your passkey. Try again or use another sign-in method.
 passkey-authentication-error-not-readable = We couldn’t access the authenticator. Try again or use another sign-in method.
 passkey-authentication-error-unexpected = Something went wrong. Try again or choose another sign-in method.
+passkey-authentication-error-not-found = Passkey not recognized. Use another sign-in method.
 
 
 connect-another-device-signed-in-header = You’re signed into { -brand-firefox }
@@ -1393,7 +1421,6 @@ signin-passkey-fallback-header = Finish sign-in
 signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
-signin-passkey-fallback-go-to-settings = Go to settings
 signin-passkey-fallback-continue = Continue
 
 
@@ -1424,22 +1451,6 @@ signup-passwordless-code-subheading = Sign-up only takes a single step when you 
 
 
 signin-passwordless-totp-required = Two-step authentication is enabled on your account. Please sign in with your password.
-
-
-signin-push-code-heading-w-default-service = Verify this login <span>to continue to account settings</span>
-signin-push-code-heading-w-custom-service = Verify this login <span>to continue to { $serviceName }</span>
-signin-push-code-instruction = Please check your other devices and approve this login from your { -brand-firefox } browser.
-signin-push-code-did-not-recieve = Didn’t receive the notification?
-signin-push-code-send-email-link = Email code
-
-
-signin-push-code-confirm-instruction = Confirm your login
-signin-push-code-confirm-description = We detected a login attempt from the following device. If this was you, please approve the login
-signin-push-code-confirm-verifying = Verifying
-signin-push-code-confirm-login = Confirm login
-signin-push-code-confirm-wasnt-me = This wasn’t me, change password.
-signin-push-code-confirm-login-approved = Your login has been approved. Please close this window.
-signin-push-code-confirm-link-error = Link is damaged. Please try again.
 
 
 signin-recovery-method-header = Sign in

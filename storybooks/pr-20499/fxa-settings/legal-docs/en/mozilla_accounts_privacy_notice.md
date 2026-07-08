@@ -30,6 +30,7 @@ We process technical and interaction data to better understand how you engage wi
 When you use connected services, your data will be processed in accordance with the relevant service’s privacy notice:
 
 * [Firefox Browser](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Mozilla Subscription Services](https://www.mozilla.org/privacy/subscription-services/) for Mozilla VPN, Mozilla Monitor, and Firefox Relay
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

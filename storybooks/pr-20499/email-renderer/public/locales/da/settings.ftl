@@ -958,6 +958,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Bliver alle udvidelser og temaer, du har udgivet via addons.mozilla.org, slettet
 delete-account-continue-button = Fortsæt
+delete-account-delete-button-passwordless = Slet konto
 delete-account-password-input =
     .label = Indtast adgangskode
 delete-account-cancel-button = Annuller
@@ -973,6 +974,16 @@ submit-display-name = Gem
 cancel-display-name = Annuller
 display-name-update-error-2 = Der opstod et problem med at opdatere dit vist navn
 display-name-success-alert-2 = Vist navn opdateret
+
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-creating-heading = Opretter adgangsnøgle…
+page-passkey-add-follow-prompts = Følg vejledningen på din enhed.
+page-passkey-add-cancel = Annuller
+
+## Success / Error messages (shown in alert bar after returning to settings)
+
+page-passkey-add-success = Adgangsnøgle oprettet
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1097,6 +1108,11 @@ product-promo-monitor =
 product-promo-monitor-description-v2 = Find ud af, hvor dine private oplysninger er blevet eksponeret, og løs problemet
 # Links out to the Monitor site
 product-promo-monitor-cta = Få en gratis skanning
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Opdag et nyt lag af anonym browsing og beskyttelse.
+# Links out to the VPN site
+product-promo-vpn-cta = Få { -product-mozilla-vpn-short }
 
 ## Profile section
 
@@ -1183,7 +1199,6 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
-passkey-delete-modal-content = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind på en anden måde.
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1415,10 +1430,12 @@ oauth-error-1000 = Noget gik galt. Luk dette faneblad og prøv igen.
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Opsætning af adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Enten er enheden allerede registreret, eller også blev opsætningsprocessen annulleret.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Opsætning af adgangsnøgle blev annulleret. Prøv igen.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Adgangsnøgler understøttes ikke her. Prøv en anden metode eller enhed.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Adgangsnøgler kan ikke opsættes på denne side. Brug det sikre websted, og prøv igen.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1434,10 +1451,10 @@ passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes.
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
-# Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Adgangsnøgler understøttes ikke. Prøv en anden metode eller enhed.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Adgangsnøgler kan ikke bruges på denne side. Kontroller, at du er på det korrekte sikre websted, og prøv igen.
 # Unexpected credential state during authentication
@@ -1586,6 +1603,15 @@ pair-auth-complete-sync-benefits-text = Nu har du adgang til dine åbne faneblad
 pair-auth-complete-see-tabs-button = Se faneblade fra synkroniserede enheder
 pair-auth-complete-manage-devices-link = Håndter enheder
 
+## Alternate "Send Tab" variant — shown when the pair was initiated from a Send Tab entrypoint (toolbar icon, app menu, etc.)
+
+# Heading
+pair-auth-complete-send-tab-heading = Du er klar til at sende nogle faneblade
+# Variable { $deviceFamily } is generally a browser name, for example "Firefox"
+# Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } til { $deviceOS } er forbundet.
+pair-auth-complete-send-tab-benefits = Du kan frit sende åbne faneblade, adgangskoder og bogmærker mellem enheder med det samme.
+
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
 ## Users that have set up two-factor authentication land on this page during device pairing.
@@ -1612,9 +1638,17 @@ auth-totp-code-required-error = Godkendelseskode påkrævet
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Godkendelse er nu påkrævet <span>fra din anden enhed</span>
 
+## PairFailure - a view which displays on failure of the device pairing process
+
+# v2: Updated wording to align with the legacy Backbone pair/failure copy.
+pair-failure-header-v2 = Parring af enheder mislykkedes
+pair-failure-message-v2 = Opsætningen kunne ikke fuldføres. Log ind med din mailadresse.
+pair-failure-try-again-link = Prøv igen
+
 ## Pair index page
 
 pair-sync-header = Synkroniser { -brand-firefox } på din telefon eller tablet
+pair-cad-header-v2 = Opret forbindelse til en ny enhed
 pair-already-have-firefox-paragraph = Har du allerede { -brand-firefox } på en telefon eller tablet?
 # Clicking this button initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
 pair-sync-your-device-button = Synkroniser din enhed
@@ -1630,10 +1664,51 @@ pair-get-started-button = Kom i gang
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR-kode
 
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Subheader shown on the choice screen
+pair-choice-subheader = Synkroniser alt det, du bruger { -brand-firefox } til
+# Description shown on the choice screen
+pair-choice-description = Se dine gemte adgangskoder, faneblade, browserhistorik med mere — på tværs af alle dine enheder.
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = Hent eller åbn { -brand-firefox } på den enhed, som du vil sende faneblade til
+# Legend for the radio button fieldset
+pair-choice-legend = Vælg en mulighed for at fortsætte:
+# Radio option: user already has Firefox for mobile — title
+pair-choice-has-mobile-title = Jeg har allerede { -brand-firefox } til mobilen
+# Radio option: user already has Firefox for mobile — description
+pair-choice-has-mobile-description = Begynd at synkronisere nu, hvis du allerede har { -brand-firefox } på din mobile enhed.
+# Radio option: user does not have Firefox for mobile — title
+pair-choice-needs-mobile-title = Jeg har ikke { -brand-firefox } til mobilen
+# Radio option: user does not have Firefox for mobile — description
+pair-choice-needs-mobile-description = Hent { -brand-firefox } på din mobile enhed, og begynd så at synkronisere.
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = Fortsæt
+# Success banner shown after signing in
+pair-signed-in-successfully = Du er logget ind!
+# Success banner shown after signing up and verifying email via a Send Tab flow
+pair-account-created-now-syncing = Konto oprettet. Du synkroniserer nu.
+# Success banner shown after creating a password for a passwordless account via a Send Tab flow
+pair-password-created-now-syncing = Adgangskode oprettet. Du synkroniserer nu.
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Subheader for the download screen
+pair-download-subheader = Hent { -brand-firefox } til mobilen
+# Description for the download screen
+pair-download-description = For at synkronisere { -brand-firefox } på din telefon eller tablet, skal du først hente { -brand-firefox } til mobilen. Sådan gør du:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>Trin { $stepNumber }</b>: Hent { -brand-firefox } ved at skanne denne QR-kode med kameraet på din mobile enhed:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>Trin { $stepNumber }</b>: Vælg "Fortsæt for at synkronisere" for at synkronisere alt det, du bruger { -brand-firefox } til på din mobile enhed.
+# Button on the download screen that opens about:preferences for pairing
+pair-continue-to-sync-button = Fortsæt for at synkronisere
+
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Enhed forbundet
 pair-success-message-2 = Parring lykkedes.
+pair-success-tab-close-message = Dette faneblad bliver automatisk lukket af { -brand-firefox }.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1657,6 +1732,25 @@ pair-wait-for-auth-heading-text = Godkendelse er nu påkrævet <span>fra din and
 
 pair-unsupported-header = Parring ved hjælp af en app
 pair-unsupported-message = Brugte du systemets kamera? Du skal parre ved hjælp af en { -brand-firefox }-app.
+# Shown as heading when a desktop user visits from a non-Firefox browser
+pair-unsupported-oops-header = Ups! Det ser ud til, at du ikke bruger { -brand-firefox }.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = Skift til { -brand-firefox } og åbn denne side for at oprette forbindelse til en ny enhed.
+# Shown inline on mobile non-Firefox browsers before the download link
+pair-unsupported-oops-mobile = Ups! Det ser ud til, at du ikke bruger { -brand-firefox }.
+# v2: Heading for the mobile instructional message, shown on all mobile devices
+# (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
+# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
+pair-unsupported-connecting-mobile-header-v2 = Tilslutning af din mobile enhed til din { -product-mozilla-account }
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = Åbn { -brand-firefox } på din computer, besøg <b>firefox.com/pair</b>, og følg vejledningen på skærmen for at forbinde din mobile enhed.
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = Læs mere
+# v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
+# Matches the legacy Backbone "Oops! Something went wrong." message.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1886,7 +1980,6 @@ signin-passkey-fallback-header = Færdiggør login
 signin-passkey-fallback-heading = Indtast din adgangskode for at synkronisere
 signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din adgangskode, når du bruger denne adgangsnøgle.
 signin-passkey-fallback-password-label = Adgangskode
-signin-passkey-fallback-go-to-settings = Gå til indstillinger
 signin-passkey-fallback-continue = Fortsæt
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -1910,6 +2003,7 @@ signin-passwordless-code-instruction =
         [one] Indtast koden, der blev sendt til <email>{ $email }</email>, indenfor{ $expirationMinutes } minut.
        *[other] Indtast koden, der blev sendt til <email>{ $email }</email>, indenfor { $expirationMinutes } minutter.
     }
+signin-passwordless-code-input-label-v2 = Indtast sekscifret kode
 signin-passwordless-code-confirm-button = Bekræft
 signin-passwordless-code-required-error = Bekræftelseskode påkrævet
 signin-passwordless-code-expired = Er koden udløbet?
@@ -1933,25 +2027,6 @@ signup-passwordless-code-subheading = Du kan tilmelde dig i et enkelt trin, når
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Totrinsgodkendelse er aktiveret på din konto. Log ind med din adgangskode.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Bekræft dette login <span>for at fortsætte til kontoindstillinger</span>
-signin-push-code-heading-w-custom-service = Bekræft dette login <span>for at fortsætte til { $serviceName }</span>
-signin-push-code-instruction = Kontroller dine andre enheder og godkend dette login fra din { -brand-firefox }-browser.
-signin-push-code-did-not-recieve = Har du ikke modtaget beskeden?
-signin-push-code-send-email-link = Send kode
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Bekræft dit login
-signin-push-code-confirm-description = Vi har registreret et login-forsøg fra følgende enhed. Hvis det var dig, så godkend login'et
-signin-push-code-confirm-verifying = Bekræfter
-signin-push-code-confirm-login = Bekræft login
-signin-push-code-confirm-wasnt-me = Det var ikke mig, skift adgangskode.
-signin-push-code-confirm-login-approved = Dit login er blevet godkendt. Luk dette vindue.
-signin-push-code-confirm-link-error = Link er beskadiget. Prøv igen.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

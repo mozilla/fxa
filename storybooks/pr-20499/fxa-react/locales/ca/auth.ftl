@@ -1,6 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-body-2 = Feu clic aquí per confirmar la vostra identitat
 subplat-header-mozilla-logo-2 = <img data-l10n-name="subplat-mozilla-logo" alt="Logotip de { -brand-mozilla }">
 subplat-footer-mozilla-logo-2 = <img data-l10n-name="mozilla-logo-footer" alt="Logotip de { -brand-mozilla }">
 subplat-automated-email = Aquest és un missatge automàtic; si l’heu rebut per error, no cal que feu res.

@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = General application error
-app-general-err-message = Something went wrong. Please try again later.
 app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
 
 

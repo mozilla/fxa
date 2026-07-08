@@ -1315,11 +1315,6 @@ report-signin-support-link = Zašto se ovo događa?
 signin-bounced-message = Potvrdni e-mail koji smo poslali na { $email } je vraćen i zaključali smo tvoj račun, kako bismo zaštitili tvoje { -brand-firefox } podatke.
 back = Natrag
 
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Potvrdi tvoju prijavu
-signin-push-code-confirm-login = Potvrdi prijavu
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

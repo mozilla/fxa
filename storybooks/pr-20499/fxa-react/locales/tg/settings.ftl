@@ -1113,20 +1113,6 @@ report-signin-submit-button = Гузориш дар бораи фаъолият�
 report-signin-support-link = Чаро ин ба вуҷуд меояд?
 back = Ба қафо
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-send-email-link = Рамзи почтаи электронӣ
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Воридшавии худро тасдиқ кунед
-signin-push-code-confirm-verifying = Тасдиқ шуда истодааст
-signin-push-code-confirm-login = Тасдиқ кардани воридшавӣ
-signin-push-code-confirm-wasnt-me = Ин ман набудам, ниҳонвожаро иваз кунед.
-signin-push-code-confirm-login-approved = Воридшавии шумо тасдиқ карда шуд. Лутфан, ин равзанаро пӯшед.
-signin-push-code-confirm-link-error = Пайванд вайрон шудааст. Лутфан, аз нав кӯшиш кунед.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

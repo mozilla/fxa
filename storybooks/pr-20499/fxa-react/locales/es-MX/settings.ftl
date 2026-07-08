@@ -1322,21 +1322,6 @@ signin-bounced-help = Si esta es una dirección de correo electrónico válida, 
 signin-bounced-create-new-account = ¿Ya no te pertenece el correo electrónico? Crea una nueva cuenta
 back = Atrás
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-send-email-link = Código de correo electrónico
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Confirma tu inicio de sesión
-signin-push-code-confirm-description = Hemos detectado un intento de inicio de sesión desde el siguiente dispositivo. Si eres tú, por favor, aprueba el inicio de sesión
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar inicio de sesión
-signin-push-code-confirm-wasnt-me = No fui yo, cambiar la contraseña.
-signin-push-code-confirm-login-approved = Tu inicio de sesión ha sido aprobado. Cierre esta ventana.
-signin-push-code-confirm-link-error = El enlace está dañado. Inténtalo de nuevo.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

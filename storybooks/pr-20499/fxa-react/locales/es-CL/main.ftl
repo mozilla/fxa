@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error de aplicación general
-app-general-err-message = Algo se fue a las pailas. Por favor, vuelve a intentarlo más tarde.
+app-something-went-wrong-heading = Algo se fue a las pailas
+app-something-went-wrong-message = Hemos sido notificados del problema. Actualiza la página para intentarlo de nuevo.
+app-error-id = ID de error: { $errorId }
+app-error-details-summary = Detalles del error
 app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
 
 

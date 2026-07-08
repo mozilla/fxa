@@ -35,8 +35,9 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Ñemohembiapo jejavypaite
-app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
+app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
+app-error-id = ID jejavy: { $error }
+app-error-details-summary = Mba’emimi jejavygua
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 
 

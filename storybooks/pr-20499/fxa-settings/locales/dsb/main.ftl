@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Powšykna nałožeńska zmólka
-app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
+app-something-went-wrong-heading = Něco njejo se raźiło
+app-something-went-wrong-message = Problem jo se nam k wěsći dał. Aktualizěrujśo bok, aby hyšći raz wopytał.
+app-error-id = ID zmólki: { $errorId }
+app-error-details-summary = Drobnostki zmólkow
 app-query-parameter-err-heading = Špatne napšašowanje: Njepłaśiwe napšašowańske parametry
 
 
@@ -155,6 +157,14 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP-adresa: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Wobstarajśo se { -brand-firefox }, źožkuli sćo
+firefox-promo-banner-mobile-description = Synchronizěrujśo swóje rejtariki, cytańske znamjenja a gronidła pśez rědy. Mimo togo wšykno wěsće skoděrowane wóstawa.
+firefox-promo-banner-mobile-cta = Rěd zwězaś
+firefox-promo-banner-switch-heading = Malsnje pśejś. Lažko se zažywiś.
+firefox-promo-banner-switch-description = Gaž k { -brand-firefox } pśejźośo, móžośo swóje cytańske znamjenja, gronidła, historiju a wěcej sobu pśinjasć, aby mógł njepśestawajucy dalej pśeglědowaś.
+firefox-promo-banner-switch-cta = K { -brand-firefox } pśejś
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Gronidło
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -223,6 +233,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Wuspěch
 checkmark-enabled-icon-aria-label =
     .aria-label = Zmóžnjony
+chevron-right-icon-aria-label =
+    .aria-label = Špicna pazorka napšawo
 close-icon-aria-label =
     .aria-label = Powěźeńku zacyniś
 code-icon-aria-label =
@@ -296,6 +308,7 @@ input-phone-number-enter-number = Zapódajśo telefonowy numer
 input-phone-number-country-united-states = Zjadnośone staty
 input-phone-number-country-canada = Kanada
 legal-back-button = Slědk
+app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
 
 
 reset-pwd-link-damaged-header = Wótkaz k slědkstajanjeju gronidła wobškóźony
@@ -452,6 +465,9 @@ cs-disconnect-lost-advice-content-3 = Dokulaž waš rěd jo se zgubił abo kšad
 cs-disconnect-suspicious-advice-heading = Suspektny rěd jo se źělił
 cs-disconnect-suspicious-advice-content-2 = Jolic wótźělony rěd jo napšawdu suspektny, wy dejał gronidło swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } w swójich nastajenjach změniś, aby swóje informacije wěste źaržał. Wy dejał teke about:logins do adresowego póla zapódaś, aby druge gronidła změnił, kótarež sćo składł w { -brand-firefox }.
 cs-sign-out-button = Wótzjawiś
+
+
+cs-scope-firefox-vpn = Zatwarjony VPN { -brand-firefox }
 
 
 dc-heading = Zběranje a wužywanje datow
@@ -754,7 +770,7 @@ page-passkey-add-cancel = Pśetergnuś
 
 
 page-passkey-add-success = Gronidłowy kluc jo se napórał
-page-passkey-add-error-system = System njejo k dispoziciji. Wopytajśo pózdźej hyšći raz.
+page-passkey-add-error-system-v2 = Pśi napóranju wašogo gronidłowego kluca jo problem nastał. Wopytajśo pózdźej hyšći raz.
 
 
 recent-activity-title = Nejnowša kontowa aktiwita
@@ -793,6 +809,26 @@ recent-activity-account-recovery-codes-signin-complete = Pśizjawjenje z wótnow
 recent-activity-password-reset-otp-sent = Wobkšuśeński kod za slědkstajenje gronidła jo se pósłał
 recent-activity-password-reset-otp-verified = Wobkšuśeński kod za slědkstajenje gronidła jo se pśeglědał
 recent-activity-must-reset-password = Slědkstajenje gronidła trjebne
+recent-activity-account-recovery-phone-replace-complete = Wótnowjeński telefonowy numer wuměnjony
+recent-activity-account-recovery-phone-replace-failure = Wuměnjenje wótnowjeńskego telefonowego numera njejo se raźiło
+recent-activity-account-two-factor-replace-success = Dwójokšacowa awtentifikacija jo se wuměniła
+recent-activity-account-two-factor-replace-failure = Wuměnjenje dwójokšacoweje awtentifikacije njejo se raźiło
+recent-activity-account-recovery-phone-setup-failed = Konfiguracija wótnowjeńskego telefonowego numera njejo se raźiła
+recent-activity-account-recovery-phone-reset-password-complete = Slědkstajenje gronidła z wótnowjeńskim telefonowym numerom dokóńcone
+recent-activity-account-recovery-phone-reset-password-failed = Slědkstajenje gronidła z wótnowjeńskim telefonowym numerom njejo se raźiło
+recent-activity-account-mfa-otp-sent = Awtorizěrowanje kontoweje změny trjebne
+recent-activity-account-mfa-otp-verified = Kontowa změna awtorizěrowana
+recent-activity-account-mfa-otp-failed = Awtorizěrowanje kontoweje změny njejo se raźiło
+recent-activity-account-passkey-registration-success = Gronidłowy kluc pśidany
+recent-activity-account-passkey-registration-failure = Registracija gronidłowego kluca njejo se raźiła
+recent-activity-account-passkey-removed = Gronidłowy kluc jo se wótwónoźeł
+recent-activity-account-passkey-authentication-success = Pśizjawjenje z gronidłowym klucom jo dokóńcone
+recent-activity-account-passkey-authentication-failure = Pśizjawjenje z gronidłowym klucom njejo se raźiło
+recent-activity-account-passwordless-login-otp-sent = Pśizjawjeński kod bźez gronidła pósłany
+recent-activity-account-passwordless-login-otp-failed = Pśizjawjeński kod bźez gronidła njejo se raźił
+recent-activity-account-passwordless-login-otp-verified = Pśizjawjeński kod bźez gronidła jo se pśeglědał
+recent-activity-account-passwordless-registration-complete = Kontowa registracija bźez gronidła dokóńcona
+recent-activity-account-recovery-codes-set = Wótnowjeńske kody nastajone
 recent-activity-unknown = Druga kontowa aktiwita
 
 
@@ -901,7 +937,7 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
-passkey-delete-modal-content = Toś ten gronidłowy kluc jo se wótwónoźeł z wašogo konta. Musyśo se na drugi nałog pśizjawiś.
+passkey-delete-modal-content-v2 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu drugeje metody (gronidło, drugi gronidłowy kluc abo zwězane konto) pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -935,9 +971,6 @@ passkey-row-max-limit-banner =
        *[other] Sćo wšykne { $count } gronidłowych klucow wužył. Lašujśo gronidłowy kluc, aby nowy napórał.
     }
 passkey-row-max-limit-disabled-reason = Sćo dojśpił maksimalnu licbu gronidłowych klucow.
-
-
-passkey-row-webauthn-not-supported = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 
 
 rk-header-1 = Kontowy wótnowjeński kluc
@@ -1051,6 +1084,7 @@ auth-error-226 = Limit za gronidłowy kluc dojśpity
 auth-error-227 = Awtentifikacija gronidłowego kluca njejo se raźiła
 auth-error-228 = Registracija gronidłowego kluca njejo se raźiła
 auth-error-238 = Pśeglědanje gronidłowego kluca njejo se raźiło
+auth-error-239 = Bóžko njejsmy mógli wašo konto wulašowaś. Pšosym wopytajśo hyšći raz abo stajśo se z teamom pomocy do zwiska, jolic problem dalej eksistěrujo.
 auth-error-999 = Njewótcakowana zmólka
 auth-error-1001 = Pśizjawjeński wopyt pśetergnjony
 auth-error-1002 = Pósejźenje jo wótběgnuło. Pśizjawśo se, aby pókšacował.
@@ -1077,7 +1111,12 @@ oauth-error-1000 = Něco njejo se raźiło. Pšosym zacyńśo toś ten rejtarik 
 passkey-registration-error-not-allowed = Konfiguracija gronidłowego kluca njejo se raźiła abo njejo k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 passkey-registration-error-not-allowed-existing = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Pak jo rěd južo zregistrěrowany pak proces konfiguracije jo se pśetergnuł.
 passkey-registration-error-timeout = Konfiguracija gronidłowego kluca jo se pśetergnuła. Wopytajśo hyšći raz.
-passkey-registration-error-not-supported = Gronidłowe kluce se how njepódpěraju. Wopytajśo drugu metodu abo rěd.
+passkey-registration-canceled-v2 = Konfiguracija gronidłowego kluca jo cas pśekšocyła abo jo se pśetergnuła.
+passkey-registration-canceled-link = Dalšne informacije
+passkey-registration-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
+passkey-registration-error-not-supported-link = Dalšne informacije
+passkey-registration-error-could-not-complete = Konfiguracija gronidłowego kluca njedajo se dokóńcyś. Wopytajśo drugu metodu abo drugi rěd.
+passkey-registration-error-could-not-complete-link = Dalšne informacije
 passkey-registration-error-security = Gronidłowe kluce njedaju se na toś tom boku konfigurěrowaś. Wužywajśo wěste sedło a wopytajśo hyšći raz.
 passkey-registration-error-invalid-state = Toś ten gronidłowy kluc jo južo zregistrěrowany. Wužywajśo jen, aby se pśizjawił abo pśidajśo drugi gronidłowy kluc.
 passkey-registration-error-not-readable = Njejsmy mógli pśistup k awtentifikatoroju dostaś. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
@@ -1088,11 +1127,12 @@ passkey-registration-error-unexpected = Konfiguracija gronidłowego kluca njejo 
 passkey-authentication-error-not-allowed = Pśizjawjenje z gronidłowym klucom njejo se raźiło abo njejo k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 passkey-authentication-error-not-allowed-existing = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 passkey-authentication-error-timeout = Pśekšocenje casa pśi napšašowanju gronidłowego kluca. Wopytajśo pšosym hyšći raz.
-passkey-authentication-error-not-supported = Gronidłowe kluce se njepódpěraju. Wopytajśo drugu metodu abo rěd.
+passkey-authentication-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 passkey-authentication-error-security = Gronidłowe kluce njedaju se na toś tom boku wužywaś. Pśeglědajśo, lěc sćo na korektnem wěstem sedle a wopytajśo hyšći raz.
 passkey-authentication-error-invalid-state = Něco njejo se raźiło z wašym gronidłowym klucom. Wopytajśo hyšći raz abo wužywajśo drugu pśizjawjeńsku metodu.
 passkey-authentication-error-not-readable = Njejsmy mógli pśistup k awtentifikatoroju dostaś. Wopytajśo hyšći raz abo wubjeŕśo drugu pśizjawjeńsku metodu.
 passkey-authentication-error-unexpected = Něco njejo se raźiło. Wopytajśo hyšći raz abo wubjeŕśo drugu pśizjawjeńsku metodu.
+passkey-authentication-error-not-found = Gronidłowy kluc njejo se spóznał. Wužywajśo drugu pśizjawjeńsku metodu.
 
 
 connect-another-device-signed-in-header = Sćo pla { -brand-firefox } pśizjawjony
@@ -1412,7 +1452,6 @@ signin-passkey-fallback-header = Pśizjawjenje dokóńcyś
 signin-passkey-fallback-heading = Zapódajśo swójo gronidło, aby synchronizěrował
 signin-passkey-fallback-body = Aby swóje daty wěste wobchował, musyśo swójo gronidło zapódaś, gaž toś ten gronidłowy kluc wužywaśo.
 signin-passkey-fallback-password-label = Gronidło
-signin-passkey-fallback-go-to-settings = K nastajenjam
 signin-passkey-fallback-continue = Dalej
 
 
@@ -1447,22 +1486,6 @@ signup-passwordless-code-subheading = Registrěrowanje jano jaden kšac trajo, g
 
 
 signin-passwordless-totp-required = Dwójokšacowa awtentifikacija jo za wašo konto zmóžnjona. Pšosym pśizjawśo se ze swójim gronidłom.
-
-
-signin-push-code-heading-w-default-service = Pśeglědujśo toś to pśizjawjenje, <span>aby z kontowymi nastajenjami pókšacował</span>
-signin-push-code-heading-w-custom-service = Pśeglědujśo toś to pśizjawjenje, <span>aby z { $serviceName } pókšacował</span>
-signin-push-code-instruction = Pšosym kontrolěrujśo swóje druge rědy a pśizwólśo toś to pśizjawjenje ze swójogo wobglědowaka { -brand-firefox }.
-signin-push-code-did-not-recieve = Njejsćo toś tu powěźeńku dostał?
-signin-push-code-send-email-link = Kod z e-mailu pósłaś
-
-
-signin-push-code-confirm-instruction = Wobkšuśćo swójo pśizjawjenje
-signin-push-code-confirm-description = Smy namakali pśizjawjeński wopyt ze slědujucego rěda. Jolic sćo to wy był, pśizwólśo pšosym pśizjawjenje
-signin-push-code-confirm-verifying = Pśespytujo se
-signin-push-code-confirm-login = Pśizjawjenje wobkšuśiś
-signin-push-code-confirm-wasnt-me = Ja njejsom był to, změńśo gronidło.
-signin-push-code-confirm-login-approved = Wašo pśizjawjenje jo se pśizwóliło. Pšosym zacyńśo toś to wokno.
-signin-push-code-confirm-link-error = Wótkaz jo wobškóźony. Wopytajśo pšosym hyšći raz.
 
 
 signin-recovery-method-header = Pśizjawiś

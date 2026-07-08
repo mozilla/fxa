@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Yleinen sovellusvirhe
-app-general-err-message = Jokin meni pieleen. Yritä uudelleen myöhemmin.
+app-something-went-wrong-heading = Jokin meni pieleen
+app-something-went-wrong-message = Olemme saaneet ilmoituksen ongelmasta. Päivitä sivu yrittääksesi uudelleen.
+app-error-id = Virhetunniste: { $errorId }
+app-error-details-summary = Virheen tiedot
 app-query-parameter-err-heading = Virheellinen pyyntö: Virheelliset kyselyparametrit
 
 
@@ -310,6 +312,7 @@ password-strength-inline-passwords-match = Salasanat täsmäävät
 
 
 promo-qr-mobile-heading = Sinun puhelin. Sinun säännöt.
+promo-qr-mobile-description = Skannaa saadaksesi sovelluksen
 
 
 account-recovery-notification-cta = Luo
@@ -545,8 +548,8 @@ modal-mfa-protected-resend-code-link = Lähetä uusi koodi sähköpostiin.
 
 
 mvs-verify-your-email-2 = Vahvista sähköposti
-mvs-enter-verification-code-2 = Kirjoita vahvistuskoodi
-mvs-enter-verification-code-desc-2 = Kirjoita osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+mvs-enter-verification-code-2 = Syötä vahvistuskoodi
+mvs-enter-verification-code-desc-2 = Syötä osoitteeseen <email>{ $email }</email> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 msv-cancel-button = Peruuta
 msv-submit-button-2 = Vahvista
 
@@ -648,6 +651,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Kaikki addons.mozilla.org-palveluun julkaisemasi laajennukset ja teemat poistetaan
 delete-account-continue-button = Jatka
+delete-account-delete-button-passwordless = Poista tili
 delete-account-password-input =
     .label = Kirjoita salasana
 delete-account-cancel-button = Peruuta
@@ -662,6 +666,9 @@ submit-display-name = Tallenna
 cancel-display-name = Peruuta
 display-name-update-error-2 = Näyttönimeäsi päivitettäessä tapahtui virhe
 display-name-success-alert-2 = Näyttönimi päivitetty
+
+
+page-passkey-add-cancel = Peruuta
 
 
 recent-activity-title = Viimeaikaiset tilitapahtumat
@@ -722,10 +729,10 @@ add-secondary-email-step-2 = Vaihe 2/2
 verify-secondary-email-page-title =
     .title = Toissijainen sähköposti
 verify-secondary-email-verification-code-2 =
-    .label = Kirjoita vahvistuskoodi
+    .label = Syötä vahvistuskoodi
 verify-secondary-email-cancel-button = Peruuta
 verify-secondary-email-verify-button-2 = Vahvista
-verify-secondary-email-please-enter-code-2 = Kirjoita osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
+verify-secondary-email-please-enter-code-2 = Syötä osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 verify-secondary-email-success-alert-2 = { $email } lisätty onnistuneesti
 
 
@@ -736,6 +743,9 @@ inactive-update-status-success-alert = Kirjautuminen onnistui. { -product-mozill
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
 product-promo-monitor-cta = Hanki ilmainen tarkistus
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-cta = Hanki { -product-mozilla-vpn-short }
 
 
 profile-heading = Profiili
@@ -793,7 +803,10 @@ row-defaults-action-disable = Poista käytöstä
 row-defaults-status = Ei mitään
 
 
+passkey-row-enabled = Käytössä
+passkey-row-not-set = Ei asetettu
 passkey-row-action-create = Luo
+passkey-row-info-link-2 = Lue lisää
 
 
 rk-header-1 = Tilin palautusavain
@@ -818,7 +831,7 @@ unit-row-recovery-key-delete-icon-button-title = Poista tilin palautusavain
 se-heading = Toissijainen sähköposti
     .header = Toissijainen sähköposti
 se-cannot-refresh-email = Valitettavasti sähköpostiosoitteen päivittämisessä ilmeni ongelma.
-se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin lähettämisessä uudelleen ilmeni ongelma
+se-cannot-resend-code-3 = Valitettavasti vahvistuskoodin uudelleenlähetyksessä kohdattiin ongelma
 se-set-primary-successful-2 = { $email } on nyt ensisijainen sähköpostiosoitteesi
 se-set-primary-error-2 = Valitettavasti ensisijaisen sähköpostiosoitteesi vaihtamisessa ilmeni ongelma
 se-delete-email-successful-2 = { $email } poistettu
@@ -862,6 +875,7 @@ tfa-row-disabled-2 = Kaksivaiheinen todennus poistettu käytöstä
 tfa-row-cannot-disable-2 = Kaksivaiheista todennusta ei voitu poistaa käytöstä
 
 
+terms-privacy-agreement-intro-3 = Jatkamalla hyväksyt:
 terms-privacy-agreement-default-2 = Jatkamalla hyväksyt <mozillaAccountsTos>käyttöehdot</mozillaAccountsTos> ja <mozillaAccountsPrivacy>tietosuojakäytännön</mozillaAccountsPrivacy>.
 
 
@@ -906,6 +920,15 @@ auth-error-1066 = Sähköpostimaskeja ei voi käyttää tilin luomiseen.
 auth-error-1067 = Kirjoititko sähköpostiosoitteesi väärin?
 recovery-phone-number-ending-digits = Numero, joka päättyy { $lastFourPhoneNumber }
 oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelleen.
+
+
+
+
+passkey-registration-canceled-link = Lue lisää
+passkey-registration-error-not-supported-link = Lue lisää
+passkey-registration-error-could-not-complete-link = Lue lisää
+
+
 
 
 connect-another-device-signed-in-header = Olet kirjautunut { -brand-firefox }iin
@@ -991,6 +1014,9 @@ pair-auth-complete-see-tabs-button = Näytä synkronoitujen laitteiden välilehd
 pair-auth-complete-manage-devices-link = Hallinnoi laitteita
 
 
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } käyttöjärjestelmälle { $deviceOS } on yhdistetty.
+
+
 auth-totp-heading-w-default-service = Syötä todennuskoodi <span>jatkaaksesi tilin asetuksiin</span>
 auth-totp-heading-w-custom-service = Syötä todennuskoodi <span>jatkaaksesi palveluun { $serviceName }</span>
 auth-totp-instruction = Avaa todennussovellus ja syötä sen näyttämä todennuskoodi.
@@ -1002,7 +1028,11 @@ auth-totp-code-required-error = Todennuskoodi vaaditaan
 pair-wait-for-supp-heading-text = Hyväksyntä vaaditaan nyt <span>joltakin muulta laitteeltasi</span>
 
 
+pair-failure-try-again-link = Yritä uudelleen
+
+
 pair-sync-header = Synkronoi { -brand-firefox } puhelimella tai tabletilla
+pair-cad-header-v2 = Yhdistä toinen laite
 pair-already-have-firefox-paragraph = Löytyykö { -brand-firefox } jo puhelimestasi tai tabletistasi?
 pair-sync-your-device-button = Synkronoi laitteesi
 pair-or-download-subheader = Tai lataa
@@ -1011,6 +1041,18 @@ pair-not-now-button = Ei nyt
 pair-take-your-data-message = Ota välilehdet, kirjanmerkit ja salasanat mukaan kaikkialle missä käytät { -brand-firefox }ia.
 pair-get-started-button = Aloita
 pair-qr-code-aria-label = QR-koodi
+
+
+pair-choice-legend = Jatka valitsemalla vaihtoehto:
+pair-choice-has-mobile-title = Minulla on jo { -brand-firefox } mobiililaitteille
+pair-choice-needs-mobile-title = Minulla ei ole { -brand-firefox }ia mobiililaitteille
+pair-choice-continue-button = Jatka
+pair-signed-in-successfully = Kirjautuminen onnistui!
+pair-account-created-now-syncing = Tili luotu. Synkronoit nyt.
+pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
+
+
+pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
 
 
 pair-success-header-2 = Laite yhdistetty
@@ -1027,10 +1069,15 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
+pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+pair-unsupported-learn-more-link-v2 = Lue lisää
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Sulje tämä välilehti ja yritä uudelleen.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } vahvistettu
 service-welcome-signin-success-banner = Kirjautuminen onnistui!
+service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 
 
 
@@ -1151,13 +1198,13 @@ back = Edellinen
 signin-passkey-fallback-header = Viimeistele kirjautuminen
 signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
 signin-passkey-fallback-password-label = Salasana
-signin-passkey-fallback-go-to-settings = Siirry asetuksiin
 signin-passkey-fallback-continue = Jatka
 
 
 
 
 signin-passwordless-code-heading = Kirjoita vahvistuskoodi
+signin-passwordless-code-input-label-v2 = Kirjoita 6-numeroinen koodi
 signin-passwordless-code-confirm-button = Vahvista
 signin-passwordless-code-required-error = Vahvistuskoodi vaaditaan
 signin-passwordless-code-expired = Vanheniko koodi?
@@ -1167,22 +1214,6 @@ signin-passwordless-code-other-account-link = Käytä toista tiliä
 
 
 signin-passwordless-totp-required = Kaksivaiheinen todennus on käytössä tililläsi. Kirjaudu sisään salasanallasi.
-
-
-signin-push-code-heading-w-default-service = Vahvista tämä kirjautuminen <span>jatkaaksesi tilin asetuksiin</span>
-signin-push-code-heading-w-custom-service = Vahvista tämä kirjautuminen <span>jatkaaksesi palveluun { $serviceName }</span>
-signin-push-code-instruction = Tarkista muut laitteesi ja hyväksy tämä kirjautuminen { -brand-firefox }-selaimestasi.
-signin-push-code-did-not-recieve = Etkö saanut ilmoitusta?
-signin-push-code-send-email-link = Lähetä koodi sähköpostitse
-
-
-signin-push-code-confirm-instruction = Vahvista kirjautumisesi
-signin-push-code-confirm-description = Havaitsimme kirjautumisyrityksen seuraavasta laitteesta. Jos se olit sinä, hyväksy kirjautuminen
-signin-push-code-confirm-verifying = Vahvistetaan
-signin-push-code-confirm-login = Vahvista kirjautuminen
-signin-push-code-confirm-wasnt-me = Tämä en ollut minä, vaihda salasana.
-signin-push-code-confirm-login-approved = Kirjautumisesi on hyväksytty. Sulje tämä ikkuna.
-signin-push-code-confirm-link-error = Linkki on vaurioitunut. Yritä uudelleen.
 
 
 signin-recovery-method-header = Kirjaudu sisään

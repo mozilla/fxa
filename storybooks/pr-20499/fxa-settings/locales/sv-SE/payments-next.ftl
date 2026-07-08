@@ -17,6 +17,12 @@ next-payment-method-header = Välj din betalningsmetod
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Först måste du godkänna din prenumeration
+
+## Error page
+
+error-page-account-not-found-heading = Kontot hittades inte
+error-page-account-not-found-message = Kontot som är kopplat till din session finns inte. Använd ett annat konto eller skapa ett nytt för att prenumerera.
+error-page-account-not-found-continue-button = Fortsätt
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Välj ditt land och ange ditt postnummer <p>för att fortsätta till kassan för { $productName }</p>
 location-banner-info = Vi kunde inte identifiera din plats automatiskt
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Du måste slutföra detta innan du går vi
 
 next-new-user-submit = Prenumerera nu
 next-pay-with-heading-paypal = Betala med { -brand-paypal }
+free-trial-ineligible-notice = Ditt konto är inte kvalificerat för en gratis provperiod. Du kan fortsätta med en betald prenumeration.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Återuppta provperioden
 free-trial-content-button-resume-trial-aria = Återuppta provperioden för { $productName }
 free-trial-content-button-cancel-trial = Avbryt provperioden
 free-trial-content-button-cancel-trial-aria = Avbryt provperioden för { $productName }
+free-trial-content-button-cancel-subscription = Avbryt prenumeration
+free-trial-content-button-cancel-subscription-aria = Avbryt prenumeration för { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Visa faktura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Visa faktura för { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Din kostnadsfria provperiod upphörde den <bold>{ $date }</bold>. Vi kunde inte behandla din betalning för att starta din prenumeration. Vänligen uppdatera din betalningsmetod för att aktivera din prenumeration och återställa åtkomsten till dina tjänster.
-free-trial-content-payment-failed-no-date = Vi kunde inte behandla din betalning för att starta din prenumeration. Vänligen uppdatera din betalningsmetod för att aktivera din prenumeration och återställa åtkomsten till dina tjänster.
+free-trial-content-trial-ended = Din kostnadsfria provperiod upphörde den <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Vi kunde inte behandla din betalning. Uppdatera din betalningsmetod för att återställa åtkomsten. Bearbetningen kan ta upp till 24 timmar och kan variera beroende på bank eller betalningsmetod.
 free-trial-content-button-update-payment = Uppdatera betalningsmetod
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. Det gick inte att godkänna 
 manage-payment-method-intent-error-get-in-touch = Hmm. Det gick inte att godkänna din betalning. Ta kontakt med din kortutgivare.
 manage-payment-method-intent-error-insufficient-funds = Det ser ut som att ditt kort inte har tillräckligt med pengar. Prova ett annat kort.
 manage-payment-method-intent-error-generic = Ett oväntat fel har uppstått vid bearbetningen av din betalning. Försök igen.
+manage-payment-method-tax-address-required = Vi kunde inte fastställa din faktureringsplats. Kontrollera din information om betalningsmetod och försök igen.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

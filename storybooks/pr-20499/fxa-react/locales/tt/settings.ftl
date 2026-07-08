@@ -1098,20 +1098,6 @@ back = Кире
 
 signin-passwordless-code-input-label-v2 = 6-цифрлы кодны кертегез
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-did-not-recieve = Искәртү килмәдеме?
-signin-push-code-send-email-link = Кодны эл. почта аша җибәрү
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Керүегезне раслагыз
-signin-push-code-confirm-verifying = Тикшерү
-signin-push-code-confirm-login = Керүне раслау
-signin-push-code-confirm-wasnt-me = Бу мин түгел, серсүзне үзгәртү.
-signin-push-code-confirm-link-error = Сылтамага зыян килгән. Зинһар янәдән тырышып карагыз.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

@@ -187,8 +187,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Ogólny błąd aplikacji
-app-general-err-message = Coś się nie powiodło. Proszę spróbować ponownie później.
+app-something-went-wrong-heading = Coś się nie powiodło
+app-something-went-wrong-message = Zostaliśmy poinformowani o tym problemie. Odśwież stronę i spróbuj ponownie.
+app-error-id = Identyfikator błędu: { $errorId }
+app-error-details-summary = Informacje o błędzie
 app-query-parameter-err-heading = Błędne żądanie: nieprawidłowe parametry zapytania
 
 
@@ -242,6 +244,10 @@ recovery-key-pdf-instructions = Ten klucz umożliwia odzyskanie zaszyfrowanych d
 recovery-key-pdf-storage-ideas-heading = Miejsca, w których można zachować klucz
 recovery-key-pdf-support = Więcej informacji o kluczu odzyskiwania konta
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
+
+
+button-passkey-signin = Zaloguj się za pomocą klucza dostępu
+button-passkey-signin-loading = Bezpieczne logowanie…
 
 
 choose-newsletters-prompt-2 = Więcej od { -brand-mozilla(case: "gen") }:
@@ -371,6 +377,8 @@ usa-flag-icon-aria-label =
     .aria-label = Flaga USA
 icon-loading-arrow-aria-label =
     .aria-label = Wczytywanie
+icon-passkey-aria-label =
+    .aria-label = Klucz dostępu
 
 
 hearts-broken-image-aria-label =
@@ -428,6 +436,7 @@ input-phone-number-enter-number = Wpisz numer telefonu
 input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
 legal-back-button = Wstecz
+app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 
 reset-pwd-link-damaged-header = Odnośnik do zmiany hasła jest uszkodzony
@@ -1033,6 +1042,9 @@ row-defaults-action-disable = Wyłącz
 row-defaults-status = Brak
 
 
+passkey-row-header = Klucze dostępu
+
+
 rk-header-1 = Klucz odzyskiwania konta
 rk-enabled = Włączony
 rk-not-set = Nieustawiony
@@ -1320,6 +1332,8 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kar
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }
 service-welcome-signin-success-banner = Pomyślnie zalogowano
+service-welcome-vpn-heading = Teraz: Włącz VPN
+service-welcome-vpn-description = Kolejny krok do zwiększenia prywatności w przeglądarce. Przejdź do otwartego panelu i włącz tę opcję.
 
 
 
@@ -1463,7 +1477,6 @@ back = Wstecz
 
 
 signin-passkey-fallback-password-label = Hasło
-signin-passkey-fallback-go-to-settings = Przejdź do ustawień
 signin-passkey-fallback-continue = Kontynuuj
 
 
@@ -1477,22 +1490,6 @@ signin-passwordless-code-expired = Kod wygasł?
 signin-passwordless-code-resend-link = Wyślij nowy.
 signin-passwordless-code-resend-error = Coś się nie powiodło. Nie można wysłać nowego kodu.
 signin-passwordless-code-other-account-link = Użyj innego konta
-
-
-signin-push-code-heading-w-default-service = Zweryfikuj to logowanie, <span>aby przejść do ustawień konta</span>
-signin-push-code-heading-w-custom-service = Zweryfikuj to logowanie, <span>aby przejść do usługi { $serviceName }</span>
-signin-push-code-instruction = Sprawdź inne swoje urządzenia i zatwierdź to logowanie w przeglądarce { -brand-firefox }.
-signin-push-code-did-not-recieve = Powiadomienie nie doszło?
-signin-push-code-send-email-link = Wyślij kod na e-mail
-
-
-signin-push-code-confirm-instruction = Potwierdź logowanie
-signin-push-code-confirm-description = Wykryliśmy próbę logowania z poniższego urządzenia. Jeśli to Ty, zatwierdź logowanie
-signin-push-code-confirm-verifying = Weryfikowanie
-signin-push-code-confirm-login = Potwierdź logowanie
-signin-push-code-confirm-wasnt-me = To nie ja, zmień hasło.
-signin-push-code-confirm-login-approved = Logowanie zostało zatwierdzone. Zamknij to okno.
-signin-push-code-confirm-link-error = Odnośnik jest uszkodzony. Proszę spróbować ponownie.
 
 
 signin-recovery-method-header = Zaloguj się

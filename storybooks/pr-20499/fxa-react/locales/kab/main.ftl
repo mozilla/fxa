@@ -35,10 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Tuccda n usnas tamatut
-app-general-err-message = Yella wayen ur nteddu ara akken ilaq. Ma ulac aɣilif, εreḍ tikkelt-nniḍen.
-
-
 app-footer-mozilla-logo-label = alugu { -brand-mozilla }
 app-footer-privacy-notice = Tasertit tabaḍnit n usmel web
 app-footer-terms-of-service = Tiwtilin n useqdec

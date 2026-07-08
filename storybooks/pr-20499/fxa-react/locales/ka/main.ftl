@@ -71,8 +71,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = აპლიკაციის საერთო შეცდომა
-app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 app-query-parameter-err-heading = არასწორი მოთხოვნა: გამოძახების უმართებულო პარამეტრები
 
 

@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error general del application
-app-general-err-message = Alco errate eveniva. Reproba plus tarde.
+app-something-went-wrong-heading = Alco errate eveniva
+app-something-went-wrong-message = Nos ha essite notificate del problema. Actualisar le pagina pro retentar.
+app-error-id = ID de error: { $error }
+app-error-details-summary = Detalios del error
 app-query-parameter-err-heading = Mal requesta: parametros de consulta non valide
 
 
@@ -149,6 +151,14 @@ device-info-browser-os = { $browserName } sur { $genericOSName }
 device-info-ip-address = Adresse IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Obtene { -brand-firefox } ubicunque tu es
+firefox-promo-banner-mobile-description = Synchronisa tu schedas, marcapaginas, e contrasignos a transverso tu apparatos. In addition, omne cosa remane cryptate con securitate.
+firefox-promo-banner-mobile-cta = Connecter un apparato
+firefox-promo-banner-switch-heading = Veloce a cambiar. Facile a configurar.
+firefox-promo-banner-switch-description = Quando tu passa a { -brand-firefox }, tu pote apportar tu marcapaginas, contrasignos, chronologia de exploration e plus assi que tu pote comenciar a navigar sin perder un pulsation.
+firefox-promo-banner-switch-cta = Passar a { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Contrasigno
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -217,6 +227,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Successo
 checkmark-enabled-icon-aria-label =
     .aria-label = Activate
+chevron-right-icon-aria-label =
+    .aria-label = Croc a dextra
 close-icon-aria-label =
     .aria-label = Clauder message
 code-icon-aria-label =
@@ -290,6 +302,7 @@ input-phone-number-enter-number = Inserer numero de telephono
 input-phone-number-country-united-states = Statos Unite
 input-phone-number-country-canada = Canada
 legal-back-button = Retro
+app-general-err-message = Alco errate eveniva. Reproba plus tarde.
 
 
 reset-pwd-link-damaged-header = Ligamine pro reinitialisar contrasigno damnificate
@@ -448,6 +461,9 @@ cs-disconnect-lost-advice-content-3 =
 cs-disconnect-suspicious-advice-heading = Apparato suspecte disconnectite
 cs-disconnect-suspicious-advice-content-2 = Si le apparato disconnectite es in effecto suspecte, pro mantener tu informationes secur, tu debe cambiar tu contrasigno de { -product-mozilla-account } in tu parametros de conto. Tu deberea etiam cambiar omne altere contrasignos que tu ha salvate in { -brand-firefox } scribente about:logins in le barra de adresse.
 cs-sign-out-button = Clauder session
+
+
+cs-scope-firefox-vpn = VPN integrate de { -brand-firefox }
 
 
 dc-heading = Recolta e uso de datos
@@ -746,7 +762,7 @@ page-passkey-add-cancel = Cancellar
 
 
 page-passkey-add-success = Clave-contrasigno create
-page-passkey-add-error-system = Systema indisponibile, retenta plus tarde
+page-passkey-add-error-system-v2 = Il habeva un problema a crear tu clave-contrasigno. Retenta plus tarde.
 
 
 recent-activity-title = Activitate de conto recente
@@ -785,6 +801,26 @@ recent-activity-account-recovery-codes-signin-complete = Accesso completate con 
 recent-activity-password-reset-otp-sent = Remontar le codice de confirmation de contrasigno inviate
 recent-activity-password-reset-otp-verified = Remontar le codice de confirmation de contrasigno verificate
 recent-activity-must-reset-password = Remontage obligatori del contrasigno
+recent-activity-account-recovery-phone-replace-complete = Numero de telephono de recuperation substituite
+recent-activity-account-recovery-phone-replace-failure = Substitution del numero de telephono de recuperation fallite
+recent-activity-account-two-factor-replace-success = Authentication a duo passos substituite
+recent-activity-account-two-factor-replace-failure = Substituitution del authentication a duo passos fallite
+recent-activity-account-recovery-phone-setup-failed = Configuration del numero de telephono de recuperation fallite
+recent-activity-account-recovery-phone-reset-password-complete = Remontage del contrasigno con numero de telefono de recuperation completate
+recent-activity-account-recovery-phone-reset-password-failed = Remontage del contrasigno con numero de telephono de recuperation fallite
+recent-activity-account-mfa-otp-sent = Autorisation de cambio conto demandate.
+recent-activity-account-mfa-otp-verified = Cambio conto autorisate.
+recent-activity-account-mfa-otp-failed = Autorisation de cambio conto fallite
+recent-activity-account-passkey-registration-success = Clave-contrasigno addite
+recent-activity-account-passkey-registration-failure = Registration de clave-contrasigno fallite
+recent-activity-account-passkey-removed = Clave-contrasigno removite
+recent-activity-account-passkey-authentication-success = Accesso con clave-contrasigno completate
+recent-activity-account-passkey-authentication-failure = Accesso con clave-contrasigno fallite
+recent-activity-account-passwordless-login-otp-sent = Codice de accesso sin contrasigno inviate
+recent-activity-account-passwordless-login-otp-failed = Codice de accesso sin contrasigno fallite
+recent-activity-account-passwordless-login-otp-verified = Codice de accesso sin contrasigno verificate
+recent-activity-account-passwordless-registration-complete = Registration de conto sin contrasigno completate
+recent-activity-account-recovery-codes-set = Codices de recuperation configurate
 recent-activity-unknown = Altere activitate de conto
 
 
@@ -891,7 +927,7 @@ passkey-sub-row-created-date = Create le: { $createdDate }
 passkey-sub-row-last-used-date = Usate le ultime vice le: { $lastUsedDate }
 passkey-sub-row-delete-title = Deler clave-contrasigno
 passkey-delete-modal-heading = Deler tu clave-contrasigno?
-passkey-delete-modal-content = Iste clave-contrasigno sera removite de tu conto. Tu debera accede usante un maniera differente.
+passkey-delete-modal-content-v2 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder per un methodo differente (contrasigno, un altere clave-contrasigno, o conto ligate).
 passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
@@ -923,9 +959,6 @@ passkey-row-max-limit-banner =
        *[other] Tu ha usate tote le { $count } claves-contrasigno. Dele un clave-contrasigno pro crear un nove
     }
 passkey-row-max-limit-disabled-reason = Tu ha attingite le numero maxime de claves-contrasigno.
-
-
-passkey-row-webauthn-not-supported = Tu navigator o apparato non supporta clave-contrasigno
 
 
 rk-header-1 = Clave de recuperation del conto
@@ -1040,6 +1073,7 @@ auth-error-226 = Limite de claves-contrasigno attingite
 auth-error-227 = Authentication de clave-contrasigno fallite
 auth-error-228 = Registration de clave-contrasigno fallite
 auth-error-238 = Verification de clave-contrasigno fallite
+auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
 auth-error-999 = Error inexpectate
 auth-error-1001 = Tentativa de apertura de session cancellate
 auth-error-1002 = Session expirate. Reaperi session pro continuar.
@@ -1066,7 +1100,12 @@ oauth-error-1000 = Un error ha occurrite. Per favor claude iste scheda e retenta
 passkey-registration-error-not-allowed = Installation de clave-contrasigno fallite o il es indisponibile. Retenta o elige un altere methodo.
 passkey-registration-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Le apparato ha jam essite registrate o le processo de configuration cancellate.
 passkey-registration-error-timeout = Le installation de clave-contrasigno era cancellate. Retenta.
-passkey-registration-error-not-supported = Le claves-contrasigno non es supportate ci. Tenta un altere methodo o apparato.
+passkey-registration-canceled-v2 = Configuration de contrasigno expirate o era cancellate.
+passkey-registration-canceled-link = Pro saper plus
+passkey-registration-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
+passkey-registration-error-not-supported-link = Pro saper plus
+passkey-registration-error-could-not-complete = Impossibile completar configuration de clave-contrasigno. Tenta un methodo o apparato differente.
+passkey-registration-error-could-not-complete-link = Pro saper plus
 passkey-registration-error-security = Le claves-contrasigno non pote esser configurate sur iste pagina. Usa le sito secur e retenta.
 passkey-registration-error-invalid-state = Iste clave-contrasigno es jam registrate. Usa lo pro acceder o adde un clave-contrasigno differente.
 passkey-registration-error-not-readable = Nos non poteva acceder al authenticator. Retenta o elige un altere methodo.
@@ -1077,11 +1116,12 @@ passkey-registration-error-unexpected = Le configuration del clave-contrasigno f
 passkey-authentication-error-not-allowed = Le authentication con clave-contrasigno falleva o es indisponibile. Retenta o elige un altere methodo.
 passkey-authentication-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Retenta o elige un altere methodo.
 passkey-authentication-error-timeout = Le petition de clave-contrasigno exiva del tempore limite. Retenta.
-passkey-authentication-error-not-supported = Le claves-contrasigno non es supportate. Tenta un altere methodo o apparato.
+passkey-authentication-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
 passkey-authentication-error-security = Le claves-contrasigno non pote esser usate sur iste pagina. Verifica que tu es sur le sito secur correcte e retenta.
 passkey-authentication-error-invalid-state = Alco errate eveniva con tu clave-contrasigno. Retenta o usa un altere methodo de authentication.
 passkey-authentication-error-not-readable = Nos non poteva acceder al authenticator. Retenta o usa un altere methodo de authentication.
 passkey-authentication-error-unexpected = Alco errate eveniva. Retenta o elige un altere methodo de authentication.
+passkey-authentication-error-not-found = Clave-contrasigno non recognoscite. Usa un altere metodo de accesso
 
 
 connect-another-device-signed-in-header = Es tu connexe a { -brand-firefox }
@@ -1394,7 +1434,6 @@ signin-passkey-fallback-header = Completar accesso
 signin-passkey-fallback-heading = Insere tu contrasigno pro synchronisar
 signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu contrasigno quando tu usa iste clave-contrasigno.
 signin-passkey-fallback-password-label = Contrasigno
-signin-passkey-fallback-go-to-settings = Ir a parametros
 signin-passkey-fallback-continue = Continuar
 
 
@@ -1425,22 +1464,6 @@ signup-passwordless-code-subheading = Le inscription emplea un sol passo quando 
 
 
 signin-passwordless-totp-required = Le authentication a duo passos es activate sur tu conto. Accede con tu contrasigno.
-
-
-signin-push-code-heading-w-default-service = Verifica iste accesso <span>pro continuar a configurar le conto</span>
-signin-push-code-heading-w-custom-service = Verifica iste accesso <span>pro continuar a { $serviceName }</span>
-signin-push-code-instruction = Verifica tu altere apparatos e approba iste accesso ab tu navigator { -brand-firefox }.
-signin-push-code-did-not-recieve = Non ha tu recipite le aviso?
-signin-push-code-send-email-link = Inviar codice per email
-
-
-signin-push-code-confirm-instruction = Confirma tu accesso
-signin-push-code-confirm-description = Nos detectava un tentativa de accesso ab le sequente apparato. Si il era tu, per favor approba le accesso
-signin-push-code-confirm-verifying = Verificante
-signin-push-code-confirm-login = Confirmar accesso
-signin-push-code-confirm-wasnt-me = Iste non era io, cambiar contrasigno.
-signin-push-code-confirm-login-approved = Tu accesso ha essite approbate. Claude iste fenestra.
-signin-push-code-confirm-link-error = Ligamine damnificate. Retenta.
 
 
 signin-recovery-method-header = Aperir session

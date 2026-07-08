@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Přihlašujete se k { -product-mozilla-account(case: "dat", capitalization: "lower") }?
-session-verify-send-push-body-2 = Klepnutím zde potvrďte, že jste to vy
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -224,7 +222,7 @@ freeTrialEndingReminder-content-charge-heading = Podrobnosti o poplatcích
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
 freeTrialEndingReminder-content-charge-subscription = Předplatné { $productName }: { $invoiceSubtotal }
-freeTrialEndingReminder-content-charge-subscription-2 = Předplatné za { $productName }
+freeTrialEndingReminder-content-charge-subscription-2 = Předplatné produktu { $productName }
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
 freeTrialEndingReminder-content-charge-discount = Sleva: { $invoiceDiscountAmount }
@@ -237,7 +235,7 @@ freeTrialEndingReminder-content-charge-tax-2 = Daň
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
 #   $invoiceTotal (String) - The total amount due, e.g. $9.99
 freeTrialEndingReminder-content-charge-total = Celková částka splatná k { $serviceLastActiveDateOnly }: { $invoiceTotal }
-freeTrialEndingReminder-content-charge-total-2 = Celkem splatné { $serviceLastActiveDateOnly }
+freeTrialEndingReminder-content-charge-total-2 = Celková suma splatná dne { $serviceLastActiveDateOnly }
 freeTrialEndingReminder-content-account-link = <a data-l10n-name="freeTrialEndingReminder-update-billing">Zde</a> si můžete zkontrolovat nebo aktualizovat způsob platby a údaje o účtu.
 freeTrialEndingReminder-content-account-link-plaintext = Zde můžete zkontrolovat nebo aktualizovat svůj způsob platby a údaje o účtu:
 # Variables:
@@ -385,13 +383,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Je možné, že vypršel
 subscriptionReactivation-subject-2 = Vaše předplatné za { $productName } bylo znovu aktivováno
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Vaše zkušební verze za { $productName } byla znovu aktivována
+subscriptionReactivation-freeTrial-subject = Vaše zkušební verze { $productName } byla znovu aktivována
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Děkujeme, že jste si znovu aktivovali předplatné produktu { $productName }!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Děkujeme za obnovení vaší zkušební verze za { $productName }!
+subscriptionReactivation-freeTrial-title = Děkujeme za obnovení vaší zkušební verze { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

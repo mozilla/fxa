@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-## Brands used across fxa-auth-server, fxa-payments-server, and fxa-settings.
+## Brands used across fxa-auth-server, and fxa-settings.
 ##
 ## Unless otherwise indicated, brands cannot be:
 ## - Transliterated.

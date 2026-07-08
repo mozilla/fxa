@@ -262,9 +262,9 @@ postAddLinkedAccount-subject-2 = Nov račun povezan z vašim { -product-mozilla-
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
 postAddLinkedAccount-title-2 = Vaš račun { $providerName } se je povezal z vašim { -product-mozilla-account(sklon: "orodnik") }
 postAddLinkedAccount-action = Upravljanje računa
-postAddPasskey-subject = Geslo ustvarjeno
+postAddPasskey-subject = Ključ za dostop ustvarjen
 postAddPasskey-preview = Zdaj lahko za prijavo uporabljate svojo napravo
-postAddPasskey-title = Ustvarili ste geslo
+postAddPasskey-title = Ustvarili ste ključ za dostop
 postAddPasskey-description = Zdaj ga lahko uporabljate za prijavo v vse svoje storitve { -product-mozilla-account }.
 postAddPasskey-sync-note = Upoštevajte, da bo geslo še naprej zahtevano za dostop do podatkov za sinhronizacijo { -brand-firefox }.
 # Links out to a support article about passkeys and { -brand-firefox } sync
@@ -339,9 +339,9 @@ postRemoveAccountRecovery-title-3 = Izbrisali ste ključ za obnovitev računa
 postRemoveAccountRecovery-body-part1 = Ključ za obnovitev računa je potreben za obnovitev šifriranih podatkov brskanja, če pozabite geslo.
 postRemoveAccountRecovery-body-part2 = Če tega še niste storili, v nastavitvah računa ustvarite nov obnovitveni ključ in preprečite izgubo shranjenih gesel, zaznamkov, zgodovine brskanja in drugega.
 postRemoveAccountRecovery-action = Upravljanje računa
-postRemovePasskey-subject = Geslo je izbrisano
-postRemovePasskey-preview = Geslo je bilo odstranjeno iz vašega računa
-postRemovePasskey-title = Izbrisali ste svoje ključ
+postRemovePasskey-subject = Ključ za dostop izbrisan
+postRemovePasskey-preview = Ključ za dostop je bil odstranjen iz vašega računa
+postRemovePasskey-title = Izbrisali ste svoj Ključ za dostop
 postRemovePasskey-description = Za prijavo boste morali uporabiti drug način.
 postRemovePasskey-requested-from = To ste zahtevali z naslednje naprave:
 postRemovePasskey-action = Upravljanje računa

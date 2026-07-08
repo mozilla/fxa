@@ -1543,25 +1543,6 @@ signin-bounced-help = Se este for um endereço de email válido, <linkExternal>a
 signin-bounced-create-new-account = Não tem mais este email? Crie outra conta
 back = Voltar
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Confirme este acesso para <span>continuar para as configurações da conta</span>
-signin-push-code-heading-w-custom-service = Confirme este acesso para <span>continuar para o { $serviceName }</span>
-signin-push-code-instruction = Verifique seus outros dispositivos e aprove este acesso no navegador { -brand-firefox }.
-signin-push-code-did-not-recieve = Não recebeu a notificação?
-signin-push-code-send-email-link = Enviar código por email
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Confirme seu acesso
-signin-push-code-confirm-description = Detectamos uma tentativa de acesso feita pelo dispositivo a seguir. Se foi você, aprove o acesso
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar acesso
-signin-push-code-confirm-wasnt-me = Não foi eu, mudar a senha.
-signin-push-code-confirm-login-approved = Seu acesso foi aprovado. Feche esta janela.
-signin-push-code-confirm-link-error = Link danificado. Tente novamente.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

@@ -22,10 +22,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Almenn forritsvilla
-app-general-err-message = Eitthvað fór úrskeiðis. Reyndu aftur síðar.
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } táknmerki
 app-footer-privacy-notice = Persónuverndartilkynning vefsvæðis
 app-footer-terms-of-service = Þjónustuskilmálar
@@ -1090,22 +1086,6 @@ signin-bounced-message = Staðfestingartölvupóstur sem við sendum á { $email
 signin-bounced-help = Ef þetta er gilt tölvupóstfang, skaltu <linkExternal>láta okkur vita</linkExternal> og við munum hjálpa þér við að aflæsa reikningnum þinum.
 signin-bounced-create-new-account = Ert þú ekki lengur með þetta tölvupóstfang? Búðu til nýjan aðgang
 back = Til baka
-
-
-signin-push-code-heading-w-default-service = Staðfestu þessa innskráningu <span>til að halda áfram í reikningsstillingar</span>
-signin-push-code-heading-w-custom-service = Staðfestu þessa innskráningu <span>til að halda áfram í { $serviceName }</span>
-signin-push-code-instruction = Athugaðu hin tækin þín og samþykktu þessa innskráningu í { -brand-firefox } vafranum þínum.
-signin-push-code-did-not-recieve = Fékkstu ekki tilkynninguna?
-signin-push-code-send-email-link = Kóði í tölvupósti
-
-
-signin-push-code-confirm-instruction = Staðfestu innskráninguna þína
-signin-push-code-confirm-description = Við greindum tilraun til innskráningar úr eftirfarandi tæki. Ef þetta varst þú, skaltu samþykkja innskráninguna
-signin-push-code-confirm-verifying = Sannreyni
-signin-push-code-confirm-login = Staðfestu innskráningu
-signin-push-code-confirm-wasnt-me = Þetta var ekki ég, skiptum um lykilorð.
-signin-push-code-confirm-login-approved = Innskráning þín hefur verið samþykkt. Lokaðu þessum glugga.
-signin-push-code-confirm-link-error = Tengillinn er skemmdur. Reyndu aftur.
 
 
 signin-recovery-method-header = Innskráning

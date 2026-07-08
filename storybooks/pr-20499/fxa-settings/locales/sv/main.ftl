@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Allmänt applikationsfel
-app-general-err-message = Något gick fel. Vänligen försök igen senare.
+app-something-went-wrong-heading = Något gick fel
+app-something-went-wrong-message = Vi har underrättats om problemet. Uppdatera sidan för att försöka igen.
+app-error-id = Fel-ID: { $errorId }
+app-error-details-summary = Detaljer om felet
 app-query-parameter-err-heading = Felaktig begäran: Ogiltiga frågeparametrar
 
 
@@ -149,6 +151,14 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adress: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
+firefox-promo-banner-mobile-cta = Anslut en enhet
+firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Lösenord
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -217,6 +227,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Lyckades
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktivera
+chevron-right-icon-aria-label =
+    .aria-label = Chevron höger
 close-icon-aria-label =
     .aria-label = Stäng meddelande
 code-icon-aria-label =
@@ -290,6 +302,7 @@ input-phone-number-enter-number = Ange telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Kanada
 legal-back-button = Tillbaka
+app-general-err-message = Något gick fel. Försök igen senare.
 
 
 reset-pwd-link-damaged-header = Länken för att återställa lösenordet fungerar inte
@@ -446,6 +459,9 @@ cs-disconnect-lost-advice-content-3 = Eftersom din enhet har tappats bort eller 
 cs-disconnect-suspicious-advice-heading = Misstänkt enhet frånkopplad
 cs-disconnect-suspicious-advice-content-2 = Om den frånkopplade enheten verkligen är misstänkt bör du ändra ditt lösenord för { -product-mozilla-account } i dina kontoinställningar för att skydda din information. Du bör också ändra alla andra lösenord som du sparat i { -brand-firefox } genom att skriva about:logins i adressfältet.
 cs-sign-out-button = Logga ut
+
+
+cs-scope-firefox-vpn = { -brand-firefox }:s inbyggda VPN
 
 
 dc-heading = Datainsamling och användning
@@ -744,7 +760,7 @@ page-passkey-add-cancel = Avbryt
 
 
 page-passkey-add-success = Lösenordsnyckel skapad
-page-passkey-add-error-system = Systemet är inte tillgängligt. Försök igen senare.
+page-passkey-add-error-system-v2 = Det gick inte att skapa din lösenordsnyckel. Försök igen senare.
 
 
 recent-activity-title = Senaste kontoaktivitet
@@ -783,6 +799,26 @@ recent-activity-account-recovery-codes-signin-complete = Inloggning med återst�
 recent-activity-password-reset-otp-sent = Bekräftelsekod för återställning av lösenord skickad
 recent-activity-password-reset-otp-verified = Bekräftelsekod för återställning av lösenord verifierad
 recent-activity-must-reset-password = Lösenordsåterställning krävs
+recent-activity-account-recovery-phone-replace-complete = Återställningstelefon ersatt
+recent-activity-account-recovery-phone-replace-failure = Byte av återställningstelefon misslyckades
+recent-activity-account-two-factor-replace-success = Tvåstegsautentisering ersatt
+recent-activity-account-two-factor-replace-failure = Ersättning av tvåstegsautentisering misslyckades
+recent-activity-account-recovery-phone-setup-failed = Konfiguration av återställningstelefon misslyckades
+recent-activity-account-recovery-phone-reset-password-complete = Lösenordsåterställning med återställningstelefon slutförd
+recent-activity-account-recovery-phone-reset-password-failed = Lösenordsåterställning med återställningstelefon misslyckades
+recent-activity-account-mfa-otp-sent = Auktorisering för kontoändring begärdes
+recent-activity-account-mfa-otp-verified = Kontoändring godkänd
+recent-activity-account-mfa-otp-failed = Auktorisering av kontoändring misslyckades
+recent-activity-account-passkey-registration-success = Lösenordsnyckel tillagd
+recent-activity-account-passkey-registration-failure = Registrering av lösenordsnyckel misslyckades
+recent-activity-account-passkey-removed = Lösenordsnyckel borttagen
+recent-activity-account-passkey-authentication-success = Inloggning med lösenordsnyckel slutförd
+recent-activity-account-passkey-authentication-failure = Inloggning med lösenordsnyckel misslyckades
+recent-activity-account-passwordless-login-otp-sent = Lösenordslös inloggningskod skickad
+recent-activity-account-passwordless-login-otp-failed = Lösenordslös inloggningskod misslyckades
+recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggningskod verifierad
+recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
+recent-activity-account-recovery-codes-set = Återställningskoder inställda
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -889,7 +925,7 @@ passkey-sub-row-created-date = Skapad: { $createdDate }
 passkey-sub-row-last-used-date = Senast använd: { $lastUsedDate }
 passkey-sub-row-delete-title = Ta bort lösenordsnyckel
 passkey-delete-modal-heading = Ta bort din lösenordsnyckel?
-passkey-delete-modal-content = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in på ett annat sätt.
+passkey-delete-modal-content-v2 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med en annan metod (lösenord, en annan lösenordsnyckel eller länkat konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
@@ -920,9 +956,6 @@ passkey-row-max-limit-banner =
        *[other] Du har använt alla { $count } lösenordsnycklar. Ta bort en lösenordsnyckel för att skapa en ny.
     }
 passkey-row-max-limit-disabled-reason = Du har nått det maximala antalet lösenordsnycklar.
-
-
-passkey-row-webauthn-not-supported = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 
 
 rk-header-1 = Nyckel för kontoåterställning
@@ -1036,6 +1069,7 @@ auth-error-226 = Gränsvärdet för lösenordsnycklar har nåtts
 auth-error-227 = Autentisering av lösenordsnyckel misslyckades
 auth-error-228 = Registrering av lösenordsnyckel misslyckades
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
+auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
 auth-error-999 = Oväntat fel
 auth-error-1001 = Inloggningsförsök avbröts
 auth-error-1002 = Sessionen upphörde. Logga in för att fortsätta.
@@ -1060,8 +1094,14 @@ oauth-error-1000 = Något gick fel. Stäng den här fliken och försök igen.
 
 
 passkey-registration-error-not-allowed = Inställning av lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
+passkey-registration-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Antingen har enheten redan registrerats eller så avbröts installationen.
 passkey-registration-error-timeout = Installationen av lösenordsnyckel avbröts. Försök igen.
-passkey-registration-error-not-supported = Lösenordsnycklar stöds inte här. Prova en annan metod eller enhet.
+passkey-registration-canceled-v2 = Tidsgränsen för installationen av lösenordsnyckeln gick ut eller avbröts.
+passkey-registration-canceled-link = Läs mer
+passkey-registration-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
+passkey-registration-error-not-supported-link = Läs mer
+passkey-registration-error-could-not-complete = Installation av lösenordsnyckel kunde inte slutföras. Prova en annan metod eller enhet.
+passkey-registration-error-could-not-complete-link = Läs mer
 passkey-registration-error-security = Lösenordsnyckel kan inte konfigureras på den här sidan. Använd den säkra webbplatsen och försök igen.
 passkey-registration-error-invalid-state = Denna lösenordsnyckel är redan registrerad. Använd den för att logga in eller lägg till en annan lösenordsnyckel.
 passkey-registration-error-not-readable = Vi kunde inte komma åt autentiseringen. Försök igen eller välj en annan metod.
@@ -1070,12 +1110,14 @@ passkey-registration-error-unexpected = Inställning av lösenordsnyckel misslyc
 
 
 passkey-authentication-error-not-allowed = Inloggning med lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
+passkey-authentication-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Försök igen eller välj en annan metod.
 passkey-authentication-error-timeout = Begäran om lösenordsnyckel har gått ut. Försök igen.
-passkey-authentication-error-not-supported = Lösenordsnycklar stöds inte. Prova en annan metod eller enhet.
+passkey-authentication-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 passkey-authentication-error-security = Lösenordsnycklar kan inte användas på den här sidan. Kontrollera att du är på rätt säker webbplats och försök igen.
 passkey-authentication-error-invalid-state = Något gick fel med lösenordsnyckeln. Försök igen eller använd en annan inloggningsmetod.
 passkey-authentication-error-not-readable = Vi kunde inte komma åt autentiseringen. Försök igen eller använd en annan inloggningsmetod.
 passkey-authentication-error-unexpected = Något gick fel. Försök igen eller välj en annan inloggningsmetod.
+passkey-authentication-error-not-found = Lösenordsnyckel känns inte igen. Använd en annan inloggningsmetod.
 
 
 connect-another-device-signed-in-header = Du är inloggad på { -brand-firefox }
@@ -1393,7 +1435,6 @@ signin-passkey-fallback-header = Slutför inloggningen
 signin-passkey-fallback-heading = Ange ditt lösenord för att synkronisera
 signin-passkey-fallback-body = För att skydda din data måste du ange ditt lösenord när du använder denna lösenordsnyckel.
 signin-passkey-fallback-password-label = Lösenord
-signin-passkey-fallback-go-to-settings = Gå till inställningar
 signin-passkey-fallback-continue = Fortsätt
 
 
@@ -1424,22 +1465,6 @@ signup-passwordless-code-subheading = Registrering går snabbt när du använder
 
 
 signin-passwordless-totp-required = Tvåstegsautentisering är aktiverad på ditt konto. Logga in med ditt lösenord.
-
-
-signin-push-code-heading-w-default-service = Verifiera denna inloggning <span>för att fortsätta till kontoinställningarna</span>
-signin-push-code-heading-w-custom-service = Verifiera denna inloggning <span>för att fortsätta till { $serviceName }</span>
-signin-push-code-instruction = Kontrollera dina andra enheter och godkänn den här inloggningen från din { -brand-firefox }-webbläsare.
-signin-push-code-did-not-recieve = Har du inte fått aviseringen?
-signin-push-code-send-email-link = E-posta kod
-
-
-signin-push-code-confirm-instruction = Bekräfta din inloggning
-signin-push-code-confirm-description = Vi upptäckte ett inloggningsförsök från följande enhet. Om det var du, vänligen godkänn inloggningen
-signin-push-code-confirm-verifying = Verifierar
-signin-push-code-confirm-login = Bekräfta inloggning
-signin-push-code-confirm-wasnt-me = Det här var inte jag, ändra lösenord.
-signin-push-code-confirm-login-approved = Din inloggning har godkänts. Stäng det här fönstret.
-signin-push-code-confirm-link-error = Länken är skadad. Försök igen.
 
 
 signin-recovery-method-header = Logga in

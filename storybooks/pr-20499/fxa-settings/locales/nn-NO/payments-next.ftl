@@ -17,6 +17,12 @@ next-payment-method-header = Vel betalingsmåte
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Først må du godkjenne abonnementet ditt
+
+## Error page
+
+error-page-account-not-found-heading = Fann ikkje kontoen
+error-page-account-not-found-message = Kontoen som er knytt til økta di finst ikkje. Bruk ein annan konto eller opprett ein ny for å abonnere.
+error-page-account-not-found-continue-button = Hald fram
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Vel land og skriv inn postnummer <p>for å halde fram til kassa for { $productName }</p>
 location-banner-info = Vi klarte ikkje å oppdage plasseringa di automatisk
@@ -28,6 +34,7 @@ location-banner-currency-change = Valutaendring er ikkje støtta. For å halde f
 upgrade-page-payment-information = Betalingsinformasjon
 # $nextInvoiceDate (number) - The date of the next invoice
 upgrade-page-acknowledgment = Planen din vert omg[ande endra, og du vil bli belasta eit justert beløp for resten av denne faktureringssyklusen. Frå og med { $nextInvoiceDate } vert du belasta med heile beløpet.
+upgrade-page-acknowledgment-from-trial = Ved oppgradering blir den aktive prøveperioden avslutta umiddelbart, og du vil bli belasta for det nye abonnementet ditt i dag.
 
 ## Authentication Error page
 
@@ -62,6 +69,7 @@ checkout-error-contact-support = Kontakt brukarstøtte, slik at vi kan hjelpe de
 cart-error-currency-not-determined = Vi klarte ikkje å bestemme valutaen for dette kjøpet, prøv på nytt.
 checkout-processing-general-error = Det oppstod ein uventa feil under behandling av betalinga. Prøv igjen.
 cart-total-mismatch-error = Fakturabeløpet er endra. Prøv på nytt.
+cart-free-trial-mismatch-error = Din rett til gratis prøveperiode er endra. Prøv på nytt.
 
 ## Error pages - Payment method failure messages
 
@@ -73,6 +81,7 @@ intent-payment-error-generic = Det oppstod ein uventa feil under behandling av b
 intent-payment-error-insufficient-funds = Det ser ut som om kortet ditt ikkje har nok pengar. Prøv eit anna kort.
 general-paypal-error = Det oppstod ein uventa feil under behandling av betalinga. Prøv igjen.
 paypal-active-subscription-no-billing-agreement-error = Det ser ut til at det oppstod eit problem med faktureringa av { -brand-paypal }-kontoen din. Aktiver automatisk betalingar for abonnementet ditt på nytt.
+new-account-prepaid-card-free-trial-not-allowed = Førehandsbetalte kort kan ikkje brukast til å starte ein gratis prøveperiode på nye kontoar. Prøv ein annan betalingsmåte.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
@@ -254,6 +263,7 @@ next-payment-confirm-checkbox-error = Du må fullføre dette før du går vidare
 
 next-new-user-submit = Abonner no
 next-pay-with-heading-paypal = Betal med { -brand-paypal }
+free-trial-ineligible-notice = Kontoen din er ikkje kvalifisert for ein gratis prøveperiode. Du kan halde fram med eit betalt abonnement.
 
 ## Churn flow - cancel
 
@@ -329,18 +339,34 @@ next-coupon-submit = Bruk
 ## $tax (Number) - The tax amount. It will be formatted as currency.
 
 free-trial-content-trial-expires = Gratis prøveperiode går ut { $date }.
+free-trial-content-trial-cancelled = Prøveperioden din er avslutta.
 
 # Charge info strings - with tax, per interval
 
+free-trial-content-charge-info-with-tax-day = Du vil bli belasta { $amount } + { $tax } moms per dag etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-with-tax-week = Du vil bli belasta { $amount } + { $tax } moms per veke etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-with-tax-month = Du vil bli belasta { $amount } + { $tax } moms per månad etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-with-tax-halfyear = Du vil bli belasta { $amount } + { $tax } moms kvar sjette månad etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-with-tax-year = Du vil bli belasta { $amount } + { $tax } moms per år etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-with-tax-default = Du vil bli belasta { $amount } + { $tax } moms etter at prøveperioden blir avslutta { $date }.
 
 # Charge info strings - no tax, per interval
 
+free-trial-content-charge-info-no-tax-day = Du vil bli belasta { $amount } per dag etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-no-tax-week = Du vil bli belasta { $amount } per veke etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-no-tax-month = Du vil bli belasta { $amount } per månad etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-no-tax-halfyear = Du vil bli belasta { $amount } kvar sjette månad etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-no-tax-year = Du vil bli belasta { $amount } per år etter at prøveperioden blir avslutta { $date }.
+free-trial-content-charge-info-no-tax-default = Du vil bli belasta { $amount } etter at prøveperioden blir avslutta { $date }.
+free-trial-content-trial-ends = Prøveperioden din blir avslutta { $date }. Oppdater betalingsmåten din for å behalde tilgang etter at prøveperioden er over.
 free-trial-content-trial-active = Gratis prøveperiode er aktiv.
 free-trial-content-action-error = Det oppstod ein uventa feil. Prøv på nytt.
 free-trial-content-button-resume-trial = Ta opp att prøveperiode
 free-trial-content-button-resume-trial-aria = Ta opp att prøveperiode for { $productName }
 free-trial-content-button-cancel-trial = Avslutt prøveperiode
 free-trial-content-button-cancel-trial-aria = Avslutt prøveperiode for { $productName }
+free-trial-content-button-cancel-subscription = Avslutt abonnement
+free-trial-content-button-cancel-subscription-aria = Avslutt abonnementet for { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -355,6 +381,9 @@ free-trial-content-last-bill-no-tax = { $invoiceTotal }
 free-trial-content-link-view-invoice = Vis faktura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Vis faktura for { $productName }
+# $date (Date) - The date the free trial ended (e.g., January 16, 2026)
+free-trial-content-trial-ended = Din gratis prøveperiode vart avslutta <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Vi kunne ikkje behandle betalinga di. Oppdater betalingsmåten din for å gjenopprette tilgangen. Behandlinga kan ta opptil 24 timar og kan variere etter bank eller betalingsmåte.
 free-trial-content-button-update-payment = Oppdater betalingsmåte
 
 # Component - Header
@@ -434,6 +463,40 @@ purchase-details-credit-applied-label = Kreditt brukt
 purchase-details-total-due-label = Totalt uteståande
 next-plan-details-hide-button = Gøym detaljar
 next-plan-details-show-button = Vis detaljar
+
+## $trialDayLength (Number) - The number of days in the free trial
+
+free-trial-start-title =
+    { $trialDayLength ->
+       *[other] Start din { $trialDayLength }-dagars gratis prøveperiode
+    }
+free-trial-success-title =
+    { $trialDayLength ->
+       *[other] Din { $trialDayLength }-dagars gratis prøveperiode har starta
+    }
+
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date the free trial ends
+
+free-trial-start-message-daily = Inga betaling er påkravd i dag. Du vil bli belasta { $firstPrice }/dag etter at gratisperioden vert avslutta { $endDate }.
+free-trial-start-message-weekly = Inga betaling er påkravd i dag. Du vil bli belasta { $firstPrice }/veke etter at gratisperioden vert avslutta { $endDate }.
+free-trial-start-message-monthly = Inga betaling er påkravd i dag. Du vil bli belasta { $firstPrice }/månad etter at gratisperioden vert avslutta { $endDate }.
+free-trial-start-message-halfyearly = Inga betaling er påkravd i dag. Du vil bli belasta { $firstPrice }/6 månadar etter at gratistilbodet vert avslutta den { $endDate }.
+free-trial-start-message-yearly = Inga betaling er påkravd i dag. Du vil bli belasta { $firstPrice }/år etter at gratisperioden vert avslutta { $endDate }.
+
+##
+
+# $endDate (String) - The date of the first charge after the free trial ends
+free-trial-first-charge-title = Første betaling: { $endDate }
+
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date of the first charge after the free trial ends
+
+free-trial-first-charge-message-daily = Du vil bli belasta { $firstPrice } { $endDate }, og deretter dagleg fram til du avsluttar.
+free-trial-first-charge-message-weekly = Du vil bli belasta { $firstPrice } { $endDate }, og deretter kvar veke fram til du avsluttar.
+free-trial-first-charge-message-monthly = Du vil bli belasta { $firstPrice } { $endDate }, og deretter månadleg fram til du avsluttar.
+free-trial-first-charge-message-halfyearly = Du vil bli belasta { $firstPrice } { $endDate }, og deretter kvar 6. månad fram til du avsluttar.
+free-trial-first-charge-message-yearly = Du vil bli belasta { $firstPrice } { $endDate }, og deretter årleg fram til du avsluttar.
 
 ##
 
@@ -660,6 +723,7 @@ manage-payment-method-intent-error-try-again = Hmm. Det oppstod eit problem med 
 manage-payment-method-intent-error-get-in-touch = Hmm. Det oppstod eit problem med å godkjenne betalinga di. Ta kontakt med kortutskrivaren din.
 manage-payment-method-intent-error-insufficient-funds = Det ser ut som om kortet ditt ikkje har nok pengar. Prøv eit anna kort.
 manage-payment-method-intent-error-generic = Det oppstod ein uventa feil under behandling av betalinga. Prøv igjen.
+manage-payment-method-tax-address-required = Vi kunne ikkje fastslå faktureringsadressa di. Kontroller betalingsinformasjonen din og prøv igjen.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

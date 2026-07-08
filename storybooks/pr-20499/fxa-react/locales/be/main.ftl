@@ -22,8 +22,9 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Агульная памылка праграмы
-app-general-err-message = Нешта пайшло не так. Калі ласка, паспрабуйце зноў пазней.
+app-something-went-wrong-heading = Нешта пайшло не так
+app-error-id = Ідэнтыфікатар памылкі: { $errorId }
+app-error-details-summary = Падрабязнасці пра памылку
 
 
 app-footer-mozilla-logo-label = Лагатып { -brand-mozilla }

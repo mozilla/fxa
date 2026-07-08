@@ -1,8 +1,3 @@
-## FxA React - Strings shared between multiple FxA products for application error dialog
-
-app-general-err-heading = Гомуми кушымта хатасы
-app-general-err-message = Нидер булды. Зинһар соңрак тырышып карагыз.
-
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = { -brand-mozilla } логотибы

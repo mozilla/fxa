@@ -1,6 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-body-2 = Tapitz'a' richin najikib'a' chi at ja rat
 subplat-header-mozilla-logo-2 = <img data-l10n-name="subplat-mozilla-logo" alt="{ -brand-mozilla } logo">
 subplat-footer-mozilla-logo-2 = <img data-l10n-name="mozilla-logo-footer" alt="Logo { -brand-mozilla }">
 subplat-automated-email = Ruyonil nitaq re taqoya’l re‘; we xak'ül ruma jun sachoj, majun achike tab'ana'.

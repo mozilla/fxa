@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = 일반 애플리케이션 오류
-app-general-err-message = 문제가 발생했습니다. 나중에 다시 시도하세요.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = 잘못된 요청: 유효하지 않은 쿼리 파라미터
 

@@ -26,8 +26,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Aplikazioaren errore orokorra
-app-general-err-message = Zerbait oker joan da. Mesedez, berriro saiatu beranduago.
 app-query-parameter-err-heading = Eskaera okerra: kontsulta-parametro baliogabeak
 
 
@@ -1045,22 +1043,6 @@ signin-bounced-message = { $email } helbidera bidali zen berrespen mezua itzuli 
 signin-bounced-help = Helbide elektroniko hau baliozkoa bada, <linkExternal>esaguzu</linkExternal> eta zure kontua desblokeatzen lagunduko dizugu.
 signin-bounced-create-new-account = Helbide elektronikoa ez da jada zurea? Sortu kontu berri bat
 back = Atzera
-
-
-signin-push-code-heading-w-default-service = Egiaztatu saio-hasiera hau <span>kontuaren ezarpenetara jarraitzeko</span>
-signin-push-code-heading-w-custom-service = Egiaztatu saio-hasiera hau <span>{ $serviceName }</span>-n jarraitzeko
-signin-push-code-instruction = Egiaztatu zure beste gailuak eta onartu saio-hasiera hau zure { -brand-firefox } nabigatzailetik.
-signin-push-code-did-not-recieve = Ez al duzu jakinarazpena jaso?
-signin-push-code-send-email-link = Posta elektronikoaren kodea
-
-
-signin-push-code-confirm-instruction = Berretsi zure saio hasiera
-signin-push-code-confirm-description = Saioa hasteko saiakera bat detektatu dugu hurrengo gailutik. Zu izan bazara, onar ezazu saioa hasteko
-signin-push-code-confirm-verifying = Egiaztatzen
-signin-push-code-confirm-login = Berretsi saio hasiera
-signin-push-code-confirm-wasnt-me = Hau ez nintzen ni, aldatu pasahitza.
-signin-push-code-confirm-login-approved = Zure saio-hasiera onartu da. Mesedez, itxi leiho hau.
-signin-push-code-confirm-link-error = Esteka hondatuta dago. Mesedez, saiatu berriro.
 
 
 signin-recovery-method-header = Hasi saioa

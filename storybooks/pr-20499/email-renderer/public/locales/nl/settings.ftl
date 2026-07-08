@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } op { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adres: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Ontvang { -brand-firefox } waar u ook bent
+firefox-promo-banner-mobile-description = Synchroniseer uw tabbladen, bladwijzers en wachtwoorden op al uw apparaten. Bovendien blijft alles veilig versleuteld.
+firefox-promo-banner-mobile-cta = Een apparaat verbinden
+firefox-promo-banner-switch-heading = Snel om te schakelen. Snel gewend.
+firefox-promo-banner-switch-description = Wanneer u naar { -brand-firefox } overschakelt, kunt u uw bladwijzers, wachtwoorden, geschiedenis en meer meenemen, zodat u naadloos kunt surfen.
+firefox-promo-banner-switch-cta = Overstappen naar { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Ingeschakeld
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Punthaak naar rechts
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Bericht sluiten
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = Verenigde Staten
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Terug
+# Generic error shown when the legal document fails to load
+app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
 
 ## LinkDamaged component
 
@@ -582,6 +598,15 @@ cs-disconnect-lost-advice-content-3 = Omdat uw apparaat verloren of gestolen is 
 cs-disconnect-suspicious-advice-heading = Verdacht apparaat ontkoppeld
 cs-disconnect-suspicious-advice-content-2 = Als het ontkoppelde apparaat inderdaad verdacht is, dient u, om uw gegevens veilig te houden, het wachtwoord van uw { -product-mozilla-account } te wijzigen in uw accountinstellingen. U kunt het beste ook alle overige wachtwoorden die u in { -brand-firefox } hebt opgeslagen wijzigen door in de adresbalk about:logins in te typen.
 cs-sign-out-button = Afmelden
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = De ingebouwde VPN van { -brand-firefox }
 
 ## Data collection section
 
@@ -984,7 +1009,7 @@ page-passkey-add-cancel = Annuleren
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Wachtwoordsleutel aangemaakt
-page-passkey-add-error-system = Systeem niet beschikbaar. Probeer het later nog eens.
+page-passkey-add-error-system-v2 = Er is een probleem opgetreden bij het aanmaken van uw wachtwoordsleutel. Probeer het later nog eens.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1028,6 +1053,29 @@ recent-activity-account-recovery-codes-signin-complete = Aanmelden met herstelco
 recent-activity-password-reset-otp-sent = Bevestigingscode voor wachtwoordherinitialisatie verzonden
 recent-activity-password-reset-otp-verified = Bevestigingscode van wachtwoordherinitialisatie geverifieerd
 recent-activity-must-reset-password = Wachtwoordherinitialisatie nodig
+recent-activity-account-recovery-phone-replace-complete = Hersteltelefoonnummer vervangen
+recent-activity-account-recovery-phone-replace-failure = Vervanging van hersteltelefoonnummer mislukt
+recent-activity-account-two-factor-replace-success = Authenticatie in twee stappen vervangen
+recent-activity-account-two-factor-replace-failure = Vervanging van authenticatie in twee stappen mislukt
+recent-activity-account-recovery-phone-setup-failed = Instellen hersteltelefoonnummer mislukt
+recent-activity-account-recovery-phone-reset-password-complete = Wachtwoordherinitialisatie met hersteltelefoonnummer voltooid
+recent-activity-account-recovery-phone-reset-password-failed = Wachtwoordherinitialisatie met hersteltelefoonnummer mislukt
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Autorisatie voor accountwijziging aangevraagd
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Accountwijziging geautoriseerd
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Autorisatie voor accountwijziging mislukt
+recent-activity-account-passkey-registration-success = Wachtwoordsleutel toegevoegd
+recent-activity-account-passkey-registration-failure = Registratie wachtwoordsleutel mislukt
+recent-activity-account-passkey-removed = Wachtwoordsleutel verwijderd
+recent-activity-account-passkey-authentication-success = Aanmelden met wachtwoordsleutel voltooid
+recent-activity-account-passkey-authentication-failure = Aanmelding met wachtwoordsleutel mislukt
+recent-activity-account-passwordless-login-otp-sent = Code voor aanmelden zonder wachtwoord verzonden
+recent-activity-account-passwordless-login-otp-failed = Code voor aanmelden zonder wachtwoord mislukt
+recent-activity-account-passwordless-login-otp-verified = Code voor aanmelden zonder wachtwoord geverifieerd
+recent-activity-account-passwordless-registration-complete = Wachtwoordloze accountregistratie voltooid
+recent-activity-account-recovery-codes-set = Herstelcodes ingesteld
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Overige accountactiviteit
 
@@ -1200,7 +1248,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich op een andere manier aan te melden.
+passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd
@@ -1243,11 +1291,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = U hebt het maximale aantal wachtwoordsleutels bereikt.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1405,6 +1448,7 @@ auth-error-226 = Wachtwoordsleutellimiet bereikt
 auth-error-227 = Wachtwoordsleutelauthenticatie mislukt
 auth-error-228 = Registratie wachtwoordsleutel mislukt
 auth-error-238 = Wachtwoordsleutel-uitdaging mislukt
+auth-error-239 = Sorry, we konden uw account niet verwijderen. Probeer het opnieuw, of neem contact op met de ondersteuningsafdeling als het probleem aanhoudt.
 auth-error-999 = Onverwachte fout
 auth-error-1001 = Aanmeldingspoging geannuleerd
 auth-error-1002 = Sessie verlopen. Meld u aan om door te gaan.
@@ -1444,8 +1488,19 @@ passkey-registration-error-not-allowed = Instellen van wachtwoordsleutel mislukt
 passkey-registration-error-not-allowed-existing = Instellen van wachtwoordsleutel is niet beschikbaar op dit apparaat. Het apparaat is al geregistreerd, of het instelproces is geannuleerd.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Instellen van wachtwoordsleutel is geannuleerd. Probeer het opnieuw.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Wachtwoordsleutels worden hier niet ondersteund. Probeer een andere methode of een ander apparaat.
+passkey-registration-canceled-v2 = Instellen van wachtwoordsleutel verlopen of geannuleerd.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Meer info
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Meer info
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Het instellen van de wachtwoordsleutel kon niet worden voltooid. Probeer een andere methode of een ander apparaat.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Meer info
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Wachtwoordsleutels kunnen niet op deze pagina worden ingesteld. Gebruik de beveiligde website en probeer het opnieuw.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1466,7 +1521,7 @@ passkey-authentication-error-not-allowed-existing = Instellen van wachtwoordsleu
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Wachtwoordsleutelverzoek verlopen. Probeer het opnieuw.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Wachtwoordsleutels worden niet ondersteund. Probeer een andere methode of een ander apparaat.
+passkey-authentication-error-not-supported-v2 = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Wachtwoordsleutels kunnen niet op deze pagina worden gebruikt. Controleer of u de juiste beveiligde website gebruikt en probeer het opnieuw.
 # Unexpected credential state during authentication
@@ -1475,6 +1530,10 @@ passkey-authentication-error-invalid-state = Er is iets misgegaan met uw wachtwo
 passkey-authentication-error-not-readable = We krijgen geen toegang tot de authenticator. Probeer het opnieuw of gebruik een andere aanmeldingsmethode.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Er is iets misgegaan. Probeer het opnieuw of kies een andere aanmeldingsmethode.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Wachtwoordsleutel niet herkend. Gebruik een andere aanmeldingsmethode.
 
 ## Connect Another Device page
 
@@ -1991,7 +2050,6 @@ signin-passkey-fallback-header = Aanmelding voltooien
 signin-passkey-fallback-heading = Voer uw wachtwoord in om te synchroniseren
 signin-passkey-fallback-body = Om uw gegevens veilig te houden, dient u uw wachtwoord in te voeren wanneer u deze wachtwoordsleutel gebruikt.
 signin-passkey-fallback-password-label = Wachtwoord
-signin-passkey-fallback-go-to-settings = Naar Instellingen
 signin-passkey-fallback-continue = Doorgaan
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2039,25 +2097,6 @@ signup-passwordless-code-subheading = Registratie vereist slechts één stap als
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Authenticatie in twee stappen is ingeschakeld voor uw account. Meld u aan met uw wachtwoord.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verifieer deze aanmelding <span>om door te gaan naar uw accountinstellingen</span>
-signin-push-code-heading-w-custom-service = Verifieer deze aanmelding <span>om door te gaan naar { $serviceName }</span>
-signin-push-code-instruction = Controleer uw andere apparaten en keur deze aanmelding goed vanuit uw { -brand-firefox }-browser.
-signin-push-code-did-not-recieve = Hebt u de melding niet ontvangen?
-signin-push-code-send-email-link = Verzend de code via e-mail
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Bevestig uw aanmelding
-signin-push-code-confirm-description = We hebben een aanmeldpoging vanaf het volgende apparaat gedetecteerd. Als u dit was, keur dan de aanmelding goed
-signin-push-code-confirm-verifying = Verifiëren
-signin-push-code-confirm-login = Aanmelding bevestigen
-signin-push-code-confirm-wasnt-me = Dit was ik niet, wijzig wachtwoord.
-signin-push-code-confirm-login-approved = Uw aanmelding is goedgekeurd. Sluit dit venster.
-signin-push-code-confirm-link-error = Koppeling is beschadigd. Probeer het opnieuw.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

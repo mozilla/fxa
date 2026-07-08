@@ -17,6 +17,12 @@ next-payment-method-header = Kies jo betellingsmetoade
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Jo moatte earst jo abonnemint goedkarre
+
+## Error page
+
+error-page-account-not-found-heading = Account net fûn
+error-page-account-not-found-message = De account dy’t oan jo sesje keppele is, bestiet net. Brûk in oare account of meitsje in nije oan om jo te abonnearjen.
+error-page-account-not-found-continue-button = Trochgean
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selektearje jo lân en fier jo postkoade yn <p>om troch te gean mei ôfrekkenjen foar { $productName }</p>
 location-banner-info = Wy koene jo lokaasje net automatysk detektearje
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Jo moatte dit foltôgje eardat jo fierder 
 
 next-new-user-submit = No abonnearje
 next-pay-with-heading-paypal = Betelje mei { -brand-paypal }
+free-trial-ineligible-notice = Jo account komt net yn oanmerking foar in fergeze proefperioade. Jo kinne trochgean mei in betelle abonnemint.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Proefperioade trochsette
 free-trial-content-button-resume-trial-aria = Proefperioade foar { $productName } trochsette
 free-trial-content-button-cancel-trial = Proefperioade opsizze
 free-trial-content-button-cancel-trial-aria = Proefperioade foar { $productName } opsizze
+free-trial-content-button-cancel-subscription = Abonnemint opsizze
+free-trial-content-button-cancel-subscription-aria = Abonnemint foar { $productName } opsizze
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Faktuer besjen
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Faktuer foar { $productName } besjen
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Jo fergeze proefperioade is einige op <bold>{ $date }</bold>. Wy koene jo betelling net ferwurkje om jo abonnemint te starten. Wurkje jo betellingsmetoade by om jo abonnemint te aktivearjen en de tagong ta jo tsjinsten te werstellen.
-free-trial-content-payment-failed-no-date = Wy koene jo betelling net ferwurkje om jo abonnemint te starten. Wurkje jo betellingsmetoade by om jo abonnemint te aktivearjen en de tagong ta jo tsjinsten te werstellen.
+free-trial-content-trial-ended = Jo fergeze proefperioade ôfrûn op <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Wy koene jo betelling net ferwurkje. Wurkje jo betellingsmetoade by om tagong te werstellen. De ferwurking kin oant 24 oeren duorje en kin ferskille per bank of betellingsmetoade.
 free-trial-content-button-update-payment = Betellingsmetoade bywurkje
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. Der wie in probleem by it au
 manage-payment-method-intent-error-get-in-touch = Hmm. Der wie in probleem by it autorisearjen fan jo betelling. Nim kontakt mei jo kaartferstrekker.
 manage-payment-method-intent-error-insufficient-funds = It liket derop dat jo kaart net genôch saldo hat. Probearje in oare kaart.
 manage-payment-method-intent-error-generic = Der is in ûnferwachte flater bard by it ferwurkjen fan jo betelling, probearje it opnij.
+manage-payment-method-tax-address-required = Wy koene jo fakturearingslokaasje net bepale. Kontrolearje jo gegevens fan jo betellingsmetoade en probearje it opnij.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

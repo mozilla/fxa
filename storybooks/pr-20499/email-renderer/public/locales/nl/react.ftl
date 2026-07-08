@@ -1,7 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Algemene toepassingsfout
-app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
+app-something-went-wrong-heading = Er is iets misgegaan
+app-something-went-wrong-message = We zijn op de hoogte van het probleem. Vernieuw de pagina om het opnieuw te proberen.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = Fout-ID: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = Foutdetails
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Ongeldige aanvraag: ongeldige queryparameters
 

@@ -30,6 +30,7 @@ Mozilla также собирает [определенные данные](#boo
 При использовании подключенных сервисов ваши данные будут обрабатываться в соответствии с политикой конфиденциальности соответствующего сервиса:
 
 * [браузер Firefox](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Подписка на сервисы Mozilla](https://www.mozilla.org/privacy/subscription-services/): Mozilla VPN, Mozilla Monitor и Firefox Relay.
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

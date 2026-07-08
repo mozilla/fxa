@@ -1480,25 +1480,6 @@ signin-bounced-help = Helbide elektroniko hau baliozkoa bada, <linkExternal>esag
 signin-bounced-create-new-account = Helbide elektronikoa ez da jada zurea? Sortu kontu berri bat
 back = Atzera
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Egiaztatu saio-hasiera hau <span>kontuaren ezarpenetara jarraitzeko</span>
-signin-push-code-heading-w-custom-service = Egiaztatu saio-hasiera hau <span>{ $serviceName }</span>-n jarraitzeko
-signin-push-code-instruction = Egiaztatu zure beste gailuak eta onartu saio-hasiera hau zure { -brand-firefox } nabigatzailetik.
-signin-push-code-did-not-recieve = Ez al duzu jakinarazpena jaso?
-signin-push-code-send-email-link = Posta elektronikoaren kodea
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Berretsi zure saio hasiera
-signin-push-code-confirm-description = Saioa hasteko saiakera bat detektatu dugu hurrengo gailutik. Zu izan bazara, onar ezazu saioa hasteko
-signin-push-code-confirm-verifying = Egiaztatzen
-signin-push-code-confirm-login = Berretsi saio hasiera
-signin-push-code-confirm-wasnt-me = Hau ez nintzen ni, aldatu pasahitza.
-signin-push-code-confirm-login-approved = Zure saio-hasiera onartu da. Mesedez, itxi leiho hau.
-signin-push-code-confirm-link-error = Esteka hondatuta dago. Mesedez, saiatu berriro.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

@@ -14,6 +14,9 @@ next-payment-method-header = Wybierz metodę płatności
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Najpierw musisz zatwierdzić subskrypcję
+
+## Error page
+
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Wybierz swój kraj i wprowadź kod pocztowy, <p>aby przejść do zapłaty za { $productName }</p>
 location-banner-info = Nie udało nam się automatycznie wykryć Twojej lokalizacji
@@ -372,6 +375,7 @@ paypal-unavailable-error = { -brand-paypal } jest obecnie niedostępny. Użyj in
 churn-error-page-button-manage-subscriptions = Zarządzanie subskrypcjami
 churn-error-page-button-contact-support = Skontaktuj się z pomocą
 churn-error-page-button-try-again = Spróbuj ponownie
+churn-error-page-button-sign-in = Zaloguj się
 churn-error-page-title-general-error = Wystąpił problem z przedłużeniem subskrypcji.
 churn-error-page-message-general-error = Skontaktuj się z pomocą techniczną lub spróbuj ponownie.
 # $productName (String) - The name of the product associated with the subscription.

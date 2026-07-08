@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = ¿Eñepyrũ tembiapo { -product-mozilla-account } ndive?
-session-verify-send-push-body-2 = Eikutu ápe roikuaa hag̃ua ndeha
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -379,7 +377,16 @@ subscriptionPaymentProviderCancelled-content-detect = Roguerekókuri apañuái n
 subscriptionPaymentProviderCancelled-content-reason-1 = Ikatuhína pe nde jehepyme’ẽrã ndoikovéima térã pe ehepyme’ẽha ko’ag̃aguáva ndahekopyahúi.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = Ne ñemboheraguapy { $productName } eiporukuaa jeýma
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = Ne ñeha’ã { $productName } rehegua eiporukuaa jeýma
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = ¡Aguyje emyandyjeýre ne mboheraguapy { $productName }-pe!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = ¡Aguyje emyandy jeýre ne mboheraguapy { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

@@ -98,6 +98,10 @@ automated-email-reset-pwd-two-factor =
 automated-email-reset-pwd-plaintext-v3 = Bu işlemi siz yapmadıysanız hemen parolanızı sıfırlayın:
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = Ayrıca iki aşamalı doğrulamayı da sıfırlayın:
+automated-email-sign-in =
+    Bu otomatik bir e-postadır. Bu işlemi siz onaylamadıysanız lütfen <a data-l10n-name="securitySettingsLink">hesap güvenlik ayarlarınızı gözden geçirin</a>.
+    Daha fazla bilgi için lütfen <a data-l10n-name="supportLink">{ -brand-mozilla } Destek</a>'i ziyaret edin.
+automated-email-sign-in-plaintext = Bu işlemi siz onaylamadıysanız lütfen hesap güvenlik ayarlarınızı kontrol edin:
 brand-banner-message = { -product-firefox-accounts } adını { -product-mozilla-accounts } olarak değiştirdiğimizi biliyor muydunuz? <a data-l10n-name="learnMore">Bilgi alın</a>
 change-password-plaintext = Birisinin hesabınızı ele geçirmeye çalıştığını düşünüyorsanız lütfen parolanızı değiştirin.
 manage-account = Hesabı yönet
@@ -264,6 +268,7 @@ postAddPasskey-subject = Geçiş anahtarı oluşturuldu
 postAddPasskey-preview = Artık giriş yapmak için cihazınızı kullanabilirsiniz
 postAddPasskey-title = Bir geçiş anahtarı oluşturdunuz
 postAddPasskey-description = Artık tüm { -product-mozilla-account } hizmetlerinize bu geçiş anahtarıyla giriş yapabilirsiniz.
+postAddPasskey-sync-note = { -brand-firefox } eşitleme verilerinize erişmek için yine de parolanızı girmeniz gerekeceğini hatırlatırız.
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Daha fazla bilgi alın
 postAddPasskey-requested-from = İşlemi yapan cihaz:
@@ -292,6 +297,7 @@ postAddTwoStepAuthentication-recovery-method-codes = Ayrıca kurtarma yöntemini
 postAddTwoStepAuthentication-recovery-method-phone = Ayrıca { $maskedPhoneNumber } numarasını kurtarma telefon numaranız olarak eklediniz.
 postAddTwoStepAuthentication-how-protects-link = İki aşamalı kimlik doğrulama, hesabınızı nasıl korur?
 postAddTwoStepAuthentication-how-protects-plaintext = İki aşamalı kimlik doğrulama, hesabınızı nasıl korur?
+postAddTwoStepAuthentication-device-sign-out-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından iki aşamalı kimlik doğrulamayla yeniden giriş yapmalısınız.
 postChangeAccountRecovery-subject = Hesap kurtarma anahtarı değiştirildi
 postChangeAccountRecovery-title = Hesap kurtarma anahtarınızı değiştirdiniz
 postChangeAccountRecovery-body-part1 = Artık yeni bir hesap kurtarma anahtarınız var. Önceki anahtarınız silindi.
@@ -311,11 +317,13 @@ postChangeRecoveryPhone-requested-device = Bu cihazdan istediniz:
 postChangeTwoStepAuthentication-preview = Hesabınız korunuyor
 postChangeTwoStepAuthentication-subject = İki aşamalı kimlik doğrulama güncellendi
 postChangeTwoStepAuthentication-title = İki aşamalı kimlik doğrulama güncellendi
+postChangeTwoStepAuthentication-use-new-account = Artık kimlik doğrulama uygulamanızdaki yeni { -product-mozilla-account } kodunu kullanmanız gerekiyor. Eskisi artık çalışmayacağı için onu silebilirsiniz.
 # After the colon, there is a description of the device that the user used to enable two-step authentication
 postChangeTwoStepAuthentication-from-device = İşlemi yapan cihaz:
 postChangeTwoStepAuthentication-action = Hesabı yönet
 postChangeTwoStepAuthentication-how-protects-link = İki aşamalı kimlik doğrulama, hesabınızı nasıl korur?
 postChangeTwoStepAuthentication-how-protects-plaintext = İki aşamalı kimlik doğrulama, hesabınızı nasıl korur?
+postChangeTwoStepAuthentication-device-sign-out-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 postConsumeRecoveryCode-title-3 = Parola sıfırlamayı onaylamak için yedek kimlik doğrulama kodunuz kullanıldı
 # After the colon, there is description of the device that the backup authentication code was used on
 # E.g., Firefox Nightly on Mac OSX, Thursday Sept 2, 2024
@@ -423,7 +431,7 @@ verify-subject = Hesabınızı oluşturmayı tamamlayın
 verify-action-2 = Hesabı onaylayın
 # Variables:
 # $code (String) - The verification code
-verifyAccountChange-subject = Hesabınızı değiştirmek için bu kodu kullanabilirsiniz: { $code }
+verifyAccountChange-subject = Hesabınızı düzenlemek için bu kodu kullanabilirsiniz: { $code }
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
 verifyAccountChange-preview =
@@ -465,6 +473,9 @@ verifyPrimary-subject = Ana e-posta adresini onayla
 verifyPrimary-action-2 = E-postanızı doğrulayın
 verifyPrimary-action-plaintext-2 = { verifyPrimary-action-2 }:
 verifyPrimary-post-verify-2 = Cihaz doğrulandıktan sonra, bu cihazdan ikinci e-posta ekleme gibi hesap değişiklikleri yapmak mümkün olacaktır.
+# Variables:
+#  $code (String) - The confirmation code for secondary email
+verifySecondaryCode-subject-2 = İkinci e-postanızı onaylamak için bu kodu kullanabilirsiniz: { $code }
 verifySecondaryCode-preview = Kodun geçerlilik süresi 5 dakikadır.
 verifySecondaryCode-title-2 = İkinci e-postayı onayla
 verifySecondaryCode-action-2 = E-postanızı doğrulayın

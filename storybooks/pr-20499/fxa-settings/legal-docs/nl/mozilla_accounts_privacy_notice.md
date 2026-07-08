@@ -30,6 +30,7 @@ We verwerken technische gegevens en interactiegegevens voor een beter inzicht in
 Wanneer u gekoppelde services gebruikt, worden uw gegevens verwerkt in overeenstemming met de privacyverklaring van de relevante service:
 
 * [Firefox Browser](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Abonnementsservice van Mozilla](https://www.mozilla.org/privacy/subscription-services/) voor Mozilla VPN, Mozilla Monitor en Firefox Relay
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

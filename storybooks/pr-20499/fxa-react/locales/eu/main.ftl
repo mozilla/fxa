@@ -26,8 +26,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Aplikazioaren errore orokorra
-app-general-err-message = Zerbait oker joan da. Mesedez, berriro saiatu beranduago.
 app-query-parameter-err-heading = Eskaera okerra: kontsulta-parametro baliogabeak
 
 

@@ -17,6 +17,12 @@ next-payment-method-header = Alege metoda de plată
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Mai întâi va trebui să aprobi abonamentul
+
+## Error page
+
+error-page-account-not-found-heading = Contul nu a fost găsit
+error-page-account-not-found-message = Contul asociat sesiunii tale nu există. Te rugăm să folosești un alt cont sau să creezi unul nou pentru a te abona.
+error-page-account-not-found-continue-button = Continuă
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selectează țara și introdu codul poștal <p>pentru a continua cu finalizarea comenzii pentru { $productName }</p>
 location-banner-info = Nu ți-am putut depista locația automat
@@ -259,6 +265,7 @@ next-payment-confirm-checkbox-error = Trebuie să termini aici ca să treci mai 
 
 next-new-user-submit = Abonează-mă acum
 next-pay-with-heading-paypal = Plătește cu { -brand-paypal }
+free-trial-ineligible-notice = Contul tău nu este eligibil pentru o perioadă de probă gratuită. Poți continua cu un abonament plătit.
 
 ## Churn flow - cancel
 
@@ -360,6 +367,8 @@ free-trial-content-button-resume-trial = Reia perioada de probă
 free-trial-content-button-resume-trial-aria = Reia perioada de probă pentru { $productName }
 free-trial-content-button-cancel-trial = Anulează perioada de probă
 free-trial-content-button-cancel-trial-aria = Anulează perioada de probă pentru { $productName }
+free-trial-content-button-cancel-subscription = Anulează abonamentul
+free-trial-content-button-cancel-subscription-aria = Anulează abonamentul pentru { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -375,8 +384,8 @@ free-trial-content-link-view-invoice = Vezi factura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Vezi factura pentru { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Perioada de probă gratuită s-a încheiat pe <bold>{ $date }</bold>. Nu am reușit să îți procesăm plata pentru începerea abonamentului. Te rugăm să îți actualizezi metodele de plată pentru activarea abonamentului și restabilirea accesului la servicii.
-free-trial-content-payment-failed-no-date = Nu am reușit să îți procesăm plata pentru începerea abonamentului. Te rugăm să îți actualizezi metodele de plată pentru activarea abonamentului și restabilirea accesului la servicii.
+free-trial-content-trial-ended = Perioada de probă gratuită a expirat pe <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Nu am putut procesa plata. Actualizează-ți metoda de plată pentru restabilirea accesului. Procesarea poate dura până la 24 de ore și poate varia în funcție de bancă sau metoda de plată.
 free-trial-content-button-update-payment = Actualizează metoda de plată
 
 # Component - Header
@@ -720,6 +729,7 @@ manage-payment-method-intent-error-try-again = Hmm. A apărut o problemă la aut
 manage-payment-method-intent-error-get-in-touch = Hmm. A apărut o problemă la autorizarea plății tale. Contactează emitentul cardului.
 manage-payment-method-intent-error-insufficient-funds = Se pare că nu ai fonduri suficiente pe card. Încearcă alt card.
 manage-payment-method-intent-error-generic = A apărut o eroare neașteptată la procesarea plății. Te rugăm să încerci din nou.
+manage-payment-method-tax-address-required = Nu ți-am putut determina adresa de facturare. Te rugăm să îți verifici informațiile despre metodele de plată și să încerci din nou.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

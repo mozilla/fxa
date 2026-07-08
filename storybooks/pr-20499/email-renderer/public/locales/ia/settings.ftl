@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } sur { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresse IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Obtene { -brand-firefox } ubicunque tu es
+firefox-promo-banner-mobile-description = Synchronisa tu schedas, marcapaginas, e contrasignos a transverso tu apparatos. In addition, omne cosa remane cryptate con securitate.
+firefox-promo-banner-mobile-cta = Connecter un apparato
+firefox-promo-banner-switch-heading = Veloce a cambiar. Facile a configurar.
+firefox-promo-banner-switch-description = Quando tu passa a { -brand-firefox }, tu pote apportar tu marcapaginas, contrasignos, chronologia de exploration e plus assi que tu pote comenciar a navigar sin perder un pulsation.
+firefox-promo-banner-switch-cta = Passar a { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Activate
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Croc a dextra
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Clauder message
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = Statos Unite
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Retro
+# Generic error shown when the legal document fails to load
+app-general-err-message = Alco errate eveniva. Reproba plus tarde.
 
 ## LinkDamaged component
 
@@ -584,6 +600,15 @@ cs-disconnect-lost-advice-content-3 =
 cs-disconnect-suspicious-advice-heading = Apparato suspecte disconnectite
 cs-disconnect-suspicious-advice-content-2 = Si le apparato disconnectite es in effecto suspecte, pro mantener tu informationes secur, tu debe cambiar tu contrasigno de { -product-mozilla-account } in tu parametros de conto. Tu deberea etiam cambiar omne altere contrasignos que tu ha salvate in { -brand-firefox } scribente about:logins in le barra de adresse.
 cs-sign-out-button = Clauder session
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = VPN integrate de { -brand-firefox }
 
 ## Data collection section
 
@@ -986,7 +1011,7 @@ page-passkey-add-cancel = Cancellar
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Clave-contrasigno create
-page-passkey-add-error-system = Systema indisponibile, retenta plus tarde
+page-passkey-add-error-system-v2 = Il habeva un problema a crear tu clave-contrasigno. Retenta plus tarde.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1030,6 +1055,29 @@ recent-activity-account-recovery-codes-signin-complete = Accesso completate con 
 recent-activity-password-reset-otp-sent = Remontar le codice de confirmation de contrasigno inviate
 recent-activity-password-reset-otp-verified = Remontar le codice de confirmation de contrasigno verificate
 recent-activity-must-reset-password = Remontage obligatori del contrasigno
+recent-activity-account-recovery-phone-replace-complete = Numero de telephono de recuperation substituite
+recent-activity-account-recovery-phone-replace-failure = Substitution del numero de telephono de recuperation fallite
+recent-activity-account-two-factor-replace-success = Authentication a duo passos substituite
+recent-activity-account-two-factor-replace-failure = Substituitution del authentication a duo passos fallite
+recent-activity-account-recovery-phone-setup-failed = Configuration del numero de telephono de recuperation fallite
+recent-activity-account-recovery-phone-reset-password-complete = Remontage del contrasigno con numero de telefono de recuperation completate
+recent-activity-account-recovery-phone-reset-password-failed = Remontage del contrasigno con numero de telephono de recuperation fallite
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Autorisation de cambio conto demandate.
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Cambio conto autorisate.
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Autorisation de cambio conto fallite
+recent-activity-account-passkey-registration-success = Clave-contrasigno addite
+recent-activity-account-passkey-registration-failure = Registration de clave-contrasigno fallite
+recent-activity-account-passkey-removed = Clave-contrasigno removite
+recent-activity-account-passkey-authentication-success = Accesso con clave-contrasigno completate
+recent-activity-account-passkey-authentication-failure = Accesso con clave-contrasigno fallite
+recent-activity-account-passwordless-login-otp-sent = Codice de accesso sin contrasigno inviate
+recent-activity-account-passwordless-login-otp-failed = Codice de accesso sin contrasigno fallite
+recent-activity-account-passwordless-login-otp-verified = Codice de accesso sin contrasigno verificate
+recent-activity-account-passwordless-registration-complete = Registration de conto sin contrasigno completate
+recent-activity-account-recovery-codes-set = Codices de recuperation configurate
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Altere activitate de conto
 
@@ -1202,7 +1250,7 @@ passkey-sub-row-created-date = Create le: { $createdDate }
 passkey-sub-row-last-used-date = Usate le ultime vice le: { $lastUsedDate }
 passkey-sub-row-delete-title = Deler clave-contrasigno
 passkey-delete-modal-heading = Deler tu clave-contrasigno?
-passkey-delete-modal-content = Iste clave-contrasigno sera removite de tu conto. Tu debera accede usante un maniera differente.
+passkey-delete-modal-content-v2 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder per un methodo differente (contrasigno, un altere clave-contrasigno, o conto ligate).
 passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
@@ -1245,11 +1293,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Tu ha attingite le numero maxime de claves-contrasigno.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Tu navigator o apparato non supporta clave-contrasigno
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1408,6 +1451,7 @@ auth-error-226 = Limite de claves-contrasigno attingite
 auth-error-227 = Authentication de clave-contrasigno fallite
 auth-error-228 = Registration de clave-contrasigno fallite
 auth-error-238 = Verification de clave-contrasigno fallite
+auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
 auth-error-999 = Error inexpectate
 auth-error-1001 = Tentativa de apertura de session cancellate
 auth-error-1002 = Session expirate. Reaperi session pro continuar.
@@ -1447,8 +1491,19 @@ passkey-registration-error-not-allowed = Installation de clave-contrasigno falli
 passkey-registration-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Le apparato ha jam essite registrate o le processo de configuration cancellate.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Le installation de clave-contrasigno era cancellate. Retenta.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Le claves-contrasigno non es supportate ci. Tenta un altere methodo o apparato.
+passkey-registration-canceled-v2 = Configuration de contrasigno expirate o era cancellate.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Pro saper plus
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Pro saper plus
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Impossibile completar configuration de clave-contrasigno. Tenta un methodo o apparato differente.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Pro saper plus
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Le claves-contrasigno non pote esser configurate sur iste pagina. Usa le sito secur e retenta.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1469,7 +1524,7 @@ passkey-authentication-error-not-allowed-existing = Le configuration del clave-c
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Le petition de clave-contrasigno exiva del tempore limite. Retenta.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Le claves-contrasigno non es supportate. Tenta un altere methodo o apparato.
+passkey-authentication-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Le claves-contrasigno non pote esser usate sur iste pagina. Verifica que tu es sur le sito secur correcte e retenta.
 # Unexpected credential state during authentication
@@ -1478,6 +1533,10 @@ passkey-authentication-error-invalid-state = Alco errate eveniva con tu clave-co
 passkey-authentication-error-not-readable = Nos non poteva acceder al authenticator. Retenta o usa un altere methodo de authentication.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Alco errate eveniva. Retenta o elige un altere methodo de authentication.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Clave-contrasigno non recognoscite. Usa un altere metodo de accesso
 
 ## Connect Another Device page
 
@@ -1992,7 +2051,6 @@ signin-passkey-fallback-header = Completar accesso
 signin-passkey-fallback-heading = Insere tu contrasigno pro synchronisar
 signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu contrasigno quando tu usa iste clave-contrasigno.
 signin-passkey-fallback-password-label = Contrasigno
-signin-passkey-fallback-go-to-settings = Ir a parametros
 signin-passkey-fallback-continue = Continuar
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2040,25 +2098,6 @@ signup-passwordless-code-subheading = Le inscription emplea un sol passo quando 
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Le authentication a duo passos es activate sur tu conto. Accede con tu contrasigno.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verifica iste accesso <span>pro continuar a configurar le conto</span>
-signin-push-code-heading-w-custom-service = Verifica iste accesso <span>pro continuar a { $serviceName }</span>
-signin-push-code-instruction = Verifica tu altere apparatos e approba iste accesso ab tu navigator { -brand-firefox }.
-signin-push-code-did-not-recieve = Non ha tu recipite le aviso?
-signin-push-code-send-email-link = Inviar codice per email
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Confirma tu accesso
-signin-push-code-confirm-description = Nos detectava un tentativa de accesso ab le sequente apparato. Si il era tu, per favor approba le accesso
-signin-push-code-confirm-verifying = Verificante
-signin-push-code-confirm-login = Confirmar accesso
-signin-push-code-confirm-wasnt-me = Iste non era io, cambiar contrasigno.
-signin-push-code-confirm-login-approved = Tu accesso ha essite approbate. Claude iste fenestra.
-signin-push-code-confirm-link-error = Ligamine damnificate. Retenta.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

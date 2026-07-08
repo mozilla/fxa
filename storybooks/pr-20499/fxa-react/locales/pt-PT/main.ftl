@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Erro geral da aplicação
-app-general-err-message = Algo correu mal. Por favor, tente novamente mais tarde.
+app-something-went-wrong-heading = Algo correu mal
+app-something-went-wrong-message = Fomos notificados do problema. Atualize a página para tentar novamente.
+app-error-id = ID do erro: { $errorId }
+app-error-details-summary = Detalhes do erro
 app-query-parameter-err-heading = Pedido inválido: parâmetros de consulta inválidos
 
 

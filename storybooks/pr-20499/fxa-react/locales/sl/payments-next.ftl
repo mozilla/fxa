@@ -17,6 +17,12 @@ next-payment-method-header = Izberite način plačila
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Najprej morate odobriti svojo naročnino
+
+## Error page
+
+error-page-account-not-found-heading = Računa ni bilo mogoče najti
+error-page-account-not-found-message = Račun, ki je povezan z vašo sejo, ne obstaja. Uporabite drug račun ali odprite novega.
+error-page-account-not-found-continue-button = Nadaljuj
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Izberite svojo državo in vnesite poštno številko, <p>za nadaljevanje blagajne za { $productName }</p>
 location-banner-info = Vaše lokacije nismo mogli zaznati samodejno
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = To morate dokončati, preden nadaljujete
 
 next-new-user-submit = Naroči se zdaj
 next-pay-with-heading-paypal = Plačaj s { -brand-paypal }om
+free-trial-ineligible-notice = Vaš račun ne izpolnjuje pogojev za brezplačen preskus. Nadaljujete lahko s plačljivo naročnino.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Nadaljuj preskušanje
 free-trial-content-button-resume-trial-aria = Nadaljuj preskus za { $productName }
 free-trial-content-button-cancel-trial = Prekliči preskus
 free-trial-content-button-cancel-trial-aria = Prekliči preskus za { $productName }
+free-trial-content-button-cancel-subscription = Prekliči naročnino
+free-trial-content-button-cancel-subscription-aria = Prekliči naročnino za { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Ogled računa
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Prikaži račun za { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Vaše brezplačno preskusno obdobje se je izteklo <bold>{ $date }</bold>. Vašega plačila za začetek naročnine nismo mogli obdelati. Posodobite svoje plačilno sredstvo, da aktivirate naročnino in obnovite dostop do svojih storitev.
-free-trial-content-payment-failed-no-date = Vašega plačila za začetek naročnine nismo mogli obdelati. Posodobite svoje plačilno sredstvo, da aktivirate naročnino in obnovite dostop do svojih storitev.
+free-trial-content-trial-ended = Vaše brezplačno preskusno obdobje se je izteklo <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Vašega plačila nismo mogli obdelati. Če želite obnoviti dostop, posodobite način plačila. Obdelava lahko traja do 24 ur in se lahko razlikuje glede na banko ali način plačila.
 free-trial-content-button-update-payment = Posodobite način plačila
 
 # Component - Header
@@ -720,6 +729,7 @@ manage-payment-method-intent-error-try-again = Hmm. Pri avtorizaciji vašega pla
 manage-payment-method-intent-error-get-in-touch = Hmm. Pri avtorizaciji vašega plačila je prišlo do težave. Obrnite se na izdajatelja kartice.
 manage-payment-method-intent-error-insufficient-funds = Videti je, da na vaši kartici ni dovolj sredstev. Poskusite z drugo kartico.
 manage-payment-method-intent-error-generic = Med obdelavo vašega plačila je prišlo do nepričakovane napake, poskusite znova.
+manage-payment-method-tax-address-required = Vašega mesta za izstavitev računa ni bilo mogoče določiti. Preverite podatke o plačilu in poskusite znova.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Mewngofnodi i'ch { -product-mozilla-account }?
-session-verify-send-push-body-2 = Cliciwch yma i gadarnhau mai chi sydd yno
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -388,16 +386,16 @@ subscriptionPaymentProviderCancelled-content-detect = Rydym wedi canfod anhawste
 subscriptionPaymentProviderCancelled-content-reason-1 = Mae’n bosibl bod eich dull talu wedi dod i ben, neu fod eich dull talu presennol wedi dyddio.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-subject-2 = Mae eich tanysgrifiad { $productName } wedi'i ailysgogi
+subscriptionReactivation-subject-2 = Mae eich tanysgrifiad { $productName } wedi'i ailgychwyn
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Mae eich treial { $productName } wedi'i ailgychwyn
+subscriptionReactivation-freeTrial-subject = Mae'ch profi { $productName } wedi'i ailgychwyn
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Diolch am ail gychwyn eich tanysgrifiad { $productName }s
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Diolch am ailgychwyn eich treial { $productName }!
+subscriptionReactivation-freeTrial-title = Diolch am ailgychwyn eich profi { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

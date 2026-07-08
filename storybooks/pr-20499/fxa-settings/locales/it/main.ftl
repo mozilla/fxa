@@ -51,8 +51,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Errore generale dell’applicazione
-app-general-err-message = Si è verificato un problema. Riprova più tardi.
+app-something-went-wrong-heading = Si è verificato un errore
+app-something-went-wrong-message = Abbiamo ricevuto una segnalazione del problema. Ricarica la pagina per riprovare.
+app-error-id = ID errore: { $errorId }
+app-error-details-summary = Dettagli errore
 app-query-parameter-err-heading = Richiesta non valida: parametri della query non validi
 
 
@@ -165,6 +167,14 @@ device-info-browser-os = { $browserName } su { $genericOSName }
 device-info-ip-address = Indirizzo IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Usa { -brand-firefox } ovunque ti trovi
+firefox-promo-banner-mobile-description = Sincronizza schede, segnalibri e password su tutti i tuoi dispositivi. Tutti i tuoi dati sono protetti da crittografia.
+firefox-promo-banner-mobile-cta = Connetti un dispositivo
+firefox-promo-banner-switch-heading = Basta un attimo per cambiare. Ambientarsi è semplice.
+firefox-promo-banner-switch-description = Quando passi a { -brand-firefox }, puoi portare con te segnalibri, password, cronologia e molto altro per iniziare a navigare senza perdere un colpo.
+firefox-promo-banner-switch-cta = Passa a { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Password
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -233,6 +243,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Completato
 checkmark-enabled-icon-aria-label =
     .aria-label = Attivo
+chevron-right-icon-aria-label =
+    .aria-label = Freccia a destra
 close-icon-aria-label =
     .aria-label = Chiudi messaggio
 code-icon-aria-label =
@@ -306,6 +318,7 @@ input-phone-number-enter-number = Inserire il numero di telefono
 input-phone-number-country-united-states = Stati Uniti
 input-phone-number-country-canada = Canada
 legal-back-button = Indietro
+app-general-err-message = Si è verificato un problema. Riprova più tardi.
 
 
 reset-pwd-link-damaged-header = Link per la reimpostazione della password danneggiato
@@ -458,6 +471,9 @@ cs-disconnect-lost-advice-content-3 = Poiché il tuo dispositivo è stato smarri
 cs-disconnect-suspicious-advice-heading = Dispositivo sospetto disconnesso
 cs-disconnect-suspicious-advice-content-2 = Se il dispositivo disconnesso è effettivamente sospetto, ti consigliamo di modificare la password dell’{ -product-mozilla-account } nelle impostazioni del tuo account per mantenere le tue informazioni al sicuro. Ti consigliamo anche modificare qualsiasi altra password salvata in { -brand-firefox } digitando about:logins nelle barra degli indirizzi.
 cs-sign-out-button = Disconnetti
+
+
+cs-scope-firefox-vpn = VPN integrata in { -brand-firefox }
 
 
 dc-heading = Raccolta e utilizzo dati
@@ -756,7 +772,7 @@ page-passkey-add-cancel = Annulla
 
 
 page-passkey-add-success = Passkey creata
-page-passkey-add-error-system = Sistema non disponibile. Riprova più tardi.
+page-passkey-add-error-system-v2 = Si è verificato un problema durante la creazione della passkey. Riprova più tardi.
 
 
 recent-activity-title = Attività recente dell”account
@@ -795,6 +811,26 @@ recent-activity-account-recovery-codes-signin-complete = L’accesso è stato co
 recent-activity-password-reset-otp-sent = Inviato codice di conferma per reimpostare la password
 recent-activity-password-reset-otp-verified = Verificato codice di conferma per reimpostare la password
 recent-activity-must-reset-password = È richiesta la reimpostazione della password
+recent-activity-account-recovery-phone-replace-complete = Sostituito telefono per il recupero dell’account
+recent-activity-account-recovery-phone-replace-failure = Sostituzione del telefono per il recupero dell’account non riuscita
+recent-activity-account-two-factor-replace-success = Sostituita autenticazione in due passaggi
+recent-activity-account-two-factor-replace-failure = Sostituzione dell’autenticazione in due passaggi non riuscita
+recent-activity-account-recovery-phone-setup-failed = Configurazione del telefono per il recupero dell’account non riuscita
+recent-activity-account-recovery-phone-reset-password-complete = Reimpostazione della password con telefono per il recupero dell’account completata
+recent-activity-account-recovery-phone-reset-password-failed = Reimpostazione password con telefono per il recupero dell’account non riuscita
+recent-activity-account-mfa-otp-sent = Richiesta autorizzazione per modificare l’account
+recent-activity-account-mfa-otp-verified = Autorizzata modifica dell’account
+recent-activity-account-mfa-otp-failed = Autorizzazione alla modifica dell’account non riuscita
+recent-activity-account-passkey-registration-success = Aggiunta passkey
+recent-activity-account-passkey-registration-failure = Registrazione passkey non riuscita
+recent-activity-account-passkey-removed = Rimossa passkey
+recent-activity-account-passkey-authentication-success = Accesso con passkey completato
+recent-activity-account-passkey-authentication-failure = Accesso con passkey non riuscito
+recent-activity-account-passwordless-login-otp-sent = Inviato codice di accesso senza password
+recent-activity-account-passwordless-login-otp-failed = Codice di accesso senza password non riuscito
+recent-activity-account-passwordless-login-otp-verified = Codice di accesso senza password verificato
+recent-activity-account-passwordless-registration-complete = Completata registrazione dell’account senza password
+recent-activity-account-recovery-codes-set = Impostati codici di recupero
 recent-activity-unknown = Altre attività dell’account
 
 
@@ -901,7 +937,7 @@ passkey-sub-row-created-date = Creata: { $createdDate }
 passkey-sub-row-last-used-date = Ultimo utilizzo: { $lastUsedDate }
 passkey-sub-row-delete-title = Elimina passkey
 passkey-delete-modal-heading = Eliminare la passkey?
-passkey-delete-modal-content = Questa passkey verrà rimossa dal tuo account. Dovrai accedere in un altro modo.
+passkey-delete-modal-content-v2 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando un metodo diverso (password, un’altra passkey o un account collegato).
 passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata
@@ -929,9 +965,6 @@ passkey-row-description = Rendi l’accesso più facile e sicuro utilizzando il 
 passkey-row-info-link-2 = Ulteriori informazioni
 passkey-row-max-limit-banner = Hai utilizzato tutte le { $count } passkey. Elimina una passkey per crearne una nuova.
 passkey-row-max-limit-disabled-reason = Hai raggiunto il numero massimo di passkey.
-
-
-passkey-row-webauthn-not-supported = Il tuo browser o dispositivo non supporta le passkey.
 
 
 rk-header-1 = Chiave di recupero dell’account
@@ -1037,6 +1070,7 @@ auth-error-226 = Raggiunto il limite di passkey
 auth-error-227 = Autenticazione con passkey non riuscita
 auth-error-228 = Registrazione passkey non riuscita
 auth-error-238 = Verifica passkey non riuscita
+auth-error-239 = Ci dispiace, non siamo riusciti a eliminare il tuo account. Riprova oppure contatta l’assistenza se il problema persiste.
 auth-error-999 = Errore imprevisto
 auth-error-1001 = Tentativo di accesso annullato
 auth-error-1002 = La sessione è scaduta. Accedi per continuare.
@@ -1063,7 +1097,12 @@ oauth-error-1000 = Qualcosa è andato storto. Chiudi questa scheda e riprova.
 passkey-registration-error-not-allowed = La configurazione della passkey non è riuscita o non è disponibile. Riprova o scegli un altro metodo.
 passkey-registration-error-not-allowed-existing = La configurazione della passkey non è disponibile con questo dispositivo. Potrebbe essere già stato registrato oppure la procedura di configurazione è stata annullata.
 passkey-registration-error-timeout = La configurazione della passkey è stata annullata. Riprova.
-passkey-registration-error-not-supported = Le passkey non sono supportate. Prova con un altro metodo o dispositivo.
+passkey-registration-canceled-v2 = Il tempo disponibile per la configurazione della passkey è scaduto oppure la procedura è stata annullata.
+passkey-registration-canceled-link = Ulteriori informazioni
+passkey-registration-error-not-supported-v2 = Il tuo browser o dispositivo non supporta le passkey.
+passkey-registration-error-not-supported-link = Ulteriori informazioni
+passkey-registration-error-could-not-complete = Impossibile completare la configurazione della passkey. Prova con un altro metodo o dispositivo.
+passkey-registration-error-could-not-complete-link = Ulteriori informazioni
 passkey-registration-error-security = Non è possibile impostare passkey in questa pagina. Utilizza il sito sicuro e riprova.
 passkey-registration-error-invalid-state = Questa passkey è già registrata. Utilizzala per accedere o aggiungi un’altra passkey.
 passkey-registration-error-not-readable = Impossibile accedere alla funzione di autenticazione. Riprova o scegli un altro metodo.
@@ -1074,11 +1113,12 @@ passkey-registration-error-unexpected = Configurazione passkey non riuscita. Rip
 passkey-authentication-error-not-allowed = Accesso con passkey non riuscito o non disponibile. Riprova o scegli un altro metodo.
 passkey-authentication-error-not-allowed-existing = La configurazione della passkey non è possibile con questo dispositivo. Prova di nuovo oppure seleziona un metodo alternativo.
 passkey-authentication-error-timeout = Richiesta passkey scaduta. Riprova.
-passkey-authentication-error-not-supported = Le passkey non sono supportate. Prova con un altro metodo o dispositivo.
+passkey-authentication-error-not-supported-v2 = Il tuo browser o dispositivo non supporta le passkey.
 passkey-authentication-error-security = Non è possibile utilizzare passkey in questa pagina. Verifica di essere sul sito sicuro corretto e riprova.
 passkey-authentication-error-invalid-state = Si è verificato un errore con la passkey. Riprova o utilizza un altro metodo di accesso.
 passkey-authentication-error-not-readable = Impossibile accedere alla funzione di autenticazione. Riprova o utilizza un altro metodo di accesso.
 passkey-authentication-error-unexpected = Si è verificato un errore. Riprova o scegli un altro metodo di accesso.
+passkey-authentication-error-not-found = Passkey non riconosciuta. Utilizza un altro metodo di accesso.
 
 
 connect-another-device-signed-in-header = Hai eseguito l’accesso a { -brand-firefox }
@@ -1391,7 +1431,6 @@ signin-passkey-fallback-header = Completa l’accesso
 signin-passkey-fallback-heading = Inserisci la password per sincronizzare
 signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserire la tua password quando utilizzi questa passkey.
 signin-passkey-fallback-password-label = Password
-signin-passkey-fallback-go-to-settings = Vai alle impostazioni
 signin-passkey-fallback-continue = Continua
 
 
@@ -1422,22 +1461,6 @@ signup-passwordless-code-subheading = La registrazione richiede un solo passaggi
 
 
 signin-passwordless-totp-required = L’autenticazione in due passaggi è attiva sul tuo account. Accedi con la tua password.
-
-
-signin-push-code-heading-w-default-service = Verifica queste credenziali <span>per passare alle impostazioni dell’account</span>
-signin-push-code-heading-w-custom-service = Verifica questo accesso <span>per continuare su { $serviceName }</span>
-signin-push-code-instruction = Controlla gli altri dispositivi e approva questo accesso dal browser { -brand-firefox }.
-signin-push-code-did-not-recieve = Non hai ricevuto la notifica?
-signin-push-code-send-email-link = Invia codice per email
-
-
-signin-push-code-confirm-instruction = Conferma il tuo accesso
-signin-push-code-confirm-description = È stato rilevato un tentativo di accesso dal seguente dispositivo. Se sei stato tu, conferma l’accesso
-signin-push-code-confirm-verifying = Verifica in corso
-signin-push-code-confirm-login = Conferma l’accesso
-signin-push-code-confirm-wasnt-me = Non sono stato io, cambia la password.
-signin-push-code-confirm-login-approved = Il tuo accesso è stato approvato. Chiudi questa finestra.
-signin-push-code-confirm-link-error = Il link è danneggiato. Riprova.
 
 
 signin-recovery-method-header = Accedi

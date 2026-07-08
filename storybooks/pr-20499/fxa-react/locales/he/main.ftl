@@ -43,8 +43,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = שגיאת יישום כללית
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
+app-something-went-wrong-heading = משהו השתבש
+app-something-went-wrong-message = קיבלנו הודעה על הבעיה. ניתן לרענן את הדף כדי לנסות שוב.
+app-error-id = מזהה שגיאה: { $errorId }
+app-error-details-summary = פרטי שגיאה
 app-query-parameter-err-heading = בקשה שגויה: פרמטרי שאילתה לא חוקיים
 
 

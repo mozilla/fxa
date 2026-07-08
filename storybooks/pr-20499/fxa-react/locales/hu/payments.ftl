@@ -105,7 +105,7 @@ payment-confirm-checkbox-error = Ezt be kell fejeznie, mielőtt továbblép
 
 ## Component - PaymentErrorView
 
-payment-error-retry-button = Próbálja újra
+payment-error-retry-button = Újrapróbálkozás
 payment-error-manage-subscription-button = Saját feliratkozások kezelése
 
 ## Component - PaymentErrorView - IAP upgrade errors
@@ -545,7 +545,7 @@ reactivate-confirm-button = Előfizetés újra
 ## $date (Date) - Last day of product access
 
 reactivate-panel-copy = El fogja veszíteni a hozzáférését a(z) { $name } termékhez, ekkor: <strong>{ $date }</strong>.
-reactivate-success-copy = Köszönjük! Minden készen állsz.
+reactivate-success-copy = Köszönjük! Minden készen áll.
 reactivate-success-button = Bezárás
 
 ## Routes - Subscriptions - Subscription iap item

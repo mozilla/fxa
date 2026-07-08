@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Opća greška programa
-app-general-err-message = Nešto nije u redu. Pokušaj kasnije ponovo.
 app-query-parameter-err-heading = Loš zahtjev: nevažeći parametri upita
 
 
@@ -970,10 +968,6 @@ report-signin-submit-button = Prijavi aktivnost
 report-signin-support-link = Zašto se ovo događa?
 signin-bounced-message = Potvrdni e-mail koji smo poslali na { $email } je vraćen i zaključali smo tvoj račun, kako bismo zaštitili tvoje { -brand-firefox } podatke.
 back = Natrag
-
-
-signin-push-code-confirm-instruction = Potvrdi tvoju prijavu
-signin-push-code-confirm-login = Potvrdi prijavu
 
 
 signin-recovery-method-header = Prijavi se

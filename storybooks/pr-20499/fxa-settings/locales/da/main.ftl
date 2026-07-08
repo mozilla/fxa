@@ -35,8 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Generel applikationsfejl
-app-general-err-message = Noget gik galt. Prøv igen senere.
 app-query-parameter-err-heading = Forkert forespørgsel: Ugyldige søgeparametre
 
 
@@ -721,6 +719,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Bliver alle udvidelser og temaer, du har udgivet via addons.mozilla.org, slettet
 delete-account-continue-button = Fortsæt
+delete-account-delete-button-passwordless = Slet konto
 delete-account-password-input =
     .label = Indtast adgangskode
 delete-account-cancel-button = Annuller
@@ -735,6 +734,14 @@ submit-display-name = Gem
 cancel-display-name = Annuller
 display-name-update-error-2 = Der opstod et problem med at opdatere dit vist navn
 display-name-success-alert-2 = Vist navn opdateret
+
+
+page-passkey-add-creating-heading = Opretter adgangsnøgle…
+page-passkey-add-follow-prompts = Følg vejledningen på din enhed.
+page-passkey-add-cancel = Annuller
+
+
+page-passkey-add-success = Adgangsnøgle oprettet
 
 
 recent-activity-title = Seneste kontoaktivitet
@@ -826,6 +833,10 @@ product-promo-monitor =
     .alt = { -product-mozilla-monitor }
 product-promo-monitor-description-v2 = Find ud af, hvor dine private oplysninger er blevet eksponeret, og løs problemet
 product-promo-monitor-cta = Få en gratis skanning
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Opdag et nyt lag af anonym browsing og beskyttelse.
+product-promo-vpn-cta = Få { -product-mozilla-vpn-short }
 
 
 profile-heading = Profil
@@ -875,7 +886,6 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
-passkey-delete-modal-content = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind på en anden måde.
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1043,8 +1053,8 @@ oauth-error-1000 = Noget gik galt. Luk dette faneblad og prøv igen.
 
 
 passkey-registration-error-not-allowed = Opsætning af adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
+passkey-registration-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Enten er enheden allerede registreret, eller også blev opsætningsprocessen annulleret.
 passkey-registration-error-timeout = Opsætning af adgangsnøgle blev annulleret. Prøv igen.
-passkey-registration-error-not-supported = Adgangsnøgler understøttes ikke her. Prøv en anden metode eller enhed.
 passkey-registration-error-security = Adgangsnøgler kan ikke opsættes på denne side. Brug det sikre websted, og prøv igen.
 passkey-registration-error-invalid-state = Denne adgangsnøgle er allerede registreret. Brug den til at logge ind eller tilføj en anden adgangsnøgle.
 passkey-registration-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden metode.
@@ -1053,8 +1063,8 @@ passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes.
 
 
 passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
+passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
-passkey-authentication-error-not-supported = Adgangsnøgler understøttes ikke. Prøv en anden metode eller enhed.
 passkey-authentication-error-security = Adgangsnøgler kan ikke bruges på denne side. Kontroller, at du er på det korrekte sikre websted, og prøv igen.
 passkey-authentication-error-invalid-state = Noget gik galt med din adgangsnøgle. Prøv igen, eller brug en anden loginmetode.
 passkey-authentication-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden loginmetode.
@@ -1146,6 +1156,11 @@ pair-auth-complete-see-tabs-button = Se faneblade fra synkroniserede enheder
 pair-auth-complete-manage-devices-link = Håndter enheder
 
 
+pair-auth-complete-send-tab-heading = Du er klar til at sende nogle faneblade
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } til { $deviceOS } er forbundet.
+pair-auth-complete-send-tab-benefits = Du kan frit sende åbne faneblade, adgangskoder og bogmærker mellem enheder med det samme.
+
+
 auth-totp-heading-w-default-service = Indtast godkendelseskoden <span>for at fortsætte til kontoindstillingerne</span>
 auth-totp-heading-w-custom-service = Indtast godkendelseskoden <span>for at fortsætte til { $serviceName }</span>
 auth-totp-instruction = Åbn din godkendelsesapp og indtast den angivne godkendelseskode.
@@ -1157,7 +1172,13 @@ auth-totp-code-required-error = Godkendelseskode påkrævet
 pair-wait-for-supp-heading-text = Godkendelse er nu påkrævet <span>fra din anden enhed</span>
 
 
+pair-failure-header-v2 = Parring af enheder mislykkedes
+pair-failure-message-v2 = Opsætningen kunne ikke fuldføres. Log ind med din mailadresse.
+pair-failure-try-again-link = Prøv igen
+
+
 pair-sync-header = Synkroniser { -brand-firefox } på din telefon eller tablet
+pair-cad-header-v2 = Opret forbindelse til en ny enhed
 pair-already-have-firefox-paragraph = Har du allerede { -brand-firefox } på en telefon eller tablet?
 pair-sync-your-device-button = Synkroniser din enhed
 pair-or-download-subheader = eller hent
@@ -1168,8 +1189,30 @@ pair-get-started-button = Kom i gang
 pair-qr-code-aria-label = QR-kode
 
 
+pair-choice-subheader = Synkroniser alt det, du bruger { -brand-firefox } til
+pair-choice-description = Se dine gemte adgangskoder, faneblade, browserhistorik med mere — på tværs af alle dine enheder.
+pair-choice-header-send-tab = Hent eller åbn { -brand-firefox } på den enhed, som du vil sende faneblade til
+pair-choice-legend = Vælg en mulighed for at fortsætte:
+pair-choice-has-mobile-title = Jeg har allerede { -brand-firefox } til mobilen
+pair-choice-has-mobile-description = Begynd at synkronisere nu, hvis du allerede har { -brand-firefox } på din mobile enhed.
+pair-choice-needs-mobile-title = Jeg har ikke { -brand-firefox } til mobilen
+pair-choice-needs-mobile-description = Hent { -brand-firefox } på din mobile enhed, og begynd så at synkronisere.
+pair-choice-continue-button = Fortsæt
+pair-signed-in-successfully = Du er logget ind!
+pair-account-created-now-syncing = Konto oprettet. Du synkroniserer nu.
+pair-password-created-now-syncing = Adgangskode oprettet. Du synkroniserer nu.
+
+
+pair-download-subheader = Hent { -brand-firefox } til mobilen
+pair-download-description = For at synkronisere { -brand-firefox } på din telefon eller tablet, skal du først hente { -brand-firefox } til mobilen. Sådan gør du:
+pair-download-step-scan-qr = <b>Trin { $stepNumber }</b>: Hent { -brand-firefox } ved at skanne denne QR-kode med kameraet på din mobile enhed:
+pair-download-step-continue-sync = <b>Trin { $stepNumber }</b>: Vælg "Fortsæt for at synkronisere" for at synkronisere alt det, du bruger { -brand-firefox } til på din mobile enhed.
+pair-continue-to-sync-button = Fortsæt for at synkronisere
+
+
 pair-success-header-2 = Enhed forbundet
 pair-success-message-2 = Parring lykkedes.
+pair-success-tab-close-message = Dette faneblad bliver automatisk lukket af { -brand-firefox }.
 
 
 pair-supp-allow-heading-text = Bekræft parring <span>for { $email }</span>
@@ -1182,6 +1225,14 @@ pair-wait-for-auth-heading-text = Godkendelse er nu påkrævet <span>fra din and
 
 pair-unsupported-header = Parring ved hjælp af en app
 pair-unsupported-message = Brugte du systemets kamera? Du skal parre ved hjælp af en { -brand-firefox }-app.
+pair-unsupported-oops-header = Ups! Det ser ud til, at du ikke bruger { -brand-firefox }.
+pair-unsupported-switch-to-firefox = Skift til { -brand-firefox } og åbn denne side for at oprette forbindelse til en ny enhed.
+pair-unsupported-oops-mobile = Ups! Det ser ud til, at du ikke bruger { -brand-firefox }.
+pair-unsupported-connecting-mobile-header-v2 = Tilslutning af din mobile enhed til din { -product-mozilla-account }
+pair-unsupported-connecting-mobile-instructions-v2 = Åbn { -brand-firefox } på din computer, besøg <b>firefox.com/pair</b>, og følg vejledningen på skærmen for at forbinde din mobile enhed.
+pair-unsupported-learn-more-link-v2 = Læs mere
+pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekræftet
@@ -1333,7 +1384,6 @@ signin-passkey-fallback-header = Færdiggør login
 signin-passkey-fallback-heading = Indtast din adgangskode for at synkronisere
 signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din adgangskode, når du bruger denne adgangsnøgle.
 signin-passkey-fallback-password-label = Adgangskode
-signin-passkey-fallback-go-to-settings = Gå til indstillinger
 signin-passkey-fallback-continue = Fortsæt
 
 
@@ -1346,6 +1396,7 @@ signin-passwordless-code-instruction =
         [one] Indtast koden, der blev sendt til <email>{ $email }</email>, indenfor{ $expirationMinutes } minut.
        *[other] Indtast koden, der blev sendt til <email>{ $email }</email>, indenfor { $expirationMinutes } minutter.
     }
+signin-passwordless-code-input-label-v2 = Indtast sekscifret kode
 signin-passwordless-code-confirm-button = Bekræft
 signin-passwordless-code-required-error = Bekræftelseskode påkrævet
 signin-passwordless-code-expired = Er koden udløbet?
@@ -1363,22 +1414,6 @@ signup-passwordless-code-subheading = Du kan tilmelde dig i et enkelt trin, når
 
 
 signin-passwordless-totp-required = Totrinsgodkendelse er aktiveret på din konto. Log ind med din adgangskode.
-
-
-signin-push-code-heading-w-default-service = Bekræft dette login <span>for at fortsætte til kontoindstillinger</span>
-signin-push-code-heading-w-custom-service = Bekræft dette login <span>for at fortsætte til { $serviceName }</span>
-signin-push-code-instruction = Kontroller dine andre enheder og godkend dette login fra din { -brand-firefox }-browser.
-signin-push-code-did-not-recieve = Har du ikke modtaget beskeden?
-signin-push-code-send-email-link = Send kode
-
-
-signin-push-code-confirm-instruction = Bekræft dit login
-signin-push-code-confirm-description = Vi har registreret et login-forsøg fra følgende enhed. Hvis det var dig, så godkend login'et
-signin-push-code-confirm-verifying = Bekræfter
-signin-push-code-confirm-login = Bekræft login
-signin-push-code-confirm-wasnt-me = Det var ikke mig, skift adgangskode.
-signin-push-code-confirm-login-approved = Dit login er blevet godkendt. Luk dette vindue.
-signin-push-code-confirm-link-error = Link er beskadiget. Prøv igen.
 
 
 signin-recovery-method-header = Log ind

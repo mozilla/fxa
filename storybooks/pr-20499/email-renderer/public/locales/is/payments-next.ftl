@@ -9,6 +9,9 @@ next-payment-method-header = Veldu greiðslumáta þinn
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Fyrst þarftu að samþykkja áskriftina þína
+
+## Error page
+
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Veldu landið þitt og settu inn póstnúmerið þitt <p>til að halda áfram að ganga frá greiðslu fyrir { $productName } </p>
 location-banner-info = Við gátum ekki greint staðsetningu þína sjálfkrafa

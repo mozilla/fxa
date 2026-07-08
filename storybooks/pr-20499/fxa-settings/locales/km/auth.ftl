@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = កំពុងចូលទៅក្នុង { -product-mozilla-account } របស់អ្នកមែនទេ?
-session-verify-send-push-body-2 = ចុចទីនេះដើម្បីបញ្ជាក់ថាគឺជាអ្នក!
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -38,8 +36,25 @@ subplat-automated-email = នេះ​គឺ​ជា​អ៊ីម៉ែល​
 subplat-privacy-notice = កំណត់ហេតុ​​ឯកជនភាព
 subplat-privacy-plaintext = កំណត់ហេតុឯកជនភាព:
 subplat-update-billing-plaintext = { subplat-update-billing }៖
+# Variables:
+#  $email (String) - A user's primary email address
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subplat-explainer-specific-2 = អ្នកទទួលបានអ៊ីមែលនេះពីព្រោះ { $email } មាន { -product-mozilla-account } ហើយអ្នកបានចុះឈ្មោះសម្រាប់ { $productName }។
+# Variables:
+#  $email (String) - A user's primary email address
+subplat-explainer-reminder-form-2 = អ្នកទទួលបានអ៊ីមែលនេះពីព្រោះ { $email } មាន { -product-mozilla-account }។
+subplat-explainer-multiple-2 = អ្នកទទួលបានអ៊ីមែលនេះពីព្រោះ { $email } មាន { -product-mozilla-account } ហើយអ្នកបានជាវផលិតផលជាច្រើន។
+subplat-explainer-was-deleted-2 = អ្នកទទួលបានអ៊ីមែលនេះពីព្រោះ { $email } ត្រូវបានចុះឈ្មោះសម្រាប់ { -product-mozilla-account }។
+subplat-manage-account-2 = គ្របគ្រងការកំណត់ { -product-mozilla-account } របស់អ្នកដោយចូលទៅកាន់ <a data-l10n-name="subplat-account-page">ទំព័រគណនី</a>របស់អ្នក។
+# Variables:
+#  $accountSettingsUrl (String) - URL to Account Settings
+subplat-manage-account-plaintext-2 = គ្របគ្រងការកំណត់ { -product-mozilla-account } របស់អ្នកដោយចូលទៅកាន់ទំព័រគណនីរបស់អ្នក៖ { $accountSettingsUrl }
+subplat-terms-policy-plaintext = { subplat-terms-policy }៖
 subplat-cancel = បោះបង់ការជាវ
 subplat-cancel-plaintext = { subplat-cancel } ៖
+subplat-reactivate-plaintext = { subplat-reactivate }​៖
+subplat-privacy-policy = គោលការណ៍ឯកជនភាពរបស់ { -brand-mozilla }
+subplat-privacy-policy-2 = សេចក្តីជូនដំណឹងអំពីឯកជនភាពរបស់ { -product-mozilla-accounts(capitalization: "uppercase") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy } ៖
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 } ៖
 subplat-moz-terms = { -product-mozilla-accounts(capitalization: "uppercase") } លក្ខខណ្ឌនៃសេវាកម្ម
@@ -49,6 +64,16 @@ subplat-legal-plaintext = { subplat-legal } ៖
 subplat-privacy = ឯកជនភាព
 subplat-privacy-website-plaintext = { subplat-privacy } ៖
 cancellationSurvey = សូមជួយយើងកែលម្អសេវាកម្មរបស់យើងដោយធ្វើ<a data-l10n-name="cancellationSurveyUrl">ការស្ទង់មតិខ្លី</a>នេះ។
+# Variables:
+#  $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
+payment-plan-invoice-number = លេខវិក្កយបត្រ៖ { $invoiceNumber }
+# Variables:
+#  $invoiceDateOnly (String) - The date of the invoice, e.g. 01/20/2016
+#  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
+payment-plan-charged = បានគិតប្រាក់៖ { $invoiceTotal } នៅថ្ងៃទី { $invoiceDateOnly }
+# Variables
+#  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
+payment-plan-next-invoice = វិក្កយបត្របន្ទាប់៖ { $nextInvoiceDateOnly }
 
 ## This string displays when the type of credit card is known
 ## https://stripe.com/docs/payments/cards/supported-card-brands

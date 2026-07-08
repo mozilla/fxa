@@ -17,6 +17,12 @@ next-payment-method-header = Vyberte si spôsob platby
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Najprv musíte schváliť svoje predplatné
+
+## Error page
+
+error-page-account-not-found-heading = Účet nebol nájdený
+error-page-account-not-found-message = Účet priradený k vašej relácii neexistuje. Na prihlásenie k predplatnému použite iný účet alebo si vytvorte nový.
+error-page-account-not-found-continue-button = Pokračovať
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = <p>Ak chcete pokračovať v platbe za produkt { $productName }</p>, vyberte svoju krajinu a zadajte svoje poštové smerovacie číslo
 location-banner-info = Nepodarilo sa nám automaticky zistiť vašu polohu
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = Pred pokračovaním musíte dokončiť tot
 
 next-new-user-submit = Predplatiť
 next-pay-with-heading-paypal = Zaplatiť cez { -brand-paypal }
+free-trial-ineligible-notice = Váš účet nie je oprávnený na bezplatnú skúšobnú verziu. Môžete pokračovať s plateným predplatným.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Pokračovať v skúšobnej verzii
 free-trial-content-button-resume-trial-aria = Obnoviť skúšobnú verziu pre produkt { $productName }
 free-trial-content-button-cancel-trial = Zrušiť skúšobnú verziu
 free-trial-content-button-cancel-trial-aria = Zrušiť skúšobnú verziu pre produkt { $productName }
+free-trial-content-button-cancel-subscription = Zrušiť predplatné
+free-trial-content-button-cancel-subscription-aria = Zrušiť predplatné pre { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Zobraziť faktúru
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Zobraziť faktúru za { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Vaša bezplatná skúšobná doba skončila dňa <bold>{ $date }</bold>. Nepodarilo sa nám spracovať vašu platbu na spustenie vášho predplatného. Aktualizujte si spôsob platby, aby ste si aktivovali predplatné a obnovili prístup k svojim službám.
-free-trial-content-payment-failed-no-date = Nepodarilo sa nám spracovať vašu platbu na spustenie vášho predplatného. Aktualizujte si spôsob platby, aby ste si predplatné aktivovali a obnovili prístup k svojim službám.
+free-trial-content-trial-ended = Vaša bezplatná skúšobná doba skončila dňa <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Vašu platbu sa nepodarilo spracovať. Aktualizujte spôsob platby, aby ste obnovili prístup. Spracovanie môže trvať až 24 hodín a môže sa líšiť v závislosti od banky alebo spôsobu platby.
 free-trial-content-button-update-payment = Aktualizovať spôsob platby
 
 # Component - Header
@@ -720,6 +729,7 @@ manage-payment-method-intent-error-try-again = Hmm. Pri autorizácii vašej plat
 manage-payment-method-intent-error-get-in-touch = Hmm. Pri autorizácii vašej platby sa vyskytol problém. Obráťte sa na vydavateľa karty.
 manage-payment-method-intent-error-insufficient-funds = Zdá sa, že nemáte dostatok finančných prostriedkov. Skúste inú kartu.
 manage-payment-method-intent-error-generic = Počas spracovania platby došlo k neočakávanej chybe, skúste to znova.
+manage-payment-method-tax-address-required = Nepodarilo sa nám určiť miesto vašej fakturácie. Overte si informácie o spôsobe platby a skúste to znova.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Хатои умумии барнома
-app-general-err-message = Чизе нодуруст иҷро шуд. Лутфан, баъдтар аз нав кӯшиш кунед.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Дархости нодуруст: Хусусиятҳои дархост нодуруст мебошанд
 

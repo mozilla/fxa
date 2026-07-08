@@ -17,10 +17,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Rusachoj chijun rusamajixik
-app-general-err-message = K'o man xel ta ütz. Tatojtob'ej chik jub'a' chik na.
-
-
 app-footer-mozilla-logo-label = { -brand-mozilla } logo
 app-footer-privacy-notice = Taq Rutzijol Richinanem Ajk'amaya'l Ruxaq
 app-footer-terms-of-service = Taq Rojqanem Samaj

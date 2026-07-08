@@ -505,7 +505,7 @@ sub-expires-on = Al scjât al/ai { $date }
 pay-update-card-exp = Al scjât al/ai { $expirationDate }
 sub-route-idx-updating = Inzornament dâts di faturazion…
 sub-route-payment-modal-heading = Informazions di faturazion no validis
-sub-route-payment-modal-message-2 = Al somee che al sedi presint un erôr cul to account { -brand-paypal }, al covente che tu fasedis i passaçs necessaris par risolvi chest probleme cul paiament.
+sub-route-payment-modal-message-2 = Al somee che al sedi presint un erôr cul to account { -brand-paypal }. Par risolvi chest probleme di paiament, al covente che tu fasedis chescj passaçs.
 sub-route-missing-billing-agreement-payment-alert = Informazions di paiament no validis; al è vignût fûr un erôr cul to account. <div>Gjestìs</div>
 sub-route-funding-source-payment-alert = Informazions di paiament no validis; al è vignût fûr un erôr cul to account. Al podarès passâ un pôc di timp prime che chest avîs al vegni gjavât, ancje dopo che tu âs inzornât cun sucès lis tôs informazions. <div>Gjestìs</div>
 

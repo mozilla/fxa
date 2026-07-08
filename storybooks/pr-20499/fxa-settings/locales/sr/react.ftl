@@ -1,7 +1,5 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
-app-general-err-heading = Општа грешка апликације
-app-general-err-message = Нешто није у реду. Покушајте поново касније.
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = Лош захтев: неважећи параметри претраге
 

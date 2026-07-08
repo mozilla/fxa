@@ -163,6 +163,17 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresa: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Wobstarajśo se { -brand-firefox }, źožkuli sćo
+firefox-promo-banner-mobile-description = Synchronizěrujśo swóje rejtariki, cytańske znamjenja a gronidła pśez rědy. Mimo togo wšykno wěsće skoděrowane wóstawa.
+firefox-promo-banner-mobile-cta = Rěd zwězaś
+firefox-promo-banner-switch-heading = Malsnje pśejś. Lažko se zažywiś.
+firefox-promo-banner-switch-description = Gaž k { -brand-firefox } pśejźośo, móžośo swóje cytańske znamjenja, gronidła, historiju a wěcej sobu pśinjasć, aby mógł njepśestawajucy dalej pśeglědowaś.
+firefox-promo-banner-switch-cta = K { -brand-firefox } pśejś
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -257,6 +268,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Zmóžnjony
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Špicna pazorka napšawo
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Powěźeńku zacyniś
@@ -356,6 +370,8 @@ input-phone-number-country-united-states = Zjadnośone staty
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Slědk
+# Generic error shown when the legal document fails to load
+app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
 
 ## LinkDamaged component
 
@@ -588,6 +604,15 @@ cs-disconnect-lost-advice-content-3 = Dokulaž waš rěd jo se zgubił abo kšad
 cs-disconnect-suspicious-advice-heading = Suspektny rěd jo se źělił
 cs-disconnect-suspicious-advice-content-2 = Jolic wótźělony rěd jo napšawdu suspektny, wy dejał gronidło swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } w swójich nastajenjach změniś, aby swóje informacije wěste źaržał. Wy dejał teke about:logins do adresowego póla zapódaś, aby druge gronidła změnił, kótarež sćo składł w { -brand-firefox }.
 cs-sign-out-button = Wótzjawiś
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = Zatwarjony VPN { -brand-firefox }
 
 ## Data collection section
 
@@ -994,7 +1019,7 @@ page-passkey-add-cancel = Pśetergnuś
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Gronidłowy kluc jo se napórał
-page-passkey-add-error-system = System njejo k dispoziciji. Wopytajśo pózdźej hyšći raz.
+page-passkey-add-error-system-v2 = Pśi napóranju wašogo gronidłowego kluca jo problem nastał. Wopytajśo pózdźej hyšći raz.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1038,6 +1063,29 @@ recent-activity-account-recovery-codes-signin-complete = Pśizjawjenje z wótnow
 recent-activity-password-reset-otp-sent = Wobkšuśeński kod za slědkstajenje gronidła jo se pósłał
 recent-activity-password-reset-otp-verified = Wobkšuśeński kod za slědkstajenje gronidła jo se pśeglědał
 recent-activity-must-reset-password = Slědkstajenje gronidła trjebne
+recent-activity-account-recovery-phone-replace-complete = Wótnowjeński telefonowy numer wuměnjony
+recent-activity-account-recovery-phone-replace-failure = Wuměnjenje wótnowjeńskego telefonowego numera njejo se raźiło
+recent-activity-account-two-factor-replace-success = Dwójokšacowa awtentifikacija jo se wuměniła
+recent-activity-account-two-factor-replace-failure = Wuměnjenje dwójokšacoweje awtentifikacije njejo se raźiło
+recent-activity-account-recovery-phone-setup-failed = Konfiguracija wótnowjeńskego telefonowego numera njejo se raźiła
+recent-activity-account-recovery-phone-reset-password-complete = Slědkstajenje gronidła z wótnowjeńskim telefonowym numerom dokóńcone
+recent-activity-account-recovery-phone-reset-password-failed = Slědkstajenje gronidła z wótnowjeńskim telefonowym numerom njejo se raźiło
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Awtorizěrowanje kontoweje změny trjebne
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Kontowa změna awtorizěrowana
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Awtorizěrowanje kontoweje změny njejo se raźiło
+recent-activity-account-passkey-registration-success = Gronidłowy kluc pśidany
+recent-activity-account-passkey-registration-failure = Registracija gronidłowego kluca njejo se raźiła
+recent-activity-account-passkey-removed = Gronidłowy kluc jo se wótwónoźeł
+recent-activity-account-passkey-authentication-success = Pśizjawjenje z gronidłowym klucom jo dokóńcone
+recent-activity-account-passkey-authentication-failure = Pśizjawjenje z gronidłowym klucom njejo se raźiło
+recent-activity-account-passwordless-login-otp-sent = Pśizjawjeński kod bźez gronidła pósłany
+recent-activity-account-passwordless-login-otp-failed = Pśizjawjeński kod bźez gronidła njejo se raźił
+recent-activity-account-passwordless-login-otp-verified = Pśizjawjeński kod bźez gronidła jo se pśeglědał
+recent-activity-account-passwordless-registration-complete = Kontowa registracija bźez gronidła dokóńcona
+recent-activity-account-recovery-codes-set = Wótnowjeńske kody nastajone
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Druga kontowa aktiwita
 
@@ -1212,7 +1260,7 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
-passkey-delete-modal-content = Toś ten gronidłowy kluc jo se wótwónoźeł z wašogo konta. Musyśo se na drugi nałog pśizjawiś.
+passkey-delete-modal-content-v2 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu drugeje metody (gronidło, drugi gronidłowy kluc abo zwězane konto) pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -1257,11 +1305,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Sćo dojśpił maksimalnu licbu gronidłowych klucow.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1419,6 +1462,7 @@ auth-error-226 = Limit za gronidłowy kluc dojśpity
 auth-error-227 = Awtentifikacija gronidłowego kluca njejo se raźiła
 auth-error-228 = Registracija gronidłowego kluca njejo se raźiła
 auth-error-238 = Pśeglědanje gronidłowego kluca njejo se raźiło
+auth-error-239 = Bóžko njejsmy mógli wašo konto wulašowaś. Pšosym wopytajśo hyšći raz abo stajśo se z teamom pomocy do zwiska, jolic problem dalej eksistěrujo.
 auth-error-999 = Njewótcakowana zmólka
 auth-error-1001 = Pśizjawjeński wopyt pśetergnjony
 auth-error-1002 = Pósejźenje jo wótběgnuło. Pśizjawśo se, aby pókšacował.
@@ -1458,8 +1502,19 @@ passkey-registration-error-not-allowed = Konfiguracija gronidłowego kluca njejo
 passkey-registration-error-not-allowed-existing = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Pak jo rěd južo zregistrěrowany pak proces konfiguracije jo se pśetergnuł.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Konfiguracija gronidłowego kluca jo se pśetergnuła. Wopytajśo hyšći raz.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Gronidłowe kluce se how njepódpěraju. Wopytajśo drugu metodu abo rěd.
+passkey-registration-canceled-v2 = Konfiguracija gronidłowego kluca jo cas pśekšocyła abo jo se pśetergnuła.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Dalšne informacije
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Dalšne informacije
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Konfiguracija gronidłowego kluca njedajo se dokóńcyś. Wopytajśo drugu metodu abo drugi rěd.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Dalšne informacije
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Gronidłowe kluce njedaju se na toś tom boku konfigurěrowaś. Wužywajśo wěste sedło a wopytajśo hyšći raz.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1480,7 +1535,7 @@ passkey-authentication-error-not-allowed-existing = Konfiguracija gronidłowego 
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Pśekšocenje casa pśi napšašowanju gronidłowego kluca. Wopytajśo pšosym hyšći raz.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Gronidłowe kluce se njepódpěraju. Wopytajśo drugu metodu abo rěd.
+passkey-authentication-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Gronidłowe kluce njedaju se na toś tom boku wužywaś. Pśeglědajśo, lěc sćo na korektnem wěstem sedle a wopytajśo hyšći raz.
 # Unexpected credential state during authentication
@@ -1489,6 +1544,10 @@ passkey-authentication-error-invalid-state = Něco njejo se raźiło z wašym gr
 passkey-authentication-error-not-readable = Njejsmy mógli pśistup k awtentifikatoroju dostaś. Wopytajśo hyšći raz abo wubjeŕśo drugu pśizjawjeńsku metodu.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Něco njejo se raźiło. Wopytajśo hyšći raz abo wubjeŕśo drugu pśizjawjeńsku metodu.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Gronidłowy kluc njejo se spóznał. Wužywajśo drugu pśizjawjeńsku metodu.
 
 ## Connect Another Device page
 
@@ -2010,7 +2069,6 @@ signin-passkey-fallback-header = Pśizjawjenje dokóńcyś
 signin-passkey-fallback-heading = Zapódajśo swójo gronidło, aby synchronizěrował
 signin-passkey-fallback-body = Aby swóje daty wěste wobchował, musyśo swójo gronidło zapódaś, gaž toś ten gronidłowy kluc wužywaśo.
 signin-passkey-fallback-password-label = Gronidło
-signin-passkey-fallback-go-to-settings = K nastajenjam
 signin-passkey-fallback-continue = Dalej
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2062,25 +2120,6 @@ signup-passwordless-code-subheading = Registrěrowanje jano jaden kšac trajo, g
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Dwójokšacowa awtentifikacija jo za wašo konto zmóžnjona. Pšosym pśizjawśo se ze swójim gronidłom.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Pśeglědujśo toś to pśizjawjenje, <span>aby z kontowymi nastajenjami pókšacował</span>
-signin-push-code-heading-w-custom-service = Pśeglědujśo toś to pśizjawjenje, <span>aby z { $serviceName } pókšacował</span>
-signin-push-code-instruction = Pšosym kontrolěrujśo swóje druge rědy a pśizwólśo toś to pśizjawjenje ze swójogo wobglědowaka { -brand-firefox }.
-signin-push-code-did-not-recieve = Njejsćo toś tu powěźeńku dostał?
-signin-push-code-send-email-link = Kod z e-mailu pósłaś
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Wobkšuśćo swójo pśizjawjenje
-signin-push-code-confirm-description = Smy namakali pśizjawjeński wopyt ze slědujucego rěda. Jolic sćo to wy był, pśizwólśo pšosym pśizjawjenje
-signin-push-code-confirm-verifying = Pśespytujo se
-signin-push-code-confirm-login = Pśizjawjenje wobkšuśiś
-signin-push-code-confirm-wasnt-me = Ja njejsom był to, změńśo gronidło.
-signin-push-code-confirm-login-approved = Wašo pśizjawjenje jo se pśizwóliło. Pšosym zacyńśo toś to wokno.
-signin-push-code-confirm-link-error = Wótkaz jo wobškóźony. Wopytajśo pšosym hyšći raz.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

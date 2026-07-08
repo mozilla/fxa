@@ -39,10 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Error general de la aplicación
-app-general-err-message = Algo salió mal. Por favor, inténtalo de nuevo más tarde.
-
-
 app-footer-mozilla-logo-label = Logo de { -brand-mozilla }
 app-footer-privacy-notice = Aviso de privacidad del sitio web
 app-footer-terms-of-service = Términos del servicio
@@ -944,18 +940,6 @@ signin-bounced-message = El correo electrónico de confirmación que enviamos a 
 signin-bounced-help = Si esta es una dirección de correo electrónico válida, <linkExternal>háganoslo saber</linkExternal> y podremos ayudarlo a desbloquear su cuenta.
 signin-bounced-create-new-account = ¿Ya no te pertenece el correo electrónico? Crea una nueva cuenta
 back = Atrás
-
-
-signin-push-code-send-email-link = Código de correo electrónico
-
-
-signin-push-code-confirm-instruction = Confirma tu inicio de sesión
-signin-push-code-confirm-description = Hemos detectado un intento de inicio de sesión desde el siguiente dispositivo. Si eres tú, por favor, aprueba el inicio de sesión
-signin-push-code-confirm-verifying = Verificando
-signin-push-code-confirm-login = Confirmar inicio de sesión
-signin-push-code-confirm-wasnt-me = No fui yo, cambiar la contraseña.
-signin-push-code-confirm-login-approved = Tu inicio de sesión ha sido aprobado. Cierre esta ventana.
-signin-push-code-confirm-link-error = El enlace está dañado. Inténtalo de nuevo.
 
 
 signin-recovery-method-header = Iniciar sesión

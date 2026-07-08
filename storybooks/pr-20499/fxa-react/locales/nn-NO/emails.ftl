@@ -99,6 +99,10 @@ automated-email-reset-pwd-two-factor =
 automated-email-reset-pwd-plaintext-v3 = Om du ikkje utførte dette, kan du tilbakestille passordet ditt med ein gong på:
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = Tilbakestill også tostegs-autentisering på:
+automated-email-sign-in =
+    Dette er ein automatisk e-post; om du ikkje godkjende denne handlinga, ber vi deg <a data-l10n-name="securitySettingsLink">gå gjennom kontosikkerheitstillingane dine</a>.
+    For meir informasjon, besøk <a data-l10n-name="supportLink">{ -brand-mozilla }-støtte</a>.
+automated-email-sign-in-plaintext = Om du ikkje godkjende denne handlinga, ber vi deg gå gjennom kontosikkeheitsinnstillingane dine på:
 brand-banner-message = Visste du at vi endra namnet vårt frå { -product-firefox-accounts } til { -product-mozilla-accounts }? <a data-l10n-name="learnMore">Les meir</a>
 change-password-plaintext = Om du mistenkjer at nokon prøver å få tilgang til kontoen din, må du endre passordet ditt.
 manage-account = Handsam kontoen
@@ -264,6 +268,8 @@ postAddLinkedAccount-action = Handsam kontoen
 postAddPasskey-subject = Passnøkkel oppretta
 postAddPasskey-preview = Du kan no bruke eininga di til å logge på
 postAddPasskey-title = Du oppretta ein passnøkkel
+postAddPasskey-description = Du kan no bruke han til å logge på alle { -product-mozilla-account }-tenestene dine.
+postAddPasskey-sync-note = Merk at passordet ditt framleis vil vere nødvendig for å få tilgang til synkroniseringsdataa dine i { -brand-firefox }.
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Les meir
 postAddPasskey-requested-from = Du ba om dette frå:
@@ -337,7 +343,9 @@ postRemoveAccountRecovery-body-part1 = Kontogjenopprettingsnøkkelen din er påk
 postRemoveAccountRecovery-body-part2 = Viss du ikkje allereie har gjort det, kan du opprette ein ny kontogjenopprettingsnøkkel i kontoinnstillingane dine for å hindre at du mistar lagra passord, bokmerke, nettlesarhistorikk, og meir.
 postRemoveAccountRecovery-action = Handsam kontoen
 postRemovePasskey-subject = Passnøkkel sletta
+postRemovePasskey-preview = Ein passnøkkel vart fjerna frå kontoen din
 postRemovePasskey-title = Du sletta passnøkkelen din
+postRemovePasskey-description = Du må bruke ein annan metode for å logge inn.
 postRemovePasskey-requested-from = Du ba om dette frå:
 postRemovePasskey-action = Handsam kontoen
 postRemoveRecoveryPhone-subject = Gjenopprettingstelefon fjerna

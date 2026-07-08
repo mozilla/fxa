@@ -980,10 +980,6 @@ report-signin-support-link = Acuɣeṛ i d-iḍerru waya?
 signin-bounced-create-new-account = Ur tesεiḍ ara imayl-agi tura? Rnu yiwen d amaynut
 back = Ɣer deffir
 
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-login = Sentem tuqqna
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

@@ -15,6 +15,11 @@ next-payment-method-header = Valitse maksutapa
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Sinun on ensin hyväksyttävä tilauksesi
+
+## Error page
+
+error-page-account-not-found-heading = Tiliä ei löytynyt
+error-page-account-not-found-continue-button = Jatka
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Valitse maasi ja anna postinumerosi <p>jatkaaksesi tuotteen { $productName } kanssa kassalle</p>
 location-banner-info = Emme pystyneet tunnistamaan sijaintiasi automaattisesti
@@ -116,6 +121,8 @@ not-found-loyalty-discount-button-back-to-subscriptions = Takaisin tilauksiin
 
 ## Error page
 
+interstitial-offer-error-subscription-not-found-heading = Emme löytäneet aktiivista tilausta
+interstitial-offer-error-customer-mismatch-heading = Tätä tilausta ei ole liitetty tiliisi
 interstitial-offer-error-general-heading = Tarjous ei ole saatavilla
 interstitial-offer-error-general-message = Vaikuttaa siltä, että tämä tarjous ei ole saatavilla tällä hetkellä.
 interstitial-offer-error-button-back-to-subscriptions = Takaisin tilauksiin
@@ -191,6 +198,10 @@ subscription-management-breadcrumb-back-aria = Siirry takaisin sivulle { $page }
 subscription-cancellation-dialog-title = Jäämme kaipaamaan sinua
 subscription-cancellation-dialog-aside = Onko sinulla kysyttävää? Käy <LinkExternal>{ -brand-mozilla }-tuessa</LinkExternal>.
 
+## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+
+cancel-subscription-button-keep-subscription = Säilytä tilaus
+
 ## Component - Payment Consent Checkbox
 
 next-payment-confirm-with-legal-links-static-3 = Valtuutan { -brand-mozilla }n veloittaa maksutapaani näytetyn summan verran, <termsOfServiceLink>käyttöehtojen</termsOfServiceLink> ja <privacyNoticeLink>tietosuojakäytännön</privacyNoticeLink> mukaisesti, kunnes peruutan tilaukseni.
@@ -235,6 +246,7 @@ churn-stay-subscribed-title-offer-expired = Tämä tarjous on päättynyt
 churn-stay-subscribed-subtitle-offer-expired = Haluatko jatkaa tuotteen { $productName } käyttämistä?
 churn-stay-subscribed-title-subscription-renewed = Tilaus uusittu
 churn-stay-subscribed-title-subscription-active = { $productName }-tilauksesi on aktiivinen
+churn-stay-subscribed-button-go-to-subscriptions = Siirry tilauksiin
 
 ## Component - CouponForm
 
@@ -259,7 +271,10 @@ free-trial-content-trial-expires = Ilmainen kokeilujaksosi päättyy { $date }.
 
 # Charge info strings - no tax, per interval
 
+free-trial-content-trial-active = Ilmainen kokeilujaksosi on aktiivinen.
 free-trial-content-action-error = Tapahtui odottamaton virhe. Yritä uudelleen.
+free-trial-content-button-cancel-trial = Peru kokeilujakso
+free-trial-content-button-cancel-subscription = Peru tilaus
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.

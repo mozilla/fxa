@@ -39,8 +39,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Хатои умумии барнома
-app-general-err-message = Чизе нодуруст иҷро шуд. Лутфан, баъдтар аз нав кӯшиш кунед.
 app-query-parameter-err-heading = Дархости нодуруст: Хусусиятҳои дархост нодуруст мебошанд
 
 
@@ -831,17 +829,6 @@ signin-password-button-label = Ниҳонвожа
 report-signin-submit-button = Гузориш дар бораи фаъолияти шубҳанок
 report-signin-support-link = Чаро ин ба вуҷуд меояд?
 back = Ба қафо
-
-
-signin-push-code-send-email-link = Рамзи почтаи электронӣ
-
-
-signin-push-code-confirm-instruction = Воридшавии худро тасдиқ кунед
-signin-push-code-confirm-verifying = Тасдиқ шуда истодааст
-signin-push-code-confirm-login = Тасдиқ кардани воридшавӣ
-signin-push-code-confirm-wasnt-me = Ин ман набудам, ниҳонвожаро иваз кунед.
-signin-push-code-confirm-login-approved = Воридшавии шумо тасдиқ карда шуд. Лутфан, ин равзанаро пӯшед.
-signin-push-code-confirm-link-error = Пайванд вайрон шудааст. Лутфан, аз нав кӯшиш кунед.
 
 
 signin-recovery-method-header = Ворид шудан

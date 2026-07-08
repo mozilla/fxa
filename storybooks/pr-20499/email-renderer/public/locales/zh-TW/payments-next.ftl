@@ -17,6 +17,12 @@ next-payment-method-header = 選擇付款方式
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = 請先授權付款訂閱
+
+## Error page
+
+error-page-account-not-found-heading = 找不到帳號
+error-page-account-not-found-message = 與您的使用階段相關聯的帳號不存在。請改用其他帳號，或註冊一個新帳號來訂閱。
+error-page-account-not-found-continue-button = 繼續
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = 選擇您所在的國家並輸入您的郵遞區號，<p>即可繼續為 { $productName } 結帳</p>
 location-banner-info = 無法自動偵測您的位置
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = 需要勾選此欄位才能繼續前往下
 
 next-new-user-submit = 立刻訂閱
 next-pay-with-heading-paypal = 使用 { -brand-paypal } 付款
+free-trial-ineligible-notice = 您的帳號無法免費試用，可以付費訂閱。
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = 恢復試用
 free-trial-content-button-resume-trial-aria = 恢復試用 { $productName }
 free-trial-content-button-cancel-trial = 取消試用
 free-trial-content-button-cancel-trial-aria = 取消試用 { $productName }
+free-trial-content-button-cancel-subscription = 取消訂閱
+free-trial-content-button-cancel-subscription-aria = 取消 { $productName } 訂閱
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = 檢視請款單
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = 檢視 { $productName } 的請款單
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = 您的免費試用期間已於 <bold>{ $date }</bold> 結束。我們無法處理您的付款方式以為您啟動訂閱。請更新付款方式以啟動訂閱，並恢復服務的使用權。
-free-trial-content-payment-failed-no-date = 我們無法處理您的付款方式以為您啟動訂閱。請更新付款方式以啟動訂閱，並恢復服務的使用權。
+free-trial-content-trial-ended = 您的免費試用已於 <bold>{ $date }</bold> 結束。
+free-trial-content-could-not-process-payment = 無法處理您的付款，請更新付款方式以恢復使用權限。視銀行或付款方式而定，處理過程可能需要最多 24 小時。
 free-trial-content-button-update-payment = 更新付款方式
 
 # Component - Header
@@ -708,6 +717,7 @@ manage-payment-method-intent-error-try-again = 取得款項授權時發生問題
 manage-payment-method-intent-error-get-in-touch = 取得款項授權時發生問題，請與您的發卡單位聯繫。
 manage-payment-method-intent-error-insufficient-funds = 您的卡片額度不足，請改用其他卡片。
 manage-payment-method-intent-error-generic = 處理付款時發生未知錯誤，請再試一次。
+manage-payment-method-tax-address-required = 無法偵測您的帳務所在地點，請確認您的付款方式正確後再試一次。
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresse: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-mobile-description = Synkroniser faner, bokmerker og passord mellom enhetene dine. I tillegg forblir alt trygt kryptert.
+firefox-promo-banner-mobile-cta = Koble til en enhet
+firefox-promo-banner-switch-heading = Rask å bytte til. Enkel å ta i bruk.
+firefox-promo-banner-switch-description = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-switch-cta = Bytt til { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Slått på
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Pil mot høyre
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Lukk melding
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tilbake
+# Generic error shown when the legal document fails to load
+app-general-err-message = Noe gikk galt. Prøv igjen senere.
 
 ## LinkDamaged component
 
@@ -580,6 +596,15 @@ cs-disconnect-lost-advice-content-3 = Siden enheten din ble tapt eller stjålet,
 cs-disconnect-suspicious-advice-heading = Mistenkelig enhet frakoblet
 cs-disconnect-suspicious-advice-content-2 = Hvis den frakoblede enheten virkelig er mistenkelig, bør du endre passordet for { -product-mozilla-account } i kontoinnstillingene dine for å holde informasjonen din trygg. Du bør også endre eventuelle andre passord du har lagret i { -brand-firefox } ved å skrive about:logins i adresselinjen.
 cs-sign-out-button = Logg ut
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox } sin innebygde VPN
 
 ## Data collection section
 
@@ -956,6 +981,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Eventuelle utvidelser og temaer som du har publisert til addons.mozilla.org blir slettet
 delete-account-continue-button = Fortsett
+delete-account-delete-button-passwordless = Slett konto
 delete-account-password-input =
     .label = Skriv inn passord
 delete-account-cancel-button = Avbryt
@@ -971,6 +997,17 @@ submit-display-name = Lagre
 cancel-display-name = Avbryt
 display-name-update-error-2 = Det oppstod et problem med å oppdatere visningsnavnet ditt.
 display-name-success-alert-2 = Visningsnavn oppdatert
+
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-creating-heading = Oppretter passnøkkel…
+page-passkey-add-follow-prompts = Følg instruksjonene på enheten din.
+page-passkey-add-cancel = Avbryt
+
+## Success / Error messages (shown in alert bar after returning to settings)
+
+page-passkey-add-success = Passnøkkel opprettet
+page-passkey-add-error-system-v2 = Det oppstod et problem med å opprette passnøkkelen din. Prøv igjen senere.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1014,6 +1051,29 @@ recent-activity-account-recovery-codes-signin-complete = Innlogging med gjenoppr
 recent-activity-password-reset-otp-sent = Bekreftelseskode for tilbakestilling av passord sendt
 recent-activity-password-reset-otp-verified = Bekreftelseskode for tilbakestilling av passord bekreftet
 recent-activity-must-reset-password = Tilbakestilling av passord kreves
+recent-activity-account-recovery-phone-replace-complete = Gjenopprettingstelefon erstattet
+recent-activity-account-recovery-phone-replace-failure = Erstatning av gjenopprettingstelefon mislyktes
+recent-activity-account-two-factor-replace-success = Totrinns-autentisering erstattet
+recent-activity-account-two-factor-replace-failure = Erstatning av totrinns-autentisering mislyktes
+recent-activity-account-recovery-phone-setup-failed = Oppsett av gjenopprettingstelefon mislyktes
+recent-activity-account-recovery-phone-reset-password-complete = Tilbakestilling av passord med gjenopprettingstelefon fullført
+recent-activity-account-recovery-phone-reset-password-failed = Tilbakestilling av passord med gjenopprettingstelefon mislyktes
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Godkjennelse for kontoendring er forespurt
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Kontoendring godkjent
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Godkjenning av kontoendring mislyktes
+recent-activity-account-passkey-registration-success = Passnøkkel lagt til
+recent-activity-account-passkey-registration-failure = Registrering av passnøkkel mislyktes
+recent-activity-account-passkey-removed = Passnøkkel fjernet
+recent-activity-account-passkey-authentication-success = Pålogging med passnøkkel fullført
+recent-activity-account-passkey-authentication-failure = Pålogging med passnøkkel mislyktes
+recent-activity-account-passwordless-login-otp-sent = Kode for passordløs innlogging sendt
+recent-activity-account-passwordless-login-otp-failed = Sending av kode for passordløs innlogging mislyktes
+recent-activity-account-passwordless-login-otp-verified = Kode for passordløs innlogging bekreftet
+recent-activity-account-passwordless-registration-complete = Registrering av passordløs konto fullført
+recent-activity-account-recovery-codes-set = Gjenopprettingskoder satt opp
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annen kontoaktivitet
 
@@ -1095,6 +1155,11 @@ product-promo-monitor =
 product-promo-monitor-description-v2 = Finn ut hvor din private informasjon er eksponert og ta kontroll
 # Links out to the Monitor site
 product-promo-monitor-cta = Få gratis skanning
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Oppdag et nytt lag med anonym surfing og beskyttelse.
+# Links out to the VPN site
+product-promo-vpn-cta = Få { -product-mozilla-vpn-short }
 
 ## Profile section
 
@@ -1181,7 +1246,7 @@ passkey-sub-row-created-date = Opprettet: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen din?
-passkey-delete-modal-content = Denne passnøkkelen vil bli fjernet fra kontoen din. Du må logge inn på en annen måte.
+passkey-delete-modal-content-v2 = Denne passnøkkelen blir fjernet fra kontoen din. Du må logge inn med en annen metode (passord, en annen passnøkkel eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel slettet
@@ -1219,7 +1284,7 @@ passkey-row-info-link-2 = Les mer
 #   $count (Number) - the maximum number of passkeys allowed (defaults to 10 allowed)
 passkey-row-max-limit-banner =
     { $count ->
-       *[other] Du har brukt alle { $count } passnøkler. Slett en passnøkkel for å opprette et nytt.
+       *[other] Du har brukt alle { $count } passnøkler. Slett en passnøkkel for å opprette en ny.
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Du har nådd det maksimale antallet passnøkler.
@@ -1370,6 +1435,7 @@ auth-error-226 = Passnøkkelgrensen er nådd
 auth-error-227 = Passnøkkelautentisering mislyktes
 auth-error-228 = Registrering av passnøkkel mislyktes
 auth-error-238 = Passnøkkelutfordring mislyktes
+auth-error-239 = Beklager, vi kunne ikke slette kontoen din. Prøv på nytt, eller kontakt brukerstøtte hvis problemet vedvarer.
 auth-error-999 = Uventet feil
 auth-error-1001 = Innloggingsforsøk avbrutt
 auth-error-1002 = Økt utløpt. Logg inn for å fortsette.
@@ -1403,10 +1469,25 @@ oauth-error-1000 = Noe gikk galt. Lukk denne fanen og prøv på nytt.
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Oppsett av passnøkkel mislyktes eller er ikke tilgjengelig. Prøv igjen eller velg en annen metode.
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Enten er enheten allerede registrert, eller så ble oppsettet avbrutt.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Oppsett av passnøkkel ble avbrutt. Prøv igjen.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Passnøkler støttes ikke her. Prøv en annen metode eller enhet.
+passkey-registration-canceled-v2 = Oppsett av passnøkkel fikk tidsavbrudd eller ble avbrutt.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Les mer
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Nettleseren eller enheten din støtter ikke passnøkler.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Les mer
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Oppsett av passnøkkel kunne ikke fullføres. Prøv en annen metode eller en annen enhet.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Les mer
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Passnøkler kan ikke settes opp på denne siden. Bruk det sikre nettstedet og prøv igjen.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1422,10 +1503,12 @@ passkey-registration-error-unexpected = Oppsett av passnøkkel mislyktes. Prøv 
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislyktes eller er ikke tilgjengelig. Prøv igjen eller velg en annen metode.
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Prøv igjen eller velg en annen metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Forespørselen om passnøkkel ble tidsavbrutt. Prøv igjen.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Passnøkler støttes ikke. Prøv en annen metode eller enhet.
+passkey-authentication-error-not-supported-v2 = Nettleseren eller enheten din støtter ikke passnøkler.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Passnøkler kan ikke brukes på denne siden. Kontroller at du er på riktig sikkert nettsted og prøv igjen.
 # Unexpected credential state during authentication
@@ -1434,6 +1517,10 @@ passkey-authentication-error-invalid-state = Noe gikk galt med passnøkkelen din
 passkey-authentication-error-not-readable = Vi fikk ikke tilgang til autentiseringsenheten. Prøv igjen eller bruk en annen innloggingsmetode.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Noe gikk galt. Prøv igjen eller velg en annen innloggingsmetode.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Passnøkkelen ble ikke gjenkjent. Bruk en annen innloggingsmetode.
 
 ## Connect Another Device page
 
@@ -1574,6 +1661,15 @@ pair-auth-complete-sync-benefits-text = Nå kan du få tilgang til åpne faner, 
 pair-auth-complete-see-tabs-button = Se faner fra synkroniserte enheter
 pair-auth-complete-manage-devices-link = Behandle enheter
 
+## Alternate "Send Tab" variant — shown when the pair was initiated from a Send Tab entrypoint (toolbar icon, app menu, etc.)
+
+# Heading
+pair-auth-complete-send-tab-heading = Du er klar til å sende noen faner
+# Variable { $deviceFamily } is generally a browser name, for example "Firefox"
+# Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } for { $deviceOS } er tilkoblet.
+pair-auth-complete-send-tab-benefits = Du kan umiddelbart sende åpne faner, passord og bokmerker mellom enheter.
+
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
 ## Users that have set up two-factor authentication land on this page during device pairing.
@@ -1600,9 +1696,17 @@ auth-totp-code-required-error = Autentiseringskode kreves
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Godkjenning kreves nå <span>fra den andre enheten din</span>
 
+## PairFailure - a view which displays on failure of the device pairing process
+
+# v2: Updated wording to align with the legacy Backbone pair/failure copy.
+pair-failure-header-v2 = Enhetsparing mislyktes
+pair-failure-message-v2 = Konfigurasjonen kunne ikke fullføres. Logg inn med e-postadressen din.
+pair-failure-try-again-link = Prøv igjen
+
 ## Pair index page
 
 pair-sync-header = Synkroniser { -brand-firefox } på telefonen eller nettbrettet ditt
+pair-cad-header-v2 = Koble til en annen enhet
 pair-already-have-firefox-paragraph = Har du allerede { -brand-firefox } på en telefon eller et nettbrett?
 # Clicking this button initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
 pair-sync-your-device-button = Synkroniser enheten din
@@ -1618,10 +1722,51 @@ pair-get-started-button = Kom i gang
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR-kode
 
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Subheader shown on the choice screen
+pair-choice-subheader = Synkroniser { -brand-firefox }-opplevelsen din
+# Description shown on the choice screen
+pair-choice-description = Se lagrede passord, faner, nettleserhistorikk og mer — på tvers av alle enhetene dine.
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = Last ned eller åpne { -brand-firefox } på enheten du vil sende faner til
+# Legend for the radio button fieldset
+pair-choice-legend = Velg et alternativ for å fortsette:
+# Radio option: user already has Firefox for mobile — title
+pair-choice-has-mobile-title = Jeg har allerede { -brand-firefox } for mobil
+# Radio option: user already has Firefox for mobile — description
+pair-choice-has-mobile-description = Start synkroniseringen din nå hvis du allerede har { -brand-firefox } på mobilenheten din.
+# Radio option: user does not have Firefox for mobile — title
+pair-choice-needs-mobile-title = Jeg har ikke { -brand-firefox } for mobil
+# Radio option: user does not have Firefox for mobile — description
+pair-choice-needs-mobile-description = Last ned { -brand-firefox } på mobilenheten din, og start deretter synkroniseringen.
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = Fortsett
+# Success banner shown after signing in
+pair-signed-in-successfully = Du er logget inn!
+# Success banner shown after signing up and verifying email via a Send Tab flow
+pair-account-created-now-syncing = Konto opprettet. Du synkroniserer nå.
+# Success banner shown after creating a password for a passwordless account via a Send Tab flow
+pair-password-created-now-syncing = Passord opprettet. Du synkroniserer nå.
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Subheader for the download screen
+pair-download-subheader = Last ned { -brand-firefox } for mobil
+# Description for the download screen
+pair-download-description = For å synkronisere { -brand-firefox } på telefonen eller nettbrettet ditt, må du først laste ned { -brand-firefox } for mobil. Slik gjør du det:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>Trinn { $stepNumber }</b>: Last ned { -brand-firefox } ved å skanne denne QR-koden med kameraet på mobilenheten din:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>Trinn { $stepNumber }</b>: Velg «Fortsett til synkroniseringe» for å synkronisere { -brand-firefox }-opplevelsen på mobilenheten din.
+# Button on the download screen that opens about:preferences for pairing
+pair-continue-to-sync-button = Fortsett til synkronisering
+
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Enhet tilkoblet
 pair-success-message-2 = Paring vellykket.
+pair-success-tab-close-message = Denne fanen vil bli lukket automatisk av { -brand-firefox }.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1645,6 +1790,25 @@ pair-wait-for-auth-heading-text = Godkjenning kreves nå <span>fra den andre enh
 
 pair-unsupported-header = Paring via en app
 pair-unsupported-message = Brukte du systemkameraet? Du må koble til fra en { -brand-firefox }-app.
+# Shown as heading when a desktop user visits from a non-Firefox browser
+pair-unsupported-oops-header = Ups! Det ser ut som om du ikke bruker { -brand-firefox }.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = Bytt til { -brand-firefox } og åpne denne siden for å koble til en annen enhet.
+# Shown inline on mobile non-Firefox browsers before the download link
+pair-unsupported-oops-mobile = Ups! Det ser ut som om du ikke bruker { -brand-firefox }.
+# v2: Heading for the mobile instructional message, shown on all mobile devices
+# (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
+# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
+pair-unsupported-connecting-mobile-header-v2 = Koble din mobilenhet til din { -product-mozilla-account }
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = Åpne { -brand-firefox } på datamaskinen din, gå til <b>firefox.com/pair</b>, og følg instruksjonene på skjermen for å koble til mobilenheten din.
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = Les mer
+# v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
+# Matches the legacy Backbone "Oops! Something went wrong." message.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Noe gikk galt.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Lukk denne fanen og prøv igjen.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1876,7 +2040,6 @@ signin-passkey-fallback-header = Fullfør innloggingen
 signin-passkey-fallback-heading = Skriv inn passordet ditt for å synkronisere
 signin-passkey-fallback-body = For å holde dataene dine trygge, må du oppgi passordet ditt når du bruker denne passnøkkelen.
 signin-passkey-fallback-password-label = Passord
-signin-passkey-fallback-go-to-settings = Gå til innstillinger
 signin-passkey-fallback-continue = Fortsett
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -1900,6 +2063,7 @@ signin-passwordless-code-instruction =
         [one] Skriv inn koden som ble sendt til <email>{ $email }</email> innen { $expirationMinutes } minutt.
        *[other] Skriv inn koden som ble sendt til <email>{ $email }</email> innen { $expirationMinutes } minutter.
     }
+signin-passwordless-code-input-label-v2 = Skriv inn 6-sifret kode
 signin-passwordless-code-confirm-button = Bekreft
 signin-passwordless-code-required-error = Bekreftelseskode kreves
 signin-passwordless-code-expired = Har koden utløpt?
@@ -1923,25 +2087,6 @@ signup-passwordless-code-subheading = Registrering tar bare ett trinn når du br
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Totrinns-autentisering er aktivert på kontoen din. Logg inn med passordet ditt.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Bekreft denne innloggingen <span>for å fortsette til kontoinnstillingene</span>
-signin-push-code-heading-w-custom-service = Bekreft denne innloggingen <span>for å fortsette til { $serviceName }</span>
-signin-push-code-instruction = Sjekk de andre enhetene dine og godkjenn denne påloggingen fra { -brand-firefox }-nettleseren din.
-signin-push-code-did-not-recieve = Har du ikke mottatt varselet?
-signin-push-code-send-email-link = E-postkode
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Bekreft innloggingen din
-signin-push-code-confirm-description = Vi oppdaget et påloggingsforsøk fra følgende enhet. Hvis dette var deg, godkjenn påloggingen.
-signin-push-code-confirm-verifying = Kontrollerer
-signin-push-code-confirm-login = Bekreft innlogging
-signin-push-code-confirm-wasnt-me = Det var ikke meg, endre passordet.
-signin-push-code-confirm-login-approved = Påloggingen din er godkjent. Lukk dette vinduet.
-signin-push-code-confirm-link-error = Lenken er skadet. Prøv på nytt.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

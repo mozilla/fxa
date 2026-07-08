@@ -6,7 +6,7 @@
 ## Component - AppLayout
 
 settings-home = Domača stran računa
-settings-project-header-title = { -product-mozilla-account }
+settings-project-header-title = { -product-mozilla-account(zacetnica: "velika") }
 
 ## Component - CouponForm
 

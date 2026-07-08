@@ -30,6 +30,7 @@ Nous traitons les données techniques et d'interaction afin de mieux comprendre 
 Lorsque vous utilisez des services connectés, vos données sont traitées conformément à la politique de confidentialité du service concerné :
 
 * [Navigateur Firefox](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Services d'abonnement Mozilla](https://www.mozilla.org/privacy/subscription-services/) pour Mozilla VPN, Mozilla Monitor et Firefox Relay
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

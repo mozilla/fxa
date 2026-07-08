@@ -169,6 +169,17 @@ device-info-browser-os = { $browserName } ar { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Cael { -brand-firefox } lle bynnag rydych chi
+firefox-promo-banner-mobile-description = Cydweddu eich tabiau, nodau tudalen, a chyfrineiriau ar draws eich dyfeisiau. Hefyd, mae popeth yn aros wedi'i amgryptio'n ddiogel.
+firefox-promo-banner-mobile-cta = Cysylltu dyfais
+firefox-promo-banner-switch-heading = Cyflym i newid. Hawdd i ymgartrefu.
+firefox-promo-banner-switch-description = Pan fyddwch yn newid i { -brand-firefox }, gallwch ddod â'ch nodau tudalen, cyfrineiriau, hanes a mwy er mwyn i chi allu pori heb golli dim.
+firefox-promo-banner-switch-cta = Newid i { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -263,6 +274,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Galluogwyd
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Cwplws i'r dde
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Cau neges
@@ -362,6 +376,8 @@ input-phone-number-country-united-states = Yr Unol Daleithiau
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Nôl
+# Generic error shown when the legal document fails to load
+app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
 
 ## LinkDamaged component
 
@@ -592,6 +608,15 @@ cs-disconnect-lost-advice-content-3 = Ers i'ch dyfais gael ei cholli neu ei dwyn
 cs-disconnect-suspicious-advice-heading = Dyfais amheus wedi'i datgysylltu
 cs-disconnect-suspicious-advice-content-2 = Os yw'r ddyfais sydd wedi'i datgysylltu yn wir amheus, i gadw'ch manylion yn ddiogel, dylech newid cyfrinair eich cyfrif { -product-mozilla-account } yng ngosodiadau eich cyfrif. Dylech hefyd newid unrhyw gyfrineiriau eraill a gadwyd gennych yn { -brand-firefox } trwy deipio about:logins yn y bar cyfeiriad.
 cs-sign-out-button = Allgofnodi
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = VPN mewnol { -brand-firefox }
 
 ## Data collection section
 
@@ -1002,7 +1027,7 @@ page-passkey-add-cancel = Diddymu
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Cyfrinallwedd wedi'i greu
-page-passkey-add-error-system = System ddim ar gael. Ceisiwch eto yn nes ymlaen.
+page-passkey-add-error-system-v2 = Bu problem wrth greu eich cyfrinair. Ceisiwch eto yn nes ymlaen.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1046,6 +1071,29 @@ recent-activity-account-recovery-codes-signin-complete = Cwblhawyd y mewngofnodi
 recent-activity-password-reset-otp-sent = Ailosod y cod cadarnhau cyfrinair a anfonwyd
 recent-activity-password-reset-otp-verified = Ailosod y cod cadarnhau cyfrinair wedi'i wirio
 recent-activity-must-reset-password = Mae angen ailosod cyfrinair
+recent-activity-account-recovery-phone-replace-complete = Ffôn adfer wedi'i amnewid
+recent-activity-account-recovery-phone-replace-failure = Wedi methu ailosod ffôn adfer
+recent-activity-account-two-factor-replace-success = Dilysiad dau gam wedi'i amnewid
+recent-activity-account-two-factor-replace-failure = Methodd amnewid dilysu dau gam
+recent-activity-account-recovery-phone-setup-failed = Methodd gosod y ffôn adfer
+recent-activity-account-recovery-phone-reset-password-complete = Wedi cwblhau ailosod cyfrinair gyda ffôn adfer
+recent-activity-account-recovery-phone-reset-password-failed = Wedi methu ailosod cyfrinair gyda ffôn adfer
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Wedi gofyn am awdurdodiad newid cyfrif
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Newid cyfrif wedi'i awdurdodi
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Wedi methu awdurdodi newid cyfrif
+recent-activity-account-passkey-registration-success = Wedi ychwanegu cyfrinallwedd
+recent-activity-account-passkey-registration-failure = Wedi methu cofrestri'r cyfrinallwedd
+recent-activity-account-passkey-removed = Tynnu'r cyfrinallwedd
+recent-activity-account-passkey-authentication-success = Mewngofnodi gyda'r cyfrinallwedd wedi'i gwblhau
+recent-activity-account-passkey-authentication-failure = Methodd mewngofnodi gyda'r cyfrinallwedd
+recent-activity-account-passwordless-login-otp-sent = Anfonwyd cod mewngofnodi heb gyfrinair
+recent-activity-account-passwordless-login-otp-failed = Methodd y cod mewngofnodi heb gyfrinair
+recent-activity-account-passwordless-login-otp-verified = Cod mewngofnodi heb gyfrinair wedi'i ddilysu
+recent-activity-account-passwordless-registration-complete = Cwblhau cofrestriad cyfrif heb gyfrinair
+recent-activity-account-recovery-codes-set = Gosod codau adfer
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Gweithgarwch cyfrif arall
 
@@ -1222,7 +1270,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio ffordd wahanol.
+passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1269,11 +1317,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Rydych chi wedi cyrraedd y nifer uchaf o gyfrinallweddi
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrineiriau.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1427,6 +1470,7 @@ auth-error-226 = Wedi cyrraedd terfyn y cyfrinallwedd
 auth-error-227 = Wedi methu dilysu'r cyfrinallwedd
 auth-error-228 = Wedi methu cofrestri'r cyfrinallwedd
 auth-error-238 = Methodd her y cyfrinallwedd
+auth-error-239 = Ymddiheuriadau, doedd dim modd i ni allu dileu eich cyfrif. Ceisiwch eto, neu cysylltwch â'r tîm cymorth os yw'r broblem yn parhau.
 auth-error-999 = Gwall anhysbys
 auth-error-1001 = Diddymwyd yr ymgais i fewngofnodi
 auth-error-1002 = Daeth y sesiwn i ben. Mewngofnodwch i barhau.
@@ -1463,11 +1507,22 @@ passkey-registration-error-not-allowed = Methodd gosod y cyfrinallwedd neu nid y
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
-passkey-registration-error-not-allowed-existing = Nid yw gosodiad paskey ar gael gyda'r ddyfais hon. Naill ai mae'r ddyfais eisoes wedi'i chofrestru neu cafodd y broses osod ei chanslo.
+passkey-registration-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Naill ai mae'r ddyfais eisoes wedi'i chofrestru neu cafodd y broses osod ei diddymu.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Wedi diddymu gosod y cyfrinallwedd. Ceisiwch eto.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Dyw cyfrinallweddi ddim yn cael eu cefnogi yma. Rhowch gynnig ar ddull neu ddyfais arall.
+passkey-registration-canceled-v2 = Daeth yr amser gosod cyfrinallwedd i ben neu cafodd ei diddymu.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Dysgu rhagor
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrinallweddi.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Dysgu rhagor
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Doedd dim modd cwblhau gosod y cyfrinallwedd. Rhowch gynnig ar ddull neu ddyfais wahanol.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Dysgu rhagor
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Does dim modd gosod cyfrinallweddi  ar y dudalen hon. Defnyddiwch y wefan ddiogel a cheisiwch eto.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1484,11 +1539,11 @@ passkey-registration-error-unexpected = Wedi methu gosod y cyfrinallwedd. Ceisiw
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Wedi methu mewngofnodi gyda'r cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 # User already registered a device
-passkey-authentication-error-not-allowed-existing = Nid yw gosodiad paskey ar gael gyda'r ddyfais hon. Ceisiwch eto neu dewiswch ddull arall.
+passkey-authentication-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Ceisiwch eto neu dewiswch ddull arall.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Daeth y terfyn amser ar y cais am gyfrinallwedd. Ceisiwch eto.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Dyw cyfrinallweddi ddim yn cael eu cefnogi. Rhowch gynnig ar ddull neu ddyfais arall.
+passkey-authentication-error-not-supported-v2 = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrinallweddi.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Does dim modd defnyddio cyfrinallweddi ar y dudalen hon. Gwiriwch eich bod ar y wefan ddiogel gywir a rhowch gynnig arall arni. diogel cywir a rhowch gynnig arall arni.
 # Unexpected credential state during authentication
@@ -1497,6 +1552,10 @@ passkey-authentication-error-invalid-state = Aeth rhywbeth o'i le gyda'ch cyfrin
 passkey-authentication-error-not-readable = Doedd dim modd cael mynediad i'r dilysydd. Ceisiwch eto neu defnyddiwch ddull mewngofnodi arall.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Aeth rhywbeth o'i le. Ceisiwch eto neu dewiswch ddull mewngofnodi arall.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Cyfrinallwedd heb ei adnabod. Defnyddiwch ddull mewngofnodi arall.
 
 ## Connect Another Device page
 
@@ -2015,7 +2074,6 @@ signin-passkey-fallback-header = Gorffen mewngofnodi
 signin-passkey-fallback-heading = Rhowch eich cyfrinair i gydweddu
 signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi roi'ch cyfrinair pan fyddwch chi'n defnyddio'r cyfrinallwedd hon.
 signin-passkey-fallback-password-label = Cyfrinallwedd
-signin-passkey-fallback-go-to-settings = Mynd i’r gosodiadau
 signin-passkey-fallback-continue = Parhau
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2071,25 +2129,6 @@ signup-passwordless-code-subheading = Dim ond un cam y mae cofrestru'n ei gymryd
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Mae dilysu dau gam wedi'i alluogi ar eich cyfrif. Mewngofnodwch gyda'ch cyfrinair.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Dilyswch y mewngofnodi hwn <span>i barhau i'r gosodiadau cyfrif</span>
-signin-push-code-heading-w-custom-service = Dilyswch y mewngofnodiad hwn <span>i barhau i { $serviceName }</span>
-signin-push-code-instruction = Gwiriwch eich dyfeisiau eraill a chymeradwywch y mewngofnodi hwn o'ch porwr { -brand-firefox }.
-signin-push-code-did-not-recieve = Heb dderbyn yr hysbysiad?
-signin-push-code-send-email-link = Cod e-bost
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Cadarnhewch eich mewngofnodi
-signin-push-code-confirm-description = Rydym wedi canfod ymgais mewngofnodi o'r ddyfais ganlynol. Os mai chi oedd hwn, cymeradwywch y mewngofnodi
-signin-push-code-confirm-verifying = Dilysu
-signin-push-code-confirm-login = Cadarnhau mewngofnodi
-signin-push-code-confirm-wasnt-me = Nid fi oedd hwn, newidiwch y cyfrinair.
-signin-push-code-confirm-login-approved = Mae eich mewngofnodi wedi'i gymeradwyo. Caewch y ffenestr hon.
-signin-push-code-confirm-link-error = Dolen wedi'i difrodi. Ceisiwch eto.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

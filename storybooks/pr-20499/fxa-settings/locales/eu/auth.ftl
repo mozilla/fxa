@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Zure { -product-mozilla-account }-n saioa hasi nahi duzu?
-session-verify-send-push-body-2 = Klikatu hemen zeu zarela egiaztatzeko
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment

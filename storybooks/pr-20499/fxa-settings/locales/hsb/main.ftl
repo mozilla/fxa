@@ -35,8 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Powšitkowny nałoženski zmylk
-app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
+app-something-went-wrong-heading = Něšto je so nimokuliło
+app-something-went-wrong-message = Problem je so nam zdźělił. Aktualizujće stronu, zo byšće hišće raz spytał.
+app-error-id = Zmylkowy ID: { $errorId }
+app-error-details-summary = Zmylkowe podrobnosće
 app-query-parameter-err-heading = Špatne naprašowanje: Njepłaćiwe naprašowanske parametry
 
 
@@ -155,6 +157,14 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP-adresa: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Wobstarajće sej { -brand-firefox }, hdźežkuli sće
+firefox-promo-banner-mobile-description = Synchronizujće swoje rajtarki, zapołožki a hesła přez graty. Nimo toho wšitko wěsće zaklučowane wostawa.
+firefox-promo-banner-mobile-cta = Grat zwjazać
+firefox-promo-banner-switch-heading = Spěšnje přeńć. Lochko so zažiwić.
+firefox-promo-banner-switch-description = Hdyž k { -brand-firefox } přeńdźeće, móžeće swoje zapołožki, hesła, historiju a wjace sobu přinjesć, zo byšće móhł njepřestawajcy dale přehladować.
+firefox-promo-banner-switch-cta = K { -brand-firefox } přeńć
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Hesło
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -223,6 +233,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Wuspěch
 checkmark-enabled-icon-aria-label =
     .aria-label = Zmóžnjeny
+chevron-right-icon-aria-label =
+    .aria-label = Kónčkojta pazorka naprawo
 close-icon-aria-label =
     .aria-label = Zdźělenku začinić
 code-icon-aria-label =
@@ -296,6 +308,7 @@ input-phone-number-enter-number = Telefonowe čisło zapodać
 input-phone-number-country-united-states = Zjednoćene staty
 input-phone-number-country-canada = Kanada
 legal-back-button = Wróćo
+app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
 
 
 reset-pwd-link-damaged-header = Wotkaz k wróćostajenju hesła wobškodźeny
@@ -452,6 +465,9 @@ cs-disconnect-lost-advice-content-3 = Dokelž waš grat je so zhubił abo kradny
 cs-disconnect-suspicious-advice-heading = Podhladny grat je so dźělił
 cs-disconnect-suspicious-advice-content-2 = Jeli wotdźěleny grat je woprawdźe podhladny, wy dyrbjał hesło swojeho { -product-mozilla-account(case: "gen", capitalization: "lower") } w swojich nastajenjach změnić, zo byšće swoje informacije wěste dźeržał. Wy dyrbjał tež about:logins do adresoweho pola zapodać, zo byšće druhe hesła změnił, kotrež sće w { -brand-firefox } składował.
 cs-sign-out-button = Wotzjewić
+
+
+cs-scope-firefox-vpn = Zatwarjeny VPN { -brand-firefox }
 
 
 dc-heading = Zběranje a wužiwanje datow
@@ -754,7 +770,7 @@ page-passkey-add-cancel = Přetorhnyć
 
 
 page-passkey-add-success = Hesłowy kluč je so wutworił
-page-passkey-add-error-system = System k dispoziciji njeje. Spytajće pozdźišo hišće raz.
+page-passkey-add-error-system-v2 = Při wutworjenju wašeho hesłoweho kluča je problem nastał. Spytajće pozdźišo hišće raz.
 
 
 recent-activity-title = Najnowša kontowa aktiwita
@@ -793,6 +809,26 @@ recent-activity-account-recovery-codes-signin-complete = Přizjewjenje z wobnowj
 recent-activity-password-reset-otp-sent = Wobkrućenski kod za wróćostajenje hesła je so pósłał
 recent-activity-password-reset-otp-verified = Wobkrućenski kod za wróćostajenje hesła je so přepruwował
 recent-activity-must-reset-password = Wróćostajenje hesło trěbne
+recent-activity-account-recovery-phone-replace-complete = Wobnowjenske telefonowe čisło je wuměnjene
+recent-activity-account-recovery-phone-replace-failure = Wuměnjenje wobnowjenskeho telefonoweho čisło je so nimokuliło.
+recent-activity-account-two-factor-replace-success = Dwukročelowa awtentifikacija je wuměnjena
+recent-activity-account-two-factor-replace-failure = Wuměnjenje dwukročeloweje awtentifikacije je so nimokuliło
+recent-activity-account-recovery-phone-setup-failed = Konfiguracija wobnowjenskeho telefonoweho čisła je so nimokuliła
+recent-activity-account-recovery-phone-reset-password-complete = Wróćostajenje hesła z wobnowjenskim telefonowym čisłom dokónčene
+recent-activity-account-recovery-phone-reset-password-failed = Wróćostajenje hesła z wobnowjenskim telefonowym čisłom je so nimokuliło
+recent-activity-account-mfa-otp-sent = Awtorizowanje kontoweje změny trěbne
+recent-activity-account-mfa-otp-verified = Kontowa změna awtorizowana
+recent-activity-account-mfa-otp-failed = Awtorizowanje kontoweje změny je so nimokuliło
+recent-activity-account-passkey-registration-success = Hesłowy kluč přidaty
+recent-activity-account-passkey-registration-failure = Registracija hesłoweho kluča njeje so poradźiła
+recent-activity-account-passkey-removed = Hesłowy kluč je so wotstronił
+recent-activity-account-passkey-authentication-success = Přizjewjenje z hesłowym klučom je dokónčene
+recent-activity-account-passkey-authentication-failure = Přizjewjenje z hesłowym klučom je so nimokuliło
+recent-activity-account-passwordless-login-otp-sent = Přizjewjenski kod bjez hesła pósłany
+recent-activity-account-passwordless-login-otp-failed = Přizjewjenski kod bjez hesła je so nimokulił
+recent-activity-account-passwordless-login-otp-verified = Přizjewjenski kod bjez hesła přepruwowany
+recent-activity-account-passwordless-registration-complete = Kontowa registracija bjez hesła dokónčena
+recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
 recent-activity-unknown = Druha kontowa aktiwita
 
 
@@ -901,7 +937,7 @@ passkey-sub-row-created-date = Wutworjeny: { $createdDate }
 passkey-sub-row-last-used-date = Posledni raz wužity: { $lastUsedDate }
 passkey-sub-row-delete-title = Hesłowy kluč zhašeć
 passkey-delete-modal-heading = Waš hesłowy kluč zhašeć?
-passkey-delete-modal-content = Tutón hesłowy kluč je so z wašeho konta wotstronił. Dyrbiće so na druhe wašnje přizjewić.
+passkey-delete-modal-content-v2 = Tutón hesłowy kluč so z wašeho konta wotstroni. Dyrbiće so z pomocu druheje metody (hesło, druhi hesłowy kluč abo zwjazane konto) přizjewić.
 passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
@@ -935,9 +971,6 @@ passkey-row-max-limit-banner =
        *[other] Sće wšě { $count } hesłowych klučow wužił. Zhašejće hesłowy kluč, zo byšće nowy wutworił.
     }
 passkey-row-max-limit-disabled-reason = Sće maksimalnu ličbu hesłowych klučow docpěł.
-
-
-passkey-row-webauthn-not-supported = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 
 
 rk-header-1 = Kontowy wobnowjenski kluč
@@ -1051,6 +1084,7 @@ auth-error-226 = Limit za hesłowy kluč docpěty
 auth-error-227 = Awtentifikacija hesłoweho kluča njeje so poradźiła
 auth-error-228 = Registracija hesłoweho kluča njeje so poradźiła
 auth-error-238 = Přepruwowanje hesłoweho kluča njeje so poradźiło
+auth-error-239 = Bohužel njemóžachmy waše konto zhašeć. Prošu spytajće hišće raz abo stajće so z teamom pomocy do zwiska, jeli problem dale eksistuje.
 auth-error-999 = Njewočakowany zmylk
 auth-error-1001 = Přizjewjenski pospyt přetorhnjeny
 auth-error-1002 = Posedźenje jo wotběžało. Přizjewće so, zo byšće pokročował.
@@ -1077,7 +1111,12 @@ oauth-error-1000 = Něšto je so nimokuliło. Prošu začińće tutón rajtark a
 passkey-registration-error-not-allowed = Konfiguracija hesłoweho kluča njeje so poradźiła abo njeje k dispoziciji. Spytajće hišće raz abo wubjerće druhu metodu.
 passkey-registration-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Pak je grat hižo zregistrowany pak konfiguraciski proces je so přetorhnył.
 passkey-registration-error-timeout = Konfiguracija hesłoweho kluča je so přetorhnyła. Spytajće hišće raz.
-passkey-registration-error-not-supported = Hesłowe kluče so tu njepodpěruja. Spytajće druhu metodu abo grat.
+passkey-registration-canceled-v2 = Konfiguracija hesłoweho kluča je čas překročiła abo je so přetorhnyła.
+passkey-registration-canceled-link = Dalše informacije
+passkey-registration-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
+passkey-registration-error-not-supported-link = Dalše informacije
+passkey-registration-error-could-not-complete = Konfiguracija hesłoweho kluča njeda so dokónčić. Spytajće druhu metodu abo druhi grat.
+passkey-registration-error-could-not-complete-link = Dalše informacije
 passkey-registration-error-security = Hesłowe kluče njedadźa so na tutej stronje konfigurować. Wužiwajće wěste sydło a spytajće hišće raz.
 passkey-registration-error-invalid-state = Tutón hesłowy kluč je hižo zregistrowany. Wužiwajće jón, zo byšće so přizjewił abo přidajće druhi hesłowy kluč.
 passkey-registration-error-not-readable = Njemóžachmy přistup k awtentifikatorej dóstać. Spytajće hišće raz abo wubjerće druhu metodu.
@@ -1088,11 +1127,12 @@ passkey-registration-error-unexpected = Konfiguracija hesłoweho kluča njeje so
 passkey-authentication-error-not-allowed = Přizjewjenje z hesłowym klučom njeje so poradźiło abo njeje k dispoziciji. Spytajće hišće raz abo wubjerće druhu metodu.
 passkey-authentication-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Spytajće prošu hišće raz abo wubjerće druhu metodu.
 passkey-authentication-error-timeout = Překročenje časa při naprašowanju hesłoweho kluča. Spytajće prošu hišće raz.
-passkey-authentication-error-not-supported = Hesłowe kluče so njepodpěruja. Spytajće druhu metodu abo grat.
+passkey-authentication-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 passkey-authentication-error-security = Hesłowe kluče njedadźa so na tutej stronje wužiwać. Přepruwujće, hač sće na korektnym wěstym sydle a spytajće hišće raz.
 passkey-authentication-error-invalid-state = Něšto je so z wašim hesłowym klučom nimokuliło. Spytajće hišće raz abo wužiwajće druhu přizjewjensku metodu.
 passkey-authentication-error-not-readable = Njemóžachmy přistup k awtentifikatorej dóstać. Spytajće hišće raz abo wubjerće druhu přizjewjensku metodu.
 passkey-authentication-error-unexpected = Něšto je so nimokuliło. Spytajće hišće raz abo wubjerće druhu přizjewjensku metodu.
+passkey-authentication-error-not-found = Hesłowy kluč njeje so spóznał. Wužiwajće druhu přizjewjensku metodu.
 
 
 connect-another-device-signed-in-header = Sće pola { -brand-firefox } přizjewjeny
@@ -1412,7 +1452,6 @@ signin-passkey-fallback-header = Přizjewjenje dokónčić
 signin-passkey-fallback-heading = Zapodajće swoje hesło, zo byšće synchronizował
 signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće swoje hesło zapodać, hdyž tutón hesłowy kluč wužiwaće.
 signin-passkey-fallback-password-label = Hesło
-signin-passkey-fallback-go-to-settings = K nastajenjam
 signin-passkey-fallback-continue = Dale
 
 
@@ -1447,22 +1486,6 @@ signup-passwordless-code-subheading = Registrowanje jenož jedyn krok traje, hdy
 
 
 signin-passwordless-totp-required = Dwukročelowa awtentifikacija je za waše konto zmóžnjena. Prošu přizjewće so ze swojim hesłom.
-
-
-signin-push-code-heading-w-default-service = Přepruwujće tute přizjewjenje, <span>zo byšće z kontowymi nastajenjemi pokročował</span>
-signin-push-code-heading-w-custom-service = Přepruwujće tute přizjewjenje, <span>zo byšće z { $serviceName } pokročował</span>
-signin-push-code-instruction = Prošu kontrolujće swoje druhe graty a schwalće tute přizjewjenje ze swojeho wobhladowaka { -brand-firefox }.
-signin-push-code-did-not-recieve = Njejsće tutu zdźělenku dóstał?
-signin-push-code-send-email-link = Kod z e-mejlu pósłać
-
-
-signin-push-code-confirm-instruction = Wobkrućće swoje přizjewjenje
-signin-push-code-confirm-description = Smy přizjewjenski pospyt ze slědowaceho grata wotkryli. Jeli sće to wy był, schwalće prošu přizjewjenje
-signin-push-code-confirm-verifying = Přepruwuje so
-signin-push-code-confirm-login = Přizjewjenje wobkrućić
-signin-push-code-confirm-wasnt-me = Ja njejsym był to, změńće hesło.
-signin-push-code-confirm-login-approved = Waše přizjewjenje je so schwaliło. Prošu začińće tute wokno.
-signin-push-code-confirm-link-error = Wotkaz je wobškodźeny. Spytajće prošu hišće raz.
 
 
 signin-recovery-method-header = Přizjewić

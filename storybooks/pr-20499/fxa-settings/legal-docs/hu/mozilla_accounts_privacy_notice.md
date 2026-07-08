@@ -30,6 +30,7 @@ Technikai és interakciós adatokat kezelünk annak érdekében, hogy jobban meg
 Amikor összekapcsolt szolgáltatásokat használ, az adatait az adott szolgáltatás adatvédelmi nyilatkozatának megfelelően kezeljük:
 
 * [Firefox böngésző](https://www.mozilla.org/privacy/firefox/)
+* [Smart Window](https://www.mozilla.org/privacy/smart-window/)
 * [Mozilla előfizetési szolgáltatások](https://www.mozilla.org/privacy/subscription-services/) a Mozilla VPN, Mozilla Monitor és Firefox Relay esetében
 * [MDN Plus](https://www.mozilla.org/privacy/mdn-plus/)
 * [Thunderbird](https://www.mozilla.org/privacy/thunderbird/)

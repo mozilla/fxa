@@ -809,4 +809,23 @@ describe('FxA Email Renderer', () => {
     expect(email).toBeDefined();
     expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
+
+  it('should render renderVerifyShortCode with CMS', async () => {
+    const email = await renderer.renderVerifyShortCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      code: '345678',
+      ...defaultLayoutTemplateValues,
+      // these are the cmsEmail partial values, should show in the resulting
+      // snapshot if properly passed through. Other values on the partial (cmsRpClientId) aren't
+      // used for rendering, only for sending
+      subject: 'Strapi subject',
+      headline: 'Strapi test headline',
+      description: 'Strapi test description',
+      target: 'strapi',
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
 });

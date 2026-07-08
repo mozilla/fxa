@@ -1593,25 +1593,6 @@ signin-bounced-help = Якщо це дійсна адреса електронн
 signin-bounced-create-new-account = Ця адреса електронної пошти вам більше не належить? Створіть новий обліковий запис
 back = Назад
 
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Підтвердьте цей вхід, <span>щоб продовжити налаштування облікового запису</span>
-signin-push-code-heading-w-custom-service = Підтвердьте цей вхід, <span>щоб перейти до { $serviceName }</span>
-signin-push-code-instruction = Перевірте свої інші пристрої та підтвердьте цей вхід у браузері { -brand-firefox }.
-signin-push-code-did-not-recieve = Не отримали сповіщення?
-signin-push-code-send-email-link = Код з електронного листа
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Підтвердьте свій вхід
-signin-push-code-confirm-description = Ми виявили спробу входу із зазначеного пристрою. Будь ласка, підтвердьте, якщо це були ви
-signin-push-code-confirm-verifying = Перевірка
-signin-push-code-confirm-login = Підтвердити вхід
-signin-push-code-confirm-wasnt-me = Це не я, змінити пароль.
-signin-push-code-confirm-login-approved = Ваш вхід підтверджено. Можете закрити це вікно.
-signin-push-code-confirm-link-error = Посилання пошкоджено. Повторіть спробу.
-
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

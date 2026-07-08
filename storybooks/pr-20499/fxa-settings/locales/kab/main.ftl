@@ -35,10 +35,6 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Tuccda n usnas tamatut
-app-general-err-message = Yella wayen ur nteddu ara akken ilaq. Ma ulac aɣilif, εreḍ tikkelt-nniḍen.
-
-
 app-footer-mozilla-logo-label = alugu { -brand-mozilla }
 app-footer-privacy-notice = Tasertit tabaḍnit n usmel web
 app-footer-terms-of-service = Tiwtilin n useqdec
@@ -748,9 +744,6 @@ report-signin-submit-button = Mmel-aɣ-d armud
 report-signin-support-link = Acuɣeṛ i d-iḍerru waya?
 signin-bounced-create-new-account = Ur tesεiḍ ara imayl-agi tura? Rnu yiwen d amaynut
 back = Ɣer deffir
-
-
-signin-push-code-confirm-login = Sentem tuqqna
 
 
 signin-recovery-method-header = Qqen

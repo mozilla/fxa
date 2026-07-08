@@ -290,6 +290,7 @@ postRemoveAccountRecovery-title-3 = Poistit tilisi palautusavaimen
 postRemoveAccountRecovery-body-part1 = Tilisi palautusavainta tarvitaan salattujen selaustietojesi palauttamiseen, jos unohdat salasanasi.
 postRemoveAccountRecovery-body-part2 = Jos et vielä ole, niin luo uusi tilin palautusavain tilisi asetuksissa, jotta et menetä tallennettuja salasanojasi, kirjanmerkkejäsi, selaushistoriaasi ja paljon muuta.
 postRemoveAccountRecovery-action = Hallinnoi tiliä
+postRemovePasskey-action = Hallinnoi tiliä
 postRemoveRecoveryPhone-subject = Palauttamisen puhelinnumero poistettu
 postRemoveRecoveryPhone-preview = Tili suojattu kaksivaiheisella todennuksella
 postRemoveRecoveryPhone-title = Palauttamisen puhelinnumero poistettu

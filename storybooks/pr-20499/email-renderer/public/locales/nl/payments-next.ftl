@@ -17,6 +17,12 @@ next-payment-method-header = Kies uw betalingsmethode
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = U dient eerst uw abonnement goed te keuren
+
+## Error page
+
+error-page-account-not-found-heading = Account niet gevonden
+error-page-account-not-found-message = De account die aan uw sessie is gekoppeld, bestaat niet. Gebruik een andere account of maak een nieuwe aan om u te abonneren.
+error-page-account-not-found-continue-button = Doorgaan
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selecteer uw land en voer uw postcode in <p>om door te gaan met afrekenen voor { $productName }</p>
 location-banner-info = We kunnen uw locatie niet automatisch detecteren
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = U dient dit te voltooien voordat u verder 
 
 next-new-user-submit = Nu abonneren
 next-pay-with-heading-paypal = Betalen met { -brand-paypal }
+free-trial-ineligible-notice = Uw account komt niet in aanmerking voor een gratis proefperiode. U kunt doorgaan met een betaald abonnement.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Proefperiode hervatten
 free-trial-content-button-resume-trial-aria = Proefperiode voor { $productName } hervatten
 free-trial-content-button-cancel-trial = Proefperiode opzeggen
 free-trial-content-button-cancel-trial-aria = Proefperiode voor { $productName } opzeggen
+free-trial-content-button-cancel-subscription = Abonnement opzeggen
+free-trial-content-button-cancel-subscription-aria = Abonnement voor { $productName } opzeggen
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Factuur bekijken
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Factuur voor { $productName } bekijken
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = Uw gratis proefperiode is geëindigd op <bold>{ $date }</bold>. We konden uw betaling niet verwerken om uw abonnement te starten. Werk uw betalingsmethode bij om uw abonnement te activeren en de toegang tot uw services te herstellen.
-free-trial-content-payment-failed-no-date = We konden uw betaling niet verwerken om uw abonnement te starten. Werk uw betalingsmethode bij om uw abonnement te activeren en de toegang tot uw services te herstellen.
+free-trial-content-trial-ended = Uw gratis proefperiode is afgelopen op <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = We konden uw betaling niet verwerken. Werk uw betalingsmethode bij om toegang te herstellen. De verwerking kan tot 24 uur duren en kan verschillen per bank of betalingsmethode.
 free-trial-content-button-update-payment = Betalingsmethode bijwerken
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Hmm. Er is een probleem opgetrede
 manage-payment-method-intent-error-get-in-touch = Hmm. Er is een probleem opgetreden bij het autoriseren van uw betaling. Neem contact op met uw kaartverstrekker.
 manage-payment-method-intent-error-insufficient-funds = Het lijkt erop dat uw kaart onvoldoende saldo heeft. Probeer een andere kaart.
 manage-payment-method-intent-error-generic = Er is een onverwachte fout opgetreden tijdens het verwerken van uw betaling, probeer het opnieuw.
+manage-payment-method-tax-address-required = We kunnen uw factureringslocatie niet bepalen. Controleer de gegevens van uw betalingsmethode en probeer het opnieuw.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

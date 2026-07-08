@@ -59,7 +59,7 @@ Bagian atas ini merangkum ketentuan di bawah ini. Rangkuman ini dibuat untuk mem
     Anda bisa mengubah langganan email Mozilla dari email kami (klik tautan di bagian bawah) atau dari peramban (kunjungi Firefox/Preferensi/Sinkronisasi/Kelola akun/Preferensi Email).
     
     Kami juga mungkin mengirim informasi akun seperti pembaruan ketentuan hukum atau privasi, atau pesan keamanan seperti reset kata sandi, verifikasi email, dan perangkat yang ditautkan. Informasi ini penting bagi layanan kami dan tidak dapat dihentikan langganannya. 
-Anda bisa menghubungi Mozilla di _Mozilla Corporation Attn: Mozilla – Legal Notices 149 New Montgomery St, 4th Floor, San Francisco, CA 94105 or legal-notices@mozilla.com_ 
+Anda bisa menghubungi Mozilla di _Mozilla Corporation Attn: Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 or legal-notices@mozilla.com_ 
 
 6. #### Konten Anda di Layanan Kami
 

@@ -1,7 +1,5 @@
 ## Non-email strings
 
-session-verify-send-push-title-2 = Se prijavljate v { -product-mozilla-account(sklon: "tozilnik") }?
-session-verify-send-push-body-2 = Kliknite tukaj za potrditev, da ste to vi
 # Message sent by SMS with limited character length, please test translation with the messaging segment calculator
 # https://twiliodeved.github.io/message-segment-calculator/
 # Messages should be limited to one segment
@@ -208,20 +206,20 @@ fraudulentAccountDeletion-contact = Če imate kakršnakoli vprašanja, se obrnit
 fraudulentAccountDeletion-contact-plaintext = Če imate kakršnakoli vprašanja, se obrnite na našo skupino za podporo: { $mozillaSupportUrl }
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-subject = Vaš brezplačen preskus { $productName } se kmalu poteče
+freeTrialEndingReminder-subject = Vaše brezplačno preizkusno obdobje za { $productName } se bliža koncu
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Spoštovani uporabnik { $productName },
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
-freeTrialEndingReminder-content-trial-ending = Brezplačni preskus se bo iztekel <strong>{ $serviceLastActiveDateOnly }</strong>.
-freeTrialEndingReminder-content-trial-ending-plaintext = Brezplačni preskus se bo iztekel načrtovano za { $serviceLastActiveDateOnly }.
+freeTrialEndingReminder-content-trial-ending = brezplačno preskusno obdobje se bo končalo <strong>{ $serviceLastActiveDateOnly }</strong>.
+freeTrialEndingReminder-content-trial-ending-plaintext = brezplačno preskusno obdobje se bo končalo { $serviceLastActiveDateOnly }.
 freeTrialEndingReminder-content-charge-heading = Podrobnosti bremenitve
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
 freeTrialEndingReminder-content-charge-subscription = Naročnina { $productName }: { $invoiceSubtotal }
-freeTrialEndingReminder-content-charge-subscription-2 = Naročnina { $productName }
+freeTrialEndingReminder-content-charge-subscription-2 = Naročnina na { $productName }
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
 freeTrialEndingReminder-content-charge-discount = Popust: { $invoiceDiscountAmount }
@@ -248,7 +246,7 @@ freeTrialEndingReminder-content-thanks-plaintext = Hvala, ker ste preskusili { $
 freeTrialEndingReminder-content-closing = Lep pozdrav,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-content-signature = Ekipa { $productName }
+freeTrialEndingReminder-content-signature = ekipa { $productName }
 # Variables:
 #  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
 freeTrialEndingReminder-content-support-plaintext = Pišite nam: { $subscriptionSupportUrlWithUtm }

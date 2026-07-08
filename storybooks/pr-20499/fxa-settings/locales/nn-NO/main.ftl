@@ -39,8 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
-app-general-err-heading = Generell applikasjonsfeil
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
+app-something-went-wrong-heading = Noko gjekk gale
+app-something-went-wrong-message = Vi har blitt varsla om problemet. Oppdater sida for å prøve på nytt.
+app-error-id = Feil-ID: { $errorId }
+app-error-details-summary = Feildetaljar
 app-query-parameter-err-heading = Dårleg førespurnad: Ugyldige søkjeparametrar
 
 
@@ -153,6 +155,14 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } same kvar du er
+firefox-promo-banner-mobile-description = Synkroniser fanene, bokmerka og passorda dine på tvers av einingane dine. I tillegg held alt fram med å vere trygt kryptert.
+firefox-promo-banner-mobile-cta = Kople til ei eining
+firefox-promo-banner-switch-heading = Rask å byte til. Lett å bruke.
+firefox-promo-banner-switch-description = Når du byter til { -brand-firefox }, kan du ta med deg bokmerka, passorda, historikken, og meir, slik at du kan surfe utan å gå glipp av noko.
+firefox-promo-banner-switch-cta = Byt til { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Passord
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -221,6 +231,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Vellykka
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktivert
+chevron-right-icon-aria-label =
+    .aria-label = Pil mot høgre
 close-icon-aria-label =
     .aria-label = Lat att melding
 code-icon-aria-label =
@@ -294,6 +306,7 @@ input-phone-number-enter-number = Skriv inn telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 legal-back-button = Tilbake
+app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
 
 
 reset-pwd-link-damaged-header = Passordlenke for tilbakestilling er skada
@@ -450,6 +463,9 @@ cs-disconnect-lost-advice-content-3 = Sidan eininga di vart mista eller stolen, 
 cs-disconnect-suspicious-advice-heading = Mistenkjeleg eining fråkopla
 cs-disconnect-suspicious-advice-content-2 = Om den fråkopla eininga verkelig er mistenkjeleg, bør du endre passordet for { -product-mozilla-account } i kontoinnstillingane dine for å halde informasjonen din trygg. Du bør også endre eventuelle andre passord du har lagra i { -brand-firefox } ved å skrive about:logins i adresselinja.
 cs-sign-out-button = Logg ut
+
+
+cs-scope-firefox-vpn = Innebygd VPN frå { -brand-firefox }
 
 
 dc-heading = Datainnsamling og bruk
@@ -743,10 +759,12 @@ display-name-success-alert-2 = Visingsnamn oppdatert
 
 
 page-passkey-add-creating-heading = Opprettar passnøkkel…
+page-passkey-add-follow-prompts = Følg instruksjonane på eininga di.
 page-passkey-add-cancel = Avbryt
 
 
 page-passkey-add-success = Passnøkkel oppretta
+page-passkey-add-error-system-v2 = Det oppstod eit problem med å opprette passnøkkelen din. Prøv igjen seinare.
 
 
 recent-activity-title = Nyleg kontoaktivitet
@@ -785,6 +803,26 @@ recent-activity-account-recovery-codes-signin-complete = Innlogging med gjennopp
 recent-activity-password-reset-otp-sent = Stadfestingskode for tilbakestilling av passord sendt
 recent-activity-password-reset-otp-verified = Stadfestingskode for tilbakestilling av passord  stadfesta
 recent-activity-must-reset-password = Tilbakestilling av passord påkravd
+recent-activity-account-recovery-phone-replace-complete = Gjenopprettingstelefonen er erstatta
+recent-activity-account-recovery-phone-replace-failure = Erstatning av gjenopprettingstelefon mislykkast
+recent-activity-account-two-factor-replace-success = Tostegs-autentisering erstatta
+recent-activity-account-two-factor-replace-failure = Erstatning av tostegs-autentisering mislykkast
+recent-activity-account-recovery-phone-setup-failed = MIslykka oppsett av gjenopprettingstelefon
+recent-activity-account-recovery-phone-reset-password-complete = Tilbakestilling av passord med gjenopprettingstelefon fullført
+recent-activity-account-recovery-phone-reset-password-failed = Mislykka tilbakestilling av passord med gjenopprettingstelefon
+recent-activity-account-mfa-otp-sent = Det er bedt om godkjenning for kontoendring
+recent-activity-account-mfa-otp-verified = Kontoendring autorisert
+recent-activity-account-mfa-otp-failed = Godkjenning av kontoendring mislykkast
+recent-activity-account-passkey-registration-success = Passnøkkel lagt til
+recent-activity-account-passkey-registration-failure = Mislykka registrering av passnøkkel
+recent-activity-account-passkey-removed = Passnøkkel fjerna
+recent-activity-account-passkey-authentication-success = Innlogging med passnøkkel fullført
+recent-activity-account-passkey-authentication-failure = Mislykka innlogging med passnøkkel
+recent-activity-account-passwordless-login-otp-sent = Kode for passordlaus innlogging send
+recent-activity-account-passwordless-login-otp-failed = Kode for passordlaus innlogging mislykkast
+recent-activity-account-passwordless-login-otp-verified = Kode for passordlaus innlogging stadfesta
+recent-activity-account-passwordless-registration-complete = Registrering av passordlaus konto fullført
+recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -891,7 +929,7 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
-passkey-delete-modal-content = Denne passnøkkelen vil bli fjerna frå kontoen din. Du må logge inn på ein annan måte.
+passkey-delete-modal-content-v2 = Denne tilgangsnøkkelen vil bli fjerna frå kontoen din. Du må logge på med ein annan metode (passord, ein annan tilgangsnøkkel eller ein tilknytt konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
@@ -917,6 +955,11 @@ passkey-row-not-set = Ikkje innstilt
 passkey-row-action-create = Opprett
 passkey-row-description = Gjer innlogging enklare og sikrare ved å bruke telefonen din eller ei anna støtta eining for å få tilgang til kontoen din.
 passkey-row-info-link-2 = Les meir
+passkey-row-max-limit-banner =
+    { $count ->
+       *[other] Du har brukt alle dei { $count } passnøklane. Slett ein passnøkkel for å opprette ein ny.
+    }
+passkey-row-max-limit-disabled-reason = Du har nådd det maksimale talet på passnøklar.
 
 
 rk-header-1 = Kontogjenopprettingsnøkkel
@@ -1030,6 +1073,7 @@ auth-error-226 = Passnøkkelgrensa er nådd
 auth-error-227 = Mislykka passnøkkelautentisering
 auth-error-228 = Mislykka registrering av passnøkkel
 auth-error-238 = Mislykka passnøkkelutfordring
+auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
 auth-error-999 = Uventa feil
 auth-error-1001 = Innloggingsforsøket avbrote
 auth-error-1002 = Økta er slutt. Logg inn for å halde fram.
@@ -1054,8 +1098,14 @@ oauth-error-1000 = Noko gjekk gale. Lat att fana og prøv på nytt.
 
 
 passkey-registration-error-not-allowed = Oppsett av passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
+passkey-registration-error-not-allowed-existing = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Anten er eininga allereie registrert, eller så vart oppsettet avbrote.
 passkey-registration-error-timeout = Oppsett av passnøkkel vart avbrote. Prøv igjen.
-passkey-registration-error-not-supported = Passnøklar er ikkje støtta her. Prøv ein annan metode eller eining.
+passkey-registration-canceled-v2 = Oppsett av passnøkkel fekk tidsavbrot eller vart avbrote.
+passkey-registration-canceled-link = Les meir
+passkey-registration-error-not-supported-v2 = Nettlesaren eller eininga di støttar ikkje passnøklar.
+passkey-registration-error-not-supported-link = Les meir
+passkey-registration-error-could-not-complete = Oppsett av passnøkkel kunne ikkje fullførast. Prøv ein annan metode eller ei anna eining.
+passkey-registration-error-could-not-complete-link = Les meir
 passkey-registration-error-security = Passnøklar kan ikkje setjast opp på denne sida. Bruk den sikre nettstaden og prøv igjen.
 passkey-registration-error-invalid-state = Denne passnøkkelen er allereie registrert. Bruk han til å logge inn eller legg til ein annan passnøkkel.
 passkey-registration-error-not-readable = Vi klarte ikkje å få tilgang til autentiseringseininga. Prøv igjen eller vel ein annan metode.
@@ -1064,12 +1114,14 @@ passkey-registration-error-unexpected = Mislykka oppsett av passnøkkel. Prøv i
 
 
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
+passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Prøv igjen eller vel ein annan metode.
 passkey-authentication-error-timeout = Førespurnaden om passnøkkel vart tidsavbroten. Prøv igjen.
-passkey-authentication-error-not-supported = Passnøklar blir ikkje støtta. Prøv ein annan metode eller eining.
+passkey-authentication-error-not-supported-v2 = Nettlesaren eller eininga di støttar ikkje passnøklar.
 passkey-authentication-error-security = Passnøklar kan ikkje brukast på denne sida. Kontroller at du er på rett, sikker nettstad, og prøv igjen.
 passkey-authentication-error-invalid-state = Noko gjekk gale med passnøkkelen din. Prøv igjen eller bruk ein annan innloggingsmetode.
 passkey-authentication-error-not-readable = Vi klarte ikkje å få tilgang til autentiseringseininga. Prøv igjen eller bruk ein annan innloggingsmetode.
 passkey-authentication-error-unexpected = Noko gjekk gale. Prøv igjen eller vel ein annan innloggingsmetode.
+passkey-authentication-error-not-found = Passnøkkelen vart ikkje gjenkjend. Bruk ein annan innloggingsmetode.
 
 
 connect-another-device-signed-in-header = Du er logga inn på { -brand-firefox }
@@ -1157,6 +1209,11 @@ pair-auth-complete-see-tabs-button = Vis faner frå andre einingar
 pair-auth-complete-manage-devices-link = Handsam einingar
 
 
+pair-auth-complete-send-tab-heading = Du er klar for å sende nokre faner
+pair-auth-complete-send-tab-device-connected = { $deviceFamily } for { $deviceOS } er tilkopla.
+pair-auth-complete-send-tab-benefits = Du kan straks sende opne faner, passord og bokmerke mellom einingar.
+
+
 auth-totp-heading-w-default-service = Skriv inn autentiseringskoden <span>for å halde fram til kontoinnstillingar</span>
 auth-totp-heading-w-custom-service = Skriv inn autentiseringskode <span>for å halde fram til { $serviceName }</span>
 auth-totp-instruction = Opne autentiseringsappen din og skriv inn autentiseringskoden du får opp.
@@ -1168,6 +1225,8 @@ auth-totp-code-required-error = Autentiseringskode påkravd
 pair-wait-for-supp-heading-text = Godkjenning er no påkravd <span>frå den andre eininga di</span>
 
 
+pair-failure-header-v2 = Einingssamankopling mislykkast
+pair-failure-message-v2 = Konfigurasjonen kunne ikkje fullførast. Logg på med e-posten din.
 pair-failure-try-again-link = Prøv igjen
 
 
@@ -1185,9 +1244,12 @@ pair-qr-code-aria-label = QR-kode
 
 pair-choice-subheader = Synkroniser { -brand-firefox } eopplevinga di
 pair-choice-description = Sjå lagra passord, faner, nettlesarlogg og meir – på alle einingane dine.
+pair-choice-header-send-tab = Last ned eller opne { -brand-firefox } på eininga du vil sende faner til
 pair-choice-legend = Vel eit alternativ for å halde fram:
 pair-choice-has-mobile-title = Eg har allereie { -brand-firefox } for mobil
+pair-choice-has-mobile-description = Start synkroniseringa di no om du allereie har { -brand-firefox } på mobileininga di.
 pair-choice-needs-mobile-title = Eg har ikkje { -brand-firefox } for mobil
+pair-choice-needs-mobile-description = Last ned { -brand-firefox } på mobileininga di, og start deretter synkroniseringa.
 pair-choice-continue-button = Hald fram
 pair-signed-in-successfully = Innlogga!
 pair-account-created-now-syncing = Konto opretta. Du synkroniserer no.
@@ -1195,11 +1257,15 @@ pair-password-created-now-syncing = Passord oppretta. Du synkroniserer no.
 
 
 pair-download-subheader = Last ned { -brand-firefox } for mobil
+pair-download-description = For å synkronisere { -brand-firefox } på telefonen eller nettbrettet ditt, må du først laste ned { -brand-firefox } for mobil. Slik gjer du det:
+pair-download-step-scan-qr = <b>Steg { $stepNumber }</b>: Last ned { -brand-firefox } ved å skanne denne QR-koden med kameraet på mobileininga di:
+pair-download-step-continue-sync = <b>Steg { $stepNumber }</b>: Vel «Hald fram til synkroniseringe» for å synkronisere { -brand-firefox }-opplevinga på mobileininga di.
 pair-continue-to-sync-button = Hald fram til synkronisering
 
 
 pair-success-header-2 = Eining tilkopla
 pair-success-message-2 = Paring vellykka.
+pair-success-tab-close-message = Denne fana vil bli attlaten automatisk av { -brand-firefox }.
 
 
 pair-supp-allow-heading-text = Stadfest paring <span>for { $email }</span>
@@ -1212,6 +1278,11 @@ pair-wait-for-auth-heading-text = Godkjenning er no påkravd <span>frå den andr
 
 pair-unsupported-header = Paring via ein app
 pair-unsupported-message = Brukte du systemkameraet? Du må pare med ein { -brand-firefox }-app.
+pair-unsupported-oops-header = Ops! Det ser ut som om du ikkje brukar { -brand-firefox }.
+pair-unsupported-switch-to-firefox = Byt til { -brand-firefox } og opne denne sida for å kople til ei anna eining.
+pair-unsupported-oops-mobile = Ops! Det ser ut som om du ikkje brukar { -brand-firefox }.
+pair-unsupported-connecting-mobile-header-v2 = Kople mobileininga di til { -product-mozilla-account }en din
+pair-unsupported-connecting-mobile-instructions-v2 = Opne { -brand-firefox } på datamaskina di, gå til <b>firefox.com/pair</b>, og følg instruksjonane på skjermen for å kople til mobileininga di.
 pair-unsupported-learn-more-link-v2 = Les meir
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ops! Noko gjekk gale.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og prøv på nytt.
@@ -1368,7 +1439,6 @@ signin-passkey-fallback-header = Fullfør innlogginga
 signin-passkey-fallback-heading = Skriv inn passordet ditt for å synkronisere
 signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi passordet ditt når du brukar denne passnøkkelen.
 signin-passkey-fallback-password-label = Passord
-signin-passkey-fallback-go-to-settings = Gå til Innstillingar
 signin-passkey-fallback-continue = Hald fram
 
 
@@ -1399,22 +1469,6 @@ signup-passwordless-code-subheading = Registreringa går raskt om du brukar denn
 
 
 signin-passwordless-totp-required = Tostegs-autentisering er aktivert på kontoen din. Logg inn med passordet ditt.
-
-
-signin-push-code-heading-w-default-service = Stadfest denne innlogginga <span>for å halde fram til kontoinnstillingane</span>
-signin-push-code-heading-w-custom-service = Stadfest denne innlogginga <span>for å halde fram til { $serviceName }</span>
-signin-push-code-instruction = Kontroller dei andre einingane dine og godkjenn denne innlogginga frå { -brand-firefox }-nettlesaren din.
-signin-push-code-did-not-recieve = Har du ikkje motteke varselet?
-signin-push-code-send-email-link = Send kode på e-post
-
-
-signin-push-code-confirm-instruction = Stadfest innlogginga di
-signin-push-code-confirm-description = Vi oppdaga eit innloggingsforsøk frå følgjande eining. Viss dette var deg, ver vennleg og godkjenn innlogginga
-signin-push-code-confirm-verifying = Kontrollerer
-signin-push-code-confirm-login = Stadfest pålogging
-signin-push-code-confirm-wasnt-me = Dette var ikkje meg, byt passord.
-signin-push-code-confirm-login-approved = Innlogginga di er godkjend. lat att dette vindauget.
-signin-push-code-confirm-link-error = Lenka er skadd. Prøv igjen.
 
 
 signin-recovery-method-header = Logg inn

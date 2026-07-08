@@ -17,6 +17,12 @@ next-payment-method-header = Scegli il tuo metodo di pagamento
 # This message is used to indicate the second step in a multi step process.
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = Per prima cosa devi approvare il tuo abbonamento
+
+## Error page
+
+error-page-account-not-found-heading = Account non trovato
+error-page-account-not-found-message = L’account associato alla sessione non esiste. Utilizza un altro account o creane uno nuovo per iscriverti.
+error-page-account-not-found-continue-button = Continua
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Seleziona il tuo Paese e inserisci il tuo codice postale <p>per continuare con il pagamento per { $productName }</p>
 location-banner-info = Non è stato possibile rilevare automaticamente la tua posizione
@@ -257,6 +263,7 @@ next-payment-confirm-checkbox-error = È necessario selezionare questa opzione p
 
 next-new-user-submit = Abbonati adesso
 next-pay-with-heading-paypal = Paga con { -brand-paypal }
+free-trial-ineligible-notice = Il tuo account non può usufruire della prova gratuita. Puoi comunque procedere con un abbonamento a pagamento.
 
 ## Churn flow - cancel
 
@@ -358,6 +365,8 @@ free-trial-content-button-resume-trial = Riprendi la versione di prova
 free-trial-content-button-resume-trial-aria = Riprendi il periodo di prova per { $productName }
 free-trial-content-button-cancel-trial = Annulla prova
 free-trial-content-button-cancel-trial-aria = Annulla il periodo di prova per { $productName }
+free-trial-content-button-cancel-subscription = Annulla abbonamento
+free-trial-content-button-cancel-subscription-aria = Annulla abbonamento a { $productName }
 
 ## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
 ## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
@@ -373,8 +382,8 @@ free-trial-content-link-view-invoice = Visualizza fattura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Visualizza fattura per { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-payment-failed = La tua prova gratuita è terminata il <bold>{ $date }</bold>. Non è stato possibile elaborare il pagamento per avviare l’abbonamento. Aggiorna il metodo di pagamento per attivare l’abbonamento e ripristinare l’accesso ai servizi.
-free-trial-content-payment-failed-no-date = Non è stato possibile elaborare il pagamento per avviare l’abbonamento. Aggiorna il metodo di pagamento per attivare l’abbonamento e ripristinare l’accesso ai servizi.
+free-trial-content-trial-ended = La tua prova gratuita è terminata il <bold>{ $date }</bold>.
+free-trial-content-could-not-process-payment = Non siamo riusciti a elaborare il tuo pagamento. Aggiorna il metodo di pagamento per riottenere l’accesso. L’elaborazione può richiedere fino a 24 ore e i tempi possono variare a seconda della banca o del metodo utilizzato.
 free-trial-content-button-update-payment = Aggiorna metodo di pagamento
 
 # Component - Header
@@ -716,6 +725,7 @@ manage-payment-method-intent-error-try-again = Uhm… Si è verificato un proble
 manage-payment-method-intent-error-get-in-touch = Uhm… Si è verificato un problema durante l’autorizzazione del pagamento. Contatta l’emittente della carta.
 manage-payment-method-intent-error-insufficient-funds = Questa carta non dispone di credito sufficiente. Prova con un’altra carta.
 manage-payment-method-intent-error-generic = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
+manage-payment-method-tax-address-required = Non è stato possibile determinare la località di fatturazione. Verifica le informazioni relative al metodo di pagamento e riprova.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)

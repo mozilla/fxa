@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adress: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
+firefox-promo-banner-mobile-cta = Anslut en enhet
+firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktivera
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Chevron höger
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Stäng meddelande
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Kanada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tillbaka
+# Generic error shown when the legal document fails to load
+app-general-err-message = Något gick fel. Försök igen senare.
 
 ## LinkDamaged component
 
@@ -582,6 +598,15 @@ cs-disconnect-lost-advice-content-3 = Eftersom din enhet har tappats bort eller 
 cs-disconnect-suspicious-advice-heading = Misstänkt enhet frånkopplad
 cs-disconnect-suspicious-advice-content-2 = Om den frånkopplade enheten verkligen är misstänkt bör du ändra ditt lösenord för { -product-mozilla-account } i dina kontoinställningar för att skydda din information. Du bör också ändra alla andra lösenord som du sparat i { -brand-firefox } genom att skriva about:logins i adressfältet.
 cs-sign-out-button = Logga ut
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }:s inbyggda VPN
 
 ## Data collection section
 
@@ -984,7 +1009,7 @@ page-passkey-add-cancel = Avbryt
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Lösenordsnyckel skapad
-page-passkey-add-error-system = Systemet är inte tillgängligt. Försök igen senare.
+page-passkey-add-error-system-v2 = Det gick inte att skapa din lösenordsnyckel. Försök igen senare.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1028,6 +1053,29 @@ recent-activity-account-recovery-codes-signin-complete = Inloggning med återst�
 recent-activity-password-reset-otp-sent = Bekräftelsekod för återställning av lösenord skickad
 recent-activity-password-reset-otp-verified = Bekräftelsekod för återställning av lösenord verifierad
 recent-activity-must-reset-password = Lösenordsåterställning krävs
+recent-activity-account-recovery-phone-replace-complete = Återställningstelefon ersatt
+recent-activity-account-recovery-phone-replace-failure = Byte av återställningstelefon misslyckades
+recent-activity-account-two-factor-replace-success = Tvåstegsautentisering ersatt
+recent-activity-account-two-factor-replace-failure = Ersättning av tvåstegsautentisering misslyckades
+recent-activity-account-recovery-phone-setup-failed = Konfiguration av återställningstelefon misslyckades
+recent-activity-account-recovery-phone-reset-password-complete = Lösenordsåterställning med återställningstelefon slutförd
+recent-activity-account-recovery-phone-reset-password-failed = Lösenordsåterställning med återställningstelefon misslyckades
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Auktorisering för kontoändring begärdes
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Kontoändring godkänd
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Auktorisering av kontoändring misslyckades
+recent-activity-account-passkey-registration-success = Lösenordsnyckel tillagd
+recent-activity-account-passkey-registration-failure = Registrering av lösenordsnyckel misslyckades
+recent-activity-account-passkey-removed = Lösenordsnyckel borttagen
+recent-activity-account-passkey-authentication-success = Inloggning med lösenordsnyckel slutförd
+recent-activity-account-passkey-authentication-failure = Inloggning med lösenordsnyckel misslyckades
+recent-activity-account-passwordless-login-otp-sent = Lösenordslös inloggningskod skickad
+recent-activity-account-passwordless-login-otp-failed = Lösenordslös inloggningskod misslyckades
+recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggningskod verifierad
+recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
+recent-activity-account-recovery-codes-set = Återställningskoder inställda
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
@@ -1200,7 +1248,7 @@ passkey-sub-row-created-date = Skapad: { $createdDate }
 passkey-sub-row-last-used-date = Senast använd: { $lastUsedDate }
 passkey-sub-row-delete-title = Ta bort lösenordsnyckel
 passkey-delete-modal-heading = Ta bort din lösenordsnyckel?
-passkey-delete-modal-content = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in på ett annat sätt.
+passkey-delete-modal-content-v2 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med en annan metod (lösenord, en annan lösenordsnyckel eller länkat konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
@@ -1242,11 +1290,6 @@ passkey-row-max-limit-banner =
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Du har nått det maximala antalet lösenordsnycklar.
-
-## Error / limit messages
-
-# Shown as an error banner when the user's browser or device does not support passkeys (WebAuthn Level 3).
-passkey-row-webauthn-not-supported = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1404,6 +1447,7 @@ auth-error-226 = Gränsvärdet för lösenordsnycklar har nåtts
 auth-error-227 = Autentisering av lösenordsnyckel misslyckades
 auth-error-228 = Registrering av lösenordsnyckel misslyckades
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
+auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
 auth-error-999 = Oväntat fel
 auth-error-1001 = Inloggningsförsök avbröts
 auth-error-1002 = Sessionen upphörde. Logga in för att fortsätta.
@@ -1437,10 +1481,25 @@ oauth-error-1000 = Något gick fel. Stäng den här fliken och försök igen.
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Inställning av lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Antingen har enheten redan registrerats eller så avbröts installationen.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Installationen av lösenordsnyckel avbröts. Försök igen.
-# Browser or platform does not support passkeys or the requested options (e.g., UV, discoverable credential)
-passkey-registration-error-not-supported = Lösenordsnycklar stöds inte här. Prova en annan metod eller enhet.
+passkey-registration-canceled-v2 = Tidsgränsen för installationen av lösenordsnyckeln gick ut eller avbröts.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Läs mer
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Läs mer
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Installation av lösenordsnyckel kunde inte slutföras. Prova en annan metod eller enhet.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Läs mer
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Lösenordsnyckel kan inte konfigureras på den här sidan. Använd den säkra webbplatsen och försök igen.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1456,10 +1515,12 @@ passkey-registration-error-unexpected = Inställning av lösenordsnyckel misslyc
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Inloggning med lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Försök igen eller välj en annan metod.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Begäran om lösenordsnyckel har gått ut. Försök igen.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported = Lösenordsnycklar stöds inte. Prova en annan metod eller enhet.
+passkey-authentication-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Lösenordsnycklar kan inte användas på den här sidan. Kontrollera att du är på rätt säker webbplats och försök igen.
 # Unexpected credential state during authentication
@@ -1468,6 +1529,10 @@ passkey-authentication-error-invalid-state = Något gick fel med lösenordsnycke
 passkey-authentication-error-not-readable = Vi kunde inte komma åt autentiseringen. Försök igen eller använd en annan inloggningsmetod.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Något gick fel. Försök igen eller välj en annan inloggningsmetod.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Lösenordsnyckel känns inte igen. Använd en annan inloggningsmetod.
 
 ## Connect Another Device page
 
@@ -1987,7 +2052,6 @@ signin-passkey-fallback-header = Slutför inloggningen
 signin-passkey-fallback-heading = Ange ditt lösenord för att synkronisera
 signin-passkey-fallback-body = För att skydda din data måste du ange ditt lösenord när du använder denna lösenordsnyckel.
 signin-passkey-fallback-password-label = Lösenord
-signin-passkey-fallback-go-to-settings = Gå till inställningar
 signin-passkey-fallback-continue = Fortsätt
 
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -2035,25 +2099,6 @@ signup-passwordless-code-subheading = Registrering går snabbt när du använder
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Tvåstegsautentisering är aktiverad på ditt konto. Logga in med ditt lösenord.
-
-## SigninPushCode page
-## This page is used to send a push notification to the user's device for two-factor authentication (2FA).
-
-signin-push-code-heading-w-default-service = Verifiera denna inloggning <span>för att fortsätta till kontoinställningarna</span>
-signin-push-code-heading-w-custom-service = Verifiera denna inloggning <span>för att fortsätta till { $serviceName }</span>
-signin-push-code-instruction = Kontrollera dina andra enheter och godkänn den här inloggningen från din { -brand-firefox }-webbläsare.
-signin-push-code-did-not-recieve = Har du inte fått aviseringen?
-signin-push-code-send-email-link = E-posta kod
-
-## SigninPushCodeConfirmPage
-
-signin-push-code-confirm-instruction = Bekräfta din inloggning
-signin-push-code-confirm-description = Vi upptäckte ett inloggningsförsök från följande enhet. Om det var du, vänligen godkänn inloggningen
-signin-push-code-confirm-verifying = Verifierar
-signin-push-code-confirm-login = Bekräfta inloggning
-signin-push-code-confirm-wasnt-me = Det här var inte jag, ändra lösenord.
-signin-push-code-confirm-login-approved = Din inloggning har godkänts. Stäng det här fönstret.
-signin-push-code-confirm-link-error = Länken är skadad. Försök igen.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
