@@ -1,8 +1,8 @@
 {
-  "commit": "f631278c43e7ae90c98297277959284599e21cd7",
+  "commit": "ed0718330c32891e7fdfe5e6c3c36a7d5770d032",
   "summary": "fix(settings): Preserve location state in standalone navigateWithQuery",
   "description": "Because:\n- The standalone navigateWithQuery replaced reach/router's navigate() with window.location.assign/replace, which silently drops options.state. The AppContext errorHandler passes isSessionAALUpgrade state through this path for the AAL upgrade flow.\n\nThis commit:\n- Add registerNavigate to utilities.ts that stores a navigate ref\n- Register the navigate function from App on mount via useEffect\n- navigateWithQuery uses the registered function when available, falls back to window.location before React mounts",
-  "timestamp": 1783454135000,
+  "timestamp": 1783522406000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
