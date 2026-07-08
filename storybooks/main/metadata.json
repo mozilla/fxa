@@ -1,8 +1,8 @@
 {
-  "commit": "8741a748424c311993158ec614b9eaf7927d8352",
-  "summary": "Merge pull request #20625 from mozilla/dependabot/npm_and_yarn/pm2-7.0.0",
-  "description": "chore(deps): bump pm2 from 6.0.14 to 7.0.0",
-  "timestamp": 1783522730000,
+  "commit": "968b56defb9c6282e71f0c5a81266f788d4fbeb7",
+  "summary": "Merge pull request #20830 from mozilla/dependabot/github_actions/github/codeql-action/autobuild-4.36.3",
+  "description": "chore(deps): bump github/codeql-action/autobuild from 4.35.5 to 4.36.3",
+  "timestamp": 1783524202000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
