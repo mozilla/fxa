@@ -1,0 +1,12 @@
+{
+  "commit": "ae01161130621b06ba97e0b558ac39b860825991",
+  "summary": "feat(payments): Add OpenAPI documentation for payments-api",
+  "description": "This pull request\n- adds OpenAPI spec, CORS, response validation, and Backstage integration\n\nCloses\nPAY-3792",
+  "timestamp": 1783543045000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
