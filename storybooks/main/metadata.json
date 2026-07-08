@@ -1,8 +1,8 @@
 {
-  "commit": "8c9bd74fdb14f3de4fdf202b4624344afd29e0df",
-  "summary": "Merge pull request #20605 from mozilla/dependabot/npm_and_yarn/graphql-codegen/cli-6.3.0",
-  "description": "chore(deps-dev): bump @graphql-codegen/cli from 5.0.0 to 7.1.2",
-  "timestamp": 1783477507000,
+  "commit": "7bc552cd94974891e7d6c233d5d4808d5054839a",
+  "summary": "Merge pull request #20736 from mozilla/dependabot/npm_and_yarn/packages/fxa-profile-server/hapi/inert-7.1.1",
+  "description": "chore(deps): bump @hapi/inert from 7.1.0 to 7.1.1 in /packages/fxa-profile-server",
+  "timestamp": 1783477723000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
