@@ -1,8 +1,8 @@
 {
-  "commit": "968b56defb9c6282e71f0c5a81266f788d4fbeb7",
-  "summary": "Merge pull request #20830 from mozilla/dependabot/github_actions/github/codeql-action/autobuild-4.36.3",
-  "description": "chore(deps): bump github/codeql-action/autobuild from 4.35.5 to 4.36.3",
-  "timestamp": 1783524202000,
+  "commit": "f3f16ba7652cc9dfed1cda6b5f990374c9bdb0e2",
+  "summary": "Merge pull request #20759 from mozilla/dependabot/npm_and_yarn/form-data-4.0.6",
+  "description": "chore(deps): bump form-data from 4.0.4 to 4.0.6",
+  "timestamp": 1783525505000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
