@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 32b7d2e4fa60b17005e0d953043e9b133563ce32</title>
+  <title>Storybooks for commit b51b03093ac8c6f6c7eaab32711b2e5968c81b50</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 32b7d2e4fa60b17005e0d953043e9b133563ce32</h1>
+  <h1>Storybooks for commit b51b03093ac8c6f6c7eaab32711b2e5968c81b50</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/8/2026, 3:34:40 PM UTC</dd>
+    <dd>7/8/2026, 10:27:47 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(signin): gate passkey CTA on account hasPasskey</pre></dd>
     <dt>Description</dt>
@@ -39,7 +39,7 @@
 
 This commit:
  - Exposes hasPasskey on the unauthenticated POST /account/status,
-   computed via PasskeyService.countPasskeys when the feature is enabled;
+   computed via PasskeyService.hasPasskey when the feature is enabled;
    fails closed on error.
  - Threads hasPasskey through the signin flow and gates the CTA on the
    signin, alternative-auth, and passwordless-OTP pages via a shared helper.
