@@ -42,6 +42,8 @@ import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { isAuthStateMachineEnabled } from '../../lib/auth-machine/flag';
+import { routeSettingsAccess } from '../../lib/auth-machine/session';
 
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 
@@ -154,27 +156,56 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // Redirect to root if the account or session is unverified. The try-catch
-  // handles the case where account data may be missing from localStorage
-  // (e.g. WKWebView storage eviction on iOS).
+  // Determine whether this session may access Settings. The try-catch handles
+  // the case where account data may be missing from localStorage (e.g. WKWebView
+  // storage eviction on iOS) — a thrown read lands in the catch, never reaching
+  // the AAL/allow path, matching legacy behavior exactly.
+  let accessTarget: 'root' | 'root-missing-account' | 'totp' | 'allow';
   try {
-    if (account.primaryEmail.verified === false || sessionVerified === false) {
-      console.warn(
-        'Account or email verification is required to access /settings!'
-      );
-      navigateWithQuery('/');
-      return <LoadingSpinner fullScreen />;
+    const emailVerified = account.primaryEmail.verified;
+    const machineEnabled = isAuthStateMachineEnabled(
+      location.search,
+      config.featureFlags?.authStateMachine === true
+    );
+    if (machineEnabled) {
+      const decision = routeSettingsAccess({
+        emailVerified,
+        sessionVerified: sessionVerified === true,
+        sessionVerificationMeetsAAL: sessionVerificationMeetsAAL === true,
+      });
+      accessTarget =
+        decision.kind === 'allow'
+          ? 'allow'
+          : decision.to === '/'
+            ? 'root'
+            : 'totp';
+    } else {
+      // Legacy inline decision, identical outcomes.
+      if (emailVerified === false || sessionVerified === false) {
+        accessTarget = 'root';
+      } else if (sessionVerificationMeetsAAL === false) {
+        accessTarget = 'totp';
+      } else {
+        accessTarget = 'allow';
+      }
     }
   } catch {
+    accessTarget = 'root-missing-account';
+  }
+
+  if (accessTarget === 'root') {
+    console.warn(
+      'Account or email verification is required to access /settings!'
+    );
+    navigateWithQuery('/');
+    return <LoadingSpinner fullScreen />;
+  }
+  if (accessTarget === 'root-missing-account') {
     console.warn('Account data unavailable, redirecting to sign-in');
     navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
-
-  // This happens when a multi-device user sets up 2FA on device A and tries
-  // to access Settings on device B. If they haven't upgraded the assurance level
-  // on device B's session token with TOTP, we require them to.
-  if (sessionVerificationMeetsAAL === false) {
+  if (accessTarget === 'totp') {
     console.warn('2FA must be entered to access /settings!');
     const storedAccount = currentAccount();
     navigateWithQuery('/signin_totp_code', {
@@ -188,6 +219,7 @@ export const Settings = ({
     });
     return <LoadingSpinner fullScreen />;
   }
+  // accessTarget === 'allow': fall through to render settings
 
   const hasPassword = account.hasPassword;
 

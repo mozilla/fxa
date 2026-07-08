@@ -33,6 +33,8 @@ import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { isAuthStateMachineEnabled } from '../../../lib/auth-machine/flag';
+import { routeAfterResetComplete } from '../../../lib/auth-machine/reset';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -124,24 +126,45 @@ const CompleteResetPasswordContainer = ({
   const handleNavigationWithoutRecoveryKey = async (
     accountResetData: AccountResetData
   ) => {
-    if (accountResetData.sessionVerified) {
-      // For verified users with OAuth integration, navigate to confirmation page then to the relying party
-      if (
-        isOAuth &&
-        !(integration.isSync() || integration.isFirefoxNonSync())
-      ) {
-        sensitiveDataClient.setDataType(SensitiveData.Key.AccountReset, {
-          keyFetchToken: accountResetData.keyFetchToken,
-          unwrapBKey: accountResetData.unwrapBKey,
-        });
-        return navigateWithQuery('/reset_password_verified', {
-          replace: true,
-        });
-      }
+    const isOAuthWeb =
+      isOAuth && !(integration.isSync() || integration.isFirefoxNonSync());
 
-      // For web integration and sync/relay/smart window navigate to settings
+    const machineEnabled = isAuthStateMachineEnabled(
+      location.search,
+      config.featureFlags?.authStateMachine === true
+    );
+
+    // Legacy inline decision mirrors routeAfterResetComplete exactly.
+    const legacyTarget = (() => {
+      if (!accountResetData.sessionVerified) {
+        return '/signin' as const;
+      }
+      return isOAuthWeb
+        ? ('/reset_password_verified' as const)
+        : ('/settings' as const);
+    })();
+
+    const target = machineEnabled
+      ? routeAfterResetComplete({
+          sessionVerified: accountResetData.sessionVerified,
+          isOAuthWeb,
+        })
+      : legacyTarget;
+
+    if (target === '/reset_password_verified') {
+      sensitiveDataClient.setDataType(SensitiveData.Key.AccountReset, {
+        keyFetchToken: accountResetData.keyFetchToken,
+        unwrapBKey: accountResetData.unwrapBKey,
+      });
+      return navigateWithQuery('/reset_password_verified', {
+        replace: true,
+      });
+    }
+
+    if (target === '/settings') {
+      // For web integration and sync/relay/smart window navigate to settings.
       // Sync users will see an account recovery key promotion banner in settings
-      // if they don't have one configured
+      // if they don't have one configured.
       alertBar.success(
         ftlMsgResolver.getMsg(
           'reset-password-complete-header',
@@ -151,7 +174,7 @@ const CompleteResetPasswordContainer = ({
       return navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
 
-    // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
+    // target === '/signin': session not verified (e.g., 2FA required)
     return navigateWithQuery('/signin', {
       replace: true,
       state: {

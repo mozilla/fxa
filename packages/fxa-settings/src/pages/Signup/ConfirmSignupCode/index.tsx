@@ -13,9 +13,16 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
+  useConfig,
   useFtlMsgResolver,
   useSession,
 } from '../../../models/hooks';
+import { isAuthStateMachineEnabled } from '../../../lib/auth-machine/flag';
+import {
+  routeSignupCategory,
+  SignupCategory,
+  SignupCategoryFacts,
+} from '../../../lib/auth-machine/signup';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader, {
   getCmsHeadlineClassName,
@@ -66,6 +73,7 @@ const ConfirmSignupCode = ({
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigate();
@@ -210,18 +218,50 @@ const ConfirmSignupCode = ({
         logViewEvent(`flow`, 'newsletter.subscribed', REACT_ENTRYPOINT);
       }
 
-      if (isSyncDesktopV3Integration(integration)) {
-        const { to } = getSyncNavigate(location.search, {
-          showSignupConfirmedSync: true,
-        });
-        navigate(to);
-      } else if (isOAuthIntegration(integration)) {
-        // Check to see if the relier wants TOTP
-        // Certain reliers (currently AMO only) may require users to set up 2FA / TOTP
-        // before they can be redirected back to the RP.
-        // Newly created accounts wouldn't have this so let's redirect them to inline_totp_setup.
+      const machineEnabled = isAuthStateMachineEnabled(
+        location.search,
+        config.featureFlags?.authStateMachine === true
+      );
+      const facts: SignupCategoryFacts = {
+        isSyncDesktopV3: isSyncDesktopV3Integration(integration),
+        isOAuth: isOAuthIntegration(integration),
+        wantsTwoStepAuthentication:
+          isOAuthIntegration(integration) &&
+          integration.wantsTwoStepAuthentication(),
+        isWeb: isWebIntegration(integration),
+        hasRedirectTo:
+          isWebIntegration(integration) && !!integration.data.redirectTo,
+      };
+      // The flag selects the machine routing; the legacy fallback reproduces the
+      // same category inline, so disabling the flag is a true escape hatch.
+      const category: SignupCategory = machineEnabled
+        ? routeSignupCategory(facts)
+        : (() => {
+            if (facts.isSyncDesktopV3) return 'sync-desktop-v3';
+            if (facts.isOAuth) {
+              return facts.wantsTwoStepAuthentication
+                ? 'oauth-totp-setup'
+                : 'oauth-resolve';
+            }
+            if (facts.isWeb) {
+              return facts.hasRedirectTo ? 'web-redirect' : 'web-settings';
+            }
+            return 'none';
+          })();
 
-        if (integration.wantsTwoStepAuthentication()) {
+      switch (category) {
+        case 'sync-desktop-v3': {
+          const { to } = getSyncNavigate(location.search, {
+            showSignupConfirmedSync: true,
+          });
+          navigate(to);
+          break;
+        }
+        case 'oauth-totp-setup': {
+          // Check to see if the relier wants TOTP
+          // Certain reliers (currently AMO only) may require users to set up 2FA / TOTP
+          // before they can be redirected back to the RP.
+          // Newly created accounts wouldn't have this so let's redirect them to inline_totp_setup.
           navigateWithQuery('/inline_totp_setup', {
             state: {
               email,
@@ -234,7 +274,8 @@ const ConfirmSignupCode = ({
             },
           });
           return;
-        } else {
+        }
+        case 'oauth-resolve': {
           // `scope` is the server-resolved scope per ADR 0049, only
           // forwarded to Firefox via fxaOAuthLogin; ignored otherwise.
           const { redirect, code, state, scope, error } =
@@ -251,7 +292,7 @@ const ConfirmSignupCode = ({
             return;
           }
 
-          if (integration.isSync()) {
+          if (isOAuthIntegration(integration) && integration.isSync()) {
             firefox.fxaOAuthLogin({
               // OAuth desktop looks at the sync engine list in fxaLogin. Oauth
               // mobile currently looks at the engines provided here, but should
@@ -265,7 +306,10 @@ const ConfirmSignupCode = ({
               scope,
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            if (integration.isFirefoxDesktopClient()) {
+            if (
+              isOAuthIntegration(integration) &&
+              integration.isFirefoxDesktopClient()
+            ) {
               const isSendTab = isSendTabEntrypoint(
                 integration.data.entrypoint
               );
@@ -285,7 +329,10 @@ const ConfirmSignupCode = ({
               }
             }
             return;
-          } else if (integration.isFirefoxNonSync()) {
+          } else if (
+            isOAuthIntegration(integration) &&
+            integration.isFirefoxNonSync()
+          ) {
             firefox.fxaOAuthLogin({
               action: 'signup',
               code,
@@ -317,11 +364,11 @@ const ConfirmSignupCode = ({
             }
             return;
           }
+          break;
         }
-      } else if (isWebIntegration(integration)) {
-        if (integration.data.redirectTo) {
-          if (webRedirectCheck.isValid) {
-            hardNavigate(integration.data.redirectTo);
+        case 'web-redirect': {
+          if (isWebIntegration(integration) && webRedirectCheck.isValid) {
+            hardNavigate(integration.data.redirectTo!);
           } else if (webRedirectCheck?.localizedInvalidRedirectError) {
             // Even if the code submission is successful, show the user this error
             // message if the redirect is invalid to match parity with content-server.
@@ -330,9 +377,14 @@ const ConfirmSignupCode = ({
               webRedirectCheck.localizedInvalidRedirectError
             );
           }
-        } else {
-          goToSettingsWithAlertSuccess();
+          break;
         }
+        case 'web-settings': {
+          goToSettingsWithAlertSuccess();
+          break;
+        }
+        case 'none':
+          break;
       }
     } catch (error) {
       GleanMetrics.signupConfirmation.error({

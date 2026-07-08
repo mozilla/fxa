@@ -54,20 +54,28 @@ jest.mock('../../../models', () => ({
   }),
 }));
 
+// Default location used by most tests (flag off).
+const MOCK_LOCATION_FLAG_OFF = {
+  state: {
+    email: MOCK_EMAIL,
+    uid: MOCK_UID,
+    token: 'tok',
+    code: '1234567890',
+  },
+  pathname: '/complete_reset_password',
+  search: '',
+  hash: '',
+};
+
+let mockLocationSearch = '';
+
 jest.mock('@reach/router', () => {
   const actual = jest.requireActual('@reach/router');
   return {
     ...actual,
     useLocation: () => ({
-      state: {
-        email: MOCK_EMAIL,
-        uid: MOCK_UID,
-        token: 'tok',
-        code: '1234567890',
-      },
-      pathname: '/complete_reset_password',
-      search: '',
-      hash: '',
+      ...MOCK_LOCATION_FLAG_OFF,
+      search: mockLocationSearch,
     }),
   };
 });
@@ -76,6 +84,7 @@ describe('CompleteResetPasswordContainer', () => {
   let fxaLoginSignedInUserSpy: jest.SpyInstance;
 
   beforeEach(() => {
+    mockLocationSearch = '';
     mockNavigateWithQuery.mockImplementation(() => {});
     fxaLoginSignedInUserSpy = jest.spyOn(firefox, 'fxaLoginSignedInUser');
 
@@ -132,6 +141,42 @@ describe('CompleteResetPasswordContainer', () => {
       expect.objectContaining({
         services: { relay: {} },
       })
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith(SETTINGS_PATH, {
+        replace: true,
+      });
+    });
+
+    expect(mockAlertBar.success).toHaveBeenCalledWith(
+      'Your password has been reset'
+    );
+  });
+
+  it('navigates to settings for relay integration when authStateMachine flag is on', async () => {
+    // Seam 3 flag-on path: routeAfterResetComplete should produce the same
+    // route as the legacy branch for a verified non-OAuth-web session.
+    mockLocationSearch = '?authStateMachine=true';
+
+    renderWithLocalizationProvider(
+      <LocationProvider>
+        <CompleteResetPasswordContainer
+          integration={mockOAuthNativeSigninIntegration(false) as Integration}
+        />
+      </LocationProvider>
+    );
+
+    expect(await screen.findByLabelText('New password')).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText('New password'), 'newPassword123!');
+    await user.type(
+      screen.getByLabelText('Confirm password'),
+      'newPassword123!'
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Create new password' })
     );
 
     await waitFor(() => {

@@ -8,7 +8,12 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
 import { MozServices, TotpInfo } from '../../lib/types';
 import AppLayout from '../../components/AppLayout';
-import { Integration, useSession, useAuthClient } from '../../models';
+import {
+  Integration,
+  useSession,
+  useAuthClient,
+  useConfig,
+} from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { getSigninState } from '../Signin/utils';
 import { SigninLocationState } from '../Signin/interfaces';
@@ -17,6 +22,8 @@ import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import * as Sentry from '@sentry/browser';
+import { isAuthStateMachineEnabled } from '../../lib/auth-machine/flag';
+import { routeAfterInlineTotpSetup } from '../../lib/auth-machine/inline';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -44,6 +51,7 @@ export const InlineTotpSetupContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const authClient = useAuthClient();
+  const config = useConfig();
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
@@ -136,22 +144,38 @@ export const InlineTotpSetupContainer = ({
 
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
-    if (!isSignedIn || !signinState) {
+    const machineEnabled = isAuthStateMachineEnabled(
+      location.search,
+      config.featureFlags?.authStateMachine === true
+    );
+
+    const legacyRoute = (() => {
+      if (!isSignedIn || !signinState) return '/' as const;
+      if (totpStatus?.verified) return '/signin_totp_code' as const;
+      if (sessionVerified === false) return '/signin_token_code' as const;
+      return null;
+    })();
+
+    const target = machineEnabled
+      ? routeAfterInlineTotpSetup({
+          isSignedIn,
+          hasSigninState: !!signinState,
+          totpVerified: totpStatus?.verified,
+          sessionVerified,
+        })
+      : legacyRoute;
+
+    if (target === '/') {
       navTo('/');
-      return;
-    }
-    if (totpStatus?.verified) {
+    } else if (target === '/signin_totp_code') {
       navTo('/signin_totp_code', signinState ? signinState : undefined);
-      return;
-    }
-    if (sessionVerified === false) {
+    } else if (target === '/signin_token_code') {
       (async () => {
         // The `/signin_token_code` does not automatically send a verification code, so we need to do it manually
         // before redirecting to the page
         await session.sendVerificationCode();
         navTo('/signin_token_code', signinState ? signinState : undefined);
       })();
-      return;
     }
   }, [
     sessionVerified,
@@ -162,6 +186,8 @@ export const InlineTotpSetupContainer = ({
     session,
     navTo,
     navigateWithQuery,
+    config,
+    location.search,
   ]);
 
   const verifyCodeHandler = useCallback(
