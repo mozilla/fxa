@@ -232,7 +232,7 @@
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
     "nx": "21.2.4",
-    "pm2": "^6.0.14",
+    "pm2": "^7.0.0",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
