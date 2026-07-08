@@ -1,8 +1,8 @@
 {
-  "commit": "dc402553f52795bdf5cde9723f8f031ddcfebf0e",
-  "summary": "Merge pull request #20831 from mozilla/dependabot/github_actions/docker/login-action-4.4.0",
-  "description": "chore(deps): bump docker/login-action from 4.2.0 to 4.4.0",
-  "timestamp": 1783512866000,
+  "commit": "8741a748424c311993158ec614b9eaf7927d8352",
+  "summary": "Merge pull request #20625 from mozilla/dependabot/npm_and_yarn/pm2-7.0.0",
+  "description": "chore(deps): bump pm2 from 6.0.14 to 7.0.0",
+  "timestamp": 1783522730000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
