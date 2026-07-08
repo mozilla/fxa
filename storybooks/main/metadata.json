@@ -1,8 +1,8 @@
 {
-  "commit": "f3f16ba7652cc9dfed1cda6b5f990374c9bdb0e2",
-  "summary": "Merge pull request #20759 from mozilla/dependabot/npm_and_yarn/form-data-4.0.6",
-  "description": "chore(deps): bump form-data from 4.0.4 to 4.0.6",
-  "timestamp": 1783525505000,
+  "commit": "1cbbfaa07090b21602b3d6cc8216198add5b2188",
+  "summary": "Merge pull request #20771 from mozilla/dependabot/npm_and_yarn/webpack-dev-server-5.2.5",
+  "description": "chore(deps): bump webpack-dev-server from 4.15.2 to 5.2.5",
+  "timestamp": 1783526105000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
