@@ -1,8 +1,8 @@
 {
-  "commit": "9939d764aca608edfca9b5d5d90fd61babd984a8",
+  "commit": "72c2cf4f662be343e4535f0084285454b2afd5e3",
   "summary": "fix(settings): migrate dev-server config to webpack-dev-server v5",
   "description": "Because:\n- webpack-dev-server v5 removed onBeforeSetupMiddleware/onAfterSetupMiddleware\n  and the top-level `https` option. Under the v5 bump the fxa-settings dev\n  server failed to start, so the Playwright functional tests failed because\n  the app never served.\n\nThis commit:\n- Fold the onBefore/onAfter middleware setup (evalSourceMap, user proxy setup,\n  redirectServedPath, no-op service worker) into setupMiddlewares.\n- Replace `https: getHttpsConfig()` with the v5 `server` option (http / https /\n  {type:'https',options}). Verified webpack-dev-server 5.2.5 accepts the config\n  via its constructor schema validation for both http and https paths.",
-  "timestamp": 1783472451000,
+  "timestamp": 1783475596000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
