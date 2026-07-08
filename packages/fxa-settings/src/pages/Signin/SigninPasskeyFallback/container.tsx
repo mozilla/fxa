@@ -14,6 +14,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../../lib/oauth';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { discardSessionToken } from '../../../lib/cache';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { AccountAvatar } from '../../../lib/interfaces';
@@ -57,6 +58,11 @@ const SigninPasskeyFallbackContainer = ({
   const email = signinState?.email;
   const uid = signinState?.uid;
   const passkeySurface = location.state?.passkeySurface ?? 'emailfirst';
+  const syncPreKeysLoginSent = location.state?.syncPreKeysLoginSent ?? false;
+  // 'passkey' keeps the passkey copy + Glean; 'resume' (Turn-on-Sync of a
+  // keyless account) shows generic copy and skips the passkey-scoped metrics.
+  const reason = location.state?.reason ?? 'passkey';
+  const isPasskey = reason === 'passkey';
   const metricsContext = useMemo(
     () => queryParamsToMetricsContext(flowQueryParams),
     [flowQueryParams]
@@ -136,13 +142,26 @@ const SigninPasskeyFallbackContainer = ({
         ));
       } catch (err) {
         const errno = (err as { errno?: number })?.errno;
+        // A dead cached session (e.g. after signing out from the browser menu:
+        // the server session is gone but local storage kept the token) reauths
+        // with INVALID_TOKEN. Clear the stale local session and restart a fresh
+        // sign-in rather than dead-ending on an error here.
+        if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          discardSessionToken();
+          navigateWithQuery('/');
+          return;
+        }
         const isIncorrectPassword =
           errno === AuthUiErrors.INCORRECT_PASSWORD.errno;
-        GleanMetrics.passkeyEnterPassword.submitFrontendError({
-          event: {
-            reason: isIncorrectPassword ? 'incorrect_password' : 'server_error',
-          },
-        });
+        if (isPasskey) {
+          GleanMetrics.passkeyEnterPassword.submitFrontendError({
+            event: {
+              reason: isIncorrectPassword
+                ? 'incorrect_password'
+                : 'server_error',
+            },
+          });
+        }
         setLocalizedErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, err));
         return;
       }
@@ -155,14 +174,16 @@ const SigninPasskeyFallbackContainer = ({
           sessionToken,
           emailVerified: true,
           sessionVerified: true,
-          verificationMethod: VerificationMethods.PASSKEY,
+          verificationMethod: isPasskey
+            ? VerificationMethods.PASSKEY
+            : undefined,
           keyFetchToken,
         },
         unwrapBKey,
         integration,
         finishOAuthFlowHandler,
         queryParams: location.search,
-        handleFxaLogin: true,
+        handleFxaLogin: !syncPreKeysLoginSent,
         handleFxaOAuthLogin: true,
         // On Firefox mobile, the browser finishes Sync sign-in via WebChannel
         // messages; navigating the WebView away would interrupt it and leave
@@ -171,26 +192,33 @@ const SigninPasskeyFallbackContainer = ({
         authClient,
       });
       if (navError) {
-        GleanMetrics.passkeyEnterPassword.submitFrontendError({
-          event: { reason: 'server_error' },
-        });
+        if (isPasskey) {
+          GleanMetrics.passkeyEnterPassword.submitFrontendError({
+            event: { reason: 'server_error' },
+          });
+        }
         setLocalizedErrorMessage(
           getLocalizedErrorMessage(ftlMsgResolver, navError)
         );
         return;
       }
 
-      GleanMetrics.passkeyEnterPassword.success({
-        event: { reason: passkeySurface },
-      });
-      // Consolidated terminal-success signal for Looker funnels — fires
-      // only once the full Sync sign-in (passkey + existing-password
-      // reauth) has completed without error.
-      GleanMetrics.passkey.authSuccess({
-        event: {
-          reason: buildPasskeyAuthSuccessReason(passkeySurface, 'withpassword'),
-        },
-      });
+      if (isPasskey) {
+        GleanMetrics.passkeyEnterPassword.success({
+          event: { reason: passkeySurface },
+        });
+        // Consolidated terminal-success signal for Looker funnels — fires
+        // only once the full Sync sign-in (passkey + existing-password
+        // reauth) has completed without error.
+        GleanMetrics.passkey.authSuccess({
+          event: {
+            reason: buildPasskeyAuthSuccessReason(
+              passkeySurface,
+              'withpassword'
+            ),
+          },
+        });
+      }
     },
     [
       authClient,
@@ -205,6 +233,8 @@ const SigninPasskeyFallbackContainer = ({
       uid,
       passkeySurface,
       metricsContext,
+      syncPreKeysLoginSent,
+      isPasskey,
     ]
   );
 
@@ -233,6 +263,7 @@ const SigninPasskeyFallbackContainer = ({
         avatarData,
         avatarLoading,
         passkeySurface,
+        reason,
       }}
     />
   );

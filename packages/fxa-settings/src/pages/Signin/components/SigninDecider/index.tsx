@@ -12,6 +12,7 @@ import { UseFxAStatusResult } from '../../../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../../../lib/types';
 import { useFinishOAuthFlowHandler } from '../../../../lib/oauth/hooks';
 import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
+import { currentAccount } from '../../../../lib/cache';
 import type { QueryParams } from '../../../..';
 import {
   AvatarResponse,
@@ -128,19 +129,48 @@ export const SigninDecider = ({
     hasPasskey,
   ]);
 
+  // Turn-on-Sync (and similar resumes) for an already-signed-in account that
+  // has a password and needs Sync keys: send them to the enter-password
+  // fallback to reauth for keys, instead of a full re-sign-in. Desktop only.
+  // Gated on `isSignedIntoFirefox` — App validates the browser's signed-in
+  // session server-side before setting it, so this both confirms there's a
+  // session to resume AND avoids rerouting onto a stale local-storage token
+  // (e.g. after signing out from the browser menu). The stored-uid check keeps
+  // the fallback able to hydrate from local storage.
+  const enterPasswordForSyncKeys =
+    hasCachedSession &&
+    hasPassword &&
+    integration.requiresKeys() &&
+    !integration.isFirefoxMobileClient() &&
+    !!isSignedIntoFirefox &&
+    !!currentAccount()?.uid;
+
+  useEffect(() => {
+    if (enterPasswordForSyncKeys) {
+      navigateWithQuery('/signin_passkey_fallback', {
+        state: { reason: 'resume' },
+      });
+    }
+  }, [enterPasswordForSyncKeys, navigateWithQuery]);
+
   if (shouldRedirectToPasswordless) {
     return null;
   }
 
+  if (enterPasswordForSyncKeys) {
+    return null;
+  }
+
   const isOAuth = isOAuthIntegration(integration);
+  const browserSupportsKeysOptional =
+    useFxAStatusResult.browserSupportsKeysOptional;
 
   // Relay browser service login launched in Firefox desktop 135, and the "keys optional"
   // capability (Sync decoupling) launched in Fx desktop 147, meaning all Relay service users
   // in those Fx versions require a password.
   // This also covers Mobile until Sync is decoupled except for the authorization state below.
   const syncNotDecoupledRequiresPassword =
-    !useFxAStatusResult.supportsKeysOptionalLogin &&
-    integration.wantsKeysIfPasswordEntered();
+    integration.nonSyncKeysRequirePassword(browserSupportsKeysOptional);
 
   // In Firefox Android 153, Sync is not decoupled, but we need to show cached sign-in
   // for signed-in users (e.g., signed into Sync) that are authorizing VPN.
@@ -164,7 +194,8 @@ export const SigninDecider = ({
 
   // Do we have a session token, and can we defer the key fetch because sync is decoupled?
   const keysOptional =
-    hasCachedSession && useFxAStatusResult.supportsKeysOptionalLogin;
+    hasCachedSession &&
+    integration.supportsKeylessLogin(browserSupportsKeysOptional);
 
   // Determine whether to show the cached view (no password input). Keys always
   // require a password for derivation, but we can skip it when:
@@ -202,8 +233,7 @@ export const SigninDecider = ({
           isSignedIntoFirefox,
           setCurrentSplitLayout,
           onSessionExpired,
-          supportsKeysOptionalLogin:
-            useFxAStatusResult.supportsKeysOptionalLogin,
+          browserSupportsKeysOptional,
         }}
       />
     );
@@ -237,8 +267,7 @@ export const SigninDecider = ({
           flowQueryParams,
           isSignedIntoFirefox,
           setCurrentSplitLayout,
-          supportsKeysOptionalLogin:
-            useFxAStatusResult.supportsKeysOptionalLogin,
+          browserSupportsKeysOptional,
         }}
       />
     );

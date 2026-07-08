@@ -54,7 +54,7 @@ const Signin = ({
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
   flowQueryParams,
-  useFxAStatusResult: { supportsKeysOptionalLogin },
+  useFxAStatusResult: { browserSupportsKeysOptional },
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
 }: SigninProps) => {
@@ -84,7 +84,7 @@ const Signin = ({
     flowQueryParams,
     surface: 'login',
     isButtonVisible: showPasskeySignin,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
@@ -140,7 +140,8 @@ const Signin = ({
   // Show for all other cases.
   const hideThirdPartyAuth = isSync
     ? hasPassword
-    : isOAuthNative && !supportsKeysOptionalLogin;
+    : isOAuthNative &&
+      !integration.supportsKeylessLogin(browserSupportsKeysOptional);
 
   useEffect(() => {
     GleanMetrics.login.view({

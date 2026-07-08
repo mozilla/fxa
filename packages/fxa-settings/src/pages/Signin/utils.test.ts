@@ -397,7 +397,9 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
         expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
@@ -521,7 +523,7 @@ describe('Signin utils', () => {
             service: OAuthNativeServices.Vpn,
           }),
           isSignInWithThirdPartyAuth: true,
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
           performNavigation: true,
           handleFxaOAuthLogin: false,
         });
@@ -552,7 +554,7 @@ describe('Signin utils', () => {
             service: OAuthNativeServices.Vpn,
           }),
           isSignInWithThirdPartyAuth: true,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
           performNavigation: true,
           handleFxaOAuthLogin: true,
         });

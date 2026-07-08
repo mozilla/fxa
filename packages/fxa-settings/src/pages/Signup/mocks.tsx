@@ -36,6 +36,9 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
     getWebChannelServices: mockGetWebChannelServices(),
     requiresKeys: () => false,
     wantsKeys: () => false,
@@ -55,6 +58,9 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     requiresKeys: () => true,
     wantsKeys: () => true,
@@ -80,6 +86,9 @@ export function createMockSignupOAuthWebIntegration(
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
     getWebChannelServices: mockGetWebChannelServices(),
     requiresKeys: () => false,
     wantsKeys: () => false,
@@ -109,6 +118,9 @@ export function createMockSignupOAuthNativeIntegration(
     isFirefoxClientServiceSmartWindow: () => isSmartWindow,
     isFirefoxClientServiceVpn: () => isVpn,
     isFirefoxNonSync: () => isRelay || isSmartWindow || isVpn,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
@@ -172,16 +184,16 @@ export const Subject = ({
   beginSignupHandler = mockBeginSignupHandler,
   email = MOCK_EMAIL,
   isMobile = false,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
 }: {
   email?: string;
   integration?: SignupIntegration;
   beginSignupHandler?: BeginSignupHandler;
   isMobile?: boolean;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) => {
   const mockUseFxAStatusResult = mockUseFxAStatus({
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
   return (
     <MemoryRouter>

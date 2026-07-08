@@ -113,7 +113,7 @@ const user = userEvent.setup();
 // Password confirmation is required only when the password derives encryption
 // keys: Sync (keys mandatory), and non-Sync Firefox services (Relay/VPN/
 // SmartWindow) when the browser lacks the keys-optional capability
-// (`supportsKeysOptionalLogin` false). Plain web/OAuth-web signups omit it.
+// (`browserSupportsKeysOptional` false). Plain web/OAuth-web signups omit it.
 
 describe('Signup page', () => {
   beforeEach(() => {
@@ -205,7 +205,7 @@ describe('Signup page', () => {
     );
   });
 
-  it('renders third party auth when service=relay and supportsKeysOptionalLogin is true', async () => {
+  it('renders third party auth when service=relay and browserSupportsKeysOptional is true', async () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
@@ -213,7 +213,7 @@ describe('Signup page', () => {
             OAuthNativeServices.Relay,
             false
           )}
-          supportsKeysOptionalLogin={true}
+          browserSupportsKeysOptional={true}
         />
       );
     });
@@ -226,7 +226,7 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', async () => {
+  it('renders third party auth when service=smartwindow and browserSupportsKeysOptional is true', async () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
@@ -234,7 +234,7 @@ describe('Signup page', () => {
             OAuthNativeServices.SmartWindow,
             false
           )}
-          supportsKeysOptionalLogin={true}
+          browserSupportsKeysOptional={true}
         />
       );
     });
@@ -255,7 +255,7 @@ describe('Signup page', () => {
             OAuthNativeServices.Vpn,
             false
           )}
-          supportsKeysOptionalLogin={false}
+          browserSupportsKeysOptional={false}
         />
       );
     });
@@ -275,7 +275,7 @@ describe('Signup page', () => {
             // password, so the confirmation field is dropped.
             /* requiresPasswordForLogin */ false
           )}
-          supportsKeysOptionalLogin={true}
+          browserSupportsKeysOptional={true}
         />
       );
     });

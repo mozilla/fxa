@@ -43,7 +43,7 @@ const SigninAlternativeAuthOptions = ({
   localizedSuccessBannerDescription,
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional,
 }: SigninAlternativeAuthOptionsProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
@@ -66,7 +66,7 @@ const SigninAlternativeAuthOptions = ({
     flowQueryParams,
     surface: 'alternative_auth',
     isButtonVisible: showPasskeySignin,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
 
   const {

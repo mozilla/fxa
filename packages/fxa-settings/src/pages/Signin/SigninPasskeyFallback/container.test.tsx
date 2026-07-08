@@ -222,6 +222,57 @@ describe('SigninPasskeyFallback container', () => {
       );
     });
 
+    it('suppresses the keyless login (handleFxaLogin false) when the pre-keys login was already sent', async () => {
+      mockLocationState = {
+        ...MOCK_LOCATION_STATE,
+        syncPreKeysLoginSent: true,
+      };
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalledWith(
+          expect.objectContaining({
+            handleFxaLogin: false,
+            handleFxaOAuthLogin: true,
+          })
+        );
+      });
+    });
+
+    it('discards the stale session and restarts sign-in on INVALID_TOKEN reauth', async () => {
+      const discardSpy = jest
+        .spyOn(CacheModule, 'discardSessionToken')
+        .mockImplementation(() => {});
+      mockSessionReauth.mockRejectedValueOnce({
+        errno: AuthUiErrors.INVALID_TOKEN.errno,
+      });
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(discardSpy).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
+      expect(
+        GleanMetrics.passkeyEnterPassword.submitFrontendError
+      ).not.toHaveBeenCalled();
+    });
+
+    it('for reason=resume, sends verificationMethod undefined and no passkey metrics', async () => {
+      mockLocationState = { ...MOCK_LOCATION_STATE, reason: 'resume' };
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalled();
+      });
+      const navArg = mockHandleNavigation.mock.calls[0][0];
+      expect(navArg.signinData.verificationMethod).toBeUndefined();
+      expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
+      expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
+    });
+
     it('passes the flow metricsContext to sessionReauth so the deferred account.login is correlated', async () => {
       const { getByTestId } = render();
       submitPassword(getByTestId);

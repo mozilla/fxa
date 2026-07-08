@@ -334,7 +334,7 @@ describe('PageSigninRecoveryCode', () => {
               navigateToRecoveryPhone={jest.fn()}
               signinState={{ ...mockSigninLocationState, [marker]: true }}
               submitRecoveryCode={submitSuccess()}
-              supportsKeysOptionalLogin={false}
+              browserSupportsKeysOptional={false}
             />
           </MemoryRouter>
         );
@@ -374,7 +374,7 @@ describe('PageSigninRecoveryCode', () => {
               isPasswordlessOtpSignin: true,
             }}
             submitRecoveryCode={submitSuccess()}
-            supportsKeysOptionalLogin={true}
+            browserSupportsKeysOptional={true}
           />
         </MemoryRouter>
       );

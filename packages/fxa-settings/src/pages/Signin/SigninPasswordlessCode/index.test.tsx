@@ -144,7 +144,7 @@ function resetMockAuthClient() {
 function render(
   props: Partial<SigninPasswordlessCodeProps> & {
     isSignup?: boolean;
-    supportsKeysOptionalLogin?: boolean;
+    browserSupportsKeysOptional?: boolean;
   } = {}
 ) {
   if (!props.integration) {
@@ -849,7 +849,7 @@ describe('SigninPasswordlessCode page', () => {
         render({
           integration,
           isSignup: false,
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
         });
         await submitCode();
 
@@ -878,7 +878,7 @@ describe('SigninPasswordlessCode page', () => {
         render({
           integration,
           isSignup: false,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
         });
         await submitCode();
 

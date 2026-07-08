@@ -15,6 +15,7 @@ import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 import Banner from '../../components/Banner';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import firefox from '../channels/firefox';
 import GleanMetrics from '../glean';
 import { useNavigate } from 'react-router';
 import { useNavigateWithQuery } from '../hooks/useNavigateWithQuery';
@@ -216,7 +217,12 @@ export interface UsePasskeySignInArgs {
   flowQueryParams?: QueryParams;
   surface: PasskeySignInSurface;
   isButtonVisible?: boolean;
-  supportsKeysOptionalLogin?: boolean;
+  // Raw browser `keys_optional` capability (see useFxAStatus). When true on
+  // desktop, a Sync passkey sign-in sends a pre-keys keyless login so the browser
+  // reflects "signed in" before the password step (Sync enables later at
+  // oauth_login). The per-integration policy lives on the integration model
+  // (requiresPasswordForLogin / allowsPreKeysSyncLogin).
+  browserSupportsKeysOptional?: boolean;
 }
 
 export interface UsePasskeySignInResult {
@@ -235,7 +241,7 @@ export function usePasskeySignIn({
   flowQueryParams,
   surface,
   isButtonVisible = false,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional = false,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -335,7 +341,7 @@ export function usePasskeySignIn({
       const metricsContext = queryParamsToMetricsContext(flowQueryParams);
 
       const keysRequired = integration.requiresPasswordForLogin(
-        supportsKeysOptionalLogin
+        browserSupportsKeysOptional
       );
       const completion = await authClient.completePasskeyAuthentication(
         credential,
@@ -395,20 +401,35 @@ export function usePasskeySignIn({
       });
 
       if (keysRequired) {
-        // A password is needed to derive scoped keys before the browser
-        // login/OAuth messages are sent. An existing-password account re-enters
-        // its password; a passwordless account creates one.
+        // On desktop with the keys_optional capability, sign the account into the
+        // browser now with a keyless login; the keyed oauth_login (scoped keys)
+        // follows after the password step. syncPreKeysLoginSent tells the
+        // destination page not to re-send the login.
+        const syncPreKeysLoginSent = integration.allowsPreKeysSyncLogin(
+          browserSupportsKeysOptional
+        );
+        if (syncPreKeysLoginSent) {
+          firefox.fxaLogin({
+            email,
+            sessionToken: completion.sessionToken,
+            uid: completion.uid,
+            verified: completion.verified,
+            services: integration.getWebChannelServices(),
+          });
+        }
         const fallbackPath = completion.hasPassword
           ? '/signin_passkey_fallback'
           : '/post_verify/set_password';
-        // Thread the passkey context so the destination page can tag its Glean
-        // events with the originating surface.
         navigateWithQuery(fallbackPath, {
           state: completion.hasPassword
-            ? { passkeySurface: toPasskeyMetricsSurface(surface) }
+            ? {
+                passkeySurface: toPasskeyMetricsSurface(surface),
+                syncPreKeysLoginSent,
+              }
             : {
                 passwordCreationReason: 'passkey' as const,
                 passkeySurface: toPasskeyMetricsSurface(surface),
+                syncPreKeysLoginSent,
               },
         });
         return;
@@ -493,7 +514,7 @@ export function usePasskeySignIn({
     flowQueryParams,
     setLocalizedError,
     surface,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   ]);
 
   return { isLoading, errorBanner, onClick };

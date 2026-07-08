@@ -41,8 +41,10 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     typeof syncEngineConfigs | undefined
   >();
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
-  const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
-    useState<boolean>(false);
+  // Raw browser `keys_optional` capability. Per-integration policy (whether a
+  // given login may skip keys) lives on the Integration model, not here.
+  const [browserSupportsKeysOptional, setBrowserSupportsKeysOptional] =
+    useState(false);
   const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] = useState<
     boolean | undefined
   >(undefined);
@@ -77,17 +79,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
             setWebChannelEngines(capabilities.engines);
           }
         }
-        // Check if third party auth (passwordless) log in to the browser is supported,
-        // currently only Firefox desktop 147+ as of Q1 2026
-        if (
-          capabilities.keys_optional &&
-          isOAuthNative &&
-          integration.isFirefoxNonSync()
-        ) {
-          setSupportsKeysOptionalLogin(true);
-        } else {
-          setSupportsKeysOptionalLogin(false);
-        }
+        // Report the raw browser `keys_optional` capability (Fx desktop 147+ as
+        // of Q1 2026). Consumers decide per-integration whether it applies.
+        setBrowserSupportsKeysOptional(!!capabilities.keys_optional);
         if (capabilities.can_link_account_uid) {
           setSupportsCanLinkAccountUid(true);
         } else {
@@ -154,7 +148,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
     supportsCanLinkAccountUid,
   };
 }

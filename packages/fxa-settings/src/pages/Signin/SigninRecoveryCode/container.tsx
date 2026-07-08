@@ -32,13 +32,13 @@ type SigninRecoveryCodeLocationState = {
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
   setCurrentSplitLayout?: (value: boolean) => void;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 };
 
 export const SigninRecoveryCodeContainer = ({
   integration,
   setCurrentSplitLayout,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional,
 }: SigninRecoveryCodeContainerProps) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -154,7 +154,7 @@ export const SigninRecoveryCodeContainer = ({
         unwrapBKey,
         loading: sendingPhoneCode,
         setCurrentSplitLayout,
-        supportsKeysOptionalLogin,
+        browserSupportsKeysOptional,
       }}
     />
   );

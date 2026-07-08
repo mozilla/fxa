@@ -128,7 +128,7 @@ describe('SigninCached', () => {
         }),
         hasPassword: false,
         hasLinkedAccount: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
         cachedSigninHandler: mockCachedSigninSuccess(),
       });
 
@@ -140,7 +140,7 @@ describe('SigninCached', () => {
             isSignInWithThirdPartyAuth: true,
             handleFxaLogin: false,
             handleFxaOAuthLogin: false,
-            supportsKeysOptionalLogin: false,
+            browserSupportsKeysOptional: false,
           })
         );
       });
@@ -155,7 +155,7 @@ describe('SigninCached', () => {
         }),
         hasPassword: false,
         hasLinkedAccount: true,
-        supportsKeysOptionalLogin: true,
+        browserSupportsKeysOptional: true,
         cachedSigninHandler: mockCachedSigninSuccess(),
       });
 
@@ -167,7 +167,7 @@ describe('SigninCached', () => {
             isSignInWithThirdPartyAuth: false,
             handleFxaLogin: true,
             handleFxaOAuthLogin: true,
-            supportsKeysOptionalLogin: true,
+            browserSupportsKeysOptional: true,
           })
         );
       });
@@ -182,7 +182,7 @@ describe('SigninCached', () => {
         }),
         hasPassword: true,
         isSignedIntoFirefox: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
         cachedSigninHandler: mockCachedSigninSuccess(),
       });
 

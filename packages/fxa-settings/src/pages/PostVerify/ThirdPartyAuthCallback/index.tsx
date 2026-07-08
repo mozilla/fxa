@@ -94,7 +94,7 @@ const ThirdPartyAuthCallback = ({
       // when Sync is not decoupled) need to defer the browser login/OAuth messages
       // and let handleNavigation route to set_password.
       const deferKeysUntilPasswordSet = integration.requiresPasswordForLogin(
-        useFxAStatusResult.supportsKeysOptionalLogin
+        useFxAStatusResult.browserSupportsKeysOptional
       );
 
       if (integration.isFirefoxNonSync() || integration.isSync()) {
@@ -132,7 +132,8 @@ const ThirdPartyAuthCallback = ({
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
-        supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+        browserSupportsKeysOptional:
+          useFxAStatusResult.browserSupportsKeysOptional,
         // For non‑Sync browser services where Sync has been decoupled, we can
         // sign in to the browser immediately because those integrations do not require keys
         // (e.g. a password entered). For passwordless accounts, we must
@@ -158,7 +159,7 @@ const ThirdPartyAuthCallback = ({
       navigateWithQuery,
       webRedirectCheck,
       ftlMsgResolver,
-      useFxAStatusResult.supportsKeysOptionalLogin,
+      useFxAStatusResult.browserSupportsKeysOptional,
       authClient,
     ]
   );

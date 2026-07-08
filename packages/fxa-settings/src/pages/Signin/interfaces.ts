@@ -34,6 +34,9 @@ export type SigninUnblockIntegration = Pick<
   | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
   | 'requiresPasswordForLogin'
+  | 'nonSyncKeysRequirePassword'
+  | 'supportsKeylessLogin'
+  | 'allowsPreKeysSyncLogin'
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
@@ -60,6 +63,9 @@ export type SigninIntegration =
       | 'wantsKeysIfPasswordEntered'
       | 'wantsKeys'
       | 'requiresPasswordForLogin'
+      | 'nonSyncKeysRequirePassword'
+      | 'supportsKeylessLogin'
+      | 'allowsPreKeysSyncLogin'
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
@@ -86,6 +92,9 @@ export type SigninOAuthIntegration = Pick<
   | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
   | 'requiresPasswordForLogin'
+  | 'nonSyncKeysRequirePassword'
+  | 'supportsKeylessLogin'
+  | 'allowsPreKeysSyncLogin'
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
@@ -144,11 +153,11 @@ export interface SigninCachedProps extends SigninSharedProps {
   sessionToken: hexstring;
   cachedSigninHandler: CachedSigninHandler;
   onSessionExpired: (localizedErrorMessage: string) => void;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }
 
 export type SigninAlternativeAuthOptionsProps = SigninSharedProps & {
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 };
 
 export type BeginSigninHandler = (
@@ -275,7 +284,7 @@ export interface NavigationOptions {
   // Fx desktop 147+). When false, a non-Sync Firefox client that wants keys
   // (e.g. Android VPN) must set a password before keys can be derived. Used together
   // with `requiresPasswordForLogin` to decide the set_password redirect.
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
@@ -301,6 +310,14 @@ export interface OAuthSigninResult {
   shouldHardNavigate: string;
 }
 
+/**
+ * Why the user reached the enter-password-for-keys page
+ * (`SigninPasskeyFallback`): `passkey` after a passkey sign-in, or `resume`
+ * when turning on Sync for an already-signed-in keyless account. Drives the
+ * page copy, Glean events, and `verificationMethod`.
+ */
+export type EnterPasswordReason = 'passkey' | 'resume';
+
 export interface SigninLocationState {
   email: string;
   uid: hexstring;
@@ -320,4 +337,15 @@ export interface SigninLocationState {
    * events.
    */
   passkeySurface?: PasskeyMetricsSurface;
+  /**
+   * True when the passkey flow already sent the keyless `fxaccounts:login` at
+   * verification time (desktop pre-keys Sync login). The destination page then
+   * sends only the keyed `oauth_login`, avoiding a duplicate login message.
+   */
+  syncPreKeysLoginSent?: boolean;
+  /**
+   * Why the enter-password-for-keys page was shown (default `passkey`); set to
+   * `resume` for the Turn-on-Sync resume of a keyless account.
+   */
+  reason?: EnterPasswordReason;
 }

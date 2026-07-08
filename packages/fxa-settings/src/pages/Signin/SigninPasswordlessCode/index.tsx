@@ -101,7 +101,7 @@ const SigninPasswordlessCode = ({
     flowQueryParams,
     surface: 'login_otp',
     isButtonVisible: showPasskeySignin,
-    supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+    browserSupportsKeysOptional: useFxAStatusResult.browserSupportsKeysOptional,
   });
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -328,7 +328,7 @@ const SigninPasswordlessCode = ({
       // since /password/create requires a verifiedSessionToken.
       if (
         integration.requiresPasswordForLogin(
-          useFxAStatusResult.supportsKeysOptionalLogin
+          useFxAStatusResult.browserSupportsKeysOptional
         )
       ) {
         const accountData = {

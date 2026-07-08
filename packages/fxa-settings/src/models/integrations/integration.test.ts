@@ -73,6 +73,49 @@ describe('Integration Model', function () {
     });
   });
 
+  describe('supportsKeylessLogin', function () {
+    it('is true for a non-Sync client when the browser supports keys-optional login', () => {
+      jest.spyOn(model, 'isFirefoxNonSync').mockReturnValue(true);
+      expect(model.supportsKeylessLogin(true)).toBe(true);
+    });
+
+    it('is false for a Sync client even when the browser supports keys-optional login', () => {
+      jest.spyOn(model, 'isFirefoxNonSync').mockReturnValue(false);
+      expect(model.supportsKeylessLogin(true)).toBe(false);
+    });
+
+    it('is false when the browser does not support keys-optional login', () => {
+      jest.spyOn(model, 'isFirefoxNonSync').mockReturnValue(true);
+      expect(model.supportsKeylessLogin(false)).toBe(false);
+    });
+  });
+
+  describe('allowsPreKeysSyncLogin', function () {
+    it('is true for a desktop Sync client when the browser supports keys-optional login', () => {
+      jest.spyOn(model, 'isSync').mockReturnValue(true);
+      jest.spyOn(model, 'isFirefoxMobileClient').mockReturnValue(false);
+      expect(model.allowsPreKeysSyncLogin(true)).toBe(true);
+    });
+
+    it('is false for a non-Sync client', () => {
+      jest.spyOn(model, 'isSync').mockReturnValue(false);
+      jest.spyOn(model, 'isFirefoxMobileClient').mockReturnValue(false);
+      expect(model.allowsPreKeysSyncLogin(true)).toBe(false);
+    });
+
+    it('is false on Firefox mobile', () => {
+      jest.spyOn(model, 'isSync').mockReturnValue(true);
+      jest.spyOn(model, 'isFirefoxMobileClient').mockReturnValue(true);
+      expect(model.allowsPreKeysSyncLogin(true)).toBe(false);
+    });
+
+    it('is false when the browser does not support keys-optional login', () => {
+      jest.spyOn(model, 'isSync').mockReturnValue(true);
+      jest.spyOn(model, 'isFirefoxMobileClient').mockReturnValue(false);
+      expect(model.allowsPreKeysSyncLogin(false)).toBe(false);
+    });
+  });
+
   describe('isTrusted', function () {
     it('returns `true`', () => {
       expect(model.isTrusted()).toBeTruthy();

@@ -31,6 +31,9 @@ export type IndexIntegration = Pick<
   | 'wantsKeys'
   | 'wantsKeysIfPasswordEntered'
   | 'requiresPasswordForLogin'
+  | 'nonSyncKeysRequirePassword'
+  | 'supportsKeylessLogin'
+  | 'allowsPreKeysSyncLogin'
   | 'wantsLogin'
   | 'wantsTwoStepAuthentication'
 >;

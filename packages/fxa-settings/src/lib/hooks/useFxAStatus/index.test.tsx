@@ -120,7 +120,7 @@ describe('useFxAStatus', () => {
         });
       });
 
-      it('returns supportsKeysOptionalLogin: true when Relay or SmartWindow service', async () => {
+      it('reports browserSupportsKeysOptional: true when the browser advertises keys_optional', async () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => false,
@@ -131,10 +131,13 @@ describe('useFxAStatus', () => {
         );
 
         await waitForNextUpdate();
-        expect(result.current.supportsKeysOptionalLogin).toBe(true);
+        expect(result.current.browserSupportsKeysOptional).toBe(true);
       });
 
-      it('returns supportsKeysOptionalLogin: false for Sync', async () => {
+      // The hook reports the raw browser capability regardless of integration
+      // type; whether a Sync login may use it is decided on the integration
+      // model (see Integration.supportsKeylessLogin), not here.
+      it('reports browserSupportsKeysOptional: true for Sync when the browser advertises it', async () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => true,
@@ -144,7 +147,23 @@ describe('useFxAStatus', () => {
           useFxAStatus(integration)
         );
         await waitForNextUpdate();
-        expect(result.current.supportsKeysOptionalLogin).toBe(false);
+        expect(result.current.browserSupportsKeysOptional).toBe(true);
+      });
+
+      it('reports browserSupportsKeysOptional: false when the browser omits keys_optional', async () => {
+        (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+          capabilities: { engines: [] },
+        });
+        const integration = {
+          type: IntegrationType.OAuthNative,
+          isSync: () => false,
+          isFirefoxNonSync: () => true,
+        };
+        const { result, waitForNextUpdate } = renderHook(() =>
+          useFxAStatus(integration)
+        );
+        await waitForNextUpdate();
+        expect(result.current.browserSupportsKeysOptional).toBe(false);
       });
     });
   });

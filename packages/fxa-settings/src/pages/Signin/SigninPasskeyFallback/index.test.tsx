@@ -57,6 +57,22 @@ describe('SigninPasskeyFallback', () => {
     expect(screen.getByText('Incorrect password')).toBeInTheDocument();
   });
 
+  it('for reason=resume, renders generic copy without the eyebrow or passkey metrics', () => {
+    renderWithRouter(
+      <SigninPasskeyFallback email="user@example.com" reason="resume" />
+    );
+    expect(
+      screen.getByText(
+        'Your password encrypts your synced data so only you can access it.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/when you use this passkey/)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Finish sign in')).not.toBeInTheDocument();
+    expect(GleanMetrics.passkeyEnterPassword.view).not.toHaveBeenCalled();
+  });
+
   describe('Glean events', () => {
     it('fires view with the default surface reason on mount', () => {
       renderWithRouter(<SigninPasskeyFallback email="user@example.com" />);

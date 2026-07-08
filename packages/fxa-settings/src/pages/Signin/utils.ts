@@ -298,7 +298,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // unverified email) and we know their session isn't fully verified, then send them
     // an otp code. Sending here couples the email with the actual navigation action.
     if (
-      (to?.includes('signin_token_code') || to?.includes('confirm_signup_code')) &&
+      (to?.includes('signin_token_code') ||
+        to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
       navigationOptions.signinData.verificationMethod ===
         VerificationMethods.EMAIL_OTP
@@ -332,7 +333,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         return { error };
       }
       if (to) {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -368,7 +370,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({ navigate,
+      performNavigation({
+        navigate,
         to,
         locationState,
         shouldHardNavigate,
@@ -409,7 +412,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       if (to === '/post_verify/service_welcome') {
         navigate(to, { state: { origin: 'signin' }, replace: true });
       } else {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -574,7 +578,7 @@ const getOAuthNavigationTarget = async (
   if (
     navigationOptions.isSignInWithThirdPartyAuth &&
     navigationOptions.integration.requiresPasswordForLogin(
-      navigationOptions.supportsKeysOptionalLogin
+      navigationOptions.browserSupportsKeysOptional
     )
   ) {
     const syncNav = getSyncNavigate(navigationOptions.queryParams, {

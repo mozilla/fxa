@@ -100,14 +100,14 @@ describe('Index page', () => {
     thirdPartyAuthNotRendered();
   });
 
-  it('renders third party auth with service=relay when supportsKeysOptionalLogin is true', () => {
+  it('renders third party auth with service=relay when browserSupportsKeysOptional is true', () => {
     renderWithLocalizationProvider(
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
           isFirefoxClientServiceRelay: true,
         })}
-        supportsKeysOptionalLogin={true}
+        browserSupportsKeysOptional={true}
       />
     );
 
@@ -115,14 +115,14 @@ describe('Index page', () => {
     thirdPartyAuthWithSeparatorRendered();
   });
 
-  it('renders third party auth with service=smartwindow when supportsKeysOptionalLogin is true', () => {
+  it('renders third party auth with service=smartwindow when browserSupportsKeysOptional is true', () => {
     renderWithLocalizationProvider(
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
           isFirefoxClientServiceSmartWindow: true,
         })}
-        supportsKeysOptionalLogin={true}
+        browserSupportsKeysOptional={true}
       />
     );
 

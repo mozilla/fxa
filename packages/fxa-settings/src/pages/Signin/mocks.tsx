@@ -99,10 +99,10 @@ export function createMockSigninWebIntegration({
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     data: new IntegrationData(new GenericData({})),
@@ -111,6 +111,13 @@ export function createMockSigninWebIntegration({
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -137,10 +144,10 @@ export function createMockSigninOAuthNativeSyncIntegration({
     requiresKeys: () => isSync,
     wantsKeysIfPasswordEntered: () => !isSync,
     wantsKeys: () => true,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     getService: () => MozServices.FirefoxSync,
@@ -151,6 +158,13 @@ export function createMockSigninOAuthNativeSyncIntegration({
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => !isSync && !isMobile,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -181,10 +195,10 @@ export function createMockSigninOAuthIntegration({
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     wantsLogin: () => false,
@@ -195,6 +209,13 @@ export function createMockSigninOAuthIntegration({
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
     isFirefoxClient: () => false,
@@ -225,10 +246,10 @@ export function createMockSigninOAuthNativeIntegration({
     requiresKeys: () => isSync,
     wantsKeysIfPasswordEntered: () => isRelay || isSmartWindow || isVpn,
     wantsKeys: () => true,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     wantsLogin: () => false,
@@ -239,6 +260,13 @@ export function createMockSigninOAuthNativeIntegration({
     isFirefoxClientServiceSmartWindow: () => isSmartWindow,
     isFirefoxClientServiceVpn: () => isVpn,
     isFirefoxNonSync: () => isRelay || isSmartWindow || isVpn,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
@@ -367,7 +395,7 @@ export const mockSendUnblockEmailHandler: SendUnblockEmailHandler = () =>
 export type SubjectProps = Partial<SigninProps> & {
   sessionToken?: hexstring;
   cachedSigninHandler?: CachedSigninHandler;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
   passwordlessSupported?: boolean;
   skipPasswordlessRedirect?: boolean;
   /**
@@ -395,11 +423,11 @@ export const Subject = ({
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   isSignedIntoFirefox = false,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
   passkeyEnabled = false,
   ...props // overrides
 }: SubjectProps = {}) => {
-  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
+  const useFxAStatusResult = mockUseFxAStatus({ browserSupportsKeysOptional });
   const contextValue = mockAppContext();
   if (passkeyEnabled && contextValue.config) {
     contextValue.config.featureFlags = {

@@ -308,14 +308,14 @@ describe('Signin component', () => {
         });
       });
 
-      it('does not render third party auth when service=relay and supportsKeysOptionalLogin is false', () => {
+      it('does not render third party auth when service=relay and browserSupportsKeysOptional is false', () => {
         const integration = createMockSigninOAuthNativeIntegration({
           service: OAuthNativeServices.Relay,
           isSync: false,
         });
         render({
           integration,
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
         });
 
         thirdPartyAuthNotRendered();
@@ -324,14 +324,14 @@ describe('Signin component', () => {
         });
       });
 
-      it('renders third party auth when service=relay and supportsKeysOptionalLogin is true', () => {
+      it('renders third party auth when service=relay and browserSupportsKeysOptional is true', () => {
         const integration = createMockSigninOAuthNativeIntegration({
           service: OAuthNativeServices.Relay,
           isSync: false,
         });
         render({
           integration,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
         });
 
         expect(
@@ -345,14 +345,14 @@ describe('Signin component', () => {
         });
       });
 
-      it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', () => {
+      it('renders third party auth when service=smartwindow and browserSupportsKeysOptional is true', () => {
         const integration = createMockSigninOAuthNativeIntegration({
           service: OAuthNativeServices.SmartWindow,
           isSync: false,
         });
         render({
           integration,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
         });
 
         expect(
@@ -1027,7 +1027,7 @@ describe('Signin component', () => {
       passwordInputNotRendered();
     });
 
-    it('sends webchannel message if cached signin for service=relay when supportsKeysOptionalLogin is true', async () => {
+    it('sends webchannel message if cached signin for service=relay when browserSupportsKeysOptional is true', async () => {
       const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 
       const integration = createMockSigninOAuthNativeIntegration({
@@ -1037,7 +1037,7 @@ describe('Signin component', () => {
       render({
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: true,
+        browserSupportsKeysOptional: true,
       });
       await submit();
       await waitFor(() => {
@@ -1679,7 +1679,7 @@ describe('Signin component', () => {
             integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
             isSignedIntoFirefox={true}
-            supportsKeysOptionalLogin={true}
+            browserSupportsKeysOptional={true}
           />
         );
 
@@ -1931,7 +1931,7 @@ describe('Signin component', () => {
             cmsInfo: cachedCmsInfo,
           }),
           isSignedIntoFirefox: true,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });

@@ -10,7 +10,7 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 export interface SigninRecoveryPhoneContainerProps {
   integration: Integration;
   setCurrentSplitLayout?: (value: boolean) => void;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }
 
 export interface SigninRecoveryPhoneLocationState extends SigninLocationState {

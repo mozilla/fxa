@@ -16,6 +16,7 @@ import {
 import { getCredential, isWebAuthnSupported } from './webauthn';
 import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import firefox from '../channels/firefox';
 import GleanMetrics from '../glean';
 import { queryParamsToMetricsContext } from '../metrics';
 import type { QueryParams } from '../..';
@@ -47,6 +48,12 @@ jest.mock('@sentry/browser', () => ({
 jest.mock('../storage-utils', () => ({
   __esModule: true,
   storeAccountData: jest.fn(),
+}));
+
+jest.mock('../channels/firefox', () => ({
+  __esModule: true,
+  ...jest.requireActual('../channels/firefox'),
+  default: { fxaLogin: jest.fn() },
 }));
 
 jest.mock('../glean', () => ({
@@ -154,6 +161,7 @@ const buildArgs = (
     getService: () => undefined,
     getClientId: () => 'service-id',
     isFirefoxMobileClient: () => false,
+    allowsPreKeysSyncLogin: (b: boolean) => b,
     type: IntegrationType.OAuthWeb,
     data: {},
     wantsTwoStepAuthentication: () => false,
@@ -277,6 +285,7 @@ describe('usePasskeySignIn', () => {
         getService: () => 'sync',
         getClientId: () => 'client-id-should-not-be-used',
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthNative,
         data: {},
         wantsTwoStepAuthentication: () => false,
@@ -306,6 +315,7 @@ describe('usePasskeySignIn', () => {
         getService: () => undefined,
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.Web,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -377,7 +387,7 @@ describe('usePasskeySignIn', () => {
     [
       true,
       '/signin_passkey_fallback',
-      { state: { passkeySurface: 'emailfirst' } },
+      { state: { passkeySurface: 'emailfirst', syncPreKeysLoginSent: false } },
     ],
     [
       false,
@@ -386,6 +396,7 @@ describe('usePasskeySignIn', () => {
         state: {
           passwordCreationReason: 'passkey',
           passkeySurface: 'emailfirst',
+          syncPreKeysLoginSent: false,
         },
       },
     ],
@@ -397,6 +408,7 @@ describe('usePasskeySignIn', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
           requiresPasswordForLogin: () => true,
+          allowsPreKeysSyncLogin: () => false,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -423,6 +435,97 @@ describe('usePasskeySignIn', () => {
     }
   );
 
+  describe('POC: pre-keys keyless login for desktop Sync', () => {
+    const buildSyncKeysRequiredArgs = (
+      integrationOverrides: Record<string, unknown> = {},
+      argOverrides: Partial<Parameters<typeof usePasskeySignIn>[0]> = {}
+    ) =>
+      buildArgs({
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
+          getService: () => 'sync',
+          isFirefoxMobileClient: () => false,
+          allowsPreKeysSyncLogin: (b: boolean) => b,
+          getWebChannelServices: () => ({ sync: {} }),
+          type: IntegrationType.OAuthNative,
+          data: {},
+          ...integrationOverrides,
+        } as unknown as PasskeySignInIntegration,
+        ...argOverrides,
+      });
+
+    it('sends a keyless fxaLogin before the password step when browserSupportsKeysOptional is true', async () => {
+      const { args } = buildSyncKeysRequiredArgs(undefined, {
+        browserSupportsKeysOptional: true,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(firefox.fxaLogin as jest.Mock).toHaveBeenCalledWith({
+        email: EMAIL,
+        sessionToken: SESSION_TOKEN,
+        uid: UID,
+        verified: true,
+        services: { sync: {} },
+      });
+    });
+
+    it('does not send fxaLogin when browserSupportsKeysOptional is false', async () => {
+      const { args } = buildSyncKeysRequiredArgs();
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(firefox.fxaLogin as jest.Mock).not.toHaveBeenCalled();
+    });
+
+    it('does not send fxaLogin on Firefox mobile even when browserSupportsKeysOptional is true', async () => {
+      // Drive the predicate off the same mobile flag (capability AND not-mobile)
+      // so this exercises the mobile exclusion instead of restating the
+      // capability-off case above with a constant-false stub. The full
+      // capability/Sync/mobile rule is unit-tested in integration.test.ts.
+      const isMobile = true;
+      const { args } = buildSyncKeysRequiredArgs(
+        {
+          isFirefoxMobileClient: () => isMobile,
+          allowsPreKeysSyncLogin: (b: boolean) => b && !isMobile,
+        },
+        { browserSupportsKeysOptional: true }
+      );
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(firefox.fxaLogin as jest.Mock).not.toHaveBeenCalled();
+    });
+
+    it('still routes to the password step after sending the keyless login', async () => {
+      const { args, spies } = buildSyncKeysRequiredArgs(undefined, {
+        browserSupportsKeysOptional: true,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        { state: { passkeySurface: 'emailfirst', syncPreKeysLoginSent: true } }
+      );
+      expect(handleNavigation).not.toHaveBeenCalled();
+    });
+  });
+
   it('routes a non-Sync sign-in to set_password when requiresPasswordForLogin is true', async () => {
     const { args, spies } = buildArgs({
       integration: {
@@ -432,6 +535,7 @@ describe('usePasskeySignIn', () => {
         getService: () => 'vpn',
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthNative,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -458,13 +562,14 @@ describe('usePasskeySignIn', () => {
         state: {
           passwordCreationReason: 'passkey',
           passkeySurface: 'emailfirst',
+          syncPreKeysLoginSent: false,
         },
       }
     );
     expect(handleNavigation).not.toHaveBeenCalled();
   });
 
-  it('forwards supportsKeysOptionalLogin to integration.requiresPasswordForLogin', async () => {
+  it('forwards browserSupportsKeysOptional to integration.requiresPasswordForLogin', async () => {
     const requiresPasswordForLogin = jest.fn().mockReturnValue(false);
     const { args } = buildArgs({
       integration: {
@@ -474,10 +579,11 @@ describe('usePasskeySignIn', () => {
         getService: () => 'vpn',
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthNative,
         data: {},
       } as unknown as PasskeySignInIntegration,
-      supportsKeysOptionalLogin: true,
+      browserSupportsKeysOptional: true,
     });
 
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
@@ -498,6 +604,7 @@ describe('usePasskeySignIn', () => {
         requiresPasswordForLogin: () => false,
         getService: () => undefined,
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthNative,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -526,6 +633,7 @@ describe('usePasskeySignIn', () => {
         getService: () => 'vpn',
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => true,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthNative,
         data: {},
       } as unknown as PasskeySignInIntegration,
@@ -546,13 +654,13 @@ describe('usePasskeySignIn', () => {
       'emailfirst' as const,
       true,
       '/signin_passkey_fallback',
-      { state: { passkeySurface: 'emailfirst' } },
+      { state: { passkeySurface: 'emailfirst', syncPreKeysLoginSent: false } },
     ],
     [
       'login' as const,
       true,
       '/signin_passkey_fallback',
-      { state: { passkeySurface: 'signin' } },
+      { state: { passkeySurface: 'signin', syncPreKeysLoginSent: false } },
     ],
     // No-password surfaces (otplogin, alternative_auth) route to set-password
     // (createdpassword); they never reach the existing-password fallback.
@@ -564,6 +672,7 @@ describe('usePasskeySignIn', () => {
         state: {
           passwordCreationReason: 'passkey',
           passkeySurface: 'otplogin',
+          syncPreKeysLoginSent: false,
         },
       },
     ],
@@ -575,6 +684,7 @@ describe('usePasskeySignIn', () => {
         state: {
           passwordCreationReason: 'passkey',
           passkeySurface: 'alternative_auth',
+          syncPreKeysLoginSent: false,
         },
       },
     ],
@@ -587,6 +697,7 @@ describe('usePasskeySignIn', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
           requiresPasswordForLogin: () => true,
+          allowsPreKeysSyncLogin: () => false,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -960,7 +1071,9 @@ describe('usePasskeySignIn', () => {
       'fires passkey.auth_success with reason=%s on the no-Sync-password branch (surface=%s)',
       async (surface, expectedReason) => {
         const { args } = buildArgs({ surface });
-        const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+        const { result } = renderHook(() => usePasskeySignIn(args), {
+          wrapper,
+        });
         await act(async () => {
           await result.current.onClick();
         });
@@ -978,6 +1091,7 @@ describe('usePasskeySignIn', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
           requiresPasswordForLogin: () => true,
+          allowsPreKeysSyncLogin: () => false,
           getService: () => 'sync',
           type: IntegrationType.OAuthNative,
           data: {},
@@ -997,7 +1111,7 @@ describe('usePasskeySignIn', () => {
 
       expect(spies.navigateWithQuery).toHaveBeenCalledWith(
         '/signin_passkey_fallback',
-        { state: { passkeySurface: 'emailfirst' } }
+        { state: { passkeySurface: 'emailfirst', syncPreKeysLoginSent: false } }
       );
       expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
     });
@@ -1061,6 +1175,7 @@ describe('usePasskeySignIn', () => {
         getService: () => undefined,
         getClientId: () => 'service-id',
         isFirefoxMobileClient: () => false,
+        allowsPreKeysSyncLogin: (b: boolean) => b,
         type: IntegrationType.OAuthWeb,
         data: {},
         wantsTwoStepAuthentication: () => true,
@@ -1150,6 +1265,7 @@ describe('usePasskeySignIn', () => {
             getService: () => undefined,
             getClientId: () => 'service-id',
             isFirefoxMobileClient: () => false,
+            allowsPreKeysSyncLogin: (b: boolean) => b,
             type: IntegrationType.OAuthWeb,
             data: {},
             wantsTwoStepAuthentication: () => false,

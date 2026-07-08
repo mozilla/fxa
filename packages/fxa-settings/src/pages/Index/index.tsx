@@ -56,6 +56,8 @@ export const Index = ({
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const browserSupportsKeysOptional =
+    useFxAStatusResult.browserSupportsKeysOptional;
 
   const passkey = usePasskeySignIn({
     integration,
@@ -67,7 +69,7 @@ export const Index = ({
     flowQueryParams,
     surface: 'emailfirst',
     isButtonVisible: showPasskeySignin,
-    supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
   const handlePasskeyClick = () => {
     // Cancel any pending suggested-email auto-submit so it can't override
@@ -244,7 +246,7 @@ export const Index = ({
       <AlternativeAuthOptions
         showThirdPartyAuth={
           !isOAuthNativeIntegration(integration) ||
-          useFxAStatusResult.supportsKeysOptionalLogin
+          integration.supportsKeylessLogin(browserSupportsKeysOptional)
         }
         showPasskeySignin={showPasskeySignin}
         passkeySignIn={

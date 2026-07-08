@@ -35,7 +35,7 @@ import { SigninLocationState } from '../interfaces';
 const SigninRecoveryPhoneContainer = ({
   integration,
   setCurrentSplitLayout,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional,
 }: SigninRecoveryPhoneContainerProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
@@ -116,7 +116,7 @@ const SigninRecoveryPhoneContainer = ({
       // defer the success alert and browser login messages.
       if (
         isPasswordlessSignin &&
-        integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+        integration.requiresPasswordForLogin(browserSupportsKeysOptional)
       ) {
         navigateWithQuery('/post_verify/set_password', {
           replace: true,

@@ -46,7 +46,7 @@ const SigninCached = ({
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
   onSessionExpired,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional,
 }: SigninCachedProps) => {
   const authClient = useAuthClient();
   const config = useConfig();
@@ -63,7 +63,7 @@ const SigninCached = ({
   // and let handleNavigation route to set_password.
   const deferKeysUntilPasswordSet =
     !hasPassword &&
-    integration.requiresPasswordForLogin(supportsKeysOptionalLogin);
+    integration.requiresPasswordForLogin(browserSupportsKeysOptional);
 
   const {
     clientId,
@@ -166,7 +166,7 @@ const SigninCached = ({
         // auth or OTP) defer web channel messages until after password creation.
         handleFxaLogin: !deferKeysUntilPasswordSet,
         handleFxaOAuthLogin: !deferKeysUntilPasswordSet,
-        supportsKeysOptionalLogin,
+        browserSupportsKeysOptional,
         // Redirect these passwordless users to set_password after session
         // verification.
         isSignInWithThirdPartyAuth: deferKeysUntilPasswordSet,
@@ -203,7 +203,7 @@ const SigninCached = ({
     integration,
     finishOAuthFlowHandler,
     deferKeysUntilPasswordSet,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
     location.search,
     webRedirectCheck,
     isServiceWithEmailVerification,

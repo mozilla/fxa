@@ -14,6 +14,7 @@ import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
 import { AccountAvatar } from '../../../lib/interfaces';
 import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
+import { EnterPasswordReason } from '../interfaces';
 
 export type SigninPasskeyFallbackProps = {
   email?: string;
@@ -22,6 +23,11 @@ export type SigninPasskeyFallbackProps = {
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
   passkeySurface?: PasskeyMetricsSurface;
+  /**
+   * Why this page is shown. `passkey` (default) keeps the passkey copy + Glean
+   * events; `resume` (Turn-on-Sync) shows generic copy and skips passkey metrics.
+   */
+  reason?: EnterPasswordReason;
 };
 
 type FormData = {
@@ -37,6 +43,7 @@ const SigninPasskeyFallback = ({
   avatarData,
   avatarLoading,
   passkeySurface = 'emailfirst',
+  reason = 'passkey',
 }: SigninPasskeyFallbackProps) => {
   const [passwordErrorText, setPasswordErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,30 +55,33 @@ const SigninPasskeyFallback = ({
   });
 
   useEffect(() => {
+    if (reason !== 'passkey') return;
     GleanMetrics.passkeyEnterPassword.view({
       event: { reason: passkeySurface },
     });
-  }, [passkeySurface]);
+  }, [reason, passkeySurface]);
 
   // Fire engage on the first keystroke into the password field. Mirrors the
   // pattern used in PostVerify/SetPassword.
   const [hasEngaged, setHasEngaged] = useState(false);
   const passwordValue = watch('password');
   useEffect(() => {
-    if (!hasEngaged && passwordValue) {
+    if (reason === 'passkey' && !hasEngaged && passwordValue) {
       setHasEngaged(true);
       GleanMetrics.passkeyEnterPassword.engage({
         event: { reason: passkeySurface },
       });
     }
-  }, [hasEngaged, passwordValue, passkeySurface]);
+  }, [reason, hasEngaged, passwordValue, passkeySurface]);
 
   const handleContinue = useCallback(
     async (data: FormData) => {
       if (!onContinue) return;
-      GleanMetrics.passkeyEnterPassword.submit({
-        event: { reason: passkeySurface },
-      });
+      if (reason === 'passkey') {
+        GleanMetrics.passkeyEnterPassword.submit({
+          event: { reason: passkeySurface },
+        });
+      }
       setIsSubmitting(true);
       try {
         await onContinue(data.password);
@@ -79,7 +89,7 @@ const SigninPasskeyFallback = ({
         setIsSubmitting(false);
       }
     },
-    [onContinue, passkeySurface]
+    [onContinue, passkeySurface, reason]
   );
 
   return (
@@ -91,20 +101,30 @@ const SigninPasskeyFallback = ({
         />
       )}
 
-      <FtlMsg id="signin-passkey-fallback-header">
-        <p className="text-sm text-grey-500 mb-2">Finish sign in</p>
-      </FtlMsg>
+      {reason === 'passkey' && (
+        <FtlMsg id="signin-passkey-fallback-header">
+          <p className="text-sm text-grey-500 mb-2">Finish sign in</p>
+        </FtlMsg>
+      )}
 
       <FtlMsg id="signin-passkey-fallback-heading">
         <h1 className="card-header mb-2">Enter your password to sync</h1>
       </FtlMsg>
 
-      <FtlMsg id="signin-passkey-fallback-body">
-        <p className="text-sm mb-6">
-          To keep your data safe, you need to enter your password when you use
-          this passkey.
-        </p>
-      </FtlMsg>
+      {reason === 'passkey' ? (
+        <FtlMsg id="signin-passkey-fallback-body">
+          <p className="text-sm mb-6">
+            To keep your data safe, you need to enter your password when you use
+            this passkey.
+          </p>
+        </FtlMsg>
+      ) : (
+        <FtlMsg id="signin-fallback-enter-password-body">
+          <p className="text-sm mb-6">
+            Your password encrypts your synced data so only you can access it.
+          </p>
+        </FtlMsg>
+      )}
 
       {email && (
         <div className="flex items-center gap-3 mb-6">

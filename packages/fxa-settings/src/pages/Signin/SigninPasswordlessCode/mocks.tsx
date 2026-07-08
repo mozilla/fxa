@@ -95,9 +95,9 @@ export const Subject = ({
   hasPasskey = undefined,
   isSignedIntoFirefox = false,
   sendError = null,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
 }: Partial<SigninPasswordlessCodeProps> & {
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) => {
   return (
     <MemoryRouter>
@@ -112,7 +112,7 @@ export const Subject = ({
           hasPasskey,
           isSignedIntoFirefox,
           sendError,
-          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
+          useFxAStatusResult: mockUseFxAStatus({ browserSupportsKeysOptional }),
         }}
       />
     </MemoryRouter>

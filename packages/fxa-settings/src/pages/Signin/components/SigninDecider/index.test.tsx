@@ -15,7 +15,8 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
 } from '../../mocks';
-import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../../mocks';
+import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../../mocks';
+import * as CacheModule from '../../../../lib/cache';
 
 jest.mock('../../../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
@@ -67,7 +68,7 @@ describe('SigninDecider routing', () => {
   });
 
   describe('cached vs password based on keys-optional', () => {
-    it('routes to cached signin for service=relay when supportsKeysOptionalLogin is true', () => {
+    it('routes to cached signin for service=relay when browserSupportsKeysOptional is true', () => {
       const integration = createMockSigninOAuthNativeIntegration({
         service: OAuthNativeServices.Relay,
         isSync: false,
@@ -75,13 +76,13 @@ describe('SigninDecider routing', () => {
       render({
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: true,
+        browserSupportsKeysOptional: true,
       });
 
       passwordInputNotRendered();
     });
 
-    it('routes to cached signin for service=smartwindow when supportsKeysOptionalLogin is true', () => {
+    it('routes to cached signin for service=smartwindow when browserSupportsKeysOptional is true', () => {
       const integration = createMockSigninOAuthNativeIntegration({
         service: OAuthNativeServices.SmartWindow,
         isSync: false,
@@ -89,13 +90,13 @@ describe('SigninDecider routing', () => {
       render({
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: true,
+        browserSupportsKeysOptional: true,
       });
 
       passwordInputNotRendered();
     });
 
-    it('routes to password signin for service=relay when supportsKeysOptionalLogin is false', () => {
+    it('routes to password signin for service=relay when browserSupportsKeysOptional is false', () => {
       const integration = createMockSigninOAuthNativeIntegration({
         service: OAuthNativeServices.Relay,
         isSync: false,
@@ -103,7 +104,7 @@ describe('SigninDecider routing', () => {
       render({
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
         isSignedIntoFirefox: false,
       });
 
@@ -125,7 +126,7 @@ describe('SigninDecider routing', () => {
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
         isSignedIntoFirefox: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
       });
 
       passwordInputNotRendered();
@@ -142,7 +143,7 @@ describe('SigninDecider routing', () => {
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
         isSignedIntoFirefox: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
       });
 
       passwordInputNotRendered();
@@ -158,7 +159,7 @@ describe('SigninDecider routing', () => {
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
         isSignedIntoFirefox: false,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
       });
 
       passwordInputRendered();
@@ -174,7 +175,7 @@ describe('SigninDecider routing', () => {
         integration,
         sessionToken: MOCK_SESSION_TOKEN,
         isSignedIntoFirefox: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
       });
 
       passwordInputRendered();
@@ -318,6 +319,61 @@ describe('SigninDecider routing', () => {
           expect.anything()
         );
       });
+    });
+  });
+
+  describe('resume reroute to enter-password fallback', () => {
+    const storedAccount = {
+      uid: MOCK_UID,
+      email: MOCK_EMAIL,
+      sessionToken: MOCK_SESSION_TOKEN,
+      verified: true,
+    };
+
+    it('reroutes a cached has-password Sync account signed into Firefox to /signin_passkey_fallback', async () => {
+      jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+      render({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+      });
+
+      await waitFor(() => {
+        expect(mockPasswordlessNavigate).toHaveBeenCalledWith(
+          '/signin_passkey_fallback',
+          { state: { reason: 'resume' } }
+        );
+      });
+    });
+
+    it('does NOT reroute when the browser is not signed in (no session to resume)', () => {
+      jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+      render({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: false,
+      });
+
+      expect(mockPasswordlessNavigate).not.toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        expect.anything()
+      );
+      passwordInputRendered();
+    });
+
+    it('does NOT reroute when there is no stored account to hydrate the fallback', () => {
+      jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(undefined);
+      render({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+      });
+
+      expect(mockPasswordlessNavigate).not.toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        expect.anything()
+      );
+      passwordInputRendered();
     });
   });
 });

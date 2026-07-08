@@ -43,7 +43,7 @@ const storyWithProps = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 } = {}) => {
   const story = () => <Subject {...props} />;
   return story;
@@ -62,7 +62,7 @@ export const WithThirdPartyAuthServiceRelayIntegration = storyWithProps({
     isFirefoxClientServiceRelay: true,
     isSync: false,
   }),
-  supportsKeysOptionalLogin: true,
+  browserSupportsKeysOptional: true,
 });
 
 export const WithThirdPartyAuthServiceSmartWindowIntegration = storyWithProps({
@@ -70,7 +70,7 @@ export const WithThirdPartyAuthServiceSmartWindowIntegration = storyWithProps({
     isFirefoxClientServiceSmartWindow: true,
     isSync: false,
   }),
-  supportsKeysOptionalLogin: true,
+  browserSupportsKeysOptional: true,
 });
 
 export const WithPrefilledEmail = storyWithProps({

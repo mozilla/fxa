@@ -157,7 +157,7 @@ export const SigninTotpCode = ({
       if (
         isPasswordlessSignin &&
         integration.requiresPasswordForLogin(
-          useFxAStatusResult.supportsKeysOptionalLogin
+          useFxAStatusResult.browserSupportsKeysOptional
         )
       ) {
         navigateWithQuery('/post_verify/set_password', {

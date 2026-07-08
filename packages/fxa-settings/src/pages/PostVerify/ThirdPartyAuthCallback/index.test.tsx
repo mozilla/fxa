@@ -142,7 +142,7 @@ function mockOAuthNativeIntegration({
 function renderWith(props?: {
   flowQueryParams?: QueryParams;
   integration: ModelsModule.Integration;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) {
   const {
     flowQueryParams = {
@@ -150,9 +150,9 @@ function renderWith(props?: {
       flowBeginTime: 1734112296874,
     },
     integration = mockThirdPartyAuthCallbackIntegration(),
-    supportsKeysOptionalLogin = false,
+    browserSupportsKeysOptional = false,
   } = props ?? {};
-  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
+  const useFxAStatusResult = mockUseFxAStatus({ browserSupportsKeysOptional });
   return renderWithLocalizationProvider(
     <MemoryRouter>
       <AppContext.Provider
@@ -286,7 +286,7 @@ describe('ThirdPartyAuthCallback component', () => {
         handleFxaOAuthLogin: false,
         integration: integration,
         isSignInWithThirdPartyAuth: true,
-        supportsKeysOptionalLogin: false,
+        browserSupportsKeysOptional: false,
         queryParams: '?',
         redirectTo: redirectTo,
         authClient: useAuthClient(),
@@ -344,7 +344,7 @@ describe('ThirdPartyAuthCallback component', () => {
     });
     renderWith({
       integration,
-      supportsKeysOptionalLogin: false,
+      browserSupportsKeysOptional: false,
     });
     await waitFor(() => {
       expect(handleNavigation).toHaveBeenCalledWith(
@@ -352,7 +352,7 @@ describe('ThirdPartyAuthCallback component', () => {
           handleFxaLogin: false,
           handleFxaOAuthLogin: false,
           isSignInWithThirdPartyAuth: true,
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
         })
       );
     });
@@ -365,7 +365,7 @@ describe('ThirdPartyAuthCallback component', () => {
     });
     renderWith({
       integration,
-      supportsKeysOptionalLogin: true,
+      browserSupportsKeysOptional: true,
     });
     await waitFor(() => {
       expect(handleNavigation).toHaveBeenCalledWith(
@@ -373,7 +373,7 @@ describe('ThirdPartyAuthCallback component', () => {
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
           isSignInWithThirdPartyAuth: true,
-          supportsKeysOptionalLogin: true,
+          browserSupportsKeysOptional: true,
         })
       );
     });
@@ -388,7 +388,7 @@ describe('ThirdPartyAuthCallback component', () => {
     });
     renderWith({
       integration,
-      supportsKeysOptionalLogin: false,
+      browserSupportsKeysOptional: false,
     });
     await waitFor(() => {
       expect(handleNavigation).toHaveBeenCalledWith(
@@ -396,7 +396,7 @@ describe('ThirdPartyAuthCallback component', () => {
           handleFxaLogin: false,
           handleFxaOAuthLogin: false,
           isSignInWithThirdPartyAuth: true,
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
         })
       );
     });

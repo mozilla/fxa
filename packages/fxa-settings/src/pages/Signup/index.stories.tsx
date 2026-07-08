@@ -31,16 +31,16 @@ const StoryWithProps = ({
   integration = createMockSignupOAuthWebIntegration(),
   isMobile = false,
   offeredSyncEnginesOverride,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
 }: {
   integration?: SignupIntegration;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   isMobile?: boolean;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) => {
   const useFxAStatusResult = mockUseFxAStatus({
     offeredSyncEnginesOverride,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
 
   return (
@@ -91,7 +91,7 @@ export const WithThirdPartyAuthServiceRelayIntegration = () => (
       OAuthNativeServices.Relay,
       false
     )}
-    supportsKeysOptionalLogin={true}
+    browserSupportsKeysOptional={true}
   />
 );
 
@@ -101,7 +101,7 @@ export const WithThirdPartyAuthServiceSmartWindowIntegration = () => (
       OAuthNativeServices.SmartWindow,
       false
     )}
-    supportsKeysOptionalLogin={true}
+    browserSupportsKeysOptional={true}
   />
 );
 

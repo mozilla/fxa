@@ -34,7 +34,7 @@ const SetPasswordContainer = ({
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   },
 }: {
   integration: Integration;
@@ -52,6 +52,7 @@ const SetPasswordContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SetPasswordLocationState;
   };
+  const syncPreKeysLoginSent = location.state?.syncPreKeysLoginSent ?? false;
   // All known navigation paths set this explicitly (`getSyncNavigate` for
   // third-party-auth, `SigninPasswordlessCode` for OTP, `signin-flow` for
   // passkey). The default is a safety net for direct URL hits or page
@@ -185,7 +186,7 @@ const SetPasswordContainer = ({
             integration,
             finishOAuthFlowHandler,
             queryParams: location.search,
-            handleFxaLogin: true,
+            handleFxaLogin: !syncPreKeysLoginSent,
             handleFxaOAuthLogin: true,
             showSignupConfirmedSync: true,
             origin: 'post-verify-set-password',
@@ -222,8 +223,34 @@ const SetPasswordContainer = ({
       gleanReason,
       offeredSyncEngines,
       location.search,
+      syncPreKeysLoginSent,
     ]
   );
+
+  // Redirect to /signin when this page does not apply: missing auth, keys not
+  // required for this login, or the account already has a password. Run in an
+  // effect (not during render) to avoid React Router's navigate-during-render.
+  useEffect(() => {
+    const missingAuthOrNoPasswordNeeded =
+      !email ||
+      !sessionToken ||
+      !uid ||
+      !integration.requiresPasswordForLogin(browserSupportsKeysOptional);
+    const alreadyHasPassword =
+      !passwordStatus.isLoading && passwordStatus.hasPassword;
+    if (missingAuthOrNoPasswordNeeded || alreadyHasPassword) {
+      navigateWithQuery('/signin', { replace: true });
+    }
+  }, [
+    email,
+    sessionToken,
+    uid,
+    integration,
+    browserSupportsKeysOptional,
+    passwordStatus.isLoading,
+    passwordStatus.hasPassword,
+    navigateWithQuery,
+  ]);
 
   // Users must be already authenticated on this page.
   // This page only applies applies to flows where a passwordless account must
@@ -234,9 +261,8 @@ const SetPasswordContainer = ({
     !email ||
     !sessionToken ||
     !uid ||
-    !integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+    !integration.requiresPasswordForLogin(browserSupportsKeysOptional)
   ) {
-    navigateWithQuery('/signin', { replace: true });
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   if (oAuthDataError) {
@@ -251,7 +277,6 @@ const SetPasswordContainer = ({
 
   // Already has a password (re-entry): sign in instead.
   if (passwordStatus.hasPassword) {
-    navigateWithQuery('/signin', { replace: true });
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 

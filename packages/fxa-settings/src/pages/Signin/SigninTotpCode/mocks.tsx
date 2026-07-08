@@ -31,10 +31,10 @@ export const mockWebSigninIntegration = {
   requiresKeys: () => false,
   wantsKeysIfPasswordEntered: () => false,
   wantsKeys: () => false,
-  requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+  requiresPasswordForLogin(browserSupportsKeysOptional = false) {
     return (
       this.requiresKeys() ||
-      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
     );
   },
   isFirefoxClientServiceRelay: () => false,
@@ -61,10 +61,10 @@ export const mockOAuthNativeSigninIntegration = (
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     isFirefoxClientServiceRelay: () => isRelay,
@@ -112,9 +112,9 @@ export const Subject = ({
   serviceName = MozServices.Default,
   signinState = MOCK_TOTP_LOCATION_STATE,
   submitTotpCode = mockSubmitTotpCode,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
 }: Partial<SigninTotpCodeProps> & {
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) => {
   return (
     <AppContext.Provider value={mockAppContext()}>
@@ -125,7 +125,7 @@ export const Subject = ({
           serviceName,
           signinState,
           submitTotpCode,
-          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
+          useFxAStatusResult: mockUseFxAStatus({ browserSupportsKeysOptional }),
         }}
       />
     </AppContext.Provider>

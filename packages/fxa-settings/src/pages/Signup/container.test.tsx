@@ -61,6 +61,9 @@ function mockIntegration() {
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
     getLegalTerms: () => undefined,
@@ -192,7 +195,7 @@ async function render(text?: string) {
           offeredSyncEngineConfigs: [],
           selectedEnginesForGlean: {},
           declinedSyncEngines: [],
-          supportsKeysOptionalLogin: false,
+          browserSupportsKeysOptional: false,
           supportsCanLinkAccountUid: false,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}

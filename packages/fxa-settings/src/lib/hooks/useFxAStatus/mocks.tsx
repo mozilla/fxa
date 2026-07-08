@@ -7,11 +7,11 @@ import type { UseFxAStatusResult } from '.';
 
 export function mockUseFxAStatus({
   offeredSyncEnginesOverride,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
   supportsCanLinkAccountUid,
 }: {
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
   supportsCanLinkAccountUid?: boolean | undefined;
 } = {}) {
   const offeredSyncEngineConfigs = syncEngineConfigs;
@@ -35,7 +35,7 @@ export function mockUseFxAStatus({
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
     supportsCanLinkAccountUid,
   } satisfies UseFxAStatusResult;
 }

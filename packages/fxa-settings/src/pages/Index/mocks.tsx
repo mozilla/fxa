@@ -80,6 +80,13 @@ export function createMockIndexOAuthNativeIntegration({
       isFirefoxClientServiceRelay ||
       isFirefoxClientServiceSmartWindow ||
       isFirefoxClientServiceVpn,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getCmsInfo: () => cmsInfo,
     getLegalTerms: () => undefined,
     getWebChannelServices: () => undefined,
@@ -111,6 +118,13 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isFirefoxDesktopClient: () => false,
     isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getCmsInfo: () => undefined,
     getLegalTerms: () => undefined,
     getWebChannelServices: () => undefined,
@@ -136,7 +150,7 @@ export const Subject = ({
   initialSuccessBanner = '',
   initialTooltipMessage = '',
   isMobile = false,
-  supportsKeysOptionalLogin = false,
+  browserSupportsKeysOptional = false,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
@@ -145,7 +159,7 @@ export const Subject = ({
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
   isMobile?: boolean;
-  supportsKeysOptionalLogin?: boolean;
+  browserSupportsKeysOptional?: boolean;
 }) => {
   const [errorBannerMessage, setErrorBannerMessage] =
     React.useState(initialErrorBanner);
@@ -155,7 +169,7 @@ export const Subject = ({
     initialTooltipMessage
   );
   const mockUseFxAStatusResult = mockUseFxAStatus({
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   });
   return (
     <MemoryRouter>

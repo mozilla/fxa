@@ -84,6 +84,13 @@ export function createMockSigninWebSyncIntegration() {
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
+    supportsKeylessLogin(b: boolean) {
+      return b && this.isFirefoxNonSync();
+    },
+    allowsPreKeysSyncLogin: () => false,
+    nonSyncKeysRequirePassword(b: boolean) {
+      return !b && this.wantsKeysIfPasswordEntered();
+    },
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,

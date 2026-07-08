@@ -45,7 +45,7 @@ const SigninRecoveryCode = ({
   unwrapBKey,
   loading = false,
   setCurrentSplitLayout,
-  supportsKeysOptionalLogin,
+  browserSupportsKeysOptional,
 }: SigninRecoveryCodeProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
@@ -104,7 +104,7 @@ const SigninRecoveryCode = ({
     if (
       (signinState.isPasswordlessOtpSignin ||
         signinState.isSignInWithThirdPartyAuth) &&
-      integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+      integration.requiresPasswordForLogin(browserSupportsKeysOptional)
     ) {
       navigateWithQuery('/post_verify/set_password', {
         replace: true,
@@ -162,7 +162,7 @@ const SigninRecoveryCode = ({
     ftlMsgResolver,
     authClient,
     signinState,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
     navigateWithQuery,
   ]);
 

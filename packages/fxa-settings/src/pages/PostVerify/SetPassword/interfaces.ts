@@ -55,4 +55,9 @@ export interface SetPasswordLocationState {
    * `passkey.auth_success` reasons with the surface.
    */
   passkeySurface?: PasskeyMetricsSurface;
+  /**
+   * True when the passkey flow already sent the keyless `fxaccounts:login`; the
+   * set-password step then sends only the keyed `oauth_login`.
+   */
+  syncPreKeysLoginSent?: boolean;
 }

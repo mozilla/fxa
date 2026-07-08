@@ -50,7 +50,7 @@ export const Signup = ({
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
-    supportsKeysOptionalLogin,
+    browserSupportsKeysOptional,
   },
   flowQueryParams,
   isMobile,
@@ -72,7 +72,7 @@ export const Signup = ({
   const paymentMethodsWillSync =
     isSync && checkPaymentMethodsWillSync(offeredSyncEngines);
   const showThirdPartyAuth = isOAuthNative
-    ? supportsKeysOptionalLogin
+    ? integration.supportsKeylessLogin(browserSupportsKeysOptional)
     : !isSync;
 
   const legalTerms = integration.getLegalTerms();
@@ -341,10 +341,10 @@ export const Signup = ({
           // Require password confirmation whenever the password is used for key
           // derivation — Sync (keys mandatory) and non-Sync Firefox services
           // that derive keys when the browser can't complete a keyless login
-          // (`supportsKeysOptionalLogin` false).
+          // (`browserSupportsKeysOptional` false).
           requirePasswordConfirmation:
             integration.isSync() ||
-            integration.requiresPasswordForLogin(supportsKeysOptionalLogin),
+            integration.requiresPasswordForLogin(browserSupportsKeysOptional),
           setSelectedNewsletterSlugs,
           cmsButton: {
             text: cmsInfo?.SignupSetPasswordPage.primaryButtonText,

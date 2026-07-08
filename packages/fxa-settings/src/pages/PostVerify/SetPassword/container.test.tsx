@@ -91,8 +91,8 @@ function mockModelsModule() {
   });
   mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
     primary: MOCK_EMAIL,
-    original: MOCK_EMAIL
-  })
+    original: MOCK_EMAIL,
+  });
   mockAuthClient.sessionReauthWithAuthPW = jest
     .fn()
     .mockResolvedValue({ keyFetchToken: MOCK_KEY_FETCH_TOKEN });
@@ -147,10 +147,10 @@ function applyDefaultMocks() {
 function render(
   integration = mockSyncDesktopV3Integration(),
   {
-    supportsKeysOptionalLogin = false,
-  }: { supportsKeysOptionalLogin?: boolean } = {}
+    browserSupportsKeysOptional = false,
+  }: { browserSupportsKeysOptional?: boolean } = {}
 ) {
-  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
+  const useFxAStatusResult = mockUseFxAStatus({ browserSupportsKeysOptional });
   renderWithLocalizationProvider(
     <MemoryRouter>
       <SetPasswordContainer
@@ -218,10 +218,10 @@ function mockVpnOAuthNativeIntegration() {
     requiresKeys: () => false,
     wantsKeysIfPasswordEntered: () => true,
     wantsKeys: () => true,
-    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    requiresPasswordForLogin(browserSupportsKeysOptional = false) {
       return (
         this.requiresKeys() ||
-        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+        (!browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered())
       );
     },
     data: { service: 'vpn' },
@@ -271,7 +271,7 @@ describe('SetPassword-container', () => {
   // 147, and Mobile as of Firefox 153.
   it('renders for the non-Sync VPN flow that needs keys when keys are not optional', async () => {
     render(mockVpnOAuthNativeIntegration(), {
-      supportsKeysOptionalLogin: false,
+      browserSupportsKeysOptional: false,
     });
     await waitFor(() => {
       expect(SetPasswordModule.default).toHaveBeenCalled();
@@ -281,7 +281,7 @@ describe('SetPassword-container', () => {
 
   it('redirects to signin for the non-Sync VPN flow when the browser supports keys-optional login', async () => {
     render(mockVpnOAuthNativeIntegration(), {
-      supportsKeysOptionalLogin: true,
+      browserSupportsKeysOptional: true,
     });
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
@@ -412,6 +412,29 @@ describe('SetPassword-container', () => {
           },
         },
       });
+      expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
+        action: 'signin',
+        code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+        redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+        state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+        scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+      });
+    });
+
+    it('does not re-send the keyless fxaLogin when the pre-keys login was already sent', async () => {
+      mockLocation.state = { syncPreKeysLoginSent: true };
+      render(mockOAuthNativeIntegration());
+
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
+      await act(async () => {
+        await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+      });
+
+      // The pre-keys keyless login already fired at passkey time; the
+      // set-password step must send only the keyed oauth_login.
+      expect(fxaLoginSpy).not.toHaveBeenCalled();
       expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
         action: 'signin',
         code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,

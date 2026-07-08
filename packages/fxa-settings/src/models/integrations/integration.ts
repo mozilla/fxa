@@ -200,26 +200,44 @@ export class GenericIntegration<
   }
 
   /**
-   * Whether a passwordless account must set a password because scoped keys
-   * must be derived and sent to the browser.
-   *
-   * - Sync always requires keys (`requiresKeys`), so a passwordless Sync sign-in
-   *   must set a password first.
-   * - A non-Sync Firefox service that wants keys (`wantsKeysIfPasswordEntered`)
-   *   only requires a password when the browser has NOT decoupled Sync. When the
-   *   browser has the "keys optional" capability set (Fx desktop 147+, TBD in mobile),
-   *   it can complete login without keys, so no password is required.
-   *
-   * When this is true (and the caller has also confirmed the account has no
-   * password), when the user has authenticated, route them to
-   * `/post_verify/set_password` and defer the fxaLogin/fxaOAuthLogin web channel
-   * messages until keys are available — otherwise the browser receives a keyless
-   * OAuth login.
+   * Whether a passwordless account must set/enter a password to derive scoped
+   * keys. Sync always requires keys; a non-Sync Firefox service that wants keys
+   * needs a password only when the browser has not advertised `keys_optional`.
+   * `browserSupportsKeysOptional` is the raw browser capability (from
+   * `useFxAStatus`); this method applies the per-integration policy.
    */
-  requiresPasswordForLogin(supportsKeysOptionalLogin = false): boolean {
+  requiresPasswordForLogin(browserSupportsKeysOptional = false): boolean {
     return (
       this.requiresKeys() ||
-      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      this.nonSyncKeysRequirePassword(browserSupportsKeysOptional)
+    );
+  }
+
+  /**
+   * The non-Sync half of `requiresPasswordForLogin`, exposed on its own so
+   * callers (e.g. SigninDecider) reuse it instead of re-open-coding the clause.
+   */
+  nonSyncKeysRequirePassword(browserSupportsKeysOptional = false): boolean {
+    return !browserSupportsKeysOptional && this.wantsKeysIfPasswordEntered();
+  }
+
+  /**
+   * Whether a non-Sync Firefox service may complete login without keys (browser
+   * advertised `keys_optional`, so Sync is decoupled from the service).
+   */
+  supportsKeylessLogin(browserSupportsKeysOptional = false): boolean {
+    return browserSupportsKeysOptional && this.isFirefoxNonSync();
+  }
+
+  /**
+   * Whether a Sync sign-in may send a pre-keys keyless `fxaccounts:login` before
+   * the password step (desktop only; mobile ignores the login message).
+   */
+  allowsPreKeysSyncLogin(browserSupportsKeysOptional = false): boolean {
+    return (
+      browserSupportsKeysOptional &&
+      this.isSync() &&
+      !this.isFirefoxMobileClient()
     );
   }
 
