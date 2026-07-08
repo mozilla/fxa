@@ -1,8 +1,8 @@
 {
-  "commit": "f1ee0a3e09241ccf25db661de87ec0727a342247",
-  "summary": "Merge pull request #20743 from mozilla/dependabot/npm_and_yarn/esbuild-0.28.1",
-  "description": "chore(deps-dev): bump esbuild from 0.17.19 to 0.28.1",
-  "timestamp": 1783527068000,
+  "commit": "20df03757ae71568950d526d89501138e73f8b31",
+  "summary": "Merge pull request #20755 from mozilla/PAY-3773",
+  "description": "refactor(settings): Use react-router instead of reach/router",
+  "timestamp": 1783532376000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
