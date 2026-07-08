@@ -38,6 +38,12 @@ jobs:
           set -euo pipefail
           NOW=$(date +%s)
           REMOVED=0
+          # Record the dirs to prune so the push step can re-apply them onto the
+          # latest gh-pages (non-destructive) instead of force-pushing an orphan,
+          # which would clobber a storybook deploy running concurrently.
+          REMOVE_LIST="${RUNNER_TEMP:-/tmp}/sb-remove.txt"
+          : > "$REMOVE_LIST"
+          echo "REMOVE_LIST=${REMOVE_LIST}" >> "$GITHUB_ENV"
           # Open PR dirs kept this run as "updated_ts<TAB>pr<TAB>dir", for the cap below.
           KEPT=()
 
@@ -49,7 +55,7 @@ jobs:
             # failure keep the dir and let the next scheduled run retry.
             if ! META=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '{state,updated_at}' 2>&1); then
               if printf '%s' "$META" | grep -q 'HTTP 404'; then
-                rm -rf "$dir"
+                rm -rf "$dir"; echo "$dir" >> "$REMOVE_LIST"
                 echo "Removed pr-${PR_NUMBER} (PR not found)"
                 REMOVED=$((REMOVED + 1))
               else
@@ -65,11 +71,11 @@ jobs:
             AGE_DAYS=$(( (NOW - UPDATED_TS) / 86400 ))
 
             if [ "$STATE" = "closed" ]; then
-              rm -rf "$dir"
+              rm -rf "$dir"; echo "$dir" >> "$REMOVE_LIST"
               echo "Removed pr-${PR_NUMBER} (closed)"
               REMOVED=$((REMOVED + 1))
             elif [ "$AGE_DAYS" -gt "$MAX_AGE_DAYS" ]; then
-              rm -rf "$dir"
+              rm -rf "$dir"; echo "$dir" >> "$REMOVE_LIST"
               echo "Removed pr-${PR_NUMBER} (stale: ${AGE_DAYS}d > ${MAX_AGE_DAYS}d)"
               REMOVED=$((REMOVED + 1))
             else
@@ -85,7 +91,7 @@ jobs:
             mapfile -t SORTED < <(printf '%s\n' "${KEPT[@]}" | sort -n)
             for ((i = 0; i < OVER; i++)); do
               IFS=$'\t' read -r _ts pr dir <<<"${SORTED[i]}"
-              rm -rf "$dir"
+              rm -rf "$dir"; echo "$dir" >> "$REMOVE_LIST"
               echo "Removed pr-${pr} (over cap of ${MAX_KEEP})"
             done
             REMOVED=$((REMOVED + OVER))
@@ -100,28 +106,40 @@ jobs:
           path: main-repo
           persist-credentials: false
 
-      - name: Regenerate root index.html
-        run: node main-repo/_scripts/generate-storybook-index.js
+      - name: Commit and push pruned gh-pages
         env:
           STORYBOOKS_DIR: gh-pages/storybooks
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_OWNER: ${{ github.repository_owner }}
-
-      - name: Commit and push to gh-pages
         run: |
-          cd gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C gh-pages config user.name "github-actions[bot]"
+          git -C gh-pages config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "Nothing changed, skipping push"
-            exit 0
-          fi
+          # Non-destructive, retry-on-reject update: re-apply the recorded deletions
+          # and regenerate the index on top of the latest gh-pages, so a storybook
+          # deploy running concurrently is never clobbered. Replaces the old orphan
+          # force-push, which (now that deploys use a per-PR concurrency group) could
+          # wipe a deploy that landed between this job's checkout and its push.
+          pushed=0
+          for attempt in 1 2 3 4 5; do
+            git -C gh-pages fetch --depth 1 origin gh-pages
+            git -C gh-pages reset --hard origin/gh-pages
 
-          # Create orphan branch (no history) with current content
-          git checkout --orphan gh-pages-new
-          git add -A
-          git commit -m "chore: prune storybooks for ${REMOVED} closed/stale/over-cap PR(s)"
+            while IFS= read -r d; do
+              [ -n "$d" ] || continue
+              rm -rf "$d"
+            done < "${REMOVE_LIST:-/dev/null}"
 
-          # Replace gh-pages with the new orphan branch
-          git push --force origin gh-pages-new:gh-pages
+            node main-repo/_scripts/generate-storybook-index.js
+
+            git -C gh-pages add -A
+            if git -C gh-pages diff --cached --quiet; then
+              echo "Nothing to prune after sync"; pushed=1; break
+            fi
+            git -C gh-pages commit -m "chore: prune storybooks for ${REMOVED} closed/stale/over-cap PR(s)"
+            if git -C gh-pages push origin HEAD:gh-pages; then
+              echo "Pushed pruned gh-pages (attempt ${attempt})"; pushed=1; break
+            fi
+            echo "gh-pages advanced during cleanup; retrying (attempt ${attempt})"
+          done
+          [ "$pushed" = "1" ] || { echo "Failed to push cleanup after retries" >&2; exit 1; }

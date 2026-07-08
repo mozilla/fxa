@@ -94,10 +94,12 @@ jobs:
     if: needs.build.outputs.has_storybooks == 'true'
     outputs:
       deploy_dir: ${{ steps.deploy-dir.outputs.path }}
-    # Single concurrency group to prevent conflicts
+    # Per-PR (or per-ref) concurrency: different PRs no longer share one global
+    # lock, so they stop cancelling each other. The non-destructive push below
+    # makes concurrent updates to gh-pages safe without a global serialization group.
     concurrency:
-      group: gh-pages-deploy
-      cancel-in-progress: false
+      group: gh-pages-deploy-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout repository for scripts
@@ -125,29 +127,23 @@ jobs:
           echo "path=$DEPLOY_DIR" >> $GITHUB_OUTPUT
           echo "DEPLOY_DIR=$DEPLOY_DIR" >> $GITHUB_ENV
 
-      - name: Remove old storybook directory
-        run: rm -rf "gh-pages/${DEPLOY_DIR_PATH}"
-        env:
-          DEPLOY_DIR_PATH: ${{ steps.deploy-dir.outputs.path }}
-
       - name: Download storybooks artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: storybooks-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'main' }}
-          path: gh-pages/${{ steps.deploy-dir.outputs.path }}
+          # Stage outside the gh-pages checkout so the reset --hard below can't wipe it
+          path: ${{ runner.temp }}/storybooks-artifact
 
-      - name: Generate root index.html
-        run: node repo/_scripts/generate-storybook-index.js
+      - name: Update gh-pages branch for artifact storage
         env:
+          DEPLOY_DIR: ${{ steps.deploy-dir.outputs.path }}
+          ARTIFACT_DIR: ${{ runner.temp }}/storybooks-artifact
           STORYBOOKS_DIR: gh-pages/storybooks
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_OWNER: ${{ github.repository_owner }}
-
-      - name: Update gh-pages branch for artifact storage
         run: |
-          cd gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C gh-pages config user.name "github-actions[bot]"
+          git -C gh-pages config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             COMMIT_MSG="Store storybooks for PR ${{ github.event.pull_request.number }}"
@@ -155,13 +151,34 @@ jobs:
             COMMIT_MSG="Store storybooks from main branch"
           fi
 
-          # Create orphan branch (no history) with current content
-          git checkout --orphan gh-pages-new
-          git add -A
-          git commit -m "$COMMIT_MSG"
+          # Optimistic-concurrency update: re-apply our storybooks onto the latest
+          # gh-pages and push, retrying if another PR landed first. Replaces the old
+          # orphan force-push, which required a single global concurrency lock and made
+          # concurrent PRs cancel each other ("higher priority waiting request").
+          for attempt in 1 2 3 4 5; do
+            git -C gh-pages fetch --depth 1 origin gh-pages
+            git -C gh-pages reset --hard origin/gh-pages
 
-          # Replace gh-pages with the new orphan branch
-          git push --force origin gh-pages-new:gh-pages
+            rm -rf "gh-pages/${DEPLOY_DIR}"
+            mkdir -p "gh-pages/${DEPLOY_DIR}"
+            cp -R "${ARTIFACT_DIR}/." "gh-pages/${DEPLOY_DIR}/"
+
+            node repo/_scripts/generate-storybook-index.js
+
+            git -C gh-pages add -A
+            git -C gh-pages commit -m "$COMMIT_MSG" || { echo "Nothing to update"; break; }
+
+            if git -C gh-pages push origin HEAD:gh-pages; then
+              echo "Pushed storybooks to gh-pages (attempt ${attempt})"
+              break
+            fi
+
+            if [ "${attempt}" -eq 5 ]; then
+              echo "Failed to update gh-pages after ${attempt} attempts" >&2
+              exit 1
+            fi
+            echo "gh-pages advanced during run; retrying (attempt ${attempt})"
+          done
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
