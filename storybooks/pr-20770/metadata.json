@@ -1,0 +1,12 @@
+{
+  "commit": "4676d2e3607a2caab9f6861638b816c4f4d4b2d1",
+  "summary": "fix(deps): regenerate yarn.lock for multer 2.2.0",
+  "description": "Dependabot rebase left yarn.lock stale vs package.json, failing the frozen\ninstall in CI Init (YN0028). Re-resolve to sync.",
+  "timestamp": 1783476246000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
