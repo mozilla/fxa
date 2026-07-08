@@ -1,0 +1,10 @@
+{
+  "commit": "da4534b402a60db3490d58705d10bf34514a12ae",
+  "summary": "fix(signin): run /oauth/authorization before firing webchannel events",
+  "description": "Because:\n* In handleNavigation's verified-OAuth path, sendFxaLogin (the\n  fxaccounts:login webchannel event) was dispatched synchronously\n  BEFORE awaiting getOAuthNavigationTarget (the /v1/oauth/authorization\n  HTTP call). The browser's async handler for that webchannel message\n  can mutate session state, racing with the in-flight HTTP request.\n* This produced intermittent 401 \"Token not found\" failures on the\n  HTTP call — most reproducibly when the same browser context goes\n  through two consecutive OAuth flows (e.g. the vpn integration test\n  signing into Sync then VPN). The first /oauth/authorization\n  succeeded; the second one would 401 even though the session\n  remained valid for /account/profile, /session/status, and\n  /oauth/token in between.\n\nThis commit:\n* Reorders handleNavigation so getOAuthNavigationTarget runs first,\n  obtaining the OAuth code while the session is still untouched, and\n  THEN fires fxaLogin and fxaOAuthLogin. The Login → OAuthLogin order\n  is preserved (still required for Desktop OAuth per FXA-10388).\n* Adds a v1-account regression test alongside the existing vpn\n  integration test, using target.createAuthClient(1) so the v1→v2\n  upgrade path is exercised on the first sign-in even after\n  testAccountTracker defaults to v2 (separate PR).\n\ncloses FXA-13687",
+  "timestamp": 1782159950000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

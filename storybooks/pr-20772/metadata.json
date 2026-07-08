@@ -1,0 +1,12 @@
+{
+  "commit": "4fd1ee28be32ed71d5b931768e2fd232a740e40a",
+  "summary": "chore(deps): bump http-proxy-middleware from 2.0.9 to 2.0.10",
+  "description": "Bumps [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware) from 2.0.9 to 2.0.10.\n- [Release notes](https://github.com/chimurai/http-proxy-middleware/releases)\n- [Changelog](https://github.com/chimurai/http-proxy-middleware/blob/v2.0.10/CHANGELOG.md)\n- [Commits](https://github.com/chimurai/http-proxy-middleware/compare/v2.0.9...v2.0.10)\n\n---\nupdated-dependencies:\n- dependency-name: http-proxy-middleware\n  dependency-version: 4.1.1\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1783448950000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

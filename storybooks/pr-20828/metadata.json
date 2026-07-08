@@ -1,0 +1,10 @@
+{
+  "commit": "57bd74e6157e0e517c937e11695f3f52a8301fdc",
+  "summary": "bug(settings): Make sure that PostVerify/SetPassword is aligned with Signup/Setpassword",
+  "description": "Because:\n- We want users to have a consistent experience when 'setting' paswords\n\nThis Commit:\n- Ensures the legal links are correct when going through a VPN flow.\n- Ensures the cms info is infact rendered properly\n- Adds CMS: prefix to mocks to disambiguate cms content from default content\n- Fixes the position of the displayed email to come after the cms description.",
+  "timestamp": 1783462411000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

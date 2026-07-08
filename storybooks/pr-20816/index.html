@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 464119f080d4aa4b60ea24fde2bc0be7b39786ff</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 464119f080d4aa4b60ea24fde2bc0be7b39786ff</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/7/2026, 2:26:14 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): update promo banner styles to match Figma</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - The Firefox promo and account-recovery banners did not match the
+   updated Figma spec, and reviewers flagged the dismiss button
+   overlapping the heading and sitting above the top line of text.
+ - The passkey inline-TOTP functional test hung on the relying-party
+   redirect, failing the functional job independently of the banner work.
+
+This commit:
+ - Aligns banner padding, image sizing, and CTA placement to the Figma
+   spec, with the CTA below the description.
+ - Reserves heading space and lowers the dismiss button so it aligns with
+   the heading&#039;s top line and no longer overlaps the text.
+ - Removes redundant location.search handling in both banners.
+ - Stabilizes the passkey inline-TOTP setup test by opting the
+   continue-to-RP click out of Playwright&#039;s navigation wait, which the
+   relying-party bounce loop never lets settle.</pre></dd>
+  </dl>
+</body>
+</html>

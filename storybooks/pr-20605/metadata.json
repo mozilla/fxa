@@ -1,0 +1,12 @@
+{
+  "commit": "ff467182bcfc84c16bbaa282bc92adcf52661a9c",
+  "summary": "chore(deps-dev): bump @graphql-codegen/cli from 5.0.0 to 7.1.2",
+  "description": "Bumps [@graphql-codegen/cli](https://github.com/dotansimha/graphql-code-generator/tree/HEAD/packages/graphql-codegen-cli) from 5.0.0 to 7.1.2.\n- [Release notes](https://github.com/dotansimha/graphql-code-generator/releases)\n- [Changelog](https://github.com/dotansimha/graphql-code-generator/blob/master/packages/graphql-codegen-cli/CHANGELOG.md)\n- [Commits](https://github.com/dotansimha/graphql-code-generator/commits/@graphql-codegen/cli@7.1.2/packages/graphql-codegen-cli)\n\n---\nupdated-dependencies:\n- dependency-name: \"@graphql-codegen/cli\"\n  dependency-version: 6.3.0\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1783453656000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

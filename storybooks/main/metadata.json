@@ -1,0 +1,12 @@
+{
+  "commit": "7c236eb885df4e6e89608693dc860b16f96d7f0d",
+  "summary": "Merge pull request #20734 from mozilla/dependabot/npm_and_yarn/grpc/grpc-js-1.13.5",
+  "description": "chore(deps): bump @grpc/grpc-js from 1.13.4 to 1.13.5",
+  "timestamp": 1783471175000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

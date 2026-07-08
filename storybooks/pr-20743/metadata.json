@@ -1,0 +1,12 @@
+{
+  "commit": "63fbc80faefcd34937aec91304e9b5d18327c2af",
+  "summary": "chore(deps-dev): bump esbuild from 0.17.19 to 0.28.1",
+  "description": "Bumps [esbuild](https://github.com/evanw/esbuild) from 0.17.19 to 0.28.1.\n- [Release notes](https://github.com/evanw/esbuild/releases)\n- [Changelog](https://github.com/evanw/esbuild/blob/main/CHANGELOG-2023.md)\n- [Commits](https://github.com/evanw/esbuild/compare/v0.17.19...v0.28.1)\n\n---\nupdated-dependencies:\n- dependency-name: esbuild\n  dependency-version: 0.28.1\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1783448948000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

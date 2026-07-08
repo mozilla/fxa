@@ -1,0 +1,10 @@
+{
+  "commit": "464119f080d4aa4b60ea24fde2bc0be7b39786ff",
+  "summary": "feat(settings): update promo banner styles to match Figma",
+  "description": "Because:\n - The Firefox promo and account-recovery banners did not match the\n   updated Figma spec, and reviewers flagged the dismiss button\n   overlapping the heading and sitting above the top line of text.\n - The passkey inline-TOTP functional test hung on the relying-party\n   redirect, failing the functional job independently of the banner work.\n\nThis commit:\n - Aligns banner padding, image sizing, and CTA placement to the Figma\n   spec, with the CTA below the description.\n - Reserves heading space and lowers the dismiss button so it aligns with\n   the heading's top line and no longer overlaps the text.\n - Removes redundant location.search handling in both banners.\n - Stabilizes the passkey inline-TOTP setup test by opting the\n   continue-to-RP click out of Playwright's navigation wait, which the\n   relying-party bounce loop never lets settle.",
+  "timestamp": 1783434374000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

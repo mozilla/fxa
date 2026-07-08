@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit da4534b402a60db3490d58705d10bf34514a12ae</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit da4534b402a60db3490d58705d10bf34514a12ae</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>6/22/2026, 8:25:50 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(signin): run /oauth/authorization before firing webchannel events</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* In handleNavigation&#039;s verified-OAuth path, sendFxaLogin (the
+  fxaccounts:login webchannel event) was dispatched synchronously
+  BEFORE awaiting getOAuthNavigationTarget (the /v1/oauth/authorization
+  HTTP call). The browser&#039;s async handler for that webchannel message
+  can mutate session state, racing with the in-flight HTTP request.
+* This produced intermittent 401 &quot;Token not found&quot; failures on the
+  HTTP call — most reproducibly when the same browser context goes
+  through two consecutive OAuth flows (e.g. the vpn integration test
+  signing into Sync then VPN). The first /oauth/authorization
+  succeeded; the second one would 401 even though the session
+  remained valid for /account/profile, /session/status, and
+  /oauth/token in between.
+
+This commit:
+* Reorders handleNavigation so getOAuthNavigationTarget runs first,
+  obtaining the OAuth code while the session is still untouched, and
+  THEN fires fxaLogin and fxaOAuthLogin. The Login → OAuthLogin order
+  is preserved (still required for Desktop OAuth per FXA-10388).
+* Adds a v1-account regression test alongside the existing vpn
+  integration test, using target.createAuthClient(1) so the v1→v2
+  upgrade path is exercised on the first sign-in even after
+  testAccountTracker defaults to v2 (separate PR).
+
+closes FXA-13687</pre></dd>
+  </dl>
+</body>
+</html>

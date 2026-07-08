@@ -1,0 +1,9 @@
+cadReminderSecond-title-2 = "Don’t forget to sync!"
+
+cadReminderSecond-description-sync = "Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox."
+
+cadReminderSecond-description-plus = "Plus, your data is always encrypted. Only you and devices you approve can see it."
+
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

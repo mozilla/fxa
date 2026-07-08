@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c1241ef2f0c782dc5c96bd25c482dfb98a0601cb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c1241ef2f0c782dc5c96bd25c482dfb98a0601cb</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/7/2026, 6:51:00 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(passkeys): serialize WebAuthn credentials without native toJSON()</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - On iOS/WebKit &lt; 26.5.1, PublicKeyCredential.toJSON() crashes the WebContent
+   renderer (an uncatchable trap) when a prf extension output is present,
+   producing an infinite passkey-setup loop.
+
+This commit:
+ - serializes the credential by hand from the WebAuthn Level 2 getters (rawId,
+   response.*, getClientExtensionResults) on both create and get, avoiding the
+   native toJSON() crash path.
+ - replaces the Level 3 parse-helper gate with a Level 2 baseline check
+   (isWebAuthnSupported) and decodes request options by hand, broadening passkey
+   support to all WebAuthn-L2 browsers.
+ - extracts shared base64url helpers (lib/base64url.ts) used by the serializer
+   and the WebAuthn helper storybook.
+ - syncs the functional-test WebAuthn polyfill to the L2-getter/serialize
+   contract and hardens it to reject malformed native options, and adds a
+   Chromium CDP virtual-authenticator smoke test exercising the real WebAuthn
+   stack end-to-end.
+
+Issue: FXA-13991</pre></dd>
+  </dl>
+</body>
+</html>
