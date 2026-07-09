@@ -1,0 +1,12 @@
+{
+  "commit": "671772797773b4c1c3d0695a9e46d46e8d95023c",
+  "summary": "fix(settings): migrate react-hook-form v6 to v7",
+  "description": "Because:\n- react-hook-form v6 does not support React 19, blocking the planned upgrade\n- v6 is unmaintained and has known issues with formState reactivity\n\nThis commit:\n- Bumps react-hook-form from ^6.15.8 to ^7.54.0\n- Adds `registration` prop to InputText/InputPassword for v7's register() API\n- Migrates all 30+ form components from inputRef={register({...})} to registration={register('fieldName', {...})}\n- Updates type interfaces from UseFormMethods to UseFormReturn\n- Moves errors from top-level useForm destructure to formState.errors\n- Fixes InputPhoneNumber to use setValue with shouldDirty/shouldValidate (v7 no longer auto-tracks dirty state via setValue)\n- Updates tests for v7's async formState updates (userEvent over fireEvent, waitFor for formState assertions, VerifiedSessionGuard mock)",
+  "timestamp": 1783634591000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
