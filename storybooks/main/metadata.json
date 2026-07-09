@@ -1,8 +1,8 @@
 {
-  "commit": "ae9cbfdfbd231ef3ad959aeaa295069e2bbcef5a",
-  "summary": "Merge pull request #20836 from mozilla/dependabot/github_actions/docker/setup-buildx-action-4.2.0",
-  "description": "chore(deps): bump docker/setup-buildx-action from 4.0.0 to 4.2.0",
-  "timestamp": 1783602283000,
+  "commit": "45bf0a38897e92dc22981c2a05e5f60a0a9a58e1",
+  "summary": "Merge pull request #20838 from mozilla/dependabot/npm_and_yarn/stylelint-17.13.0",
+  "description": "chore(deps-dev): bump stylelint from 16.21.0 to 17.13.0",
+  "timestamp": 1783611134000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
