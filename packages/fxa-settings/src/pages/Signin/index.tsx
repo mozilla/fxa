@@ -23,6 +23,8 @@ import {
   useConfig,
 } from '../../models';
 import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { shouldShowPasskeySignin } from '../../lib/passkeys';
+import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
@@ -44,6 +46,7 @@ const Signin = ({
   beginSigninHandler,
   sendUnblockEmailHandler,
   hasPassword,
+  hasPasskey,
   avatarData,
   avatarLoading,
   localizedErrorFromLocationState,
@@ -64,11 +67,12 @@ const Signin = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const authClient = useAuthClient();
 
-  // Button stays visible without WebAuthn support; the hook surfaces an error.
-  const showPasskeySignin = !!(
-    config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled
-  );
+  // Hide the CTA when we know WebAuthn is unsupported in this browser, rather
+  // than showing a button that can only fail on click.
+  const showPasskeySignin = shouldShowPasskeySignin(config, {
+    hasPasskey,
+    isWebAuthnSupported: isWebAuthnSupported(),
+  });
 
   const passkey = usePasskeySignIn({
     integration,

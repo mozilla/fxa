@@ -105,6 +105,7 @@ export interface LocationState {
   email?: string;
   hasLinkedAccount?: boolean;
   hasPassword?: boolean;
+  hasPasskey?: boolean;
   canLinkAccountOk?: boolean;
   localizedErrorMessage?: string;
   successBanner?: {
@@ -120,6 +121,7 @@ interface SigninSharedProps {
   email: string;
   hasLinkedAccount: boolean;
   hasPassword: boolean;
+  hasPasskey?: boolean;
   serviceName: MozServices;
   avatarData: AvatarResponse | undefined;
   avatarLoading: boolean;

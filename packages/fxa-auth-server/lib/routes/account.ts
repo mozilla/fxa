@@ -1701,12 +1701,14 @@ export class AccountHandler {
       invalidDomain?: boolean;
       hasLinkedAccount?: boolean;
       hasPassword?: boolean;
+      hasPasskey?: boolean;
       passwordlessSupported?: boolean;
     } = {
       exists: false,
       invalidDomain: undefined,
       hasLinkedAccount: undefined,
       hasPassword: undefined,
+      hasPasskey: undefined,
       passwordlessSupported: undefined,
     };
 
@@ -1739,6 +1741,26 @@ export class AccountHandler {
               clientId,
               service
             ));
+
+        // Only powers the sign-in-with-passkey CTA, so gate on
+        // authenticationEnabled (not just the master switch): skips the lookup
+        // and avoids disclosing passkey presence when only registration is on.
+        // Fail closed: on lookup error leave hasPasskey undefined so the client
+        // hides the CTA rather than failing the whole status check.
+        if (
+          this.config.passkeys?.enabled &&
+          this.config.passkeys?.authenticationEnabled &&
+          Container.has(PasskeyService)
+        ) {
+          try {
+            result.hasPasskey = await Container.get(PasskeyService).hasPasskey(
+              account.uid
+            );
+          } catch (err) {
+            this.log.error('accountStatusCheck.hasPasskey', { err });
+            this.statsd.increment('account.statusCheck.hasPasskey.error');
+          }
+        }
       } else {
         const exist = await this.db.accountExists(email);
         if (!exist) {
@@ -1755,6 +1777,7 @@ export class AccountHandler {
         exists: String(result.exists),
         passwordlessSupported: String(!!result.passwordlessSupported),
         hasPassword: String(!!result.hasPassword),
+        hasPasskey: String(!!result.hasPasskey),
         ...statusTags,
       });
 
@@ -2326,13 +2349,13 @@ export class AccountHandler {
     return response;
   }
 
-  async getEmails (request: AuthRequest) {
+  async getEmails(request: AuthRequest) {
     this.log.begin('Account.emails', request);
     const sessionToken = request.auth.credentials as { uid: string };
     const account = await this.db.account(sessionToken.uid);
     const result = {
       originalEmail: account.email,
-      primaryEmail: account.primaryEmail?.email || account.email
+      primaryEmail: account.primaryEmail?.email || account.email,
     };
     return result;
   }
@@ -3032,6 +3055,7 @@ export const accountRoutes = (
             exists: isA.boolean().required(),
             hasLinkedAccount: isA.boolean().optional(),
             hasPassword: isA.boolean().optional(),
+            hasPasskey: isA.boolean().optional(),
             invalidDomain: isA.boolean().optional(),
             passwordlessSupported: isA.boolean().optional(),
           }),
@@ -3263,8 +3287,7 @@ export const accountRoutes = (
           }),
         },
       },
-      handler: (request: AuthRequest) =>
-        accountHandler.getEmails(request),
+      handler: (request: AuthRequest) => accountHandler.getEmails(request),
     },
     {
       method: 'POST',

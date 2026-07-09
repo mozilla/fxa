@@ -38,6 +38,7 @@ const SigninPasswordlessCodeContainer = ({
   const email = location.state?.email;
   const service = location.state?.service;
   const isSignup = location.state?.isSignup;
+  const hasPasskey = location.state?.hasPasskey;
 
   const [codeSent, setCodeSent] = useState(
     // If location state already has codeSent (persisted across page refresh
@@ -122,6 +123,7 @@ const SigninPasswordlessCodeContainer = ({
         sendError,
         setCurrentSplitLayout,
         isSignup,
+        hasPasskey,
         isSignedIntoFirefox,
         resendCountdownSeconds: 5,
         useFxAStatusResult,

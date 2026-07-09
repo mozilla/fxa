@@ -200,6 +200,7 @@ const SigninContainer = ({
     // TODO: in FXA-9177, consider storing hasLinkedAccount and hasPassword in localStorage
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
+    hasPasskey: hasPasskeyFromLocationState,
     canLinkAccountOk,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
@@ -214,6 +215,7 @@ const SigninContainer = ({
   const [accountStatus, setAccountStatus] = useState<{
     hasLinkedAccount?: boolean;
     hasPassword?: boolean;
+    hasPasskey?: boolean;
     passwordlessSupported?: boolean;
   }>({
     hasLinkedAccount:
@@ -225,9 +227,10 @@ const SigninContainer = ({
       hasPasswordFromLocationState !== undefined
         ? hasPasswordFromLocationState
         : queryParamModel.hasPassword,
+    hasPasskey: hasPasskeyFromLocationState,
     passwordlessSupported: undefined,
   });
-  const { hasLinkedAccount, hasPassword } = accountStatus;
+  const { hasLinkedAccount, hasPassword, hasPasskey } = accountStatus;
 
   const { email, sessionToken, uid } = getAccountInfo(
     emailFromLocationState || queryParamModel.email
@@ -267,6 +270,7 @@ const SigninContainer = ({
               exists,
               hasLinkedAccount,
               hasPassword,
+              hasPasskey,
               passwordlessSupported,
             } = await authClient.accountStatusByEmail(email, {
               thirdPartyAuthStatus: true,
@@ -312,6 +316,7 @@ const SigninContainer = ({
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
+                hasPasskey,
                 passwordlessSupported,
               });
             }
@@ -437,6 +442,7 @@ const SigninContainer = ({
             state: {
               email,
               clientId: integration.getClientId(),
+              hasPasskey,
             },
           });
         }
@@ -627,6 +633,7 @@ const SigninContainer = ({
       useFxAStatusResult,
       hasPassword,
       hasLinkedAccount,
+      hasPasskey,
       skipPasswordlessRedirect,
     ]
   );
@@ -710,6 +717,7 @@ const SigninContainer = ({
         sessionToken,
         hasLinkedAccount,
         hasPassword,
+        hasPasskey,
         avatarData,
         avatarLoading,
         localizedErrorFromLocationState,

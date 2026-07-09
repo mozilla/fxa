@@ -14,6 +14,7 @@ export interface PasswordlessLocationState {
   service?: string;
   // True if user came from signup flow (new account)
   isSignup?: boolean;
+  hasPasskey?: boolean;
   // Set to true after the initial OTP code has been sent, persisted in
   // location state via history.replaceState so it survives page refreshes.
   codeSent?: boolean;
@@ -37,6 +38,7 @@ export interface SigninPasswordlessCodeProps {
   setCurrentSplitLayout?: (value: boolean) => void;
   // True if user is signing up (new account)
   isSignup?: boolean;
+  hasPasskey?: boolean;
   isSignedIntoFirefox?: boolean;
   resendCountdownSeconds?: number;
   useFxAStatusResult: UseFxAStatusResult;

@@ -34,6 +34,12 @@ import { SigninOAuthIntegration } from '../interfaces';
 import { MozServices } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
+
+jest.mock('../../../lib/passkeys/webauthn', () => ({
+  ...jest.requireActual('../../../lib/passkeys/webauthn'),
+  isWebAuthnSupported: jest.fn(),
+}));
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -61,6 +67,10 @@ jest.mock('../../../lib/glean', () => ({
       error: jest.fn(),
       resendCode: jest.fn(),
       changeEmail: jest.fn(),
+    },
+    passkey: {
+      buttonView: jest.fn(),
+      authSuccess: jest.fn(),
     },
     isDone: jest.fn().mockResolvedValue(undefined),
   },
@@ -189,8 +199,46 @@ describe('SigninPasswordlessCode page', () => {
       });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  describe('passkey signin CTA gating', () => {
+    beforeEach(() => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+    });
+
+    const renderWithPasskeyFlags = (
+      props: Partial<SigninPasswordlessCodeProps> & { isSignup?: boolean } = {}
+    ) => {
+      const context = mockAppContext({ authClient: mockAuthClient });
+      if (context.config) {
+        context.config.featureFlags = {
+          ...context.config.featureFlags,
+          passkeysEnabled: true,
+          passkeyAuthenticationEnabled: true,
+        };
+      }
+      renderWithLocalizationProvider(
+        <AppContext.Provider value={context}>
+          <Subject integration={createMockSigninWebIntegration()} {...props} />
+        </AppContext.Provider>
+      );
+    };
+    const passkeyButton = () =>
+      screen.queryByRole('button', { name: 'Sign in with passkey' });
+
+    it('renders the passkey CTA when hasPasskey is true', () => {
+      renderWithPasskeyFlags({ isSignup: false, hasPasskey: true });
+      expect(passkeyButton()).toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when hasPasskey is undefined (fails closed)', () => {
+      renderWithPasskeyFlags({ isSignup: false, hasPasskey: undefined });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when WebAuthn is unsupported', () => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
+      renderWithPasskeyFlags({ isSignup: false, hasPasskey: true });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
   });
 
   describe('renders as expected', () => {
