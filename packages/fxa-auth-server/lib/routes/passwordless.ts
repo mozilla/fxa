@@ -354,7 +354,7 @@ class PasswordlessHandler {
       request,
       account: {
         uid: account.uid,
-        email: account.email,
+        primaryEmail: account.primaryEmail,
         locale: account.locale,
       },
       service,

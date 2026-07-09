@@ -154,7 +154,11 @@ describe('passkeys routes', () => {
         emailCode: 'emailcode123',
         emailVerified: true,
         verifierSetAt: 1234567890,
-        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        primaryEmail: {
+          email: TEST_EMAIL,
+          emailCode: 'emailcode123',
+          isVerified: true,
+        },
         emails: [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
       }),
       createPasskeyVerifiedSessionToken: jest.fn().mockResolvedValue({
@@ -293,6 +297,59 @@ describe('passkeys routes', () => {
           },
         })
       ).rejects.toThrow('Client has sent too many requests');
+    });
+
+    describe('when the primary email differs from the signup email', () => {
+      // A user who changed their primary email: the immutable signup address
+      // on accounts.email diverges from the current primary in the emails table.
+      const signupEmail = 'original-signup@example.com';
+      const currentPrimaryEmail = 'current-primary@example.com';
+
+      beforeEach(() => {
+        db.account = jest.fn().mockResolvedValue({
+          uid: UID,
+          email: signupEmail,
+          emailCode: 'emailcode123',
+          emailVerified: true,
+          verifierSetAt: 1234567890,
+          primaryEmail: {
+            email: currentPrimaryEmail,
+            emailCode: 'emailcode123',
+            isVerified: true,
+          },
+          emails: [
+            { email: signupEmail, isPrimary: false, isVerified: true },
+            { email: currentPrimaryEmail, isPrimary: true, isVerified: true },
+          ],
+        });
+      });
+
+      it('registers the passkey with the current primary email', async () => {
+        await runTest('/passkey/registration/start', {
+          auth: {
+            credentials: { uid: UID, id: SESSION_TOKEN_ID, email: signupEmail },
+          },
+        });
+
+        expect(
+          mockPasskeyService.generateRegistrationChallenge
+        ).toHaveBeenCalledWith(UID, currentPrimaryEmail);
+      });
+
+      it('keys the customs rate-limit check on the current primary email', async () => {
+        await runTest('/passkey/registration/start', {
+          auth: {
+            credentials: { uid: UID, id: SESSION_TOKEN_ID, email: signupEmail },
+          },
+        });
+
+        expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+          expect.anything(),
+          UID,
+          currentPrimaryEmail,
+          'passkeyRegisterStart'
+        );
+      });
     });
   });
 
@@ -482,7 +539,15 @@ describe('passkeys routes', () => {
     });
 
     it('sets showSyncPasswordNote to false for passwordless accounts', async () => {
-      db.account.mockResolvedValueOnce({ email: TEST_EMAIL, verifierSetAt: 0 });
+      db.account.mockResolvedValueOnce({
+        email: TEST_EMAIL,
+        primaryEmail: {
+          email: TEST_EMAIL,
+          emailCode: 'emailcode123',
+          isVerified: true,
+        },
+        verifierSetAt: 0,
+      });
 
       await runTest('/passkey/registration/finish', {
         auth: {
@@ -1108,7 +1173,11 @@ describe('passkeys routes', () => {
         emailCode: 'emailcode123',
         emailVerified: true,
         verifierSetAt: 0,
-        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        primaryEmail: {
+          email: TEST_EMAIL,
+          emailCode: 'emailcode123',
+          isVerified: true,
+        },
         emails: [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
       });
 
@@ -1574,12 +1643,19 @@ describe('passkeys routes', () => {
   });
 
   describe('PasskeyHandler.createPasskeySessionToken', () => {
+    // Signup fields differ from the primary to prove the token seeds from the
+    // current primary, not the immutable signup address on account.email.
     const mockAccount = {
       uid: UID,
-      email: TEST_EMAIL,
-      emailCode: 'emailcode123',
-      emailVerified: true,
+      email: 'original-signup@example.com',
+      emailCode: 'signup-code-000',
+      emailVerified: false,
       verifierSetAt: 1234567890,
+      primaryEmail: {
+        email: TEST_EMAIL,
+        emailCode: 'emailcode123',
+        isVerified: true,
+      },
     };
 
     const mockRequest = {

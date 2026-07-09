@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { fetchRpCmsData, getOptionalCmsEmailConfig } = require('./account');
+import type { AuthLogger } from '../../types';
+
+const {
+  fetchRpCmsData,
+  getOptionalCmsEmailConfig,
+  notifyAttachedServicesForAccountSession,
+} = require('./account');
 
 describe('fetchRpCmsData', () => {
   const mockRequest = {
@@ -302,5 +308,79 @@ describe('getOptionalCmsEmailConfig', () => {
       subject: 'Short Code Subject',
       template: 'short-code-template',
     });
+  });
+});
+
+describe('notifyAttachedServicesForAccountSession', () => {
+  const uid = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+  const CURRENT_PRIMARY_EMAIL = 'current-primary@example.com';
+
+  const request = {
+    app: { geo: { location: { country: 'United States', countryCode: 'US' } } },
+    headers: { 'user-agent': 'test-agent' },
+  };
+
+  // The account carries only the current primary email — the helper no longer
+  // accepts a bare `email`, so a stale signup address can't be passed.
+  const account = {
+    uid,
+    primaryEmail: { email: CURRENT_PRIMARY_EMAIL },
+    locale: 'en',
+  };
+
+  let log: jest.Mocked<Pick<AuthLogger, 'notifyAttachedServices'>>;
+
+  beforeEach(() => {
+    log = { notifyAttachedServices: jest.fn().mockResolvedValue(undefined) };
+  });
+
+  it('sends the login notification with the current primary email', async () => {
+    await notifyAttachedServicesForAccountSession({
+      log,
+      request,
+      account,
+      service: 'sync',
+      deviceCount: 2,
+      isNewAccount: false,
+      emailVerified: true,
+      profileChanged: false,
+    });
+
+    expect(log.notifyAttachedServices).toHaveBeenCalledWith('login', request, {
+      country: 'United States',
+      countryCode: 'US',
+      deviceCount: 2,
+      email: CURRENT_PRIMARY_EMAIL,
+      service: 'sync',
+      uid,
+      userAgent: 'test-agent',
+    });
+  });
+
+  it('sends the verified notification with the current primary email for a new verified account', async () => {
+    await notifyAttachedServicesForAccountSession({
+      log,
+      request,
+      account,
+      service: 'sync',
+      deviceCount: 1,
+      isNewAccount: true,
+      emailVerified: true,
+      profileChanged: false,
+    });
+
+    expect(log.notifyAttachedServices).toHaveBeenCalledWith(
+      'verified',
+      request,
+      {
+        country: 'United States',
+        countryCode: 'US',
+        email: CURRENT_PRIMARY_EMAIL,
+        locale: 'en',
+        service: 'sync',
+        uid,
+        userAgent: 'test-agent',
+      }
+    );
   });
 });

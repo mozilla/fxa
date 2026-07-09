@@ -67,7 +67,7 @@ interface DB {
     emailVerified: boolean;
     verifierSetAt: number;
     locale?: string;
-    primaryEmail: { email: string; isVerified: boolean };
+    primaryEmail: { email: string; emailCode: string; isVerified: boolean };
     emails: Array<{ email: string; isPrimary: boolean; isVerified: boolean }>;
   }>;
   sessions(uid: string): Promise<unknown[]>;
@@ -128,16 +128,18 @@ export class PasskeyHandler {
     };
 
     const account = await this.db.account(uid);
+    const email = account.primaryEmail.email;
+
     await this.customs.checkAuthenticated(
       request,
       uid,
-      account.email,
+      email,
       'passkeyRegisterStart'
     );
 
     const options = await this.service.generateRegistrationChallenge(
       uid,
-      account.email
+      email
     );
 
     return options;
@@ -165,7 +167,7 @@ export class PasskeyHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
-      account.email,
+      account.primaryEmail.email,
       'passkeyRegisterFinish'
     );
 
@@ -253,7 +255,7 @@ export class PasskeyHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
-      account.email,
+      account.primaryEmail.email,
       'passkeysList'
     );
 
@@ -302,7 +304,7 @@ export class PasskeyHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
-      account.email,
+      account.primaryEmail.email,
       'passkeyDelete'
     );
 
@@ -351,7 +353,7 @@ export class PasskeyHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
-      account.email,
+      account.primaryEmail.email,
       'passkeysRename'
     );
 
@@ -535,7 +537,7 @@ export class PasskeyHandler {
         request,
         account: {
           uid: account.uid,
-          email: account.primaryEmail.email,
+          primaryEmail: account.primaryEmail,
           locale: account.locale,
         },
         service,
@@ -576,18 +578,19 @@ export class PasskeyHandler {
   async createPasskeySessionToken(
     account: {
       uid: string;
-      email: string;
-      emailCode: string;
-      emailVerified: boolean;
       verifierSetAt: number;
+      primaryEmail: { email: string; emailCode: string; isVerified: boolean };
     },
     request: AuthRequest
   ) {
+    // Seed the token's email fields from the current primary (email, code, and
+    // verified state together), matching the login path — not the immutable
+    // signup address on `account.email`.
     const sessionToken = await this.db.createPasskeyVerifiedSessionToken({
       uid: account.uid,
-      email: account.email,
-      emailCode: account.emailCode,
-      emailVerified: account.emailVerified,
+      email: account.primaryEmail.email,
+      emailCode: account.primaryEmail.emailCode,
+      emailVerified: account.primaryEmail.isVerified,
       verifierSetAt: account.verifierSetAt,
       uaBrowser: request.app.ua.browser,
       uaBrowserVersion: request.app.ua.browserVersion,

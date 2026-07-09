@@ -604,7 +604,7 @@ export class LinkedAccountHandler {
       request,
       account: {
         uid: accountRecord.uid,
-        email: accountRecord.primaryEmail.email,
+        primaryEmail: accountRecord.primaryEmail,
         locale: accountRecord.locale,
       },
       service,

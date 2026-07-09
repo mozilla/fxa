@@ -108,7 +108,7 @@ export const fetchRpCmsData = async (
 export async function notifyAttachedServicesForAccountSession(options: {
   log: AuthLogger;
   request: AuthRequest;
-  account: { uid: string; email: string; locale?: string };
+  account: { uid: string; primaryEmail: { email: string }; locale?: string };
   service: string | undefined;
   deviceCount: number;
   isNewAccount: boolean;
@@ -125,6 +125,7 @@ export async function notifyAttachedServicesForAccountSession(options: {
     emailVerified,
     profileChanged,
   } = options;
+  const email = account.primaryEmail.email;
 
   const geoData = request.app.geo;
   const country = geoData.location && geoData.location.country;
@@ -139,7 +140,7 @@ export async function notifyAttachedServicesForAccountSession(options: {
       log.notifyAttachedServices('verified', request, {
         country,
         countryCode,
-        email: account.email,
+        email,
         locale: account.locale,
         service,
         uid: account.uid,
@@ -154,7 +155,7 @@ export async function notifyAttachedServicesForAccountSession(options: {
       country,
       countryCode,
       deviceCount,
-      email: account.email,
+      email,
       service,
       uid: account.uid,
       userAgent,
