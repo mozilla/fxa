@@ -244,6 +244,23 @@ describe('AuthorizationContainer', () => {
     });
   });
 
+  it('does not hardNavigate to an external origin for a non-allowlisted action', async () => {
+    mockLocationSearch = '?x=1&showReactApp=1';
+    const mockIntegration = {
+      data: {
+        action: '/evil.example',
+      },
+      wantsPromptNone: jest.fn().mockReturnValue(false),
+    };
+
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/oauth');
+    });
+    expect(ReactUtilsModule.hardNavigate).not.toHaveBeenCalled();
+  });
+
   it('rejects prompt=none and shows error when session is unverified and returnOnError=false for servicesWithEmailVerification client', async () => {
     mockCachedSignIn.mockResolvedValue({
       data: {

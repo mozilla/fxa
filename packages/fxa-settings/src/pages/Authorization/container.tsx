@@ -4,6 +4,7 @@
 
 import { useNavigate, useLocation } from 'react-router';
 import {
+  INTEGRATION_ACTIONS,
   Integration,
   isDefault,
   isOAuthWebIntegration,
@@ -174,14 +175,13 @@ const AuthorizationContainer = ({
     const urlSearchParams = new URLSearchParams(location.search);
     urlSearchParams.delete('showReactApp');
 
-    if (integration.data.action) {
-      if (integration.data.action === 'email') {
+    const action = integration.data.action;
+    if (action && INTEGRATION_ACTIONS.includes(action)) {
+      if (action === 'email') {
         navigateWithQuery('/oauth');
       } else {
         // we'll keep the hard navigate here to support backbone and react pages
-        hardNavigate(
-          `/${integration.data.action}?${urlSearchParams.toString()}`
-        );
+        hardNavigate(`/${action}?${urlSearchParams.toString()}`);
       }
       return;
     }
