@@ -101,7 +101,6 @@ const FormVerifyTotp = ({
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
-        name="code"
         type="text"
         inputMode={codeType === 'numeric' ? 'numeric' : 'text'}
         label={localizedInputLabel}
@@ -111,25 +110,25 @@ const FormVerifyTotp = ({
         anchorPosition="start"
         autoComplete="one-time-code"
         spellCheck={false}
-        inputRef={register({ required: true })}
+        registration={register('code', { required: true })}
         hasErrors={!!errorMessage}
         ariaDescribedBy={errorBannerId}
       />
 
-        <CmsButtonWithFallback
-          type="submit"
-          className="cta-primary cta-xl"
-          disabled={isSubmitDisabled}
-          title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
-          {...(gleanDataAttrs && {
-            'data-glean-id': gleanDataAttrs.id,
-            'data-glean-label': gleanDataAttrs.label,
-            'data-glean-type': gleanDataAttrs.type,
-          })}
-          buttonColor={cmsButton?.color}
-        >
-          {localizedSubmitButtonText}
-        </CmsButtonWithFallback>
+      <CmsButtonWithFallback
+        type="submit"
+        className="cta-primary cta-xl"
+        disabled={isSubmitDisabled}
+        title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
+        {...(gleanDataAttrs && {
+          'data-glean-id': gleanDataAttrs.id,
+          'data-glean-label': gleanDataAttrs.label,
+          'data-glean-type': gleanDataAttrs.type,
+        })}
+        buttonColor={cmsButton?.color}
+      >
+        {localizedSubmitButtonText}
+      </CmsButtonWithFallback>
     </form>
   );
 };

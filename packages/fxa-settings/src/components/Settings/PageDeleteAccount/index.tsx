@@ -291,7 +291,6 @@ export const PageDeleteAccount = () => {
                 attrs={{ label: true }}
               >
                 <InputPassword
-                  name="password"
                   label="Enter password"
                   prefixDataTestId="delete-account-confirm"
                   onChange={() => {
@@ -299,7 +298,7 @@ export const PageDeleteAccount = () => {
                       setErrorText(undefined);
                     }
                   }}
-                  inputRef={register({
+                  registration={register('password', {
                     required: true,
                     minLength: 8,
                   })}

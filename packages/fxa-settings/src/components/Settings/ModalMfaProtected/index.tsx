@@ -117,12 +117,11 @@ export const ModalMfaProtected = ({
 
         <div className="mt-4 mb-8">
           <InputText
-            name="confirmationCode"
             label={ftlMsgResolver.getMsg(
               'modal-mfa-protected-input-label',
               'Enter 6-digit code'
             )}
-            inputRef={register({
+            registration={register('confirmationCode', {
               required: true,
               pattern: /^\s*[0-9]{6}\s*$/,
             })}

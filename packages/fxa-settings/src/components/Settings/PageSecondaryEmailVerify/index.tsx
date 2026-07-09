@@ -173,14 +173,13 @@ export const PageSecondaryEmailVerify = () => {
               attrs={{ label: true }}
             >
               <InputText
-                name="verificationCode"
                 label="Enter your confirmation code"
                 onChange={() => {
                   if (errorText) {
                     setErrorText(undefined);
                   }
                 }}
-                inputRef={register({
+                registration={register('verificationCode', {
                   required: true,
                   pattern: /^\s*[0-9]{6}\s*$/,
                 })}

@@ -68,13 +68,12 @@ export const PageDisplayName = () => {
           <div className="my-6">
             <Localized id="display-name-input" attrs={{ label: true }}>
               <InputText
-                name="displayName"
                 label="Enter display name"
                 className="mb-2"
                 data-testid="display-name-input"
                 autoFocus
                 onChange={() => trigger('displayName')}
-                inputRef={register({
+                registration={register('displayName', {
                   validate: isValidDisplayName,
                 })}
               />

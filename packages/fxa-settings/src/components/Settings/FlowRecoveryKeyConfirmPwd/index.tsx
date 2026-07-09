@@ -151,7 +151,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
           })}
         >
           <InputPassword
-            name="password"
             label={ftlMsgResolver.getMsg(
               'flow-recovery-key-confirm-pwd-input-label',
               'Enter your password'
@@ -159,7 +158,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             onChange={() => {
               errorText && setErrorText(undefined);
             }}
-            inputRef={register({
+            registration={register('password', {
               required: true,
             })}
             {...{ errorText }}

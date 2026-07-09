@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UseFormMethods } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { SetPasswordFormData } from '../../pages/PostVerify/SetPassword/interfaces';
 import { SignupFormData } from '../../pages/Signup/interfaces';
 import { syncEngineConfigs } from '../../lib/sync-engines';
@@ -10,12 +10,15 @@ import { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type FormSetupAccountData = SignupFormData | SetPasswordFormData;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFormReturn = UseFormReturn<any>;
+
 export type FormSetupAccountProps = {
-  formState: UseFormMethods['formState'];
-  errors: UseFormMethods['errors'];
-  trigger: UseFormMethods['trigger'];
-  register: UseFormMethods['register'];
-  getValues: UseFormMethods['getValues'];
+  formState: AnyFormReturn['formState'];
+  errors: Record<string, any>;
+  trigger: AnyFormReturn['trigger'];
+  register: AnyFormReturn['register'];
+  getValues: AnyFormReturn['getValues'];
   onFocus?: () => void;
   email: string;
   onFocusMetricsEvent?: () => void;

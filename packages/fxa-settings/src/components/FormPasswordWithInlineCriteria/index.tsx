@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
-import { UseFormMethods } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -13,14 +13,17 @@ import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFormReturn = UseFormReturn<any>;
+
 export type FormPasswordWithInlineCriteriaProps = {
   passwordFormType: PasswordFormType;
-  formState: UseFormMethods['formState'];
-  errors: UseFormMethods['errors'];
+  formState: AnyFormReturn['formState'];
+  errors: Record<string, any>;
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  trigger: UseFormMethods['trigger'];
-  register: UseFormMethods['register'];
-  getValues: UseFormMethods['getValues'];
+  trigger: AnyFormReturn['trigger'];
+  register: AnyFormReturn['register'];
+  getValues: AnyFormReturn['getValues'];
   email: string;
   loading: boolean;
   disableButtonUntilValid?: boolean;
@@ -270,7 +273,6 @@ export const FormPasswordWithInlineCriteria = ({
         <div className="relative mb-4" aria-atomic="true">
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
-              name="newPassword"
               label={templateValues.passwordLabel}
               onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
@@ -278,7 +280,7 @@ export const FormPasswordWithInlineCriteria = ({
               hasErrors={
                 formState.dirtyFields.newPassword ? errors.newPassword : false
               }
-              inputRef={register({
+              registration={register('newPassword', {
                 required: true,
                 validate: {
                   length: (value: string) =>
@@ -312,14 +314,13 @@ export const FormPasswordWithInlineCriteria = ({
               attrs={{ label: true }}
             >
               <InputPassword
-                name="confirmPassword"
                 label={templateValues.confirmPasswordLabel}
                 className="text-start"
                 onFocusCb={onFocusConfirmPassword}
                 onBlurCb={onBlurConfirmPassword}
                 onChange={() => onChangePassword('confirmPassword')}
                 hasErrors={errors.confirmPassword && passwordMatchErrorText}
-                inputRef={register({
+                registration={register('confirmPassword', {
                   required: true,
                   validate: (value: string) =>
                     value === getValues().newPassword,

@@ -171,7 +171,6 @@ const AccountRecoveryConfirmKey = ({
           <InputText
             type="text"
             label="Enter your 32-character account recovery key"
-            name="recoveryKey"
             autoFocus
             // Crockford base32 encoding is case insensitive, so visually display as
             // uppercase here but don't bother transforming the submit data to match
@@ -180,7 +179,7 @@ const AccountRecoveryConfirmKey = ({
             autoComplete="off"
             spellCheck={false}
             prefixDataTestId="account-recovery-confirm-key"
-            inputRef={register({ required: true })}
+            registration={register('recoveryKey', { required: true })}
             onChange={handleChange}
             hasErrors={!!errorMessage}
           />

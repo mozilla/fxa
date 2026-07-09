@@ -94,7 +94,12 @@ const FormVerifyCode = ({
     }
   };
 
-  const { handleSubmit, register, errors, watch } = useForm<FormData>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    watch,
+  } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
@@ -151,7 +156,6 @@ const FormVerifyCode = ({
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
-        name="code"
         type="text"
         inputMode={inputMode}
         label={localizedLabel}
@@ -178,7 +182,7 @@ const FormVerifyCode = ({
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"
-        inputRef={register({
+        registration={register('code', {
           required: true,
         })}
       />

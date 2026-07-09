@@ -157,7 +157,6 @@ const SigninPasskeyFallback = ({
           attrs={{ label: true }}
         >
           <InputPassword
-            name="password"
             label="Password"
             className="mb-6"
             errorText={passwordTooltipErrorText}
@@ -165,7 +164,7 @@ const SigninPasskeyFallback = ({
             tooltipPosition="bottom"
             autoFocus
             onChange={() => setPasswordTooltipErrorText('')}
-            inputRef={register()}
+            registration={register('password', { required: true })}
             prefixDataTestId="password"
           />
         </FtlMsg>

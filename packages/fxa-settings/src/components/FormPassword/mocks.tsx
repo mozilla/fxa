@@ -20,7 +20,7 @@ export const Subject = ({ includeCurrentPw = true }) => {
     useState<string>();
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -37,7 +37,7 @@ export const Subject = ({ includeCurrentPw = true }) => {
     <FormPassword
       {...{
         formState,
-        errors,
+        errors: formState.errors,
         trigger,
         register,
         getValues,

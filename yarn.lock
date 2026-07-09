@@ -34236,7 +34236,7 @@ __metadata:
     react-async-hook: "npm:^4.0.0"
     react-dev-utils: "npm:^12.0.1"
     react-easy-crop: "npm:^5.2.0"
-    react-hook-form: "npm:^6.15.8"
+    react-hook-form: "npm:^7.54.0"
     react-markdown: "npm:^8.0.5"
     react-refresh: "npm:^0.16.0"
     react-router: "npm:7.18.0"
@@ -49761,12 +49761,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.15.8":
-  version: 6.15.8
-  resolution: "react-hook-form@npm:6.15.8"
+"react-hook-form@npm:^7.54.0":
+  version: 7.81.0
+  resolution: "react-hook-form@npm:7.81.0"
   peerDependencies:
-    react: ^16.8.0 || ^17
-  checksum: 10c0/7a41e476d53ce78a9d37390cdabc53016eb0e6fce86563ec9c2b67f03d6db27366f4ff57498427e9e2c3e37cc92020740fa570b7dbaaf21fa4b72397fa71f77e
+    react: ^16.8.0 || ^17 || ^18 || ^19
+  checksum: 10c0/bdb5b0bb44050ffa54425dbbea855e55696847ae8ff87f77fe43bc85d830d67735ecdeaaf188ba30d9567fad8b0c47a5f42a9a522ed9411222773512e0e7f37b
   languageName: node
   linkType: hard
 

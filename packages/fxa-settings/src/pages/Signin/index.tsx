@@ -352,7 +352,6 @@ const Signin = ({
         <input type="email" className="hidden" value={email} disabled />
 
         <InputPassword
-          name="password"
           anchorPosition="start"
           className="mb-5"
           label={localizedPasswordFormLabel}
@@ -375,7 +374,7 @@ const Signin = ({
             // if the request errored, loading state must be marked as false to reenable submission on input type
             setSigninLoading(false);
           }}
-          inputRef={register()}
+          registration={register('password')}
         />
 
         <div className="flex">
