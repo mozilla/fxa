@@ -31,7 +31,8 @@ const CLIENT_ID_RE = /^[0-9a-f]{16}$/i;
 export class WafTokensController {
   constructor(private db: DatabaseService) {}
 
-  @Features(AdminPanelFeature.WafTokens)
+  @Features(AdminPanelFeature.ManageWafTokens)
+  @AuditLog()
   @Get()
   public async listWafTokens(): Promise<WafBypassTokenDto[]> {
     const rows = await this.db.wafBypassTokens

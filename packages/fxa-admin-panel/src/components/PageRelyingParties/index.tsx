@@ -837,7 +837,6 @@ const RelyingPartyRow = ({
 export const PageRelyingParties = () => {
   const { guard } = useGuardContext();
   const { user } = useUserContext();
-  const canViewWafTokens = guard.allow(AdminPanelFeature.WafTokens, user.group);
   const canManageWafTokens = guard.allow(
     AdminPanelFeature.ManageWafTokens,
     user.group
@@ -860,7 +859,7 @@ export const PageRelyingParties = () => {
         Promise<WafBypassTokenDto[]>,
       ] = [
         adminApi.getRelyingParties(),
-        canViewWafTokens
+        canManageWafTokens
           ? adminApi.getWafTokens()
           : Promise.resolve([] as WafBypassTokenDto[]),
       ];
@@ -881,7 +880,7 @@ export const PageRelyingParties = () => {
     } finally {
       setLoading(false);
     }
-  }, [canViewWafTokens]);
+  }, [canManageWafTokens]);
 
   useEffect(() => {
     loadRelyingParties();

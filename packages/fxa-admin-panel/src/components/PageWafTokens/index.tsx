@@ -372,7 +372,7 @@ export const PageWafTokens = () => {
       </Guard>
 
       {!showCreate && tokens.length > 0 && (
-        <Guard features={[AdminPanelFeature.WafTokens]}>
+        <Guard features={[AdminPanelFeature.ManageWafTokens]}>
           {!loading && !error && (
             <table className="w-full mt-4 text-sm">
               <thead>
