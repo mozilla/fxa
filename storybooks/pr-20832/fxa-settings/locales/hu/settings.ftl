@@ -161,11 +161,11 @@ device-info-ip-address = IP-cím: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
-firefox-promo-banner-mobile-heading = { -brand-firefox }, bárhol is legyen
+firefox-promo-banner-mobile-heading = Szerezze be a { -brand-firefox }ot, bárhol is legyen
 firefox-promo-banner-mobile-description = Szinkronizálja lapjait, könyvjelzőit és jelszavait az eszközei között. Ráadásul minden biztonságosan titkosítva marad.
 firefox-promo-banner-mobile-cta = Csatlakoztasson egy eszközt
-firefox-promo-banner-switch-heading = Gyors váltás. Könnyű beilleszkedni.
-firefox-promo-banner-switch-description = Ha erre vált: { -brand-firefox }, akkor elhozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeket, így zökkenőmentesen elkezdheti a böngészést.
+firefox-promo-banner-switch-heading = Gyors váltás. Könnyű belakás.
+firefox-promo-banner-switch-description = Ha a { -brand-firefox }ra vált, akkor hozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeit, így zökkenőmentesen folytathatja a böngészést.
 firefox-promo-banner-switch-cta = Váltás erre: { -brand-firefox }
 
 ## FormPasswordInlineCriteria
