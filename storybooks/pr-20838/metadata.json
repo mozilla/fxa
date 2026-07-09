@@ -1,0 +1,12 @@
+{
+  "commit": "4c47cdd70e85fe825c0726d6d029dd3949cde00d",
+  "summary": "chore(deps-dev): bump stylelint from 16.21.0 to 17.13.0",
+  "description": "Bumps [stylelint](https://github.com/stylelint/stylelint) from 16.21.0 to 17.13.0.\n- [Release notes](https://github.com/stylelint/stylelint/releases)\n- [Changelog](https://github.com/stylelint/stylelint/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/stylelint/stylelint/compare/16.21.0...17.13.0)\n\n---\nupdated-dependencies:\n- dependency-name: stylelint\n  dependency-version: 17.13.0\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1783577778000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
