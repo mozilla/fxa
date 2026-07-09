@@ -174,7 +174,7 @@ export class CheckoutService {
     }
 
     if (cart.uid !== sessionUid) {
-      throw new CartUidMismatchError(cart.uid, sessionUid);
+      throw new CartUidMismatchError(cart.id, sessionUid);
     }
 
     const fxaAccounts = await this.accountManager.getAccounts([uid]);

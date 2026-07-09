@@ -7,6 +7,7 @@ import { Inject, Injectable, type LoggerService, Logger } from '@nestjs/common';
 import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
+  CartManager,
   CartService,
   SubscriptionAttributionParams,
   SuccessCartDTO,
@@ -71,6 +72,7 @@ import { DetermineChurnCancelEligibilityActionResult } from './validators/Determ
 import { DetermineChurnEligibilityActionArgs } from './validators/DetermineChurnEligibilityActionArgs';
 import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
+import { AssertCartOwnership } from './assertCartOwnership.decorator';
 import { type CommonMetrics } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
@@ -99,6 +101,7 @@ import { GetSubscriptionPageContentActionArgs } from './validators/GetSubscripti
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import {
+  CartUidMismatchError,
   CartVersionMismatchError,
   InvalidPromoCodeCartError,
   SetupCartAccountNotFoundError,
@@ -153,6 +156,7 @@ import { GetCMSChurnInterventionActionArgs } from './validators/GetCMSChurnInter
 export class NextJSActionsService {
   constructor(
     private cartService: CartService,
+    private cartManager: CartManager,
     private taxService: TaxService,
     private checkoutTokenManager: CheckoutTokenManager,
     private churnInterventionService: ChurnInterventionService,
@@ -225,20 +229,22 @@ export class NextJSActionsService {
     }
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({ allowlist: [CartUidMismatchError] })
   @NextIOValidator(GetDbCartActionArgs, GetDbCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async getDbCart(args: { cartId: string }) {
     const cart = await this.cartService.getDbCart(args.cartId);
 
     return cart;
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({ allowlist: [CartUidMismatchError] })
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async getCart(args: { cartId: string }) {
     return this.cartService.getCart(args.cartId);
   }
@@ -281,6 +287,7 @@ export class NextJSActionsService {
   @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -454,6 +461,7 @@ export class NextJSActionsService {
   @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async updateCart(args: {
     cartId: string;
     version: number;
@@ -477,6 +485,7 @@ export class NextJSActionsService {
   @NextIOValidator(GetCouponArgs, GetCouponResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async getCoupon(args: { cartId: string; version: number }) {
     const couponCode = await this.cartService.getCoupon({
       cartId: args.cartId,
@@ -489,6 +498,7 @@ export class NextJSActionsService {
   @NextIOValidator(RestartCartActionArgs, RestartCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async restartCart(args: { cartId: string }) {
     const cart = await this.cartService.restartCart(args.cartId);
 
@@ -525,6 +535,7 @@ export class NextJSActionsService {
   @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async finalizeCartWithError(args: {
     cartId: string;
     errorReasonId: CartErrorReasonId;
@@ -539,6 +550,7 @@ export class NextJSActionsService {
   @NextIOValidator(FinalizeProcessingCartActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async finalizeProcessingCart(args: { cartId: string }) {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
@@ -753,6 +765,7 @@ export class NextJSActionsService {
   @NextIOValidator(GetNeedsInputActionArgs, getNeedsInputActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async getNeedsInput(args: { cartId: string }) {
     return await this.cartService.getNeedsInput(args.cartId);
   }
@@ -761,7 +774,11 @@ export class NextJSActionsService {
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async submitNeedsInput(args: { cartId: string; requestArgs: CommonMetrics }) {
+  @AssertCartOwnership()
+  async submitNeedsInput(args: {
+    cartId: string;
+    requestArgs: CommonMetrics;
+  }) {
     await this.cartService.submitNeedsInput(args.cartId, args.requestArgs);
   }
 
@@ -972,6 +989,7 @@ export class NextJSActionsService {
   @NextIOValidator(UpdateTaxAddressActionArgs, UpdateTaxAddressActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
+  @AssertCartOwnership()
   async updateTaxAddress(args: {
     cartId: string;
     version: number;

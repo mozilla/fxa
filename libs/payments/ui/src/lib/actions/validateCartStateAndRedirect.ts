@@ -11,6 +11,7 @@ import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
 import { flattenRouteParams } from '../utils/flatParam';
 import { sanitizePathname } from '../utils/sanitizePathname';
+import { buildRedirectUrl } from '../utils/buildRedirectUrl';
 
 /**
  * Redirect if cart state does not match supported page
@@ -27,9 +28,28 @@ async function validateCartStateAndRedirectAction(
 ) {
   const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
-  const { state, isFreeTrial } = await getApp().getActionsService().getDbCart({
-    cartId,
-  });
+  let state, isFreeTrial;
+  try {
+    ({ state, isFreeTrial } = await getApp().getActionsService().getDbCart({
+      cartId,
+    }));
+  } catch (error) {
+    if (error.name === 'CartUidMismatchError') {
+      const [, locale, offeringId, interval] = sanitizePathname(
+        currentPathname
+      ).split('/');
+      const redirectSearchParams = { ...(searchParams ?? {}) };
+      delete redirectSearchParams.cartId;
+      delete redirectSearchParams.cartVersion;
+      redirect(
+        buildRedirectUrl(offeringId, interval, 'new', 'checkout', {
+          locale,
+          searchParams: redirectSearchParams,
+        })
+      );
+    }
+    throw error;
+  }
 
   if (!validateCartState(state, page)) {
     // Sanitize pathname to prevent open redirect vulnerabilities
