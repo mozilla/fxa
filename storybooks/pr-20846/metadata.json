@@ -1,0 +1,12 @@
+{
+  "commit": "1da2693430e2d064eecf47613420c49a93a595ba",
+  "summary": "chore(deps): bump sinon from 4.5.0 to 22.0.0",
+  "description": "Bumps [sinon](https://github.com/sinonjs/sinon) from 4.5.0 to 22.0.0.\n- [Release notes](https://github.com/sinonjs/sinon/releases)\n- [Changelog](https://github.com/sinonjs/sinon/blob/main/CHANGES.md)\n- [Commits](https://github.com/sinonjs/sinon/compare/v4.5.0...v22.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: sinon\n  dependency-version: 22.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1783664196000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
