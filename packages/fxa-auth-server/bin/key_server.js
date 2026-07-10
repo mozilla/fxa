@@ -11,6 +11,15 @@ const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const Redis = require('ioredis');
 const { CapabilityManager } = require('@fxa/payments/capability');
+const { FreeAccessProgramConfigurationManager } = require('@fxa/shared/cms');
+const {
+  FreeAccessProgramJournalManager,
+  FreeAccessProgramJournalManagerConfig,
+  FreeAccessProgramService,
+} = require('@fxa/free-access-program');
+const {
+  FreeAccessInProcessNotifier,
+} = require('../lib/payments/free-access-in-process-notifier');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   PriceManager,
@@ -164,6 +173,10 @@ async function run(config) {
 
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
+  /** @type {import('@fxa/shared/cms').FreeAccessProgramConfigurationManager | undefined} */
+  let freeAccessConfigurationManager;
+  /** @type {import('@fxa/free-access-program').FreeAccessProgramJournalManagerConfig | undefined} */
+  let freeAccessJournalManagerConfig;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const stripeClient = new StripeClient(
       {
@@ -191,6 +204,7 @@ async function run(config) {
       }
       const firestore = Container.get(AuthFirestore);
       const strapiClient = new StrapiClient(strapiClientConfig, firestore);
+      Container.set(StrapiClient, strapiClient);
       const productConfigurationManager = new ProductConfigurationManager(
         strapiClient,
         priceManager,
@@ -228,6 +242,21 @@ async function run(config) {
         log
       );
       Container.set(DefaultCmsConfigurationManager, defaultCmsManager);
+
+      freeAccessConfigurationManager =
+        new FreeAccessProgramConfigurationManager(
+          strapiClientConfig,
+          strapiClient,
+          firestore,
+          log
+        );
+      freeAccessJournalManagerConfig = Object.assign(
+        new FreeAccessProgramJournalManagerConfig(),
+        {
+          collectionName:
+            config.subscriptions.freeAccessProgramJournal.collectionName,
+        }
+      );
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');
@@ -367,6 +396,26 @@ async function run(config) {
     serviceName: 'subhub',
   });
   Container.set(ProfileClient, profile);
+
+  if (freeAccessConfigurationManager && freeAccessJournalManagerConfig) {
+    const freeAccessNotifier = new FreeAccessInProcessNotifier(
+      database,
+      profile,
+      log
+    );
+    const freeAccessJournalManager = new FreeAccessProgramJournalManager(
+      freeAccessJournalManagerConfig,
+      Container.get(AuthFirestore)
+    );
+    const freeAccessService = new FreeAccessProgramService(
+      freeAccessConfigurationManager,
+      freeAccessJournalManager,
+      freeAccessNotifier,
+      statsd,
+      log
+    );
+    Container.set(FreeAccessProgramService, freeAccessService);
+  }
 
   const bounces = new Bounces(config.smtp.bounces, {
     // libs expectation for db is a bit simpler so we just pass through the
