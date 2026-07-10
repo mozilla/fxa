@@ -1477,6 +1477,49 @@ describe('lib/glean', () => {
         );
         sinon.assert.calledOnce(spy);
       });
+
+      it('submits a ping with the account_pref_passkey_rename_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyRenameView, 'record');
+        GleanMetrics.accountPref.passkeyRenameView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_rename_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_passkey_rename_submit_frontend_error event name and a reason', async () => {
+        const spy = sandbox.spy(
+          accountPref.passkeyRenameSubmitFrontendError,
+          'record'
+        );
+        GleanMetrics.accountPref.passkeyRenameSubmitFrontendError({
+          event: { reason: 'server_error' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_rename_submit_frontend_error'
+        );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'server_error');
+      });
+
+      it('submits a ping with the account_pref_passkey_rename_success_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyRenameSuccessView, 'record');
+        GleanMetrics.accountPref.passkeyRenameSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_rename_success_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('accountBanner', () => {

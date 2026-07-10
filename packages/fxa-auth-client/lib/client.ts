@@ -701,6 +701,22 @@ export default class AuthClient {
     );
   }
 
+  private async sessionPatch(
+    path: string,
+    sessionToken: hexstring,
+    payload: object,
+    headers?: Headers
+  ) {
+    return this.authedRequest(
+      'PATCH',
+      path,
+      sessionToken,
+      tokenType.sessionToken,
+      payload,
+      headers
+    );
+  }
+
   private async sessionDelete(
     path: string,
     sessionToken: hexstring,
@@ -3675,20 +3691,20 @@ export default class AuthClient {
   /**
    * Renames the passkey identified by `credentialId`.
    *
-   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param sessionToken The user's current verified session token
    * @param credentialId The base64url-encoded credential ID of the passkey to rename
    * @param name The new display name for the passkey
    * @param headers Optional additional headers
    */
   async renamePasskey(
-    jwt: string,
+    sessionToken: hexstring,
     credentialId: string,
     name: string,
     headers?: Headers
   ): Promise<Passkey> {
-    return this.jwtPatch(
+    return this.sessionPatch(
       `/passkey/${encodeURIComponent(credentialId)}`,
-      jwt,
+      sessionToken,
       { name },
       headers
     );

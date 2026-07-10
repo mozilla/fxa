@@ -24,6 +24,7 @@ import { ReactComponent as InformationOutlineBlue } from './icon_information_cir
 import { ReactComponent as Lightbulb } from './icon_lightbulb.min.svg';
 import { ReactComponent as LoadingArrow } from './icon_loading_arrow.min.svg';
 import { ReactComponent as Passkey } from './icon_passkey.min.svg';
+import { ReactComponent as Pencil } from './icon_pencil.min.svg';
 
 type AlertMode = 'alert' | 'attention' | 'warning';
 function getAlertAria(mode: AlertMode) {
@@ -315,6 +316,15 @@ export const PasskeyIcon = ({ className, ariaHidden }: ImageProps) => (
     Image={Passkey}
     ariaLabel="Passkey"
     ariaLabelFtlId="passkey-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const EditIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    Image={Pencil}
+    ariaLabel="Edit"
+    ariaLabelFtlId="edit-icon-aria-label"
     {...{ className, ariaHidden }}
   />
 );

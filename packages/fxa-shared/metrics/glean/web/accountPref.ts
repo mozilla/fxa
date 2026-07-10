@@ -443,6 +443,56 @@ export const passkeyDeleteView = new EventMetricType(
 );
 
 /**
+ * Passkey rename fails; error alert banner displays
+ *
+ * Generated from `account_pref.passkey_rename_submit_frontend_error`.
+ */
+export const passkeyRenameSubmitFrontendError = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'passkey_rename_submit_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * Passkey successfully renamed; success alert banner displays
+ *
+ * Generated from `account_pref.passkey_rename_success_view`.
+ */
+export const passkeyRenameSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_rename_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User opens the rename passkey dialog
+ *
+ * Generated from `account_pref.passkey_rename_view`.
+ */
+export const passkeyRenameView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_rename_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicks on the Get free scan link on the new Monitor promotion in the
  * account settings side panel
  *
