@@ -325,6 +325,7 @@ export class RecoveryPhoneService {
   /**
    * Updates the existing recovery phone number with the new one associated to the code provided.
    *
+   * @throws {RecoveryPhoneRegistrationLimitReached} If the phone number has been registered for too many accounts
    * @param uid
    * @param code
    * @returns
@@ -343,6 +344,17 @@ export class RecoveryPhoneService {
     if (isSetup !== true) {
       // this code was not for a setup operation, can't proceed.
       return false;
+    }
+
+    // Rejects the phone number if it has been registered for too many accounts
+    const countByPhoneNumber =
+      await this.recoveryPhoneManager.getCountByPhoneNumber(phoneNumber);
+
+    if (
+      this.config.maxRegistrationsPerNumber &&
+      countByPhoneNumber >= this.config.maxRegistrationsPerNumber
+    ) {
+      throw new RecoveryPhoneRegistrationLimitReached(phoneNumber);
     }
 
     const lookupData = await this.getPhoneNumberLookupData(phoneNumber);
