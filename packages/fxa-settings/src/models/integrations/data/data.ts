@@ -29,6 +29,19 @@ import {
 } from '../../../lib/validation';
 
 /**
+ * Allowlist for the `action` query param. Enforced on the base class so every
+ * integration inherits it, preventing an open redirect via the `action`-derived
+ * `hardNavigate` in AuthorizationContainer.
+ */
+export const INTEGRATION_ACTIONS = [
+  'signin',
+  'signup',
+  'email',
+  'force_auth',
+  'pairing',
+];
+
+/**
  * Base integration class. Fields in this class represents data commonly accessed across many pages and is useful for various flows.
  */
 export class IntegrationData extends ModelDataProvider {
@@ -66,7 +79,7 @@ export class IntegrationData extends ModelDataProvider {
   loginHint: string | undefined;
 
   @IsOptional()
-  @IsString()
+  @IsIn(INTEGRATION_ACTIONS)
   @bind()
   action: string | undefined;
 
@@ -141,7 +154,7 @@ export class SyncBasicIntegrationData extends IntegrationData {
 
   // TODO - Validation - Double check actions
   @IsOptional()
-  @IsIn(['signin', 'signup', 'email', 'force_auth', 'pairing'])
+  @IsIn(INTEGRATION_ACTIONS)
   @bind()
   action: string | undefined;
 
@@ -235,7 +248,7 @@ export class OAuthIntegrationData extends WebIntegrationData {
 
   // TODO - Validation - Double check actions
   @IsOptional()
-  @IsIn(['signin', 'signup', 'email', 'force_auth', 'pairing'])
+  @IsIn(INTEGRATION_ACTIONS)
   @bind()
   action: string | undefined;
 
