@@ -446,6 +446,9 @@ cs-disconnect-suspicious-advice-content-2 = Bağlantısını kestiğiniz cihaz g
 cs-sign-out-button = Çıkış yap
 
 
+cs-scope-firefox-vpn = { -brand-firefox }’un VPN özelliği
+
+
 dc-heading = Veri toplanması ve kullanımı
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } tarayıcısı
@@ -1041,8 +1044,10 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+passkey-registration-canceled-link = Daha fazla bilgi alın
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
+passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
 
 
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.

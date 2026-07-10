@@ -150,6 +150,11 @@ device-info-browser-os = { $browserName } { $genericOSName }-pe
 device-info-ip-address = IP kundaharape: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Emohenda { -brand-firefox } peteĩva mba’e’okápe
+firefox-promo-banner-mobile-cta = Embojuaju ba’e’oka
+firefox-promo-banner-switch-cta = Eguerova { -brand-firefox }-pe
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Ñe’ẽñemi
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -1086,6 +1091,7 @@ oauth-error-1000 = Oĩ ndoikóiva. Emboty ko tendayke ha eha’ã jey.
 passkey-registration-error-not-allowed = Pe ñe’ẽ ñemi ñemboheko ndoikói térã ndojeporukuaái. Eha’ãjey ag̃ave térã eiporavo ambue.
 passkey-registration-error-not-allowed-existing = Ñe’ẽ ñemi ñemoheñói ndereiporukuaamo’ãi ko mba’e’okápe. Ikatu pe mba’e’oka oñemboheraguapýma térã ikatu ojehejareíma pe iñemboheko.
 passkey-registration-error-timeout = Ojehejarei ñe’ẽ ñemi ñemboheko. Eha’ãjey ag̃ave.
+passkey-registration-canceled-v2 = Ñe’ẽ ñemi jeikeha ñemboheko ijaravopa térã ojepe’a.
 passkey-registration-canceled-link = Eikuaave
 passkey-registration-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 passkey-registration-error-not-supported-link = Eikuaave

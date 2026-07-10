@@ -151,6 +151,14 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adress: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
+firefox-promo-banner-mobile-cta = Anslut en enhet
+firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Lösenord
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -917,7 +925,7 @@ passkey-sub-row-created-date = Skapad: { $createdDate }
 passkey-sub-row-last-used-date = Senast använd: { $lastUsedDate }
 passkey-sub-row-delete-title = Ta bort lösenordsnyckel
 passkey-delete-modal-heading = Ta bort din lösenordsnyckel?
-passkey-delete-modal-content = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in på ett annat sätt.
+passkey-delete-modal-content-v2 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med en annan metod (lösenord, en annan lösenordsnyckel eller länkat konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen

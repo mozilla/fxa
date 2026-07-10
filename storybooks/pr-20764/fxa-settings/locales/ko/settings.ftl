@@ -145,6 +145,14 @@ device-info-browser-os = { $genericOSName }의 { $browserName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 주소: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = 어디에서나 { -brand-firefox }를 사용하세요
+firefox-promo-banner-mobile-cta = 기기 연결
+firefox-promo-banner-switch-cta = { -brand-firefox }로 전환
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =

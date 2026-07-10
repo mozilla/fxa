@@ -139,6 +139,11 @@ device-info-browser-os = { $genericOSName }의 { $browserName }
 device-info-ip-address = IP 주소: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = 어디에서나 { -brand-firefox }를 사용하세요
+firefox-promo-banner-mobile-cta = 기기 연결
+firefox-promo-banner-switch-cta = { -brand-firefox }로 전환
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = 비밀번호
 form-password-with-inline-criteria-signup-confirm-password-label =

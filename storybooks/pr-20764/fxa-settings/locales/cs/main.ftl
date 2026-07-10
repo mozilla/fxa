@@ -442,7 +442,7 @@ device-info-ip-address = IP adresa: { $ipAddress }
 
 firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
 firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
-firefox-promo-banner-mobile-cta = Připojení zařízení
+firefox-promo-banner-mobile-cta = Připojit zařízení
 firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
 firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
 firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }

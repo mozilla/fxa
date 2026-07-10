@@ -1,8 +1,19 @@
+## FxA React - Strings shared between multiple FxA products for application error dialog
+
+app-something-went-wrong-heading = មានអ្វីខុសប្រក្រតី
+app-something-went-wrong-message = យើងត្រូវបានជូនដំណឹងអំពីបញ្ហាទាំងនេះ។ សូមផ្ទុកទំព័រឡើងវិញ ដើម្បីព្យាយាមម្ដងទៀត។
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = ID កំហុស៖ { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = ព័ត៌មានលម្អិតអំពីកំហុស
+# Specific handling for issues when bad or missing query parameters are detected
+app-query-parameter-err-heading = សំណើមិនល្អ៖ ប៉ារ៉ាម៉ែត្រសំណួរមិនត្រឹមត្រូវ
+
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = ឡូហ្គោ { -brand-mozilla }
 app-footer-privacy-notice = ការជូនដំណឹងអំពីភាពឯកជនរបស់គេហទំព័រ
-app-footer-terms-of-service = លក្ខខ័ណ្ឌ​សេវាកម្ម
+app-footer-terms-of-service = លក្ខខណ្ឌនៃសេវាកម្ម
 
 ## FxA React - Strings shared between multiple FxA products for application page title
 

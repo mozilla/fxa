@@ -201,6 +201,7 @@ freeTrialEndingReminder-content-greeting = { $productName } 고객님께,
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
 freeTrialEndingReminder-content-trial-ending = 무료 평가판이 <strong>{ $serviceLastActiveDateOnly }</strong>에 종료됩니다.
+freeTrialEndingReminder-content-trial-ending-plaintext = 무료 평가판이 { $serviceLastActiveDateOnly }에 종료됩니다.
 freeTrialEndingReminder-content-charge-heading = 상세정보 변경하기
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
