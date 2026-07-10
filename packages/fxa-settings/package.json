@@ -235,7 +235,7 @@
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
     "raw-loader": "^4.0.2",
-    "sinon": "^15.0.1",
+    "sinon": "^22.0.0",
     "storybook": "^8.0.0",
     "style-loader": "^4.0.0",
     "ts-jest": "^29.2.3",
