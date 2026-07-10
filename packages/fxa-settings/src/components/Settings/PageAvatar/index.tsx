@@ -8,7 +8,6 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
 import Cropper, { Area } from 'react-easy-crop';
-import { Slider } from '@material-ui/core';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
@@ -147,12 +146,8 @@ export const PageAddAvatar = () => {
     return null;
   }, [croppedAreaPixels, rotation, capturedImgSrc]);
 
-  const handleSliderChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: number | number[]
-  ) => {
-    // @ts-ignore
-    setZoom(value);
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setZoom(Number(event.target.value));
   };
 
   /* Capture Handlers */
@@ -240,15 +235,15 @@ export const PageAddAvatar = () => {
             return setZoom(zoom - 0.1);
           }}
         />
-        <div className="w-32 ml-2 mr-4">
-          <Slider
+        <div className="w-32 ml-2 mr-4 flex items-center">
+          <input
+            type="range"
             min={1}
             max={3}
             step={0.1}
             value={zoom}
-            className={'w-100'}
+            className="w-full"
             aria-label="zoom-slider"
-            component={'span'}
             onChange={handleSliderChange}
           />
         </div>

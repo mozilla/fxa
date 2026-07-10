@@ -6,7 +6,7 @@
 import './styles/tailwind.out.css';
 
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
@@ -80,7 +80,8 @@ try {
         return <CookiesDisabled />;
       };
 
-  render(
+  const root = createRoot(document.getElementById('root') as HTMLElement);
+  root.render(
     <React.StrictMode>
       <BrowserRouter>
         <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
@@ -95,8 +96,7 @@ try {
           </AppErrorBoundary>
         </DynamicLocalizationProvider>
       </BrowserRouter>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import config from '../../lib/config';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import { ReactElement } from 'react';
 import { FeatureFlag } from 'fxa-react/components/FeatureFlag';
 
 export type OAuthClientFeatureFlagConfig = {
