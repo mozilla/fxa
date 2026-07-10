@@ -23,6 +23,7 @@ const {
 } = require('@fxa/shared/cms');
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 
+const { createNoopStatsd } = require('../lib/noop-statsd');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { JWTool } = require('@fxa/vendored/jwtool');
 const { StatsD } = require('hot-shots');
@@ -84,11 +85,7 @@ async function run(config) {
           log.error('statsd.error', err);
         },
       })
-    : {
-        increment: () => {},
-        timing: () => {},
-        close: () => {},
-      };
+    : createNoopStatsd();
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({
