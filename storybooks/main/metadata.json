@@ -1,8 +1,8 @@
 {
-  "commit": "f13183880bf2914cf60f611e57483fc2730c632e",
-  "summary": "Merge pull request #20825 from mozilla/FXA-14106",
-  "description": "fix(auth-server): use current primary email over signup email",
-  "timestamp": 1783637410000,
+  "commit": "ee817034f00a151191b30764c8ec0db6efbef2fe",
+  "summary": "Merge pull request #20842 from mozilla/sec-audit-open-redirect",
+  "description": "fix(settings): enforce allowlist on authorization action parameter",
+  "timestamp": 1783703881000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
