@@ -1,8 +1,8 @@
 {
-  "commit": "fb6a52cb20b6ef3d441225d438a229ce078ec3f6",
-  "summary": "needs extra eyes?",
+  "commit": "9c32450d4d56f1aa7978a206891f70e3e90bdab3",
+  "summary": "Jest 30 -> 29",
   "description": "",
-  "timestamp": 1783716347000,
+  "timestamp": 1783719296000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
