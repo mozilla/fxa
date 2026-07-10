@@ -1,0 +1,11 @@
+{
+  "commit": "6a6ce35e7ca9dbaef466be710d29c6369fb349a1",
+  "summary": "feat(settings): add inline passkey rename",
+  "description": "Because:\n* Passkeys are auto-named generically at creation and users had no way to\n  rename them afterward.\n\nThis commit:\n* Adds an inline rename control (passkey name + pencil as one button) that\n  opens an editable field with Save/Cancel on the passkey SubRow.\n* Switches PATCH /passkey/{credentialId} from the MFA JWT strategy to a\n  verified session token; rename is non-destructive, so no OTP step-up.\n* Adds a sessionPatch auth-client helper and repoints renamePasskey to the\n  session token; Account.renamePasskey uses the cached session token.\n* Validates on submit (non-empty, max 255, display-safe unicode, plus a\n  client-side duplicate-name guard) with an inline error message.\n* Adds Glean rename submit/success/error events, FTL strings, and tests.\n\nCloses #FXA-13962",
+  "timestamp": 1783724830000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

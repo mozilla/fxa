@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6a6ce35e7ca9dbaef466be710d29c6369fb349a1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6a6ce35e7ca9dbaef466be710d29c6369fb349a1</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/10/2026, 11:07:10 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): add inline passkey rename</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Passkeys are auto-named generically at creation and users had no way to
+  rename them afterward.
+
+This commit:
+* Adds an inline rename control (passkey name + pencil as one button) that
+  opens an editable field with Save/Cancel on the passkey SubRow.
+* Switches PATCH /passkey/{credentialId} from the MFA JWT strategy to a
+  verified session token; rename is non-destructive, so no OTP step-up.
+* Adds a sessionPatch auth-client helper and repoints renamePasskey to the
+  session token; Account.renamePasskey uses the cached session token.
+* Validates on submit (non-empty, max 255, display-safe unicode, plus a
+  client-side duplicate-name guard) with an inline error message.
+* Adds Glean rename submit/success/error events, FTL strings, and tests.
+
+Closes #FXA-13962</pre></dd>
+  </dl>
+</body>
+</html>
