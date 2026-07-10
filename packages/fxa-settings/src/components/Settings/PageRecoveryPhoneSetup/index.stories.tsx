@@ -2,16 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import PageRecoveryPhoneSetup from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Meta } from '@storybook/react';
 import SettingsLayout from '../SettingsLayout';
-import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Account, AppContext } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -25,7 +20,7 @@ export default {
 } as Meta;
 
 export const AddWithSuccess = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SettingsLayout>
       <AppContext.Provider
         value={mockAppContext({
@@ -41,7 +36,7 @@ export const AddWithSuccess = () => (
         </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const ChangeWithSuccess = () => {
@@ -55,14 +50,8 @@ export const ChangeWithSuccess = () => {
     key: 'storybook-mock',
   };
 
-  const source = createMemorySource(locationWithState.pathname);
-  const history = createHistory(source);
-
-  history.navigate(locationWithState.pathname, {
-    state: locationWithState.state,
-  });
   return (
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={[{ pathname: locationWithState.pathname, state: locationWithState.state }]}>
       <SettingsLayout>
         <AppContext.Provider
           value={mockAppContext({
@@ -78,12 +67,12 @@ export const ChangeWithSuccess = () => {
           </MfaContext.Provider>
         </AppContext.Provider>
       </SettingsLayout>
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
 export const WithErrorOnAdd = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SettingsLayout>
       <AppContext.Provider
         value={mockAppContext({
@@ -101,11 +90,11 @@ export const WithErrorOnAdd = () => (
         </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithErrorOnConfirmSetup = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SettingsLayout>
       <AppContext.Provider
         value={mockAppContext({
@@ -123,11 +112,11 @@ export const WithErrorOnConfirmSetup = () => (
         </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithErrorOnConfirmChange = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SettingsLayout>
       <AppContext.Provider
         value={mockAppContext({
@@ -145,5 +134,5 @@ export const WithErrorOnConfirmChange = () => (
         </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
-  </LocationProvider>
+  </MemoryRouter>
 );

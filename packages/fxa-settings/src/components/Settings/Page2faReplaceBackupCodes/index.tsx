@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useEffect, useState } from 'react';
 import { SETTINGS_PATH } from '../../../constants';
@@ -11,7 +10,6 @@ import {
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
-  useSession,
 } from '../../../models';
 import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
@@ -21,20 +19,17 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
-export const MfaGuardPage2faReplaceBackupCodes = (
-  props: RouteComponentProps
-) => {
+export const MfaGuardPage2faReplaceBackupCodes = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.createBackupCodes}>
-      <Page2faReplaceBackupCodes {...props} />
+      <Page2faReplaceBackupCodes />
     </MfaGuard>
   );
 };
 
-export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
+export const Page2faReplaceBackupCodes = () => {
   const alertBar = useAlertBar();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const account = useAccount();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -155,8 +150,10 @@ export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
   };
 
   useEffect(() => {
-    session.verified && newBackupCodes.length < 1 && createNewBackupCodes();
-  }, [session, newBackupCodes, createNewBackupCodes]);
+    if (newBackupCodes.length < 1) {
+      createNewBackupCodes();
+    }
+  }, [newBackupCodes, createNewBackupCodes]);
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'tfa-backup-codes-page-title',

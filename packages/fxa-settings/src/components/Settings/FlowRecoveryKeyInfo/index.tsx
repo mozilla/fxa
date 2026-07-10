@@ -10,7 +10,7 @@ import { ShieldIconListItem, KeyIconListItem } from '../../IconListItem';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import { SETTINGS_PATH } from '../../../constants';
 
 export type FlowRecoveryKeyInfoProps = {

@@ -26,7 +26,9 @@ jest.mock('./churn-intervention.repository', () => ({
 
 describe('ChurnInterventionManager', () => {
   let manager: ChurnInterventionManager;
-  const mockConfig = { collectionName: 'testCollection' } as ChurnInterventionConfig;
+  const mockConfig = {
+    collectionName: 'testCollection',
+  } as ChurnInterventionConfig;
   const mockEntry = ChurnInterventionEntryFactory();
 
   beforeEach(() => {
@@ -48,21 +50,26 @@ describe('ChurnInterventionManager', () => {
 
       const result = await manager.createEntry(mockEntry);
 
-      expect(createChurnInterventionEntry).toHaveBeenCalledWith(mockCollection, {
-        customerId: mockEntry.customerId,
-        churnInterventionId: mockEntry.churnInterventionId,
-        redemptionCount: mockEntry.redemptionCount ?? 0,
-      });
+      expect(createChurnInterventionEntry).toHaveBeenCalledWith(
+        mockCollection,
+        {
+          customerId: mockEntry.customerId,
+          churnInterventionId: mockEntry.churnInterventionId,
+          redemptionCount: mockEntry.redemptionCount ?? 0,
+        }
+      );
       expect(result).toEqual(mockEntry);
     });
   });
 
-  describe('getEntry', () => {
+  describe('getOrCreateEntry', () => {
     it('successfully gets data', async () => {
       (getChurnInterventionEntryData as jest.Mock).mockResolvedValue(mockEntry);
 
-      const result = await manager.getEntry(mockEntry.customerId, mockEntry.churnInterventionId);
-
+      const result = await manager.getOrCreateEntry(
+        mockEntry.customerId,
+        mockEntry.churnInterventionId
+      );
       expect(getChurnInterventionEntryData).toHaveBeenCalledWith(
         mockCollection,
         mockEntry.customerId,
@@ -78,7 +85,10 @@ describe('ChurnInterventionManager', () => {
 
   describe('updateEntry', () => {
     it('successfully udpates', async () => {
-      const updated = { ...mockEntry, redemptionCount: mockEntry.redemptionCount + 1 };
+      const updated = {
+        ...mockEntry,
+        redemptionCount: mockEntry.redemptionCount + 1,
+      };
       (updateChurnInterventionEntry as jest.Mock).mockResolvedValue(updated);
 
       const result = await manager.updateEntry(
@@ -105,7 +115,10 @@ describe('ChurnInterventionManager', () => {
     it('successfully deletes', async () => {
       (deleteChurnInterventionEntry as jest.Mock).mockResolvedValue(true);
 
-      const result = await manager.deleteEntry(mockEntry.customerId, mockEntry.churnInterventionId);
+      const result = await manager.deleteEntry(
+        mockEntry.customerId,
+        mockEntry.churnInterventionId
+      );
 
       expect(deleteChurnInterventionEntry).toHaveBeenCalledWith(
         mockCollection,

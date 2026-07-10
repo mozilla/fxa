@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import UnitRowRecoveryKey from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
@@ -39,11 +38,11 @@ const storyWithContext = (
   const context = { account: account as Account, config: config as Config };
 
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext(context)}>
         <UnitRowRecoveryKey />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

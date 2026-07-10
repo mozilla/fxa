@@ -5,11 +5,13 @@
 'use strict';
 
 const { AppError: error } = require('@fxa/accounts/errors');
+const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 module.exports = (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};
   const ignoreTemplates = configBounces.ignoreTemplates || [];
   const BOUNCES_ENABLED = !!configBounces.enabled;
+  const BOUNCES_ALIAS_CHECK_ENABLED = !!configBounces.aliasCheckEnabled;
 
   const BOUNCE_TYPE_HARD = 1;
   const BOUNCE_TYPE_SOFT = 2;
@@ -28,12 +30,65 @@ module.exports = (config, db) => {
     [BOUNCE_TYPE_COMPLAINT]: error.emailComplaint,
   };
 
-  function checkBounces(email, template) {
+  const emailNormalization = new EmailNormalization(
+    configBounces.emailAliasNormalization
+  );
+
+  async function checkBounces(email, template) {
     if (ignoreTemplates.includes(template)) {
       return;
     }
 
-    return db.emailBounces(email).then(applyRules);
+    let bounces;
+
+    if (BOUNCES_ALIAS_CHECK_ENABLED) {
+      bounces = await checkBouncesWithAliases(email);
+    } else {
+      bounces = await db.emailBounces(email);
+    }
+
+    return applyRules(bounces);
+  }
+
+  async function checkBouncesWithAliases(email) {
+    // Given an email alias like test+123@domain.com:
+    // We look for bounces to the 'root' email -> `test@domain.com`
+    // And look for bounces to the alias with a wildcard -> `test+%@domain.com`
+    //
+    // This prevents us from picking up false positives when we replace the alias
+    // with a wildcard, and doesn't miss the root email bounces either. We have to
+    // use both because just using the wildcard would miss bounces sent to the root
+    // and just using the root with a wildcard would pickup false positives.
+    //
+    // So, test+123@domain.com would match:
+    //   - test@domain.com            Covered by normalized email
+    //   - test+123@domain.com        Covered by wildcard email
+    //   - test+asdf@domain.com       Covered by wildcard email
+    // but not
+    //   - testing@domain.com         Not picked up by wildcard since we include the '+'
+    const normalizedEmail = emailNormalization.normalizeEmailAliases(email, '');
+    const wildcardEmail = emailNormalization.normalizeEmailAliases(email, '+%');
+
+    const [normalizedBounces, wildcardBounces] = await Promise.all([
+      db.emailBounces(normalizedEmail),
+      db.emailBounces(wildcardEmail),
+    ]);
+
+    // Merge and deduplicate by email+createdAt
+    // there shouldn't be any overlap, but just in case
+    const seen = new Set();
+    const merged = [...normalizedBounces, ...wildcardBounces].filter(
+      (bounce) => {
+        const key = `${bounce.email}:${bounce.createdAt}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      }
+    );
+
+    return merged.sort((a, b) => b.createdAt - a.createdAt);
   }
 
   // Relies on the order of the bounces array to be sorted by date,

@@ -22,7 +22,8 @@ export const StripePriceFactory = (
   const currency =
     override?.currency?.toLowerCase() ||
     faker.finance.currencyCode().toLowerCase();
-  const unit_amount = override?.unit_amount || faker.number.int({ max: 1000 });
+  const unit_amount =
+    override?.unit_amount || faker.number.int({ min: 1, max: 1000 });
   const unit_amount_decimal =
     override?.unit_amount_decimal || faker.commerce.price({ min: 1000 });
   return {

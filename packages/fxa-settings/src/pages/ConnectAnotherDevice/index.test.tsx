@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -18,6 +17,17 @@ import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    cad: {
+      view: jest.fn(),
+      submit: jest.fn(),
+      startbrowsingSubmit: jest.fn(),
+    },
+  },
 }));
 
 describe('ConnectAnotherDevice', () => {
@@ -116,7 +126,7 @@ describe('ConnectAnotherDevice', () => {
     expect(
       screen.getByText('Sign in to this Firefox to complete set-up')
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it('renders device-specific messaging for Android', () => {

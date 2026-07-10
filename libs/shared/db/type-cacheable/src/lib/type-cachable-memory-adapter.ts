@@ -34,7 +34,7 @@ export class MemoryAdapter implements CacheClient {
           this.memcache.delete(cacheKey);
         }
       }
-    }, MEMCACHE_CLEANUP_INTERVAL_SECONDS * 1000);
+    }, MEMCACHE_CLEANUP_INTERVAL_SECONDS * 1000).unref();
   }
 
   public async get(cacheKey: string): Promise<any> {

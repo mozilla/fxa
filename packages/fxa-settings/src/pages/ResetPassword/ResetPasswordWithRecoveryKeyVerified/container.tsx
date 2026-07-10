@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -28,7 +28,7 @@ import { currentAccount } from '../../../lib/cache';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
-}: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
+}: ResetPasswordWithRecoveryKeyVerifiedProps) => {
   const [showHint, setShowHint] = useState(false);
 
   const alertBar = useAlertBar();

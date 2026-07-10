@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionReactivation',
   'Sent when a user reactivates their subscription.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     invoiceTotal: '$20',
     nextInvoiceDateOnly: '11/13/2021',
     icon: 'https://placekitten.com/512/512',
@@ -22,3 +22,18 @@ const createStory = subplatStoryWithProps(
 );
 
 export const SubscriptionReactivation = createStory();
+
+const createFreeTrialStory = subplatStoryWithProps(
+  'subscriptionReactivation',
+  'Sent when a user reactivates their subscription while still in a free trial.',
+  {
+    productName: '123Done Pro',
+    invoiceTotal: '$20',
+    nextInvoiceDateOnly: '11/13/2021',
+    icon: 'https://placekitten.com/512/512',
+    subscriptionSupportUrl: 'http://localhost:3030/support',
+    isFreeTrialReactivation: true,
+  }
+);
+
+export const SubscriptionReactivationFreeTrial = createFreeTrialStory();

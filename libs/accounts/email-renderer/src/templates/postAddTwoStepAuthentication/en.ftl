@@ -11,3 +11,4 @@ postAddTwoStepAuthentication-recovery-method-codes = You also added backup authe
 postAddTwoStepAuthentication-recovery-method-phone = You also added { $maskedPhoneNumber } as your recovery phone number.
 postAddTwoStepAuthentication-how-protects-link = How this protects your account
 postAddTwoStepAuthentication-how-protects-plaintext = How this protects your account:
+postAddTwoStepAuthentication-device-sign-out-message = To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.

@@ -6,26 +6,88 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel=1 "
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
-if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
+# Affected-spec narrowing for the UNIT run. PRs set JEST_AFFECTED_BASE=main;
+# tag/nightly leave it unset and run the full suite (regression guard).
+#
+# How: diff the branch against a freshly-fetched base (two-dot `git diff <base> HEAD`)
+# and pass the changed files to Jest's --findRelatedTests. Two-dot is used, not
+# --changedSince, because the latter needs a merge-base the shallow --depth=1 CI
+# clone doesn't have. Trade-offs: a branch behind main over-includes (harmless --
+# rebase to shrink); a missing base ref falls back to the full suite.
+#
+# UNIT only. Integration specs (test/remote/*.in.spec.ts) are black-box -- they call
+# routes over HTTP against the globalSetup server and never import the handlers, so
+# --findRelatedTests would map a route change to zero specs (false negative). They
+# always run full, gated to affected *projects* by `nx affected`.
+JEST_AFFECTED_ARGS=()
+if [ -n "$JEST_AFFECTED_BASE" ]; then
+  base_ref="$JEST_AFFECTED_BASE"
+  if git fetch --no-tags --depth=1 origin "$JEST_AFFECTED_BASE" >/dev/null 2>&1; then
+    base_ref=FETCH_HEAD
+  else
+    echo "WARNING: could not refresh '$JEST_AFFECTED_BASE'; diffing against the local ref"
+  fi
 
+  if git rev-parse --verify --quiet "$base_ref" >/dev/null; then
+    REPO_ROOT=$(git rev-parse --show-toplevel)
+    CHANGED_FILES=()
+    while IFS= read -r changed_file; do
+      [ -n "$changed_file" ] && CHANGED_FILES+=("$REPO_ROOT/$changed_file")
+    done < <(git diff --name-only "$base_ref" HEAD)
 
-TESTS=(local oauth remote scripts)
-if [ -z "$1" ]; then
-  TESTS=(local oauth remote scripts)
-else
-  TESTS=($1)
+    JEST_AFFECTED_ARGS+=(--passWithNoTests)
+    if [ "${#CHANGED_FILES[@]}" -gt 0 ]; then
+      echo "Narrowing Jest to specs related to ${#CHANGED_FILES[@]} changed file(s) vs '$JEST_AFFECTED_BASE'"
+      JEST_AFFECTED_ARGS+=(--findRelatedTests "${CHANGED_FILES[@]}")
+    else
+      echo "No files differ from '$JEST_AFFECTED_BASE'; running no Jest specs"
+      JEST_AFFECTED_ARGS+=(--testPathPattern '__affected_no_changes__')
+    fi
+  else
+    # Fail safe: if the base ref is missing, run the full suite rather than nothing.
+    echo "WARNING: base ref '$JEST_AFFECTED_BASE' not found; running the full Jest suite"
+  fi
 fi
 
-for t in "${TESTS[@]}"; do
-  echo -e "\n\nTesting: $t"
+if [ "$TEST_TYPE" == 'unit' ]; then
+  echo -e "\n\nRunning Jest unit tests"
+  # No --forceExit: unit specs mock all DB boundaries
+  # Dropping the flag makes a leak fail loudly.
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-unit-results.xml" \
+  npx jest --selectProjects unit --coverage --ci --silent --maxWorkers=4 --reporters=default --reporters=jest-junit "${JEST_AFFECTED_ARGS[@]}"
 
-  #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
-  MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
-done
+elif [ "$TEST_TYPE" == 'scripts' ]; then
+  echo -e "\n\nRunning Jest script integration tests (test/scripts/**/*.in.spec.ts)"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server-scripts" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-scripts-results.xml" \
+  npx jest --selectProjects scripts --forceExit --ci --silent --maxWorkers=8 --reporters=default --reporters=jest-junit
 
-if [ "$TEST_TYPE" == 'integration' ]; then
-  yarn run clean-up-old-ci-stripe-customers;
-fi;
+elif [ "$TEST_TYPE" == 'integration' ]; then
+  echo -e "\n\nRunning Jest integration tests (excluding test/scripts)"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
+  npx jest --selectProjects integration --forceExit --ci --maxWorkers=4 --reporters=default --reporters=jest-junit
+
+  echo -e "\n\nRunning Jest OAuth API integration tests (in-process server)"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-oauth-api-results.xml" \
+  npx jest --selectProjects oauth-api --forceExit --ci --maxWorkers=1 --reporters=default --reporters=jest-junit
+
+  # Sweeping old Stripe test customers is housekeeping, not part of the test run,
+  # and the sweep is slow (paginates the test account via the rate-limited Stripe
+  # API). Only run it when RUN_STRIPE_CLEANUP is set (nightly workflow); PR and tag
+  # workflows leave it unset so they don't pay the cost on every run.
+  if [ "$RUN_STRIPE_CLEANUP" == "true" ]; then
+    yarn run clean-up-old-ci-stripe-customers
+  fi
+
+else
+  # Fallback: unit only. The infra-backed suites can't share one jest run
+  # (oauth-api would race integration's globalSetup server on the DB), so there
+  # is no single "run everything" invocation -- pick a suite via TEST_TYPE.
+  echo -e "\n\nRunning Jest unit tests (default)"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-results.xml" \
+  npx jest --selectProjects unit --coverage --ci --silent --reporters=default --reporters=jest-junit
+fi

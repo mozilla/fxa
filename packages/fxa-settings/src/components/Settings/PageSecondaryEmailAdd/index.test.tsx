@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { PageSecondaryEmailAdd, MfaGuardPageSecondaryEmailAdd } from '.';
@@ -215,6 +214,13 @@ describe('PageSecondaryEmailAdd', () => {
       mockAuthClient.mfaOtpVerify = jest
         .fn()
         .mockResolvedValueOnce({ accessToken: mockJwt });
+      // VerifiedSessionGuard calls sessionStatus, so we need to mock it
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'verified',
+        details: {
+          sessionVerified: true,
+        },
+      });
     };
 
     const resetJwtCache = () => {
@@ -239,9 +245,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 
@@ -260,9 +264,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 
@@ -285,9 +287,7 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd
-            location={{ state: { email: mockEmail } } as any}
-          />
+          <MfaGuardPageSecondaryEmailAdd />
         </AppContext.Provider>
       );
 

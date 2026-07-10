@@ -14,6 +14,7 @@ import {
   DefaultPaymentMethod,
   DefaultPaymentMethodError,
   PaymentMethodErrorType,
+  PaymentProvider,
   SubPlatPaymentMethodType,
   type PaymentMethodTypeResponse,
 } from './types';
@@ -124,6 +125,7 @@ export class PaymentMethodManager {
       subscriptions[0].collection_method === 'send_invoice'
     ) {
       return {
+        provider: PaymentProvider.PayPal,
         type: SubPlatPaymentMethodType.PayPal,
       };
     }
@@ -134,26 +136,34 @@ export class PaymentMethodManager {
       );
       if (paymentMethod.card?.wallet?.type === 'apple_pay') {
         return {
+          provider: PaymentProvider.Stripe,
           type: SubPlatPaymentMethodType.ApplePay,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };
       } else if (paymentMethod.card?.wallet?.type === 'google_pay') {
         return {
+          provider: PaymentProvider.Stripe,
           type: SubPlatPaymentMethodType.GooglePay,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };
-      } else if (paymentMethod.type === 'link' || paymentMethod.card?.wallet?.type === 'link') {
+      } else if (
+        paymentMethod.type === 'link' ||
+        paymentMethod.card?.wallet?.type === 'link'
+      ) {
         return {
+          provider: PaymentProvider.Stripe,
           type: SubPlatPaymentMethodType.Link,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };
       } else if (paymentMethod.type === 'card') {
         return {
+          provider: PaymentProvider.Stripe,
           type: SubPlatPaymentMethodType.Card,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };
       } else {
         return {
+          provider: PaymentProvider.Stripe,
           type: SubPlatPaymentMethodType.Stripe,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };

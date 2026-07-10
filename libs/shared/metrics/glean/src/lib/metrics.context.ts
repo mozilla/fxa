@@ -29,6 +29,7 @@ export class MetricsContext {
   utmSource?: string;
   utmTerm?: string;
   clientId?: string;
+  service?: string;
 
   constructor(queryParams?: Record<string, string | undefined>) {
     queryParams = queryParams || {};
@@ -40,6 +41,7 @@ export class MetricsContext {
         ? Number(queryParams['flowBeginTime'] || queryParams['flow_begin_time'])
         : undefined;
     this.clientId = queryParams['clientId'] || queryParams['client_id'];
+    this.service = queryParams['service'];
     this.utmCampaign =
       queryParams['utmCampaign'] || queryParams['utm_campaign'];
     this.utmContent = queryParams['utmContent'] || queryParams['utm_content'];

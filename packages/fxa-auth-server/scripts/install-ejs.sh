@@ -6,10 +6,13 @@
 # the package used by the browser.
 
 # Get current version
-ejs_version=$(npm info ejs version)
+# ejs_version=$(npm info ejs version)
+# Temoporary fix for now... Latest version doesn't have minified file
+ejs_version=3.1.10
 
 # Ensure vendor dir
 [ ! -d "./vendor" ] && mkdir vendor
 
 # Download it from github
-curl -L https://github.com/mde/ejs/releases/download/v$ejs_version/ejs.min.js -o ./vendor/ejs.js
+# Use --noproxy to avoid yarn/npm proxy env vars causing 504 gateway timeouts
+curl -fL --noproxy '*' https://github.com/mde/ejs/releases/download/v$ejs_version/ejs.min.js -o ./vendor/ejs.js

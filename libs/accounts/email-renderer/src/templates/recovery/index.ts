@@ -9,11 +9,6 @@ export type TemplateData = AutomatedEmailNoActionTemplateData &
   UserInfoTemplateData & {
     link: string;
     time: string;
-    device: {
-      uaBrowser: string;
-      uaOSVersion: string;
-      uaOS: string;
-    };
     location: {
       stateCode: string;
       country: string;

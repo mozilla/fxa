@@ -6,11 +6,10 @@
 
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
+const Sentry = require('@sentry/node');
 
 const { config } = require('../config');
-
 const Redis = require('ioredis');
-
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
@@ -40,6 +39,7 @@ const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
 const { ProfileClient } = require('@fxa/profile/client');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+const { Bounces, EmailSender } = require('@fxa/accounts/email-sender');
 const {
   DeleteAccountTasks,
   DeleteAccountTasksFactory,
@@ -51,12 +51,27 @@ const {
   RecoveryPhoneService,
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
+const {
+  buildPasskeyConfig,
+  PasskeyService,
+  PasskeyManager,
+  PasskeyChallengeManager,
+} = require('@fxa/accounts/passkey');
 const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
-const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const {
+  RelyingPartyConfigurationManager,
+  LegalTermsConfigurationManager,
+  DefaultCmsConfigurationManager,
+} = require('@fxa/shared/cms');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
 const { OtpUtils } = require('../lib/routes/utils/otp');
+const { FxaMailer } = require('../lib/senders/fxa-mailer');
+const {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} = require('@fxa/accounts/email-renderer');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -203,6 +218,19 @@ async function run(config) {
         log
       );
       Container.set(RelyingPartyConfigurationManager, cmsAccounts);
+
+      const legalTermsManager = new LegalTermsConfigurationManager(
+        strapiClient,
+        statsd
+      );
+      Container.set(LegalTermsConfigurationManager, legalTermsManager);
+
+      const defaultCmsManager = new DefaultCmsConfigurationManager(
+        strapiClient,
+        statsd,
+        log
+      );
+      Container.set(DefaultCmsConfigurationManager, defaultCmsManager);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');
@@ -242,6 +270,24 @@ async function run(config) {
     ...config.redis,
     ...config.redis.ratelimit,
   });
+
+  // Create BigQuery writer for rate limit check logging (if enabled)
+  const { RateLimitBqWriter } = require('@fxa/accounts/rate-limit');
+  const bqWriter =
+    config.rateLimit.bigquery && config.rateLimit.bigquery.enabled
+      ? new RateLimitBqWriter(
+          {
+            projectId: config.rateLimit.bigquery.projectId,
+            dataset: config.rateLimit.bigquery.dataset,
+            table: config.rateLimit.bigquery.table,
+            flushIntervalMs: config.rateLimit.bigquery.flushIntervalMs,
+            batchSize: config.rateLimit.bigquery.batchSize,
+          },
+          undefined,
+          statsd
+        )
+      : undefined;
+
   const rateLimit = new RateLimit(
     {
       rules,
@@ -250,7 +296,8 @@ async function run(config) {
       ignoreUIDs: config.rateLimit.ignoreUIDs,
     },
     rateLimitRedis,
-    statsd
+    statsd,
+    bqWriter
   );
   Container.set(RateLimit, rateLimit);
 
@@ -285,15 +332,70 @@ async function run(config) {
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
 
+  // Create the PasskeyService and register it with the DI
+  const passkeyRedis = new Redis({
+    ...config.redis,
+    ...config.redis.passkey,
+  });
+  let passkeyConfig;
+  try {
+    passkeyConfig = buildPasskeyConfig(config.passkeys);
+  } catch (err) {
+    log.error('startup.passkey.configInvalid', { err });
+    process.exit(8);
+  }
+  const passkeyManager = new PasskeyManager(
+    accountDatabase,
+    passkeyConfig,
+    statsd,
+    log
+  );
+  const challengeManager = new PasskeyChallengeManager(
+    passkeyRedis,
+    passkeyConfig,
+    log,
+    statsd
+  );
+  const passkeyService = new PasskeyService(
+    passkeyManager,
+    challengeManager,
+    passkeyConfig,
+    statsd,
+    log
+  );
+  Container.set(PasskeyService, passkeyService);
+
   const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,
     serviceName: 'subhub',
   });
   Container.set(ProfileClient, profile);
 
-  const bounces = require('../lib/bounces')(config, database);
+  const bounces = new Bounces(config.smtp.bounces, {
+    // libs expectation for db is a bit simpler so we just pass through the
+    // existing function
+    emailBounces: { findByEmail: (email) => database.emailBounces(email) },
+  });
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
   const glean = gleanMetrics(config);
+
+  // Fxa Mailer Setup. Note, this should be done before anything that might
+  // issue Container.get(FxaMailer) in it's constructor! We've been bit by this
+  // service locator pattern before, so tread carefully.
+  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings(),
+    accountEventsManager
+  );
+  Container.set(FxaMailer, fxaMailer);
 
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
@@ -347,6 +449,14 @@ async function run(config) {
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
+
+  const oauthClientInfo = require('../lib/senders/oauth_client_info');
+  const { OAuthClientInfoServiceName } = oauthClientInfo;
+  Container.set({
+    id: OAuthClientInfoServiceName,
+    factory: () => oauthClientInfo(log, config),
+  });
+
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,
@@ -376,13 +486,21 @@ async function run(config) {
     database,
     statsd,
     glean,
-    customs
+    customs,
+    oauthDb
   );
 
   try {
     await server.start();
     log.info('server.start.1', {
       msg: `running on ${server.info.uri}`,
+    });
+    Sentry.captureMessage('Auth server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-auth-server',
+        env: config.env,
+      },
     });
   } catch (err) {
     log.error('server.start.1', {
@@ -446,6 +564,7 @@ async function run(config) {
 async function main() {
   try {
     const server = await run(config.getProperties());
+
     process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);
       process.exit(8);

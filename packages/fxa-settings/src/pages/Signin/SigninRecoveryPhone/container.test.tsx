@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import * as SigninRecoveryPhoneModule from './index';
 
 import { AppContext, Integration } from '../../../models';
@@ -18,6 +18,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { SigninRecoveryPhoneProps } from './interfaces';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
+import GleanMetrics from '../../../lib/glean';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
@@ -82,13 +83,24 @@ jest.mock('../../../lib/oauth/hooks.tsx', () => {
 });
 
 let mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => ({
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  }));
+let mockLocationPathname = '';
+let mockLocationStateValue: any = {};
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
+  mockLocationPathname = pathname;
+  mockLocationStateValue = locationState;
 }
 
 let currentPageProps: SigninRecoveryPhoneProps | undefined;
@@ -105,6 +117,7 @@ function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
 
+  currentPageProps = undefined;
   mockSigninRecoveryPhoneModule();
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
@@ -125,11 +138,11 @@ const renderSigninRecoveryPhoneContainer = (
   integration = createMockSigninWebIntegration() as Integration
 ) => {
   renderWithLocalizationProvider(
-    <ReachRouterModule.LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext()}>
         <SigninRecoveryPhoneContainer {...{ integration }} />
       </AppContext.Provider>
-    </ReachRouterModule.LocationProvider>
+    </MemoryRouter>
   );
 };
 
@@ -171,6 +184,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         integration: expect.any(Object),
         numBackupCodes: undefined,
         sendError: undefined,
+        signinState: mockSigninLocationState,
       });
     });
 
@@ -187,6 +201,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         sessionToken: mockSigninLocationState.sessionToken,
         uid: mockSigninLocationState.uid,
         verified: true,
+        sessionVerified: true,
       });
 
       expect(handleNavigation).toHaveBeenCalled();
@@ -219,12 +234,95 @@ describe('SigninRecoveryPhoneContainer', () => {
         sessionToken: mockSigninLocationState.sessionToken,
         uid: mockSigninLocationState.uid,
         verified: true,
+        sessionVerified: true,
       });
 
       expect(handleNavigation).toHaveBeenCalledWith(
         expect.objectContaining({
           isSessionAALUpgrade: true,
         })
+      );
+    });
+  });
+
+  describe('passwordless redirect to set_password when keys are required', () => {
+    const keysRequiredIntegration = () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => true;
+      return integration;
+    };
+
+    it.each([
+      ['isPasswordlessOtpSignin', 'otp'],
+      ['isSignInWithThirdPartyAuth', 'third_party_auth'],
+    ])(
+      'redirects a %s sign-in to set_password with reason %s',
+      async (marker, expectedReason) => {
+        mockReachRouter('/signin_recovery_phone', {
+          signinState: { ...mockSigninLocationState, [marker]: true },
+          lastFourPhoneDigits: '1234',
+        });
+        renderSigninRecoveryPhoneContainer(keysRequiredIntegration());
+
+        await currentPageProps?.verifyCode('123456');
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/post_verify/set_password'),
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: expectedReason },
+          })
+        );
+        // Web channel messages must be deferred until the password is set.
+        expect(handleNavigation).not.toHaveBeenCalled();
+      }
+    );
+
+    it('records the recovery-phone success metric before the redirect', async () => {
+      const successSpy = jest
+        .spyOn(GleanMetrics.login, 'recoveryPhoneSuccessView')
+        .mockImplementation(() => {});
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(keysRequiredIntegration());
+
+      await currentPageProps?.verifyCode('123456');
+
+      // Recovery succeeded even though we redirect to set_password, so the
+      // success funnel event must still fire.
+      expect(successSpy).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.stringContaining('/post_verify/set_password'),
+        expect.anything()
+      );
+      successSpy.mockRestore();
+    });
+
+    it('continues through handleNavigation when keys are not required', async () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => false;
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(integration);
+
+      await currentPageProps?.verifyCode('123456');
+
+      expect(handleNavigation).toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        expect.stringContaining('/post_verify/set_password'),
+        expect.anything()
       );
     });
   });
@@ -243,6 +341,40 @@ describe('SigninRecoveryPhoneContainer', () => {
           performNavigation: false,
         })
       );
+    });
+  });
+
+  describe('useOAuthKeysCheck', () => {
+    it('skips the keys check when the sign-in is passwordless OTP', () => {
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer();
+      const lastArg = (useOAuthKeysCheck as jest.Mock).mock.calls[0]?.[3];
+      expect(lastArg).toBe(true);
+    });
+
+    it('renders the recovery phone component when keys check is skipped for passwordless flow', () => {
+      (useOAuthKeysCheck as jest.Mock).mockImplementationOnce(
+        (_integration: any, _kft: any, _ubk: any, skipKeysCheck: boolean) => ({
+          oAuthKeysCheckError: skipKeysCheck
+            ? null
+            : { errno: 1, message: 'TRY_AGAIN' },
+        })
+      );
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer();
+      expect(currentPageProps).toBeDefined();
     });
   });
 });

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import { navigate, RouteComponentProps } from '@reach/router';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
@@ -84,7 +84,7 @@ const Ready = ({
   serviceName = MozServices.Default,
   viewName,
   integration,
-}: ReadyProps & RouteComponentProps) => {
+}: ReadyProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   // TODO: use `integration.isSync()`
@@ -107,7 +107,7 @@ const Ready = ({
     const eventName = `${viewName}.start-browsing`;
     logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
     const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
-    navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
+    window.location.replace(FXA_PRODUCT_PAGE_URL);
   };
 
   useEffect(() => {

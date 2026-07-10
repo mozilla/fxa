@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { BannerProps } from './interfaces';
 import {
   CheckmarkCircleOutlineCurrentIcon,
@@ -16,7 +15,7 @@ import classNames from 'classnames';
 import { useFtlMsgResolver } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 
 export const Banner = ({
   type,
@@ -27,6 +26,7 @@ export const Banner = ({
   link,
   isFancy,
   bannerId,
+  className,
   textAlignClassName = 'text-start',
   iconAlignClassName = 'self-center',
 }: BannerProps) => {
@@ -35,7 +35,8 @@ export const Banner = ({
     <div
       id={bannerId || ''}
       className={classNames(
-        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm',
+        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700',
+        className,
         textAlignClassName,
         textAlignClassName === 'text-center' && 'justify-center',
         type === 'error' && 'bg-red-100',

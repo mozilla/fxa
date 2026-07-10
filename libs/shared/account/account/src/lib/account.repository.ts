@@ -78,6 +78,7 @@ export enum VerificationMethods {
   totp2fa = 2,
   recoveryCode = 3,
   sms2fa = 4,
+  passkey = 5,
 }
 
 /**

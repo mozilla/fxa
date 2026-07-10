@@ -12,6 +12,12 @@ const {
 } = require('fxa-shared/oauth/constants');
 const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const { Container } = require('typedi');
+const { FxaMailer } = require('../../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
+const {
+  OAuthClientInfoServiceName,
+} = require('../../senders/oauth_client_info');
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify
@@ -23,9 +29,16 @@ module.exports = {
     mailer,
     devices,
     request,
-    grant
+    grant,
+    options = {}
   ) {
-    const clientId = request.payload.client_id;
+    const { skipEmail = false, existingDeviceId, clientId: optionsClientId } = options;
+    const fxaMailer = Container.get(FxaMailer);
+    const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
+
+    // Use clientId from options if provided (e.g., for token exchange where
+    // client_id is not in the request payload), otherwise fall back to payload
+    const clientId = optionsClientId || request.payload.client_id;
     const scopeSet = ScopeSet.fromString(grant.scope);
     const credentials = (request.auth && request.auth.credentials) || {};
 
@@ -57,6 +70,12 @@ module.exports = {
       credentials.id = grant.session_token_id;
     }
 
+    // Use existing device ID if provided (e.g., from token exchange where we looked
+    // up the device associated with the old refresh token)
+    if (!credentials.deviceId && existingDeviceId) {
+      credentials.deviceId = existingDeviceId;
+    }
+
     // we set tokenVerified because the granted scope is part of NOTIFICATION_SCOPES
     credentials.tokenVerified = true;
     credentials.client = await client.getClientById(clientId);
@@ -69,8 +88,8 @@ module.exports = {
     });
 
     // Email the user about their new device connection
-    // (but don't send anything if it was an existing device or new account)
-    if (!credentials.deviceId) {
+    // (but don't send anything if it was an existing device, new account, or skipEmail is set)
+    if (!credentials.deviceId && !skipEmail) {
       const account = await db.account(credentials.uid);
       const isNewAccount = Date.now() - account.createdAt < MAX_NEW_ACCOUNT_AGE;
 
@@ -83,11 +102,26 @@ module.exports = {
           timeZone: geoData.timeZone,
           uid: credentials.uid,
         };
-        await mailer.sendNewDeviceLoginEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+
+        if (fxaMailer.canSend('newDeviceLogin')) {
+          const clientInfo = await oauthClientInfoService.fetch(clientId);
+          await fxaMailer.sendNewDeviceLoginEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(clientId),
+            clientName: clientInfo.name,
+            showBannerWarning: false,
+          });
+        } else {
+          await mailer.sendNewDeviceLoginEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
       }
     }
   },

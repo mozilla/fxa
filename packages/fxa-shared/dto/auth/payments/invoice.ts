@@ -111,55 +111,6 @@ export type firstInvoicePreviewSchema = {
   prorated_amount?: number;
 };
 
-/**
- * Defines an interface for the subsequent invoice preview response
- * from the auth-server.
- */
-export interface SubsequentInvoicePreview {
-  currency: string;
-  subscriptionId: string;
-  period_start: number;
-  subtotal: number;
-  subtotal_excluding_tax: number | null;
-  total: number;
-  total_excluding_tax: number | null;
-  tax?: InvoiceTax[];
-}
-
-export const subsequentInvoicePreviewsSchema = joi.array().items(
-  joi.object({
-    currency: joi.string().required(),
-    subscriptionId: joi.string().required(),
-    period_start: joi.number().required(),
-    subtotal: joi.number().required(),
-    subtotal_excluding_tax: joi.number().required().allow(null),
-    total: joi.number().required(),
-    total_excluding_tax: joi.number().required().allow(null),
-    tax: joi.array().items({
-      amount: joi.number().required(),
-      inclusive: joi.boolean().required(),
-      display_name: joi.string().optional(),
-    }),
-  })
-);
-
-export type subsequentInvoicePreview = {
-  currency: string;
-  subscriptionId: string;
-  period_start: number;
-  subtotal: number;
-  subtotal_excluding_tax: number | null;
-  total: number;
-  total_excluding_tax: number | null;
-  tax?: {
-    amount: number;
-    inclusive: boolean;
-    display_name?: string;
-  }[];
-};
-
-export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;
-
 export interface LatestInvoiceItems
   extends Omit<
     FirstInvoicePreview,

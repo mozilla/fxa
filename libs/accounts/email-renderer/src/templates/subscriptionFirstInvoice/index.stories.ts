@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   invoiceAmountDue: '$10.00',
   invoiceAmountDueInCents: 1000,
   icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',

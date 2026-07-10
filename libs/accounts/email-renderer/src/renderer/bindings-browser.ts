@@ -58,6 +58,7 @@ export class BrowserRendererBindings extends RendererBindings {
         },
         translations: {
           basePath: './public/locales',
+          ftlFileName: 'emails.ftl',
         },
       },
       opts

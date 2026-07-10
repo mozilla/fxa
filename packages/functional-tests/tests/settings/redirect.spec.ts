@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, Page, test } from '../../lib/fixtures/standard';
+import { expect, Page, test, newPages } from '../../lib/fixtures/standard';
+import { EmailType } from '../../lib/email';
 import { getTotpCode } from '../../lib/totp';
-import { create as createPages } from '../../pages';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -24,14 +24,11 @@ test.describe('severity-2 #smoke', () => {
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const browser = context.browser()!;
-      const secondContext = await browser.newContext();
-      const secondPage = await secondContext.newPage();
-
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await newPages(browser, target);
 
       await signInAccount(
         target,
-        secondPage,
+        secondPages.page,
         secondPages.signin,
         secondPages.settings,
         credentials
@@ -45,8 +42,8 @@ test.describe('severity-2 #smoke', () => {
 
       await page.bringToFront();
       await settings.secondaryEmail.addButton.click();
+      await page.waitForURL(/signin_totp_code/);
 
-      await expect(page).toHaveURL(/signin_totp_code/);
       await expect(signinTotpCode.aalUpgradeBanner).toBeVisible();
       await expect(
         page.getByRole('heading', {
@@ -61,7 +58,7 @@ test.describe('severity-2 #smoke', () => {
       // Error alert caused by insufficient AAL error should not linger (see FXA-12707)
       await expect(page.getByText(/Insufficient AAL/)).toBeHidden();
       await settings.disconnectTotp();
-      await secondContext.close();
+      await secondPages.page.context().close();
     });
 
     test('redirects to signin_totp_code when AAL is insufficient on refresh', async ({
@@ -76,14 +73,11 @@ test.describe('severity-2 #smoke', () => {
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const browser = context.browser()!;
-      const secondContext = await browser.newContext();
-      const secondPage = await secondContext.newPage();
-
-      const secondPages = createPages(secondPage, target);
+      const secondPages = await newPages(browser, target);
 
       await signInAccount(
         target,
-        secondPage,
+        secondPages.page,
         secondPages.signin,
         secondPages.settings,
         credentials
@@ -97,8 +91,8 @@ test.describe('severity-2 #smoke', () => {
 
       await page.bringToFront();
       await page.reload();
+      await page.waitForURL(/signin_totp_code/);
 
-      await expect(page).toHaveURL(/signin_totp_code/);
       await expect(signinTotpCode.aalUpgradeBanner).toBeVisible();
       await expect(
         page.getByRole('heading', {
@@ -111,7 +105,7 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/settings/);
       await settings.disconnectTotp();
-      await secondContext.close();
+      await secondPages.page.context().close();
     });
 
     test('redirects to email first when not signed in', async ({
@@ -137,6 +131,46 @@ test.describe('severity-2 #smoke', () => {
       await settings.secondaryEmail.addButton.click();
 
       await expect(page).toHaveURL(/signin/);
+    });
+
+    test('redirects to settings after forced email verification', async ({
+      target,
+      page,
+      pages: { signin, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      // The `sync` prefix forces session verification via signin_token_code.
+      const credentials = await testAccountTracker.signUpSync();
+
+      await target.emailClient.clear(credentials.email);
+
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      // No newDeviceLogin email should exist before code verification
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode
+      );
+      const countBeforeCode = await target.emailClient.countEmailsByType(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        countBeforeCode,
+        'newDeviceLogin email should not be sent before the session is verified'
+      ).toBe(0);
+
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
+      // After verification, should land on /settings (not redirect to /signin)
+      await expect(page).toHaveURL(/settings/);
     });
   });
 });

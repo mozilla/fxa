@@ -34,7 +34,20 @@ export const relyingPartyQuery = graphql(`
           splitLayout
           splitLayoutAltText
         }
+        illustrationsTheme {
+          primary
+          primaryAlt
+          secondary
+          accentBg
+          accentFg
+          cloudPrimary
+          cloudShadow
+          hideClouds
+        }
         favicon
+        headlineFontSize
+        headlineTextColor
+        additionalAccessibilityInfo
       }
       EmailFirstPage {
         logoUrl
@@ -72,11 +85,42 @@ export const relyingPartyQuery = graphql(`
         }
         splitLayout
       }
+      SignupPasswordlessCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
       SigninPage {
         headline
         description
         primaryButtonText
         pageTitle
+        splitLayout
+      }
+      SigninCachedPage {
+        logoUrl
+        logoAltText
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
+      SigninPasswordlessCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
         splitLayout
       }
       SigninTokenCodePage {
@@ -93,7 +137,59 @@ export const relyingPartyQuery = graphql(`
         pageTitle
         splitLayout
       }
+      SigninTotpCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
+      SigninRecoveryChoicePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
+      SigninRecoveryCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
+      SigninRecoveryPhonePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
+      PostVerifySetPasswordPage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+      }
       NewDeviceLoginEmail {
+        subject
+        headline
+        description
+      }
+      PasswordlessSigninOtpEmail {
+        subject
+        headline
+        description
+      }
+      PasswordlessSignupOtpEmail {
         subject
         headline
         description

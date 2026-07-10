@@ -2,13 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import SigninRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
+import {
+  createMockSigninWebIntegration,
+  mockSigninLocationState,
+} from '../mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
+import { MemoryRouter } from 'react-router';
 
 describe('SigninRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
@@ -25,6 +30,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
     numBackupCodes: 4,
+    signinState: mockSigninLocationState,
   };
 
   const propsWithError = {
@@ -32,6 +38,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 4,
+    signinState: mockSigninLocationState,
   };
 
   const propsWithErrorNoBackupCodes = {
@@ -39,6 +46,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 0,
+    signinState: mockSigninLocationState,
   };
 
   beforeEach(() => {
@@ -46,7 +54,7 @@ describe('SigninRecoveryPhone', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...defaultProps} /></MemoryRouter>);
 
     expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
     expect(
@@ -69,9 +77,26 @@ describe('SigninRecoveryPhone', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders CMS headline when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <SigninRecoveryPhone
+          {...defaultProps}
+          integration={mockIntegrationWithCms}
+        />
+      </MemoryRouter>
+    );
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryPhonePage!.headline!)
+    ).toBeInTheDocument();
+  });
+
   it('has expected glean click events', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...defaultProps} /></MemoryRouter>);
 
     await waitFor(() => user.type(screen.getByRole('textbox'), '123456'));
 
@@ -95,7 +120,7 @@ describe('SigninRecoveryPhone', () => {
   });
 
   it('submits with valid code', async () => {
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...defaultProps} /></MemoryRouter>);
 
     const input = screen.getByRole('textbox');
 
@@ -107,7 +132,7 @@ describe('SigninRecoveryPhone', () => {
   });
 
   it('handles invalid code with backup codes available', async () => {
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...propsWithError} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...propsWithError} /></MemoryRouter>);
 
     const input = screen.getByRole('textbox');
 
@@ -128,7 +153,9 @@ describe('SigninRecoveryPhone', () => {
 
   it('handles invalid code without backup codes available', async () => {
     renderWithLocalizationProvider(
-      <SigninRecoveryPhone {...propsWithErrorNoBackupCodes} />
+      <MemoryRouter>
+        <SigninRecoveryPhone {...propsWithErrorNoBackupCodes} />
+      </MemoryRouter>
     );
 
     const input = screen.getByRole('textbox');
@@ -150,7 +177,7 @@ describe('SigninRecoveryPhone', () => {
   });
 
   it('handles resend code', async () => {
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...defaultProps} /></MemoryRouter>);
 
     userEvent.click(screen.getByRole('button', { name: 'Resend code' }));
 
@@ -158,7 +185,7 @@ describe('SigninRecoveryPhone', () => {
   });
 
   it('handles `Are you locked out?` link', async () => {
-    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(<MemoryRouter><SigninRecoveryPhone {...defaultProps} /></MemoryRouter>);
 
     const link = screen.getByRole('link', { name: /Are you locked out/i });
     expect(link).toHaveAttribute(

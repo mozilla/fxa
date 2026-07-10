@@ -56,11 +56,12 @@ export const SignInForm = ({
       aria-label="Sign-in/sign-up form"
     >
       <Form.Field name="email" className="my-6">
-        <Form.Label className="text-grey-400 block mb-1 text-start">
+        <Form.Label htmlFor="email-input" className="text-grey-400 block mb-1 text-start">
           <Localized id="signin-form-email-input">Enter your email</Localized>
         </Form.Label>
         <Form.Control asChild>
           <input
+            id="email-input"
             className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
             type="email"
             name="email"

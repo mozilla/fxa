@@ -4,7 +4,6 @@
 
 // TODO in FXA-7890 import tests from previous design and update
 
-import React from 'react';
 import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';

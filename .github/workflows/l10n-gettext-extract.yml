@@ -11,23 +11,26 @@ jobs:
         run: |
           sudo apt update
           sudo apt install gettext -y
-      - name: Set up Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 18
-      - name: Install global npm packages
-        run: |
-          yarn global add grunt-cli
       - name: Clone l10n repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           repository: mozilla/fxa-content-server-l10n
           path: 'fxa-l10n'
+          persist-credentials: false
       - name: Clone FxA code repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           fetch-depth: 2
           path: 'fxa-code'
+          persist-credentials: false
+      - name: Set up Node
+        # .nvmrc ships in the FxA repo, checked out into fxa-code/ just above
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: 'fxa-code/.nvmrc'
+      - name: Install global npm packages
+        run: |
+          yarn global add grunt-cli
       - name: Install npm packages
         run: |
           cd fxa-l10n

@@ -3,14 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+import { Stripe } from 'stripe';
 import { StripeClient } from '@fxa/payments/stripe';
 import { SetupIntentCancelInvalidStatusError } from './customer.error';
+import type { StripeSetupIntentMetadataInput } from './types';
 
 @Injectable()
 export class SetupIntentManager {
   constructor(private stripeClient: StripeClient) {}
 
-  async createAndConfirm(customerId: string, confirmationToken: string) {
+  async createAndConfirm(
+    customerId: string,
+    confirmationToken: string,
+    metadata?: StripeSetupIntentMetadataInput
+  ) {
     return this.stripeClient.setupIntentCreate({
       customer: customerId,
       confirm: true,
@@ -19,7 +25,24 @@ export class SetupIntentManager {
         enabled: true,
         allow_redirects: 'never',
       },
+      use_stripe_sdk: true,
+      ...(metadata ? { metadata } : {}),
     });
+  }
+
+  async confirm(setupIntentId: string, confirmationTokenId: string) {
+    return this.stripeClient.setupIntentConfirm(setupIntentId, {
+      confirmation_token: confirmationTokenId,
+    });
+  }
+
+  async update(
+    setupIntentId: string,
+    params: Omit<Stripe.SetupIntentUpdateParams, 'metadata'> & {
+      metadata?: StripeSetupIntentMetadataInput;
+    }
+  ) {
+    return this.stripeClient.setupIntentUpdate(setupIntentId, params);
   }
 
   async retrieve(setupIntentId: string) {

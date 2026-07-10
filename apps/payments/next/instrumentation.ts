@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/nextjs';
+
+export const onRequestError = Sentry.captureRequestError;
+
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('./sentry.server.config');
@@ -14,16 +18,23 @@ export async function register() {
 
     const otelConfig = app.getOtelConfig();
     const logger = app.getLogger();
-    initTracing({
-      ...otelConfig,
-      batchProcessor: otelConfig.batchProcessor ?? true,
-      clientName: otelConfig.clientName ?? "",
-      corsUrls: otelConfig.corsUrls ?? "http://localhost:\\d*/",
-      filterPii: otelConfig.filterPii ?? true,
-      sampleRate: otelConfig.sampleRate ?? 0,
-      serviceName: otelConfig.serviceName ?? "",
-    }, logger);
+    initTracing(
+      {
+        ...otelConfig,
+        batchProcessor: otelConfig.batchProcessor ?? true,
+        clientName: otelConfig.clientName ?? '',
+        corsUrls: otelConfig.corsUrls ?? 'http://localhost:\\d*/',
+        filterPii: otelConfig.filterPii ?? true,
+        sampleRate: otelConfig.sampleRate ?? 0,
+        serviceName: otelConfig.serviceName ?? '',
+      },
+      logger
+    );
 
     monkeyPatchServerLogging();
+
+    // Initialize NextAuth singleton so server actions calling getSessionUid()
+    // work regardless of which routes the worker ends up serving.
+    await import('./auth');
   }
 }

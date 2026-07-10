@@ -3,17 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  buildPairingDownloadUrl,
   constructHrefWithUtm,
   deepMerge,
   formatSecret,
   isBase32Crockford,
   isMobileDevice,
+  isMobileOrTabletDevice,
+  isValidCmsUrl,
+  isSendTabEntrypoint,
+  navigateWithQuery,
   navigateWithQueryHelper,
   once,
+  registerNavigate,
   resetOnce,
   searchParam,
   searchParams,
+  toGenericOSName,
 } from './utilities';
+import { SEND_TAB_ENTRYPOINTS } from '../constants';
+import { Constants } from './constants';
 
 describe('deepMerge', () => {
   it('recursively merges multiple objects', () => {
@@ -211,10 +220,145 @@ describe('check for mobile device', () => {
   });
 });
 
+describe('isMobileOrTabletDevice', () => {
+  const original = {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    maxTouchPoints: navigator.maxTouchPoints,
+  };
+
+  function setNavigator({
+    userAgent = '',
+    platform = '',
+    maxTouchPoints = 0,
+  }: {
+    userAgent?: string;
+    platform?: string;
+    maxTouchPoints?: number;
+  }) {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: userAgent,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'platform', {
+      value: platform,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'maxTouchPoints', {
+      value: maxTouchPoints,
+      configurable: true,
+    });
+  }
+
+  afterEach(() => {
+    setNavigator(original);
+  });
+
+  it.each([
+    {
+      device: 'an iPhone',
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    },
+    {
+      device: 'an Android phone',
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    },
+    {
+      device: 'an Android tablet (no Mobile token)',
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 13; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+    {
+      device: 'a Firefox Android tablet',
+      userAgent:
+        'Mozilla/5.0 (Android 13; Tablet; rv:120.0) Gecko/120.0 Firefox/120.0',
+    },
+    {
+      device: 'a legacy iPad reporting an iPad UA',
+      userAgent:
+        'Mozilla/5.0 (iPad; CPU OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1',
+    },
+  ])('returns true for $device', ({ userAgent }) => {
+    setNavigator({ userAgent });
+    expect(isMobileOrTabletDevice()).toBe(true);
+  });
+
+  it('returns true for an iPadOS 13+ Safari reporting a desktop macOS UA', () => {
+    // iPadOS Safari masquerades as desktop Mac; only touch points give it away.
+    setNavigator({
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      platform: 'MacIntel',
+      maxTouchPoints: 5,
+    });
+    expect(isMobileOrTabletDevice()).toBe(true);
+  });
+
+  it.each([
+    {
+      device: 'a desktop Mac without touch',
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      platform: 'MacIntel',
+      maxTouchPoints: 0,
+    },
+    {
+      device: 'a desktop Windows browser',
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      platform: 'Win32',
+      maxTouchPoints: 0,
+    },
+    {
+      device: 'a desktop Firefox on Linux',
+      userAgent:
+        'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0',
+      platform: 'Linux x86_64',
+      maxTouchPoints: 0,
+    },
+  ])('returns false for $device', ({ userAgent, platform, maxTouchPoints }) => {
+    setNavigator({ userAgent, platform, maxTouchPoints });
+    expect(isMobileOrTabletDevice()).toBe(false);
+  });
+});
+
 describe('format authenticator secret', () => {
   it('formats a secret into a human-readable format', () => {
     const secret = 'qwerty123456';
     expect(formatSecret(secret)).toBe('QWER TY12 3456');
+  });
+});
+
+describe('toGenericOSName', () => {
+  it('normalizes Windows variants', () => {
+    expect(toGenericOSName('Windows 10')).toBe('Windows');
+    expect(toGenericOSName('Windows 7')).toBe('Windows');
+  });
+
+  it('normalizes Mac OS to macOS', () => {
+    expect(toGenericOSName('Mac OS X')).toBe('macOS');
+    expect(toGenericOSName('Mac OS')).toBe('macOS');
+  });
+
+  it('normalizes Linux variants', () => {
+    expect(toGenericOSName('Ubuntu')).toBe('Linux');
+    expect(toGenericOSName('Linux x86_64')).toBe('Linux');
+    expect(toGenericOSName('Fedora')).toBe('Linux');
+  });
+
+  it('passes through known names unchanged', () => {
+    expect(toGenericOSName('Android')).toBe('Android');
+    expect(toGenericOSName('iOS')).toBe('iOS');
+  });
+
+  it('returns Unknown for empty string', () => {
+    expect(toGenericOSName('')).toBe('Unknown');
+  });
+
+  it('returns unrecognized names as-is', () => {
+    expect(toGenericOSName('ChromeOS')).toBe('ChromeOS');
   });
 });
 
@@ -271,6 +415,31 @@ describe('navigateWithQueryHelper', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signin?email=test@example.com');
   });
 
+  it('does not append the current hash when destination already has a hash', async () => {
+    mockLocation.search = '?';
+    mockLocation.hash = '#section';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/settings#two-step-authentication'
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/settings#two-step-authentication'
+    );
+  });
+
+  it('inserts preserved query params before the destination hash', async () => {
+    mockLocation.search = '?email=test@example.com';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/settings#two-step-authentication'
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/settings?email=test@example.com#two-step-authentication'
+    );
+  });
+
   it('does not add query params when path already contains them', async () => {
     mockLocation.search = '?email=old@example.com';
     await navigateWithQueryHelper(
@@ -290,5 +459,184 @@ describe('navigateWithQueryHelper', () => {
       options
     );
     expect(mockNavigate).toHaveBeenCalledWith('/signin', options);
+  });
+});
+
+describe('isValidCmsUrl', () => {
+  it.each([
+    'https://example.com',
+    'https://example.com/path/to/resource.svg',
+    'https://cdn.example.com/image.png?v=1',
+  ])('returns true for %s', (value) => {
+    expect(isValidCmsUrl(value)).toBe(true);
+  });
+
+  it.each([
+    'http://example.com',
+    'http://localhost:3000',
+    'javascript:alert(1)',
+    'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+    'ftp://example.com/file',
+    'not-a-url',
+    '',
+    null,
+    undefined,
+  ])('returns false for %s', (value) => {
+    expect(isValidCmsUrl(value as string | null | undefined)).toBe(false);
+  });
+});
+
+describe('isSendTabEntrypoint', () => {
+  it('returns true for all send-tab entrypoints', () => {
+    for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
+      expect(isSendTabEntrypoint(entrypoint)).toBe(true);
+    }
+  });
+
+  it('returns false for other entrypoints', () => {
+    expect(isSendTabEntrypoint('preferences')).toBe(false);
+    expect(isSendTabEntrypoint('fxa_app_menu')).toBe(false);
+  });
+
+  it('returns false for nullish values', () => {
+    expect(isSendTabEntrypoint(undefined)).toBe(false);
+    expect(isSendTabEntrypoint(null)).toBe(false);
+    expect(isSendTabEntrypoint('')).toBe(false);
+  });
+});
+
+describe('buildPairingDownloadUrl', () => {
+  const DEFAULT_URL = Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
+  const SEND_TAB_URL = Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB;
+
+  it('returns the send-tab Mozilla download link for a send-tab entrypoint', () => {
+    expect(buildPairingDownloadUrl('send-tab-toolbar-icon')).toBe(SEND_TAB_URL);
+  });
+
+  it('returns the send-tab link for every send-tab entrypoint', () => {
+    for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
+      expect(buildPairingDownloadUrl(entrypoint)).toBe(SEND_TAB_URL);
+    }
+  });
+
+  it('returns the generic Mozilla download link for a non-send-tab entrypoint', () => {
+    expect(buildPairingDownloadUrl('fxa_app_menu')).toBe(DEFAULT_URL);
+  });
+
+  it.each([undefined, null, ''])(
+    'returns the generic Mozilla download link when entrypoint is %p',
+    (entrypoint) => {
+      expect(buildPairingDownloadUrl(entrypoint)).toBe(DEFAULT_URL);
+    }
+  );
+});
+
+describe('navigateWithQuery', () => {
+  const originalLocation = window.location;
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...originalLocation,
+        search: '',
+        hash: '',
+        assign: jest.fn(),
+        replace: jest.fn(),
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  // Fallback tests run first, before any registerNavigate call in this module.
+  // Once registerNavigate is called, the module-level ref stays set for the
+  // rest of the test run (mirrors production behavior — App registers once).
+  it('falls back to window.location.assign when no navigate is registered', () => {
+    navigateWithQuery('/path');
+
+    expect(window.location.assign).toHaveBeenCalledWith('/path');
+  });
+
+  it('falls back to window.location.replace when replace is true and no navigate is registered', () => {
+    navigateWithQuery('/path', { replace: true });
+
+    expect(window.location.replace).toHaveBeenCalledWith('/path');
+  });
+
+  // After this point, registerNavigate is called — mirroring App mount.
+  it('uses the registered navigate function when available', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/signin_totp_code', {
+      state: { isSessionAALUpgrade: true },
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code', {
+      state: { isSessionAALUpgrade: true },
+    });
+    expect(window.location.assign).not.toHaveBeenCalled();
+  });
+
+  it('passes replace option to the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/settings', { replace: true });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+  });
+
+  it('preserves hash when using the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/path#section');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/path#section');
+  });
+
+  it('forwards both state and replace to the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+
+    navigateWithQuery('/path', { state: { foo: true }, replace: true });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/path', {
+      state: { foo: true },
+      replace: true,
+    });
+  });
+
+  it('appends current location hash when using the registered navigate function', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, hash: '#connected-services' },
+      writable: true,
+    });
+
+    navigateWithQuery('/settings');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/settings#connected-services');
+  });
+
+  it('preserves query params from the current location', () => {
+    const mockNavigate = jest.fn();
+    registerNavigate(mockNavigate);
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, search: '?client_id=abc' },
+      writable: true,
+    });
+
+    navigateWithQuery('/signin');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/signin?client_id=abc');
   });
 });

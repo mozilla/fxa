@@ -64,16 +64,30 @@ util.inherits(Lug, EventEmitter);
 Lug.prototype.close = function () {};
 
 Lug.prototype.getTraceId = function (data) {
-  let result = {};
+  const result = {};
 
-  if (this.nodeTracer) {
-    try {
-      result = { traceId: this.nodeTracer.getTraceId() };
-    } catch {
-      // don't let a tracing issue break logging
-      this.debug('log', { msg: 'could not get trace id' });
+  // Try decorating result with otel traceId
+  try {
+    const otelTraceId = this.nodeTracer?.getTraceId();
+    if (otelTraceId) {
+      result.otelTraceId = otelTraceId;
     }
+  } catch (err) {
+    // Don't let a hiccup break logging
+    result.otelTraceIdErr = err;
   }
+
+  // Try decorating result with sentry trace id
+  try {
+    const spanContext = Sentry.getActiveSpan()?.spanContext();
+    if (spanContext) {
+      result.sentryTraceId = spanContext.traceId;
+    }
+  } catch (err) {
+    // Don't let a hiccup break logging
+    result.sentryTraceIdError = err;
+  }
+
   return result;
 };
 
@@ -96,13 +110,13 @@ Lug.prototype.error = function (op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
-  if (data.err && data.err.email) {
+  if (data && data.err && data.err.email) {
     if (!data.email) {
       data.email = data.err.email;
     }
     data.err.email = null;
   }
-  this.logger.error(op, Object.assign({}, data, this.getTraceId()));
+  this.logger.error(op, { ...(data || {}), ...this.getTraceId() });
 };
 
 Lug.prototype.fatal = function (op, data) {
@@ -149,6 +163,8 @@ Lug.prototype.summary = function (request, response) {
     path: request.path,
     lang: request.app.acceptLanguage,
     agent: request.headers['user-agent'],
+    sigsciRequestId: request.headers['x-sigsci-requestid'],
+    clientJa4: request.headers['client-ja4'],
     remoteAddressChain: request.app.remoteAddressChain,
     accountRecreated: request.app.accountRecreated,
     t: Date.now() - request.info.received,

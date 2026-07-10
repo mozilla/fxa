@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { Link } from 'react-router';
 import Security from '../Security';
 import { Profile } from '../Profile';
 import ConnectedServices from '../ConnectedServices';
@@ -17,7 +17,7 @@ import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, {
   getProductPromoData,
-  MonitorPromoData,
+  VpnPromoData,
 } from '../ProductPromo';
 import SideBar from '../Sidebar';
 import Head from 'fxa-react/components/Head';
@@ -27,14 +27,20 @@ import {
   RecoveryPhonePromoBanner,
 } from '../../PromotionBanner';
 import {
+  isFirefoxPromoDismissed,
   isRecoveryKeyPromoDismissed,
   isRecoveryPhonePromoDismissed,
 } from '../../../lib/promo-dismissal';
+import FirefoxPromoBanner, {
+  shouldShowFirefoxPromo,
+} from '../../FirefoxPromoBanner';
 
 export const PageSettings = ({
   integration,
-}: RouteComponentProps & {
+  isSignedIntoFirefox = false,
+}: {
   integration?: SettingsIntegration;
+  isSignedIntoFirefox?: boolean;
 }) => {
   const account = useAccount();
   const {
@@ -59,9 +65,7 @@ export const PageSettings = ({
     GleanMetrics.accountPref.view();
   }, []);
 
-  const [monitorPromo, setMonitorPromo] = useState<MonitorPromoData | null>(
-    null
-  );
+  const [vpnPromo, setVpnPromo] = useState<VpnPromoData | null>(null);
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
 
@@ -98,32 +102,27 @@ export const PageSettings = ({
 
   useEffect(() => {
     (async () => {
-      if (monitorPromo !== null) {
+      if (vpnPromo !== null) {
         return;
       }
 
       const promoData = getProductPromoData(account.attachedClients);
 
-      setMonitorPromo(promoData);
+      setVpnPromo(promoData);
     })();
-  }, [account, monitorPromo]);
+  }, [account, vpnPromo]);
 
   // -- Relying party promotion checks --
   useEffect(() => {
-    if (!monitorPromo) return;
+    if (!vpnPromo) return;
     // We want this view event to fire whenever the account settings page view
     // event fires, if the user is shown the promo.
-    if (!monitorPromo.hidePromo && !productPromoGleanEventSent) {
-      GleanMetrics.accountPref.promoMonitorView(monitorPromo.gleanEvent);
+    if (!vpnPromo.hidePromo && !productPromoGleanEventSent) {
+      GleanMetrics.accountPref.promoVpnView();
       // Keep track of this because `attachedClients` can change on disconnect
       setProductPromoGleanEventSent(true);
     }
-  }, [
-    attachedClients,
-    monitorPromo,
-    subscriptions,
-    productPromoGleanEventSent,
-  ]);
+  }, [attachedClients, vpnPromo, subscriptions, productPromoGleanEventSent]);
 
   useEffect(() => {
     const targetEmail = (() => {
@@ -151,11 +150,19 @@ export const PageSettings = ({
     estimatedSyncDeviceCount = recoveryKey.estimatedSyncDeviceCount;
   }
 
+  const dismissedFirefoxPromo = isFirefoxPromoDismissed();
   const dismissedRecoveryPhonePromo = isRecoveryPhonePromoDismissed();
   const dismissedRecoveryKeyPromo = isRecoveryKeyPromoDismissed();
 
+  // Only one promo banner shows at a time. The Firefox promo takes priority;
+  // the recovery promos yield to it (but still show on Firefox mobile, where
+  // the Firefox promo is suppressed).
+  const eligibleForFirefoxPromo =
+    !dismissedFirefoxPromo && shouldShowFirefoxPromo(isSignedIntoFirefox);
+
   // Recovery phone promo is prioritized if user is eligible for both
   const eligibleForRecoveryPhonePromo =
+    !eligibleForFirefoxPromo &&
     !dismissedRecoveryPhonePromo &&
     totp.exists &&
     totp.verified &&
@@ -163,9 +170,11 @@ export const PageSettings = ({
     recoveryPhone.available;
 
   const eligibleForRecoveryKeyPromo =
+    !eligibleForFirefoxPromo &&
     (!eligibleForRecoveryPhonePromo || dismissedRecoveryPhonePromo) &&
     !dismissedRecoveryKeyPromo &&
     estimatedSyncDeviceCount > 0 &&
+    account.hasPassword &&
     !recoveryKey.exists;
 
   // Scroll to effect
@@ -186,11 +195,14 @@ export const PageSettings = ({
             connectedServicesRef,
             linkedAccountsRef,
             dataCollectionRef,
-            monitorPromo,
+            vpnPromo,
           }}
         />
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
+        {eligibleForFirefoxPromo && (
+          <FirefoxPromoBanner {...{ isSignedIntoFirefox }} />
+        )}
         {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
         {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
         <Profile ref={profileRef} />
@@ -210,8 +222,8 @@ export const PageSettings = ({
             </Link>
           </Localized>
         </div>
-        {monitorPromo && !monitorPromo.hidePromo && (
-          <ProductPromo type="settings" {...{ monitorPromo }} />
+        {vpnPromo && !vpnPromo.hidePromo && (
+          <ProductPromo type="settings" {...{ vpnPromo }} />
         )}
       </div>
     </div>

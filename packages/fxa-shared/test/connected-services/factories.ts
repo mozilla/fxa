@@ -193,5 +193,44 @@ describe('connected-services/factories', () => {
       Sinon.assert.calledOnce(bStubbed.oauthClients);
       Sinon.assert.calledOnce(bStubbed.sessions);
     });
+
+    it('coerces undefined device name to null', async () => {
+      deviceList = [
+        {
+          id: 'test-device',
+          sessionTokenId: 'test',
+          name: undefined as any, // Simulate undefined from database
+          pushEndpointExpired: false,
+          availableCommands: {},
+          location: {},
+        } as AttachedDevice,
+      ];
+      oauthClients = [];
+      sessions = [];
+
+      const results = await factory.build('1234', 'en');
+
+      assert.strictEqual(results[0].name, null);
+    });
+
+    it('coerces undefined client_name to null', async () => {
+      oauthClients = [
+        {
+          refresh_token_id: 'test-oauth',
+          created_time: Date.now(),
+          last_access_time: Date.now(),
+          client_name: undefined as any, // Simulate undefined from database
+          client_id: null as any,
+          scope: null as any,
+        } as AttachedOAuthClient,
+      ];
+      deviceList = [];
+      sessions = [];
+
+      const results = await factory.build('1234', 'en');
+
+      // Verify name is null, not undefined (required for validation)
+      assert.strictEqual(results[0].name, null);
+    });
   });
 });

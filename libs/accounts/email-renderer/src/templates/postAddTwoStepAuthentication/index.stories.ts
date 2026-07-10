@@ -18,6 +18,8 @@ const data = {
   twoFactorSupportLink:
     'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
   supportUrl: 'https://support.mozilla.org',
+  recoveryMethod: 'phone',
+  maskedPhoneNumber: '1234',
 };
 
 const createStory = storyWithProps<TemplateData>(

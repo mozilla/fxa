@@ -7,13 +7,14 @@ import React, { forwardRef } from 'react';
 import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
-import { useAccount } from '../../../models';
+import { useAccount, useConfig } from '../../../models';
+import UnitRowPasskey from '../UnitRowPasskey';
 import {
   FtlMsg,
   getLocalizedDate,
   LocalizedDateOptions,
 } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
+import { Link } from 'react-router';
 import GleanMetrics from '../../../lib/glean';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
@@ -30,7 +31,7 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 
   return (
     <FtlMsg id="security-password-created-date" vars={{ date: pwdDateFluent }}>
-      <p className="text-grey-400 text-xs mobileLandscape:mt-3">
+      <p className="text-grey-400 dark:text-grey-200 text-xs mobileLandscape:mt-3">
         Created {pwdDateText}
       </p>
     </FtlMsg>
@@ -39,8 +40,9 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 
 export const Security = forwardRef<HTMLDivElement>((_, ref) => {
   const { passwordCreated, hasPassword } = useAccount();
+  const config = useConfig();
   const { l10n } = useLocalization();
-  const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
+  const localizedNotSet = l10n.getString('security-not-set', null, 'Not set');
 
   return (
     <section data-testid="settings-security" {...{ ref }} id="security-section">
@@ -48,7 +50,7 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
       </h2>
-      <div className="bg-white tablet:rounded-xl shadow">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
         <Localized id="security-password" attrs={{ header: true }}>
           <UnitRow
             header="Password"
@@ -68,7 +70,9 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
             }
             prefixDataTestId="password"
             ctaOnClickAction={() => {
-              GleanMetrics.accountPref.changePasswordSubmit();
+              GleanMetrics.accountPref.changePasswordSubmit({
+                event: { reason: hasPassword ? 'change' : 'create' },
+              });
             }}
           >
             {hasPassword ? (
@@ -83,6 +87,14 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
             )}
           </UnitRow>
         </Localized>
+
+        {config.featureFlags?.passkeysEnabled && (
+          <>
+            <hr className="unit-row-hr" />
+            <UnitRowPasskey />
+          </>
+        )}
+
         <hr className="unit-row-hr" />
 
         <UnitRowRecoveryKey />

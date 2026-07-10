@@ -6,7 +6,6 @@
  * TIP - See signup/container.test.tsx for helpful tips about writing container tests
  */
 
-import React from 'react';
 import * as ReportSigninModule from './index';
 import * as LinkDamagedModule from '../../../components/LinkDamaged';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
@@ -20,7 +19,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { MOCK_UID, MOCK_UNBLOCK_CODE } from '../../mocks';
 import { ReportSigninProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 let currentReportSigninProps: ReportSigninProps | undefined;
 function mockReportSigninModule() {
@@ -52,8 +51,8 @@ function mockUseValidateModule() {
 }
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -86,9 +85,9 @@ function applyMocks() {
 
 async function render(text?: string) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <ReportSigninContainer />
-    </LocationProvider>
+    </MemoryRouter>
   );
 
   await screen.findByText(text || 'report signin mock');

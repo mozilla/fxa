@@ -7,6 +7,7 @@ import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import moment from 'moment';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 const { PruneTokens } = require('fxa-shared/db/models/auth');
@@ -27,19 +28,12 @@ function parseDuration(duration: string | number) {
 const config = require('../config').default.getProperties();
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
-Sentry.init({});
+initSentry({ ...config, release: pckg.version }, log);
 
 export async function init() {
-  // Setup utilities
-  const redis = require('../lib/redis')(
-    {
-      ...config.redis,
-      ...config.redis.sessionTokens,
-    },
-    log
-  );
-
   // Parse args
+  const shouldPrintHelp =
+    process.argv.includes('--help') || process.argv.includes('-h');
   program
     .version(pckg.version)
     .option(
@@ -95,6 +89,10 @@ Exit Codes:
   3 - error during pruning operation`);
     })
     .parse(process.argv);
+
+  if (shouldPrintHelp) {
+    return;
+  }
 
   const tokenMaxAge = parseDuration(program.maxTokenAge);
   const maxTokenAgeWindowSize = program.maxTokenAgeWindowSize;
@@ -244,6 +242,13 @@ Exit Codes:
 
   // Clean up redis cache
   if (accountsImpacted.size > 0) {
+    const redis = require('../lib/redis')(
+      {
+        ...config.redis,
+        ...config.redis.sessionTokens,
+      },
+      log
+    );
     for (const uid of accountsImpacted) {
       try {
         // Pull session tokens from redis, sanity check sizes
@@ -270,9 +275,8 @@ Exit Codes:
         // don't exist in the sql database anymore.
         const orphanedTokens = new Array<string>();
         for (const redisSessionTokenId of redisSessionTokenIds) {
-          const dbSessionTokens = await SessionToken.findByTokenId(
-            redisSessionTokenId
-          );
+          const dbSessionTokens =
+            await SessionToken.findByTokenId(redisSessionTokenId);
           if (dbSessionTokens === null) {
             orphanedTokens.push(redisSessionTokenId);
           }
@@ -288,6 +292,7 @@ Exit Codes:
         log.err(`error while pruning redis cache for account ${uid}`, err);
       }
     }
+    await redis.close();
   } else {
     log.info('no accounts impacted. skipping redis cache clean up.');
   }
@@ -300,19 +305,17 @@ if (require.main === module) {
     log.info('exit', { code });
   });
 
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'prune-tokens',
-    status: 'in_progress',
+  Sentry.captureMessage('Prune tokens started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
   });
 
   init()
     .then((result) => {
       log.info('result', { result });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'prune-tokens',
-        status: 'ok',
-      });
     })
     .then(() => {
       // Make sure statsd closes cleanly so we don't lose any metrics
@@ -329,11 +332,6 @@ if (require.main === module) {
     })
     .catch((err) => {
       log.error(err);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'prune-tokens',
-        status: 'error',
-      });
     })
     .then(() => {
       return Sentry.close(2000);

@@ -19,14 +19,29 @@ if (swcJestConfig.swcrc === undefined) {
 // jest needs EsModule Interop to find the default exported setup/teardown functions
 // swcJestConfig.module.noInterop = false;
 
+swcJestConfig.jsc.parser.tsx = true;
+swcJestConfig.jsc.transform = {
+  ...swcJestConfig.jsc.transform,
+  react: { runtime: 'automatic' },
+};
+
 const config: Config = {
   displayName: 'payments-ui',
   preset: '../../../jest.preset.js',
   transform: {
-    '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
+    '^.+\\.[tj]sx?$': ['@swc/jest', swcJestConfig],
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
-  testEnvironment: 'node',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'html'],
+  testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'require', 'default'],
+  },
+  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],
+  moduleNameMapper: {
+    '\\.(css|scss|sass|less)$': 'identity-obj-proxy',
+    '\\.(svg|png|jpg|jpeg|gif|webp|ico)$':
+      '<rootDir>/test/__mocks__/file-mock.js',
+  },
   coverageDirectory: '../../../coverage/libs/payments/ui',
   reporters: [
     'default',

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { Account, AlertBarInfo, AppContext } from '../../../models';
 import {
   renderWithRouter,
@@ -156,7 +156,7 @@ describe('Connected Services', () => {
     const { sortedAndUniqueClients, groupedByName } =
       sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedAndUniqueClients.length).toEqual(13);
+    expect(sortedAndUniqueClients.length).toEqual(14);
 
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
@@ -309,7 +309,7 @@ describe('Connected Services', () => {
     );
     expect(
       await screen.findAllByTestId('connected-service-sign-out')
-    ).toHaveLength(13);
+    ).toHaveLength(14);
   });
 
   it('renders proper modal when "sign out" is clicked', async () => {
@@ -601,6 +601,124 @@ describe('Connected Services', () => {
       );
 
       expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
+  });
+
+  describe('scope-based sub row', () => {
+    const baseMockClient = {
+      deviceId: null,
+      sessionTokenId: null,
+      refreshTokenId: 'abc123',
+      isCurrentSession: false,
+      deviceType: null,
+      createdTime: 1571412069000,
+      lastAccessTime: 1571412069000,
+      location: { city: null, country: null, state: null, stateCode: null },
+      userAgent: '',
+      os: null,
+      createdTimeFormatted: 'a month ago',
+      lastAccessTimeFormatted: 'a month ago',
+      approximateLastAccessTime: null,
+      approximateLastAccessTimeFormatted: null,
+    };
+
+    const renderWithClient = (client: Record<string, unknown>) => {
+      const account = {
+        attachedClients: [client],
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+    };
+
+    it('does not render scope sub-entry when scope is null and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        name: 'Firefox Desktop',
+        scope: null,
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
+    });
+
+    it('does not render scope sub-entry when scope has oldsync and profile but no relay', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        name: 'Firefox Desktop',
+        scope: ['https://identity.mozilla.com/apps/oldsync', 'profile'],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
+    });
+
+    it('renders Relay scope sub-entry when scope includes relay and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxIOS,
+        name: 'Firefox for iOS',
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'profile',
+          'https://identity.mozilla.com/apps/relay',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      const scopeEntry = screen.getByTestId('scope-service');
+      expect(scopeEntry).toBeInTheDocument();
+      expect(scopeEntry).toHaveTextContent('Firefox Relay');
+    });
+
+    it('does not render scope sub-entry when scope includes relay but client ID is not OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: '9ebfe2c2f9ea3c58',
+        name: 'Firefox Relay',
+        scope: ['profile', 'https://identity.mozilla.com/apps/relay'],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
+    });
+
+    it('renders VPN scope sub-entry when scope includes vpn and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.Fenix,
+        name: 'Firefox for Android',
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'profile',
+          'https://identity.mozilla.com/apps/vpn',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      const scopeEntry = screen.getByTestId('scope-service');
+      expect(scopeEntry).toBeInTheDocument();
+      expect(scopeEntry).toHaveTextContent('Firefox’s built-in VPN');
+    });
+
+    it('renders both Relay and VPN scope sub-entries when scope includes both and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxIOS,
+        name: 'Firefox for iOS',
+        // Scopes are alphabetized to mirror the order returned by
+        // fxa-auth-server (authorized_clients.js#serialize).
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'https://identity.mozilla.com/apps/relay',
+          'https://identity.mozilla.com/apps/vpn',
+          'profile',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.getAllByTestId('scope-service')).toHaveLength(2);
+      expect(screen.getByText('Firefox Relay')).toBeInTheDocument();
+      expect(screen.getByText('Firefox’s built-in VPN')).toBeInTheDocument();
     });
   });
 });

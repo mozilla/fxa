@@ -8,6 +8,7 @@ import {
   MockStripeConfigProvider,
   StripeClient,
   StripeCustomerFactory,
+  StripeEventCustomerSubscriptionUpdatedFactory,
   StripeInvoiceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
@@ -22,6 +23,7 @@ import {
   PriceManager,
   SubscriptionManager,
   PaymentMethodManager,
+  PaymentProvider,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
@@ -38,6 +40,7 @@ import {
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
@@ -46,7 +49,8 @@ import {
 import { CartManager } from '@fxa/payments/cart';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
+import { StatsD } from 'hot-shots';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
 import {
@@ -75,6 +79,7 @@ describe('SubscriptionEventsService', () => {
   let invoiceManager: InvoiceManager;
   let emitterService: PaymentsEmitterService;
   let paymentMethodManager: PaymentMethodManager;
+  let statsd: StatsD;
 
   const mockEmitter = {
     emit: jest.fn(),
@@ -82,9 +87,6 @@ describe('SubscriptionEventsService', () => {
   const mockLogger = {
     error: jest.fn(),
     log: jest.fn(),
-  };
-  const paymentMethodManagerMock = {
-    determineType: jest.fn(),
   };
 
   const { event: mockEvent, eventObjectData: mockEventObjectData } =
@@ -97,10 +99,7 @@ describe('SubscriptionEventsService', () => {
           provide: Logger,
           useValue: mockLogger,
         },
-        {
-          provide: PaymentMethodManager,
-          useValue: paymentMethodManagerMock,
-        },
+        PaymentMethodManager,
         MockStripeConfigProvider,
         MockStripeEventConfigProvider,
         StripeClient,
@@ -114,6 +113,7 @@ describe('SubscriptionEventsService', () => {
         PayPalClient,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        PaymentsMetricsAggregatorService,
         PaymentsGleanManager,
         MockPaymentsGleanConfigProvider,
         MockPaymentsGleanFactory,
@@ -141,6 +141,7 @@ describe('SubscriptionEventsService', () => {
     invoiceManager = module.get(InvoiceManager);
     emitterService = module.get(PaymentsEmitterService);
     paymentMethodManager = module.get(PaymentMethodManager);
+    statsd = module.get(StatsDService);
   });
 
   afterEach(() => {
@@ -161,7 +162,8 @@ describe('SubscriptionEventsService', () => {
       jest
         .spyOn(emitterService, 'getEmitter')
         .mockReturnValue(mockEmitter as any);
-      (paymentMethodManager.determineType as jest.Mock).mockResolvedValue({
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.Card,
         paymentMethodId: 'pm_id',
       });
@@ -178,17 +180,16 @@ describe('SubscriptionEventsService', () => {
         expect(mockEmitter.emit).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
-            paymentProvider: 'card',
+            paymentProvider: PaymentProvider.Stripe,
           })
         );
       });
 
       it('should emit the subscriptionEnded event, with paymentProvider external_paypal', async () => {
-        (paymentMethodManager.determineType as jest.Mock).mockResolvedValueOnce(
-          {
-            type: SubPlatPaymentMethodType.PayPal,
-          }
-        );
+        jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+          provider: PaymentProvider.PayPal,
+          type: SubPlatPaymentMethodType.PayPal,
+        });
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,
           mockEventObjectData
@@ -198,7 +199,7 @@ describe('SubscriptionEventsService', () => {
         expect(mockEmitter.emit).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
-            paymentProvider: 'external_paypal',
+            paymentProvider: PaymentProvider.PayPal,
           })
         );
       });
@@ -255,6 +256,42 @@ describe('SubscriptionEventsService', () => {
         );
       });
 
+      it.each([
+        {
+          type: SubPlatPaymentMethodType.Link as const,
+          label: 'Link',
+        },
+        {
+          type: SubPlatPaymentMethodType.GooglePay as const,
+          label: 'Google Pay',
+        },
+        {
+          type: SubPlatPaymentMethodType.ApplePay as const,
+          label: 'Apple Pay',
+        },
+      ])(
+        'should emit the subscriptionEnded event with Stripe provider for $label payment type',
+        async ({ type }) => {
+          jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+            provider: 'stripe' as const,
+            type,
+            paymentMethodId: `pm_${type}_id`,
+          });
+          await subscriptionEventsService.handleCustomerSubscriptionDeleted(
+            mockEvent,
+            mockEventObjectData
+          );
+
+          expect(mockEmitter.emit).toHaveBeenCalledTimes(1);
+          expect(mockEmitter.emit).toHaveBeenCalledWith(
+            'subscriptionEnded',
+            expect.objectContaining({
+              paymentProvider: PaymentProvider.Stripe,
+            })
+          );
+        }
+      );
+
       it('should emit the subscriptionEnded event, with paymentProvider undefined on error', async () => {
         jest
           .spyOn(customerManager, 'retrieve')
@@ -284,7 +321,144 @@ describe('SubscriptionEventsService', () => {
             mockEvent,
             mockEventObjectData
           )
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
+      });
+    });
+
+    describe('handleCustomerSubscriptionUpdated', () => {
+      const mockActiveSubscription = StripeSubscriptionFactory({
+        status: 'active',
+      });
+
+      const mockUpdatedEvent =
+        StripeEventCustomerSubscriptionUpdatedFactory(
+          undefined,
+          { status: 'active' },
+          { status: 'trialing' }
+        );
+
+      beforeEach(() => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockResolvedValue(
+            StripeResponseFactory(
+              StripeCustomerFactory({
+                metadata: { userid: 'uid123' },
+                address: { country: 'US', city: '', line1: '', line2: '', postal_code: '', state: '' },
+              })
+            )
+          );
+      });
+
+      it('should emit trialConverted with successful status when trialing -> active', async () => {
+        jest.spyOn(statsd, 'increment');
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledTimes(1);
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            conversionStatus: 'successful',
+          })
+        );
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'subscription.trial_conversion',
+          expect.objectContaining({
+            status: 'successful',
+          })
+        );
+      });
+
+      it('should emit trialConverted with unsuccessful status when trialing -> canceled', async () => {
+        const mockCanceledSubscription = StripeSubscriptionFactory({
+          status: 'canceled',
+        });
+        jest.spyOn(statsd, 'increment');
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockCanceledSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            conversionStatus: 'unsuccessful',
+          })
+        );
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'subscription.trial_conversion',
+          expect.objectContaining({
+            status: 'unsuccessful',
+          })
+        );
+      });
+
+      it('should not emit when previous status is not trialing', async () => {
+        const nonTrialEvent =
+          StripeEventCustomerSubscriptionUpdatedFactory(
+            undefined,
+            { status: 'active' },
+            { status: 'incomplete' }
+          );
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          nonTrialEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).not.toHaveBeenCalled();
+      });
+
+      it('should not emit when no previous_attributes', async () => {
+        const noAttrEvent =
+          StripeEventCustomerSubscriptionUpdatedFactory(
+            undefined,
+            { status: 'active' }
+          );
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          noAttrEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).not.toHaveBeenCalled();
+      });
+
+      it('should handle CustomerDeletedError gracefully', async () => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockRejectedValue(new CustomerDeletedError('customerId'));
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            uid: undefined,
+            billingCountry: undefined,
+          })
+        );
+      });
+
+      it('should throw on non-CustomerDeletedError', async () => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockRejectedValue(new Error('unexpected'));
+
+        await expect(
+          subscriptionEventsService.handleCustomerSubscriptionUpdated(
+            mockUpdatedEvent,
+            mockActiveSubscription
+          )
+        ).rejects.toThrow('unexpected');
       });
     });
   });

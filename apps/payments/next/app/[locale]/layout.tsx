@@ -10,15 +10,16 @@ export default async function RootProviderLayout({
   params,
   children,
 }: {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
   children: React.ReactNode;
 }) {
-  const acceptLanguage = headers().get('accept-language');
+  const { locale } = await params;
+  const acceptLanguage = (await headers()).get('accept-language');
   const fetchedMessages = getApp().getFetchedMessages(
     acceptLanguage,
-    params.locale
+    locale
   );
 
   return (
@@ -26,8 +27,22 @@ export default async function RootProviderLayout({
       config={{
         stripePublicApiKey: config.stripePublicApiKey,
         paypalClientId: config.paypal.clientId,
+        glean: {
+          enabled: config.gleanClientConfig.enabled,
+          applicationId: config.gleanClientConfig.applicationId,
+          uploadEnabled: config.gleanClientConfig.uploadEnabled,
+          version: config.gleanClientConfig.version,
+          channel: config.gleanClientConfig.channel,
+          serverEndpoint: config.gleanClientConfig.serverEndpoint,
+          logPings: config.gleanClientConfig.logPings,
+          debugViewTag: config.gleanClientConfig.debugViewTag,
+        },
         sentry: {
-          ...config.sentry, //spread to make sure its a POJO
+          clientDsn: config.sentry.clientDsn,
+          env: config.sentry.env,
+          clientName: config.sentry.clientName,
+          sampleRate: config.sentry.sampleRate,
+          tracesSampleRate: config.sentry.tracesSampleRate,
         },
       }}
       fetchedMessages={fetchedMessages}

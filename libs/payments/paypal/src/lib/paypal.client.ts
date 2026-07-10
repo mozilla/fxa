@@ -106,6 +106,11 @@ export class PayPalClient {
           superagent
             .post(this.url)
             .set('content-type', 'application/x-www-form-urlencoded')
+            // PayPal's NVP endpoint sometimes returns application/octet-stream
+            // instead of text/plain. .buffer(true) ensures superagent reads
+            // the body regardless of Content-Type (as a Buffer on result.body
+            // for non-text types).
+            .buffer(true)
             .send(payload),
         this.retryOptions
       );
@@ -120,7 +125,10 @@ export class PayPalClient {
       throw err;
     }
     const request_end_time = Date.now();
-    const resultObj = nvpToObject(result.text) as T | NVPErrorResponse;
+    const raw =
+      result.text ??
+      (Buffer.isBuffer(result.body) ? result.body.toString('utf8') : '');
+    const resultObj = nvpToObject(raw) as T | NVPErrorResponse;
     this.emitter.emit('response', {
       ...response,
       elapsed: request_end_time - response.request_start_time,
@@ -135,10 +143,10 @@ export class PayPalClient {
       // TypeScript doesn't narrow ACK, necessitating a cast
       throw new PayPalClientError(
         PayPalClient.getListOfPayPalNVPErrors(
-          result.text,
+          raw,
           resultObj as NVPErrorResponse
         ),
-        result.text,
+        raw,
         resultObj as NVPErrorResponse
       );
     }

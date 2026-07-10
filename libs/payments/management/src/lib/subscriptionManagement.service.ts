@@ -23,6 +23,7 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
+import { throwStripeUpdatePaymentFailedError } from './throwStripeUpdatePaymentFailedError';
 import type {
   ResultAccountCustomer,
   StripeCustomer,
@@ -53,13 +54,22 @@ import {
   SubscriptionManagementNoStripeCustomerFoundError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
-  SubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
   CreateBillingAgreementAccountCustomerMissingStripeId,
   CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
 } from './subscriptionManagement.error';
+import {
+  ManagePaymentMethodIntentCardDeclinedError,
+  ManagePaymentMethodIntentCardExpiredError,
+  ManagePaymentMethodIntentFailedGenericError,
+  ManagePaymentMethodIntentGetInTouchError,
+  ManagePaymentMethodIntentTryAgainError,
+  ManagePaymentMethodIntentInsufficientFundsError,
+  ManagePaymentMethodTaxAddressRequiredError,
+} from './manage-payment-method.error';
+import { TaxService } from '@fxa/payments/cart';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
 import {
@@ -70,12 +80,14 @@ import {
   GoogleIapSubscriptionContent,
   StaySubscribedFlowResult,
   SubscriptionContent,
+  TrialSubscriptionContent,
 } from './types';
 import {
   PaypalBillingAgreementManager,
   PaypalCustomerManager,
   ResultPaypalCustomer,
 } from '@fxa/payments/paypal';
+import { ChurnInterventionService } from './churn-intervention.service';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -83,6 +95,7 @@ export class SubscriptionManagementService {
     @Inject(StatsDService) private statsd: StatsD,
     private accountCustomerManager: AccountCustomerManager,
     private appleIapPurchaseManager: AppleIapPurchaseManager,
+    private churnInterventionService: ChurnInterventionService,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
@@ -94,10 +107,40 @@ export class SubscriptionManagementService {
     private productConfigurationManager: ProductConfigurationManager,
     private setupIntentManager: SetupIntentManager,
     private subscriptionManager: SubscriptionManager,
+    private taxService: TaxService,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     @Inject(Logger) private log: LoggerService
   ) {}
+
+  private async ensureCustomerTaxAddress(
+    stripeCustomerId: string,
+    uid: string,
+    ipAddress: string
+  ) {
+    const customer = await this.customerManager.retrieve(stripeCustomerId);
+    const hasValidShipping =
+      !!customer.shipping?.address?.country &&
+      !!customer.shipping?.address?.postal_code;
+    if (hasValidShipping) return;
+
+    const taxAddress = await this.taxService.getTaxAddress(ipAddress, uid);
+    if (!taxAddress) {
+      throw new ManagePaymentMethodTaxAddressRequiredError(
+        'tax_address_required'
+      );
+    }
+
+    await this.customerManager.update(stripeCustomerId, {
+      shipping: {
+        name: customer.email || '',
+        address: {
+          country: taxAddress.countryCode,
+          postal_code: taxAddress.postalCode,
+        },
+      },
+    });
+  }
 
   @SanitizeExceptions()
   async cancelSubscriptionAtPeriodEnd(uid: string, subscriptionId: string) {
@@ -125,6 +168,27 @@ export class SubscriptionManagementService {
     });
 
     // Figure out where to add this, or if to just duplicate it.
+    await this.customerChanged(uid);
+  }
+
+  @SanitizeExceptions()
+  async cancelSubscriptionImmediately(uid: string, subscriptionId: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new CancelSubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    await this.subscriptionManager.cancel(subscriptionId);
+
     await this.customerChanged(uid);
   }
 
@@ -162,6 +226,7 @@ export class SubscriptionManagementService {
     const subscriptions: SubscriptionContent[] = [];
     const appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
     const googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
+    const trialSubscriptions: TrialSubscriptionContent[] = [];
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
     let accountCreditBalance: AccountCreditBalance = {
       balance: 0,
@@ -222,6 +287,7 @@ export class SubscriptionManagementService {
         defaultPaymentMethod,
         isStripeCustomer: stripeCustomer ? true : false,
         subscriptions: [],
+        trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
       };
@@ -252,19 +318,47 @@ export class SubscriptionManagementService {
         const productName =
           cmsPurchase.purchaseDetails.localizations[0]?.productName ||
           cmsPurchase.purchaseDetails.productName;
+        const apiIdentifier = cmsPurchase.offering.apiIdentifier;
         const webIcon = cmsPurchase.purchaseDetails.webIcon;
         const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
-        const content = await this.getSubscriptionContent(
-          sub,
-          stripeCustomer,
-          price,
-          productName,
-          webIcon,
-          supportUrl
-        );
 
-        if (content) {
-          subscriptions.push(content);
+        const isFailedTrialConversion =
+          sub.status === 'past_due' &&
+          sub.trial_end !== null &&
+          sub.current_period_start === sub.trial_end;
+
+        const isTrial = sub.status === 'trialing' || isFailedTrialConversion;
+        if (isTrial) {
+          const trialContent = await this.getTrialSubscriptionContent(
+            sub,
+            stripeCustomer,
+            price,
+            productName,
+            webIcon,
+            supportUrl,
+            apiIdentifier
+          );
+
+          if (trialContent) {
+            trialSubscriptions.push(trialContent);
+          }
+        } else {
+          const content = await this.getSubscriptionContent(
+            sub,
+            stripeCustomer,
+            price,
+            productName,
+            webIcon,
+            supportUrl,
+            apiIdentifier,
+            uid,
+            acceptLanguage,
+            selectedLanguage
+          );
+
+          if (content) {
+            subscriptions.push(content);
+          }
         }
       }
     }
@@ -331,6 +425,7 @@ export class SubscriptionManagementService {
       defaultPaymentMethod,
       isStripeCustomer: stripeCustomer ? true : false,
       subscriptions,
+      trialSubscriptions,
       appleIapSubscriptions,
       googleIapSubscriptions,
     };
@@ -383,7 +478,11 @@ export class SubscriptionManagementService {
     price: StripePrice,
     productName: string,
     webIcon: string,
-    supportUrl: string
+    supportUrl: string,
+    offeringApiIdentifier: string,
+    uid: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
   ): Promise<SubscriptionContent> {
     const latestInvoiceId = subscription.latest_invoice;
 
@@ -403,11 +502,29 @@ export class SubscriptionManagementService {
 
     const subplatInterval = getSubplatInterval(interval, intervalCount);
 
-    const [latestInvoice, upcomingInvoice] = await Promise.all([
+    const [
+      latestInvoice,
+      upcomingInvoice,
+      staySubscribedResult,
+      cancelIntervention,
+    ] = await Promise.all([
       this.invoiceManager.preview(latestInvoiceId),
       this.invoiceManager.previewUpcomingSubscription({
         customer,
         subscription,
+        excludeDiscounts: true,
+      }),
+      this.churnInterventionService.determineStaySubscribedEligibility(
+        uid,
+        subscription.id,
+        acceptLanguage,
+        selectedLanguage
+      ),
+      this.churnInterventionService.determineCancellationIntervention({
+        uid,
+        subscriptionId: subscription.id,
+        acceptLanguage,
+        selectedLanguage,
       }),
     ]);
 
@@ -438,11 +555,12 @@ export class SubscriptionManagementService {
 
     const {
       nextInvoiceDate,
-      promotionName: nextPromotionName,
       subsequentAmount,
       subsequentAmountExcludingTax,
       subsequentTax,
     } = upcomingInvoice;
+
+    const nextPromotionName = subscription.discount?.coupon.name ?? null;
 
     const totalExclusiveTax = taxAmounts
       .filter((tax) => !tax.inclusive)
@@ -457,10 +575,12 @@ export class SubscriptionManagementService {
     return {
       id: subscription.id,
       productName,
+      offeringApiIdentifier,
       supportUrl,
       webIcon,
       canResubscribe:
-        subscription.status === 'active' && subscription.cancel_at_period_end,
+        ['active', 'trialing'].includes(subscription.status) &&
+        subscription.cancel_at_period_end,
       creditApplied,
       currency: subscription.currency,
       interval: subplatInterval,
@@ -483,34 +603,131 @@ export class SubscriptionManagementService {
       nextPromotionName,
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      isEligibleForChurnCancel:
+        cancelIntervention.reason === 'eligible' &&
+        cancelIntervention.cancelChurnInterventionType ===
+          'cancel_churn_intervention',
+      isEligibleForChurnStaySubscribed: staySubscribedResult.isEligible,
+      isEligibleForOffer:
+        cancelIntervention.reason === 'eligible' &&
+        cancelIntervention.cancelChurnInterventionType ===
+          'cancel_interstitial_offer',
+      churnStaySubscribedCtaMessage:
+        staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
     };
   }
 
-  @SanitizeExceptions()
-  async getSubscriptionStatus(
-    uid: string,
-    subscriptionId: string
-  ): Promise<{
-    active: boolean;
-    cancelAtPeriodEnd: boolean;
-  }> {
-    const accountCustomer =
-      await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription =
-      await this.subscriptionManager.retrieve(subscriptionId);
+  private async getTrialSubscriptionContent(
+    subscription: StripeSubscription,
+    customer: StripeCustomer,
+    price: StripePrice,
+    productName: string,
+    webIcon: string,
+    supportUrl: string,
+    offeringApiIdentifier: string
+  ): Promise<TrialSubscriptionContent | null> {
+    if (
+      subscription.trial_end === null &&
+      subscription.trial_start === null
+    ) {
+      return null;
+    }
 
-    if (subscription.customer !== accountCustomer.stripeCustomerId) {
-      throw new SubscriptionCustomerMismatch(
-        uid,
-        accountCustomer.uid,
-        subscription.customer,
-        subscriptionId
+    const interval = price.recurring?.interval;
+    const intervalCount = price.recurring?.interval_count;
+
+    if (!interval || !intervalCount) {
+      throw new SubscriptionContentMissingIntervalInformationError(
+        subscription.id,
+        price.id
       );
     }
 
+    const subplatInterval = getSubplatInterval(interval, intervalCount);
+
+    const isPastDue = subscription.status === 'past_due';
+    const latestInvoiceId = subscription.latest_invoice;
+
+    const hasPaymentMethod =
+      !!subscription.default_payment_method ||
+      !!customer.invoice_settings?.default_payment_method;
+
+    const willCancelAtTrialEnd =
+      subscription.status === 'trialing' &&
+      subscription.trial_settings?.end_behavior?.missing_payment_method ===
+        'cancel' &&
+      !hasPaymentMethod;
+
+    const upcomingInvoice = willCancelAtTrialEnd
+      ? undefined
+      : await this.invoiceManager.previewUpcomingSubscription({
+          customer,
+          subscription,
+        });
+
+    const latestInvoice =
+      isPastDue && latestInvoiceId
+        ? await this.invoiceManager.preview(latestInvoiceId)
+        : undefined;
+
+    const subsequentAmount = upcomingInvoice?.subsequentAmount;
+    const subsequentAmountExcludingTax =
+      upcomingInvoice?.subsequentAmountExcludingTax;
+    const subsequentTax = upcomingInvoice?.subsequentTax;
+
+    const nextInvoiceTotalExclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    let failedInvoiceDate: number | undefined;
+    let failedInvoiceTotal: number | undefined;
+    let failedInvoiceTax: number | undefined;
+    let failedInvoiceUrl: string | null | undefined;
+
+    if (isPastDue && latestInvoice) {
+      const {
+        invoiceDate,
+        invoiceUrl,
+        taxAmounts,
+        totalAmount,
+        totalExcludingTax,
+      } = latestInvoice;
+
+      const totalExclusiveTax = taxAmounts
+      .filter((tax) => !tax.inclusive)
+      .reduce((sum, tax) => sum + tax.amount, 0);
+
+      failedInvoiceDate = invoiceDate;
+      failedInvoiceTax = Math.max(0, totalExclusiveTax);
+      failedInvoiceTotal = totalExclusiveTax
+        ? (totalExcludingTax ?? totalAmount)
+        : totalAmount;
+      failedInvoiceUrl = invoiceUrl;
+    }
+
     return {
-      active: subscription.status === 'active',
+      id: subscription.id,
+      productName,
+      offeringApiIdentifier,
+      supportUrl,
+      webIcon,
+      currency: subscription.currency,
+      interval: subplatInterval,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      trialEnd: subscription.trial_end ?? null,
+      trialStart: subscription.trial_start ?? null,
+      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+      nextInvoiceTotal:
+        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+          ? (subsequentAmountExcludingTax ?? subsequentAmount)
+          : subsequentAmount,
+      conversionStatus: isPastDue ? 'past_due' : 'active',
+      failedInvoiceDate,
+      failedInvoiceTotal,
+      failedInvoiceTax,
+      failedInvoiceUrl,
     };
   }
 
@@ -569,45 +786,108 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription || subscription.status !== 'active') {
+    if (
+      !subscription ||
+      !['active', 'trialing'].includes(subscription.status)
+    ) {
       return {
         flowType: 'not_found',
       };
     }
 
-    const item = subscription.items.data[0];
-    const price = item.price;
-    const priceId = price.id;
-    const productMap =
-      await this.productConfigurationManager.getPageContentByPriceIds(
-        [priceId],
-        acceptLanguage,
-        selectedLanguage
-      );
+    try {
+      const stripeCustomer = await this.customerManager
+        .retrieve(subscription.customer)
+        .catch((error) => {
+          if (!(error instanceof CustomerDeletedError)) {
+            throw error;
+          }
+          return undefined;
+        });
 
-    if (!productMap) {
-      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
-        priceId,
-      ]);
+      if (!stripeCustomer)
+        throw new SubscriptionManagementNoStripeCustomerFoundError(
+          uid,
+          subscriptionId
+        );
+
+      const defaultPaymentMethod =
+        await this.paymentMethodManager.getDefaultPaymentMethod(
+          stripeCustomer,
+          [subscription],
+          uid
+        );
+
+      const item = subscription.items.data[0];
+      const price = item.price;
+      const priceId = price.id;
+      const productMap =
+        await this.productConfigurationManager.getPageContentByPriceIds(
+          [priceId],
+          acceptLanguage,
+          selectedLanguage
+        );
+
+      if (!productMap) {
+        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+          priceId,
+        ]);
+      }
+
+      const cmsPurchase = productMap.purchaseForPriceId(priceId);
+      const productName =
+        cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+        cmsPurchase.purchaseDetails.productName;
+      const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
+      const webIcon = cmsPurchase.purchaseDetails.webIcon;
+      const currentPeriodEnd = subscription.current_period_end;
+
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingSubscription({
+          customer: stripeCustomer,
+          subscription,
+          excludeDiscounts: true,
+        });
+
+      if (!upcomingInvoice) {
+        throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
+          subscription.id,
+          stripeCustomer
+        );
+      }
+
+      const { subsequentAmount, subsequentAmountExcludingTax, subsequentTax } =
+        upcomingInvoice;
+
+      const nextInvoiceTotalExclusiveTax =
+        subsequentTax &&
+        subsequentTax
+          .filter((tax) => !tax.inclusive)
+          .reduce((sum, tax) => sum + tax.amount, 0);
+
+      return {
+        flowType: 'cancel',
+        active: ['active', 'trialing'].includes(subscription.status),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        currency: subscription.currency,
+        currentPeriodEnd,
+        defaultPaymentMethodType: defaultPaymentMethod?.type,
+        last4: defaultPaymentMethod?.last4,
+        nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+        nextInvoiceTotal:
+          nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+            ? (subsequentAmountExcludingTax ?? subsequentAmount)
+            : subsequentAmount,
+        productName,
+        supportUrl,
+        webIcon,
+      };
+    } catch (error) {
+      this.log.error(error);
+      return {
+        flowType: 'not_found',
+      };
     }
-
-    const cmsPurchase = productMap.purchaseForPriceId(priceId);
-    const productName =
-      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
-      cmsPurchase.purchaseDetails.productName;
-    const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
-    const webIcon = cmsPurchase.purchaseDetails.webIcon;
-    const currentPeriodEnd = subscription.current_period_end;
-
-    return {
-      flowType: 'cancel',
-      active: subscription.status === 'active',
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currentPeriodEnd,
-      productName,
-      supportUrl,
-      webIcon,
-    };
   }
 
   @SanitizeExceptions({
@@ -629,95 +909,106 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription || subscription.status !== 'active') {
+    if (
+      !subscription ||
+      !['active', 'trialing'].includes(subscription.status)
+    ) {
       return {
         flowType: 'not_found',
       };
     }
 
-    const stripeCustomer = await this.customerManager
-      .retrieve(subscription.customer)
-      .catch((error) => {
-        if (!(error instanceof CustomerDeletedError)) {
-          throw error;
-        }
-        return undefined;
-      });
+    try {
+      const stripeCustomer = await this.customerManager
+        .retrieve(subscription.customer)
+        .catch((error) => {
+          if (!(error instanceof CustomerDeletedError)) {
+            throw error;
+          }
+          return undefined;
+        });
 
-    if (!stripeCustomer)
-      throw new SubscriptionManagementNoStripeCustomerFoundError(
-        uid,
-        subscriptionId
-      );
+      if (!stripeCustomer)
+        throw new SubscriptionManagementNoStripeCustomerFoundError(
+          uid,
+          subscriptionId
+        );
 
-    const defaultPaymentMethod =
-      await this.paymentMethodManager.getDefaultPaymentMethod(
-        stripeCustomer,
-        [subscription],
-        uid
-      );
+      const defaultPaymentMethod =
+        await this.paymentMethodManager.getDefaultPaymentMethod(
+          stripeCustomer,
+          [subscription],
+          uid
+        );
 
-    const item = subscription.items.data[0];
-    const price = item.price;
-    const priceId = price.id;
-    const productMap =
-      await this.productConfigurationManager.getPageContentByPriceIds(
-        [priceId],
-        acceptLanguage,
-        selectedLanguage
-      );
+      const item = subscription.items.data[0];
+      const price = item.price;
+      const priceId = price.id;
+      const productMap =
+        await this.productConfigurationManager.getPageContentByPriceIds(
+          [priceId],
+          acceptLanguage,
+          selectedLanguage
+        );
 
-    if (!productMap) {
-      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
-        priceId,
-      ]);
+      if (!productMap) {
+        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+          priceId,
+        ]);
+      }
+
+      const cmsPurchase = productMap.purchaseForPriceId(priceId);
+      const productName =
+        cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+        cmsPurchase.purchaseDetails.productName;
+      const webIcon = cmsPurchase.purchaseDetails.webIcon;
+      const currentPeriodEnd = subscription.current_period_end;
+
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingSubscription({
+          customer: stripeCustomer,
+          subscription,
+          excludeDiscounts: true,
+        });
+
+      if (!upcomingInvoice) {
+        throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
+          subscription.id,
+          stripeCustomer
+        );
+      }
+
+      const { subsequentAmount, subsequentAmountExcludingTax, subsequentTax } =
+        upcomingInvoice;
+
+      const nextInvoiceTotalExclusiveTax =
+        subsequentTax &&
+        subsequentTax
+          .filter((tax) => !tax.inclusive)
+          .reduce((sum, tax) => sum + tax.amount, 0);
+
+      return {
+        flowType: 'stay_subscribed',
+        active: ['active', 'trialing'].includes(subscription.status),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        currency: subscription.currency,
+        currentPeriodEnd,
+        defaultPaymentMethodType: defaultPaymentMethod?.type,
+        last4: defaultPaymentMethod?.last4,
+        nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+        nextInvoiceTotal:
+          nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+            ? (subsequentAmountExcludingTax ?? subsequentAmount)
+            : subsequentAmount,
+        productName,
+        webIcon,
+      };
+    } catch (error) {
+      this.log.error(error);
+      return {
+        flowType: 'not_found',
+      };
     }
-
-    const cmsPurchase = productMap.purchaseForPriceId(priceId);
-    const productName =
-      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
-      cmsPurchase.purchaseDetails.productName;
-    const webIcon = cmsPurchase.purchaseDetails.webIcon;
-    const currentPeriodEnd = subscription.current_period_end;
-
-    const upcomingInvoice =
-      await this.invoiceManager.previewUpcomingSubscription({
-        customer: stripeCustomer,
-        subscription,
-      });
-
-    if (!upcomingInvoice) {
-      throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
-        subscription.id,
-        stripeCustomer
-      );
-    }
-
-    const { subsequentAmount, subsequentAmountExcludingTax, subsequentTax } =
-      upcomingInvoice;
-
-    const nextInvoiceTotalExclusiveTax =
-      subsequentTax &&
-      subsequentTax
-        .filter((tax) => !tax.inclusive)
-        .reduce((sum, tax) => sum + tax.amount, 0);
-
-    return {
-      flowType: 'stay_subscribed',
-      active: subscription.status === 'active',
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currency: subscription.currency,
-      currentPeriodEnd,
-      defaultPaymentMethodType: defaultPaymentMethod?.type,
-      last4: defaultPaymentMethod?.last4,
-      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
-      nextInvoiceTotal:
-        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
-          ? (subsequentAmountExcludingTax ?? subsequentAmount)
-          : subsequentAmount,
-      productName,
-      webIcon,
-    };
   }
 
   async getCurrencyForCustomer(uid: string) {
@@ -757,7 +1048,9 @@ export class SubscriptionManagementService {
     return currency;
   }
 
-  @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError, CurrencyForCustomerNotFoundError],
+  })
   async getStripePaymentManagementDetails(uid: string) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -802,8 +1095,15 @@ export class SubscriptionManagementService {
     return {
       clientSecret: customerSession.client_secret,
       customer: customerSession.customer,
-      defaultPaymentMethodId: defaultPaymentMethod?.id,
       currency,
+      ...(defaultPaymentMethod
+        ? {
+            defaultPaymentMethod: {
+              type: defaultPaymentMethod?.type,
+              id: defaultPaymentMethod?.id,
+            },
+          }
+        : {}),
     };
   }
 
@@ -834,8 +1134,22 @@ export class SubscriptionManagementService {
     await this.customerChanged(uid);
   }
 
-  @SanitizeExceptions()
-  async updateStripePaymentDetails(uid: string, confirmationTokenId: string) {
+  @SanitizeExceptions({
+    allowlist: [
+      ManagePaymentMethodIntentCardDeclinedError,
+      ManagePaymentMethodIntentCardExpiredError,
+      ManagePaymentMethodIntentFailedGenericError,
+      ManagePaymentMethodIntentGetInTouchError,
+      ManagePaymentMethodIntentTryAgainError,
+      ManagePaymentMethodIntentInsufficientFundsError,
+      ManagePaymentMethodTaxAddressRequiredError,
+    ],
+  })
+  async updateStripePaymentDetails(
+    uid: string,
+    confirmationTokenId: string,
+    ipAddress: string
+  ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
 
@@ -843,10 +1157,28 @@ export class SubscriptionManagementService {
       throw new UpdateAccountCustomerMissingStripeId(uid);
     }
 
-    const setupIntent = await this.setupIntentManager.createAndConfirm(
+    await this.ensureCustomerTaxAddress(
       accountCustomer.stripeCustomerId,
-      confirmationTokenId
+      uid,
+      ipAddress
     );
+
+    let setupIntent;
+    try {
+      setupIntent = await this.setupIntentManager.createAndConfirm(
+        accountCustomer.stripeCustomerId,
+        confirmationTokenId
+      );
+    } catch (error) {
+      const setupIntentError = error?.setup_intent;
+      if (setupIntentError?.status === 'requires_payment_method') {
+        const code = setupIntentError.last_setup_error?.code;
+        const declineCode = setupIntentError.last_setup_error?.decline_code;
+        throwStripeUpdatePaymentFailedError(code, declineCode);
+      }
+      throw error;
+    }
+
     this.statsd.increment(
       'sub_management_update_stripe_payment_setupintent_status',
       { status: setupIntent.status }
@@ -900,46 +1232,13 @@ export class SubscriptionManagementService {
     };
   }
 
-  async applyStripeCouponToSubscription(args: {
-    uid: string;
-    subscriptionId: string;
-    stripeCouponId: string;
-    setCancelAtPeriodEnd?: boolean;
-  }) {
-    const { uid, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
-
-    const accountCustomer =
-      await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription =
-      await this.subscriptionManager.retrieve(subscriptionId);
-
-    if (subscription.customer !== accountCustomer.stripeCustomerId) {
-      throw new SubscriptionCustomerMismatch(
-        uid,
-        accountCustomer.uid,
-        subscription.customer,
-        subscriptionId
-      );
-    }
-    try {
-      const updatedSubscription = await this.subscriptionManager.update(
-        subscriptionId,
-        {
-          discounts: [{ coupon: stripeCouponId }],
-          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
-        }
-      );
-      return updatedSubscription;
-    } catch (error) {
-      this.log.error(error);
-      return null;
-    }
-  }
-
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [ManagePaymentMethodTaxAddressRequiredError],
+  })
   async setDefaultStripePaymentDetails(
     uid: string,
     paymentMethodId: string,
+    ipAddress: string
   ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -948,10 +1247,16 @@ export class SubscriptionManagementService {
       throw new SetDefaultPaymentAccountCustomerMissingStripeId(uid);
     }
 
+    await this.ensureCustomerTaxAddress(
+      accountCustomer.stripeCustomerId,
+      uid,
+      ipAddress
+    );
+
     await this.customerManager.update(accountCustomer.stripeCustomerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
-      }
+      },
     });
   }
 
@@ -1003,13 +1308,6 @@ export class SubscriptionManagementService {
       billingAgreementId = await this.paypalBillingAgreementManager.create(
         uid,
         token
-      );
-
-      const billingAgreement =
-        await this.paypalBillingAgreementManager.retrieve(billingAgreementId);
-      this.currencyManager.assertCurrencyCompatibleWithCountry(
-        currency,
-        billingAgreement.countryCode
       );
 
       await this.customerManager.update(accountCustomer.stripeCustomerId, {

@@ -38,6 +38,9 @@ import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
 import { OtpUtils } from './utils/otp';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -97,6 +100,7 @@ class RecoveryPhoneHandler {
     private readonly glean: GleanMetricsType,
     private readonly log: any,
     private readonly mailer: any,
+    private readonly fxaMailer: FxaMailer,
     private readonly statsd: any
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
@@ -186,7 +190,10 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.recoveryPhone.signinSendCode.success');
+      this.statsd.increment(
+        'account.recoveryPhone.signinSendCode.success',
+        getClientServiceTags(request)
+      );
       await this.glean.twoStepAuthPhoneCode.sent(request);
 
       await recordSecurityEvent('account.recovery_phone_send_code', {
@@ -262,7 +269,8 @@ class RecoveryPhoneHandler {
 
     if (success) {
       this.statsd.increment(
-        'account.recoveryPhone.resetPasswordSendCode.success'
+        'account.recoveryPhone.resetPasswordSendCode.success',
+        getClientServiceTags(request)
       );
 
       this.glean.resetPassword.recoveryPhoneCodeSent(request);
@@ -322,7 +330,10 @@ class RecoveryPhoneHandler {
         getFormattedMessages
       );
       if (success) {
-        this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');
+        this.statsd.increment(
+          'account.recoveryPhone.setupPhoneNumber.success',
+          getClientServiceTags(request)
+        );
         await recordSecurityEvent('account.recovery_phone_send_code', {
           db: this.db,
           request,
@@ -430,7 +441,10 @@ class RecoveryPhoneHandler {
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      this.statsd.increment('account.recoveryPhone.phoneSignin.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneSignin.success',
+        getClientServiceTags(request)
+      );
 
       // this signals the end of the login flow
       await request.emitMetricsEvent('account.confirmed', { uid });
@@ -441,20 +455,31 @@ class RecoveryPhoneHandler {
       });
 
       try {
-        await this.mailer.sendPostSigninRecoveryPhoneEmail(
-          account.emails,
-          account,
-          {
-            acceptLanguage,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }
-        );
+        if (this.fxaMailer.canSend('postSigninRecoveryPhone')) {
+          await this.fxaMailer.sendPostSigninRecoveryPhoneEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
+        } else {
+          await this.mailer.sendPostSigninRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        }
       } catch (error) {
         // log email send error but don't throw
         // user should be allowed to proceed
@@ -523,7 +548,10 @@ class RecoveryPhoneHandler {
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      this.statsd.increment('account.recoveryPhone.phoneAdded.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneAdded.success',
+        getClientServiceTags(request)
+      );
 
       const { phoneNumber, nationalFormat } =
         // User has successfully set up a recovery phone. Give back the
@@ -537,24 +565,39 @@ class RecoveryPhoneHandler {
       // when 2fa setup is complete
       if (hasTotpToken) {
         try {
-          await this.mailer.sendPostAddRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
+          if (this.fxaMailer.canSend('postAddRecoveryPhone')) {
+            await this.fxaMailer.sendPostAddRecoveryPhoneEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
               maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
                 phoneNumber || '',
                 4
               )}`,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
+            });
+          } else {
+            await this.mailer.sendPostAddRecoveryPhoneEmail(
+              account.emails,
+              account,
+              {
+                acceptLanguage,
+                maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
+                  phoneNumber || '',
+                  4
+                )}`,
+                timeZone: geo.timeZone,
+                uaBrowser: ua.browser,
+                uaBrowserVersion: ua.browserVersion,
+                uaOS: ua.os,
+                uaOSVersion: ua.osVersion,
+                uaDeviceType: ua.deviceType,
+                uid,
+              }
+            );
+          }
         } catch (error) {
           // log email send error but don't throw
           // user should be allowed to proceed
@@ -636,7 +679,10 @@ class RecoveryPhoneHandler {
 
     if (!replacedSuccess) {
       await this.glean.twoStepAuthPhoneReplace.failure(request);
-      this.statsd.increment('account.recoveryPhone.changePhoneNumber.failure');
+      this.statsd.increment(
+        'account.recoveryPhone.changePhoneNumber.failure',
+        getClientServiceTags(request)
+      );
       await recordSecurityEvent('account.recovery_phone_replace_failure', {
         db: this.db,
         request,
@@ -647,7 +693,10 @@ class RecoveryPhoneHandler {
     }
 
     await this.glean.twoStepAuthPhoneReplace.success(request);
-    this.statsd.increment('account.recoveryPhone.changePhoneNumber.success');
+    this.statsd.increment(
+      'account.recoveryPhone.changePhoneNumber.success',
+      getClientServiceTags(request)
+    );
 
     const { phoneNumber, nationalFormat } =
       await this.recoveryPhoneService.hasConfirmed(uid);
@@ -661,20 +710,31 @@ class RecoveryPhoneHandler {
     const account = await this.db.account(uid);
 
     try {
-      await this.mailer.sendPostChangeRecoveryPhoneEmail(
-        account.emails,
-        account,
-        {
-          acceptLanguage,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        }
-      );
+      if (this.fxaMailer.canSend('postChangeRecoveryPhone')) {
+        await this.fxaMailer.sendPostChangeRecoveryPhoneEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
+      } else {
+        await this.mailer.sendPostChangeRecoveryPhoneEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }
+        );
+      }
     } catch (error) {
       // log error, but don't throw
       // user should be allowed to proceed if email or security event fails
@@ -733,7 +793,10 @@ class RecoveryPhoneHandler {
 
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 
-      this.statsd.increment('account.resetPassword.recoveryPhone.success');
+      this.statsd.increment(
+        'account.resetPassword.recoveryPhone.success',
+        getClientServiceTags(request)
+      );
 
       await recordSecurityEvent(
         'account.recovery_phone_reset_password_complete',
@@ -747,20 +810,31 @@ class RecoveryPhoneHandler {
       const { acceptLanguage, geo, ua } = request.app;
 
       try {
-        await this.mailer.sendPasswordResetRecoveryPhoneEmail(
-          account.emails,
-          account,
-          {
-            acceptLanguage,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }
-        );
+        if (this.fxaMailer.canSend('passwordResetRecoveryPhone')) {
+          await this.fxaMailer.sendPasswordResetRecoveryPhoneEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
+        } else {
+          await this.mailer.sendPasswordResetRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        }
       } catch (error) {
         this.log.error(
           'account.recoveryPhone.phonePasswordResetNotification.error',
@@ -802,7 +876,10 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.recoveryPhone.phoneRemoved.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneRemoved.success',
+        getClientServiceTags(request)
+      );
       await this.glean.twoStepAuthPhoneRemove.success(request);
 
       const account = await this.db.account(uid);
@@ -815,20 +892,31 @@ class RecoveryPhoneHandler {
           account,
         });
 
-        await this.mailer.sendPostRemoveRecoveryPhoneEmail(
-          account.emails,
-          account,
-          {
-            acceptLanguage,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }
-        );
+        if (this.fxaMailer.canSend('postRemoveRecoveryPhone')) {
+          await this.fxaMailer.sendPostRemoveRecoveryPhoneEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
+        } else {
+          await this.mailer.sendPostRemoveRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        }
       } catch (error) {
         // log email send error but don't throw
         // user should be allowed to proceed
@@ -889,7 +977,10 @@ class RecoveryPhoneHandler {
     // the session is not verified. e.g. The user has entered the correct password,
     // but failed to provide 2FA.
     const shouldStripNumber = (() => {
-      if (request.auth.strategy === 'multiStrategySessionToken') {
+      if (
+        request.auth.strategy === 'multiStrategySessionToken' ||
+        request.auth.strategy === 'multiStrategySessionTokenBearer'
+      ) {
         const { emailVerified, mustVerify, tokenVerified } = request.auth
           .credentials as SessionTokenAuthCredential;
         return !emailVerified || (mustVerify && !tokenVerified);
@@ -1015,12 +1106,15 @@ export const recoveryPhoneRoutes = (
     }
     return true;
   };
+  const fxaMailer = Container.get(FxaMailer);
+
   const recoveryPhoneHandler = new RecoveryPhoneHandler(
     customs,
     db,
     glean,
     log,
     mailer,
+    fxaMailer,
     statsd
   );
   const routes = [
@@ -1031,7 +1125,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CREATE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -1078,7 +1172,7 @@ export const recoveryPhoneRoutes = (
       options: {
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_AVAILABLE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1093,7 +1187,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -1136,27 +1230,6 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery_phone/change',
-      options: {
-        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CHANGE_POST,
-        pre: [{ method: featureEnabledCheck }],
-        auth: {
-          strategy: 'verifiedSessionToken',
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            code: isA.string().min(6).max(8),
-          }),
-        },
-      },
-      handler: function (request: AuthRequest) {
-        log.begin('recoveryPhoneChange', request);
-        return recoveryPhoneHandler.changePhoneNumber(request);
-      },
-    },
-    {
-      method: 'POST',
       path: '/mfa/recovery_phone/change',
       options: {
         ...RECOVERY_PHONE_DOCS.MFA_RECOVERY_PHONE_CHANGE_POST,
@@ -1167,13 +1240,8 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/recovery_phone/change' &&
-              route.method === 'POST'
-          )
-          ?.handler(request);
+        log.begin('recoveryPhoneChange', request);
+        return recoveryPhoneHandler.changePhoneNumber(request);
       },
     },
     {
@@ -1183,7 +1251,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1198,7 +1266,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -1218,7 +1286,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1233,7 +1301,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1247,7 +1315,7 @@ export const recoveryPhoneRoutes = (
       options: {
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_DELETE,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
       },
@@ -1283,6 +1351,8 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_GET,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],

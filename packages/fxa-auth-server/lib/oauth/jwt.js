@@ -14,6 +14,7 @@ const jwtverify = require('util').promisify(jsonwebtoken.verify);
  * Sign `claims` using SIGNING_PEM from keys.js, returning a JWT.
  *
  * @param {Object} claims
+ * @param {Object} [options]
  * @returns {Promise} resolves with signed JWT when complete
  */
 exports.sign = function sign(claims, options) {
@@ -33,6 +34,13 @@ exports.sign = function sign(claims, options) {
   );
 };
 
+/**
+ * Verify `jwt`, resolving with its decoded payload.
+ *
+ * @param {string} jwt
+ * @param {Object} [options]
+ * @returns {Promise<Record<string, unknown>>} resolves with the verified payload
+ */
 exports.verify = async function verify(jwt, options = {}) {
   const getKey = (header, callback) => {
     if (options.typ) {

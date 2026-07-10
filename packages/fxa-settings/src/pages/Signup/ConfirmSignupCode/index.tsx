@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { useLocation, useNavigate } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { isSendTabEntrypoint } from '../../../lib/utilities';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { ERRNO } from '@fxa/accounts/errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -16,7 +17,10 @@ import {
   useSession,
 } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
+import CardHeader, {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -39,8 +43,11 @@ import {
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { getSyncNavigate } from '../../Signin/utils';
+import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'confirm-signup-code';
+
+const RESEND_CODE_COUNTDOWN = 30;
 
 const ConfirmSignupCode = ({
   email,
@@ -56,7 +63,7 @@ const ConfirmSignupCode = ({
   flowQueryParams,
   origin,
   setCurrentSplitLayout,
-}: ConfirmSignupCodeProps & RouteComponentProps) => {
+}: ConfirmSignupCodeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -68,10 +75,12 @@ const ConfirmSignupCode = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );
+  const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
+  const [resendCountdown, setResendCountdown] = useState<number>(0);
+  const throttle = useThrottle();
 
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const isSync = integration.isSync();
   const submitFormOnPaste = !isSync;
 
@@ -87,6 +96,17 @@ const ConfirmSignupCode = ({
       hasEmittedView.current = true;
     }
   }, [reason]);
+
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [resendCountdown]);
 
   const [localizedErrorBannerHeading, setLocalizedErrorBannerHeading] =
     useState('');
@@ -118,16 +138,24 @@ const ConfirmSignupCode = ({
   }
 
   async function handleResendCode() {
+    setResendCodeLoading(true);
     try {
       await session.sendVerificationCode();
+
       // if resending a code is successful, clear any banner already present on screen
       setLocalizedErrorBannerHeading('');
       setResendStatus(ResendStatus.sent);
     } catch (error) {
       setResendStatus(ResendStatus.error);
+      if (error?.errno === AuthUiErrors.THROTTLED.errno) {
+        throttle.startThrottle(error);
+      }
       setLocalizedErrorBannerHeading(
         getLocalizedErrorMessage(ftlMsgResolver, error)
       );
+    } finally {
+      setResendCodeLoading(false);
+      setResendCountdown(RESEND_CODE_COUNTDOWN);
     }
   }
 
@@ -175,6 +203,7 @@ const ConfirmSignupCode = ({
         uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
       });
 
       if (hasSelectedNewsletters) {
@@ -206,12 +235,15 @@ const ConfirmSignupCode = ({
           });
           return;
         } else {
-          const { redirect, code, state, error } = await finishOAuthFlowHandler(
-            uid,
-            sessionToken,
-            keyFetchToken,
-            unwrapBKey
-          );
+          // `scope` is the server-resolved scope per ADR 0049, only
+          // forwarded to Firefox via fxaOAuthLogin; ignored otherwise.
+          const { redirect, code, state, scope, error } =
+            await finishOAuthFlowHandler(
+              uid,
+              sessionToken,
+              keyFetchToken,
+              unwrapBKey
+            );
           if (error) {
             setLocalizedErrorBannerHeading(
               getLocalizedErrorMessage(ftlMsgResolver, error)
@@ -230,13 +262,27 @@ const ConfirmSignupCode = ({
               code,
               redirect,
               state,
+              scope,
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            if (!integration.isFirefoxMobileClient()) {
-              const { to } = getSyncNavigate(location.search, {
-                showSignupConfirmedSync: true,
-              });
-              navigate(to);
+            if (integration.isFirefoxDesktopClient()) {
+              const isSendTab = isSendTabEntrypoint(
+                integration.data.entrypoint
+              );
+              const { to, shouldHardNavigate, locationState } = getSyncNavigate(
+                location.search,
+                {
+                  showSignupConfirmedSync: !isSendTab,
+                  signupSuccess: isSendTab,
+                }
+              );
+              if (shouldHardNavigate) {
+                hardNavigate(to);
+              } else if (locationState) {
+                navigate(to, { state: locationState });
+              } else {
+                navigate(to);
+              }
             }
             return;
           } else if (integration.isFirefoxNonSync()) {
@@ -245,8 +291,21 @@ const ConfirmSignupCode = ({
               code,
               redirect,
               state,
+              scope,
             });
-            goToSettingsWithAlertSuccess();
+            if (integration.isFirefoxClientServiceVpn()) {
+              // Don't navigate mobile users. The client controls the web view
+              // and users will see a "blip" of the service welcome page before
+              // the client closes the view in response to the fxaOAuthLogin web
+              // channel message. See FXA-11944.
+              if (!integration.isFirefoxMobileClient()) {
+                navigate('/post_verify/service_welcome', {
+                  state: { origin: 'signup' },
+                });
+              }
+            } else {
+              goToSettingsWithAlertSuccess();
+            }
           } else {
             // Navigate to relying party
             if (origin === 'signup') {
@@ -301,6 +360,9 @@ const ConfirmSignupCode = ({
       ) {
         setCodeErrorMessage(localizedErrorMessage);
       } else {
+        if (error.errno === AuthUiErrors.THROTTLED.errno) {
+          throttle.startThrottle(error);
+        }
         // Clear resend link success banner (if displayed) before rendering an error banner
         setResendStatus(ResendStatus.none);
         // Any other error messages should be displayed in an error banner
@@ -310,6 +372,8 @@ const ConfirmSignupCode = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   const title = cmsInfo?.SignupConfirmCodePage?.pageTitle
     ? cmsInfo?.SignupConfirmCodePage?.pageTitle
@@ -331,7 +395,10 @@ const ConfirmSignupCode = ({
               className="justify-start mb-4 max-h-[40px]"
             />
           )}
-          <h1 className="card-header">
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
             {cmsInfo.SignupConfirmCodePage.headline}
           </h1>
           <p className="mt-1 text-sm">
@@ -354,7 +421,9 @@ const ConfirmSignupCode = ({
 
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
 
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <FtlMsg
         id="confirm-signup-code-instruction-v2"
@@ -367,13 +436,8 @@ const ConfirmSignupCode = ({
         </p>
       </FtlMsg>
 
-      {isFirefoxClientServiceRelay && (
-        <FtlMsg id="confirm-signup-code-desktop-relay">
-          <p className="mt-2 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode
@@ -389,24 +453,39 @@ const ConfirmSignupCode = ({
             text: cmsInfo?.SignupConfirmCodePage.primaryButtonText,
             color: cmsInfo?.shared.buttonColor,
           },
+          isThrottled: throttle.isThrottled,
         }}
       />
 
       <div className="animate-delayed-fade-in opacity-0 text-grey-500 text-sm inline-flex gap-1">
-        <>
-          <FtlMsg id="confirm-signup-code-code-expired">
-            <p>Code expired?</p>
+        <FtlMsg id="confirm-signup-code-code-expired">
+          <p>Code expired?</p>
+        </FtlMsg>
+        {resendCountdown > 0 ? (
+          <FtlMsg
+            id="confirm-signup-code-resend-code-countdown"
+            vars={{ seconds: resendCountdown }}
+          >
+            <button
+              id="resend"
+              className="link-blue cursor-not-allowed opacity-50"
+              disabled
+            >
+              Email new code in {resendCountdown} seconds
+            </button>
           </FtlMsg>
+        ) : (
           <FtlMsg id="confirm-signup-code-resend-code-link">
             <button
               id="resend"
               className="link-blue"
               onClick={handleResendCode}
+              disabled={resendCodeLoading || throttle.isThrottled}
             >
               Email new code.
             </button>
           </FtlMsg>
-        </>
+        )}
       </div>
     </AppLayout>
   );

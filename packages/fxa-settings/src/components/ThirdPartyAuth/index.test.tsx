@@ -2,26 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import { Subject } from './mocks';
 
-const mockViewWithNoPasswordSet = jest.fn();
 const mockStartGoogleAuthFromIndex = jest.fn();
 const mockStartAppleAuthFromIndex = jest.fn();
 const mockStartGoogleAuthFromLogin = jest.fn();
 const mockStartAppleAuthFromLogin = jest.fn();
 const mockStartGoogleAuthFromReg = jest.fn();
 const mockStartAppleAuthFromReg = jest.fn();
-const mockGleanIsDone = jest.fn();
+const mockAlternativeAuthGoogleStart = jest.fn();
+const mockAlternativeAuthAppleStart = jest.fn();
+const mockGleanIsDone = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../lib/glean', () => {
   return {
     __esModule: true,
     default: {
       isDone: () => {
-        mockGleanIsDone();
+        return mockGleanIsDone();
       },
       emailFirst: {
         googleOauthStart: () => {
@@ -32,9 +34,6 @@ jest.mock('../../lib/glean', () => {
         },
       },
       thirdPartyAuth: {
-        loginNoPwView: () => {
-          mockViewWithNoPasswordSet();
-        },
         startGoogleAuthFromLogin: () => {
           mockStartGoogleAuthFromLogin();
         },
@@ -48,6 +47,14 @@ jest.mock('../../lib/glean', () => {
           mockStartAppleAuthFromReg();
         },
       },
+      login: {
+        alternativeAuthGoogleStart: () => {
+          mockAlternativeAuthGoogleStart();
+        },
+        alternativeAuthAppleStart: () => {
+          mockAlternativeAuthAppleStart();
+        },
+      },
     },
   };
 });
@@ -56,24 +63,20 @@ function renderWith(props?: any) {
   return renderWithLocalizationProvider(<Subject {...props} />);
 }
 
-const mockFormSubmit = jest.fn();
-// This prevents console errors when the deepLink logic is tested.
-// However, for some reason we cannot mock `requestSubmit` and we'll
-// still see errors logged for that.
-HTMLFormElement.prototype.submit = mockFormSubmit;
-
 describe('ThirdPartyAuthComponent', () => {
-  // Form submission not supported in jest test. Instead, prevent the submission
-  // and illustrate a 'short circuit' operation.
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-    return false;
-  };
-  const onContinueWithApple = jest.fn().mockImplementation(onSubmit);
-  const onContinueWithGoogle = jest.fn().mockImplementation(onSubmit);
+  const onContinueWithApple = jest.fn();
+  const onContinueWithGoogle = jest.fn();
+  let hardNavigateSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    hardNavigateSpy = jest
+      .spyOn(ReactUtils, 'hardNavigate')
+      .mockImplementation(() => {});
+  });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    hardNavigateSpy.mockRestore();
+    jest.clearAllMocks();
   });
 
   it('renders', async () => {
@@ -86,122 +89,65 @@ describe('ThirdPartyAuthComponent', () => {
 
     await screen.findByLabelText('Continue with Google');
     await screen.findByLabelText('Continue with Apple');
-    expect(mockFormSubmit).not.toHaveBeenCalled();
-
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
-
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
   });
 
   it('submits apple form', async () => {
+    const user = userEvent.setup();
     renderWith({
       enabled: true,
-      showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
     });
 
     const button = await screen.findByLabelText('Continue with Apple');
-    button.click();
+    await user.click(button);
 
-    // Ensure the hidden input for state was updated.
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
     expect(onContinueWithApple).toHaveBeenCalled();
     expect(onContinueWithGoogle).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          state: 'http%3A%2F%2Flocalhost%2F%3FflowId%3D123',
+        }),
+        false,
+        false,
+        0
+      );
+    });
   });
 
   it('submits google form', async () => {
+    const user = userEvent.setup();
     renderWith({
       enabled: true,
-      showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
     });
 
     const button = await screen.findByLabelText('Continue with Google');
-    button.click();
+    await user.click(button);
 
-    // Ensure the hidden input for state was updated.
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
     expect(onContinueWithGoogle).toHaveBeenCalled();
     expect(onContinueWithApple).not.toHaveBeenCalled();
-  });
-
-  it('should deeplink directly to google auth, if deeplink=`googleLogin`', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-      deeplink: 'googleLogin',
-      view: 'index',
+    await waitFor(() => {
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          state: 'http%3A%2F%2Flocalhost%2F%3FflowId%3D123',
+        }),
+        false,
+        false,
+        0
+      );
     });
-
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
-  });
-
-  it('should deeplink directly to apple auth, if deeplink=`appleLogin`', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-      deeplink: 'appleLogin',
-      view: 'index',
-    });
-
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
-  });
-
-  it('hides separator', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-      onContinueWithApple,
-      onContinueWithGoogle,
-    });
-
-    expect(screen.queryByText('Or')).toBeNull();
-    expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
-  });
-
-  it('shows separator', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: true,
-      onContinueWithApple,
-      onContinueWithGoogle,
-    });
-
-    expect(screen.queryByText('Or')).toBeDefined();
-    expect(mockViewWithNoPasswordSet).not.toHaveBeenCalled();
   });
 
   it('buttons match snapshot', async () => {
     renderWith({
       enabled: true,
-      onContinueWithApple,
-      onContinueWithGoogle,
     });
 
     const googleButton = await screen.findByLabelText('Continue with Google');
@@ -210,23 +156,47 @@ describe('ThirdPartyAuthComponent', () => {
     expect(appleButton).toMatchSnapshot('apple');
   });
 
-  describe('emits metrics', () => {
-    it('emits glean metrics loginNoPwView', () => {
-      renderWith({
-        enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
+  describe('box variant', () => {
+    it('renders Google and Apple as box buttons with localized labels', async () => {
+      renderWith({ enabled: true, variant: 'box' });
+
+      const googleButton = await screen.findByRole('button', {
+        name: 'Continue with Google',
       });
-      expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
+      const appleButton = await screen.findByRole('button', {
+        name: 'Continue with Apple',
+      });
+
+      expect(googleButton).toHaveTextContent('Continue with Google');
+      expect(appleButton).toHaveTextContent('Continue with Apple');
+
+      const chevrons = screen.getAllByText('icon_chevron_right.min.svg');
+      expect(chevrons).toHaveLength(2);
     });
 
+    it('still triggers oauth navigation on click', async () => {
+      const user = userEvent.setup();
+      renderWith({
+        enabled: true,
+        variant: 'box',
+        flowQueryParams: { flowId: '123' },
+      });
+
+      const button = await screen.findByRole('button', {
+        name: 'Continue with Google',
+      });
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('emits metrics', () => {
     it('emits glean metrics startGoogleAuthFromIndex', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -238,9 +208,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromIndex', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -251,9 +218,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startGoogleAuthFromLogin', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -265,9 +229,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromLogin', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -278,9 +239,6 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startGoogleAuthFromReg', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -292,14 +250,35 @@ describe('ThirdPartyAuthComponent', () => {
     it('emits glean metrics startAppleAuthFromReg', async () => {
       renderWith({
         enabled: true,
-        showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromReg).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
+    });
+
+    it('emits glean metrics alternativeAuthGoogleStart for the signin-alternative-auth view', async () => {
+      renderWith({
+        enabled: true,
+        viewName: 'signin-alternative-auth',
+      });
+      const button = await screen.findByLabelText('Continue with Google');
+      button.click();
+      expect(mockAlternativeAuthGoogleStart).toHaveBeenCalled();
+      expect(mockStartGoogleAuthFromLogin).not.toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
+    });
+
+    it('emits glean metrics alternativeAuthAppleStart for the signin-alternative-auth view', async () => {
+      renderWith({
+        enabled: true,
+        viewName: 'signin-alternative-auth',
+      });
+      const button = await screen.findByLabelText('Continue with Apple');
+      button.click();
+      expect(mockAlternativeAuthAppleStart).toHaveBeenCalled();
+      expect(mockStartAppleAuthFromLogin).not.toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
     });
   });

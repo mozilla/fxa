@@ -15,7 +15,7 @@ module.exports = {
       max_restarts: '1',
       env: {
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--dns-result-order=ipv4first',
+        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --dns-result-order=ipv4first`.trim(),
         HOST: '0.0.0.0',
         DB: 'mysql',
         PORT: '1111',
@@ -35,7 +35,7 @@ module.exports = {
       max_restarts: '1',
       env: {
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--dns-result-order=ipv4first',
+        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --dns-result-order=ipv4first`.trim(),
         HOST: '0.0.0.0',
         DB: 'mysql',
         PATH,
@@ -51,7 +51,7 @@ module.exports = {
       max_restarts: '1',
       env: {
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--dns-result-order=ipv4first',
+        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --dns-result-order=ipv4first`.trim(),
         HOST: '0.0.0.0',
         DB: 'mysql',
         PATH,

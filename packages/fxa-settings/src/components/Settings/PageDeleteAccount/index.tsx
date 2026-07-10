@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { RouteComponentProps } from '@reach/router';
+
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
@@ -19,7 +19,11 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
-import { useApolloClient } from '@apollo/client';
+import {
+  clearSignedInAccountUid,
+  discardSessionToken,
+  setSigningOut,
+} from '../../../lib/cache';
 
 type FormData = {
   password: string;
@@ -74,7 +78,7 @@ const deleteProducts = [
   },
 ];
 
-export const PageDeleteAccount = (_: RouteComponentProps) => {
+export const PageDeleteAccount = () => {
   usePageViewEvent('settings.delete-account');
   const { l10n } = useLocalization();
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
@@ -103,7 +107,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
-  const apolloClient = useApolloClient();
 
   useEffect(() => {
     GleanMetrics.deleteAccount.view();
@@ -138,7 +141,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        await apolloClient.clearStore();
+        setSigningOut(true);
+        discardSessionToken();
+        clearSignedInAccountUid();
 
         navigateWithQuery('/', {
           state: {
@@ -163,7 +168,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       alertBar,
       ftlMsgResolver,
       navigateWithQuery,
-      apolloClient,
     ]
   );
 
@@ -253,16 +257,29 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   Cancel
                 </button>
               </Localized>
-              <Localized id="delete-account-continue-button">
-                <button
-                  className="cta-primary mx-2 px-10 py-2"
-                  disabled={!allBoxesChecked}
-                  onClick={() => advanceStep()}
-                  data-testid="continue-button"
-                >
-                  Continue
-                </button>
-              </Localized>
+              {account.hasPassword ? (
+                <Localized id="delete-account-continue-button">
+                  <button
+                    className="cta-primary mx-2 px-10 py-2"
+                    disabled={!allBoxesChecked}
+                    onClick={() => advanceStep()}
+                    data-testid="continue-button"
+                  >
+                    Continue
+                  </button>
+                </Localized>
+              ) : (
+                <Localized id="delete-account-delete-button-passwordless">
+                  <button
+                    className="cta-caution mx-2 px-10 py-2"
+                    disabled={!allBoxesChecked}
+                    onClick={() => advanceStep()}
+                    data-testid="continue-button"
+                  >
+                    Delete account
+                  </button>
+                </Localized>
+              )}
             </div>
           </div>
         )}

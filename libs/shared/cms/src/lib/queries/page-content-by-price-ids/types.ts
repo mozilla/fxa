@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export interface PageContentByPriceIdsCommonContentResult {
+  emailIcon: string;
   supportUrl: string;
 }
 
@@ -15,6 +16,7 @@ export interface PageContentByPriceIdsOfferingResult {
   commonContent: PageContentByPriceIdsCommonContentResult & {
     localizations: PageContentByPriceIdsCommonContentResult[];
   };
+  apiIdentifier: string;
 }
 
 export interface PageContentByPriceIdsPurchaseDetailsResult {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { AttachedClient, Location } from 'fxa-admin-server/src/graphql';
+import { AttachedClient, Location } from 'fxa-admin-server/src/dto';
 import { TableRowYHeader, TableYHeaders } from '../../TableYHeaders';
 import { getFormattedDate } from '../../../lib/utils';
 import { HIDE_ROW } from '../../../../constants';

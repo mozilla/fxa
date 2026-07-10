@@ -8,6 +8,7 @@ import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
   CartService,
+  SubscriptionAttributionParams,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
   TaxService,
@@ -17,6 +18,14 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import {
   SubscriptionManagementService,
   ChurnInterventionService,
+  ManagePaymentMethodIntentCardDeclinedError,
+  ManagePaymentMethodIntentCardExpiredError,
+  ManagePaymentMethodIntentFailedGenericError,
+  ManagePaymentMethodIntentGetInTouchError,
+  ManagePaymentMethodIntentTryAgainError,
+  ManagePaymentMethodIntentInsufficientFundsError,
+  ManagePaymentMethodTaxAddressRequiredError,
+  CurrencyForCustomerNotFoundError,
 } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
@@ -40,26 +49,29 @@ import { GetChurnInterventionDataActionArgs } from './validators/GetChurnInterve
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
 import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
+import { GetInterstitialOfferContentActionArgs } from './validators/GetInterstitialOfferContentActionArgs'; //
+import { GetInterstitialOfferContentActionResult } from './validators/GetInterstitialOfferContentActionResult';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
 import { GetCouponArgs } from './validators/GetCouponArgs';
 import { GetCouponResult } from './validators/GetCouponResult';
-import { PaymentsEmitterService } from '@fxa/payments/events';
+import {
+  GleanGenericEventNames,
+  PaymentsEmitterService,
+} from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { RedeemChurnCouponActionArgs } from './validators/RedeemChurnCouponActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
-import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
+import { DetermineChurnCancelEligibilityActionResult } from './validators/DetermineChurnCancelEligibilityActionResult';
+import { DetermineChurnEligibilityActionArgs } from './validators/DetermineChurnEligibilityActionArgs';
 import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
-import type {
-  CommonMetrics,
-  PaymentProvidersType,
-} from '@fxa/payments/metrics';
+import { type CommonMetrics } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
@@ -67,6 +79,8 @@ import {
   CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
   TaxAddress,
+  type PaymentProvidersType,
+  type SubPlatPaymentMethodType,
   type SubplatInterval,
 } from '@fxa/payments/customer';
 import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
@@ -87,6 +101,7 @@ import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import {
   CartVersionMismatchError,
   InvalidPromoCodeCartError,
+  SetupCartAccountNotFoundError,
 } from 'libs/payments/cart/src/lib/cart.error';
 import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
 import { ValidateLocationActionResult } from './validators/ValidateLocationActionResult';
@@ -98,9 +113,8 @@ import {
   StatsDService,
   type StatsD,
 } from '@fxa/shared/metrics/statsd';
-import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
-import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
-import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
+import { GetDbCartActionArgs } from './validators/GetDbCartActionArgs';
+import { GetDbCartActionResult } from './validators/GetDbCartActionResult';
 import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 import { ProfileClient } from '@fxa/profile/client';
 import { GetUserinfoResult } from './validators/GetUserinfoResult';
@@ -112,6 +126,8 @@ import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePayme
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
+import { CancelSubscriptionImmediatelyActionArgs } from './validators/CancelSubscriptionImmediatelyActionArgs';
+import { CancelSubscriptionImmediatelyActionResult } from './validators/CancelSubscriptionImmediatelyActionResult';
 import { RedeemChurnCouponActionResult } from './validators/RedeemChurnCouponActionResult';
 import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
 import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
@@ -152,7 +168,7 @@ export class NextJSActionsService {
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private nimbusManager: NimbusManager,
     @Inject(StatsDService) public statsd: StatsD,
-    @Inject(Logger) private log: LoggerService
+    @Inject(Logger) public log: LoggerService
   ) {}
 
   @SanitizeExceptions()
@@ -183,11 +199,38 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
+  @NextIOValidator(
+    CancelSubscriptionImmediatelyActionArgs,
+    CancelSubscriptionImmediatelyActionResult
+  )
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getCartState(args: { cartId: string }) {
-    const cart = await this.cartService.getCartState(args.cartId);
+  async cancelSubscriptionImmediately(args: {
+    uid: string;
+    subscriptionId: string;
+  }) {
+    try {
+      await this.subscriptionManagementService.cancelSubscriptionImmediately(
+        args.uid,
+        args.subscriptionId
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+      };
+    }
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetDbCartActionArgs, GetDbCartActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getDbCart(args: { cartId: string }) {
+    const cart = await this.cartService.getDbCart(args.cartId);
 
     return cart;
   }
@@ -259,16 +302,54 @@ export class NextJSActionsService {
     customerId: string;
     churnInterventionId: string;
   }) {
-    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
-      args.customerId,
-      args.churnInterventionId
-    );
+    const data =
+      await this.churnInterventionService.getChurnInterventionForCustomerId(
+        args.customerId,
+        args.churnInterventionId
+      );
     return data;
   }
 
   @SanitizeExceptions()
   @NextIOValidator(
-    DetermineStaySubscribedEligibilityActionArgs,
+    DetermineChurnEligibilityActionArgs,
+    DetermineChurnCancelEligibilityActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineChurnCancelEligibility(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const churnCancelContentEligibility =
+      await this.churnInterventionService.determineCancelChurnContentEligibility(
+        {
+          uid: args.uid,
+          subscriptionId: args.subscriptionId,
+          acceptLanguage: args.acceptLanguage,
+          selectedLanguage: args.selectedLanguage,
+        }
+      );
+
+    const cancelContent =
+      await this.subscriptionManagementService.getCancelFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return {
+      churnCancelContentEligibility,
+      cancelContent,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineChurnEligibilityActionArgs,
     DetermineStaySubscribedEligibilityActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
@@ -279,12 +360,26 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineStaySubscribedEligibility(
-      args.uid,
-      args.subscriptionId,
-      args.acceptLanguage,
-      args.selectedLanguage
-    );
+    const churnStaySubscribedEligibility =
+      await this.churnInterventionService.determineStaySubscribedEligibility(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+
+    const staySubscribedContent =
+      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return {
+      churnStaySubscribedEligibility,
+      staySubscribedContent,
+    };
   }
 
   @SanitizeExceptions()
@@ -295,23 +390,20 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async determineCancellationIntervention(args: {
-    uid: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineCancellationIntervention({
-      uid: args.uid,
-      subscriptionId: args.subscriptionId,
-      offeringApiIdentifier: args.offeringApiIdentifier,
-      currentInterval: args.currentInterval,
-      upgradeInterval: args.upgradeInterval,
-      acceptLanguage: args.acceptLanguage,
-      selectedLanguage: args.selectedLanguage,
-    });
+    const result =
+      await this.churnInterventionService.determineCancellationIntervention({
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+        acceptLanguage: args.acceptLanguage,
+        selectedLanguage: args.selectedLanguage,
+      });
+
+    return result;
   }
 
   @SanitizeExceptions()
@@ -321,15 +413,39 @@ export class NextJSActionsService {
   async redeemChurnCoupon(args: {
     uid: string;
     subscriptionId: string;
+    churnType: 'cancel' | 'stay_subscribed';
     acceptLanguage?: string | null;
     selectedLanguage?: string;
+    requestArgs: CommonMetrics;
   }) {
-    return await this.churnInterventionService.redeemChurnCoupon(
+    const result = await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
       args.subscriptionId,
+      args.churnType,
       args.acceptLanguage,
       args.selectedLanguage
     );
+
+    let eventName;
+    switch (args.churnType) {
+      case 'cancel':
+        eventName = GleanGenericEventNames.ChurnCancelRedeemed;
+        break;
+      case 'stay_subscribed':
+        eventName = GleanGenericEventNames.ChurnStayRedeemed;
+        break;
+    }
+
+    if (eventName) {
+      this.emitterService.getEmitter().emit('genericGleanSubManageEvent', {
+        eventName,
+        commonMetrics: args.requestArgs,
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+      });
+    }
+
+    return result;
   }
 
   @SanitizeExceptions({
@@ -384,6 +500,7 @@ export class NextJSActionsService {
       CouponErrorCannotRedeem,
       InvalidPromoCodeCartError,
       ProductConfigError,
+      SetupCartAccountNotFoundError,
     ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
@@ -486,16 +603,16 @@ export class NextJSActionsService {
   async checkoutCartWithPaypal(args: {
     cartId: string;
     version: number;
-    customerData: { locale: string; displayName: string };
     attribution: SubscriptionAttributionParams;
+    requestArgs: CommonMetrics;
     sessionUid?: string;
     token?: string;
   }) {
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
-      args.customerData,
       args.attribution,
+      args.requestArgs,
       args.sessionUid,
       args.token
     );
@@ -509,16 +626,16 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string;};
     attribution: SubscriptionAttributionParams;
+    requestArgs: CommonMetrics;
     sessionUid?: string;
   }) {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
       args.confirmationTokenId,
-      args.customerData,
       args.attribution,
+      args.requestArgs,
       args.sessionUid
     );
   }
@@ -550,6 +667,7 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async getSubManPageContent(args: {
     uid: string;
+    requestArgs: CommonMetrics;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
@@ -558,6 +676,41 @@ export class NextJSActionsService {
       args.acceptLanguage || undefined,
       args.selectedLanguage
     );
+
+    result.subscriptions.forEach((subscription) => {
+      let eventName: GleanGenericEventNames | undefined;
+      const {
+        canResubscribe,
+        isEligibleForChurnStaySubscribed,
+        isEligibleForChurnCancel,
+        isEligibleForOffer,
+      } = subscription;
+
+      if (canResubscribe) {
+        if (isEligibleForChurnStaySubscribed) {
+          eventName = GleanGenericEventNames.StayRouteChurnContent;
+        } else {
+          eventName = GleanGenericEventNames.StayRouteStandard;
+        }
+      } else {
+        if (isEligibleForChurnCancel) {
+          eventName = GleanGenericEventNames.CancelRouteChurnContent;
+        } else {
+          if (isEligibleForOffer) {
+            eventName = GleanGenericEventNames.CancelRouteInterstitialOffer;
+          } else {
+            eventName = GleanGenericEventNames.CancelRouteStandard;
+          }
+        }
+      }
+
+      this.emitterService.getEmitter().emit('genericGleanSubManageEvent', {
+        eventName,
+        uid: args.uid,
+        commonMetrics: args.requestArgs,
+        subscriptionId: subscription.id,
+      });
+    });
 
     return result;
   }
@@ -569,9 +722,10 @@ export class NextJSActionsService {
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
-    paymentProvider: PaymentProvidersType | undefined;
+    paymentProvider?: PaymentProvidersType;
+    paymentMethod?: SubPlatPaymentMethodType;
   }) {
-    const { eventName, requestArgs, paymentProvider } = args;
+    const { eventName, requestArgs, paymentProvider, paymentMethod } = args;
 
     switch (eventName) {
       case 'checkoutView':
@@ -581,12 +735,11 @@ export class NextJSActionsService {
         });
         break;
       }
-      case 'checkoutSubmit':
-      case 'checkoutSuccess':
-      case 'checkoutFail': {
+      case 'checkoutSubmit': {
         this.emitterService.getEmitter().emit(eventName, {
           ...requestArgs,
-          paymentProvider: paymentProvider,
+          paymentProvider,
+          paymentMethod,
         });
         break;
       }
@@ -608,8 +761,8 @@ export class NextJSActionsService {
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async submitNeedsInput(args: { cartId: string }) {
-    await this.cartService.submitNeedsInput(args.cartId);
+  async submitNeedsInput(args: { cartId: string; requestArgs: CommonMetrics }) {
+    await this.cartService.submitNeedsInput(args.cartId, args.requestArgs);
   }
 
   @SanitizeExceptions()
@@ -646,15 +799,12 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getCancelFlowContent(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage || undefined,
-        args.selectedLanguage
-      );
-
-    return result;
+    return await this.subscriptionManagementService.getCancelFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions()
@@ -670,15 +820,86 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+    return this.subscriptionManagementService.getStaySubscribedFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetInterstitialOfferContentActionArgs,
+    GetInterstitialOfferContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getInterstitialOfferContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const offerEligibility =
+      await this.churnInterventionService.determineCancelInterstitialOfferEligibility(
+        {
+          uid: args.uid,
+          subscriptionId: args.subscriptionId,
+          acceptLanguage: args.acceptLanguage,
+          selectedLanguage: args.selectedLanguage,
+        }
+      );
+
+    const cancelContent =
+      await this.subscriptionManagementService.getCancelFlowContent(
         args.uid,
         args.subscriptionId,
         args.acceptLanguage || undefined,
         args.selectedLanguage
       );
 
-    return result;
+    if (
+      offerEligibility.isEligible &&
+      offerEligibility.cmsCancelInterstitialOfferResult &&
+      offerEligibility.cmsCancelInterstitialOfferResult.offering.defaultPurchase
+        .purchaseDetails
+    ) {
+      return {
+        isEligible: true,
+        reason: 'eligible',
+        pageContent: {
+          currentInterval:
+            offerEligibility.cmsCancelInterstitialOfferResult.currentInterval,
+          modalHeading1:
+            offerEligibility.cmsCancelInterstitialOfferResult.modalHeading1,
+          modalMessage:
+            offerEligibility.cmsCancelInterstitialOfferResult.modalMessage,
+          upgradeButtonLabel:
+            offerEligibility.cmsCancelInterstitialOfferResult
+              .upgradeButtonLabel,
+          upgradeButtonUrl:
+            offerEligibility.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
+          webIcon:
+            offerEligibility.cmsCancelInterstitialOfferResult.offering
+              .defaultPurchase.purchaseDetails.webIcon,
+          productName:
+            offerEligibility.cmsCancelInterstitialOfferResult.offering
+              .defaultPurchase.purchaseDetails.productName,
+          offeringId: offerEligibility.offeringId,
+          supportUrl:
+            offerEligibility.supportUrl ?? 'https://support.mozilla.org',
+        },
+        cancelContent,
+      };
+    } else {
+      return {
+        isEligible: false,
+        reason: offerEligibility.reason,
+        pageContent: null,
+        cancelContent,
+      };
+    }
   }
 
   @SanitizeExceptions()
@@ -701,7 +922,9 @@ export class NextJSActionsService {
     };
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError],
+  })
   @NextIOValidator(
     DetermineCurrencyForCustomerActionArgs,
     DetermineCurrencyForCustomerActionResult
@@ -755,6 +978,7 @@ export class NextJSActionsService {
     offeringId: string;
     taxAddress: TaxAddress;
     uid?: string;
+    interval?: string;
   }): Promise<
     | {
         ok: true;
@@ -765,13 +989,14 @@ export class NextJSActionsService {
         error: string;
       }
   > {
-    const { cartId, version, offeringId, taxAddress, uid } = args;
+    const { cartId, version, offeringId, taxAddress, uid, interval } = args;
 
     // Validate Tax Address before updating
     const { isValid, status } = await this.validateLocation({
       offeringId,
       taxAddress,
       uid,
+      interval,
     });
     if (!isValid) {
       return {
@@ -823,6 +1048,7 @@ export class NextJSActionsService {
     offeringId: string;
     taxAddress?: TaxAddress;
     uid?: string;
+    interval?: string;
   }) {
     const { status: locationStatus } =
       await this.eligibilityService.getProductAvailabilityForLocation(
@@ -834,17 +1060,36 @@ export class NextJSActionsService {
       if (args.uid && args.taxAddress) {
         const { status: taxChangeStatus, currentCurrency } =
           await this.taxService.getTaxChangeStatus(args.uid, args.taxAddress);
-        return {
-          isValid: taxChangeStatus === TaxChangeAllowedStatus.Allowed,
-          status: taxChangeStatus,
-          currentCurrency,
-        };
-      } else {
+        if (taxChangeStatus !== TaxChangeAllowedStatus.Allowed) {
+          return {
+            isValid: false,
+            status: taxChangeStatus,
+            currentCurrency,
+          };
+        }
+      }
+      if (args.interval && args.taxAddress?.countryCode) {
+        const currency = this.currencyManager.getCurrencyForCountry(
+          args.taxAddress.countryCode
+        );
+        if (currency) {
+          const price =
+            await this.productConfigurationManager.retrieveStripePrice(
+              args.offeringId,
+              args.interval as SubplatInterval
+            );
+          if (price && !price.currency_options?.[currency]) {
+            return {
+              isValid: false,
+              status: TaxChangeAllowedStatus.PriceCurrencyNotAvailable,
+            };
+          }
+        }
+      }
         return {
           isValid: true,
           status: locationStatus,
         };
-      }
     } else {
       return {
         isValid: false,
@@ -872,7 +1117,9 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError, CurrencyForCustomerNotFoundError],
+  })
   @NextIOValidator(
     GetStripePaymentManagementDetailsArgs,
     GetStripePaymentManagementDetailsResult
@@ -885,7 +1132,17 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      ManagePaymentMethodIntentCardDeclinedError,
+      ManagePaymentMethodIntentCardExpiredError,
+      ManagePaymentMethodIntentFailedGenericError,
+      ManagePaymentMethodIntentGetInTouchError,
+      ManagePaymentMethodIntentTryAgainError,
+      ManagePaymentMethodIntentInsufficientFundsError,
+      ManagePaymentMethodTaxAddressRequiredError,
+    ],
+  })
   @NextIOValidator(
     UpdateStripePaymentDetailsArgs,
     UpdateStripePaymentDetailsResult
@@ -894,23 +1151,43 @@ export class NextJSActionsService {
   async updateStripePaymentDetails(args: {
     uid: string;
     confirmationTokenId: string;
+    ipAddress: string;
   }) {
-    return await this.subscriptionManagementService.updateStripePaymentDetails(
-      args.uid,
-      args.confirmationTokenId
-    );
+    try {
+      const result =
+        await this.subscriptionManagementService.updateStripePaymentDetails(
+          args.uid,
+          args.confirmationTokenId,
+          args.ipAddress
+        );
+      return {
+        ok: true,
+        result,
+        errorMessage: null,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        result: null,
+        errorMessage: error.message,
+      };
+    }
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [ManagePaymentMethodTaxAddressRequiredError],
+  })
   @NextIOValidator(SetDefaultStripePaymentDetailsActionArgs, undefined)
   @CaptureTimingWithStatsD()
   async setDefaultStripePaymentDetails(args: {
     uid: string;
     paymentMethodId: string;
+    ipAddress: string;
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
       args.paymentMethodId,
+      args.ipAddress
     );
   }
 

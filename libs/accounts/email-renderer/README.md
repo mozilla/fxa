@@ -59,3 +59,16 @@ This code was ported from auth-server. The code's history should more or less be
 a files full history use the git `--follow` option. e.g.
 
 `git log --follow -M -- libs/accounts/email-renderer/src/templates/cadReminderFirst/index.mjml`
+
+## Migration Process for L10N strings.
+
+Once we start using this library to render a given email template, we want to start tracking translations in this library as opposed to translation strings that were originally held in the auth-server's template.
+
+To do this, do the following steps:
+
+1. Uncomment (or add) a reference to the .ftl files that are currently being used in this library. These references are held in gruntfile.js
+2. Next go to the auth-server, and comment out the lines that were tracking the template which is longer referenced.
+
+When you do these two steps what will happen is the languages strings in this library will be start being exported to the emails.ftl l10n translation file, and they will stop being exported to the auth.ftl translation file.
+
+Having duplicate strings in these files is disruptive to our translators, so it's important we make the switch cleanly. Basically we want to ensure the l10n strings aren't being duplicated in the emails.ftl and auth.ftl files.

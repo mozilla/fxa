@@ -120,6 +120,22 @@ export const MOCK_CMS_INFO_DEFAULT_LOGO = {
   },
 } as RelierCmsInfo;
 
+export const MOCK_CMS_INFO_SPLIT_LAYOUT_BG = {
+  name: 'Test App',
+  clientId: 'test123',
+  entrypoint: 'test',
+  shared: {
+    buttonColor: '#0078d4',
+    logoUrl: 'https://example.com/logo.png',
+    logoAltText: 'Test App Logo',
+    backgrounds: {
+      splitLayout: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      splitLayoutAltText: 'A purple gradient background',
+    },
+    pageTitle: 'Test App - Custom Title',
+  },
+} as RelierCmsInfo;
+
 export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS = {
   name: 'Test App',
   clientId: 'test123',
@@ -138,13 +154,18 @@ export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS = {
 } as RelierCmsInfo;
 
 export const INTEGRATION_WITH_UNDEFINED_GETCMSINFO = {
+  getLegalTerms: () => undefined,
   getCmsInfo: () => undefined,
 };
 
 export const INTEGRATION_WITH_NO_GETCMSINFO = {} as Record<string, never>;
 
-export function createIntegration(cmsInfo?: RelierCmsInfo) {
+export function createIntegration(
+  cmsInfo?: RelierCmsInfo,
+  legalTerms?: string
+) {
   return {
+    getLegalTerms: () => legalTerms,
     getCmsInfo: () => cmsInfo,
   };
 }

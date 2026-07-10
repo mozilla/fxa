@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
+import { MouseEvent, ReactNode, useCallback } from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 // ModalToggle only included for Storybook functionality
 type ModalToggleChildrenProps = {
@@ -16,12 +16,12 @@ type ModalToggleChildrenProps = {
   showModal: () => void;
 };
 type ModalToggleProps = {
-  children: (props: ModalToggleChildrenProps) => React.ReactNode | null;
+  children: (props: ModalToggleChildrenProps) => ReactNode | null;
 };
 const ModalToggle = ({ children }: ModalToggleProps) => {
   const [modalRevealed, showModal, hideModal] = useBooleanState(true);
   const onClick = useCallback(
-    (ev: React.MouseEvent) => {
+    (ev: MouseEvent) => {
       ev.stopPropagation();
       showModal();
     },
@@ -43,9 +43,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;

@@ -5,12 +5,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
 export const cancelSubscriptionAtPeriodEndAction = async (
-  uid: string,
   subscriptionId: string
 ) => {
+  const uid = await requireSessionUid();
   const result = await getApp()
     .getActionsService()
     .cancelSubscriptionAtPeriodEnd({

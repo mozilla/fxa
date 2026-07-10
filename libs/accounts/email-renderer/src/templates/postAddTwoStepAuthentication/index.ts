@@ -22,6 +22,8 @@ export type TemplateData = AutomatedEmailChangePasswordTemplateData &
       city: string;
     };
     date: string;
+    recoveryMethod: string;
+    maskedPhoneNumber?: string;
   };
 
 export const template = 'postAddTwoStepAuthentication';

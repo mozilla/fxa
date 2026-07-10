@@ -4,11 +4,10 @@
 
 'use strict';
 
-const axios = require('axios');
 const Sentry = require('@sentry/node');
 const { config } = require('../config');
-const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
+const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
@@ -17,13 +16,23 @@ const localizeTimestamp =
   });
 const serviceName = 'customs';
 
+let emailNormalization = new EmailNormalization(
+  config.get('rateLimit.emailAliasNormalization')
+);
+
+function _reloadEmailNormalization() {
+  emailNormalization = new EmailNormalization(
+    config.get('rateLimit.emailAliasNormalization')
+  );
+}
+
 function toOpts(ip, email, uid) {
   const opts = {};
   if (ip) {
     opts.ip = ip;
   }
   if (email) {
-    opts.email = email;
+    opts.email = emailNormalization.normalizeEmailAliases(email);
   }
   if (uid) {
     opts.uid = uid;
@@ -45,31 +54,14 @@ class CustomsClient {
     this.statsd = statsd;
     this.rateLimit = rateLimit;
 
-    const customsHttpAgentConfig = config.get('customsHttpAgent');
-
     if (url !== 'none') {
-      this.httpAgent = createHttpAgent(
-        customsHttpAgentConfig.maxSockets,
-        customsHttpAgentConfig.maxFreeSockets,
-        customsHttpAgentConfig.timeoutMs,
-        customsHttpAgentConfig.freeSocketTimeoutMs
-      );
-      this.httpsAgent = createHttpsAgent(
-        customsHttpAgentConfig.maxSockets,
-        customsHttpAgentConfig.maxFreeSockets,
-        customsHttpAgentConfig.timeoutMs,
-        customsHttpAgentConfig.freeSocketTimeoutMs
-      );
-      this.axiosInstance = axios.create({
-        baseURL: url,
-        httpAgent: this.httpAgent,
-        httpsAgent: this.httpsAgent,
-      });
+      this.url = url;
+      this.timeoutMs = config.get('customsClient').timeoutMs;
     }
   }
 
   async makeRequest(endpoint, requestData) {
-    if (!this.axiosInstance) {
+    if (!this.url) {
       return;
     }
 
@@ -77,9 +69,20 @@ class CustomsClient {
     const startTime = performance.now();
 
     try {
-      this.logHttpAgentStatus();
+      const response = await fetch(`${this.url}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+        signal: AbortSignal.timeout(this.timeoutMs),
+      });
 
-      const response = await this.axiosInstance.post(endpoint, requestData);
+      // fetch does not reject on non-2xx; surface it so the catch below fails
+      // closed via backendServiceFailure rather than treating it as success.
+      if (!response.ok) {
+        throw new Error(`Customs server returned status ${response.status}`);
+      }
+
+      const result = await response.json();
 
       if (this.statsd) {
         this.statsd.timing(
@@ -88,7 +91,7 @@ class CustomsClient {
         );
       }
 
-      return response.data;
+      return result;
     } catch (err) {
       if (this.statsd) {
         this.statsd.timing(
@@ -120,7 +123,7 @@ class CustomsClient {
     const result = await this.makeRequest('/check', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email,
+        email: emailNormalization.normalizeEmailAliases(email),
         action,
 
         // Payload in this case is additional user related data (ie phone number)
@@ -190,7 +193,7 @@ class CustomsClient {
     await this.makeRequest('/passwordReset', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email,
+        email: emailNormalization.normalizeEmailAliases(email),
       }),
     });
   }
@@ -269,39 +272,6 @@ class CustomsClient {
     }
   }
 
-  logHttpAgentStatus() {
-    if (this.axiosInstance && this.statsd) {
-      this.logStatus(this.httpAgent, 'httpAgent');
-      this.logStatus(this.httpsAgent, 'httpsAgent');
-    }
-  }
-
-  logStatus(agent, name) {
-    if (agent) {
-      const status = agent.getCurrentStatus();
-      this.statsd.gauge(`${name}.createSocketCount`, status.createSocketCount);
-      this.statsd.gauge(
-        `${name}.createSocketErrorCount`,
-        status.createSocketErrorCount
-      );
-      this.statsd.gauge(`${name}.closeSocketCount`, status.closeSocketCount);
-      this.statsd.gauge(`${name}.errorSocketCount`, status.errorSocketCount);
-      this.statsd.gauge(
-        `${name}.timeoutSocketCount`,
-        status.timeoutSocketCount
-      );
-      this.statsd.gauge(`${name}.requestCount`, status.requestCount);
-
-      Object.keys(status.freeSockets).forEach((addr, value) => {
-        this.statsd.gauge(`${name}.freeSockets.${addr}`, value);
-      });
-
-      Object.keys(status.sockets).forEach((addr, value) => {
-        this.statsd.gauge(`${name}.sockets.${addr}`, value);
-      });
-    }
-  }
-
   // #region Customs V2
   v2Enabled() {
     return this.rateLimit != null;
@@ -334,7 +304,7 @@ class CustomsClient {
 
     // The config can specify that certain ips, emails, or uids should be excluded
     // from rate limit checks.
-    const skip = this.rateLimit.skip(opts);
+    const skip = this.rateLimit.skip(action, opts);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
         opts.ip_email ? 'ip_email' : '',
@@ -435,5 +405,7 @@ class CustomsClient {
   }
   // #endregion
 }
+
+CustomsClient._reloadEmailNormalization = _reloadEmailNormalization;
 
 module.exports = CustomsClient;

@@ -2,17 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryCodeModule from './index';
 
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { Integration, useSensitiveDataClient } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_STORED_ACCOUNT,
@@ -22,11 +23,20 @@ import {
   MOCK_KEY_FETCH_TOKEN,
 } from '../../mocks';
 import { SigninRecoveryCodeProps } from './interfaces';
-import { mockGqlError, mockSigninLocationState } from '../mocks';
-import { mockConsumeRecoveryCodeUseMutation } from './mocks';
+import { mockSigninLocationState } from '../mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+
+jest.mock('../../../lib/oauth/hooks', () => ({
+  __esModule: true,
+  useFinishOAuthFlowHandler: jest.fn(),
+  useOAuthKeysCheck: jest.fn(),
+}));
 
 let integration: Integration;
 function mockWebIntegration() {
@@ -55,6 +65,10 @@ jest.mock('../../../models', () => {
 
 let currentSigninRecoveryCodeProps: SigninRecoveryCodeProps | undefined;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+const mockAuthClient = {
+  consumeRecoveryCode: jest.fn(),
+  recoveryPhoneSigninSendCode: jest.fn(),
+};
 function mockSigninRecoveryCodeModule() {
   currentSigninRecoveryCodeProps = undefined;
   jest
@@ -76,21 +90,26 @@ function mockCache(opts: any = {}, isEmpty = false) {
   );
 }
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationStateValue: any = {};
 
 const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  mockLocationPathname = pathname;
+  mockLocationStateValue = locationState;
 }
 
 function resetMockSensitiveDataClient() {
@@ -101,6 +120,12 @@ function resetMockSensitiveDataClient() {
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
+}
+
+function resetMockAuthClient() {
+  (useAuthClient as jest.Mock).mockReturnValue(mockAuthClient);
+  mockAuthClient.consumeRecoveryCode.mockReset();
+  mockAuthClient.recoveryPhoneSigninSendCode.mockReset();
 }
 
 function applyDefaultMocks() {
@@ -114,22 +139,25 @@ function applyDefaultMocks() {
   });
   mockWebIntegration();
   resetMockSensitiveDataClient();
+  resetMockAuthClient();
+  (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
+    finishOAuthFlowHandler: jest.fn(),
+    oAuthDataError: null,
+  }));
+  (useOAuthKeysCheck as jest.Mock).mockImplementation(() => ({
+    oAuthKeysCheckError: null,
+  }));
 }
 
-function render(mocks: Array<MockedResponse>) {
-  loadDevMessages();
-  loadErrorMessages();
-
+function render() {
   renderWithLocalizationProvider(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <LocationProvider>
-        <SigninRecoveryCodeContainer
-          {...{
-            integration,
-          }}
-        />
-      </LocationProvider>
-    </MockedProvider>
+    <MemoryRouter>
+      <SigninRecoveryCodeContainer
+        {...{
+          integration,
+        }}
+      />
+    </MemoryRouter>
   );
 }
 
@@ -141,35 +169,72 @@ describe('SigninRecoveryCode container', () => {
     it('redirects if page is reached without location state', async () => {
       mockReachRouter('signin_recovery_code');
       mockCache({}, true);
-      await render([]);
+      render();
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('redirects if there is no sessionToken', async () => {
       mockReachRouter('signin_recovery_code');
       mockCache({ sessionToken: '' });
-      await render([]);
+      render();
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
       mockReachRouter('signin_recovery_code', {});
       mockCache(MOCK_STORED_ACCOUNT);
-      await render([]);
+      render();
       expect(mockNavigate).not.toHaveBeenCalledWith('/');
     });
 
     it('reads data from sensitive data client', () => {
-      render([]);
+      render();
       expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
         SensitiveData.Key.Auth
       );
     });
   });
 
+  describe('useOAuthKeysCheck', () => {
+    it('skips the keys check when the sign-in is passwordless OTP', () => {
+      mockReachRouter('signin_recovery_code', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+      });
+      render();
+      expect(useOAuthKeysCheck).toHaveBeenCalledWith(
+        integration,
+        MOCK_KEY_FETCH_TOKEN,
+        MOCK_UNWRAP_BKEY,
+        true
+      );
+    });
+
+    it('renders the recovery code component when keys check is skipped for passwordless flow', () => {
+      (useOAuthKeysCheck as jest.Mock).mockImplementationOnce(
+        (_integration: any, _kft: any, _ubk: any, skipKeysCheck: boolean) => ({
+          oAuthKeysCheckError: skipKeysCheck
+            ? null
+            : { errno: 1, message: 'TRY_AGAIN' },
+        })
+      );
+      mockReachRouter('signin_recovery_code', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+      });
+      render();
+      expect(currentSigninRecoveryCodeProps).toBeDefined();
+    });
+  });
+
   describe('submitRecoveryCode', () => {
     it('successful', async () => {
-      await render([mockConsumeRecoveryCodeUseMutation()]);
+      mockAuthClient.consumeRecoveryCode.mockResolvedValue({ remaining: 3 });
+      render();
       expect(currentSigninRecoveryCodeProps).toBeDefined();
       await waitFor(async () => {
         const response =
@@ -180,15 +245,17 @@ describe('SigninRecoveryCode container', () => {
           remaining: 3,
         });
       });
+      expect(mockAuthClient.consumeRecoveryCode).toHaveBeenCalledWith(
+        mockSigninLocationState.sessionToken,
+        MOCK_BACKUP_CODE
+      );
     });
 
     it('handles errors', async () => {
-      await render([
-        {
-          ...mockConsumeRecoveryCodeUseMutation(),
-          error: mockGqlError(AuthUiErrors.INVALID_RECOVERY_CODE),
-        },
-      ]);
+      const error = new Error('Invalid recovery code');
+      (error as any).errno = AuthUiErrors.INVALID_RECOVERY_CODE.errno;
+      mockAuthClient.consumeRecoveryCode.mockRejectedValue(error);
+      render();
       expect(currentSigninRecoveryCodeProps).toBeDefined();
       await waitFor(async () => {
         const response =

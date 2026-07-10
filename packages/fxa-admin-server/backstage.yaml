@@ -8,7 +8,6 @@ metadata:
     - typescript
     - node
     - nestjs
-    - graphql
   annotations:
     sentry.io/project-slug: mozilla/fxa-admin-panel
     circleci.com/project-slug: github/mozilla/fxa

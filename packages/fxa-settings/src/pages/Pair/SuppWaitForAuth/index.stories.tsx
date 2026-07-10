@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import SuppWaitForAuth from '.';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
@@ -15,7 +15,14 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 export default {
   title: 'Pages/Pair/SuppWaitForAuth',
   component: SuppWaitForAuth,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 } as Meta;
 
 export const WithLocation = () => (
@@ -33,7 +40,6 @@ export const WithDeviceName = () => (
 export const WithErrorMessage = () => (
   <SuppWaitForAuth
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerType="error"
-    bannerMessage="There was an error"
+    error="There was an error"
   />
 );

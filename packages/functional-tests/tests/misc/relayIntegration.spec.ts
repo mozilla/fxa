@@ -32,6 +32,10 @@ test.describe('relay integration', () => {
     ).toBeVisible();
 
     await signup.passwordTextbox.fill(password);
+    // keys_optional can't be sent in Firefox tests yet (FXA-13647), so this
+    // key-deriving desktop signup requires a password and renders the
+    // confirmation field.
+    await signup.verifyPasswordTextbox.fill(password);
     await signup.createAccountButton.click();
 
     await page.waitForURL(/confirm_signup_code/);
@@ -42,7 +46,9 @@ test.describe('relay integration', () => {
     await page.waitForURL(/settings/);
 
     await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-    await signup.checkWebChannelMessage(FirefoxCommand.Login);
+    await signup.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
   });
 
   test('signin with Relay desktop', async ({
@@ -62,7 +68,9 @@ test.describe('relay integration', () => {
     await page.waitForURL(/settings/);
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+    await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
   });
 
   test('signin with Relay desktop - with confirm email', async ({
@@ -87,7 +95,9 @@ test.describe('relay integration', () => {
     await page.waitForURL(/settings/);
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+    await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
   });
 
   test('signin with Relay desktop - with 2FA', async ({
@@ -128,6 +138,50 @@ test.describe('relay integration', () => {
     await page.waitForURL(/settings/);
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+    await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
+  });
+
+  test('reset password with Relay desktop', async ({
+    target,
+    syncOAuthBrowserPages: { page, signin, resetPassword, settings },
+    testAccountTracker,
+  }) => {
+    const { email } = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await resetPassword.goto(
+      '/authorization',
+      relayDesktopOAuthQueryParams.toString()
+    );
+
+    await expect(signin.page.getByText('Create an email mask')).toBeVisible();
+
+    await signin.fillOutEmailFirstForm(email);
+
+    await signin.forgotPasswordLink.click();
+
+    await page.waitForURL(/reset_password/);
+
+    await resetPassword.fillOutEmailForm(email);
+
+    const code = await target.emailClient.getResetPasswordCode(email);
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await page.waitForURL(/settings/);
+
+    await expect(settings.alertBar).toContainText(
+      'Your password has been reset'
+    );
+
+    await resetPassword.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await resetPassword.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
+
+    testAccountTracker.updateAccountPassword(email, newPassword);
   });
 });

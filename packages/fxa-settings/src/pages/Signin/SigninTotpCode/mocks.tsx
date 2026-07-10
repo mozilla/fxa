@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
+  AppContext,
   IntegrationData,
   IntegrationType,
   RelierCmsInfo,
-  OAuthNativeServices,
 } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
   MOCK_EMAIL,
@@ -20,6 +20,7 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { SigninIntegration } from '../interfaces';
 import { GenericData } from '../../../lib/model-data';
 
@@ -27,13 +28,24 @@ export const mockWebSigninIntegration = {
   type: IntegrationType.Web,
   getService: () => MozServices.Default,
   isSync: () => false,
+  requiresKeys: () => false,
+  wantsKeysIfPasswordEntered: () => false,
   wantsKeys: () => false,
+  requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+    return (
+      this.requiresKeys() ||
+      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+    );
+  },
   isFirefoxClientServiceRelay: () => false,
-  isFirefoxClientServiceAiWindow: () => false,
+  isFirefoxClientServiceSmartWindow: () => false,
+  isFirefoxClientServiceVpn: () => false,
   isFirefoxNonSync: () => false,
   getWebChannelServices: mockGetWebChannelServices(),
   getCmsInfo: () => undefined,
+  isFirefoxClient: () => false,
   isFirefoxMobileClient: () => false,
+  isFirefoxDesktopClient: () => false,
 } as SigninIntegration;
 
 export const mockOAuthNativeSigninIntegration = (
@@ -46,9 +58,18 @@ export const mockOAuthNativeSigninIntegration = (
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
+    requiresKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin(supportsKeysOptionalLogin = false) {
+      return (
+        this.requiresKeys() ||
+        (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+      );
+    },
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => isRelay,
     getWebChannelServices: mockGetWebChannelServices({ isSync, isRelay }),
     data: new IntegrationData(
@@ -57,7 +78,9 @@ export const mockOAuthNativeSigninIntegration = (
       })
     ),
     getCmsInfo: () => cmsInfo,
+    isFirefoxClient: () => true,
     isFirefoxMobileClient: () => false,
+    isFirefoxDesktopClient: () => true,
   } as SigninIntegration;
 };
 
@@ -89,9 +112,12 @@ export const Subject = ({
   serviceName = MozServices.Default,
   signinState = MOCK_TOTP_LOCATION_STATE,
   submitTotpCode = mockSubmitTotpCode,
-}: Partial<SigninTotpCodeProps>) => {
+  supportsKeysOptionalLogin = false,
+}: Partial<SigninTotpCodeProps> & {
+  supportsKeysOptionalLogin?: boolean;
+}) => {
   return (
-    <LocationProvider>
+    <AppContext.Provider value={mockAppContext()}>
       <SigninTotpCode
         {...{
           finishOAuthFlowHandler,
@@ -99,8 +125,9 @@ export const Subject = ({
           serviceName,
           signinState,
           submitTotpCode,
+          useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
         }}
       />
-    </LocationProvider>
+    </AppContext.Provider>
   );
 };

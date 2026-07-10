@@ -6,3 +6,5 @@ export * from './renderer';
 export * from './renderer/bindings-node';
 export * from './bindings';
 export * from './templates';
+export * from './layouts/fxa';
+export * from './renderer/email-helpers';

@@ -12,6 +12,7 @@ import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 
 jest.mock('@sentry/browser', () => ({
   captureException: jest.fn(),
+  captureMessage: jest.fn(),
 }));
 
 describe('models/integrations/oauth-relier', function () {
@@ -181,35 +182,6 @@ describe('models/integrations/oauth-relier', function () {
         return integration;
       }
 
-      /**
-       * If a test should expect an OAuth scope error, use this function to assert the error was captured.
-       * @param scope
-       */
-      function expectSentryOAuthScopeError(
-        scope: string,
-        trusted: boolean,
-        wantsConsent: boolean
-      ) {
-        expect(Sentry.captureException).toHaveBeenCalledTimes(1);
-
-        const sentryCall = (Sentry.captureException as jest.Mock).mock.calls[0];
-        const capturedError = sentryCall[0];
-        const sentryContext = sentryCall[1];
-
-        expect(capturedError).toBeInstanceOf(OAuthError);
-        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
-        expect(sentryContext).toEqual({
-          tags: { area: 'OAuthWebIntegration.getPermissions' },
-          extra: {
-            scope,
-            clientId: 'a1b2c3d4e5f6789012345678901234567890abcd',
-            service: 'test-service',
-            trusted,
-            wantsConsent,
-          },
-        });
-      }
-
       beforeEach(() => {
         jest.clearAllMocks();
       });
@@ -227,7 +199,10 @@ describe('models/integrations/oauth-relier', function () {
           integration.getPermissions();
         }).toThrow(OAuthError);
 
-        expectSentryOAuthScopeError(EMPTY_SCOPE, isTrusted, wantsConsent);
+        const capturedError = (Sentry.captureException as jest.Mock).mock
+          .calls[0][0];
+        expect(capturedError).toBeInstanceOf(OAuthError);
+        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
       });
 
       it('captures Sentry error and throws OAuthError when untrusted scope results in empty permissions', () => {
@@ -243,11 +218,132 @@ describe('models/integrations/oauth-relier', function () {
           integration.getPermissions();
         }).toThrow(OAuthError);
 
-        expectSentryOAuthScopeError(
-          INVALID_UNTRUSTED_SCOPE,
-          isTrusted,
-          wantsConsent
+        const capturedError = (Sentry.captureException as jest.Mock).mock
+          .calls[0][0];
+        expect(capturedError).toBeInstanceOf(OAuthError);
+        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
+      });
+    });
+
+    describe('clientInfo fetch failed', () => {
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('throws SERVICE_UNAVAILABLE and does not capture a scope-error to Sentry', () => {
+        const integration = new OAuthWebIntegration(
+          new GenericData({ scope: 'profile' }),
+          new GenericData({}),
+          {
+            scopedKeysEnabled: true,
+            scopedKeysValidation: {},
+            isPromptNoneEnabled: true,
+            isPromptNoneEnabledClientIds: [],
+          }
         );
+        integration.clientInfoLoadFailed = true;
+
+        let caught: OAuthError | undefined;
+        try {
+          integration.getPermissions();
+        } catch (err) {
+          caught = err as OAuthError;
+        }
+
+        expect(caught).toBeInstanceOf(OAuthError);
+        expect(caught?.errno).toBe(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('clientInfo never loaded (race or skipped fetch)', () => {
+      // What IntegrationFactory.initClientInfo produces when useClientInfoState
+      // had no data: only redirectUri is set, defaulting to ''.
+      const huskClientInfo = {
+        clientId: undefined,
+        imageUri: undefined,
+        serviceName: undefined,
+        redirectUri: '',
+        trusted: undefined,
+      };
+
+      const loadedClientInfo = {
+        clientId: 'a2270f727f45f648',
+        imageUri: undefined,
+        serviceName: 'Firefox',
+        redirectUri: 'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
+        trusted: true,
+      };
+
+      // The scopes Fenix IP Protection (VPN) requests on first sign-in.
+      const VPN_AUTH_SCOPE =
+        'profile https://identity.mozilla.com/apps/vpn https://identity.mozilla.com/apps/oldsync';
+
+      function getIntegration(
+        clientInfo: typeof huskClientInfo | typeof loadedClientInfo,
+        dataOverrides: Record<string, string> = {}
+      ) {
+        const integration = new OAuthWebIntegration(
+          new GenericData({ scope: VPN_AUTH_SCOPE, ...dataOverrides }),
+          new GenericData({}),
+          {
+            scopedKeysEnabled: true,
+            scopedKeysValidation: {
+              'https://identity.mozilla.com/apps/oldsync': {
+                redirectUris: [
+                  'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
+                ],
+              },
+            },
+            isPromptNoneEnabled: true,
+            isPromptNoneEnabledClientIds: [],
+          }
+        );
+        integration.clientInfo = clientInfo;
+        return integration;
+      }
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('throws invalid-scope for a valid VPN/sync request when clientInfo is the empty husk', () => {
+        const integration = getIntegration(huskClientInfo);
+
+        // trusted=undefined reads as untrusted and strips every requested scope.
+        expect(() => integration.getServiceName()).toThrow(OAuthError);
+
+        const capturedError = (Sentry.captureException as jest.Mock).mock
+          .calls[0][0];
+        expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
+      });
+
+      it('does not throw for the same request once clientInfo is loaded', () => {
+        const integration = getIntegration(loadedClientInfo);
+
+        expect(integration.getServiceName()).toBe('Firefox Sync');
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+
+      it('throws "Invalid redirect parameter" for a keys request when clientInfo is the empty husk', () => {
+        const integration = getIntegration(huskClientInfo, {
+          keys_jwk: 'fakeJwk',
+        });
+
+        // The husk's '' redirectUri never matches the scoped-keys allowlist.
+        expect(() => integration.wantsKeys()).toThrow(
+          'Invalid redirect parameter'
+        );
+        expect(Sentry.captureMessage).toHaveBeenCalled();
+      });
+
+      it('wants keys for the same request once clientInfo is loaded', () => {
+        const integration = getIntegration(loadedClientInfo, {
+          keys_jwk: 'fakeJwk',
+        });
+
+        expect(integration.wantsKeys()).toBe(true);
+        expect(Sentry.captureMessage).not.toHaveBeenCalled();
       });
     });
 
@@ -290,6 +386,69 @@ describe('models/integrations/oauth-relier', function () {
     it('returns clientId', () => {
       model.data.clientId = '123';
       expect(model.getClientId()).toBe('123');
+    });
+  });
+
+  describe('checkClientInfo', () => {
+    // 16-byte hex clientId, matching the shape real OAuth clients use.
+    const MOCK_CLIENT_ID = 'a1b2c3d4e5f6789012345678901234567890abcd';
+
+    function getIntegration() {
+      return new OAuthWebIntegration(
+        new GenericData({ scope: 'profile' }),
+        new GenericData({}),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+    }
+
+    it('throws SERVICE_UNAVAILABLE when clientInfoLoadFailed is true', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = true;
+
+      let caught: OAuthError | undefined;
+      try {
+        integration.checkClientInfo();
+      } catch (err) {
+        caught = err as OAuthError;
+      }
+
+      expect(caught).toBeInstanceOf(OAuthError);
+      expect(caught?.errno).toBe(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    });
+
+    it('throws UNKNOWN_CLIENT when the client info has no clientId', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = false;
+      // clientInfo is left undefined, so `clientInfo?.clientId` is falsy.
+
+      let caught: OAuthError | undefined;
+      try {
+        integration.checkClientInfo();
+      } catch (err) {
+        caught = err as OAuthError;
+      }
+
+      expect(caught).toBeInstanceOf(OAuthError);
+      expect(caught?.errno).toBe(OAUTH_ERRORS.UNKNOWN_CLIENT.errno);
+    });
+
+    it('does not throw when client info has a clientId', () => {
+      const integration = getIntegration();
+      integration.clientInfoLoadFailed = false;
+      integration.clientInfo = {
+        clientId: MOCK_CLIENT_ID,
+        imageUri: 'https://example.com/icon.png',
+        serviceName: 'Test Service',
+        redirectUri: 'https://example.com/redirect',
+        trusted: true,
+      };
+
+      expect(() => integration.checkClientInfo()).not.toThrow();
     });
   });
 

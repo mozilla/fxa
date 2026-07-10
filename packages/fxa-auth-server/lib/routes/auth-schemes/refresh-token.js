@@ -14,14 +14,18 @@ const oauthDB = require('../../oauth/db');
 const client = require('../../oauth/client');
 const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
 
-// the refresh token scheme is currently used by things connected to sync,
-// and we're at a transitionary stage of its evolution into something more generic,
-// so we limit to the scope below as a safety mechanism
-const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray([
-  OAUTH_SCOPE_OLD_SYNC,
-]);
+const OLD_SYNC_SCOPE = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
 module.exports = function schemeRefreshTokenScheme(config, db) {
+  // A refresh token may manage devices if it carries the Sync (oldsync) scope
+  // or its client_id is allowlisted. The allowlist covers Firefox sign-ins
+  // without Sync, which have no oldsync scope to match on.
+  const deviceManagementClientIds = new Set(
+    (config?.oauth?.deviceManagementClientIds || []).map((id) =>
+      id.toLowerCase()
+    )
+  );
+
   return function schemeRefreshToken(server, options) {
     return {
       async authenticate(request, h) {
@@ -46,11 +50,10 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         if (!refreshToken) {
           return h.unauthenticated(AppError.invalidToken());
         }
-        if (
-          !refreshToken.scope.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)
-        ) {
-          // unauthenticated if refreshToken is missing the required scope
-          return h.unauthenticated(AppError.invalidScopes(refreshToken.scope));
+        const clientIdHex = refreshToken.clientId.toString('hex').toLowerCase();
+        const hasOldSyncScope = refreshToken.scope.intersects(OLD_SYNC_SCOPE);
+        if (!deviceManagementClientIds.has(clientIdHex) && !hasOldSyncScope) {
+          return h.unauthenticated(AppError.invalidToken());
         }
 
         const { ua = {} } = request.app;

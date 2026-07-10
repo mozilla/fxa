@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import * as utils from 'fxa-react/lib/utils';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,8 +9,12 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninUnblock, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { LocationProvider } from '@reach/router';
-import { MOCK_EMAIL, mockFinishOAuthFlowHandler } from '../../mocks';
+import { MemoryRouter } from 'react-router';
+import {
+  MOCK_CMS_INFO,
+  MOCK_EMAIL,
+  mockFinishOAuthFlowHandler,
+} from '../../mocks';
 import {
   createBeginSigninResponse,
   createBeginSigninResponseError,
@@ -21,7 +24,7 @@ import {
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { navigate } from '@reach/router';
+
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { createMockWebIntegration } from './mocks';
@@ -43,10 +46,19 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockUseNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockUseNavigate,
-  navigate: jest.fn(),
+}));
+// Alias for tests referencing `navigate` directly
+const navigate = mockUseNavigate;
+
+const mockSessionResendVerifyCode = jest.fn().mockResolvedValue(undefined);
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => ({
+    sessionResendVerifyCode: mockSessionResendVerifyCode,
+  }),
 }));
 
 const email = MOCK_EMAIL;
@@ -54,9 +66,6 @@ const hasLinkedAccount = false;
 const hasPassword = true;
 let signinWithUnblockCode = jest.fn();
 let resendUnblockCodeHandler = jest.fn();
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 const renderWithSuccess = (
   finishOAuthFlowHandler = jest
@@ -69,7 +78,7 @@ const renderWithSuccess = (
   resendUnblockCodeHandler = jest.fn().mockReturnValue({ success: true });
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninUnblock
         {...{
           email,
@@ -81,7 +90,7 @@ const renderWithSuccess = (
           resendUnblockCodeHandler,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
@@ -96,7 +105,7 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
   const integration = createMockSigninWebIntegration();
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninUnblock
         {...{
           email,
@@ -108,7 +117,7 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
           resendUnblockCodeHandler,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };
 
@@ -130,17 +139,16 @@ describe('SigninUnblock', () => {
       name: 'Not in inbox or spam folder? Resend',
     });
     screen.getByRole('link', { name: /Why is this happening/ });
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
   it('renders expected text when service=relay', () => {
     renderWithSuccess(
       undefined,
-      createMockSigninOAuthNativeSyncIntegration({
-        isSync: false,
-      })
+      createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })
     );
-    screen.getByText(serviceRelayText);
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
   });
 
   it('emits the expected metrics on render', () => {

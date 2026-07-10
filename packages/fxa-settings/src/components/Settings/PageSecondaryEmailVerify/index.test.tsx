@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import {
   mockAppContext,
@@ -12,7 +11,7 @@ import {
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { PageSecondaryEmailVerify, MfaGuardPageSecondaryEmailVerify } from '.';
-import { WindowLocation } from '@reach/router';
+
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { MfaContext } from '../MfaGuard';
@@ -20,9 +19,8 @@ import { JwtTokenCache } from '../../../lib/cache';
 import AuthClient from 'fxa-auth-client/lib/client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 
-const mockLocation = {
-  state: { email: 'johndope@example.com' },
-} as unknown as WindowLocation;
+const mockLocationState = { email: 'johndope@example.com' };
+const mockRoute = { pathname: '/', state: mockLocationState };
 
 const account = {
   verifySecondaryEmail: jest.fn().mockResolvedValue(true),
@@ -52,9 +50,10 @@ describe('PageSecondaryEmailVerify', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <MfaContext.Provider value="email">
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <PageSecondaryEmailVerify />
         </MfaContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
 
     expect(
@@ -78,9 +77,10 @@ describe('PageSecondaryEmailVerify', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
         <MfaContext.Provider value="email">
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <PageSecondaryEmailVerify />
         </MfaContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
 
     const btn = screen.getByTestId('secondary-email-resend-code-button');
@@ -108,9 +108,10 @@ describe('PageSecondaryEmailVerify', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
         <MfaContext.Provider value="email">
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <PageSecondaryEmailVerify />
         </MfaContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
 
     const btn = screen.getByTestId('secondary-email-resend-code-button');
@@ -139,9 +140,10 @@ describe('PageSecondaryEmailVerify', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
         <MfaContext.Provider value="email">
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <PageSecondaryEmailVerify />
         </MfaContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
     const btn = screen.getByTestId('secondary-email-resend-code-button');
     expect(btn).toBeDisabled();
@@ -156,9 +158,10 @@ describe('PageSecondaryEmailVerify', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <MfaContext.Provider value="email">
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <PageSecondaryEmailVerify />
         </MfaContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
 
     await act(async () => {
@@ -181,14 +184,15 @@ describe('PageSecondaryEmailVerify', () => {
       success: jest.fn(),
     } as any;
     const settingsContext = mockSettingsContext({ alertBarInfo });
-    const { history } = renderWithRouter(
+    const { router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <SettingsContext.Provider value={settingsContext}>
           <MfaContext.Provider value="email">
-            <PageSecondaryEmailVerify location={mockLocation} />
+            <PageSecondaryEmailVerify />
           </MfaContext.Provider>
         </SettingsContext.Provider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: mockRoute }
     );
 
     await act(async () => {
@@ -201,7 +205,8 @@ describe('PageSecondaryEmailVerify', () => {
       screen.getByTestId('secondary-email-verify-submit').click()
     );
 
-    expect(history.location.pathname).toEqual('/settings#secondary-email');
+    expect(router.state.location.pathname).toEqual('/settings');
+    expect(router.state.location.hash).toEqual('#secondary-email');
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith(
       'johndope@example.com successfully added'
@@ -244,10 +249,9 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify
-            location={{ state: { email: mockEmail } } as any}
-          />
-        </AppContext.Provider>
+          <MfaGuardPageSecondaryEmailVerify />
+        </AppContext.Provider>,
+        { route: { pathname: '/', state: { email: mockEmail } } }
       );
 
       expect(
@@ -267,10 +271,9 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify
-            location={{ state: { email: mockEmail } } as any}
-          />
-        </AppContext.Provider>
+          <MfaGuardPageSecondaryEmailVerify />
+        </AppContext.Provider>,
+        { route: { pathname: '/', state: { email: mockEmail } } }
       );
 
       expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
@@ -292,10 +295,9 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify
-            location={{ state: { email: mockEmail } } as any}
-          />
-        </AppContext.Provider>
+          <MfaGuardPageSecondaryEmailVerify />
+        </AppContext.Provider>,
+        { route: { pathname: '/', state: { email: mockEmail } } }
       );
 
       // mock the submit for the verification code, which should trigger the MFA guard
@@ -328,10 +330,9 @@ describe('PageSecondaryEmailVerify', () => {
       });
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify
-            location={{ state: { email: mockEmail } } as any}
-          />
-        </AppContext.Provider>
+          <MfaGuardPageSecondaryEmailVerify />
+        </AppContext.Provider>,
+        { route: { pathname: '/', state: { email: mockEmail } } }
       );
       await user.click(
         screen.getByRole('button', { name: 'Resend confirmation code' })

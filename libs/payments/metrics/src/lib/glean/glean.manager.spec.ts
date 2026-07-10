@@ -7,9 +7,14 @@ import {
   CartMetricsFactory,
   CmsMetricsDataFactory,
   CommonMetricsFactory,
+  ExperimentationDataFactory,
   SubscriptionCancellationDataFactory,
+  TrialConversionDataFactory,
 } from './glean.factory';
-import { PaymentsGleanProvider } from './glean.types';
+import {
+  PaymentsGleanProvider,
+  SubPlatPaymentMethodType,
+} from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
 import {
   MockPaymentsGleanConfigProvider,
@@ -21,9 +26,11 @@ const mockCommonMetricsData = {
   cartMetricsData: CartMetricsFactory(),
   cmsMetricsData: CmsMetricsDataFactory(),
   subscriptionCancellationData: SubscriptionCancellationDataFactory(),
+  experimentationData: ExperimentationDataFactory(),
 };
 const mockCommonMetrics = { common: 'metrics' };
-const mockPaymentProvider = 'card';
+const mockPaymentProvider = 'stripe';
+const mockPaymentMethod = SubPlatPaymentMethodType.Card;
 
 describe('PaymentsGleanManager', () => {
   let paymentsGleanManager: PaymentsGleanManager;
@@ -103,19 +110,23 @@ describe('PaymentsGleanManager', () => {
         .mockReturnValue(mockCommonMetrics);
     });
 
-    it('should record fxa pay setup engage', () => {
+    it('should record fxa pay setup submit', () => {
       paymentsGleanManager.recordFxaPaySetupSubmit(
         mockCommonMetricsData,
-        mockPaymentProvider
+        mockPaymentProvider,
+        mockPaymentMethod
       );
       expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
-        mockCommonMetricsData
+        mockCommonMetricsData,
+        mockPaymentProvider,
+        mockPaymentMethod
       );
       expect(
         paymentsGleanServerEventsLogger.recordPaySetupSubmit
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
         subscription_payment_provider: mockPaymentProvider,
+        subscription_payment_method: mockPaymentMethod,
       });
     });
   });
@@ -130,19 +141,23 @@ describe('PaymentsGleanManager', () => {
         .mockReturnValue(mockCommonMetrics);
     });
 
-    it('should record fxa pay setup engage', () => {
+    it('should record fxa pay setup success', () => {
       paymentsGleanManager.recordFxaPaySetupSuccess(
         mockCommonMetricsData,
-        mockPaymentProvider
+        mockPaymentProvider,
+        mockPaymentMethod
       );
       expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
-        mockCommonMetricsData
+        mockCommonMetricsData,
+        mockPaymentProvider,
+        mockPaymentMethod
       );
       expect(
         paymentsGleanServerEventsLogger.recordPaySetupSuccess
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
         subscription_payment_provider: mockPaymentProvider,
+        subscription_payment_method: mockPaymentMethod,
       });
     });
   });
@@ -157,13 +172,13 @@ describe('PaymentsGleanManager', () => {
         .mockReturnValue(mockCommonMetrics);
     });
 
-    it('should record fxa pay setup engage', () => {
+    it('should record fxa pay setup fail', () => {
       paymentsGleanManager.recordFxaPaySetupFail(
         mockCommonMetricsData,
         mockPaymentProvider
       );
       expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
-        mockCommonMetricsData
+        mockCommonMetricsData,
       );
       expect(
         paymentsGleanServerEventsLogger.recordPaySetupFail
@@ -193,16 +208,57 @@ describe('PaymentsGleanManager', () => {
         },
         mockPaymentProvider
       );
-      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith({
-        cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
-        subscriptionCancellationData:
-          mockCommonMetricsData.subscriptionCancellationData,
-      });
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
+        {
+          cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+          subscriptionCancellationData:
+            mockCommonMetricsData.subscriptionCancellationData,
+        },
+        mockPaymentProvider
+      );
       expect(
         paymentsGleanServerEventsLogger.recordSubscriptionEnded
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
         subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordFxaSubscriptionTrialConverted', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(
+          paymentsGleanServerEventsLogger,
+          'recordSubscriptionTrialConverted'
+        )
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record subscription trial converted', () => {
+      const mockTrialConversionData = TrialConversionDataFactory();
+      const metricsData = {
+        cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+        trialConversionData: mockTrialConversionData,
+      };
+      paymentsGleanManager.recordFxaSubscriptionTrialConverted(
+        metricsData,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(metricsData);
+      expect(
+        paymentsGleanServerEventsLogger.recordSubscriptionTrialConverted
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+        subscription_product_id: mockTrialConversionData.productId,
+        subscription_provider_event_id:
+          mockTrialConversionData.providerEventId,
+        trial_conversion_status: mockTrialConversionData.conversionStatus,
+        subscription_billing_country: mockTrialConversionData.billingCountry,
       });
     });
   });

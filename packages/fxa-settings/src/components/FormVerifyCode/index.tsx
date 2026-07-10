@@ -31,6 +31,7 @@ export type FormAttributes = {
   inputMode?: InputModeEnum;
   pattern: string;
   maxLength: number;
+  autoComplete?: 'off' | 'one-time-code';
   submitButtonText: string;
   submitButtonFtlId: string;
 };
@@ -47,6 +48,11 @@ export type FormVerifyCodeProps = {
   gleanDataAttrs?: GleanClickEventDataAttrs;
   submitFormOnPaste?: boolean;
   cmsButton?: CmsButtonType;
+  onEngageCb?: () => void;
+  onChangeCb?: () => void;
+  className?: string;
+  /** Disables the submit button during a server-side throttle window. */
+  isThrottled?: boolean;
 };
 
 type FormData = {
@@ -64,11 +70,16 @@ const FormVerifyCode = ({
   gleanDataAttrs,
   submitFormOnPaste,
   cmsButton,
+  onEngageCb,
+  onChangeCb,
+  className = 'flex flex-col gap-4 my-6',
+  isThrottled = false,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
+  const inputMode = formAttributes.inputMode || InputModeEnum.numeric;
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedLabel = ftlMsgResolver.getMsg(
     formAttributes.inputFtlId,
@@ -78,6 +89,7 @@ const FormVerifyCode = ({
   const onFocus = () => {
     if (!isFocused && viewName) {
       logViewEvent(`flow.${viewName}`, 'engage', REACT_ENTRYPOINT);
+      onEngageCb?.();
       setIsFocused(true);
     }
   };
@@ -135,23 +147,25 @@ const FormVerifyCode = ({
   }, [codeValue, formAttributes.pattern]);
 
   return (
-    <form
-      noValidate
-      className="flex flex-col gap-4 my-6"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form noValidate {...{ className }} onSubmit={handleSubmit(onSubmit)}>
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
         name="code"
         type="text"
-        inputMode={formAttributes.inputMode || InputModeEnum.numeric}
+        inputMode={inputMode}
         label={localizedLabel}
-        onChange={
-          setClearMessages
-            ? () => setClearMessages(true)
-            : () => setCodeErrorMessage('')
-        }
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          if (inputMode === InputModeEnum.numeric) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          }
+          if (setClearMessages) {
+            setClearMessages(true);
+          } else {
+            setCodeErrorMessage('');
+          }
+          onChangeCb?.();
+        }}
         onFocusCb={viewName ? onFocus : undefined}
         onPaste={submitFormOnPaste ? onPaste : undefined}
         errorText={codeErrorMessage}
@@ -160,7 +174,7 @@ const FormVerifyCode = ({
         maxLength={formAttributes.maxLength}
         className="text-start"
         anchorPosition="start"
-        autoComplete="off"
+        autoComplete={formAttributes.autoComplete ?? 'off'}
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"
@@ -173,7 +187,7 @@ const FormVerifyCode = ({
         <CmsButtonWithFallback
           type="submit"
           className="cta-primary cta-xl"
-          disabled={isSubmitting || isDisabled}
+          disabled={isSubmitting || isDisabled || isThrottled}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}

@@ -9,23 +9,6 @@ import { buildSentryConfig } from './config-builder';
 import { Logger } from './sentry.types';
 
 /**
- * Query parameters we allow to propagate to sentry
- */
-const ALLOWED_QUERY_PARAMETERS = [
-  'automatedBrowser',
-  'client_id',
-  'context',
-  'entrypoint',
-  'keys',
-  'migration',
-  'redirect_uri',
-  'scope',
-  'service',
-  'setting',
-  'style',
-];
-
-/**
  * Exception fields that are imported as tags
  */
 const EXCEPTION_TAGS = ['code', 'context', 'errno', 'namespace', 'status'];
@@ -59,10 +42,6 @@ function beforeSend(
   }
 
   if (event.request) {
-    if (event.request.url) {
-      event.request.url = cleanUpQueryParam(event.request.url);
-    }
-
     if (event.tags) {
       // if this is a known errno, then use grouping with fingerprints
       // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
@@ -72,53 +51,10 @@ function beforeSend(
         event.level = 'info';
       }
     }
-
-    if (event.exception?.values) {
-      event.exception.values.forEach((value: Sentry.Exception) => {
-        if (value.stacktrace && value.stacktrace.frames) {
-          value.stacktrace.frames.forEach((frame: { abs_path?: string }) => {
-            if (frame.abs_path) {
-              frame.abs_path = cleanUpQueryParam(frame.abs_path); // eslint-disable-line camelcase
-            }
-          });
-        }
-      });
-    }
-
-    if (event.request.headers?.Referer) {
-      event.request.headers.Referer = cleanUpQueryParam(
-        event.request.headers.Referer
-      );
-    }
   }
 
   event = tagFxaName(event, opts.sentry?.clientName || opts.sentry?.serverName);
   return event;
-}
-
-/**
- * Overwrites sensitive query parameters with a dummy value.
- *
- * @param {String} url
- * @returns {String} url
- * @private
- */
-function cleanUpQueryParam(url = '') {
-  const urlObj = new URL(url);
-
-  if (!urlObj.search.length) {
-    return url;
-  }
-
-  // Iterate the search parameters.
-  urlObj.searchParams.forEach((_, key) => {
-    if (!ALLOWED_QUERY_PARAMETERS.includes(key)) {
-      // if the param is a PII (not allowed) then reset the value.
-      urlObj.searchParams.set(key, 'VALUE');
-    }
-  });
-
-  return urlObj.href;
 }
 
 function captureException(err: Error) {
@@ -188,5 +124,4 @@ export default {
     return sentryEnabled;
   },
   __beforeSend: beforeSend,
-  __cleanUpQueryParam: cleanUpQueryParam,
 };

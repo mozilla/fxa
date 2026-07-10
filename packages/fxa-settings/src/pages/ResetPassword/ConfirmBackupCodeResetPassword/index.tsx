@@ -13,19 +13,23 @@ import ButtonBack from '../../../components/ButtonBack';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { useFtlMsgResolver } from '../../../models';
+import { ResetPasswordIntegration } from '../interfaces';
 
 export type ConfirmBackupCodeResetPasswordProps = {
   verifyBackupCode: (code: string) => Promise<void>;
   codeErrorMessage: string;
   setCodeErrorMessage: Dispatch<SetStateAction<string>>;
+  integration: ResetPasswordIntegration;
 };
 
 const ConfirmBackupCodeResetPassword = ({
   verifyBackupCode,
   codeErrorMessage,
   setCodeErrorMessage,
+  integration,
 }: ConfirmBackupCodeResetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const cmsInfo = integration?.getCmsInfo();
 
   return (
     <AppLayout>
@@ -45,7 +49,9 @@ const ConfirmBackupCodeResetPassword = ({
           bannerId="confirm-backup-code-reset-password-error-banner"
         />
       )}
-      <BackupCodesImage />
+      <BackupCodesImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <h2 className="font-bold text-xl">
         <FtlMsg id="confirm-backup-code-reset-password-subheader">

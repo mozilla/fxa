@@ -78,7 +78,9 @@ describe('before send', () => {
     const url = 'https://accounts.firefox.com/complete_reset_password';
     const badQuery =
       '?token=foo&code=bar&email=some%40restmail.net&service=sync';
-    const goodQuery = '?token=VALUE&code=VALUE&email=VALUE&service=sync';
+    // We now allow these parameters to pass through. Leaving test for historical context.
+    const goodQuery =
+      '?token=foo&code=bar&email=some%40restmail.net&service=sync';
     const badData = {
       type: undefined,
       request: {
@@ -100,7 +102,9 @@ describe('before send', () => {
     const url = 'https://accounts.firefox.com/complete_reset_password';
     const badQuery =
       '?token=foo&code=bar&email=some%40restmail.net&service=sync';
-    const goodQuery = '?token=VALUE&code=VALUE&email=VALUE&service=sync';
+    // We now allow these parameters to pass through. Leaving test for historical context.
+    const goodQuery =
+      '?token=foo&code=bar&email=some%40restmail.net&service=sync';
     const badData = {
       type: undefined,
       request: {
@@ -129,8 +133,9 @@ describe('before send', () => {
     const badCulprit = 'https://accounts.firefox.com/scripts/57f6d4e4.main.js';
     const badAbsPath =
       'https://accounts.firefox.com/complete_reset_password?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
+    // We now allow these parameters to pass through. Leaving test for historical context.
     const goodAbsPath =
-      'https://accounts.firefox.com/complete_reset_password?token=VALUE&code=VALUE&email=VALUE&service=sync&resume=VALUE';
+      'https://accounts.firefox.com/complete_reset_password?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
     const data = {
       type: undefined,
       culprit: badCulprit,

@@ -2874,20 +2874,6 @@ describe('models/account', function () {
     });
   });
 
-  describe('deleteTotpToken', () => {
-    beforeEach(() => {
-      sinon
-        .stub(fxaClient, 'deleteTotpToken')
-        .callsFake(() => Promise.resolve());
-      account.set('totpVerified', true);
-    });
-
-    it('sets totpVerified state to false', async () => {
-      await account.deleteTotpToken();
-      assert.isFalse(account.get('totpVerified'));
-    });
-  });
-
   describe('consumeRecoveryCode', () => {
     beforeEach(() => {
       sinon
@@ -2966,27 +2952,6 @@ describe('models/account', function () {
       account._settingsData = { subscriptions: [{ x: 'yz' }] };
       return account.hasSubscriptions().then((hasSub) => {
         assert.isTrue(hasSub);
-      });
-    });
-  });
-
-  describe('createSupportTicket', () => {
-    it('delegates to the fxa-client', () => {
-      const token = 'tickettoride';
-      const ticket = { topic: 'TESTO', message: 'testo?' };
-      const ticketResp = { success: true, ticket: 123 };
-      sinon.stub(account, 'createOAuthToken').callsFake(function () {
-        return Promise.resolve(new OAuthToken({ token }));
-      });
-      const ticketStub = sinon
-        .stub(fxaClient, 'createSupportTicket')
-        .callsFake(function () {
-          return Promise.resolve(ticketResp);
-        });
-
-      account.createSupportTicket(ticket).then((resp) => {
-        assert.isTrue(ticketStub.calledWith(token, ticket));
-        assert.deepEqual(resp, ticketResp);
       });
     });
   });

@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionReplaced',
   'Sent when a user has overlapping subscriptions when upgrading to a bundle.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
   }
 );
 

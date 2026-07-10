@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import {
+  INTEGRATION_ACTIONS,
   Integration,
   isDefault,
   isOAuthWebIntegration,
   OAuthWebIntegration,
   RelierAccount,
   useAuthClient,
-  useSession,
+  useConfig,
 } from '../../models';
 
-import { cache } from '../../lib/cache';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { currentAccount } from '../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
@@ -50,14 +50,15 @@ const AuthorizationContainer = ({
   integration,
 }: {
   integration: Integration;
-} & RouteComponentProps) => {
+}) => {
   const [oauthError, setOauthError] = useState<AuthError | OAuthError | null>(
     null
   );
   const authClient = useAuthClient();
+  const config = useConfig();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -75,13 +76,9 @@ const AuthorizationContainer = ({
         relierAccount
       );
 
-      const isOauthPromptNone = true;
       const { data, error } = await cachedSignIn(
         account?.sessionToken!,
-        authClient,
-        cache,
-        session,
-        isOauthPromptNone
+        authClient
       );
 
       if (error === AuthUiErrors.SESSION_EXPIRED) {
@@ -96,8 +93,20 @@ const AuthorizationContainer = ({
         throw new OAuthError('PROMPT_NONE_UNVERIFIED');
       }
 
+      // For services that require the non-2FA non-Sync email verification, also check
+      // that the session is verified when going through prompt=none.
+      const clientId = integration.getClientId();
+      if (
+        clientId &&
+        config.servicesWithEmailVerification.includes(clientId) &&
+        data.sessionVerified !== true
+      ) {
+        throw new OAuthError('PROMPT_NONE_UNVERIFIED');
+      }
+
       if (data) {
         const navigationOptions = {
+          navigate,
           email: account?.email!,
           signinData: {
             emailVerified: data.emailVerified,
@@ -111,6 +120,7 @@ const AuthorizationContainer = ({
           redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
           queryParams: location.search,
+          authClient,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -140,11 +150,12 @@ const AuthorizationContainer = ({
     }
   }, [
     authClient,
+    config,
     finishOAuthFlowHandler,
     integration,
     location.search,
+    navigate,
     navigateWithQuery,
-    session,
   ]);
 
   useEffect(() => {
@@ -164,14 +175,13 @@ const AuthorizationContainer = ({
     const urlSearchParams = new URLSearchParams(location.search);
     urlSearchParams.delete('showReactApp');
 
-    if (integration.data.action) {
-      if (integration.data.action === 'email') {
+    const action = integration.data.action;
+    if (action && INTEGRATION_ACTIONS.includes(action)) {
+      if (action === 'email') {
         navigateWithQuery('/oauth');
       } else {
         // we'll keep the hard navigate here to support backbone and react pages
-        hardNavigate(
-          `/${integration.data.action}?${urlSearchParams.toString()}`
-        );
+        hardNavigate(`/${action}?${urlSearchParams.toString()}`);
       }
       return;
     }

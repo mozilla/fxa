@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { TemplateResult } from './TemplateResult';
 
-export class UpdateStripePaymentDetailsResult {
+class UpdateStripePaymentDetailsSuccessResponse {
   @IsString()
   id!: string;
 
@@ -14,4 +16,11 @@ export class UpdateStripePaymentDetailsResult {
   @IsString()
   @IsOptional()
   clientSecret?: string;
+}
+
+export class UpdateStripePaymentDetailsResult extends TemplateResult {
+  @ValidateNested()
+  @Type(() => UpdateStripePaymentDetailsSuccessResponse)
+  @IsOptional()
+  result!: UpdateStripePaymentDetailsSuccessResponse | null;
 }

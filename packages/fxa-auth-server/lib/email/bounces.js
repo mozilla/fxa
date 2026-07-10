@@ -6,6 +6,7 @@
 
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../lib/payments/stripe');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 const eaddrs = require('email-addresses');
 const utils = require('./utils/helpers');
@@ -59,7 +60,7 @@ module.exports = function (log, error, config, statsd) {
         hasNoActiveSubscription
       ) {
         try {
-          await db.deleteAccount(record);
+          await db.deleteAccount(record, ReasonForDeletion.EmailBounce);
           log.info('accountDeleted', { uid: record.uid, email: record.email });
           success = true;
         } catch (err) {

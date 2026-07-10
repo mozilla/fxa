@@ -35,6 +35,7 @@ export type SigninRecoveryChoiceProps = {
   signinState: SigninLocationState;
   integration?: SigninIntegration;
   loading?: boolean;
+  setCurrentSplitLayout?: (value: boolean) => void;
 };
 
 const SigninRecoveryChoice = ({
@@ -45,6 +46,7 @@ const SigninRecoveryChoice = ({
   signinState,
   integration,
   loading = false,
+  setCurrentSplitLayout,
 }: SigninRecoveryChoiceProps) => {
   const [errorBannerMessage, setErrorBannerMessage] = React.useState('');
   const [errorBannerDescription, setErrorBannerDescription] =
@@ -137,27 +139,49 @@ const SigninRecoveryChoice = ({
   ];
 
   const cmsInfo = integration?.getCmsInfo();
+  const cmsPage = cmsInfo?.SigninRecoveryChoicePage;
+  const splitLayout = cmsPage?.splitLayout;
+  const title = cmsPage?.pageTitle;
   const cmsButton = {
     color: cmsInfo?.shared.buttonColor,
+    text: cmsPage?.primaryButtonText,
   };
 
+  const legendEl = (
+    <>
+      <legend>
+        {cmsPage?.headline ? (
+          <h2 className="card-header">{cmsPage.headline}</h2>
+        ) : (
+          <FtlMsg id="signin-recovery-method-subheader">
+            <h2 className="card-header">Choose a recovery method</h2>
+          </FtlMsg>
+        )}
+      </legend>
+      {cmsPage?.description ? (
+        <p className="pt-2 mb-8">{cmsPage.description}</p>
+      ) : (
+        <FtlMsg id="signin-recovery-method-details">
+          <p className="pt-2 mb-8">
+            Let’s make sure it’s you using your recovery methods.
+          </p>
+        </FtlMsg>
+      )}
+    </>
+  );
+
   return (
-    <AppLayout cmsInfo={cmsInfo} loading={loading}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={loading}
+    >
       <div className="relative flex items-center mb-5">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
         />
-        {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
-          <img
-            src={cmsInfo.shared.logoUrl}
-            alt={cmsInfo.shared.logoAltText}
-            className="justify-start mb-4 max-h-[40px]"
-          />
-        ) : (
-          <FtlMsg id="signin-recovery-method-header">
-            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signin-recovery-method-header">
+          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+        </FtlMsg>
       </div>
 
       {errorBannerMessage && (
@@ -176,19 +200,5 @@ const SigninRecoveryChoice = ({
     </AppLayout>
   );
 };
-const legendEl = (
-  <>
-    <legend>
-      <FtlMsg id="signin-recovery-method-subheader">
-        <h2 className="card-header">Choose a recovery method</h2>
-      </FtlMsg>
-    </legend>
-    <FtlMsg id="signin-recovery-method-details">
-      <p className="pt-2 mb-8">
-        Let’s make sure it’s you using your recovery methods.
-      </p>
-    </FtlMsg>
-  </>
-);
 
 export default SigninRecoveryChoice;

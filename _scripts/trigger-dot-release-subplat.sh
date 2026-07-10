@@ -1,0 +1,79 @@
+#! /bin/bash
+#
+# Tag a SubPlat patch release on the current subplat-train branch and push it
+# to a remote. Defaults to 'origin'. Pushing the tag is what kicks off the
+# docker.yml build via `yarn trigger:docker-push-subplat <tag>`.
+#
+# Usage:
+#   ./_scripts/trigger-dot-release-subplat.sh <tag>
+#   FXA_REMOTE=<remote> ./_scripts/trigger-dot-release-subplat.sh <tag>
+#
+# Environment variables:
+#   FXA_REMOTE   Git remote to fetch/push against (default: origin).
+#
+# Examples:
+#   ./_scripts/trigger-dot-release-subplat.sh subplat-v1.338.1
+#   ./_scripts/trigger-dot-release-subplat.sh subplat-v1.338.0-rc1
+#   FXA_REMOTE=upstream ./_scripts/trigger-dot-release-subplat.sh subplat-v1.338.1
+#
+# Pre-flight checklist (run yourself before invoking):
+#   - Patch has been merged into the subplat-train branch locally
+#   - You've run the server and tests to verify the patch behaves correctly
+
+set -euo pipefail
+
+tag="${1:-}"
+
+if [[ -z "${tag}" ]]; then
+  echo "Usage: [FXA_REMOTE=<remote>] ${0} <tag>" >&2
+  echo "  FXA_REMOTE  Git remote to fetch/push against (default: origin)." >&2
+  exit 1
+fi
+
+if [[ ! "${tag}" =~ ^subplat-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
+  echo "ERROR: '${tag}' does not match the expected format (subplat-vMAJOR.MINOR.PATCH[-rcN])." >&2
+  exit 1
+fi
+
+minor="${BASH_REMATCH[2]}"
+branch="subplat-train-${minor}"
+remote="${FXA_REMOTE:-origin}"
+
+echo "Fetching latest tags from ${remote}..."
+git fetch "${remote}" --tags
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "${current_branch}" != "${branch}" ]]; then
+  echo "ERROR: current branch is '${current_branch}', expected '${branch}'." >&2
+  echo "Switch to ${branch} before tagging: git checkout ${branch}" >&2
+  exit 1
+fi
+
+if git rev-parse "${tag}" >/dev/null 2>&1; then
+  echo "ERROR: tag '${tag}' already exists locally." >&2
+  exit 1
+fi
+
+if git ls-remote --tags --exit-code "${remote}" "refs/tags/${tag}" >/dev/null 2>&1; then
+  echo "ERROR: tag '${tag}' already exists on ${remote}." >&2
+  exit 1
+fi
+
+echo "About to:"
+echo "  1. push ${branch} to ${remote}"
+echo "  2. create tag ${tag} at HEAD ($(git rev-parse --short HEAD))"
+echo "  3. push tag ${tag} to ${remote}"
+echo
+read -p "Proceed? (y/N): " confirm
+if [[ ! "${confirm}" =~ ^[yY]([eE][sS])?$ ]]; then
+  echo "Aborted."
+  exit 1
+fi
+
+git push "${remote}" "${branch}"
+git tag -a "${tag}" -m "SubPlat train release ${tag}"
+git push "${remote}" "${tag}"
+
+echo
+echo "Tagged ${tag}. Kick off the docker build with:"
+echo "  yarn trigger:docker-push-subplat ${tag}"

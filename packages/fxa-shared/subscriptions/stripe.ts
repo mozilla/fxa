@@ -1,6 +1,4 @@
 import Stripe from 'stripe';
-import pick from 'lodash.pick';
-import omitBy from 'lodash.omitby';
 import {
   Plan,
   SubscriptionStripeError,
@@ -11,6 +9,15 @@ import { productUpgradeFromProductConfig } from './configuration/utils';
 
 const isCapabilityKey = (value: string, key: string) =>
   key.startsWith('capabilities');
+
+const pick = (obj: any, ...keys: string[]): any => {
+  if (obj == null) return {};
+  const result: any = {};
+  for (const k of keys) {
+    if (k in obj) result[k] = obj[k];
+  }
+  return result;
+};
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
@@ -67,7 +74,7 @@ export function filterCustomer(
     'default_payment_method'
   ) as any;
   if (customer.sources?.data) {
-    customer.sources.data = customer.sources.data.map((s) =>
+    customer.sources.data = customer.sources.data.map((s: any) =>
       pick(s, 'id', 'object', 'brand', 'exp_month', 'exp_year', 'last4')
     ) as any;
     customer.sources = pick(customer.sources, 'data') as any;
@@ -152,7 +159,9 @@ export function filterPrice(item: Stripe.Price) {
     'type',
     'unit_amount'
   );
-  price.metadata = omitBy(price.metadata, isCapabilityKey);
+  price.metadata = Object.fromEntries(
+    Object.entries(price.metadata).filter(([key, value]) => !isCapabilityKey(value as string, key))
+  );
   if (
     typeof price.product !== 'string' &&
     price.product &&
@@ -170,7 +179,9 @@ export function filterPrice(item: Stripe.Price) {
  */
 export function filterProduct(item: Stripe.Product) {
   const product = pick(item, 'id', 'active', 'description', 'metadata', 'name');
-  product.metadata = omitBy(product.metadata, isCapabilityKey);
+  product.metadata = Object.fromEntries(
+    Object.entries(product.metadata).filter(([key, value]) => !isCapabilityKey(value as string, key))
+  );
   return product;
 }
 

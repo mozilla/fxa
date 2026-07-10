@@ -4,6 +4,11 @@
 
 const config = require('../config');
 
+// mozlog@3 depends on intel@1.x which calls util.isError(), removed in Node 24.
+// Polyfill it before mozlog/intel loads. util is a singleton so this applies globally.
+const util = require('util');
+if (!util.isError) util.isError = (e) => e instanceof Error;
+
 const mozlog = require('mozlog')(config.get('logging'));
 
 module.exports = mozlog;

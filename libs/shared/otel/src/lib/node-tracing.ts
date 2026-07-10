@@ -11,6 +11,7 @@ import {
   checkServiceName,
   logType,
 } from './config';
+import { SentryContextManager } from '@sentry/node';
 import {
   NodeTracerProvider,
   TraceIdRatioBasedSampler,
@@ -109,10 +110,26 @@ export class NodeTracingInitializer {
           '@opentelemetry/instrumentation-aws-lambda': {
             enabled: false,
           },
+          '@opentelemetry/instrumentation-http': {
+            // Important! If Sentry is enabled, we want to rely on Sentry's http instrumentation!
+            enabled: this.opts.sentry?.enabled ? false : true,
+          },
         }),
       ],
     });
-    this.provider.register();
+    // Use SentryContextManager so that Sentry's per-request isolation scopes
+    // are properly forked for every api.context.with() call. Without this,
+    // NodeTracerProvider.register() would install a plain
+    // AsyncLocalStorageContextManager that doesn't understand Sentry's scope
+    // forking, and Sentry.init()'s own setupOtel() would overwrite our
+    // NodeTracerProvider (discarding the custom exporters).
+    if (this.opts.sentry?.enabled) {
+      this.provider.register({
+        contextManager: new SentryContextManager(),
+      });
+    } else {
+      this.provider.register();
+    }
   }
 
   public startSpan(name: string, action: () => void) {

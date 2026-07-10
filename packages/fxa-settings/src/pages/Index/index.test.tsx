@@ -2,17 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import {
-  createMockIndexOAuthIntegration,
-  createMockIndexOAuthNativeIntegration,
-  Subject,
-} from './mocks';
+import { createMockIndexOAuthNativeIntegration, Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MozServices } from '../../lib/types';
-import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import GleanMetrics from '../../lib/glean';
 import { MOCK_CMS_INFO } from '../mocks';
 
@@ -74,7 +68,6 @@ describe('Index page', () => {
 
     screen.getByRole('heading', { name: 'Continue to your Mozilla account' });
     screen.getByText(syncText);
-
     screen.getByText(syncTextSecondary);
     thirdPartyAuthNotRendered();
 
@@ -105,15 +98,6 @@ describe('Index page', () => {
     expect(screen.queryByText(syncTextSecondary)).not.toBeInTheDocument();
 
     thirdPartyAuthNotRendered();
-
-    expect(
-      screen.getAllByRole('link', {
-        name: /Terms of Service/,
-      })[0]
-    ).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/about/legal/terms/subscription-services/'
-    );
   });
 
   it('renders third party auth with service=relay when supportsKeysOptionalLogin is true', () => {
@@ -131,12 +115,12 @@ describe('Index page', () => {
     thirdPartyAuthWithSeparatorRendered();
   });
 
-  it('renders third party auth with service=aiwindow when supportsKeysOptionalLogin is true', () => {
+  it('renders third party auth with service=smartwindow when supportsKeysOptionalLogin is true', () => {
     renderWithLocalizationProvider(
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isFirefoxClientServiceAiWindow: true,
+          isFirefoxClientServiceSmartWindow: true,
         })}
         supportsKeysOptionalLogin={true}
       />
@@ -167,15 +151,6 @@ describe('Index page', () => {
       'Stay protected with continuous data monitoring and automatic data removal.'
     );
     screen.getByRole('button', { name: 'Continue' });
-
-    expect(
-      screen.getAllByRole('link', {
-        name: /Terms of Service/,
-      })[0]
-    ).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/about/legal/terms/subscription-services/'
-    );
   });
 
   it('renders as expected with cms info on mobile', () => {
@@ -237,29 +212,6 @@ describe('Index page', () => {
     ).not.toBeInTheDocument();
   });
 
-  // This is wrapped so that the HTMLFormElement.submit can be mocked
-  // without affecting other tests.
-  describe('deep linking', () => {
-    beforeEach(() => {
-      HTMLFormElement.prototype.submit = jest.fn();
-    });
-    afterEach(() => {
-      jest.resetAllMocks();
-    });
-    it('does not render when deeplinking third party auth', () => {
-      renderWithLocalizationProvider(
-        <Subject
-          integration={createMockIndexOAuthIntegration({
-            clientId: MONITOR_CLIENTIDS[0],
-          })}
-          deeplink="appleLogin"
-        />
-      );
-
-      thirdPartyAuthNotRendered();
-    });
-  });
-
   describe('glean metrics', () => {
     it('emits emailFirst.view on initial render', () => {
       const viewSpy = jest.spyOn(GleanMetrics.emailFirst, 'view');
@@ -298,6 +250,32 @@ describe('Index page', () => {
       expect(
         screen.getByRole('button', { name: 'Sign up or sign in' })
       ).toHaveAttribute('data-glean-id', 'email_first_submit');
+    });
+  });
+
+  describe('email input auto-focus', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('does not focus the email input until the defer timeout elapses', () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      expect(screen.getByLabelText('Enter your email')).not.toHaveFocus();
+    });
+
+    it('focuses the email input after the defer timeout elapses', () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      act(() => {
+        jest.advanceTimersByTime(10);
+      });
+
+      expect(screen.getByLabelText('Enter your email')).toHaveFocus();
     });
   });
 });

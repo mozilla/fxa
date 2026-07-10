@@ -24,3 +24,20 @@ export class ChurnInterventionProductIdentifierMissingError extends ChurnInterve
     this.name = 'ChurnInterventionProductIdentifierMissingError';
   }
 }
+
+export class ChurnSubscriptionCustomerMismatchError extends ChurnInterventionError {
+  constructor(
+    uid: string,
+    accountCustomer: string,
+    subscriptionCustomer: string,
+    subscriptionId: string
+  ) {
+    super('Subscription customer does not match account customer', {
+      uid,
+      accountCustomer,
+      subscriptionCustomer,
+      subscriptionId,
+    });
+    this.name = 'ChurnSubscriptionCustomerMismatchError';
+  }
+}

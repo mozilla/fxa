@@ -15,7 +15,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
+      `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
     );
     await signup.fillOutEmailForm(email);
     await signup.fillOutSignupForm(password);
@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
     await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
-    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    await expect(settings.recoveryKey.status).toHaveText('Not set');
 
     await settings.recoveryKey.createButton.click();
 
@@ -38,7 +38,7 @@ test.describe('severity-2 #smoke', () => {
 
     await settings.signOut();
     await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
+      `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
     );
     await signin.fillOutEmailFirstForm(email);
     await signin.fillOutPasswordForm(password);

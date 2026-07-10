@@ -62,9 +62,8 @@ export async function init() {
   const lockDuration =
     parseInt(`${program.lockDuration}`) || DEFAULT_LOCK_DURATION_MS;
 
-  const { log, database, senders } = await setupProcessingTaskObjects(
-    'paypal-processor'
-  );
+  const { log, database, senders } =
+    await setupProcessingTaskObjects('paypal-processor');
 
   initSentry(
     {
@@ -73,6 +72,14 @@ export async function init() {
     },
     log
   );
+
+  Sentry.captureMessage('PayPal processor started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
 
   const statsd = Container.get(StatsD);
   const paypalClient = new PayPalClient(
@@ -146,26 +153,12 @@ export async function init() {
 
 if (require.main === module) {
   let exitStatus = 1;
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'paypal-processsor',
-    status: 'in_progress',
-  });
   init()
     .then((result) => {
       exitStatus = result;
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'paypal-processsor',
-        status: 'ok',
-      });
     })
     .catch((err) => {
       console.error(err);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'paypal-processsor',
-        status: 'error',
-      });
     })
     .then(() => {
       return Sentry.close(2000);

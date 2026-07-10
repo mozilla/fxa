@@ -3,3 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import '@testing-library/jest-dom/extend-expect';
+import { TextEncoder, TextDecoder } from 'util';
+
+// react-router v7 requires TextEncoder/TextDecoder in its internal modules.
+// jsdom does not provide these by default.
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;

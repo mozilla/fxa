@@ -4,6 +4,7 @@
 
 import { syncEngineConfigs } from '../../../lib/sync-engines';
 import { HandledError } from '../../../lib/error-utils';
+import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
 import { Integration } from '../../../models';
 
 export interface SetPasswordFormData {
@@ -20,9 +21,38 @@ export type CreatePasswordHandler = (
   newPassword: string
 ) => Promise<CreatePasswordHandlerError>;
 
+export type PostVerifySetPasswordIntegration = Pick<
+  Integration,
+  'getCmsInfo' | 'isSync'
+>;
+
+/**
+ * How the user got to the create-password page. Determines which Glean
+ * `reason` extra fires under the `post_verify_set_password.*` category and
+ * which info copy renders above the form.
+ */
+export type PasswordCreationReason = 'third_party_auth' | 'otp' | 'passkey';
+
 export interface SetPasswordProps {
   email: string;
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  integration?: Integration;
+  integration: PostVerifySetPasswordIntegration;
+  passwordCreationReason?: PasswordCreationReason;
+  /**
+   * Glean `reason` for the funnel events, composed by the container. Defaults
+   * to `passwordCreationReason`; the passkey flow passes a surface-tagged
+   * value (e.g. `signin_passkey`).
+   */
+  gleanReason?: string;
+}
+
+export interface SetPasswordLocationState {
+  passwordCreationReason?: PasswordCreationReason;
+  /**
+   * Originating passkey sign-in surface; set only for `passwordCreationReason
+   * === 'passkey'`. Tags the `post_verify_set_password.*` and
+   * `passkey.auth_success` reasons with the surface.
+   */
+  passkeySurface?: PasskeyMetricsSurface;
 }

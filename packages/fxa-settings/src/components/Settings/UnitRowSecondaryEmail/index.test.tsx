@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import {
   renderWithRouter,
@@ -240,7 +239,7 @@ describe('UnitRowSecondaryEmail', () => {
         resendSecondaryEmailCode: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
 
-      const { history } = renderWithRouter(
+      const { router } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
         </AppContext.Provider>
@@ -252,7 +251,7 @@ describe('UnitRowSecondaryEmail', () => {
         );
       });
 
-      expect(history.location.pathname).toEqual('/settings/emails/verify');
+      expect(router.state.location.pathname).toEqual('/settings/emails/verify');
     });
 
     it('displays an error message in the AlertBar', async () => {

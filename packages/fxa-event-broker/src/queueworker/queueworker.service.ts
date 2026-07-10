@@ -134,11 +134,17 @@ export class QueueworkerService
    * Publish a message to the pubsub topic for the client.
    */
   private async publishMessage(clientId: string, json: any) {
+    const eventType = json.event ?? 'unknown';
     // Ensure clientId is normalized
     clientId = clientId.toLowerCase();
     if (!this.clientWebhooks.hasWebhookRegistered(clientId)) {
-      this.log.debug('noWebhookRegistered', { clientId });
-      this.metrics.increment('message.webhookNotFound', { clientId });
+      this.log.debug('noWebhookRegistered', {
+        clientId,
+        eventType,
+      });
+      this.metrics.increment('message.webhookNotFound', {
+        eventType,
+      });
       return;
     }
     const topicName = this.topicPrefix + clientId;
@@ -186,9 +192,16 @@ export class QueueworkerService
     const clientIds = await this.clientIdsForUserAndResourceServers(
       message.uid
     );
+
+    const changeTime =
+      (eventType === 'password' &&
+        (message as dto.passwordSchema).generation) ||
+      message.timestamp ||
+      message.ts * 1000;
+
     for (const clientId of clientIds) {
       const messageId = await this.publishMessage(clientId, {
-        changeTime: message.timestamp ? message.timestamp : message.ts * 1000,
+        changeTime,
         event: message.event,
         timestamp: Date.now(),
         uid: message.uid,

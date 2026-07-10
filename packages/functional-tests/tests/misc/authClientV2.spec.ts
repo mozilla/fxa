@@ -8,14 +8,25 @@ import AuthClient, {
   getCredentialsV2,
 } from '../../../fxa-auth-client/browser';
 import { expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget } from '../../lib/targets/base';
 
 test.describe('auth-client-tests', () => {
-  async function signUp(client: AuthClient, email: string, password: string) {
-    const credentials = await client.signUp(email, password, {
-      keys: true,
-      lang: 'en',
-      preVerified: 'true',
-    });
+  async function signUp(
+    client: AuthClient,
+    email: string,
+    password: string,
+    target: BaseTarget
+  ) {
+    const credentials = await client.signUp(
+      email,
+      password,
+      {
+        keys: true,
+        lang: 'en',
+        preVerified: 'true',
+      },
+      target.ciHeader
+    );
 
     expect(credentials.sessionToken).toBeDefined();
 
@@ -43,7 +54,7 @@ test.describe('auth-client-tests', () => {
     const client = target.authClient;
     const { email, password } = testAccountTracker.generateAccountDetails();
 
-    await signUp(client, email, password);
+    await signUp(client, email, password, target);
 
     // Check the salt is V1
     const status = await client.getCredentialStatusV2(email);
@@ -52,7 +63,12 @@ test.describe('auth-client-tests', () => {
     expect(status.clientSalt).toBeUndefined();
 
     // Login IN
-    const signInResult = await client.signIn(email, password, { keys: true });
+    const signInResult = await client.signIn(
+      email,
+      password,
+      { keys: true },
+      target.ciHeader
+    );
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
 
@@ -76,7 +92,7 @@ test.describe('auth-client-tests', () => {
     const client = target.createAuthClient(2);
     const { email, password } = testAccountTracker.generateAccountDetails();
 
-    await signUp(client, email, password);
+    await signUp(client, email, password, target);
 
     // Check the salt is V1
     const status = await client.getCredentialStatusV2(email);
@@ -85,7 +101,12 @@ test.describe('auth-client-tests', () => {
     expect(status.upgradeNeeded).toBeFalsy();
 
     // Login IN
-    const signInResult = await client.signIn(email, password, { keys: true });
+    const signInResult = await client.signIn(
+      email,
+      password,
+      { keys: true },
+      target.ciHeader
+    );
     expect(signInResult).toBeDefined();
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
@@ -106,7 +127,8 @@ test.describe('auth-client-tests', () => {
     const v1SignInResult = (await client.signInWithAuthPW(
       email,
       v1Credentials.authPW,
-      { keys: true }
+      { keys: true },
+      target.ciHeader
     )) as any;
     expect(v1SignInResult).toBeDefined();
     expect(v1SignInResult.keyFetchToken).toBeDefined();
@@ -119,9 +141,14 @@ test.describe('auth-client-tests', () => {
     const client = target.authClient;
     const { email, password } = testAccountTracker.generateAccountDetails();
 
-    await signUp(client, email, password);
+    await signUp(client, email, password, target);
 
-    const signInResult = await client.signIn(email, password, { keys: true });
+    const signInResult = await client.signIn(
+      email,
+      password,
+      { keys: true },
+      target.ciHeader
+    );
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
 
@@ -146,9 +173,14 @@ test.describe('auth-client-tests', () => {
     expect(statusBefore.currentVersion).toBe('v1');
 
     // The sign in should automatically upgrade the password, but return V1 creds
-    const signInResult2 = await client2.signIn(email, password, {
-      keys: true,
-    });
+    const signInResult2 = await client2.signIn(
+      email,
+      password,
+      {
+        keys: true,
+      },
+      target.ciHeader
+    );
     expect(signInResult2).toBeDefined();
     expect(signInResult2.keyFetchToken).toBeDefined();
     expect(signInResult2.unwrapBKey).toBeDefined();
@@ -175,9 +207,14 @@ test.describe('auth-client-tests', () => {
     expect(statusAfter.currentVersion).toBe('v2');
 
     // Do another signin to get V2 credentials
-    const signInResult3 = await client2.signIn(email, password, {
-      keys: true,
-    });
+    const signInResult3 = await client2.signIn(
+      email,
+      password,
+      {
+        keys: true,
+      },
+      target.ciHeader
+    );
 
     // Check unwrapKB. It should match our V1 credential unwrapBKey.
     const status = await client.getCredentialStatusV2(email);

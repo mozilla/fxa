@@ -30,6 +30,14 @@ export type InvoicePreview = {
   subsequentTax?: TaxAmount[];
 };
 
+export enum PaymentProvider {
+  AppleIap = 'apple_iap',
+  GoogleIap = 'google_iap',
+  PayPal = 'paypal',
+  Stripe = 'stripe',
+}
+
+// Duplicated as enum SubPlatPaymentMethodType in @fxa/payments/metrics — keep in sync.
 export enum SubPlatPaymentMethodType {
   PayPal = 'external_paypal',
   Stripe = 'stripe',
@@ -40,6 +48,7 @@ export enum SubPlatPaymentMethodType {
 }
 
 export interface StripePaymentMethod {
+  provider: 'stripe';
   type:
     | SubPlatPaymentMethodType.Card
     | SubPlatPaymentMethodType.ApplePay
@@ -50,6 +59,7 @@ export interface StripePaymentMethod {
 }
 
 export interface PayPalPaymentMethod {
+  provider: 'paypal';
   type: SubPlatPaymentMethodType.PayPal;
 }
 
@@ -68,11 +78,12 @@ export interface AccountCreditBalance {
   currency: string | null;
 }
 
+// Duplicated as type PaymentProvidersType in @fxa/payments/metrics — keep in sync.
 export type PaymentProvidersType =
-  | Stripe.PaymentMethod.Type
+  | 'stripe'
   | 'google_iap'
   | 'apple_iap'
-  | 'external_paypal';
+  | 'paypal';
 
 export enum PaymentMethodErrorType {
   CardExpired,
@@ -171,6 +182,7 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   AutoCancelledRedundantFor = 'autoCancelledRedundantFor',
   RedundantCancellation = 'redundantCancellation',
   CancelledForCustomerAt = 'cancelled_for_customer_at',
+  SuppressCancellationEmail = 'suppress_cancellation_email',
   UtmCampaign = 'utm_campaign',
   UtmContent = 'utm_content',
   UtmMedium = 'utm_medium',
@@ -194,6 +206,15 @@ export type StripeInvoiceMetadata = StripeMetadata<STRIPE_INVOICE_METADATA>;
 export type StripeInvoiceMetadataInput =
   StripeMetadataInput<STRIPE_INVOICE_METADATA>;
 
+export enum STRIPE_SETUP_INTENT_METADATA {
+  SubscriptionId = 'subscription_id',
+}
+export type StripeSetupIntentMetadata =
+  StripeMetadata<STRIPE_SETUP_INTENT_METADATA>;
+export type StripeSetupIntentMetadataInput =
+  StripeMetadataInput<STRIPE_SETUP_INTENT_METADATA>;
+
+// Duplicated as enum SubplatInterval in @fxa/payments/metrics — keep in sync.
 export enum SubplatInterval {
   Daily = 'daily',
   Weekly = 'weekly',
@@ -202,6 +223,7 @@ export enum SubplatInterval {
   Yearly = 'yearly',
 }
 
+// Duplicated as interface TaxAddress in @fxa/payments/metrics — keep in sync.
 export interface TaxAddress {
   countryCode: string;
   postalCode: string;

@@ -4,7 +4,6 @@
 
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import fetch from 'node-fetch';
 
 import { jwk2pem, pem2jwk } from '@fxa/shared/pem-jwk';
 

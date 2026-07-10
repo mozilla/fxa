@@ -14,7 +14,6 @@ const experimentGroupingRules = [
   require('./communication-prefs'),
   require('./is-sampled-user'),
   require('./sentry'),
-  require('./push'),
   require('./generalized-react-app'),
   require('./key-stretch'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());

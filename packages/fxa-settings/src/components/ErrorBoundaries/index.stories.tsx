@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { AppError } from '.';
 import { UrlQueryData } from '../../lib/model-data';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 import { Meta } from '@storybook/react';
 import { OAuthQueryParams } from '../../models/pages/signin';
-import { ReachRouterWindow } from '../../lib/window';
+import { RouterWindow } from '../../lib/window';
 
 export default {
   title: 'Components/AppError',
@@ -30,7 +29,7 @@ export const QueryParamValidationError = () => {
           search: '',
         },
         navigate: function () {},
-      } as unknown as ReachRouterWindow)
+      } as unknown as RouterWindow)
     );
     model.validate();
   } catch (error) {

@@ -1,17 +1,34 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { faker } from '@faker-js/faker';
 import {
   CancellationReason,
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  EligibilityStatus,
+  Entrypoint,
+  FlowType,
+  Outcome,
+  Action,
+  PageName,
   SubscriptionCancellationData,
+  TrialConversionData,
+  type AccountsMetricsData,
   type ExperimentationData,
+  type GenericGleanSubManageEvent,
+  type GleanMetricsData,
+  type SubManageMetricsArgs,
+  type PageMetricsData,
+  type RetentionFlowResultData,
+  type SessionMetricsData,
+  type StripeMetricsData,
+  type SubPlatCmsMetricsData,
+  TaxAddress,
+  SubplatInterval,
 } from './glean.types';
-import { ResultCartFactory } from '@fxa/payments/cart';
-import { SubplatInterval } from '@fxa/payments/customer';
 
 export const CheckoutParamsFactory = (
   override?: Record<string, string>
@@ -35,6 +52,7 @@ export const CommonMetricsFactory = (
   ipAddress: faker.internet.ip(),
   deviceType: faker.string.alphanumeric(),
   userAgent: faker.internet.userAgent(),
+  isFreeTrial: false,
   params: {},
   searchParams: {},
   experimentationId: faker.string.uuid(),
@@ -43,21 +61,16 @@ export const CommonMetricsFactory = (
 
 export const CartMetricsFactory = (
   override?: Partial<CartMetrics>
-): CartMetrics => {
-  const resultCart = ResultCartFactory({
-    ...override,
-  });
-
-  return {
-    uid: resultCart.uid,
-    errorReasonId: resultCart.errorReasonId,
-    couponCode: resultCart.couponCode,
-    currency: faker.finance.currencyCode().toLowerCase(),
-    stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
-    taxAddress: resultCart.taxAddress,
-    ...override,
-  };
-};
+): CartMetrics => ({
+  uid: undefined,
+  errorReasonId: null,
+  couponCode: undefined,
+  currency: faker.finance.currencyCode().toLowerCase(),
+  stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+  taxAddress: undefined,
+  isFreeTrial: false,
+  ...override,
+});
 
 export const CmsMetricsDataFactory = (
   override?: Partial<CmsMetricsData>
@@ -85,9 +98,132 @@ export const SubscriptionCancellationDataFactory = (
   };
 };
 
+export const TrialConversionDataFactory = (
+  override?: Partial<TrialConversionData>
+): TrialConversionData => ({
+  conversionStatus: faker.helpers.arrayElement(['successful', 'unsuccessful']),
+  providerEventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
+  productId: `prod_${faker.string.alphanumeric({ length: 14 })}`,
+  billingCountry: faker.location.countryCode(),
+  ...override,
+});
+
 export const ExperimentationDataFactory = (
   override?: Partial<ExperimentationData>
 ): ExperimentationData => ({
   nimbusUserId: faker.string.uuid(),
+  ...override,
+});
+
+export const SubManageMetricsArgsFactory = (
+  override?: Partial<SubManageMetricsArgs>
+): SubManageMetricsArgs => ({
+  uid: faker.string.uuid(),
+  commonMetrics: CommonMetricsFactory(),
+  subscriptionId: `sub_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
+export const TaxAddressFactory = (
+  override?: Partial<TaxAddress>
+): TaxAddress => ({
+  countryCode: faker.location.countryCode(),
+  postalCode: faker.location.zipCode(),
+  ...override,
+});
+
+export const GenericGleanSubManageEventFactory = (
+  override?: Partial<GenericGleanSubManageEvent>
+): GenericGleanSubManageEvent => ({
+  eventName: faker.string.alpha({ length: 10 }),
+  ...SubManageMetricsArgsFactory(),
+  ...override,
+});
+
+export const StripeMetricsDataFactory = (
+  override?: Partial<StripeMetricsData>
+): StripeMetricsData => ({
+  ...override,
+});
+
+export const StripeMetricsDataPopulatedFactory = (
+  override?: Partial<StripeMetricsData>
+): StripeMetricsData => ({
+  customerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+  couponCode: faker.string.alpha({ length: 10 }),
+  currency: faker.finance.currencyCode().toLowerCase(),
+  taxAddress: TaxAddressFactory(),
+  productId: `prod_${faker.string.alphanumeric({ length: 14 })}`,
+  priceId: `price_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
+export const AccountsMetricsDataFactory = (
+  override?: Partial<AccountsMetricsData>
+): AccountsMetricsData => ({
+  uid: faker.string.uuid(),
+  metricsOptOut: faker.datatype.boolean(),
+  ...override,
+});
+export const SubPlatCmsMetricsDataFactory = (
+  override?: Partial<SubPlatCmsMetricsData>
+): SubPlatCmsMetricsData => ({
+  ...override,
+});
+
+export const SessionMetricsDataFactory = (
+  override?: Partial<SessionMetricsData>
+): SessionMetricsData => ({
+  ipAddress: faker.internet.ip(),
+  deviceType: faker.string.alpha({ length: 10 }),
+  userAgent: faker.string.alpha({ length: 10 }),
+  ...override,
+});
+
+export const GleanMetricsDataFactory = (
+  override?: Partial<GleanMetricsData>
+): GleanMetricsData => ({
+  stripe: StripeMetricsDataFactory(),
+  accounts: AccountsMetricsDataFactory(),
+  cms: SubPlatCmsMetricsDataFactory(),
+  session: SessionMetricsDataFactory(),
+  experimentation: ExperimentationDataFactory(),
+  ...override,
+});
+
+export const PageViewEventFactory = (override?: Partial<PageMetricsData>) => ({
+  pageName: faker.helpers.arrayElement<PageName>(['management']),
+  entrypoint: faker.helpers.arrayElement<Entrypoint>([
+    'email',
+    'internal_nav',
+    'subscription-management',
+  ]),
+  ...override,
+});
+
+export const RetentionFlowResultFactory = (
+  override?: Partial<RetentionFlowResultData>
+): RetentionFlowResultData => ({
+  flowType: faker.helpers.arrayElement<FlowType>(['cancel', 'stay']),
+  action: faker.helpers.arrayElement<Action>([
+    'redeem_coupon',
+    'cancel_subscription',
+    'stay_subscribed',
+    'remain_canceled',
+  ]),
+  outcome: faker.helpers.arrayElement<Outcome>([
+    'redeem_success',
+    'customer_canceled',
+    'stay_subscribed_success',
+    'error',
+  ]),
+  eligibilityStatus: faker.helpers.arrayElement<EligibilityStatus>([
+    'cancel',
+    'stay',
+    'offer',
+    'not_eligible',
+  ]),
+  offeringId: faker.string.alphanumeric(8),
+  interval: faker.helpers.enumValue(SubplatInterval),
   ...override,
 });

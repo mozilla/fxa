@@ -56,8 +56,12 @@ export class OtpUtils {
     const valid = otpAuthenticator.check(code, secret);
     const delta = otpAuthenticator.checkDelta(code, secret);
 
-    if (type && delta) {
-      this.statsd.histogram(`${type}.totp.delta_histogram`, delta);
+    if (type && delta !== undefined && delta !== null) {
+      // Offset delta by window so the value is always non-negative.
+      // With window=1: delta -1 → 0, delta 0 → 1, delta 1 → 2.
+      // Telegraf's statsd plugin only accepts non-negative histogram values.
+      const window = otpOptions?.window ?? 1;
+      this.statsd.histogram(`${type}.totp.delta_histogram`, delta + window);
     }
     // Return delta for logging
     return { valid, delta };

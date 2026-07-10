@@ -5,6 +5,7 @@
 import {
   ChurnInterventionByProductIdRawResult,
   ChurnInterventionByProductIdResult,
+  CmsOfferingContent,
 } from './types';
 import * as Sentry from '@sentry/node';
 
@@ -12,20 +13,28 @@ export class ChurnInterventionByProductIdResultUtil {
   constructor(private rawResult: ChurnInterventionByProductIdRawResult) {}
 
   getTransformedChurnInterventionByProductId() {
-    if (this.rawResult.offerings.length !== 1) {
+    if (this.rawResult.offerings.length === 0) {
+      return [];
+    }
+    if (this.rawResult.offerings.length > 1) {
       Sentry.captureMessage(
         'Unexpected number of offerings found for product and interval',
         { extra: { offeringsCount: this.rawResult.offerings.length } }
       );
     }
-    const { defaultPurchase, commonContent, churnInterventions } =
-      this.rawResult.offerings[0];
+    const {
+      apiIdentifier,
+      defaultPurchase,
+      commonContent,
+      churnInterventions,
+    } = this.rawResult.offerings[0];
 
     // One ChurnInterventionByOfferingResult per churn intervention to handle multiple churn types
     const churnInterventionsByProductId: ChurnInterventionByProductIdResult[] =
       churnInterventions.map((churnIntervention) => {
         return {
           ...churnIntervention,
+          apiIdentifier,
           webIcon:
             defaultPurchase.purchaseDetails.localizations.length > 0
               ? defaultPurchase.purchaseDetails.localizations[0].webIcon
@@ -66,5 +75,20 @@ export class ChurnInterventionByProductIdResultUtil {
   }
   private transformArrayStringField(details: string): string[] {
     return details.split('\n').filter((detail) => !!detail);
+  }
+
+  cmsOfferingContent(): CmsOfferingContent | null {
+    const offering = this.rawResult.offerings?.at(0);
+
+    if (!offering) {
+      return null;
+    }
+
+    return {
+      productName: offering.defaultPurchase?.purchaseDetails?.productName,
+      successActionButtonUrl: offering.commonContent?.successActionButtonUrl,
+      supportUrl: offering.commonContent?.supportUrl,
+      webIcon: offering.defaultPurchase?.purchaseDetails?.webIcon,
+    };
   }
 }

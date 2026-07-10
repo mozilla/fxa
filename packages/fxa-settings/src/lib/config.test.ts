@@ -118,15 +118,14 @@ describe('update', () => {
     expect(config.sentry.dsn).toStrictEqual(newData.sentry.dsn);
   });
 
-  it('can add new items', () => {
-    expect(config.version).toBeUndefined();
+  it('can update existing items', () => {
+    expect(config.version).toStrictEqual('');
 
     const newData = {
       version: '0.1.0',
     };
     update(newData);
 
-    expect(config.version).toBeDefined();
     expect(config.version).toStrictEqual(newData.version);
   });
 });
@@ -146,15 +145,158 @@ describe('reset', () => {
   });
 
   it('removes any keys that are not in the default config', () => {
-    expect(config.version).toBeUndefined();
+    expect(config.version).toStrictEqual('');
 
     const newData = {
       version: '0.1.0',
     };
     update(newData);
-    expect(config.version).toBeDefined();
+    expect(config.version).toStrictEqual('0.1.0');
 
     reset();
-    expect(config.version).toBeUndefined();
+    expect(config.version).toStrictEqual('');
+  });
+});
+
+describe('passkeys', () => {
+  it('can parse passkeys.maxPerUser from server config', () => {
+    const data = {
+      passkeys: {
+        maxPerUser: 5,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.passkeys).toBeDefined();
+    expect(config.passkeys.maxPerUser).toBe(5);
+  });
+
+  it('defaults passkeys.maxPerUser to 10', () => {
+    expect(config.passkeys.maxPerUser).toBe(10);
+  });
+});
+
+describe('featureFlags', () => {
+  it('can parse passkeysEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeysEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBe(true);
+  });
+
+  it('handles passkeysEnabled as false', () => {
+    const data = {
+      featureFlags: {
+        passkeysEnabled: false,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBe(false);
+  });
+
+  it('can parse passkeyRegistrationEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeyRegistrationEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBe(true);
+  });
+
+  it('handles passkeyRegistrationEnabled as false', () => {
+    const data = {
+      featureFlags: {
+        passkeyRegistrationEnabled: false,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBe(false);
+  });
+
+  it('can parse passkeyAuthenticationEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeyAuthenticationEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyAuthenticationEnabled).toBe(true);
+  });
+
+  it('handles undefined passkey flags', () => {
+    const data = {
+      featureFlags: {
+        keyStretchV2: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBeUndefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBeUndefined();
+    expect(config.featureFlags?.passkeyAuthenticationEnabled).toBeUndefined();
   });
 });

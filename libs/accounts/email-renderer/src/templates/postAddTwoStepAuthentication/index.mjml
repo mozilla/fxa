@@ -32,6 +32,12 @@
       </a>
     </mj-text>
 
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddTwoStepAuthentication-device-sign-out-message">
+        To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.
+      </span>
+    </mj-text>
+
     <mj-text css-class="text-body-no-margin">
       <span data-l10n-id="postAddTwoStepAuthentication-from-device-v2">You requested this from:</span>
     </mj-text>

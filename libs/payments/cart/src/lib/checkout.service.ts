@@ -18,6 +18,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
+  ConfirmationTokenManager,
   CustomerManager,
   InvoiceManager,
   PaymentIntentManager,
@@ -25,6 +26,7 @@ import {
   PromotionCodeManager,
   retrieveSubscriptionItem,
   STRIPE_CUSTOMER_METADATA,
+  STRIPE_SETUP_INTENT_METADATA,
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
@@ -40,15 +42,17 @@ import {
   StripePromotionCode,
   type StripePaymentIntent,
   type StripeSetupIntent,
+  AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProfileClient } from '@fxa/profile/client';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { ProductConfigurationManager, type FreeTrial } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { NotifierService } from '@fxa/shared/notifier';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
+  CartFreeTrialMismatchError,
   CartAccountNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
@@ -56,7 +60,7 @@ import {
   CartUidMismatchError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
-import { CheckoutCustomerData, ResultCart } from './cart.types';
+import { ResultCart } from './cart.types';
 import {
   handleEligibilityStatusMap,
   convertStripePaymentMethodTypeToSubPlat,
@@ -70,10 +74,17 @@ import {
   InvalidInvoiceStateCheckoutError,
   InvalidIntentStateError,
   LatestInvoiceNotFoundOnSubscriptionError,
+  NewAccountPrepaidCardFreeTrialNotAllowedError,
   PaymentMethodUpdateFailedError,
   UpgradeForSubscriptionNotFoundError,
   DetermineCheckoutAmountCustomerRequiredError,
   DetermineCheckoutAmountSubscriptionRequiredError,
+  PayWithStripeLatestInvoiceNotFoundOnSubscriptionError,
+  PayWithPaypalNullCurrencyError,
+  PayWithStripeNullCurrencyError,
+  UpgradeSubscriptionNullCurrencyError,
+  UnexpectedSubscriptionStatusForTrialError,
+  AccountCustomerAlreadyExistsError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
@@ -81,6 +92,16 @@ import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  type CheckoutEventEmitter,
+  type CommonMetrics,
+} from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
+import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
+import { FreeTrialManager } from './free-trial.manager';
+
+const FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS = 24;
 
 @Injectable()
 export class CheckoutService {
@@ -90,6 +111,7 @@ export class CheckoutService {
     @Inject(AsyncLocalStorageCart)
     private cartAsyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
+    private confirmationTokenManager: ConfirmationTokenManager,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
@@ -104,6 +126,10 @@ export class CheckoutService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
+    private freeTrialManager: FreeTrialManager,
+    private gleanService: PaymentsMetricsAggregatorService,
+    @Inject(CHECKOUT_EVENT_EMITTER_TOKEN)
+    private checkoutEmitter: CheckoutEventEmitter,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 
@@ -125,7 +151,6 @@ export class CheckoutService {
 
   async prePaySteps(
     cart: ResultCart,
-    customerData: CheckoutCustomerData,
     sessionUid?: string
   ): Promise<PrePayStepsResult> {
     const taxAddress = cart.taxAddress;
@@ -157,10 +182,21 @@ export class CheckoutService {
       throw new CartAccountNotFoundError(cart.id);
     }
     const email = fxaAccounts[0].email;
+    const accountCreatedAt = fxaAccounts[0].createdAt;
 
     let stripeCustomerId = cart.stripeCustomerId;
     let customer: StripeCustomer;
     if (!stripeCustomerId) {
+      try {
+        await this.accountCustomerManager.getAccountCustomerByUid(uid);
+
+        throw new AccountCustomerAlreadyExistsError(uid);
+      } catch (error) {
+        if (!(error instanceof AccountCustomerNotFoundError)) {
+          throw error;
+        }
+      }
+
       customer = await this.customerManager.create({
         uid,
         email,
@@ -182,19 +218,20 @@ export class CheckoutService {
       });
     }
 
-    if (uid && !cart.stripeCustomerId) {
+    if (!cart.stripeCustomerId) {
       await this.accountCustomerManager.createAccountCustomer({
         uid,
         stripeCustomerId,
       });
-    }
 
-    // Cart only needs to be updated if we created a customer
-    if (!cart.uid || !cart.stripeCustomerId) {
-      await this.cartManager.updateFreshCart(cart.id, cart.version, {
-        uid,
-        stripeCustomerId,
-      });
+      await this.cartManager.dangerouslyUpdateProcessingCart(
+        cart.id,
+        cart.version,
+        {
+          uid,
+          stripeCustomerId,
+        }
+      );
       version += 1;
     }
 
@@ -216,6 +253,21 @@ export class CheckoutService {
         cart.eligibilityStatus,
         cartEligibilityStatus
       );
+    }
+
+    let freeTrial: FreeTrial | null = null;
+    if (cart.isFreeTrial) {
+      const freeTrialResult = await this.getFreeTrialEligibility({
+        uid,
+        offeringConfigId: cart.offeringConfigId,
+        countryCode: taxAddress.countryCode,
+        interval: cart.interval as SubplatInterval,
+        eligibilityStatus: eligibility.subscriptionEligibilityResult,
+      });
+      if (!freeTrialResult.userEligible || !freeTrialResult.offer) {
+        throw new CartFreeTrialMismatchError(cart.id, true, false);
+      }
+      freeTrial = freeTrialResult.offer;
     }
 
     // re-validate total amount against upcoming invoice
@@ -259,12 +311,14 @@ export class CheckoutService {
 
     return {
       uid: uid,
+      accountCreatedAt,
       customer,
       enableAutomaticTax,
       promotionCode,
       version,
       price,
       eligibility,
+      freeTrial,
     };
   }
 
@@ -275,8 +329,11 @@ export class CheckoutService {
     uid: string;
     paymentProvider: 'stripe' | 'paypal';
     paymentForm: SubPlatPaymentMethodType;
+    isCancelInterstitialOffer: boolean;
+    requestArgs?: CommonMetrics;
   }) {
-    const { cart, version, subscription, uid, paymentProvider, paymentForm } = args;
+    const { cart, version, subscription, uid, paymentProvider, paymentForm } =
+      args;
     const { customer: customerId, currency } = subscription;
 
     await this.customerManager.setTaxId(customerId, currency);
@@ -294,30 +351,69 @@ export class CheckoutService {
 
     await this.cartManager.finishCart(cart.id, version, {});
 
+    if (args.isCancelInterstitialOffer && args.requestArgs) {
+      this.gleanService.recordGenericSubManageEvent({
+        eventName: 'recordCancelInterstitialOfferRedeemed',
+        uid,
+        subscriptionId: subscription.id,
+        commonMetrics: args.requestArgs,
+      });
+    }
+
     this.statsd.increment('subscription_success', {
       payment_provider: paymentProvider,
       payment_form: paymentForm,
       offering_id: cart.offeringConfigId,
       interval: cart.interval,
     });
+
+    // Emit the Glean conversion event server-side so it fires even when the
+    // user has already navigated away from the checkout page. The frontend
+    // PaymentStateObserver no longer emits this event. The emitter handler
+    // in PaymentsEmitterService enriches via retrieveAdditionalMetricsData,
+    // so we merge cart-derived params (cartId/offeringId/interval) onto the
+    // request CommonMetrics — guarantees the handler can look up the cart
+    // even when args.requestArgs is undefined (e.g. cron-driven finalize).
+    const baseMetrics: CommonMetrics = args.requestArgs ?? {
+      ipAddress: '',
+      deviceType: '',
+      userAgent: '',
+      experimentationId: '',
+      isFreeTrial: false,
+      params: {},
+      searchParams: {},
+    };
+    await this.checkoutEmitter.emit('checkoutSuccess', {
+      ...baseMetrics,
+      params: {
+        ...baseMetrics.params,
+        cartId: cart.id,
+        offeringId: cart.offeringConfigId,
+        interval: cart.interval,
+      },
+      paymentProvider,
+      paymentMethod: paymentForm,
+    });
   }
 
   async payWithStripe(
     cart: ResultCart,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string
   ) {
     const {
       uid,
+      accountCreatedAt,
       customer,
       enableAutomaticTax,
       promotionCode,
       version,
       price,
       eligibility,
-    } = await this.prePaySteps(cart, customerData, sessionUid);
+      freeTrial,
+    } = await this.prePaySteps(cart, sessionUid);
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
@@ -328,7 +424,24 @@ export class CheckoutService {
         price.id,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new PayWithStripeNullCurrencyError(cart.id, price.id)
+    );
+
+    if (
+      freeTrial &&
+      Date.now() - accountCreatedAt <
+        FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS * 60 * 60 * 1000
+    ) {
+      const confirmationToken =
+        await this.confirmationTokenManager.retrieve(confirmationTokenId);
+      if (
+        confirmationToken.payment_method_preview?.card?.funding === 'prepaid'
+      ) {
+        throw new NewAccountPrepaidCardFreeTrialNotAllowedError(cart.id, uid);
+      }
+    }
 
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
@@ -344,7 +457,16 @@ export class CheckoutService {
                   price: price.id,
                 },
               ],
-              payment_behavior: 'default_incomplete',
+              ...(freeTrial
+                ? {
+                    trial_period_days: freeTrial.trialLengthDays,
+                    trial_settings: {
+                      end_behavior: {
+                        missing_payment_method: 'cancel' as const,
+                      },
+                    },
+                  }
+                : { payment_behavior: 'default_incomplete' as const }),
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
@@ -391,12 +513,25 @@ export class CheckoutService {
       store.checkout.subscriptionId = subscription.id;
     }
 
-    // Get payment/setup intent for subscription
+    if (freeTrial) {
+      if (subscription.status !== 'trialing') {
+        throw new UnexpectedSubscriptionStatusForTrialError(
+          cart.id,
+          subscription.id,
+          subscription.status
+        );
+      }
+      await this.freeTrialManager.recordFreeTrial(uid, freeTrial.internalName);
+    }
+
     let intent: StripePaymentIntent | StripeSetupIntent | undefined;
     try {
       assert(
         subscription.latest_invoice,
-        'latest_invoice does not exist on subscription'
+        new PayWithStripeLatestInvoiceNotFoundOnSubscriptionError(
+          cart.id,
+          subscription.id
+        )
       );
       const invoice = await this.invoiceManager.retrieve(
         subscription.latest_invoice
@@ -410,10 +545,32 @@ export class CheckoutService {
             off_session: false,
           }
         );
+      } else if (subscription.pending_setup_intent) {
+        // Subscription metadata is required by welcome email dispatcher for zero-cost subscriptions
+        await this.setupIntentManager.update(
+          subscription.pending_setup_intent,
+          {
+            metadata: {
+              [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
+            },
+          }
+        );
+
+        intent = await this.setupIntentManager.confirm(
+          subscription.pending_setup_intent,
+          confirmationTokenId
+        );
+
+        this.statsd.increment('checkout_stripe_payment_setupintent_status', {
+          status: intent.status,
+        });
       } else {
         intent = await this.setupIntentManager.createAndConfirm(
           customer.id,
-          confirmationTokenId
+          confirmationTokenId,
+          {
+            [STRIPE_SETUP_INTENT_METADATA.SubscriptionId]: subscription.id,
+          }
         );
 
         this.statsd.increment('checkout_stripe_payment_setupintent_status', {
@@ -429,14 +586,18 @@ export class CheckoutService {
 
       if (!intent) {
         // At least update the cart with the subscription ID before throwing
-        await this.cartManager.updateFreshCart(cart.id, version, {
-          stripeSubscriptionId: subscription.id,
-        });
+        await this.cartManager.dangerouslyUpdateProcessingCart(
+          cart.id,
+          version,
+          {
+            stripeSubscriptionId: subscription.id,
+          }
+        );
         throw error;
       }
     }
 
-    await this.cartManager.updateFreshCart(cart.id, version, {
+    await this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
       stripeIntentId: intent.id,
     });
@@ -460,7 +621,8 @@ export class CheckoutService {
         const paymentMethod = await this.paymentMethodManager.retrieve(
           intent.payment_method
         );
-        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+        const paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(paymentMethod);
 
         await this.postPaySteps({
           cart,
@@ -469,6 +631,11 @@ export class CheckoutService {
           uid,
           paymentProvider: 'stripe',
           paymentForm,
+          isCancelInterstitialOffer: isCancelInterstitialOffer(
+            eligibility.subscriptionEligibilityResult,
+            attribution.session_entrypoint
+          ),
+          requestArgs,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)
@@ -498,8 +665,8 @@ export class CheckoutService {
 
   async payWithPaypal(
     cart: ResultCart,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string,
     token?: string
   ) {
@@ -511,7 +678,8 @@ export class CheckoutService {
       price,
       version,
       eligibility,
-    } = await this.prePaySteps(cart, customerData, sessionUid);
+      freeTrial,
+    } = await this.prePaySteps(cart, sessionUid);
 
     const paypalSubscriptions =
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
@@ -530,7 +698,10 @@ export class CheckoutService {
         price.id,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new PayWithPaypalNullCurrencyError(cart.id, price.id)
+    );
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'paypal',
@@ -546,6 +717,9 @@ export class CheckoutService {
               },
               collection_method: 'send_invoice',
               days_until_due: 1,
+              ...(freeTrial
+                ? { trial_period_days: freeTrial.trialLengthDays }
+                : {}),
               promotion_code: promotionCode?.id,
               items: [
                 {
@@ -611,10 +785,21 @@ export class CheckoutService {
           [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
         },
       }),
-      this.cartManager.updateFreshCart(cart.id, version, {
+      this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
         stripeSubscriptionId: subscription.id,
       }),
     ]);
+
+    if (freeTrial) {
+      if (subscription.status !== 'trialing') {
+        throw new UnexpectedSubscriptionStatusForTrialError(
+          cart.id,
+          subscription.id,
+          subscription.status
+        );
+      }
+      await this.freeTrialManager.recordFreeTrial(uid, freeTrial.internalName);
+    }
 
     const updatedVersion = version + 1;
 
@@ -627,24 +812,34 @@ export class CheckoutService {
     const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
-    const processedInvoice =
-      await this.invoiceManager.processPayPalInvoice(latestInvoice);
-    if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
-      await this.postPaySteps({
-        cart,
-        version: updatedVersion,
-        subscription,
-        uid,
-        paymentProvider: 'paypal',
-        paymentForm: SubPlatPaymentMethodType.PayPal,
-      });
+
+    if (freeTrial) {
+      await this.invoiceManager.processPayPalZeroInvoice(latestInvoice.id);
     } else {
-      throw new InvalidInvoiceStateCheckoutError(
-        cart.id,
-        processedInvoice.id,
-        processedInvoice.status ?? undefined
-      );
+      const processedInvoice =
+        await this.invoiceManager.processPayPalInvoice(latestInvoice);
+      if (!['paid', 'open'].includes(processedInvoice.status ?? '')) {
+        throw new InvalidInvoiceStateCheckoutError(
+          cart.id,
+          processedInvoice.id,
+          processedInvoice.status ?? undefined
+        );
+      }
     }
+
+    await this.postPaySteps({
+      cart,
+      version: updatedVersion,
+      subscription,
+      uid,
+      paymentProvider: 'paypal',
+      paymentForm: SubPlatPaymentMethodType.PayPal,
+      isCancelInterstitialOffer: isCancelInterstitialOffer(
+        eligibility.subscriptionEligibilityResult,
+        attribution.session_entrypoint
+      ),
+      requestArgs,
+    });
   }
 
   async upgradeSubscription(
@@ -673,16 +868,29 @@ export class CheckoutService {
     const upgradeSubscriptionItem =
       retrieveSubscriptionItem(upgradeSubscription);
 
+    const isTrialing = upgradeSubscription.status === 'trialing';
+
     const { unitAmountForCurrency } =
       await this.priceManager.retrievePricingForCurrency(
         toPriceId,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new UpgradeSubscriptionNullCurrencyError(cart.id, toPriceId)
+    );
 
     const upgradedSubscription = await this.subscriptionManager.update(
       upgradeSubscription.id,
       {
+        ...(isTrialing && {
+          trial_end: 'now' as const,
+          trial_settings: {
+            end_behavior: {
+              missing_payment_method: 'create_invoice' as const,
+            },
+          },
+        }),
         cancel_at_period_end: false,
         items: [
           {
@@ -693,6 +901,7 @@ export class CheckoutService {
         proration_behavior: 'always_invoice',
         payment_behavior: 'default_incomplete',
         metadata: {
+          [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: '',
           // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
           [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
           [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
@@ -803,13 +1012,28 @@ export class CheckoutService {
           eligibility.fromPrice.id
         )
       );
+      const isTrialing = fromSubscription.status === 'trialing';
+      const hasPaymentMethod =
+        !!customer.invoice_settings.default_payment_method;
       const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      const upcomingInvoice =
-        await this.invoiceManager.previewUpcomingForUpgrade({
+      let upcomingInvoice;
+      if (isTrialing && !hasPaymentMethod) {
+        upcomingInvoice = await this.invoiceManager.previewUpcoming({
+          priceId,
+          currency,
+          customer,
+          taxAddress,
+        });
+      } else {
+        upcomingInvoice = await this.invoiceManager.previewUpcomingForUpgrade({
           priceId,
           customer,
           fromSubscriptionItem,
+          ...(isTrialing && {
+            trialEnd: Math.floor(Date.now() / 1000),
+          }),
         });
+      }
       return upcomingInvoice.subtotal;
     } else {
       const upcomingInvoice = await this.invoiceManager.previewUpcoming({
@@ -820,5 +1044,80 @@ export class CheckoutService {
       });
       return upcomingInvoice.subtotal;
     }
+  }
+
+  async getProductFreeTrialOffer(args: {
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    uid?: string;
+  }): Promise<FreeTrial | null> {
+    const { uid, offeringConfigId, countryCode, interval } = args;
+
+    const freeTrialUtil = await this.productConfigurationManager
+      .getFreeTrial(offeringConfigId)
+      .catch((error) => {
+        Sentry.captureException(error, {
+          extra: {
+            uid: uid,
+            offeringConfigId: offeringConfigId,
+            countryCode: countryCode,
+            interval: interval,
+          },
+        });
+        return null;
+      });
+
+    if (!freeTrialUtil) {
+      return null;
+    }
+
+    const freeTrials = freeTrialUtil.getResult();
+    if (!freeTrials) {
+      return null;
+    }
+
+    const matchingTrial = freeTrials.find(
+      (trial) =>
+        trial.trialLengthDays > 0 &&
+        trial.countries.some(
+          (country) => country.slice(0, 2) === countryCode
+        ) &&
+        trial.intervals.includes(interval)
+    );
+    return matchingTrial ?? null;
+  }
+
+  async getFreeTrialEligibility(args: {
+    uid: string;
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    eligibilityStatus: EligibilityStatus;
+  }): Promise<{ offer: FreeTrial | null; userEligible: boolean }> {
+    if (args.eligibilityStatus !== EligibilityStatus.CREATE) {
+      return { offer: null, userEligible: false };
+    }
+
+    const offer = await this.getProductFreeTrialOffer({
+      offeringConfigId: args.offeringConfigId,
+      countryCode: args.countryCode,
+      interval: args.interval,
+      uid: args.uid,
+    });
+    if (!offer) {
+      return { offer: null, userEligible: false };
+    }
+
+    const isBlockedByCooldown = await this.freeTrialManager.isBlockedByCooldown(
+      args.uid,
+      offer.internalName,
+      offer.cooldownPeriodMonths
+    );
+
+    return {
+      offer,
+      userEligible: !isBlockedByCooldown,
+    };
   }
 }

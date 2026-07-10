@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLazyQuery, useMutation, ApolloError } from '@apollo/client';
 import iconSearch from '../../images/icon-search.svg';
 import ErrorAlert from '../ErrorAlert';
 import { BlockStatus } from './BlockStatus';
-import { GET_RATE_LIMITS, CLEAR_RATE_LIMITS } from './index.gql';
-import { BlockStatus as BlockStatusData } from 'fxa-admin-server/src/graphql';
+import { BlockStatus as BlockStatusData } from 'fxa-admin-server/src/types';
+import { adminApi } from '../../lib/api';
 
 interface RateLimitSearchState {
   ip: string;
@@ -44,14 +43,21 @@ export const PageRateLimiting = () => {
     });
   const [showResults, setShowResults] = useState<boolean>(false);
 
-  const [getRateLimits, rateLimitsResult] = useLazyQuery<
-    { rateLimits: BlockStatusData[] },
-    RateLimitQuery
-  >(GET_RATE_LIMITS);
-  const [clearMutation] = useMutation<
-    { clearRateLimits: number },
-    RateLimitQuery
-  >(CLEAR_RATE_LIMITS);
+  const [rateLimitsState, setRateLimitsState] = useState<{
+    loading: boolean;
+    error?: Error;
+    data?: BlockStatusData[];
+  }>({ loading: false });
+
+  const fetchRateLimits = useCallback(async (variables: RateLimitQuery) => {
+    setRateLimitsState({ loading: true });
+    try {
+      const data = await adminApi.getRateLimits(variables);
+      setRateLimitsState({ loading: false, data });
+    } catch (error) {
+      setRateLimitsState({ loading: false, error: error as Error });
+    }
+  }, []);
 
   const onSubmit = (data: RateLimitSearchState) => {
     const variables = createRateLimitQuery(data);
@@ -61,8 +67,8 @@ export const PageRateLimiting = () => {
       return;
     }
 
-    getRateLimits({ variables });
     setShowResults(true);
+    fetchRateLimits(variables);
 
     // keep form values after submit
     reset(data);
@@ -78,14 +84,10 @@ export const PageRateLimiting = () => {
     }
 
     try {
-      const result = await clearMutation({
-        variables,
-        refetchQueries: [{ query: GET_RATE_LIMITS, variables }],
-        awaitRefetchQueries: true,
-      });
-      const count = result.data?.clearRateLimits || 0;
+      const count = await adminApi.clearRateLimits(variables);
       window.alert(`Successfully cleared ${count} rate limit record(s)`);
-      // No need for manual refetch since refetchQueries handles it
+      // Refetch after clear
+      await fetchRateLimits(variables);
     } catch (error) {
       window.alert(
         `Failed to clear: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -160,7 +162,7 @@ export const PageRateLimiting = () => {
         </div>
       </form>
 
-      {showResults && <RateLimitResults rateLimitsResult={rateLimitsResult} />}
+      {showResults && <RateLimitResults rateLimitsResult={rateLimitsState} />}
     </div>
   );
 };
@@ -168,8 +170,8 @@ export const PageRateLimiting = () => {
 interface RateLimitResultsProps {
   rateLimitsResult: {
     loading: boolean;
-    error?: ApolloError;
-    data?: { rateLimits: BlockStatusData[] };
+    error?: Error;
+    data?: BlockStatusData[];
   };
 }
 
@@ -192,7 +194,7 @@ const RateLimitResults = ({ rateLimitsResult }: RateLimitResultsProps) => {
     );
   }
 
-  const allRateLimits = rateLimitsResult.data?.rateLimits || [];
+  const allRateLimits = rateLimitsResult.data || [];
 
   const blocks = allRateLimits.filter((item) => item.policy === 'block');
   const bans = allRateLimits.filter((item) => item.policy === 'ban');

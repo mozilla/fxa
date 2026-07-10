@@ -16,16 +16,20 @@ import {
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
+  createMockSigninWebIntegration,
 } from './mocks';
-import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
-import * as ReachRouter from '@reach/router';
+import {
+  handleNavigation,
+  ensureCanLinkAcountOrRedirect,
+  getSyncNavigate,
+} from './utils';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
-import { OAuthNativeServices } from '../../models';
+import config from '../../lib/config';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
 }));
 
 jest.mock('../../lib/channels/firefox', () => ({
@@ -37,7 +41,19 @@ jest.mock('../../lib/channels/firefox', () => ({
   },
 }));
 
-const navigateSpy = jest.spyOn(ReachRouter, 'navigate');
+jest.mock('../../lib/config', () => {
+  const actual = jest.requireActual('../../lib/config');
+  return {
+    ...actual,
+    __esModule: true,
+    default: {
+      ...actual.default,
+      showReactApp: { ...actual.default.showReactApp, pairRoutes: true },
+    },
+  };
+});
+
+const mockNavigate = jest.fn();
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
 const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 const fxaCanLinkAccountSpy = jest.spyOn(firefox, 'fxaCanLinkAccount');
@@ -52,6 +68,7 @@ describe('Signin utils', () => {
       overrides: Partial<NavigationOptions> = {}
     ): NavigationOptions =>
       ({
+        navigate: mockNavigate,
         email: MOCK_EMAIL,
         signinData: {
           uid: MOCK_UID,
@@ -80,15 +97,15 @@ describe('Signin utils', () => {
       const { error } = await handleNavigation(navigationOptions);
 
       expect(error).toBeUndefined();
-      expect(navigateSpy).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
       expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
-    it('sends fxaLogin with aiwindow services and navigates to settings for OAuthNative service=aiwindow', async () => {
+    it('sends fxaLogin with smartwindow services and navigates to settings for OAuthNative service=smartwindow', async () => {
       const navigationOptions = createBaseNavigationOptions({
         integration: createMockSigninOAuthNativeIntegration({
           isSync: false,
-          service: OAuthNativeServices.AiWindow,
+          service: OAuthNativeServices.SmartWindow,
         }),
         performNavigation: true,
         handleFxaLogin: true,
@@ -100,10 +117,10 @@ describe('Signin utils', () => {
         sessionToken: MOCK_SESSION_TOKEN,
         uid: MOCK_UID,
         verified: true,
-        services: { aiwindow: {} },
+        services: { smartwindow: {} },
       });
       expect(result.error).toBeUndefined();
-      expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
 
     it('navigates to settings when isSessionAALUpgrade is true, even when performNavigation: false', async () => {
@@ -115,9 +132,50 @@ describe('Signin utils', () => {
       const result = await handleNavigation(navigationOptions);
 
       expect(result.error).toBeUndefined();
-      expect(navigateSpy).toHaveBeenCalledWith('/settings');
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
       expect(hardNavigateSpy).not.toHaveBeenCalled();
       expect(fxaLoginSpy).not.toHaveBeenCalled();
+    });
+
+    it('replaces history on a set-password completion so Back cannot return to it', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: {
+          ...createMockSigninWebIntegration(),
+          isSync: () => true,
+        },
+        queryParams: '?service=sync',
+        showSignupConfirmedSync: true,
+        origin: 'post-verify-set-password',
+        performNavigation: true,
+        handleFxaLogin: true,
+      });
+
+      await handleNavigation(navigationOptions);
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.stringContaining('/signup_confirmed_sync'),
+        expect.objectContaining({ replace: true })
+      );
+    });
+
+    it('does not replace history for a Sync sign-in that is not a set-password completion', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: {
+          ...createMockSigninWebIntegration(),
+          isSync: () => true,
+        },
+        queryParams: '?service=sync',
+        showSignupConfirmedSync: true,
+        performNavigation: true,
+        handleFxaLogin: true,
+      });
+
+      await handleNavigation(navigationOptions);
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.stringContaining('/signup_confirmed_sync'),
+        expect.objectContaining({ replace: false })
+      );
     });
 
     describe('unverified session navigation', () => {
@@ -135,7 +193,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
         );
@@ -155,7 +213,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.any(Object)
         );
@@ -181,7 +239,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -189,7 +247,7 @@ describe('Signin utils', () => {
 
       it('navigates to OAuth redirect for successful OAuth flow', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
-        (mockOAuthIntegration as any).wantsKeys = jest
+        (mockOAuthIntegration as any).requiresKeys = jest
           .fn()
           .mockReturnValue(false);
 
@@ -238,7 +296,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -264,7 +322,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
@@ -286,7 +344,111 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaLoginSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_totp_code',
+          expect.any(Object)
+        );
+      });
+    });
+
+    describe('email OTP resend before verification pages', () => {
+      it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('resends the email OTP code when navigating to /confirm_signup_code with an EMAIL_OTP verification method', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: false,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_UP,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/confirm_signup_code',
+          expect.any(Object)
+        );
+      });
+
+      it('does not resend the email OTP code when the verification method is not EMAIL_OTP', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('does not resend the email OTP code when navigating to a non-email verification page such as /signin_totp_code', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.TOTP_2FA,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.any(Object)
         );
@@ -294,13 +456,17 @@ describe('Signin utils', () => {
     });
 
     describe('third party auth with non-Sync services', () => {
-      it('sends fxaOAuthLogin and navigates to settings', async () => {
+      it('sends fxaOAuthLogin and navigates to settings when the service does not need keys', async () => {
         const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const integration = createMockSigninOAuthNativeIntegration({
+          isSync: false,
+          service: OAuthNativeServices.Relay,
+        });
+        // A non-Sync service that doesn't request keys (no keysJwk) signs in
+        // directly — no password needed, so no set_password detour.
+        integration.wantsKeysIfPasswordEntered = () => false;
         const navigationOptions = createBaseNavigationOptions({
-          integration: createMockSigninOAuthNativeIntegration({
-            isSync: false,
-            service: OAuthNativeServices.Relay,
-          }),
+          integration,
           isSignInWithThirdPartyAuth: true,
           performNavigation: true,
           handleFxaOAuthLogin: true,
@@ -314,10 +480,261 @@ describe('Signin utils', () => {
           code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
           redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
-        expect(navigateSpy).toHaveBeenCalledWith('/settings', {
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', {
           replace: true,
         });
+      });
+
+      it('navigates to service_welcome with origin=signin for service=vpn', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          performNavigation: true,
+          handleFxaOAuthLogin: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          {
+            state: { origin: 'signin' },
+            replace: true,
+          }
+        );
+      });
+
+      // "keys not optional" = Firefox where Sync isn't decoupled: desktop
+      // before 147, and Mobile as of Firefox 153.
+      it('routes service=vpn third-party auth to set_password when keys are not optional', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: false,
+          performNavigation: true,
+          handleFxaOAuthLogin: false,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        // The OAuth login must be deferred until after the password is set,
+        // otherwise the browser receives keyless keys_jwe.
+        expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/post_verify/set_password'),
+          expect.objectContaining({
+            state: expect.objectContaining({
+              passwordCreationReason: 'third_party_auth',
+            }),
+            replace: true,
+          })
+        );
+      });
+
+      // keys-optional login = Sync decoupled (Firefox desktop 147+).
+      it('routes service=vpn third-party auth to service_welcome when the browser supports keys-optional login', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin: true,
+          performNavigation: true,
+          handleFxaOAuthLogin: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          {
+            state: { origin: 'signin' },
+            replace: true,
+          }
+        );
+      });
+    });
+
+    describe('passkey-session AAL2 gate', () => {
+      const buildPasskeyOAuthOptions = (
+        overrides: Partial<NavigationOptions> = {}
+      ) => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
+        return createBaseNavigationOptions({
+          integration,
+          isPasskeySession: true,
+          queryParams: '?client_id=abc',
+          ...overrides,
+        });
+      };
+
+      it('diverts to /inline_totp_setup when the account has no TOTP', async () => {
+        const finishOAuthFlowHandler = jest.fn();
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
+      it('diverts a cached session (not a fresh passkey ceremony) when the account has no TOTP', async () => {
+        // A cached passkey session is session-AAL2 without isPasskeySession set.
+        // The divert must still fire so an AAL2 RP does not bounce indefinitely.
+        const finishOAuthFlowHandler = jest.fn();
+        const navigationOptions = buildPasskeyOAuthOptions({
+          isPasskeySession: false,
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
+      it('continues to OAuth redirect when the account already has TOTP', async () => {
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: true,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          undefined,
+          undefined,
+          true
+        );
+      });
+
+      it('continues to OAuth redirect when the RP does not require AAL2', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(false);
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          isPasskeySession: true,
+          accountHasTotp: false,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('handleNavigation with send-tab entrypoints', () => {
+      const createSendTabNavigationOptions = (
+        overrides: Partial<NavigationOptions> = {}
+      ): NavigationOptions =>
+        ({
+          navigate: mockNavigate,
+          email: MOCK_EMAIL,
+          signinData: {
+            uid: MOCK_UID,
+            sessionToken: MOCK_SESSION_TOKEN,
+            emailVerified: true,
+            sessionVerified: true,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          },
+          redirectTo: '',
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockReturnValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+          queryParams: '',
+          ...overrides,
+        }) as NavigationOptions;
+
+      it('clears showInlineRecoveryKeySetup for send-tab sign-in and soft-navs to /pair', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.data.entrypoint = 'send-tab-toolbar-icon';
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          showInlineRecoveryKeySetup: true,
+          handleFxaLogin: true,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(hardNavigateSpy).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalled();
+        const [navigatedUrl, options] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).not.toContain('inline_recovery_key');
+        expect(navigatedUrl).not.toContain('showSuccessMessage');
+        expect(
+          (options as unknown as { state: { origin: string } }).state.origin
+        ).toBe('signin');
+      });
+
+      it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.data.entrypoint = 'send-tab-app-menu';
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          showSignupConfirmedSync: true,
+          origin: 'post-verify-set-password',
+          handleFxaLogin: true,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(hardNavigateSpy).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalled();
+        const [navigatedUrl, options] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).not.toContain('passwordCreated');
+        expect(
+          (options as unknown as { state: { origin: string } }).state.origin
+        ).toBe('post-verify-set-password');
       });
     });
   });
@@ -373,6 +790,112 @@ describe('Signin utils', () => {
           localizedErrorFromLocationState: 'Login attempt cancelled',
           prefillEmail: linkedAccountEmail,
         },
+      });
+    });
+  });
+
+  describe('getSyncNavigate', () => {
+    it('returns /post_verify/set_password with explicit passwordCreationReason when isSignInWithThirdPartyAuth is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        isSignInWithThirdPartyAuth: true,
+      });
+      expect(result.to).toContain('/post_verify/set_password?');
+      expect(result.locationState).toEqual({
+        passwordCreationReason: 'third_party_auth',
+      });
+    });
+
+    it('returns /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        showInlineRecoveryKeySetup: true,
+      });
+      expect(result.to).toContain('/inline_recovery_key_setup?');
+    });
+
+    it('returns /signup_confirmed_sync when showSignupConfirmedSync is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        showSignupConfirmedSync: true,
+      });
+      expect(result.to).toContain('/signup_confirmed_sync?');
+    });
+
+    describe('/pair redirect (Backbone path, pairRoutes=false)', () => {
+      beforeEach(() => {
+        config.showReactApp.pairRoutes = false;
+      });
+      afterEach(() => {
+        config.showReactApp.pairRoutes = true;
+      });
+
+      it('returns /pair with showSuccessMessage by default', () => {
+        const result = getSyncNavigate('?service=sync');
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('showSuccessMessage=true');
+        expect(result.shouldHardNavigate).toBe(true);
+        expect(result.locationState).toBeUndefined();
+      });
+
+      it('includes signupSuccess param when signupSuccess is true', () => {
+        const result = getSyncNavigate('?service=sync', {
+          signupSuccess: true,
+        });
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('signupSuccess=true');
+        expect(result.to).toContain('showSuccessMessage=true');
+      });
+
+      it('includes passwordCreated param when origin is post-verify-set-password', () => {
+        const result = getSyncNavigate('?service=sync', {
+          origin: 'post-verify-set-password',
+        });
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('passwordCreated=true');
+        expect(result.to).toContain('showSuccessMessage=true');
+      });
+
+      it('does not include passwordCreated for other origins', () => {
+        const result = getSyncNavigate('?service=sync', {
+          origin: 'signup',
+        });
+        expect(result.to).not.toContain('passwordCreated');
+      });
+    });
+
+    describe('/pair redirect (React path, pairRoutes=true)', () => {
+      // pairRoutes=true is the test-file default; no toggling needed.
+
+      it('soft-navs to /pair with origin=signin by default', () => {
+        const result = getSyncNavigate('?service=sync');
+        expect(result.to).toContain('/pair?');
+        expect(result.to).not.toContain('showSuccessMessage');
+        expect(result.shouldHardNavigate).toBe(false);
+        expect(result.locationState).toEqual({ origin: 'signin' });
+      });
+
+      it('soft-navs with origin=signup when signupSuccess', () => {
+        const result = getSyncNavigate('?service=sync', {
+          signupSuccess: true,
+        });
+        expect(result.to).not.toContain('signupSuccess');
+        expect(result.shouldHardNavigate).toBe(false);
+        expect(result.locationState).toEqual({ origin: 'signup' });
+      });
+
+      it('soft-navs with origin=post-verify-set-password when set-password flow', () => {
+        const result = getSyncNavigate('?service=sync', {
+          origin: 'post-verify-set-password',
+        });
+        expect(result.to).not.toContain('passwordCreated');
+        expect(result.shouldHardNavigate).toBe(false);
+        expect(result.locationState).toEqual({
+          origin: 'post-verify-set-password',
+        });
+      });
+
+      it('omits the trailing "?" when queryParams is empty', () => {
+        const result = getSyncNavigate('');
+        expect(result.to).toBe('/pair');
+        expect(result.shouldHardNavigate).toBe(false);
       });
     });
   });

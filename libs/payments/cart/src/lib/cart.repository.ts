@@ -3,12 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import {
   AccountDatabase,
+  CartState,
   CartUpdate,
   NewCart,
 } from '@fxa/shared/db/mysql/account';
 
 import { ResultCart } from './cart.types';
-import { CartNotUpdatedError } from './cart.error';
+import { CartNotUpdatedError, CartProcessingConflictError } from './cart.error';
+
+/**
+ * How long a cart may remain in the processing state before it is considered
+ * stale. A cart that has been processing for longer than this is treated as
+ * hung/stuck, so a user is not permanently blocked from using checkout.
+ */
+export const CART_PROCESSING_STALE_TIMEOUT_MS = 15 * 60 * 1000;
 
 /**
  * Creates a cart in the database.
@@ -74,6 +82,67 @@ export async function updateCart(
     throw new CartNotUpdatedError(cartId.toString());
   }
   return true;
+}
+
+/**
+ * Transition a cart to the processing state, enforcing that at most one cart
+ * per account (uid) is in the processing state at a given time.
+ *
+ * A cart that has been processing for longer than CART_PROCESSING_STALE_TIMEOUT_MS
+ * is considered hung and does not block a new checkout.
+ */
+export async function setCartProcessing(
+  db: AccountDatabase,
+  cartId: Buffer,
+  uid: Buffer | undefined,
+  version: number
+): Promise<boolean> {
+  const now = Date.now();
+  return db
+    .transaction()
+    .setIsolationLevel('repeatable read')
+    .execute(async (trx) => {
+      if (uid) {
+        const carts = await trx
+          .selectFrom('carts')
+          .select(['id', 'state', 'updatedAt'])
+          .where('uid', '=', uid)
+          .forUpdate()
+          .execute();
+
+        const conflictingCart = carts.find(
+          (cart) =>
+            !cart.id.equals(cartId) &&
+            cart.state === CartState.PROCESSING &&
+            cart.updatedAt > now - CART_PROCESSING_STALE_TIMEOUT_MS
+        );
+
+        if (conflictingCart) {
+          throw new CartProcessingConflictError(
+            cartId.toString('hex'),
+            uid.toString('hex'),
+            conflictingCart.id.toString('hex')
+          );
+        }
+      }
+
+      const updatedRows = await trx
+        .updateTable('carts')
+        .set({
+          state: CartState.PROCESSING,
+          updatedAt: now,
+          version: version + 1,
+        })
+        .where('id', '=', cartId)
+        .where('version', '=', version)
+        .executeTakeFirst();
+
+      if (updatedRows.numUpdatedRows === BigInt(0)) {
+        throw new CartNotUpdatedError(cartId.toString('hex'));
+      }
+
+      return true;
+    });
 }
 
 /**

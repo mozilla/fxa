@@ -131,6 +131,7 @@ if (proxyUrl) {
     '/account-reset',
     '/relying-parties',
     '/rate-limiting',
+    '/waf-tokens',
     '/permissions',
   ].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
@@ -147,11 +148,6 @@ if (proxyUrl) {
   );
 }
 
-// Send errors to sentry.
-if (sentryConfig.dsn) {
-  Sentry.setupExpressErrorHandler(app);
-}
-
 export default app;
 
 export async function createServer() {
@@ -160,5 +156,12 @@ export async function createServer() {
   logger.info('server.starting', { port });
   app.listen(port, host, () => {
     logger.info('server.started', { port });
+    Sentry.captureMessage('Admin panel server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-admin-panel',
+        env: config.get('env'),
+      },
+    });
   });
 }

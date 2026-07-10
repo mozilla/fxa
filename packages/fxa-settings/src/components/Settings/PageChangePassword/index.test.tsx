@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -35,8 +34,8 @@ jest.mock('../../../lib/metrics', () => ({
   settingsViewName: 'quuz',
 }));
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -60,6 +59,12 @@ const mockAuthClient = {
   accountKeys: jest.fn().mockResolvedValue({
     kA: 'kA-key',
     kB: 'kB-key',
+  }),
+  sessionStatus: jest.fn().mockResolvedValue({
+    state: 'verified',
+    details: {
+      sessionVerified: true,
+    },
   }),
 } as any; // Use 'as any' to avoid TypeScript strict typing for mock
 

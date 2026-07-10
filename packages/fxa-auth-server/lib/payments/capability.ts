@@ -2,22 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
-import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
-import {
-  ACTIVE_SUBSCRIPTION_STATUSES,
-  getSubscriptionUpdateEligibility,
-} from 'fxa-shared/subscriptions/stripe';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import {
   AbbrevPlan,
   ClientIdCapabilityMap,
   SubscriptionChangeEligibility,
   SubscriptionEligibilityResult,
-  SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
-import isEqual from 'lodash/isEqual';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
@@ -30,25 +22,17 @@ import {
   type OfferingOverlapResult,
 } from '@fxa/payments/eligibility';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/core';
 
 import { AppError as error } from '@fxa/accounts/errors';
 import { authEvents } from '../events';
-import { AppConfig, AuthLogger, AuthRequest } from '../types';
-import { ConfigType } from '../../config';
-import { PaymentConfigManager } from './configuration/manager';
+import { AuthLogger, AuthRequest } from '../types';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayBilling } from './iap/google-play/play-billing';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
-import {
-  clientIdCapabilityMapFromMetadata,
-  sortClientCapabilities,
-} from './utils';
 import { ProfileClient } from '@fxa/profile/client';
-import { reportSentryError, reportSentryMessage } from '../sentry';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -73,10 +57,8 @@ export class CapabilityService {
   private playBilling?: PlayBilling;
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
-  private paymentConfigManager?: PaymentConfigManager;
   private capabilityManager?: CapabilityManager;
   private eligibilityManager?: EligibilityManager;
-  private config: ConfigType;
 
   constructor() {
     // TODO: the mock stripeHelper here fixes this specific instance when
@@ -96,9 +78,6 @@ export class CapabilityService {
     if (Container.has(AppleIAP)) {
       this.appleIap = Container.get(AppleIAP);
     }
-    if (Container.has(PaymentConfigManager)) {
-      this.paymentConfigManager = Container.get(PaymentConfigManager);
-    }
     if (Container.has(CapabilityManager)) {
       this.capabilityManager = Container.get(CapabilityManager);
     }
@@ -106,7 +85,6 @@ export class CapabilityService {
       this.eligibilityManager = Container.get(EligibilityManager);
     }
 
-    this.config = Container.get(AppConfig);
     this.log = Container.get(AuthLogger);
 
     // Register the event handlers for capability changes.
@@ -314,16 +292,11 @@ export class CapabilityService {
    * Determine the subscription eligibility path for a user for a given plan,
    * considering existing IAP subscriptions in the process.
    *
-   * This method compares the Stripe Metadata provided eligibility results with
-   * the Eligibility Managers results if it is defined. Otherwise it returns the
-   * Stripe Metadata results.
-   *
    * Will throw an error if the targetPlanId does not match with a known plan
    */
   public async getPlanEligibility(
     uid: string,
-    targetPlanId: string,
-    useFirestoreProductConfigs = false
+    targetPlanId: string
   ): Promise<SubscriptionChangeEligibility> {
     const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
 
@@ -336,95 +309,36 @@ export class CapabilityService {
     return this.getSubscribedPlanEligibility(
       stripeSubscribedPlans,
       iapSubscribedPlans,
-      targetPlan,
-      useFirestoreProductConfigs,
-      uid
+      targetPlan
     );
   }
 
   public async getSubscribedPlanEligibility(
     stripeSubscribedPlans: AbbrevPlan[],
     iapSubscribedPlans: AbbrevPlan[],
-    targetPlan: AbbrevPlan,
-    useFirestoreProductConfigs = false,
-    uid: string | undefined = undefined
+    targetPlan: AbbrevPlan
   ): Promise<SubscriptionChangeEligibility> {
-    const cmsEnabled = this.config.cms.enabled;
-
-    if (cmsEnabled) {
-      if (!this.eligibilityManager) {
-        throw error.internalValidationError(
-          'eligibilityResult',
-          {},
-          new Error('CapabilityManager not found.')
-        );
-      } else {
-        try {
-          const eligibilityManagerResult =
-            await this.eligibilityFromEligibilityManager(
-              stripeSubscribedPlans,
-              iapSubscribedPlans,
-              targetPlan
-            );
-
-          return eligibilityManagerResult;
-        } catch (err) {
-          throw error.internalValidationError(
-            'subscriptions.getPlanEligibility',
-            {},
-            err
-          );
-        }
-      }
+    if (!this.eligibilityManager) {
+      throw error.internalValidationError(
+        'getSubscribedPlanEligibility',
+        {},
+        new Error('EligibilityManager not found.')
+      );
     }
-
-    // TODO: will be removed in FXA-8918
-    const stripeEligibilityResult = await this.eligibilityFromStripeMetadata(
-      stripeSubscribedPlans,
-      iapSubscribedPlans,
-      targetPlan,
-      useFirestoreProductConfigs
-    );
-    if (!this.eligibilityManager) return stripeEligibilityResult;
 
     try {
-      const eligibilityManagerResult =
-        await this.eligibilityFromEligibilityManager(
-          stripeSubscribedPlans,
-          iapSubscribedPlans,
-          targetPlan
-        );
-      if (isEqual(stripeEligibilityResult, eligibilityManagerResult))
-        return stripeEligibilityResult;
-
-      this.log.error(`capability.getPlanEligibility.eligibilityMismatch`, {
+      return await this.eligibilityFromEligibilityManager(
         stripeSubscribedPlans,
         iapSubscribedPlans,
-        eligibilityManagerResult,
-        stripeEligibilityResult,
-        uid,
-        targetPlanId: targetPlan.plan_id,
-      });
-      Sentry.withScope((scope) => {
-        scope.setContext('getPlanEligibility', {
-          stripeSubscribedPlans,
-          iapSubscribedPlans,
-          eligibilityManagerResult,
-          stripeEligibilityResult,
-          uid,
-          targetPlanId: targetPlan.plan_id,
-        });
-        reportSentryMessage(
-          `Eligibility mismatch for ${uid} on ${targetPlan.plan_id}`,
-          'error' as SeverityLevel
-        );
-      });
+        targetPlan
+      );
     } catch (err) {
-      this.log.error('subscriptions.getPlanEligibility', { error: err });
-      reportSentryError(err);
+      throw error.internalValidationError(
+        'subscriptions.getPlanEligibility',
+        {},
+        err
+      );
     }
-    return stripeEligibilityResult;
-    // END TODO: will be removed in FXA-8918
   }
 
   /**
@@ -582,88 +496,6 @@ export class CapabilityService {
         eligibleSourcePlan: overlapAbbrev,
       };
 
-    return {
-      subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
-    };
-  }
-
-  /**
-   * Utilizes Stripe Metadata to determine if a user is eligible to subscribe to
-   * a plan.
-   */
-  async eligibilityFromStripeMetadata(
-    stripeSubscribedPlans: AbbrevPlan[],
-    iapSubscribedPlans: AbbrevPlan[],
-    targetPlan: AbbrevPlan,
-    useFirestoreProductConfigs = false
-  ): Promise<SubscriptionChangeEligibility> {
-    const { productSet: targetProductSet } = productUpgradeFromProductConfig(
-      targetPlan,
-      useFirestoreProductConfigs
-    );
-
-    if (!targetProductSet)
-      return {
-        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
-      };
-
-    // Lookup whether user holds an IAP subscription with a shared productSet to the target
-    const iapRoadblockPlan = iapSubscribedPlans.find((abbrevPlan) => {
-      const { productSet } = productUpgradeFromProductConfig(
-        abbrevPlan,
-        useFirestoreProductConfigs
-      );
-
-      return productSet?.some((name) => targetProductSet.includes(name));
-    });
-
-    // Users with an IAP subscription to the productSet that we're trying to subscribe
-    // to should not be allowed to proceed
-    if (iapRoadblockPlan)
-      return {
-        subscriptionEligibilityResult:
-          SubscriptionEligibilityResult.BLOCKED_IAP,
-        eligibleSourcePlan: iapRoadblockPlan,
-      };
-
-    const isSubscribedToProductSet = stripeSubscribedPlans.some(
-      (abbrevPlan) => {
-        const { productSet } = productUpgradeFromProductConfig(
-          abbrevPlan,
-          useFirestoreProductConfigs
-        );
-
-        return productSet?.some((name) => targetProductSet.includes(name));
-      }
-    );
-
-    if (!isSubscribedToProductSet)
-      return {
-        subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
-      };
-
-    // Use the upgradeEligibility helper to check if any of our existing plans are
-    // elegible for an upgrade and if so the user can upgrade that existing plan to the desired plan
-    for (const abbrevPlan of stripeSubscribedPlans) {
-      const eligibility = getSubscriptionUpdateEligibility(
-        abbrevPlan,
-        targetPlan,
-        useFirestoreProductConfigs
-      );
-
-      if (eligibility === SubscriptionUpdateEligibility.UPGRADE)
-        return {
-          subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
-          eligibleSourcePlan: abbrevPlan,
-        };
-
-      if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE)
-        return {
-          subscriptionEligibilityResult:
-            SubscriptionEligibilityResult.DOWNGRADE,
-          eligibleSourcePlan: abbrevPlan,
-        };
-    }
     return {
       subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
     };
@@ -870,160 +702,26 @@ export class CapabilityService {
   }
 
   /**
-   * Fetch the mergedConfig of plans that are configured and subscribed to.
-   */
-  private async configuredSubscribedMergedConfigs(subscribedPrices: string[]) {
-    if (!this.paymentConfigManager) return [];
-    const allPlans = (await this.paymentConfigManager.allPlans()).filter(
-      (plan) => subscribedPrices.includes(plan.stripePriceId ?? '')
-    );
-    return allPlans.map(this.paymentConfigManager.getMergedConfig);
-  }
-
-  /**
-   * Fetch the list of capabilities for the given plan ids from Stripe.
-   */
-  // TODO: will be removed in FXA-8918
-  private async planIdsToClientCapabilitiesFromStripe(
-    subscribedPrices: string[]
-  ): Promise<ClientIdCapabilityMap> {
-    let result: ClientIdCapabilityMap = {};
-    // Run through all plans and collect capabilities for subscribed products
-    for (const price of await this.stripeHelper.allAbbrevPlans()) {
-      if (!subscribedPrices.includes(price.plan_id)) {
-        continue;
-      }
-      // Add the capabilities for this price's plan and product
-      result = ClientIdCapabilityMap.merge(
-        result,
-        clientIdCapabilityMapFromMetadata(price.product_metadata)
-      );
-      result = ClientIdCapabilityMap.merge(
-        result,
-        clientIdCapabilityMapFromMetadata(price.plan_metadata || {})
-      );
-    }
-
-    for (const mergedConfigPlan of await this.configuredSubscribedMergedConfigs(
-      subscribedPrices
-    )) {
-      // Add the capabilities for this price
-      result = ClientIdCapabilityMap.merge(
-        result,
-        mergedConfigPlan.capabilities || {}
-      );
-    }
-
-    return result;
-  }
-
-  /**
-   * Retrieve the client capabilities from Stripe
-   */
-  // TODO: will be removed in FXA-8918
-  async getClientsFromStripe() {
-    let result: ClientIdCapabilityMap = {};
-
-    const planConfigs = await this.stripeHelper.allMergedPlanConfigs();
-    const capabilitiesForAll: string[] = [];
-    for (const plan of await this.stripeHelper.allAbbrevPlans()) {
-      const metadata = metadataFromPlan(plan);
-      const pConfig = planConfigs?.[plan.plan_id] || {};
-
-      capabilitiesForAll.push(
-        ...commaSeparatedListToArray(metadata.capabilities || ''),
-        ...(pConfig.capabilities?.[ALL_RPS_CAPABILITIES_KEY] || [])
-      );
-
-      result = ClientIdCapabilityMap.merge(
-        result,
-        clientIdCapabilityMapFromMetadata(metadata || {}, 'capabilities:')
-      );
-
-      if (pConfig.capabilities) {
-        Object.keys(pConfig.capabilities)
-          .filter((x) => x !== ALL_RPS_CAPABILITIES_KEY)
-          .forEach(
-            (clientId) =>
-              (result[clientId] = (result[clientId] || []).concat(
-                pConfig.capabilities?.[clientId]
-              ))
-          );
-      }
-    }
-
-    return Object.entries(result).map(([clientId, capabilities]) => {
-      // Merge dupes with Set
-      const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
-      const sortedCapabilities = Array.from(capabilitySet).sort();
-      return {
-        clientId,
-        capabilities: sortedCapabilities,
-      };
-    });
-  }
-
-  /**
    * Retrieve the client capabilities
    */
   async getClients() {
-    const cmsEnabled = this.config.cms.enabled;
-
-    if (cmsEnabled) {
-      if (!this.capabilityManager) {
-        throw error.internalValidationError(
-          'getClients',
-          {},
-          new Error('CapabilityManager not found.')
-        );
-      } else {
-        try {
-          const clientsFromCMS = await this.capabilityManager.getClients();
-
-          return clientsFromCMS;
-        } catch (err) {
-          throw error.internalValidationError(
-            'subscriptions.getClients',
-            {},
-            err
-          );
-        }
-      }
+    if (!this.capabilityManager) {
+      throw error.internalValidationError(
+        'getClients',
+        {},
+        new Error('CapabilityManager not found.')
+      );
     }
-
-    // TODO: will be removed in FXA-8918
-    const clientsFromStripe = await this.getClientsFromStripe();
-
-    if (!this.capabilityManager) return clientsFromStripe;
 
     try {
-      const clientsFromCMS = await this.capabilityManager.getClients();
-
-      clientsFromCMS.sort((a, b) => a.clientId.localeCompare(b.clientId));
-      clientsFromStripe.sort((a, b) => a.clientId.localeCompare(b.clientId));
-
-      if (isEqual(clientsFromCMS, clientsFromStripe)) return clientsFromCMS;
-
-      this.log.error(`capability.getClients.clientsMismatch`, {
-        cms: clientsFromCMS,
-        stripe: clientsFromStripe,
-      });
-      Sentry.withScope((scope) => {
-        scope.setContext('getClients', {
-          cms: clientsFromCMS,
-          stripe: clientsFromStripe,
-        });
-        reportSentryMessage(
-          `CapabilityService.getClients - Returned Stripe as clients did not match.`,
-          'error' as SeverityLevel
-        );
-      });
+      return await this.capabilityManager.getClients();
     } catch (err) {
-      this.log.error('subscriptions.getClients', { error: err });
-      reportSentryError(err);
+      throw error.internalValidationError(
+        'subscriptions.getClients',
+        {},
+        err
+      );
     }
-    return clientsFromStripe;
-    // END TODO: will be removed in FXA-8918
   }
 
   /**
@@ -1032,78 +730,24 @@ export class CapabilityService {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
-    const cmsEnabled = this.config.cms.enabled;
-
-    if (cmsEnabled) {
-      if (!this.capabilityManager) {
-        throw error.internalValidationError(
-          'planIdsToClientCapabilities',
-          {},
-          new Error('CapabilityManager not found.')
-        );
-      } else {
-        try {
-          const cmsCapabilities =
-            await this.capabilityManager.priceIdsToClientCapabilities(
-              subscribedPrices
-            );
-
-          return cmsCapabilities;
-        } catch (err) {
-          throw error.internalValidationError(
-            'subscriptions.planIdsToClientCapabilities',
-            {},
-            err
-          );
-        }
-      }
+    if (!this.capabilityManager) {
+      throw error.internalValidationError(
+        'planIdsToClientCapabilities',
+        {},
+        new Error('CapabilityManager not found.')
+      );
     }
-
-    // TODO: will be removed in FXA-8918
-    const stripeCapabilities =
-      await this.planIdsToClientCapabilitiesFromStripe(subscribedPrices);
-
-    if (!this.capabilityManager) return stripeCapabilities;
 
     try {
-      const cmsCapabilities =
-        await this.capabilityManager.priceIdsToClientCapabilities(
-          subscribedPrices
-        );
-
-      if (
-        isEqual(
-          sortClientCapabilities(cmsCapabilities),
-          sortClientCapabilities(stripeCapabilities)
-        )
-      ) {
-        return cmsCapabilities;
-      }
-
-      this.log.error(`capability.planIdsToClientCapabilities.mismatch`, {
-        subscribedPrices,
-        cms: cmsCapabilities,
-        stripe: stripeCapabilities,
-      });
-      Sentry.withScope((scope) => {
-        scope.setContext('planIdsToClientCapabilities', {
-          subscribedPrices,
-          cms: cmsCapabilities,
-          stripe: stripeCapabilities,
-        });
-        reportSentryMessage(
-          `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
-          'error' as SeverityLevel
-        );
-      });
+      return await this.capabilityManager.priceIdsToClientCapabilities(
+        subscribedPrices
+      );
     } catch (err) {
-      this.log.error('subscriptions.planIdsToClientCapabilities', {
-        error: err,
-      });
-      reportSentryError(err);
+      throw error.internalValidationError(
+        'subscriptions.planIdsToClientCapabilities',
+        {},
+        err
+      );
     }
-
-    return stripeCapabilities;
-    // END TODO: will be removed in FXA-8918
   }
 }

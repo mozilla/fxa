@@ -3,23 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
+import CardHeader, {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../components/CardHeader';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
-import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
+  isOAuthNativeIntegration,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 
 export const Index = ({
   integration,
@@ -32,26 +38,63 @@ export const Index = ({
   setErrorBannerMessage,
   setSuccessBannerMessage,
   setTooltipErrorMessage,
-  deeplink,
   flowQueryParams,
   isMobile,
   useFxAStatusResult,
   setCurrentSplitLayout,
+  authClient,
+  finishOAuthFlowHandler,
+  disableAutoSubmit,
 }: IndexProps) => {
+  const config = useConfig();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
+  const location = useLocation();
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
-  const isOAuth = isOAuthIntegration(integration);
-  const isMonitorClient = isOAuth && isClientMonitor(clientId);
-  const isRelayClient = isOAuth && isClientRelay(clientId);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const emailEngageEventEmitted = useRef(false);
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+    flowQueryParams,
+    surface: 'emailfirst',
+    isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+  });
+  const handlePasskeyClick = () => {
+    // Cancel any pending suggested-email auto-submit so it can't override
+    // our /settings navigation after the ceremony writes localStorage.
+    disableAutoSubmit();
+    passkey.onClick();
+  };
 
-  const isDeeplinking = !!deeplink;
+  const legalTerms = integration.getLegalTerms();
+
+  const emailEngageEventEmitted = useRef(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     GleanMetrics.emailFirst.view();
+  }, []);
+
+  // Defer auto-focus once. If the container redirects an already-signed-in user
+  // away, intermittently the browser's email autocomplete dropdown can be shown on
+  // the next page, presumably from a redirect mid-render. See FXA-14009
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      emailInputRef.current?.focus();
+    }, 10);
+    return () => clearTimeout(timer);
   }, []);
 
   const onSubmit = async ({ email }: IndexFormData) => {
@@ -87,18 +130,6 @@ export const Index = ({
     },
   });
 
-  if (isDeeplinking) {
-    // To avoid flickering, we just render third party auth when deeplinking
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
-
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.EmailFirstPage?.pageTitle;
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
@@ -114,7 +145,12 @@ export const Index = ({
               logoPosition: cmsInfo.EmailFirstPage.logoUrl ? 'center' : 'left',
             }}
           />
-          <h1 className="card-header">{cmsInfo.EmailFirstPage.headline}</h1>
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
+            {cmsInfo.EmailFirstPage.headline}
+          </h1>
           <p className="mt-1 mb-9 text-sm">
             {cmsInfo.EmailFirstPage.description}
           </p>
@@ -175,9 +211,12 @@ export const Index = ({
             inputMode="email"
             label="Enter your email"
             inputRef={register()}
-            autoFocus
+            inputRefDOM={emailInputRef}
             errorText={tooltipErrorMessage}
             onChange={handleInputChange}
+            autoCapitalize="off"
+            autoComplete="email"
+            spellCheck={false}
           />
         </FtlMsg>
         <div className="flex mt-5">
@@ -196,30 +235,30 @@ export const Index = ({
         </div>
       </form>
 
-      {isSync ? (
+      {isSync && (
         <p className="mt-5 text-xs text-grey-500">
           <FtlMsg id="index-account-info">
             A Mozilla account also unlocks access to more privacy-protecting
             products from Mozilla.
           </FtlMsg>
         </p>
-      ) : (
-        (!isOAuthNativeIntegration(integration) ||
-          useFxAStatusResult.supportsKeysOptionalLogin) && (
-          <ThirdPartyAuth
-            showSeparator
-            viewName="index"
-            flowQueryParams={flowQueryParams}
-          />
-        )
       )}
-      <TermsPrivacyAgreement
-        {...{
-          isMonitorClient,
-          isFirefoxClientServiceRelay,
-          isRelayClient,
-        }}
+      <AlternativeAuthOptions
+        showThirdPartyAuth={
+          !isOAuthNativeIntegration(integration) ||
+          useFxAStatusResult.supportsKeysOptionalLogin
+        }
+        showPasskeySignin={showPasskeySignin}
+        passkeySignIn={
+          showPasskeySignin
+            ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
+            : undefined
+        }
+        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        viewName="index"
+        flowQueryParams={flowQueryParams}
       />
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>
   );
 };

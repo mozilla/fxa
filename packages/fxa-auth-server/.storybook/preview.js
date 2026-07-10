@@ -4,9 +4,7 @@
 
 import '../lib/senders/emails/storybook.css';
 
-export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
-};
+export const parameters = {};
 
 export const globalTypes = {
   direction: {

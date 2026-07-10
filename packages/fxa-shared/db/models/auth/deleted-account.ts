@@ -12,4 +12,5 @@ export class DeletedAccount extends BaseAuthModel {
 
   uid!: string;
   deletedAt!: number;
+  deletionReason?: string;
 }

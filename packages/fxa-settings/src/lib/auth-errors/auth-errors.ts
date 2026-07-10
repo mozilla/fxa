@@ -346,6 +346,35 @@ const ERRORS = {
     errno: ERRNO.UNEXPECTED_ERROR,
     message: UNEXPECTED_ERROR_MESSAGE,
   },
+  PASSKEY_NOT_FOUND: {
+    errno: ERRNO.PASSKEY_NOT_FOUND,
+    message: 'Passkey not found',
+  },
+  PASSKEY_ALREADY_REGISTERED: {
+    errno: ERRNO.PASSKEY_ALREADY_REGISTERED,
+    message: 'Passkey already registered',
+  },
+  PASSKEY_LIMIT_REACHED: {
+    errno: ERRNO.PASSKEY_LIMIT_REACHED,
+    message: 'Passkey limit reached',
+  },
+  PASKEY_AUHENTICATION_FAILED: {
+    errno: ERRNO.PASSKEY_AUTHENTICATION_FAILED,
+    message: 'Passkey authentication failed',
+  },
+  PASSKEY_REGISTRATION_FAILED: {
+    errno: ERRNO.PASSKEY_REGISTRATION_FAILED,
+    message: 'Passkey registration failed',
+  },
+  PASSKEY_CHALLENGE_EXPIRED: {
+    errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,
+    message: 'Passkey challenge expired',
+  },
+  ACCOUNT_DELETION_FAILED: {
+    errno: ERRNO.ACCOUNT_DELETION_FAILED,
+    message:
+      'Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.',
+  },
   USER_CANCELED_LOGIN: {
     errno: 1001,
     message: 'Login attempt cancelled',

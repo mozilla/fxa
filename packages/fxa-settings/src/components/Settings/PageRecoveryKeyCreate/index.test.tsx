@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { PageRecoveryKeyCreate } from '.';
@@ -21,8 +20,8 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 

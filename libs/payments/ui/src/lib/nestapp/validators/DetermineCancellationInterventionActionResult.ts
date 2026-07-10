@@ -4,17 +4,12 @@
 
 import {
   IsArray,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  Enum_Cancelinterstitialoffer_Currentinterval,
-  Enum_Cancelinterstitialoffer_Upgradeinterval,
-} from '../../../../../../shared/cms/src/__generated__/graphql';
 
 export class CmsChurnInterventionEntryResult {
   @IsString()
@@ -66,11 +61,17 @@ export class CmsChurnInterventionEntryResult {
 export class CmsPurchaseDetailsLocalizationObject {
   @IsString()
   webIcon!: string;
+
+  @IsString()
+  productName!: string;
 }
 
 export class CmsPurchaseDetailsDataObject {
   @IsString()
   webIcon!: string;
+
+  @IsString()
+  productName!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -98,29 +99,17 @@ export class CmsCancelInterstitialOfferPartialResult {
   @IsOptional()
   offeringApiIdentifier?: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Currentinterval)
+  @IsString()
   @IsOptional()
-  currentInterval?: Enum_Cancelinterstitialoffer_Currentinterval;
-
-  @IsEnum(Enum_Cancelinterstitialoffer_Upgradeinterval)
-  @IsOptional()
-  upgradeInterval?: Enum_Cancelinterstitialoffer_Upgradeinterval;
-
-  @IsNumber()
-  @IsOptional()
-  advertisedSavings?: number;
+  currentInterval?: string;
 
   @IsString()
   @IsOptional()
-  ctaMessage?: string;
+  upgradeInterval?: string;
 
   @IsString()
   @IsOptional()
   modalHeading1?: string;
-
-  @IsString()
-  @IsOptional()
-  modalHeading2?: string;
 
   @IsString()
   @IsOptional()
@@ -148,23 +137,14 @@ export class CmsCancelInterstitialOfferResult {
   @IsString()
   offeringApiIdentifier!: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Currentinterval)
-  currentInterval!: Enum_Cancelinterstitialoffer_Currentinterval;
-
-  @IsEnum(Enum_Cancelinterstitialoffer_Upgradeinterval)
-  upgradeInterval!: Enum_Cancelinterstitialoffer_Upgradeinterval;
-
-  @IsNumber()
-  advertisedSavings!: number;
+  @IsString()
+  currentInterval!: string;
 
   @IsString()
-  ctaMessage!: string;
+  upgradeInterval!: string;
 
   @IsString()
   modalHeading1!: string;
-
-  @IsString()
-  modalHeading2!: string;
 
   @IsString()
   modalMessage!: string;

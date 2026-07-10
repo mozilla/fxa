@@ -2,27 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, FormEventHandler, useEffect, useCallback } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import React, { useCallback } from 'react';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
 
 import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
 import { ReactComponent as AppleLogo } from './apple-logo-viewbox-white.svg';
+import { ReactComponent as AppleLogoBoxBlack } from './apple-logo-cropped-black.svg';
+import { ReactComponent as AppleLogoBoxWhite } from './apple-logo-cropped-white.svg';
 
 import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useMetrics } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';
+import BoxButton from '../BoxButton';
+
+export type ThirdPartyAuthVariant = 'icon' | 'box';
 
 export type ThirdPartyAuthProps = {
-  onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
-  onContinueWithApple?: FormEventHandler<HTMLFormElement>;
-  showSeparator?: boolean;
+  onContinueWithGoogle?: () => void;
+  onContinueWithApple?: () => void;
   viewName?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
-  separatorType?: 'or' | 'signInWith';
+  variant?: ThirdPartyAuthVariant;
 };
 
 /**
@@ -33,102 +36,63 @@ export type ThirdPartyAuthProps = {
 const ThirdPartyAuth = ({
   onContinueWithGoogle,
   onContinueWithApple,
-  showSeparator = true,
   viewName = 'unknown',
-  deeplink,
   flowQueryParams,
-  separatorType = 'or',
+  variant = 'icon',
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
-  useEffect(() => {
-    // If the separator is shown, the user has set a password
-    if (!showSeparator) {
-      GleanMetrics.thirdPartyAuth.loginNoPwView();
-    }
-  }, [showSeparator]);
+  const buttonContainerClassName =
+    variant === 'box' ? 'flex flex-col gap-2.5' : 'flex gap-4 justify-center';
 
   return (
-    <>
-      <div className="flex flex-col">
-        {showSeparator && (
-          <>
-            <div className="text-sm flex items-center justify-center my-6">
-              <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-              {(() => {
-                const id =
-                  separatorType === 'signInWith'
-                    ? 'third-party-auth-options-sign-in-with'
-                    : 'third-party-auth-options-or';
-                const defaultText =
-                  separatorType === 'signInWith' ? 'Sign in with' : 'or';
-                return (
-                  <FtlMsg id={id}>
-                    <div className="mx-4 text-base text-grey-500 font-extralight">
-                      {defaultText}
-                    </div>
-                  </FtlMsg>
-                );
-              })()}
-              <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-            </div>
-          </>
-        )}
-        <div className="flex gap-4 justify-center">
-          <ThirdPartySignInForm
-            {...{
-              party: 'google',
-              ...config.googleAuthConfig,
-              state: getState(flowQueryParams),
-              scope: 'openid email profile',
-              responseType: 'code',
-              accessType: 'offline',
-              prompt: 'consent',
-              viewName,
-              onSubmit: onContinueWithGoogle,
-              buttonText: (
-                <>
-                  <GoogleLogo className="w-full h-auto" />
-                </>
-              ),
-              deeplink,
-            }}
-          />
-          <ThirdPartySignInForm
-            {...{
-              party: 'apple',
-              ...config.appleAuthConfig,
-              state: getState(flowQueryParams),
-              scope: 'email',
-              responseType: 'code id_token',
-              accessType: 'offline',
-              prompt: 'consent',
-              viewName,
-              responseMode: 'form_post',
-              onSubmit: onContinueWithApple,
-              buttonText: (
-                <>
-                  <AppleLogo className="w-full h-auto" />
-                </>
-              ),
-              deeplink,
-            }}
-          />
-        </div>
-      </div>
-    </>
+    <div className={buttonContainerClassName}>
+      <ThirdPartySignInButton
+        {...{
+          party: 'google',
+          ...config.googleAuthConfig,
+          scope: 'openid email profile',
+          responseType: 'code',
+          accessType: 'offline',
+          prompt: 'consent',
+          viewName,
+          flowQueryParams,
+          variant,
+          onSubmit: onContinueWithGoogle,
+          buttonText: (
+            <>
+              <GoogleLogo className="w-full h-auto" />
+            </>
+          ),
+        }}
+      />
+      <ThirdPartySignInButton
+        {...{
+          party: 'apple',
+          ...config.appleAuthConfig,
+          scope: 'email',
+          responseType: 'code id_token',
+          accessType: 'offline',
+          prompt: 'consent',
+          viewName,
+          responseMode: 'form_post',
+          flowQueryParams,
+          variant,
+          onSubmit: onContinueWithApple,
+          buttonText: (
+            <>
+              <AppleLogo className="w-full h-auto" />
+            </>
+          ),
+        }}
+      />
+    </div>
   );
 };
 
-/**
- * Represents the sign in form posted to google third party auth.
- * Note that the innerRef is used by the parent component to trigger
- * a form submission.
- */
-const ThirdPartySignInForm = ({
+const ThirdPartySignInButton = ({
   party,
   authorizationEndpoint,
-  state,
   clientId,
   scope,
   redirectUri,
@@ -139,12 +103,11 @@ const ThirdPartySignInForm = ({
   buttonText,
   onSubmit,
   viewName,
-  deeplink,
   flowQueryParams,
+  variant = 'icon',
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
-  state: string;
   clientId: string;
   scope: string;
   redirectUri: string;
@@ -153,16 +116,13 @@ const ThirdPartySignInForm = ({
   responseType: string;
   responseMode?: string;
   buttonText: ReactElement;
-  onSubmit?: FormEventHandler<HTMLFormElement>;
+  onSubmit?: () => void;
   viewName?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
+  variant?: ThirdPartyAuthVariant;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const { l10n } = useLocalization();
-  const stateRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  const isDeeplinking = deeplink !== undefined;
 
   const getLoginAriaLabel = () => {
     const labels = {
@@ -180,7 +140,8 @@ const ThirdPartySignInForm = ({
     return labels[party];
   };
 
-  const onClick = useCallback(async () => {
+  const handleClick = useCallback(async () => {
+    onSubmit?.();
     logViewEventOnce(`flow.${party}`, 'oauth-start');
     switch (`${party}-${viewName}`) {
       case 'google-index':
@@ -195,86 +156,105 @@ const ThirdPartySignInForm = ({
       case 'apple-signin':
         GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
         break;
+      case 'google-signin-alternative-auth':
+        GleanMetrics.login.alternativeAuthGoogleStart();
+        break;
+      case 'apple-signin-alternative-auth':
+        GleanMetrics.login.alternativeAuthAppleStart();
+        break;
       case 'google-signup':
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         break;
       case 'apple-signup':
         GleanMetrics.thirdPartyAuth.startAppleAuthFromReg();
         break;
-      case 'google-deeplink':
-        GleanMetrics.thirdPartyAuth.googleDeeplink();
-        break;
-      case 'apple-deeplink':
-        GleanMetrics.thirdPartyAuth.appleDeeplink();
-        break;
     }
 
-    // wait for all the Glean events to be sent before the page unloads
+    // Wait for all Glean events to be sent before navigating away.
     await GleanMetrics.isDone();
 
-    if (stateRef.current) {
-      stateRef.current.value = getState(flowQueryParams);
-    }
-  }, [party, stateRef, viewName, logViewEventOnce, flowQueryParams]);
+    const params = {
+      state: getState(flowQueryParams),
+      client_id: clientId,
+      scope,
+      redirect_uri: redirectUri,
+      access_type: accessType,
+      prompt,
+      response_type: responseType,
+      ...(responseMode ? { response_mode: responseMode } : {}),
+    };
+    hardNavigate(authorizationEndpoint, params, false, false, 0);
+  }, [
+    party,
+    viewName,
+    logViewEventOnce,
+    flowQueryParams,
+    clientId,
+    scope,
+    redirectUri,
+    accessType,
+    prompt,
+    responseType,
+    responseMode,
+    authorizationEndpoint,
+    onSubmit,
+  ]);
 
-  if (onSubmit === undefined) {
-    onSubmit = () => true;
+  if (variant === 'box') {
+    const labelFtlId =
+      party === 'google'
+        ? 'continue-with-google-button'
+        : 'continue-with-apple-button';
+    const labelDefault =
+      party === 'google' ? 'Continue with Google' : 'Continue with Apple';
+
+    let leadingIcon: React.ReactNode;
+    switch (party) {
+      case 'google':
+        leadingIcon = <GoogleLogo className="w-6 h-6" />;
+        break;
+      case 'apple':
+        leadingIcon = (
+          // In forced-color mode (HCM), the Apple mark opts out of the system palette
+          // and gets an opposite-colour chip for contrast.
+          <>
+            <span className="flex items-center justify-center dark:hidden forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-white forced-colors:p-1.5">
+              <AppleLogoBoxBlack className="w-6 h-6" />
+            </span>
+            <span className="hidden items-center justify-center dark:flex forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-black forced-colors:p-1.5">
+              <AppleLogoBoxWhite className="w-6 h-6" />
+            </span>
+          </>
+        );
+        break;
+    }
+
+    return (
+      <BoxButton
+        onClick={handleClick}
+        aria-label={getLoginAriaLabel()}
+        leadingIcon={leadingIcon}
+      >
+        <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
+      </BoxButton>
+    );
   }
 
-  useEffect(() => {
-    if (deeplink && formRef.current) {
-      // Only deeplink if this is the correct button
-      if (
-        (deeplink === 'googleLogin' && party === 'google') ||
-        (deeplink === 'appleLogin' && party === 'apple')
-      ) {
-        onClick();
-        formRef.current.submit();
-      }
-    }
-  }, [deeplink, onClick, party]);
-
   return (
-    <form
-      action={authorizationEndpoint}
-      method="GET"
-      onSubmit={onSubmit}
-      ref={formRef}
+    <button
+      type="button"
+      className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
+      ${
+        party === 'google'
+          ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
+          : 'bg-black border-transparent dark:border-grey-300'
+      }
+      `}
+      onClick={handleClick}
+      aria-label={getLoginAriaLabel()}
     >
-      <input
-        data-testid={`${party}-signin-form-state`}
-        ref={stateRef}
-        type="hidden"
-        name="state"
-        value={state}
-      />
-      <input type="hidden" name="client_id" value={clientId} />
-      <input type="hidden" name="scope" value={scope} />
-      <input type="hidden" name="redirect_uri" value={redirectUri} />
-      <input type="hidden" name="access_type" value={accessType} />
-      <input type="hidden" name="prompt" value={prompt} />
-      <input type="hidden" name="response_type" value={responseType} />
-      {responseMode && (
-        <input type="hidden" name="response_mode" value={responseMode} />
-      )}
-
-      {!isDeeplinking ? (
-        <button
-          type="submit"
-          className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-          ${
-            party === 'google'
-              ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
-              : 'bg-black border-transparent'
-          }
-          `}
-          onClick={onClick}
-          aria-label={getLoginAriaLabel()}
-        >
-          {buttonText}
-        </button>
-      ) : null}
-    </form>
+      {buttonText}
+    </button>
   );
 };
 
@@ -302,7 +282,6 @@ function getState(flowQueryParams: QueryParams | undefined) {
 
   // Remove unwanted keys
   const filteredParams = deleteParams(new URLSearchParams(combinedParams), [
-    'deeplink',
     'email',
     'emailStatusChecked',
     'forceExperiment',

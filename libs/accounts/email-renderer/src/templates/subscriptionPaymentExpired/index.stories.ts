@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
   subscriptionSupportUrl: 'http://localhost:3030/support',
 };

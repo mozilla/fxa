@@ -7,16 +7,17 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import App from '.';
+import { MemoryRouter } from 'react-router';
 import * as Metrics from '../../lib/metrics';
 import {
   AppContext,
   useInitialMetricsQueryState,
   useLocalSignedInQueryState,
   useIntegration,
-  useInitialSettingsState,
   useClientInfoState,
   useProductInfoState,
   useSession,
+  isProbablyFirefox,
   Account,
   IntegrationType,
 } from '../../models';
@@ -35,7 +36,7 @@ import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import sentryMetrics from 'fxa-shared/sentry/browser';
-import { OAuthError } from '../../lib/oauth';
+import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
@@ -53,13 +54,9 @@ jest.mock('fxa-shared/sentry/browser', () => ({
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
   ...jest.requireActual('../../models/contexts/SettingsContext'),
-  initializeSettingsContext: jest.fn().mockImplementation(() => {
-    const context = {
-      alertBarInfo: jest.fn(),
-      navigatorLanguages: jest.fn(),
-    };
-
-    return context;
+  initializeSettingsContext: jest.fn().mockReturnValue({
+    alertBarInfo: jest.fn(),
+    navigatorLanguages: jest.fn(),
   }),
 }));
 
@@ -70,23 +67,30 @@ jest.mock('../../lib/channels/firefox', () => ({
   },
 }));
 
+const mockSessionToken = jest.fn();
 jest.mock('../../lib/cache', () => ({
   ...jest.requireActual('../../lib/cache'),
   currentAccount: jest.fn(),
+  sessionToken: () => mockSessionToken(),
 }));
 
 const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
+  isProbablyFirefox: jest.fn(() => false),
   useInitialMetricsQueryState: jest.fn(),
   useLocalSignedInQueryState: jest.fn(),
-  useInitialSettingsState: jest.fn(),
   useClientInfoState: jest.fn(),
   useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
   useSession: jest.fn(),
   useAuthClient: jest.fn(() => ({
     sessionStatus: mockSessionStatus,
+  })),
+  useDefaultCmsState: jest.fn(() => ({
+    loading: false,
+    error: undefined,
+    data: undefined,
   })),
 }));
 
@@ -100,14 +104,26 @@ jest.mock('../Settings/ScrollToTop', () => ({
   ),
 }));
 
+jest.mock('../../lib/hooks/useAccountData', () => ({
+  __esModule: true,
+  useAccountData: jest.fn().mockReturnValue({
+    isLoading: false,
+    error: null,
+    data: {},
+    refetch: jest.fn(),
+    refetchField: jest.fn(),
+  }),
+}));
+
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
     initialize: jest.fn(),
     getEnabled: jest.fn(),
     useGlean: jest.fn().mockReturnValue({ enabled: true }),
-    accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
+    accountPref: { view: jest.fn(), promoVpnView: jest.fn() },
     emailFirst: { view: jest.fn(), engage: jest.fn() },
+    error: { view: jest.fn() },
     pageLoad: jest.fn(),
   },
 }));
@@ -178,7 +194,7 @@ describe('metrics', () => {
 
   afterEach(() => {
     flowInit.mockReset();
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -191,10 +207,12 @@ describe('metrics', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn(),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {},
     });
 
@@ -203,11 +221,13 @@ describe('metrics', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -229,7 +249,7 @@ describe('glean', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
   it('Initializes glean', async () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
@@ -237,11 +257,13 @@ describe('glean', () => {
     });
     const mockIntegration = {
       isSync: jest.fn(),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
@@ -250,11 +272,13 @@ describe('glean', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -292,11 +316,13 @@ describe('loading spinner states', () => {
     });
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -312,8 +338,10 @@ describe('loading spinner states', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
+      isDesktopSync: jest.fn(),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -329,11 +357,13 @@ describe('loading spinner states', () => {
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -347,17 +377,19 @@ describe('AuthAndAccountSetupRoutes', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
   });
   it('calls useFxAStatus with integration', async () => {
     const mockIntegration = {
       getServiceName: () => MozServices.FirefoxSync,
       isSync: () => true,
+      isDesktopSync: () => false,
       type: IntegrationType.OAuthNative,
       data: {},
       isFirefoxClientServiceRelay: () => false,
       getClientId: () => {},
       getCmsInfo: () => undefined,
+      getLegalTerms: () => undefined,
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
@@ -386,18 +418,27 @@ describe('AuthAndAccountSetupRoutes', () => {
 
 describe('SettingsRoutes', () => {
   const settingsPath = '/settings';
+  const originalUserAgent = window.navigator.userAgent;
 
   beforeEach(() => {
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
     jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
     jest.clearAllMocks();
+    // Provide a session token for useAccountData hook
+    mockSessionToken.mockReturnValue('mockSessionToken123');
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: false },
@@ -414,7 +455,6 @@ describe('SettingsRoutes', () => {
       loading: false,
       data: {},
     });
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
     mockSessionStatus.mockResolvedValue({
       details: {
         sessionVerified: true,
@@ -424,14 +464,17 @@ describe('SettingsRoutes', () => {
   });
 
   afterEach(() => {
-    (useIntegration as jest.Mock).mockRestore();
-    (useInitialMetricsQueryState as jest.Mock).mockRestore();
-    (useLocalSignedInQueryState as jest.Mock).mockRestore();
-    (useInitialSettingsState as jest.Mock).mockRestore();
-    (useProductInfoState as jest.Mock).mockRestore();
-    (firefox.requestSignedInUser as jest.Mock).mockRestore();
-    (useClientInfoState as jest.Mock).mockRestore();
-    (useSession as jest.Mock).mockRestore();
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
+    (useIntegration as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (useProductInfoState as jest.Mock).mockReset();
+    (firefox.requestSignedInUser as jest.Mock).mockReset();
+    (useClientInfoState as jest.Mock).mockReset();
+    (useSession as jest.Mock).mockReset();
     mockSessionStatus.mockClear();
   });
 
@@ -440,29 +483,24 @@ describe('SettingsRoutes', () => {
     (currentAccount as jest.Mock).mockReturnValue(null);
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
@@ -474,8 +512,10 @@ describe('SettingsRoutes', () => {
   it('redirects to sign out of sync warning', async () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -492,22 +532,15 @@ describe('SettingsRoutes', () => {
       }
     );
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -517,18 +550,15 @@ describe('SettingsRoutes', () => {
   });
 
   it('restores sync user when session is valid', async () => {
-    // we only send a webChannel message to check for a sync user
-    // if the userAgent is a version of Firefox
-    Object.defineProperty(window.navigator, 'userAgent', {
-      value:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0',
-      configurable: true,
-    });
+    (isProbablyFirefox as jest.Mock).mockReturnValueOnce(true);
 
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopSync: () => false,
       isFirefoxClientServiceRelay: () => false,
+      isFirefoxDesktopClient: () => true,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -550,29 +580,22 @@ describe('SettingsRoutes', () => {
       isSessionVerified: () => Promise.resolve(true),
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={{
-            ...mockAppContext({
-              account: {
-                ...MOCK_ACCOUNT,
-              } as unknown as Account,
-            }),
-            ...createAppContext(),
-          }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{
+          ...mockAppContext({
+            account: {
+              ...MOCK_ACCOUNT,
+            } as unknown as Account,
+          }),
+          ...createAppContext(),
+        }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -585,26 +608,19 @@ describe('SettingsRoutes', () => {
       data: { isSignedIn: true },
     });
 
-    let navigateResult: Promise<void>;
-    await act(async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <AppContext.Provider
-          value={mockAppContext({
-            account: {
-              ...MOCK_ACCOUNT,
-            } as unknown as Account,
-          })}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>,
-        { route: '/' }
-      );
-      navigateResult = navigate(settingsPath);
-    });
-
-    await act(() => navigateResult);
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+          } as unknown as Account,
+        })}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+    await router.navigate(settingsPath);
 
     await waitFor(() => {
       expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
@@ -632,11 +648,11 @@ describe('Integration serviceName error handling', () => {
   });
 
   afterEach(() => {
-    (useFxAStatus as jest.Mock).mockRestore();
-    (useInitialMetricsQueryState as jest.Mock).mockRestore();
-    (useLocalSignedInQueryState as jest.Mock).mockRestore();
-    (useSession as jest.Mock).mockRestore();
-    (currentAccount as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (useSession as jest.Mock).mockReset();
+    (currentAccount as jest.Mock).mockReset();
     (sentryMetrics.captureException as jest.Mock).mockClear();
   });
 
@@ -645,6 +661,7 @@ describe('Integration serviceName error handling', () => {
     const mockOAuthIntegration = {
       type: IntegrationType.OAuthWeb,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -652,17 +669,64 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
+      );
+    });
+
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
+  });
+
+  it('shows OAuthDataError immediately when OAuth client info load failed, before metrics/sign-in resolve', async () => {
+    // App init not yet complete: metrics still loading and sign-in undetermined.
+    // The fail-fast path must surface the error without waiting on these.
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: true,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: undefined,
+    });
+
+    const mockError = new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    const mockOAuthIntegration = {
+      type: IntegrationType.OAuthWeb,
+      clientInfoLoadFailed: true,
+      isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      checkClientInfo: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 
@@ -675,6 +739,7 @@ describe('Integration serviceName error handling', () => {
     const mockNonOAuthIntegration = {
       type: IntegrationType.Web,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -682,6 +747,7 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockNonOAuthIntegration);
@@ -690,17 +756,26 @@ describe('Integration serviceName error handling', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    await expect(
-      act(async () => {
-        renderWithLocalizationProvider(
-          <AppContext.Provider
-            value={{ ...mockAppContext(), ...createAppContext() }}
-          >
-            <App flowQueryParams={updatedFlowQueryParams} />
-          </AppContext.Provider>
-        );
-      })
-    ).rejects.toThrow('Non-OAuth integration error');
+    // Use renderWithRouter (createMemoryRouter + RouterProvider) so the
+    // data router's built-in error boundary catches the thrown error.
+    renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/' }
+    );
+
+    // In react-router v6, thrown errors during render are caught by the
+    // router's built-in error boundary rather than propagating as a
+    // rejected promise. Verify the error surfaces in the UI.
+    expect(
+      screen.getByText('Unexpected Application Error!')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Non-OAuth integration error')
+    ).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -710,6 +785,7 @@ describe('Integration serviceName error handling', () => {
     const mockOAuthNativeIntegration = {
       type: IntegrationType.OAuthNative,
       isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
       getServiceName: jest.fn().mockImplementation(() => {
         throw mockError;
@@ -717,17 +793,20 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockOAuthNativeIntegration);
 
     await act(async () => {
       renderWithLocalizationProvider(
-        <AppContext.Provider
-          value={{ ...mockAppContext(), ...createAppContext() }}
-        >
-          <App flowQueryParams={updatedFlowQueryParams} />
-        </AppContext.Provider>
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
       );
     });
 

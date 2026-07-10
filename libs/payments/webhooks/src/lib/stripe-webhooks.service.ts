@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 
 import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookEventResponse } from './types';
@@ -13,7 +14,8 @@ import { SubscriptionEventsService } from './subscription-handler.service';
 export class StripeWebhookService {
   constructor(
     private stripeEventManager: StripeEventManager,
-    private subscriptionEventsService: SubscriptionEventsService
+    private subscriptionEventsService: SubscriptionEventsService,
+    @Inject(Logger) private log: LoggerService
   ) {}
 
   /**
@@ -53,13 +55,19 @@ export class StripeWebhookService {
   ) {
     switch (webhookResponse.type) {
       case 'customer.subscription.deleted':
-        this.subscriptionEventsService.handleCustomerSubscriptionDeleted(
+        await this.subscriptionEventsService.handleCustomerSubscriptionDeleted(
+          webhookResponse.event,
+          webhookResponse.eventObjectData
+        );
+        break;
+      case 'customer.subscription.updated':
+        await this.subscriptionEventsService.handleCustomerSubscriptionUpdated(
           webhookResponse.event,
           webhookResponse.eventObjectData
         );
         break;
       default:
-        console.log('DEFAULT EVENT HANDLER', webhookResponse.type);
+        this.log.log('DEFAULT EVENT HANDLER', { responseType: webhookResponse.type });
     }
   }
 }

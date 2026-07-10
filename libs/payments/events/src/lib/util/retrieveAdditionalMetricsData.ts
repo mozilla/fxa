@@ -4,7 +4,7 @@
 import { CartManager } from '@fxa/payments/cart';
 import { SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { AdditionalMetricsData } from '../emitter.types';
+import type { AdditionalMetricsData } from '../emitter.types';
 
 export async function retrieveAdditionalMetricsData(
   productConfigurationManager: ProductConfigurationManager,
@@ -56,6 +56,7 @@ export async function retrieveAdditionalMetricsData(
           currency: cartData.value.currency,
           stripeCustomerId: cartData.value.stripeCustomerId,
           taxAddress: cartData.value.taxAddress,
+          isFreeTrial: cartData.value.isFreeTrial,
         }
       : {
           uid: '',
@@ -64,6 +65,7 @@ export async function retrieveAdditionalMetricsData(
           currency: '',
           stripeCustomerId: '',
           taxAddress: { countryCode: '', postalCode: '' },
+          isFreeTrial: false,
         };
 
   return {

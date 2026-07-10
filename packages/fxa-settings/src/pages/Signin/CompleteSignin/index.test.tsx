@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import CompleteSignin from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 async function render(errorMessage?: string) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <CompleteSignin {...{ errorMessage }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

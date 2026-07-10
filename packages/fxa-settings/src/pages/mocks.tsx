@@ -15,7 +15,7 @@ export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
 export const MOCK_REDIRECT_URI = 'http://localhost:8080/123Done';
 export const MOCK_CLIENT_ID = '123';
 export const MOCK_SERVICE = MozServices.TestService;
-export const MOCK_SESSION_TOKEN = 'sessionToken';
+export const MOCK_SESSION_TOKEN = '1234abcd1234abcd1234abcd1234';
 export const MOCK_UNWRAP_BKEY = '10000000000000000123456789abcdef';
 export const MOCK_KA = '10000000000000000123456789abcdef';
 export const MOCK_KB = '10000000000000000123456789abcdef';
@@ -47,6 +47,7 @@ export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
   redirect: 'someUri',
   code: 'someCode',
   state: 'someState',
+  scope: 'profile',
   error: undefined,
 };
 export const mockFinishOAuthFlowHandler = () =>
@@ -92,6 +93,9 @@ export const MOCK_BACKUP_CODES = [
 export const PLACEHOLDER_QR_CODE =
   'https://placehold.co/192x192/white/black?text=QR+Code&font=poppins';
 
+export const MOCK_CMS_PRIMARY_IMAGE_URL =
+  'https://raw.githubusercontent.com/mozilla/fxa/9b124e626c48067a653518ecb4af420679256a5f/assets/other/cms/fox_with_devices.svg';
+
 export const MOCK_CMS_INFO = {
   clientId: 'dcdb5ae7add825d2',
   entrypoint: 'app',
@@ -109,6 +113,8 @@ export const MOCK_CMS_INFO = {
       syncHidePromoAfterLogin: false,
     },
     favicon: '',
+    additionalAccessibilityInfo:
+      'Firefox will try sending you back to use an email mask after you sign in.',
     backgrounds: {
       header: 'linear-gradient(135deg, #6B4DFB 0%, #3A1A78 100%)',
       defaultLayout:
@@ -146,11 +152,18 @@ export const MOCK_CMS_INFO = {
     primaryButtonText: 'Add another device',
     pageTitle: 'Sync is turned on',
     primaryImage: {
-      url: 'https://raw.githubusercontent.com/mozilla/fxa/9b124e626c48067a653518ecb4af420679256a5f/assets/other/cms/fox_with_devices.svg',
+      url: MOCK_CMS_PRIMARY_IMAGE_URL,
       altText: 'A cartoon fox with a laptop and a smartphone',
     },
   },
 
+  PostVerifySetPasswordPage: {
+    headline: 'Create a password to sync',
+    description:
+      'A Mozilla account works with sync to help protect your browsing, passwords, and more.',
+    primaryButtonText: 'Continue',
+    pageTitle: 'Create a password to sync',
+  },
   SigninPage: {
     headline: 'Enter your password',
     description: 'for your Mozilla account',
@@ -170,10 +183,36 @@ export const MOCK_CMS_INFO = {
     pageTitle: 'Authorize this sign-in',
   },
   SigninTotpCodePage: {
-    headline: 'Enter verification code',
-    description: 'for your Mozilla account',
-    primaryButtonText: 'Continue',
-    pageTitle: 'Enter verification code',
+    headline: 'Verify your identity',
+    description: 'Use your authenticator app to continue',
+    primaryButtonText: 'Verify code',
+    pageTitle: 'Two-step verification',
+  },
+  SigninRecoveryChoicePage: {
+    headline: 'Choose your recovery',
+    description: 'Select how you want to verify your identity',
+    primaryButtonText: 'Continue recovery',
+    pageTitle: 'Recovery method selection',
+  },
+  SigninRecoveryCodePage: {
+    headline: 'Use a backup code',
+    description: 'Enter one of your saved backup codes',
+    primaryButtonText: 'Submit code',
+    pageTitle: 'Backup code verification',
+    primaryImage: {
+      url: MOCK_CMS_PRIMARY_IMAGE_URL,
+      altText: 'A cartoon fox with a laptop and a smartphone',
+    },
+  },
+  SigninRecoveryPhonePage: {
+    headline: 'Check your phone',
+    description: 'We sent a verification code to your phone',
+    primaryButtonText: 'Verify phone code',
+    pageTitle: 'Phone recovery verification',
+    primaryImage: {
+      url: MOCK_CMS_PRIMARY_IMAGE_URL,
+      altText: 'A cartoon fox with a laptop and a smartphone',
+    },
   },
 };
 
@@ -185,6 +224,7 @@ export const createMockIntegrationWithCms = () =>
     wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => false,
     getCmsInfo: () => MOCK_CMS_INFO,
+    getLegalTerms: () => undefined,
     data: {
       validate: () => {},
     },
@@ -193,18 +233,23 @@ export const createMockIntegrationWithCms = () =>
 export function mockGetWebChannelServices({
   isSync = false,
   isRelay = false,
-  isAiWindow = false,
+  isSmartWindow = false,
+  isVpn = false,
 }: {
   isSync?: boolean;
   isRelay?: boolean;
-  isAiWindow?: boolean;
+  isSmartWindow?: boolean;
+  isVpn?: boolean;
 } = {}) {
   return (syncEngines?: SyncEngines): WebChannelServices | undefined => {
     if (isRelay) {
       return { relay: {} };
     }
-    if (isAiWindow) {
-      return { aiwindow: {} };
+    if (isSmartWindow) {
+      return { smartwindow: {} };
+    }
+    if (isVpn) {
+      return { vpn: {} };
     }
     if (isSync) {
       return { sync: syncEngines || {} };

@@ -6,8 +6,11 @@ import { emailsMatch } from 'fxa-shared/email/helpers';
 import { StatsD } from 'hot-shots';
 import { Redis } from 'ioredis';
 import * as isA from 'joi';
+import Container from 'typedi';
 
 import { OtpManager, OtpStorage } from '@fxa/shared/otp';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 import { ConfigType } from '../../config';
 import PASSWORD_DOCS from '../../docs/swagger/password-api';
@@ -21,6 +24,7 @@ import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -59,6 +63,7 @@ module.exports = function (
   authServerCacheRedis: Redis,
   statsd: StatsD
 ) {
+  const fxaMailer = Container.get(FxaMailer);
   const otpUtils = require('../../lib/routes/utils/otp').default(db, statsd);
   const otpRedisAdapter = new OtpRedisAdapter(
     authServerCacheRedis,
@@ -75,6 +80,9 @@ module.exports = function (
       : db.updatePasswordForgotToken(passwordForgotToken);
   }
 
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
+
   const routes = [
     {
       method: 'POST',
@@ -82,7 +90,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -107,17 +115,20 @@ module.exports = function (
           sessionToken.email,
           customs.v2Enabled() ? 'authenticatedPasswordChange' : 'passwordChange'
         );
-        statsd.increment('passwordChange.start.authenticated');
+        statsd.increment(
+          'passwordChange.start.authenticated',
+          getClientServiceTags(request)
+        );
 
         let keyFetchToken: any | undefined = undefined;
         let keyFetchToken2: any | undefined = undefined;
         let passwordChangeToken: any | undefined = undefined;
 
         try {
-          const emailRecord = await db.accountRecord(email);
+          const emailRecord = await db.account(sessionToken.uid);
 
-          if (sessionToken.uid !== emailRecord.uid) {
-            throw error.invalidToken('Invalid session token');
+          if (!emailsMatch(email, emailRecord.email)) {
+            throw error.incorrectPassword(emailRecord.email, form.email);
           }
 
           const password = new Password(
@@ -192,7 +203,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_FINISH_POST,
         auth: {
-          strategy: 'passwordChangeToken',
+          strategies: ['passwordChangeTokenBearer', 'passwordChangeToken'],
           payload: 'required',
         },
         validate: {
@@ -454,18 +465,29 @@ module.exports = function (
           } = request.app.ua;
 
           try {
-            await mailer.sendPasswordChangedEmail(emails, account, {
-              acceptLanguage: request.app.acceptLanguage,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: passwordChangeToken.uid,
-            });
+            if (fxaMailer.canSend('passwordChanged')) {
+              await fxaMailer.sendPasswordChangedEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordChangedEmail(emails, account, {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid: passwordChangeToken.uid,
+              });
+            }
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -639,7 +661,11 @@ module.exports = function (
           clientSalt?: string;
         };
 
-        const emailRecord = await db.accountRecord(email);
+        const emailRecord = await db.account(uid);
+
+        if (!emailsMatch(email, emailRecord.email)) {
+          throw error.incorrectPassword(emailRecord.email, email);
+        }
 
         const password = new Password(
           oldAuthPW,
@@ -842,18 +868,29 @@ module.exports = function (
           } = request.app.ua;
 
           try {
-            await mailer.sendPasswordChangedEmail(emails, account, {
-              acceptLanguage: request.app.acceptLanguage,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: uid,
-            });
+            if (fxaMailer.canSend('passwordChanged')) {
+              await fxaMailer.sendPasswordChangedEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordChangedEmail(emails, account, {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid: uid,
+              });
+            }
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -943,6 +980,7 @@ module.exports = function (
           const response: any = {
             uid: newSessionToken.uid,
             sessionToken: newSessionToken.data,
+            sessionVerified: newSessionToken.tokenVerified,
             verified:
               newSessionToken.emailVerified && newSessionToken.tokenVerified,
             authAt: newSessionToken.lastAuthAt(),
@@ -969,6 +1007,11 @@ module.exports = function (
       path: '/password/forgot/send_otp',
       options: {
         ...PASSWORD_DOCS.PASSWORD_FORGOT_SEND_OTP_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         validate: {
           query: isA.object({
             service: validators.service.description(DESCRIPTION.serviceRP),
@@ -1010,6 +1053,10 @@ module.exports = function (
           throw error.unknownAccount();
         }
 
+        if (!account.emailVerified) {
+          throw error.unknownAccount();
+        }
+
         let flowCompleteSignal;
         if (requestHelper.wantsKeys(request)) {
           flowCompleteSignal = 'account.signed';
@@ -1032,23 +1079,35 @@ module.exports = function (
           deviceType: uaDeviceType,
         } = request.app.ua;
 
-        await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
-          code,
-          service,
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: account.uid,
-        });
+        if (fxaMailer.canSend('passwordForgotOtp')) {
+          await fxaMailer.sendPasswordForgotOtpEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.localTime(request),
+            code,
+          });
+        } else {
+          await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
+            code,
+            service,
+            acceptLanguage: request.app.acceptLanguage,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid: account.uid,
+          });
+        }
 
         glean.resetPassword.otpEmailSent(request);
 
@@ -1060,7 +1119,10 @@ module.exports = function (
           account: { uid: account.uid },
         });
 
-        statsd.increment('otp.passwordForgot.sent');
+        statsd.increment(
+          'otp.passwordForgot.sent',
+          getClientServiceTags(request)
+        );
 
         return {};
       },
@@ -1087,7 +1149,10 @@ module.exports = function (
       handler: async function (request: any) {
         log.begin('Password.forgotOtpVerify', request);
         await request.emitMetricsEvent('password.forgot.verify_otp.start');
-        statsd.increment('otp.passwordForgot.attempt');
+        statsd.increment(
+          'otp.passwordForgot.attempt',
+          getClientServiceTags(request)
+        );
 
         const { email, code } = request.payload;
 
@@ -1121,253 +1186,16 @@ module.exports = function (
           account: { uid: account.uid },
         });
 
-        statsd.increment('otp.passwordForgot.verified');
+        statsd.increment(
+          'otp.passwordForgot.verified',
+          getClientServiceTags(request)
+        );
 
         return {
           code: passwordForgotToken.passCode,
           emailToHashWith: passwordForgotToken.email,
           token: passwordForgotToken.data,
           uid: passwordForgotToken.uid,
-        };
-      },
-    },
-    {
-      method: 'POST',
-      path: '/password/forgot/send_code',
-      options: {
-        ...PASSWORD_DOCS.PASSWORD_FORGOT_SEND_CODE_POST,
-        validate: {
-          query: isA.object({
-            service: validators.service.description(DESCRIPTION.serviceRP),
-            keys: isA.boolean().optional(),
-          }),
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailRecovery),
-            service: validators.service.description(DESCRIPTION.serviceRP),
-            redirectTo: validators
-              .redirectTo(redirectDomain)
-              .optional()
-              .description(DESCRIPTION.redirectTo),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional()
-              .description(DESCRIPTION.resume),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            passwordForgotToken: isA.string(),
-            ttl: isA.number(),
-            codeLength: isA.number(),
-            tries: isA.number(),
-          }),
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.begin('Password.forgotSend', request);
-        const payload = request.payload as {
-          email: string;
-          service: string;
-          redirectTo?: string;
-          resume?: string;
-        };
-
-        const email = payload.email;
-        const service = payload.service || request.query.service;
-        const ip = request.app.clientAddress;
-
-        request.validateMetricsContext();
-
-        let flowCompleteSignal;
-        if (requestHelper.wantsKeys(request)) {
-          flowCompleteSignal = 'account.signed';
-        } else {
-          flowCompleteSignal = 'account.reset';
-        }
-        request.setMetricsFlowCompleteSignal(flowCompleteSignal);
-
-        const { deviceId, flowId, flowBeginTime } =
-          await request.app.metricsContext;
-
-        await Promise.all([
-          request.emitMetricsEvent('password.forgot.send_code.start'),
-          customs.check(request, email, 'passwordForgotSendCode'),
-        ]);
-        const accountRecord = await db.accountRecord(email);
-
-        const isPrimaryOrVerifiedEmail =
-          emailsMatch(accountRecord.primaryEmail.normalizedEmail, email) ||
-          accountRecord.emails.some(
-            (e) => e.isVerified && emailsMatch(e.normalizedEmail, email)
-          );
-
-        if (!isPrimaryOrVerifiedEmail) {
-          throw error.unknownAccount();
-        }
-        // The token constructor sets createdAt from its argument.
-        // Clobber the timestamp to prevent prematurely expired tokens.
-        accountRecord.createdAt = undefined;
-        const passwordForgotToken =
-          await db.createPasswordForgotToken(accountRecord);
-        const [, emails] = await Promise.all([
-          request.stashMetricsContext(passwordForgotToken),
-          db.accountEmails(passwordForgotToken.uid),
-        ]);
-        const geoData = request.app.geo;
-        const {
-          browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
-          os: uaOS,
-          osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
-        } = request.app.ua;
-
-        await mailer.sendRecoveryEmail(emails, passwordForgotToken, {
-          emailToHashWith: passwordForgotToken.email,
-          token: passwordForgotToken.data,
-          code: passwordForgotToken.passCode,
-          service: service,
-          redirectTo: payload.redirectTo,
-          resume: payload.resume,
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: passwordForgotToken.uid,
-        });
-        await Promise.all([
-          request.emitMetricsEvent('password.forgot.send_code.completed'),
-          glean.resetPassword.emailSent(request),
-        ]);
-        return {
-          passwordForgotToken: passwordForgotToken.data,
-          ttl: passwordForgotToken.ttl(),
-          codeLength: passwordForgotToken.passCode.length,
-          tries: passwordForgotToken.tries,
-        };
-      },
-    },
-    {
-      method: 'POST',
-      path: '/password/forgot/resend_code',
-      options: {
-        ...PASSWORD_DOCS.PASSWORD_FORGOT_RESEND_CODE_POST,
-        auth: {
-          strategy: 'passwordForgotToken',
-          payload: 'required',
-        },
-        validate: {
-          query: isA.object({
-            service: validators.service.description(DESCRIPTION.serviceRP),
-          }),
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailRecovery),
-            service: validators.service.description(DESCRIPTION.serviceRP),
-            redirectTo: validators
-              .redirectTo(redirectDomain)
-              .optional()
-              .description(DESCRIPTION.redirectTo),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional()
-              .description(DESCRIPTION.resume),
-          }),
-        },
-        response: {
-          schema: isA.object({
-            passwordForgotToken: isA.string(),
-            ttl: isA.number(),
-            codeLength: isA.number(),
-            tries: isA.number(),
-          }),
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.begin('Password.forgotResend', request);
-        const passwordForgotToken = request.auth.credentials as any;
-        const payload = request.payload as {
-          email: string;
-          service: string;
-          redirectTo?: string;
-          resume?: string;
-        };
-        const service = payload.service || request.query.service;
-        const ip = request.app.clientAddress;
-
-        const { deviceId, flowId, flowBeginTime } =
-          await request.app.metricsContext;
-
-        await Promise.all([
-          request.emitMetricsEvent('password.forgot.resend_code.start'),
-          customs.check(
-            request,
-            passwordForgotToken.email,
-            'passwordForgotResendCode'
-          ),
-        ]);
-
-        const emails = await db.accountEmails(passwordForgotToken.uid);
-
-        const geoData = request.app.geo;
-        const {
-          browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
-          os: uaOS,
-          osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
-        } = request.app.ua;
-
-        await mailer.sendRecoveryEmail(emails, passwordForgotToken, {
-          code: passwordForgotToken.passCode,
-          emailToHashWith: passwordForgotToken.email,
-          token: passwordForgotToken.data,
-          service,
-          redirectTo: payload.redirectTo,
-          resume: payload.resume,
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: passwordForgotToken.uid,
-        });
-        await Promise.all([
-          request.emitMetricsEvent('password.forgot.resend_code.completed'),
-          await recordSecurityEvent('account.password_reset_requested', {
-            db,
-            request,
-          }),
-        ]);
-
-        return {
-          passwordForgotToken: passwordForgotToken.data,
-          ttl: passwordForgotToken.ttl(),
-          codeLength: passwordForgotToken.passCode.length,
-          tries: passwordForgotToken.tries,
         };
       },
     },
@@ -1377,7 +1205,7 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_FORGOT_VERIFY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
           payload: 'required',
         },
         validate: {
@@ -1436,12 +1264,13 @@ module.exports = function (
           });
         }
 
-        const [, emails] = await Promise.all([
+        const [, emails, account] = await Promise.all([
           request.propagateMetricsContext(
             passwordForgotToken,
             accountResetToken
           ),
           db.accountEmails(passwordForgotToken.uid),
+          db.account(passwordForgotToken.uid),
         ]);
 
         const {
@@ -1477,11 +1306,22 @@ module.exports = function (
               emailOptions
             );
           } else {
-            await mailer.sendPasswordResetEmail(
-              emails,
-              passwordForgotToken,
-              emailOptions
-            );
+            if (fxaMailer.canSend('passwordReset')) {
+              await fxaMailer.sendPasswordResetEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordResetEmail(
+                emails,
+                passwordForgotToken,
+                emailOptions
+              );
+            }
           }
         }
 
@@ -1498,7 +1338,8 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CREATE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
         },
         validate: {
           payload: isA
@@ -1540,16 +1381,6 @@ module.exports = function (
         // leave the account in an invalid state.
         if (account.verifierSetAt > 0) {
           throw error.cannotCreatePassword();
-        }
-
-        // Users that have enabled 2FA must be in a 2FA verified session to create a password.
-        const hasTotpToken = await otpUtils.hasTotpToken(account);
-        if (
-          hasTotpToken &&
-          (sessionToken.tokenVerificationId ||
-            sessionToken.authenticatorAssuranceLevel <= 1)
-        ) {
-          throw error.unverifiedSession();
         }
 
         const authSalt = await random.hex(32);
@@ -1650,30 +1481,6 @@ module.exports = function (
               route.path === '/v1/password/create' && route.method === 'POST'
           )
           ?.handler(request);
-      },
-    },
-    {
-      method: 'GET',
-      path: '/password/forgot/status',
-      options: {
-        ...PASSWORD_DOCS.PASSWORD_FORGOT_STATUS_GET,
-        auth: {
-          strategy: 'passwordForgotToken',
-        },
-        response: {
-          schema: isA.object({
-            tries: isA.number(),
-            ttl: isA.number(),
-          }),
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.begin('Password.forgotStatus', request);
-        const passwordForgotToken = request.auth.credentials as any;
-        return {
-          tries: passwordForgotToken.tries,
-          ttl: passwordForgotToken.ttl(),
-        };
       },
     },
   ];

@@ -47,6 +47,10 @@ checkmark-success-icon-aria-label =
 checkmark-enabled-icon-aria-label =
     .aria-label = Enabled
 
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Chevron right
+
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Close message
@@ -65,3 +69,13 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = United States Flag
+
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = Loading
+
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = Passkey
+
+##

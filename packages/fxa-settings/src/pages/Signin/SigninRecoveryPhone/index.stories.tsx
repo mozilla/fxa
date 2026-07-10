@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -36,6 +35,22 @@ export const BasicWithCms = () => (
       return Promise.resolve();
     }}
     integration={createMockOAuthNativeIntegration(true, MOCK_CMS_INFO)}
+  />
+);
+
+export const SplitLayoutWithCms = () => (
+  <Subject
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve();
+    }}
+    integration={createMockOAuthNativeIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SigninRecoveryPhonePage: {
+        ...MOCK_CMS_INFO.SigninRecoveryPhonePage!,
+        splitLayout: true,
+      },
+    })}
   />
 );
 

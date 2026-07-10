@@ -14,23 +14,6 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
-  gql: {
-    allowlist: {
-      doc: 'A list of json files holding allowed gql queries',
-      env: 'GQL_ALLOWLIST',
-      default: [
-        'src/config/gql/allowlist/fxa-admin-panel.json',
-        'src/config/gql/allowlist/gql-playground.json',
-      ],
-      format: Array,
-    },
-    enabled: {
-      doc: 'Toggles whether or not gql queries are checked against the allowlist.',
-      env: 'GQL_ALLOWLIST_ENABLED',
-      default: true,
-      format: Boolean,
-    },
-  },
   authHeader: {
     default: USER_EMAIL_HEADER,
     doc: 'Authentication header that should be logged for the user',
@@ -166,14 +149,6 @@ const conf = convict({
       format: Boolean,
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
-    },
-    paymentsServer: {
-      url: {
-        doc: 'The url of the corresponding fxa-payments-server instance',
-        env: 'PAYMENTS_SERVER_URL',
-        format: 'url',
-        default: 'https://subscriptions.firefox.com',
-      },
     },
     paypalNvpSigCredentials: {
       enabled: {
@@ -354,6 +329,26 @@ const conf = convict({
       doc: 'Whether to use telegraf formatted metrics',
       env: 'METRIC_USE_TELEGRAF',
       format: Boolean,
+    },
+  },
+  fidoMds: {
+    url: {
+      doc: 'URL of the FIDO Metadata Service (MDS3) JWT blob',
+      env: 'FIDO_MDS_URL',
+      format: String,
+      default: 'https://mds.fidoalliance.org/',
+    },
+    cacheTtlSeconds: {
+      doc: 'How long (in seconds) to cache the FIDO MDS response before re-fetching',
+      env: 'FIDO_MDS_CACHE_TTL_SECONDS',
+      format: Number,
+      default: 7 * 24 * 60 * 60, // 7 days
+    },
+    fetchTimeoutSeconds: {
+      doc: 'Timeout (in seconds) for the FIDO MDS fetch request',
+      env: 'FIDO_MDS_FETCH_TIMEOUT_SECONDS',
+      format: Number,
+      default: 10,
     },
   },
   hstsEnabled: {
@@ -662,6 +657,12 @@ const conf = convict({
       default:
         'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
     },
+    firefoxDesktopUrl: {
+      doc: 'url to download Firefox page',
+      format: String,
+      default:
+        'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
+    },
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
@@ -722,11 +723,45 @@ const conf = convict({
       default:
         'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
     },
-    initiatePasswordResetUrl: {
-      doc: 'URL that allows a user to reset their account.',
+    twoFactorSupportUrl: {
+      doc: 'url to support page about two factor auth',
       format: String,
-      env: 'ACCOUNT_RESET_URL',
-      default: 'http://localhost:3030/reset_password',
+      env: 'TWO_FACTOR_SUPPORT_URL',
+      default:
+        'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+    },
+    passkeySupportUrl: {
+      doc: 'url to support article about passkeys and Firefox Sync',
+      format: String,
+      env: 'PASSKEY_SUPPORT_URL',
+      default: 'https://support.mozilla.org/kb/use-passkey-mozilla-account',
+    },
+    reviewActivitySupportUrl: {
+      doc: 'url to support article about reviewing Mozilla account activity',
+      format: String,
+      env: 'REVIEW_ACTIVITY_SUPPORT_URL',
+      default:
+        'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
+    },
+    mozillaSupportUrl: {
+      doc: 'URL to unsubscribe from MoCo and MoFo emails',
+      format: String,
+      env: 'MOZILLA_SUPPORT_URL',
+      default: 'https://support.mozilla.org',
+    },
+    defaultSurveyUrl: {
+      doc: 'The default survey link',
+      format: String,
+      env: 'DEFAULT_SURVEY_URL',
+      default:
+        'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
+    },
+  },
+  contentServer: {
+    url: {
+      doc: 'The url of the corresponding fxa-content-server instance',
+      default: 'http://localhost:3030',
+      env: 'CONTENT_SERVER_URL',
     },
   },
   smtp: {
@@ -880,6 +915,24 @@ const conf = convict({
         env: 'SMTP_RETRY_MAX_DELAY_MS',
       },
     },
+    metricsEnabled: {
+      doc: 'Flag to enable UTM metrics for SMTP links',
+      format: Boolean,
+      default: true,
+      env: 'SMTP_METRICS_ENABLED',
+    },
+    verificationUrl: {
+      doc: 'Link for verification URLs in emails',
+      format: String,
+      default: 'http://localhost:3030/verify_email',
+      env: 'SMTP_VERIFICATION_URL',
+    },
+    verifyLoginUrl: {
+      doc: 'Link for verifying logins used in emails',
+      format: String,
+      default: 'http://locahost:3030/complete_signin',
+      env: 'SMTP_VERIFY_LOGIN_URL',
+    },
   },
   bounces: {
     enabled: {
@@ -920,13 +973,7 @@ const conf = convict({
     ignoreTemplates: {
       doc: 'Always ignore bounces from these email templates',
       format: Array,
-      default: [
-        'verifyLoginCode',
-        'verifyLogin',
-        'recovery',
-        'unblockCode',
-        'subscriptionAccountFinishSetup',
-      ],
+      default: ['verifyLoginCode', 'verifyLogin', 'recovery', 'unblockCode'],
       env: 'BOUNCES_IGNORE_TEMPLATES',
     },
   },

@@ -7,6 +7,7 @@ import {
   LoadingSpinner,
   StripeWrapper,
   PaymentInputHandler,
+  buildRedirectUrl,
 } from '@fxa/payments/ui';
 import {
   getApp,
@@ -17,21 +18,25 @@ import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import type { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
+import { auth } from 'apps/payments/next/auth';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'needs_input',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -39,20 +44,48 @@ export default async function NeedsInputPage({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const cart = await getCartOrRedirectAction(
-    params.cartId,
+
+  const sessionPromise = auth();
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/needs_input`;
+  const cartPromise = getCartOrRedirectAction(
+    resolvedParams.cartId,
     SupportedPages.NEEDS_INPUT,
-    searchParams
+    currentPathname,
+    resolvedSearchParams
   );
+  const [session, cart] = await Promise.all([sessionPromise, cartPromise]);
+
   if (!cart.currency) {
     throw new Error('Currency is missing from the cart');
   }
+
+  if (!session?.user?.id ||cart.uid !== session.user.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      resolvedSearchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      resolvedParams.offeringId,
+      resolvedParams.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
+
   return (
     <section
       className="flex flex-col text-center text-sm"
@@ -66,7 +99,7 @@ export default async function NeedsInputPage({
         locale={locale}
         cart={cart}
       >
-        <PaymentInputHandler cartId={params.cartId} />
+        <PaymentInputHandler cartId={resolvedParams.cartId} />
       </StripeWrapper>
       <h2 id="processing-payment-heading">
         {l10n.getString(

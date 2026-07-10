@@ -20,6 +20,12 @@ jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
   useAuthClient: () => ({
     mfaRequestOtp: jest.fn(),
+    sessionStatus: jest.fn().mockResolvedValue({
+      state: 'verified',
+      details: {
+        sessionVerified: true,
+      },
+    }),
   }),
 }));
 
@@ -80,29 +86,6 @@ describe('UnitRowTwoStepAuth', () => {
     expect(
       screen.getByTestId('two-step-unit-row-modal-button').textContent
     ).toContain('Add');
-  });
-
-  it('renders disabled state when account has no password', async () => {
-    renderWithRouter(
-      createSubject({
-        hasPassword: false,
-        totp: { exists: false, verified: false },
-        backupCodes: { hasBackupCodes: false, count: 0 },
-      })
-    );
-
-    const mainButton = await screen.findByText('Add');
-    expect(mainButton).toBeDisabled();
-    expect(mainButton).toHaveAttribute(
-      'title',
-      'Set a password to sync and use certain account security features.'
-    );
-    expect(
-      screen.getByTestId('two-step-unit-row-header-value').textContent
-    ).toContain('Disabled');
-    expect(
-      screen.queryByTestId('backup-authentication-codes-sub-row')
-    ).not.toBeInTheDocument();
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {

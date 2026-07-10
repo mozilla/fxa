@@ -24,10 +24,14 @@ import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
 import { PruneTokens } from './prune-tokens';
 import { RelyingParty } from './relying-party';
+import { Scope } from './scope';
 import { SignInCodes } from './sign-in-codes';
 import { UnblockCodes } from './unblock-codes';
 import { RecoveryCodes } from './recovery-codes';
 import { RecoveryPhones } from './recovery-phones';
+import { EmailBlocklist } from './email-blocklist';
+import { WafBypassToken } from './waf-bypass-token';
+import { DomainBlocklist } from './domain-blocklist';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -261,8 +265,12 @@ export {
   SessionToken,
   TotpToken,
   RelyingParty,
+  Scope,
   SignInCodes,
   UnblockCodes,
   RecoveryCodes,
   RecoveryPhones,
+  EmailBlocklist,
+  WafBypassToken,
+  DomainBlocklist,
 };

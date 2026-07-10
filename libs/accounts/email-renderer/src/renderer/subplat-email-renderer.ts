@@ -3,11 +3,12 @@ import * as SubscriptionLayouts from '../layouts/subscription';
 import * as DownloadSubscription from '../templates/downloadSubscription';
 import * as FraudulentAccountDeletion from '../templates/fraudulentAccountDeletion';
 import * as SubscriptionAccountDeletion from '../templates/subscriptionAccountDeletion';
-import * as SubscriptionAccountFinishSetup from '../templates/subscriptionAccountFinishSetup';
 import * as SubscriptionAccountReminderFirst from '../templates/subscriptionAccountReminderFirst';
 import * as SubscriptionAccountReminderSecond from '../templates/subscriptionAccountReminderSecond';
 import * as SubscriptionCancellation from '../templates/subscriptionCancellation';
 import * as SubscriptionDowngrade from '../templates/subscriptionDowngrade';
+import * as FreeTrialEndingReminder from '../templates/freeTrialEndingReminder';
+import * as SubscriptionEndingReminder from '../templates/subscriptionEndingReminder';
 import * as SubscriptionFailedPaymentsCancellation from '../templates/subscriptionFailedPaymentsCancellation';
 import * as SubscriptionFirstInvoice from '../templates/subscriptionFirstInvoice';
 import * as SubscriptionPaymentExpired from '../templates/subscriptionPaymentExpired';
@@ -64,20 +65,6 @@ export class SubplatEmailRender extends EmailRenderer {
     });
   }
 
-  async renderSubscriptionAccountFinishSetup(
-    templateValues: SubscriptionAccountFinishSetup.TemplateData,
-    layoutTemplateValues: SubscriptionLayouts.TemplateData
-  ) {
-    return this.renderEmail({
-      template: SubscriptionAccountFinishSetup.template,
-      version: SubscriptionAccountFinishSetup.version,
-      layout: SubscriptionAccountFinishSetup.layout,
-      includes: SubscriptionAccountFinishSetup.includes,
-      ...templateValues,
-      ...layoutTemplateValues,
-    });
-  }
-
   async renderSubscriptionAccountReminderFirst(
     templateValues: SubscriptionAccountReminderFirst.TemplateData,
     layoutTemplateValues: SubscriptionLayouts.TemplateData
@@ -110,11 +97,21 @@ export class SubplatEmailRender extends EmailRenderer {
     templateValues: SubscriptionCancellation.TemplateData,
     layoutTemplateValues: SubscriptionLayouts.TemplateData
   ) {
+    const includes = templateValues.isFreeTrialCancellation
+      ? {
+          ...SubscriptionCancellation.includes,
+          subject: {
+            id: 'subscriptionCancellation-freeTrial-subject',
+            message: 'Your <%- productName %> free trial has been canceled',
+          },
+        }
+      : SubscriptionCancellation.includes;
+
     return this.renderEmail({
       template: SubscriptionCancellation.template,
       version: SubscriptionCancellation.version,
       layout: SubscriptionCancellation.layout,
-      includes: SubscriptionCancellation.includes,
+      includes,
       ...templateValues,
       ...layoutTemplateValues,
     });
@@ -129,6 +126,34 @@ export class SubplatEmailRender extends EmailRenderer {
       version: SubscriptionDowngrade.version,
       layout: SubscriptionDowngrade.layout,
       includes: SubscriptionDowngrade.includes,
+      ...templateValues,
+      ...layoutTemplateValues,
+    });
+  }
+
+  async renderFreeTrialEndingReminder(
+    templateValues: FreeTrialEndingReminder.TemplateData,
+    layoutTemplateValues: SubscriptionLayouts.TemplateData
+  ) {
+    return this.renderEmail({
+      template: FreeTrialEndingReminder.template,
+      version: FreeTrialEndingReminder.version,
+      layout: FreeTrialEndingReminder.layout,
+      includes: FreeTrialEndingReminder.includes,
+      ...templateValues,
+      ...layoutTemplateValues,
+    });
+  }
+
+  async renderSubscriptionEndingReminder(
+    templateValues: SubscriptionEndingReminder.TemplateData,
+    layoutTemplateValues: SubscriptionLayouts.TemplateData
+  ) {
+    return this.renderEmail({
+      template: SubscriptionEndingReminder.template,
+      version: SubscriptionEndingReminder.version,
+      layout: SubscriptionEndingReminder.layout,
+      includes: SubscriptionEndingReminder.includes,
       ...templateValues,
       ...layoutTemplateValues,
     });
@@ -212,7 +237,9 @@ export class SubplatEmailRender extends EmailRenderer {
       template: SubscriptionReactivation.template,
       version: SubscriptionReactivation.version,
       layout: SubscriptionReactivation.layout,
-      includes: SubscriptionReactivation.includes,
+      includes: SubscriptionReactivation.getIncludes(
+        templateValues.isFreeTrialReactivation
+      ),
       ...templateValues,
       ...layoutTemplateValues,
     });

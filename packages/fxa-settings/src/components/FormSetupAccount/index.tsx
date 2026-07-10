@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { FormSetupAccountProps } from './interfaces';
 import FormPasswordWithInlineCriteria from '../FormPasswordWithInlineCriteria';
 
@@ -17,6 +16,7 @@ export const FormSetupAccount = ({
   onSubmit,
   loading,
   isSync,
+  requirePasswordConfirmation,
   offeredSyncEngineConfigs,
   submitButtonGleanId,
   passwordFormType = 'signup',
@@ -46,8 +46,8 @@ export const FormSetupAccount = ({
         submitButtonGleanId,
         passwordFormType,
         cmsButton,
+        requirePasswordConfirmation,
       }}
-      requirePasswordConfirmation={isSync}
     />
   );
 };

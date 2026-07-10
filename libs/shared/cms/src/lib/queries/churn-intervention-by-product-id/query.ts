@@ -21,6 +21,7 @@ export const churnInterventionByProductIdQuery = graphql(`
       }
       pagination: { limit: 200 }
     ) {
+      apiIdentifier
       defaultPurchase {
         purchaseDetails {
           productName
@@ -32,6 +33,7 @@ export const churnInterventionByProductIdQuery = graphql(`
         }
       }
       commonContent {
+        successActionButtonUrl
         supportUrl
       }
       churnInterventions(

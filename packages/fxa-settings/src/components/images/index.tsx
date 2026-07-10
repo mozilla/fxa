@@ -3,12 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { ImageProps, PreparedImage } from '../PreparedImage';
+import {
+  IllustrationsTheme,
+  ImageProps,
+  PreparedImage,
+} from '../PreparedImage';
 import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
 import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
-import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
 import { ReactComponent as Password } from './graphic_password.min.svg';
@@ -21,6 +24,26 @@ import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.mi
 import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
 import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
 import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
+import { ReactComponent as VpnWelcome } from './graphic_vpn_welcome.svg';
+
+function illustrationStyle(
+  colors?: IllustrationsTheme
+): React.CSSProperties | undefined {
+  if (!colors) return undefined;
+  const style: Record<string, string> = {};
+  if (colors.primary) style['--illustration-primary'] = colors.primary;
+  if (colors.primaryAlt)
+    style['--illustration-primary-alt'] = colors.primaryAlt;
+  if (colors.secondary) style['--illustration-secondary'] = colors.secondary;
+  if (colors.accentBg) style['--illustration-accent-bg'] = colors.accentBg;
+  if (colors.accentFg) style['--illustration-accent-fg'] = colors.accentFg;
+  if (colors.cloudPrimary)
+    style['--illustration-cloud-color'] = colors.cloudPrimary;
+  if (colors.cloudShadow)
+    style['--illustration-clouds-bg'] = colors.cloudShadow;
+  if (colors.hideClouds) style['--illustration-cloud-display'] = 'none';
+  return style as React.CSSProperties;
+}
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -40,13 +63,19 @@ export const HeartsVerifiedImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const BackupCodesImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="Document that contains hidden text."
-    ariaLabelFtlId="signin-recovery-code-image-description"
-    Image={BackupCodes}
-    {...{ className, ariaHidden }}
-  />
+export const BackupCodesImage = ({
+  className,
+  ariaHidden,
+  illustrationsTheme,
+}: ImageProps) => (
+  <div style={illustrationStyle(illustrationsTheme)}>
+    <PreparedImage
+      ariaLabel="Document that contains hidden text."
+      ariaLabelFtlId="signin-recovery-code-image-description"
+      Image={BackupCodes}
+      {...{ className, ariaHidden }}
+    />
+  </div>
 );
 
 export const BackupRecoveryPhoneImage = ({
@@ -64,13 +93,16 @@ export const BackupRecoveryPhoneImage = ({
 export const BackupRecoveryPhoneCodeImage = ({
   className,
   ariaHidden,
+  illustrationsTheme,
 }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="Code received on a mobile device."
-    ariaLabelFtlId="recovery-phone-code-image-description"
-    Image={BackupRecoveryPhoneCode}
-    {...{ className, ariaHidden }}
-  />
+  <div style={illustrationStyle(illustrationsTheme)}>
+    <PreparedImage
+      ariaLabel="Code received on a mobile device."
+      ariaLabelFtlId="recovery-phone-code-image-description"
+      Image={BackupRecoveryPhoneCode}
+      {...{ className, ariaHidden }}
+    />
+  </div>
 );
 
 export const TwoFactorAuthImage = ({ className, ariaHidden }: ImageProps) => (
@@ -78,15 +110,6 @@ export const TwoFactorAuthImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="A device with a hidden 6-digit code."
     ariaLabelFtlId="signin-totp-code-image-label"
     Image={TwoFactorAuth}
-    {...{ className, ariaHidden }}
-  />
-);
-
-export const PushAuthImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="A device that recieved a push notification."
-    ariaLabelFtlId="signin-push-code-image-label"
-    Image={PushFactorAuth}
     {...{ className, ariaHidden }}
   />
 );
@@ -127,13 +150,19 @@ export const LightbulbImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const EmailCodeImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="Illustration to represent an email containing a code."
-    ariaLabelFtlId="email-code-image-aria-label"
-    Image={EmailCode}
-    {...{ className, ariaHidden }}
-  />
+export const EmailCodeImage = ({
+  className,
+  ariaHidden,
+  illustrationsTheme,
+}: ImageProps) => (
+  <div style={illustrationStyle(illustrationsTheme)}>
+    <PreparedImage
+      ariaLabel="Illustration to represent an email containing a code."
+      ariaLabelFtlId="email-code-image-aria-label"
+      Image={EmailCode}
+      {...{ className, ariaHidden }}
+    />
+  </div>
 );
 
 export const PasswordSuccessImage = ({ className, ariaHidden }: ImageProps) => (
@@ -178,14 +207,21 @@ export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const FallingConfettiImage = ({
-  ariaHidden,
-}: ImageProps) => (
+export const FallingConfettiImage = ({ ariaHidden }: ImageProps) => (
   <PreparedImage
     className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
     ariaLabel="Animated falling confetti"
     ariaLabelFtlId="confetti-falling-image-aria-label"
     Image={FallingConfetti}
     {...{ ariaHidden }}
+  />
+);
+
+export const VpnWelcomeImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Firefox window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active."
+    ariaLabelFtlId="vpn-welcome-image-aria-label"
+    Image={VpnWelcome}
+    {...{ className, ariaHidden }}
   />
 );

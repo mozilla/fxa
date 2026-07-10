@@ -7,7 +7,7 @@ security-password =
 # Variables:
 #   $date (String) - a localized date and time string
 security-password-created-date = Created { $date }
-security-not-set = Not Set
+security-not-set = Not set
 security-action-create = Create
 security-set-password = Set a password to sync and use certain account security features.
 

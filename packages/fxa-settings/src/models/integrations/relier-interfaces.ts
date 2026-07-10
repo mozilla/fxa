@@ -27,10 +27,22 @@ export interface RelierAccount {
   isDefault(): boolean;
 }
 
+/**
+ * Allowed font sizes for CMS-customizable headlines.
+ * Maps to Tailwind CSS font size utilities and Strapi enum values.
+ *
+ * The values match the Strapi GraphQL enum Enum_Componentaccountsshared_Headlinefontsize.
+ *
+ * - `default`: text-xl (22px)
+ * - `medium`: text-xxl (28px)
+ * - `large`: text-xxxl (32px)
+ */
+export type HeadlineFontSize = 'default' | 'medium' | 'large';
+
 export interface PageRelierCmsInfo {
-  headline: string;
+  headline?: string | undefined;
   description: string | undefined;
-  primaryButtonText: string;
+  primaryButtonText?: string | undefined;
   pageTitle?: string | undefined;
   primaryImage?: {
     url: string;
@@ -51,8 +63,20 @@ export interface SharedBackgroundsRelierCmsInfo {
   splitLayoutAltText?: string | undefined;
 }
 
+export interface IllustrationsThemeRelierCmsInfo {
+  primary?: string | undefined;
+  primaryAlt?: string | undefined;
+  secondary?: string | undefined;
+  accentBg?: string | undefined;
+  accentFg?: string | undefined;
+  cloudPrimary?: string | undefined;
+  cloudShadow?: string | undefined;
+  hideClouds?: boolean | undefined;
+}
+
 export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
+  illustrationsTheme?: IllustrationsThemeRelierCmsInfo | undefined;
   logoUrl: string | undefined;
   logoAltText: string | undefined;
   backgrounds?: SharedBackgroundsRelierCmsInfo;
@@ -61,11 +85,31 @@ export interface SharedRelierCmsInfo {
   headerLogoAltText?: string | undefined;
   featureFlags?: FeatureFlagsRelierCmsInfo | undefined;
   favicon?: string | undefined;
+  headlineFontSize?: HeadlineFontSize | null;
+  headlineTextColor?: string | null;
+  additionalAccessibilityInfo?: string | undefined;
 }
 
 export interface FeatureFlagsRelierCmsInfo {
   syncConfirmedPageHideCTA?: boolean | undefined;
   syncHidePromoAfterLogin?: boolean | undefined;
+}
+
+export interface RelierLegalTerms {
+  label: string;
+  termsOfServiceLink: string;
+  privacyNoticeLink: string;
+  fontSize: 'default' | 'medium' | 'large';
+}
+
+/**
+ * CMS content for the catch-all "default" context — shown on pages without a
+ * relying party clientId/entrypoint (e.g. the mobile QR promo on top-level
+ * sign-in/sign-up going to Settings). Fetched from `/v1/cms/default`. Add
+ * fields here as more non-RP overrides are introduced.
+ */
+export interface DefaultCmsContent {
+  promoQrImageUrl?: string | null;
 }
 
 export interface RelierCmsInfo {
@@ -78,10 +122,18 @@ export interface RelierCmsInfo {
 
   SignupSetPasswordPage: PageRelierCmsInfoWithLogo;
   SignupConfirmCodePage: PageRelierCmsInfo;
+  SignupPasswordlessCodePage?: PageRelierCmsInfo;
   SignupConfirmedSyncPage?: PageRelierCmsInfo;
 
-  SigninPage: PageRelierCmsInfo;
+  SigninPage?: PageRelierCmsInfo;
+  SigninCachedPage?: PageRelierCmsInfo;
   SigninTotpCodePage?: PageRelierCmsInfo;
+  SigninPasswordlessCodePage?: PageRelierCmsInfo;
   SigninTokenCodePage?: PageRelierCmsInfo;
   SigninUnblockCodePage?: PageRelierCmsInfo;
+  SigninRecoveryChoicePage?: PageRelierCmsInfo;
+  SigninRecoveryCodePage?: PageRelierCmsInfo;
+  SigninRecoveryPhonePage?: PageRelierCmsInfo;
+
+  PostVerifySetPasswordPage?: PageRelierCmsInfo;
 }

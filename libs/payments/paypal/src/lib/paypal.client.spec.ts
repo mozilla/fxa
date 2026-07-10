@@ -32,6 +32,7 @@ import {
   DoReferenceTransactionOptions,
   NVPErrorSeverity,
   PaypalMethods,
+  PaypalNVPAckOptions,
   RefundTransactionOptions,
   RefundType,
   TransactionSearchOptions,
@@ -375,6 +376,112 @@ describe('PayPalClient', () => {
       const result = await paypalClient.transactionSearch(options);
 
       expect(result).toMatchObject(response);
+    });
+  });
+
+  describe('doRequest response handling', () => {
+    // createBillingAgreement is used here purely as the simplest public entry
+    // point into doRequest. These tests cover transport-layer behavior shared
+    // by every NVP call: Content-Type handling, ACK dispatch, and response
+    // event emission.
+    const token = 'test-token-doreq-001';
+    const expectedPayload = {
+      ...commonPayloadArgs,
+      METHOD: PaypalMethods.CreateBillingAgreement,
+      token,
+    };
+
+    it('parses the NVP body when PayPal returns application/octet-stream', async () => {
+      const response = NVPResponseFactory();
+
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
+        .reply(200, objectToNVP(response), {
+          'Content-Type': 'application/octet-stream',
+        });
+
+      const result = await paypalClient.createBillingAgreement({ token });
+
+      expect(result).toMatchObject(response);
+    });
+
+    it('throws PayPalClientError with the raw body populated when an application/octet-stream response has a Failure ACK', async () => {
+      const errorResponse = NVPErrorResponseFactory();
+      const rawBody = objectToNVP(errorResponse);
+
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
+        .reply(200, rawBody, {
+          'Content-Type': 'application/octet-stream',
+        });
+
+      await expect(
+        paypalClient.createBillingAgreement({ token })
+      ).rejects.toMatchObject({
+        name: 'PayPalClientError',
+        raw: rawBody,
+        data: { ACK: PaypalNVPAckOptions.Failure },
+      });
+    });
+
+    it('treats a SuccessWithWarning ACK as a successful response', async () => {
+      const response = NVPResponseFactory({
+        ACK: PaypalNVPAckOptions.SuccessWithWarning,
+      });
+
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
+        .reply(200, objectToNVP(response));
+
+      const result = await paypalClient.createBillingAgreement({ token });
+
+      expect(result.ACK).toBe(PaypalNVPAckOptions.SuccessWithWarning);
+      expect(result).toMatchObject(response);
+    });
+
+    it('emits a response event with method, version, and timing on success', async () => {
+      const response = NVPResponseFactory();
+      const listener = jest.fn();
+      paypalClient.on('response', listener);
+
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
+        .reply(200, objectToNVP(response));
+
+      await paypalClient.createBillingAgreement({ token });
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      const event = listener.mock.calls[0][0];
+      expect(event).toMatchObject({
+        method: PaypalMethods.CreateBillingAgreement,
+        version: PAYPAL_VERSION,
+      });
+      expect(typeof event.request_start_time).toBe('number');
+      expect(typeof event.request_end_time).toBe('number');
+      expect(typeof event.elapsed).toBe('number');
+      expect(event.request_end_time).toBeGreaterThanOrEqual(
+        event.request_start_time
+      );
+      expect(event.error).toBeUndefined();
+    });
+
+    it('emits a response event without error when the body has a Failure ACK', async () => {
+      const errorResponse = NVPErrorResponseFactory();
+      const listener = jest.fn();
+      paypalClient.on('response', listener);
+
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
+        .reply(200, objectToNVP(errorResponse));
+
+      await expect(
+        paypalClient.createBillingAgreement({ token })
+      ).rejects.toBeInstanceOf(PayPalClientError);
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      const event = listener.mock.calls[0][0];
+      expect(event.method).toBe(PaypalMethods.CreateBillingAgreement);
+      expect(event.error).toBeUndefined();
     });
   });
 

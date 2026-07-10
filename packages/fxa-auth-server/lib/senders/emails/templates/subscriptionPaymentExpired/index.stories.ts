@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionPaymentExpired',
   'Sent whenever a user has a single subscription and their payment method has expired or will expire at the end of the month, triggered by a Stripe webhook.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }

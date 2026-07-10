@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This script re-encodes the current URL’s query parameters to ensure that any special
+/* This script re-encodes the current URL's query parameters to ensure that any special
  * characters (such as '+') are properly encoded. This re-encoding is necessary due to
  * backwards compatibility requirements for clients (e.g., the VPN client) that send
  * unencoded query components, which can cause issues with parameter validation in the app.
@@ -18,6 +18,14 @@
  * application logic (e.g., routing, query parameter parsing) sees the updated URL. */
 
 (function encodeUrlQuery() {
+  // Snapshot the hash now. On mobile WebViews (iOS/Android), later reads of
+  // window.location.hash can return '' even though the hash was present at load.
+  const originalHref = window.location.href;
+  const hashIndex = originalHref.indexOf('#');
+  const hash =
+    window.location.hash ||
+    (hashIndex === -1 ? '' : originalHref.substring(hashIndex));
+
   const { search } = window.location;
   if (!search) return;
   const newSearch =
@@ -31,6 +39,6 @@
       })
       .join('&');
   if (newSearch !== search) {
-    window.history.replaceState({}, '', newSearch);
+    window.history.replaceState({}, '', newSearch + hash);
   }
 })();

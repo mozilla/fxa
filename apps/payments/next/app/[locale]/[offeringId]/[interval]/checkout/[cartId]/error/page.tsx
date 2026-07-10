@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { auth } from 'apps/payments/next/auth';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import checkIcon from '@fxa/shared/assets/images/check.svg';
 import {
@@ -15,12 +15,12 @@ import {
   getErrorFtlInfo,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
-import {
-  getCartOrRedirectAction,
-} from '@fxa/payments/ui/actions';
+import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { buildRedirectUrl } from '@fxa/payments/ui';
+import { redirect } from 'next/navigation';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -30,16 +30,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'error',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -47,21 +49,50 @@ export default async function CheckoutError({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
 
+  const sessionPromise = auth();
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/error`;
   const cartPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.ERROR,
-    searchParams
+    currentPathname,
+    resolvedSearchParams
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const [cart] = await Promise.all([cartPromise]);
+  const [cart, session] = await Promise.all([cartPromise, sessionPromise]);
 
-  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
+  const errorReason = getErrorFtlInfo(
+    cart.errorReasonId,
+    resolvedParams,
+    config,
+    resolvedSearchParams
+  );
+
+  if (cart.id && cart.uid !== session?.user?.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      resolvedSearchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      resolvedParams.offeringId,
+      resolvedParams.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
 
   return (
     <>
@@ -72,7 +103,7 @@ export default async function CheckoutError({
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
               alt=""

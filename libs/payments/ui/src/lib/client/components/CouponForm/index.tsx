@@ -118,7 +118,7 @@ const CouponInput = forwardRef<HTMLInputElement, CouponInputProps>(
   }
 );
 
-const CouponError = ({ error }: { error: string | null }) => {
+const CouponError = ({ error }: { error: CouponErrorMessageType | null }) => {
   const { pending } = useFormStatus();
 
   if (!error || pending) {
@@ -157,7 +157,7 @@ const WithoutCoupon = ({
     return result;
   }
   const routeCoupon = useSearchParams().get('coupon') || undefined;
-  const [error, formAction] = useFormState(applyCoupon, null);
+  const [, formAction] = useFormState(applyCoupon, null);
   useEffect(() => {
     if (routeCoupon) {
       const formData = new FormData();
@@ -206,7 +206,7 @@ const WithoutCoupon = ({
             </Form.Submit>
           </div>
 
-          {errorMessage && error && <CouponError error={error} />}
+          {errorMessage && <CouponError error={errorMessage} />}
         </Form.Field>
       </Form.Root>
     </section>

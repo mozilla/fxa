@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import LoadingSpinner, {
   SpinnerType,
 } from 'fxa-react/components/LoadingSpinner';
@@ -22,7 +21,7 @@ export const CardLoadingSpinner = ({
   return (
     <div
       className={classNames(
-        'card flex items-center justify-center h-full max-w-48 mobileLandscape:h-32',
+        'card flex items-center justify-center h-full mobileLandscape:h-48',
         className
       )}
     >

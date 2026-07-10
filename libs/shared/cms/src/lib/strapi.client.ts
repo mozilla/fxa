@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as crypto from 'crypto';
 import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { Inject, Injectable } from '@nestjs/common';
-import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import { Cacheable, CacheClear } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
 import * as Sentry from '@sentry/node';
@@ -24,12 +26,6 @@ import { StrapiQueryError } from './cms.error';
 import { cacheKeyForQuery, CMS_QUERY_CACHE_KEY } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
 import { localesQuery, LocalesResult } from './queries/locales';
-
-cacheManager.setOptions({
-  // Must be disabled globally per https://github.com/joshuaslate/type-cacheable?tab=readme-ov-file#change-global-options
-  // otherwise @Cacheable context will be undefined
-  excludeContext: false,
-});
 
 const DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS = 604800; // 604800 seconds is 7 days.
 const DEFAULT_FIRESTORE_CACHE_TTL_SECONDS = 1800; // 1800 seconds is 30 minutes.
@@ -60,7 +56,8 @@ export class StrapiClient {
 
   constructor(
     private strapiClientConfig: StrapiClientConfig,
-    @Inject(FirestoreService) private firestore: Firestore
+    @Inject(FirestoreService) private firestore: Firestore,
+    @Inject(Logger) private log: LoggerService
   ) {
     this.client = new GraphQLClient(this.strapiClientConfig.graphqlApiUri, {
       headers: {
@@ -99,7 +96,6 @@ export class StrapiClient {
     strategy: (args: any, context: StrapiClient) =>
       new CacheFirstStrategy(
         (err) => {
-          console.error(err);
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
@@ -117,7 +113,8 @@ export class StrapiClient {
               cacheType: 'memory',
             });
           }
-        }
+        },
+        context.log
       ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
@@ -130,7 +127,6 @@ export class StrapiClient {
         context.strapiClientConfig.firestoreCacheTTL ||
           DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
         (err) => {
-          console.error(err);
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
@@ -145,7 +141,8 @@ export class StrapiClient {
             cache: result === 'stale' || result === 'fallback',
             cacheType: result,
           });
-        }
+        },
+        context.log
       ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.firestoreOfflineCacheTTL ||
@@ -153,6 +150,20 @@ export class StrapiClient {
     client: (_, context: StrapiClient) => context.firestoreCacheAdapter,
   })
   async query<Result, Variables extends OperationVariables>(
+    query: TypedDocumentNode<Result, Variables>,
+    variables: Variables
+  ): Promise<Result> {
+    try {
+      return await this.client.request<Result, any>({
+        document: query,
+        variables,
+      });
+    } catch (e) {
+      throw new StrapiQueryError(query, variables, e);
+    }
+  }
+
+  async queryUncached<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<Result> {
@@ -178,6 +189,19 @@ export class StrapiClient {
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ) {}
+
+  verifyWebhookSignature(authorization: string): boolean {
+    const secret = this.strapiClientConfig.webhookSecret;
+    if (!secret) {
+      return false;
+    }
+
+    const expected = `Bearer ${secret}`;
+    return crypto.timingSafeEqual(
+      Buffer.from(authorization),
+      Buffer.from(expected)
+    );
+  }
 
   private async getLocales(): Promise<string[]> {
     const localesResult = (await this.query(localesQuery, {})) as LocalesResult;

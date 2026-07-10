@@ -8,7 +8,7 @@ import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
@@ -66,7 +66,7 @@ export const Modal = ({
         <div
           data-testid="modal-content-container"
           className={classNames(
-            'max-w-120 bg-white m-auto rounded-xl border border-transparent',
+            'max-w-120 bg-white dark:bg-grey-700 m-auto rounded-xl border border-transparent',
             className
           )}
           ref={modalInsideRef}

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Image from 'next/image';
 import clsx from 'clsx';
 import {
@@ -10,6 +10,7 @@ import {
   buildRedirectUrl,
   ButtonVariant,
   PaymentSection,
+  SAW_TRIAL_OFFER_COOKIE_PREFIX,
   SignInForm,
 } from '@fxa/payments/ui';
 import {
@@ -36,16 +37,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'start',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -53,24 +56,32 @@ export default async function Checkout({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
 
-  const acceptLanguage = headers().get('accept-language');
-  const nonce = headers().get('x-nonce') || undefined;
+  const headersList = await headers();
+  const cookieStore = await cookies();
+  const acceptLanguage = headersList.get('accept-language');
+  const nonce = headersList.get('x-nonce') || undefined;
+  const sawTrialOfferCookieName = `${SAW_TRIAL_OFFER_COOKIE_PREFIX}${resolvedParams.offeringId}`;
+  const sawTrialOffer = !!cookieStore.get(sawTrialOfferCookieName);
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/start`;
   const cartPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.START,
-    searchParams
+    currentPathname,
+    resolvedSearchParams
   );
   //TODO - Replace with cartPromise as part of FXA-8903
   const [session, cart, cms] = await Promise.all([
@@ -82,12 +93,12 @@ export default async function Checkout({
   // prevent cart and session user mismatch
   if (cart.uid !== session?.user?.id) {
     const redirectSearchParams: Record<string, string | string[]> =
-      searchParams || {};
+      resolvedSearchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
-      params.offeringId,
-      params.interval,
+      resolvedParams.offeringId,
+      resolvedParams.interval,
       'new',
       'checkout',
       {
@@ -100,13 +111,13 @@ export default async function Checkout({
   }
 
   const redirectSearchParams: Record<string, string | string[]> =
-    searchParams || {};
+    resolvedSearchParams || {};
   redirectSearchParams.cartId = cart.id;
   redirectSearchParams.cartVersion = cart.version.toString();
 
   const redirectTo = buildRedirectUrl(
-    params.offeringId,
-    params.interval,
+    resolvedParams.offeringId,
+    resolvedParams.interval,
     'new',
     'checkout',
     {
@@ -226,7 +237,7 @@ export default async function Checkout({
             className={clsx(
               'font-semibold text-grey-600 text-lg mt-10 mb-5',
               !session?.user?.email &&
-              'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+                'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
             )}
             data-testid="header-prefix"
           >
@@ -251,7 +262,7 @@ export default async function Checkout({
           className={clsx(
             'font-semibold text-grey-600 text-start',
             !session?.user?.email &&
-            'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+              'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
           )}
         >
           {l10n.getString(
@@ -288,6 +299,7 @@ export default async function Checkout({
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
               sessionEmail={session?.user?.email ?? undefined}
+              sawTrialOffer={sawTrialOffer}
             />
           )}
       </section>

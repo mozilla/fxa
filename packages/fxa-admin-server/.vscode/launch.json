@@ -11,7 +11,9 @@
         "999999",
         "--colors",
         "-r",
-        "esbuild-register",
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register",
         "${workspaceFolder}/src/test/**/*.spec.ts",
         "${workspaceFolder}/src/test/**/**/*.spec.ts",
         "${workspaceFolder}/src/test/**/**/**/*.spec.ts"
@@ -33,7 +35,9 @@
         "999999",
         "--colors",
         "-r",
-        "esbuild-register",
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register",
         "${workspaceFolder}/${relativeFile}"
       ],
       "console": "integratedTerminal",

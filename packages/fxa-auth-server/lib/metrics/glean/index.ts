@@ -28,6 +28,7 @@ type MetricsData = {
   reason?: string;
   oauthClientId?: string;
   scopes?: string | Array<string>;
+  platform?: string;
 };
 
 type AdditionalMetricsCallback = (
@@ -195,7 +196,11 @@ const createEventFn =
   };
 
 const extraKeyReasonCb = (metrics: Record<string, any>) => ({
-  reason: metrics.reason,
+  reason: metrics.reason ?? '',
+});
+
+const extraKeySignoutCb = (metrics: Record<string, any>) => ({
+  platform: metrics.platform ?? 'unknown',
 });
 
 export function gleanMetrics(config: ConfigType) {
@@ -218,7 +223,9 @@ export function gleanMetrics(config: ConfigType) {
       accountCreated: createEventFn('reg_acc_created'),
       confirmationEmailSent: createEventFn('reg_email_sent'),
       accountVerified: createEventFn('reg_acc_verified'),
-      complete: createEventFn('reg_complete'),
+      complete: createEventFn('reg_complete', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
       error: createEventFn('reg_submit_error', {
         additionalMetrics: extraKeyReasonCb,
       }),
@@ -235,7 +242,9 @@ export function gleanMetrics(config: ConfigType) {
       recoveryPhoneSuccess: createEventFn('login_recovery_phone_success'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
-      complete: createEventFn('login_complete'),
+      complete: createEventFn('login_complete', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
 
     resetPassword: {
@@ -269,7 +278,20 @@ export function gleanMetrics(config: ConfigType) {
 
     oauth: {
       tokenCreated: createEventFn('access_token_created', {
-        additionalMetrics: extraKeyReasonCb,
+        additionalMetrics: (metrics) => ({
+          reason: metrics.reason ?? '',
+          scopes: metrics.scopes
+            ? // Array: in at least verify.js, getScopeValues() returns string[]
+              Array.isArray(metrics.scopes)
+              ? metrics.scopes.sort().join(',')
+              : // String: in at least token.js, ScopeSet.toString() returns space-separated scopes
+                metrics.scopes
+                  .split(/[,\s]+/)
+                  .filter(Boolean)
+                  .sort()
+                  .join(',')
+            : '',
+        }),
       }),
       tokenChecked: createEventFn('access_token_checked', {
         skipClientIp: true,
@@ -311,6 +333,12 @@ export function gleanMetrics(config: ConfigType) {
       deleteComplete: createEventFn('account_delete_complete'),
       deleteTaskHandled: createEventFn('account_delete_task_handled', {
         additionalMetrics: extraKeyReasonCb,
+      }),
+      deviceDisconnected: createEventFn('account_device_disconnected', {
+        additionalMetrics: extraKeySignoutCb,
+      }),
+      sessionDestroyed: createEventFn('account_session_destroyed', {
+        additionalMetrics: extraKeySignoutCb,
       }),
     },
     twoFactorAuth: {
@@ -424,6 +452,15 @@ export function gleanMetrics(config: ConfigType) {
       newAccount: createEventFn('login_confirm_skip_for_new_account'),
       knownDevice: createEventFn('login_confirm_skip_for_known_device'),
     },
+    passkey: {
+      authenticationStarted: createEventFn('passkey_authentication_started'),
+      authenticationVerificationSuccess: createEventFn(
+        'passkey_authentication_verification_success'
+      ),
+      createComplete: createEventFn('passkey_create_complete'),
+      deleteSuccess: createEventFn('passkey_delete_success'),
+      renameSuccess: createEventFn('passkey_rename_success'),
+    },
   };
 }
 
@@ -463,6 +500,7 @@ export const logErrorWithGlean = ({
           | 'twoStepAuthRemove'
           | 'emailDelivery'
           | 'loginConfirmSkipFor'
+          | 'passkey'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

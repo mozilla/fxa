@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import 'mutationobserver-shim';
 import {
   screen,
@@ -22,18 +21,16 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
+import {
+  discardSessionToken,
+  clearSignedInAccountUid,
+} from '../../../lib/cache';
 
-const mockApolloClearStore = jest.fn().mockResolvedValue(undefined);
-
-jest.mock('@apollo/client', () => {
-  const actual = jest.requireActual('@apollo/client');
-  return {
-    ...actual,
-    useApolloClient: () => ({
-      clearStore: mockApolloClearStore,
-    }),
-  };
-});
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  discardSessionToken: jest.fn(),
+  clearSignedInAccountUid: jest.fn(),
+}));
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -188,7 +185,8 @@ describe('PageDeleteAccount', () => {
     await waitFor(() => {
       expect(mockDestroy).toHaveBeenCalled();
     });
-    expect(mockApolloClearStore).toHaveBeenCalled();
+    expect(discardSessionToken).toHaveBeenCalled();
+    expect(clearSignedInAccountUid).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
 
@@ -208,7 +206,8 @@ describe('PageDeleteAccount', () => {
     await waitFor(() => {
       expect(mockDestroy).toHaveBeenCalled();
     });
-    expect(mockApolloClearStore).toHaveBeenCalled();
+    expect(discardSessionToken).toHaveBeenCalled();
+    expect(clearSignedInAccountUid).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
 
@@ -269,10 +268,42 @@ describe('PageDeleteAccount', () => {
           })
         );
         expect(GleanMetrics.deleteAccount.engage).toHaveBeenCalled();
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Delete account' })
+        );
         expect(GleanMetrics.deleteAccount.submit).toHaveBeenCalled();
         expect(GleanMetrics.deleteAccount.passwordView).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('step 1 action button', () => {
+    it('renders as "Continue" with primary style when account has a password', () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, session })}>
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      const button = screen.getByTestId('continue-button');
+      expect(button.textContent).toContain('Continue');
+      expect(button).toHaveClass('cta-primary');
+      expect(button).not.toHaveClass('cta-caution');
+    });
+
+    it('renders as "Delete account" with caution style when account has no password', () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account: pwdlessAccount, session })}
+        >
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      const button = screen.getByTestId('continue-button');
+      expect(button.textContent).toContain('Delete account');
+      expect(button).toHaveClass('cta-caution');
+      expect(button).not.toHaveClass('cta-primary');
     });
   });
 });

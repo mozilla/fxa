@@ -5,7 +5,7 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
-  test.describe('OAuth signin token code', () => {
+  test.describe('signin token code for OAuth RP redirect with client requesting scoped keys', () => {
     function toQueryString(obj: Record<string, any>) {
       return Object.entries(obj)
         .map((x) => `${x[0]}=${x[1]}`)
@@ -19,7 +19,6 @@ test.describe('severity-2 #smoke', () => {
       code_challenge_method: 'S256',
       forceUA:
         'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
-
       keys_jwk:
         'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOiJQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdXU5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
       redirect_uri: 'https://mozilla.github.io/notes/fxa/android-redirect.html',

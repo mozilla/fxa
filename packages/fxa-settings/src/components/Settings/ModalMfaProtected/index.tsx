@@ -144,6 +144,7 @@ export const ModalMfaProtected = ({
               type="button"
               className="cta-neutral cta-xl flex-1 w-1/2"
               onClick={onDismiss}
+              data-glean-id="account_pref_mfa_guard_enter_code_cancel"
             >
               Cancel
             </button>
@@ -161,7 +162,7 @@ export const ModalMfaProtected = ({
           </FtlMsg>
         </div>
       </form>
-      <div className="mt-7 text-grey-500 text-sm inline-flex gap-1">
+      <div className="mt-7 text-grey-500 dark:text-grey-200 text-sm inline-flex gap-1">
         <FtlMsg id="modal-mfa-protected-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

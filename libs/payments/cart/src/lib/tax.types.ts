@@ -5,5 +5,6 @@
 export enum TaxChangeAllowedStatus {
   CurrencyNotFound = 'currency_not_found',
   CurrencyChange = 'currency_change',
+  PriceCurrencyNotAvailable = 'price_currency_not_available',
   Allowed = 'allowed',
 }

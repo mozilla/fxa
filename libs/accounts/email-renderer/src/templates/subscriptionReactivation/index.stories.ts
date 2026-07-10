@@ -4,25 +4,40 @@
 
 import { Meta } from '@storybook/html';
 import { subplatStoryWithProps } from '../../storybook-email';
-import { includes, TemplateData } from './index';
+import { getIncludes, TemplateData } from './index';
 
 export default {
   title: 'SubPlat Emails/Templates/subscriptionReactivation',
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   invoiceTotal: '$20',
   nextInvoiceDateOnly: '11/13/2021',
   icon: 'https://placekitten.com/512/512',
   subscriptionSupportUrl: 'http://localhost:3030/support',
+  isFreeTrialReactivation: false,
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(
   'subscriptionReactivation',
   'Sent when a user reactivates their subscription.',
   data,
-  includes
+  getIncludes(data.isFreeTrialReactivation)
 );
 
 export const SubscriptionReactivation = createStory();
+
+const freeTrialData = {
+  ...data,
+  isFreeTrialReactivation: true,
+};
+
+const createFreeTrialStory = subplatStoryWithProps<TemplateData>(
+  'subscriptionReactivation',
+  'Sent when a user reactivates their subscription while still in a free trial.',
+  freeTrialData,
+  getIncludes(freeTrialData.isFreeTrialReactivation)
+);
+
+export const SubscriptionReactivationFreeTrial = createFreeTrialStory();

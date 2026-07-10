@@ -6,31 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/otp/src/index.ts",
         "outputPath": "dist/libs/shared/otp",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/otp/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/shared/otp/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "test-unit": {

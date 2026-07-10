@@ -18,7 +18,6 @@ import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
 import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
-import SupportView from '../views/support';
 import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
@@ -397,9 +396,6 @@ Router = Router.extend({
       );
     },
 
-    'push/confirm_login(/)': createViewHandler('push/confirm_login'),
-    'push/send_login(/)': createViewHandler('push/send_login'),
-    'push/completed(/)': createViewHandler('push/completed'),
     'primary_email_verified(/)': function () {
       this.createReactOrBackboneViewHandler(
         'primary_email_verified',
@@ -581,20 +577,6 @@ Router = Router.extend({
         }
       );
     },
-    'signin_push_code(/)': function () {
-      this.createReactViewHandler('signin_push_code', {
-        ...Url.searchParams(this.window.location.search),
-        // for subplat redirect only
-        ...(this.relier.get('redirectTo') && {
-          redirect_to: this.relier.get('redirectTo'),
-        }),
-      });
-    },
-    'signin_push_code_confirm(/)': function () {
-      this.createReactViewHandler('signin_push_code_confirm', {
-        ...Url.searchParams(this.window.location.search),
-      });
-    },
     'signin_unblock(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_unblock',
@@ -659,7 +641,6 @@ Router = Router.extend({
       SubscriptionsProductRedirectView
     ),
     'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
-    'support(/)': createViewHandler(SupportView),
     'verify_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_UP,
     }),

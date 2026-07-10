@@ -1,7 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { CartMetrics, CmsMetricsData, CommonMetrics } from '../glean.types';
+import {
+  CartMetrics,
+  CmsMetricsData,
+  CommonMetrics,
+  type PaymentProvidersType,
+  type SubPlatPaymentMethodType,
+  type SubscriptionCancellationData,
+} from '../glean.types';
 import { determineCheckoutType } from './determineCheckoutType';
 import { mapParams } from './mapParams';
 import { normalizeGleanFalsyValues } from './normalizeGleanFalsyValues';
@@ -17,21 +24,35 @@ export function mapSubscription({
   commonMetricsData,
   cartMetricsData,
   cmsMetricsData,
+  subscriptionCancellationData,
+  paymentProvider,
+  paymentMethod,
 }: {
   commonMetricsData: CommonMetrics;
   cartMetricsData: CartMetrics;
   cmsMetricsData: CmsMetricsData;
+  subscriptionCancellationData?: SubscriptionCancellationData;
+  paymentProvider?: PaymentProvidersType;
+  paymentMethod?: SubPlatPaymentMethodType;
 }) {
   const mappedParams = mapParams(commonMetricsData.params);
   return {
-    subscription_checkout_type: determineCheckoutType(cartMetricsData.uid),
+    subscription_checkout_type: determineCheckoutType(
+      cartMetricsData.uid,
+      commonMetricsData.searchParams['newAccount']
+    ),
     subscription_currency: normalizeGleanFalsyValues(cartMetricsData.currency),
     subscription_error_id: normalizeGleanFalsyValues(
       cartMetricsData.errorReasonId
     ),
-    subscription_interval: mappedParams.interval,
-    subscription_offering_id: mappedParams.offeringId,
-    subscription_payment_provider: PLACEHOLDER_VALUE,
+    subscription_interval:
+      normalizeGleanFalsyValues(subscriptionCancellationData?.interval) ||
+      mappedParams.interval,
+    subscription_offering_id:
+      normalizeGleanFalsyValues(subscriptionCancellationData?.offeringId) ||
+      mappedParams.offeringId,
+    subscription_payment_provider: normalizeGleanFalsyValues(paymentProvider),
+    subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
     subscription_plan_id: normalizeGleanFalsyValues(cmsMetricsData.priceId),
     subscription_product_id: normalizeGleanFalsyValues(
       cmsMetricsData.productId
@@ -40,5 +61,12 @@ export function mapSubscription({
       cartMetricsData.couponCode
     ),
     subscription_subscribed_plan_ids: PLACEHOLDER_VALUE,
+    subscription_cancellation_reason: normalizeGleanFalsyValues(
+      subscriptionCancellationData?.cancellationReason
+    ),
+    subscription_provider_event_id: normalizeGleanFalsyValues(
+      subscriptionCancellationData?.providerEventId
+    ),
+    subscription_is_free_trial: cartMetricsData.isFreeTrial ? 'true' : '',
   };
 }

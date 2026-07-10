@@ -16,10 +16,9 @@ import {
 } from './interfaces';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
-import { Link, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useFtlMsgResolver } from '../../../models';
 
 const CompleteResetPassword = ({
   email,
@@ -29,22 +28,24 @@ const CompleteResetPassword = ({
   submitNewPassword,
   estimatedSyncDeviceCount,
   recoveryKeyExists,
-  integrationIsSync,
-  isFirefoxClientServiceRelay,
+  integration,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
   const searchParams = location.search;
+  const additionalAccessibilityInfo =
+    integration.getCmsInfo()?.shared.additionalAccessibilityInfo;
   useEffect(() => {
-    hasConfirmedRecoveryKey
-      ? GleanMetrics.passwordReset.recoveryKeyCreatePasswordView()
-      : GleanMetrics.passwordReset.createNewView();
-  }, [hasConfirmedRecoveryKey]);
-
-  const ftlMsgResolver = useFtlMsgResolver();
+    if (hasConfirmedRecoveryKey) {
+      GleanMetrics.passwordReset.recoveryKeyCreatePasswordView();
+    } else {
+      const reason = recoveryKeyExists ? 'with key' : 'without key';
+      GleanMetrics.passwordReset.createNewView({ event: { reason } });
+    }
+  }, [hasConfirmedRecoveryKey, recoveryKeyExists]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isActiveSyncUser = !!(
-    integrationIsSync ||
+    integration.isSync() ||
     (estimatedSyncDeviceCount !== undefined && estimatedSyncDeviceCount > 0)
   );
   const defaultClosed = !isActiveSyncUser;
@@ -95,15 +96,10 @@ const CompleteResetPassword = ({
       */}
       <input type="email" value={email} className="hidden" readOnly />
 
-      {isFirefoxClientServiceRelay && (
+      {additionalAccessibilityInfo && (
         <Banner
           type="info"
-          content={{
-            localizedHeading: ftlMsgResolver.getMsg(
-              'complete-reset-password-desktop-relay',
-              'Firefox will try sending you back to use an email mask after you sign in.'
-            ),
-          }}
+          content={{ localizedHeading: additionalAccessibilityInfo }}
         />
       )}
 

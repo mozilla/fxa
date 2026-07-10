@@ -26,6 +26,7 @@ import {
   getSubplatInterval,
   SetupIntentManager,
   PromotionCodeError,
+  STRIPE_SUBSCRIPTION_METADATA,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
@@ -37,6 +38,7 @@ import {
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import {
+  FreeTrial,
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -49,6 +51,11 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  type CheckoutEventEmitter,
+  type CommonMetrics,
+} from '@fxa/payments/metrics';
 
 import {
   PaidInvoiceOnFailedCartError,
@@ -64,17 +71,31 @@ import {
   CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError,
   GetCartSubscriptionIdCartError,
   SetupCartCurrencyNotFoundError,
+  SetupCartAccountNotFoundError,
   UpdateCartCurrencyNotFoundError,
   FinalizeWithoutSubscriptionIdCartError,
   FinalizeWithoutSubscriptionCartError,
   InvalidPromoCodeCartError,
   CartVersionMismatchError,
   CartInvalidStateForActionError,
+  GetCartMissingTaxAddressError,
+  GetCartFromPriceMissingError,
+  GetCartCustomerMissingError,
+  GetCartSubscriptionMissingError,
+  GetCartPaymentInfoMissingError,
+  GetCartLatestInvoicePreviewMissingError,
+  GetCartFailureFromPriceMissingError,
+  GetCartIntervalMissingError,
+  GetCartUnitAmountForCurrencyMissingError,
+  GetCartPriceForCurrencyRecurringMissingError,
+  SubmitNeedsInputCustomerIdMissingError,
+  SubmitNeedsInputSubscriptionIdMissingError,
+  SubmitNeedsInputUidMissingError,
+  CartSubscriptionDeletionFailedError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
   CartDTO,
-  CheckoutCustomerData,
   FromPrice,
   GetNeedsInputResponse,
   NoInputNeededResponse,
@@ -97,14 +118,22 @@ import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
-import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
+import { handleException } from '@fxa/shared/error';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
-  errorAllowList: Constructor<Error>[];
+  errorAllowList?: Constructor<Error>[];
+  // Invoked after the cart is finalized to FAIL. Only the submit-attempt call
+  // sites (checkoutCartWithStripe, checkoutCartWithPaypal, submitNeedsInput)
+  // pass this so that pay_setup.fail Glean telemetry fires for genuine
+  // checkout failures and not for incidental wrapWithCartCatch failures in
+  // other cart operations (updateCart, restartCart, getNeedsInput, …).
+  // The cart has its errorReasonId already set by finishErrorCart, so the
+  // callback can read it from the cart record itself.
+  onCheckoutFail?: (cart: ResultCart) => Promise<void>;
 }
 
 const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
@@ -122,6 +151,8 @@ export class CartService {
     private asyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
+    @Inject(CHECKOUT_EVENT_EMITTER_TOKEN)
+    private checkoutEmitter: CheckoutEventEmitter,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
@@ -197,6 +228,15 @@ export class CartService {
         const subscriptionId =
           cart.stripeSubscriptionId || store?.checkout.subscriptionId;
 
+        // Gated emission: pay_setup.fail fires only when the caller opts
+        // in via onCheckoutFail. Submit-attempt call sites do; cart-edit
+        // / read-only paths (updateCart, restartCart, getNeedsInput) do
+        // not, so an incidental error in those paths does not skew the
+        // checkout conversion numbers.
+        if (options?.onCheckoutFail) {
+          await options.onCheckoutFail(cart);
+        }
+
         if (subscriptionId) {
           const subscription =
             await this.subscriptionManager.retrieve(subscriptionId);
@@ -264,12 +304,49 @@ export class CartService {
             }
           }
 
+          const isZeroPaidInvoice =
+            invoice?.status === 'paid' && invoice.total === 0;
+
           if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
-            await this.subscriptionManager.cancel(subscriptionId, {
-              cancellation_details: {
-                comment: 'Automatic Cancellation: Cart checkout failed.',
-              },
-            });
+            if (isZeroPaidInvoice) {
+              try {
+                await this.subscriptionManager.update(subscriptionId, {
+                  metadata: {
+                    [STRIPE_SUBSCRIPTION_METADATA.SuppressCancellationEmail]:
+                      'true',
+                  },
+                });
+                await this.subscriptionManager.cancel(subscriptionId, {
+                  cancellation_details: {
+                    comment: 'Automatic Cancellation: Cart checkout failed.',
+                  },
+                });
+              } catch (e) {
+                if (
+                  e.code === 'resource_missing' ||
+                  e.message?.startsWith('No such subscription')
+                ) {
+                  this.log.log(
+                    'cartService.wrapWithCartCatch.subscriptionNotFound',
+                    {
+                      subscriptionId,
+                      eligibilityStatus: cart.eligibilityStatus,
+                      offeringId: cart.offeringConfigId,
+                      interval: cart.interval,
+                    }
+                  );
+                  this.statsd.increment(
+                    'subscription_deletion_failed_not_found'
+                  );
+                } else {
+                  throw new CartSubscriptionDeletionFailedError(
+                    cartId,
+                    subscriptionId,
+                    e
+                  );
+                }
+              }
+            }
           } else {
             this.statsd.increment(
               'checkout_failure_subscription_not_cancelled'
@@ -313,6 +390,36 @@ export class CartService {
     };
   }
 
+  private async evaluateIsFreeTrial(args: {
+    uid?: string;
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    cartEligibilityStatus: CartEligibilityStatus;
+  }): Promise<boolean> {
+    if (args.cartEligibilityStatus !== CartEligibilityStatus.CREATE) {
+      return false;
+    }
+
+    if (!args.uid) {
+      return !!(await this.checkoutService.getProductFreeTrialOffer({
+        offeringConfigId: args.offeringConfigId,
+        countryCode: args.countryCode,
+        interval: args.interval,
+      }));
+    } else {
+      const { offer, userEligible } =
+        await this.checkoutService.getFreeTrialEligibility({
+          uid: args.uid,
+          offeringConfigId: args.offeringConfigId,
+          countryCode: args.countryCode,
+          interval: args.interval,
+          eligibilityStatus: EligibilityStatus.CREATE,
+        });
+      return !!offer && !!userEligible;
+    }
+  }
+
   /**
    * Initialize a brand new cart
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
@@ -322,6 +429,7 @@ export class CartService {
       CouponErrorCannotRedeem,
       InvalidPromoCodeCartError,
       ProductConfigError,
+      SetupCartAccountNotFoundError,
     ],
   })
   async setupCart(args: {
@@ -340,6 +448,13 @@ export class CartService {
         currency,
         args.taxAddress.countryCode
       );
+    }
+
+    if (args.uid) {
+      const accounts = await this.accountManager.getAccounts([args.uid]);
+      if (accounts.length === 0) {
+        throw new SetupCartAccountNotFoundError(args.uid);
+      }
     }
 
     let accountCustomer;
@@ -405,6 +520,14 @@ export class CartService {
       }
     }
 
+    const isFreeTrial = await this.evaluateIsFreeTrial({
+      uid: args.uid,
+      offeringConfigId: args.offeringConfigId,
+      countryCode: args.taxAddress.countryCode,
+      interval: args.interval,
+      cartEligibilityStatus,
+    });
+
     const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
@@ -416,6 +539,7 @@ export class CartService {
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode,
+      isFreeTrial,
     };
 
     if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
@@ -508,6 +632,7 @@ export class CartService {
         stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
         amount: oldCart.amount,
         eligibilityStatus: oldCart.eligibilityStatus,
+        isFreeTrial: oldCart.isFreeTrial,
       });
     });
   }
@@ -517,11 +642,22 @@ export class CartService {
     cartId: string,
     version: number,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string
   ) {
-    return this.wrapWithCartCatch(cartId, async () => {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       let updatedCart: ResultCart | null = null;
       try {
         //Ensure that the cart version matches the value passed in from FE
@@ -542,12 +678,12 @@ export class CartService {
         { checkout: { subscriptionId: undefined } },
         () => {
           // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, async () => {
+          this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
             await this.checkoutService.payWithStripe(
               updatedCart,
               confirmationTokenId,
-              customerData,
               attribution,
+              requestArgs,
               sessionUid
             );
           }).catch((error) => {
@@ -569,12 +705,23 @@ export class CartService {
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string,
     token?: string
   ) {
-    return this.wrapWithCartCatch(cartId, async () => {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       let updatedCart: ResultCart | null = null;
       try {
         //Ensure that the cart version matches the value passed in from FE
@@ -595,11 +742,11 @@ export class CartService {
         { checkout: { subscriptionId: undefined } },
         () => {
           // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, async () => {
+          this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
             await this.checkoutService.payWithPaypal(
               updatedCart,
-              customerData,
               attribution,
+              requestArgs,
               sessionUid,
               token
             );
@@ -641,13 +788,16 @@ export class CartService {
       }
 
       let paymentForm: SubPlatPaymentMethodType;
-      if (this.subscriptionManager.getPaymentProvider(subscription) === 'paypal') {
+      if (
+        this.subscriptionManager.getPaymentProvider(subscription) === 'paypal'
+      ) {
         paymentForm = SubPlatPaymentMethodType.PayPal;
       } else {
         const stripePaymentMethod = await this.paymentMethodManager.retrieve(
-          subscription.default_payment_method ?? '',
+          subscription.default_payment_method ?? ''
         );
-        paymentForm = convertStripePaymentMethodTypeToSubPlat(stripePaymentMethod);
+        paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(stripePaymentMethod);
       }
 
       await this.checkoutService.postPaySteps({
@@ -658,6 +808,7 @@ export class CartService {
         paymentProvider:
           this.subscriptionManager.getPaymentProvider(subscription),
         paymentForm,
+        isCancelInterstitialOffer: false,
       });
     });
   }
@@ -782,6 +933,17 @@ export class CartService {
           );
         }
 
+        cartDetails.isFreeTrial = await this.evaluateIsFreeTrial({
+          uid: cartDetailsInput.uid ?? oldCart.uid,
+          offeringConfigId: oldCart.offeringConfigId,
+          countryCode:
+            cartDetailsInput.taxAddress?.countryCode ??
+            oldCart.taxAddress?.countryCode ??
+            '',
+          interval: oldCart.interval as SubplatInterval,
+          cartEligibilityStatus: oldCart.eligibilityStatus,
+        });
+
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
 
         return this.cartManager.fetchCartById(cartId);
@@ -790,14 +952,17 @@ export class CartService {
   }
 
   /**
-   * Fetch a cart from the database by ID
+   * Fetch a cart from the database by ID, limited to values in the database
    */
   @SanitizeExceptions()
-  async getCartState(cartId: string): Promise<{ state: CartState }> {
+  async getDbCart(
+    cartId: string
+  ): Promise<{ state: CartState; isFreeTrial: boolean }> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
     return {
       state: cart.state,
+      isFreeTrial: cart.isFreeTrial,
     };
   }
 
@@ -810,8 +975,7 @@ export class CartService {
       cartId
     )) as ResultCart & { taxAddress: TaxAddress; currency: string };
 
-    assert(cart.taxAddress !== null, 'Cart must have a tax address');
-    assert(cart.currency !== null, 'Cart must have a currency');
+    assert(cart.taxAddress !== null, new GetCartMissingTaxAddressError(cartId));
     const [
       price,
       metricsOptedOut,
@@ -845,6 +1009,38 @@ export class CartService {
     ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+
+    // Use Stripe's trial dates as the source of truth if applicable
+    const trialSubscription =
+      cart.stripeSubscriptionId && subscriptions
+        ? subscriptions.find((s) => s.id === cart.stripeSubscriptionId)
+        : undefined;
+    const trialStartDate = trialSubscription?.trial_start ?? undefined;
+    const trialEndDate = trialSubscription?.trial_end ?? undefined;
+
+    let freeTrialOffer: FreeTrial | null = null;
+    let freeTrialUserEligible = false;
+    if (cart.state === CartState.START) {
+      if (cart.uid) {
+        const freeTrialResult =
+          await this.checkoutService.getFreeTrialEligibility({
+            uid: cart.uid,
+            offeringConfigId: cart.offeringConfigId,
+            countryCode: cart.taxAddress.countryCode || '',
+            interval: cart.interval as SubplatInterval,
+            eligibilityStatus: eligibility.subscriptionEligibilityResult,
+          });
+        freeTrialOffer = freeTrialResult.offer;
+        freeTrialUserEligible = freeTrialResult.userEligible;
+      } else {
+        freeTrialOffer = await this.checkoutService.getProductFreeTrialOffer({
+          offeringConfigId: cart.offeringConfigId,
+          countryCode: cart.taxAddress.countryCode || '',
+          interval: cart.interval as SubplatInterval,
+        });
+      }
+    }
+
     const { unitAmountForCurrency: offeringPrice } =
       await this.priceManager.retrievePricingForCurrency(
         price.id,
@@ -861,28 +1057,45 @@ export class CartService {
     }
 
     let upcomingInvoicePreview: InvoicePreview | undefined;
+    let isUpgradeFromTrial: boolean | undefined;
     if (
       cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
       cart.state !== CartState.FAIL
     ) {
       assert(
         'fromPrice' in eligibility,
-        'fromPrice not present for upgrade cart'
+        new GetCartFromPriceMissingError(cartId)
       );
-      assert(customer, 'Customer is required for upgrade');
+      assert(customer, new GetCartCustomerMissingError(cartId));
       const fromSubscription =
         await this.subscriptionManager.retrieveForCustomerAndPrice(
           customer.id,
           eligibility.fromPrice.id
         );
-      assert(fromSubscription, 'Subscription required');
+      assert(fromSubscription, new GetCartSubscriptionMissingError(cartId));
+      isUpgradeFromTrial = fromSubscription.status === 'trialing';
       const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      upcomingInvoicePreview =
-        await this.invoiceManager.previewUpcomingForUpgrade({
+      const hasPaymentMethod =
+        !!customer.invoice_settings.default_payment_method;
+      if (isUpgradeFromTrial && !hasPaymentMethod) {
+        upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
           priceId: price.id,
+          currency: cart.currency,
           customer,
-          fromSubscriptionItem,
+          taxAddress: cart.taxAddress,
+          couponCode: cart.couponCode || undefined,
         });
+      } else {
+        upcomingInvoicePreview =
+          await this.invoiceManager.previewUpcomingForUpgrade({
+            priceId: price.id,
+            customer,
+            fromSubscriptionItem,
+            ...(isUpgradeFromTrial && {
+              trialEnd: Math.floor(Date.now() / 1000),
+            }),
+          });
+      }
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
@@ -952,9 +1165,9 @@ export class CartService {
     if (cart.state === CartState.SUCCESS) {
       assert(
         latestInvoicePreview,
-        'latestInvoicePreview not present for success cart'
+        new GetCartLatestInvoicePreviewMissingError(cartId)
       );
-      assert(paymentInfo, 'paymentInfo not present for success cart');
+      assert(paymentInfo, new GetCartPaymentInfoMissingError(cartId));
 
       return {
         ...cart,
@@ -965,26 +1178,40 @@ export class CartService {
         latestInvoicePreview,
         paymentInfo,
         hasActiveSubscriptions: !!subscriptions?.length,
+        freeTrialOffer,
+        freeTrialUserEligible,
+        trialStartDate,
+        trialEndDate,
+        isUpgradeFromTrial,
       };
     }
 
     let fromPrice: FromPrice | undefined;
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-      assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
+      assert(
+        'fromPrice' in eligibility,
+        new GetCartFailureFromPriceMissingError(cartId)
+      );
 
       const { price: priceForCurrency, unitAmountForCurrency } =
         await this.priceManager.retrievePricingForCurrency(
           eligibility.fromPrice.id,
           cart.currency
         );
-      assertNotNull(unitAmountForCurrency);
-      assertNotNull(priceForCurrency.recurring);
+      assertNotNull(
+        unitAmountForCurrency,
+        new GetCartUnitAmountForCurrencyMissingError(cartId)
+      );
+      assertNotNull(
+        priceForCurrency.recurring,
+        new GetCartPriceForCurrencyRecurringMissingError(cartId)
+      );
 
       const interval = getSubplatInterval(
         priceForCurrency.recurring.interval,
         priceForCurrency.recurring.interval_count
       );
-      assert(interval, 'Interval not found but is required');
+      assert(interval, new GetCartIntervalMissingError(cartId));
 
       fromPrice = {
         currency: cart.currency,
@@ -1007,6 +1234,11 @@ export class CartService {
           : undefined,
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
       hasActiveSubscriptions: !!subscriptions?.length,
+      freeTrialOffer,
+      freeTrialUserEligible,
+      trialStartDate,
+      trialEndDate,
+      isUpgradeFromTrial,
     };
   }
 
@@ -1049,15 +1281,29 @@ export class CartService {
   }
 
   @SanitizeExceptions()
-  async submitNeedsInput(cartId: string) {
-    return this.wrapWithCartCatch(cartId, async () => {
+  async submitNeedsInput(cartId: string, requestArgs: CommonMetrics) {
+    const onCheckoutFail = async (cart: ResultCart) => {
+      await this.checkoutEmitter.emit('checkoutFail', {
+        ...requestArgs,
+        params: {
+          ...requestArgs.params,
+          cartId: cart.id,
+          offeringId: cart.offeringConfigId,
+          interval: cart.interval,
+        },
+      });
+    };
+    return this.wrapWithCartCatch(cartId, { onCheckoutFail }, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
-      assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
+      assert(
+        cart.stripeCustomerId,
+        new SubmitNeedsInputCustomerIdMissingError(cartId)
+      );
       assert(
         cart.stripeSubscriptionId,
-        'Cart must have a stripeSubscriptionId'
+        new SubmitNeedsInputSubscriptionIdMissingError(cartId)
       );
-      assert(cart.uid, 'Cart must have a uid');
+      assert(cart.uid, new SubmitNeedsInputUidMissingError(cartId));
 
       if (!cart.stripeIntentId) {
         throw new CartIntentNotFoundError(cartId);
@@ -1087,7 +1333,8 @@ export class CartService {
         const paymentMethod = await this.paymentMethodManager.retrieve(
           intent.payment_method
         );
-        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+        const paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(paymentMethod);
 
         await this.checkoutService.postPaySteps({
           cart,
@@ -1097,6 +1344,8 @@ export class CartService {
           paymentProvider:
             this.subscriptionManager.getPaymentProvider(subscription),
           paymentForm,
+          isCancelInterstitialOffer: false,
+          requestArgs,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)

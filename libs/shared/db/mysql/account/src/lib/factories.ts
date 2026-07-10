@@ -8,6 +8,7 @@ import {
   Account,
   AccountCustomer,
   NewCart,
+  Passkey,
   PaypalCustomer,
   SessionToken,
   UnverifiedToken,
@@ -44,6 +45,7 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   amount: faker.number.int(10000),
   version: 0,
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  isFreeTrial: false,
   ...override,
 });
 
@@ -180,5 +182,34 @@ export const RecoveryPhoneFactory = (override?: Partial<RecoveryPhone>) => ({
     a: 'test',
     b: 'test2',
   }),
+  ...override,
+});
+
+export const PasskeyFactory = (override?: Partial<Passkey>): Passkey => ({
+  uid: getHexBuffer(32),
+  credentialId: getHexBuffer(faker.number.int({ min: 32, max: 128 })),
+  publicKey: getHexBuffer(128),
+  signCount: 0,
+  transports: faker.helpers.arrayElement([
+    ['internal'],
+    ['usb'],
+    ['internal', 'hybrid'],
+    [],
+  ]),
+  aaguid: faker.datatype.boolean()
+    ? getHexBuffer(32) // Real AAGUID (32 hex chars = 16 bytes)
+    : Buffer.alloc(16, 0), // All-zeros for privacy-preserving authenticators
+  name: faker.helpers.arrayElement([
+    'Touch ID',
+    'YubiKey 5',
+    'Security Key',
+    'iPhone Face ID',
+    'Passkey',
+  ]),
+  createdAt: faker.date.recent().getTime(),
+  lastUsedAt: faker.datatype.boolean() ? faker.date.recent().getTime() : null,
+  backupEligible: faker.datatype.boolean(),
+  backupState: faker.datatype.boolean(),
+  prfEnabled: faker.datatype.boolean(),
   ...override,
 });

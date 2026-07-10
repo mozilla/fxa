@@ -21,6 +21,10 @@ const {
 } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { recordSecurityEvent } = require('./utils/security-event');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
+const { getClientServiceTags } = require('../metrics/client-tags');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -64,6 +68,8 @@ module.exports = (
 
   promisify(qrcode.toDataURL);
 
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
   const recoveryPhoneService = Container.get(RecoveryPhoneService);
   const backupCodeManager = Container.get(BackupCodeManager);
 
@@ -73,6 +79,318 @@ module.exports = (
     ? `${config.serviceName} - ${environment}`
     : `${config.serviceName}`;
 
+  // Handler function for TOTP replace start (used by MFA route)
+  async function totpReplaceStartHandler(request) {
+    log.begin('totp.replace.create', request);
+
+    const { uid, email } = request.auth.credentials;
+
+    await customs.checkAuthenticated(request, uid, email, 'totpCreate');
+
+    // the opposite of `/totp/create` this requires that the user already has
+    // a verified TOTP token to be replaced.
+    const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+    if (!hasEnabledToken) {
+      throw errors.totpTokenDoesNotExist();
+    }
+
+    // Default options for TOTP
+    const otpOptions = {
+      encoding: 'hex',
+      step: config.step,
+      window: config.window,
+    };
+
+    const authenticator = new otplib.authenticator.Authenticator();
+    authenticator.options = Object.assign(
+      {},
+      otplib.authenticator.options,
+      otpOptions
+    );
+
+    // Reuse existing in-progress secret if present; refresh TTL to give user a full window
+    let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
+    if (secret) {
+      await authServerCacheRedis.set(
+        toRedisTotpSecretKey(uid),
+        secret,
+        'EX',
+        TOTP_SECRET_REDIS_TTL
+      );
+    } else {
+      secret = authenticator.generateSecret();
+      await authServerCacheRedis.set(
+        toRedisTotpSecretKey(uid),
+        secret,
+        'EX',
+        TOTP_SECRET_REDIS_TTL
+      );
+    }
+
+    log.info('totpToken.replace.created', { uid });
+    await request.emitMetricsEvent('totpToken.replace.created', { uid });
+
+    const otpauth = authenticator.keyuri(email, service, secret);
+
+    const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
+
+    return {
+      qrCodeUrl,
+      secret,
+    };
+  }
+
+  // Handler function for TOTP replace confirm (used by MFA route)
+  async function totpReplaceConfirmHandler(request) {
+    log.begin('totp.replace.confirm', request);
+
+    const code = request.payload.code;
+    const { uid, email } = request.auth.credentials;
+
+    await customs.checkAuthenticated(request, uid, email, 'totpReplace');
+    // check the redis cache for the NEW secret. Since the existing code
+    // is verified and stored in the db we must use the redis cache
+    const newSharedSecret = await authServerCacheRedis.get(
+      toRedisTotpSecretKey(uid)
+    );
+
+    if (!newSharedSecret) {
+      throw errors.totpTokenNotFound();
+    }
+
+    // Default options for TOTP
+    const otpOptions = {
+      encoding: 'hex',
+      step: config.step,
+      window: config.window,
+    };
+
+    // validate the incoming code
+    const { valid: isValidCode } = otpUtils.verifyOtpCode(
+      code,
+      newSharedSecret,
+      otpOptions,
+      'totp.verify'
+    );
+
+    if (!isValidCode) {
+      glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
+      throw errors.invalidTokenVerficationCode();
+    }
+
+    try {
+      // new code is valid so we can replace the
+      // existing TOTP token with the new one
+      await db.replaceTotpToken({
+        uid,
+        sharedSecret: newSharedSecret,
+        verified: true,
+        enabled: true,
+        epoch: 0,
+      });
+
+      await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
+
+      await recordSecurityEvent('account.two_factor_replace_success', {
+        db,
+        request,
+      });
+      glean.twoFactorAuth.replaceSuccess(request, { uid });
+
+      await sendEmailNotification();
+
+      await profileClient.deleteCache(uid);
+      await log.notifyAttachedServices('profileDataChange', request, {
+        uid,
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      await recordSecurityEvent('account.two_factor_replace_failure', {
+        db,
+        request,
+      });
+      glean.twoFactorAuth.replaceFailure(request, { uid });
+      return {
+        success: false,
+      };
+    }
+
+    async function sendEmailNotification() {
+      const account = await db.account(uid);
+      const geoData = request.app.geo;
+      const ip = request.app.clientAddress;
+      const service = request.payload.service || request.query.service;
+
+      try {
+        if (fxaMailer.canSend('postChangeTwoStepAuthentication')) {
+          await fxaMailer.sendPostChangeTwoStepAuthenticationEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.metricsContext(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.localTime(request),
+          });
+        } else {
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: ip,
+            location: geoData.location,
+            service: service,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: uid,
+          };
+          await mailer.sendPostChangeTwoStepAuthenticationEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
+      } catch (error) {
+        log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
+          error,
+        });
+      }
+    }
+  }
+
+  // Handler function for TOTP destroy (used by MFA route)
+  async function totpDestroyHandler(request) {
+    log.begin('totp.destroy', request);
+
+    const { uid, email } = request.auth.credentials;
+
+    await customs.checkAuthenticated(request, uid, email, 'totpDestroy');
+
+    // If a TOTP token is not verified, we should be able to safely delete regardless of session
+    // verification state.
+    const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+
+    await db.deleteTotpToken(uid);
+
+    await profileClient.deleteCache(uid);
+    await log.notifyAttachedServices(
+      'profileDataChange',
+      {},
+      {
+        uid,
+      }
+    );
+
+    if (hasEnabledToken) {
+      const account = await db.account(uid);
+
+      try {
+        if (fxaMailer.canSend('postRemoveTwoStepAuthentication')) {
+          await fxaMailer.sendPostRemoveTwoStepAuthenticationEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.device(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.sync(service),
+          });
+        } else {
+          const geoData = request.app.geo;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid,
+          };
+          await mailer.sendPostRemoveTwoStepAuthenticationEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
+      } catch (err) {
+        // If email fails, log the error without aborting the operation.
+        log.error('mailer.sendPostRemoveTwoStepAuthenticationEmail', {
+          err,
+        });
+      }
+    }
+
+    await recordSecurityEvent('account.two_factor_removed', {
+      db,
+      request,
+    });
+
+    // Clean up the recovery phone if it was registered.
+    // Don't fail if this doesn't work, but monitor success rate with stats.
+    try {
+      const success = await recoveryPhoneService.removePhoneNumber(uid);
+      if (success) {
+        statsd.increment(
+          'totp.destroy.remove_phone_number.success',
+          getClientServiceTags(request)
+        );
+        await glean.twoStepAuthPhoneRemove.success(request);
+      } else {
+        statsd.increment(
+          'totp.destroy.remove_phone_number.fail',
+          getClientServiceTags(request)
+        );
+        log.error('totp.destroy.remove_phone_number.error');
+      }
+    } catch (error) {
+      if (error instanceof RecoveryNumberNotExistsError) {
+        statsd.increment(
+          'totp.destroy.remove_phone_number.fail',
+          getClientServiceTags(request)
+        );
+      } else {
+        statsd.increment(
+          'totp.destroy.remove_phone_number.error',
+          getClientServiceTags(request)
+        );
+        log.error('totp.destroy.remove_phone_number.error', error);
+      }
+    }
+
+    // Clean up any associated backup codes.
+    // Again, don't fail if errors out, but monitor with stats.
+    try {
+      const success = await backupCodeManager.deleteRecoveryCodes(uid);
+      if (success) {
+        statsd.increment(
+          'totp.destroy.delete_recovery_codes.success',
+          getClientServiceTags(request)
+        );
+      } else {
+        statsd.increment(
+          'totp.destroy.delete_recovery_codes.fail',
+          getClientServiceTags(request)
+        );
+      }
+    } catch (error) {
+      statsd.increment(
+        'totp.destroy.delete_recovery_codes.error',
+        getClientServiceTags(request)
+      );
+      log.error('totp.destroy.delete_recovery_codes.error', error);
+    }
+
+    // Record that the 2fa was successfully removed
+    glean.twoStepAuthRemove.success(request, { uid });
+
+    return {};
+  }
+
   const routes = [
     {
       method: 'POST',
@@ -80,7 +398,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_CREATE_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -99,11 +417,6 @@ module.exports = (
         log.begin('totp.create', request);
 
         const { email, uid } = request.auth.credentials;
-
-        const account = await db.account(uid);
-        if (!account.emailVerified) {
-          throw errors.unverifiedAccount();
-        }
 
         await customs.checkAuthenticated(request, uid, email, 'totpCreate');
 
@@ -167,7 +480,7 @@ module.exports = (
       method: 'POST',
       path: '/mfa/totp/create',
       options: {
-        ...TOTP_DOCS.TOTP_CREATE_JWT_POST,
+        ...TOTP_DOCS.MFA_TOTP_CREATE_POST,
         auth: {
           strategy: 'mfa',
           scope: ['mfa:2fa'],
@@ -200,8 +513,8 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_SETUP_VERIFY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -223,19 +536,12 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.setup.verify', request);
 
-        const { uid, email, tokenVerified } = request.auth.credentials;
+        const { uid, email } = request.auth.credentials;
         const code = request.payload.code;
 
         await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
 
-        const account = await db.account(uid);
-        if (account.emailVerified === false) {
-          throw errors.unverifiedAccount();
-        }
-
-        if (!tokenVerified) {
-          throw errors.unverifiedSession();
-        }
+        // Note: Session and account verification are handled by the auth strategy
 
         // Pull shared secret from Redis only (setup state)
         const sharedSecret = await authServerCacheRedis.get(
@@ -344,7 +650,8 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_SETUP_COMPLETE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -364,15 +671,6 @@ module.exports = (
         const { uid, email } = sessionToken;
 
         await customs.checkAuthenticated(request, uid, email, 'totpCreate');
-
-        const account = await db.account(uid);
-        if (account.emailVerified === false) {
-          throw errors.unverifiedAccount();
-        }
-
-        if (!sessionToken.tokenVerified) {
-          throw errors.unverifiedSession();
-        }
 
         // Expect a secret in Redis from the setup start step
         const sharedSecret = await authServerCacheRedis.get(
@@ -436,19 +734,6 @@ module.exports = (
           const geoData = request.app.geo;
           const ip = request.app.clientAddress;
           const service = request.payload?.service || request.query?.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip,
-            location: geoData.location,
-            service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid,
-          };
 
           // include recovery method context if available
           const result = await recoveryPhoneService.hasConfirmed(uid);
@@ -456,15 +741,45 @@ module.exports = (
             ? recoveryPhoneService.maskPhoneNumber(result.phoneNumber)
             : undefined;
 
+          // TODO: Had to add this. Seems to be needed.
+          const recoveryMethod = maskedPhoneNumber ? 'phone' : 'codes';
+
           try {
-            await mailer.sendPostAddTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              {
-                ...emailOptions,
+            if (fxaMailer.canSend('postAddTwoStepAuthentication')) {
+              await fxaMailer.sendPostAddTwoStepAuthenticationEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.device(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                ...FxaMailerFormat.location(request),
+                recoveryMethod,
                 maskedPhoneNumber,
-              }
-            );
+              });
+            } else {
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                service,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid,
+              };
+              await mailer.sendPostAddTwoStepAuthenticationEmail(
+                account.emails,
+                account,
+                {
+                  ...emailOptions,
+                  recoveryMethod,
+                  maskedPhoneNumber,
+                }
+              );
+            }
           } catch (error) {
             log.error('mailer.sendPostAddTwoStepAuthenticationEmail', {
               error,
@@ -516,140 +831,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/destroy' && route.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/totp/destroy',
-      options: {
-        ...TOTP_DOCS.TOTP_DESTROY_POST,
-        auth: {
-          strategy: 'verifiedSessionToken',
-          payload: false,
-        },
-        response: {},
-      },
-      handler: async function (request) {
-        log.begin('totp.destroy', request);
-
-        const sessionToken = request.auth.credentials;
-        const { uid } = sessionToken;
-
-        await customs.checkAuthenticated(
-          request,
-          sessionToken.uid,
-          sessionToken.email,
-          'totpDestroy'
-        );
-
-        // If a TOTP token is not verified, we should be able to safely delete regardless of session
-        // verification state.
-        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
-
-        // To help prevent users from getting locked out of their account, sessions created and verified
-        // before TOTP was enabled, can remove TOTP. Any new sessions after TOTP is enabled, are only considered
-        // verified *if and only if* they have verified a TOTP code.
-        if (!sessionToken.tokenVerified) {
-          throw errors.unverifiedSession();
-        }
-
-        await db.deleteTotpToken(uid);
-
-        // Downgrade the session to email-based verification when TOTP is
-        // removed. Because we know the session is already verified, there's
-        // no security risk in setting it as verified using a different method.
-        // See #5154.
-        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
-
-        await profileClient.deleteCache(uid);
-        await log.notifyAttachedServices(
-          'profileDataChange',
-          {},
-          {
-            uid,
-          }
-        );
-
-        if (hasEnabledToken) {
-          const account = await db.account(uid);
-          const geoData = request.app.geo;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid,
-          };
-
-          try {
-            await mailer.sendPostRemoveTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          } catch (err) {
-            // If email fails, log the error without aborting the operation.
-            log.error('mailer.sendPostRemoveTwoStepAuthenticationEmail', {
-              err,
-            });
-          }
-        }
-
-        await recordSecurityEvent('account.two_factor_removed', {
-          db,
-          request,
-        });
-
-        // Clean up the recovery phone if it was registered.
-        // Don't fail if this doesn't work, but monitor success rate with stats.
-        try {
-          const success = await recoveryPhoneService.removePhoneNumber(uid);
-          if (success) {
-            statsd.increment('totp.destroy.remove_phone_number.success');
-            await glean.twoStepAuthPhoneRemove.success(request);
-          } else {
-            statsd.increment('totp.destroy.remove_phone_number.fail');
-            log.error('totp.destroy.remove_phone_number.error');
-          }
-        } catch (error) {
-          if (error instanceof RecoveryNumberNotExistsError) {
-            statsd.increment('totp.destroy.remove_phone_number.fail');
-          } else {
-            statsd.increment('totp.destroy.remove_phone_number.error');
-            log.error('totp.destroy.remove_phone_number.error', error);
-          }
-        }
-
-        // Clean up any associated backup codes.
-        // Again, don't fail if errors out, but monitor with stats.
-        try {
-          const success = await backupCodeManager.deleteRecoveryCodes(uid);
-          if (success) {
-            statsd.increment('totp.destroy.delete_recovery_codes.success');
-          } else {
-            statsd.increment('totp.destroy.delete_recovery_codes.fail');
-          }
-        } catch (error) {
-          statsd.increment('totp.destroy.delete_recovery_codes.error');
-          log.error('totp.destroy.delete_recovery_codes.error', error);
-        }
-
-        // Record that the 2fa was successfully removed
-        glean.twoStepAuthRemove.success(request, { uid });
-
-        return {};
-      },
+      handler: totpDestroyHandler,
     },
     {
       method: 'GET',
@@ -658,6 +840,8 @@ module.exports = (
         ...TOTP_DOCS.TOTP_EXISTS_GET,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
@@ -698,7 +882,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
           payload: 'required',
         },
         validate: {
@@ -778,7 +962,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_RECOVERY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
         validate: {
           payload: isA.object({
@@ -815,31 +999,59 @@ module.exports = (
 
         const { remaining } = await db.consumeRecoveryCode(uid, code);
 
-        const mailerPromises = [
-          mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
-            acceptLanguage,
-            ip,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }),
-        ];
+        const mailerPromises = [];
+
+        if (fxaMailer.canSend('postConsumeRecoveryCode')) {
+          mailerPromises.push(
+            fxaMailer.sendPostConsumeRecoveryCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.device(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.sync(service),
+            })
+          );
+        } else {
+          mailerPromises.push(
+            mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
+              acceptLanguage,
+              ip,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            })
+          );
+        }
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
-          mailerPromises.push(
-            mailer.sendLowRecoveryCodesEmail(account.emails, account, {
-              acceptLanguage,
-              numberRemaining: remaining,
-              uid,
-            })
-          );
+          if (fxaMailer.canSend('lowRecoveryCodes')) {
+            mailerPromises.push(
+              fxaMailer.sendLowRecoveryCodesEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.device(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                numberRemaining: remaining,
+              })
+            );
+          } else {
+            mailerPromises.push(
+              mailer.sendLowRecoveryCodesEmail(account.emails, account, {
+                acceptLanguage,
+                numberRemaining: remaining,
+                uid,
+              })
+            );
+          }
         }
 
         await Promise.all(mailerPromises);
@@ -864,7 +1076,7 @@ module.exports = (
       options: {
         ...TOTP_DOCS.SESSION_VERIFY_TOTP_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -987,97 +1199,26 @@ module.exports = (
             uid: sessionToken.uid,
           };
 
-          return mailer.sendNewDeviceLoginEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+          if (fxaMailer.canSend('newDeviceLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            return await fxaMailer.sendNewDeviceLoginEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              clientName: clientInfo.name,
+              showBannerWarning: false,
+            });
+          } else {
+            return mailer.sendNewDeviceLoginEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         }
-      },
-    },
-    {
-      method: 'POST',
-      path: '/totp/replace/start',
-      options: {
-        ...TOTP_DOCS.TOTP_REPLACE_START_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            qrCodeUrl: isA.string().required(),
-            secret: isA.string().required(),
-          }),
-        },
-      },
-      handler: async function (request) {
-        log.begin('totp.replace.create', request);
-
-        const { uid, email, tokenVerified } = request.auth.credentials;
-
-        if (!tokenVerified) {
-          throw errors.unverifiedSession();
-        }
-
-        await customs.checkAuthenticated(request, uid, email, 'totpCreate');
-
-        // the opposite of `/totp/create` this requires that the user already has
-        // a verified TOTP token to be replaced.
-        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
-        if (!hasEnabledToken) {
-          throw errors.totpTokenDoesNotExist();
-        }
-
-        // Default options for TOTP
-        const otpOptions = {
-          encoding: 'hex',
-          step: config.step,
-          window: config.window,
-        };
-
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = Object.assign(
-          {},
-          otplib.authenticator.options,
-          otpOptions
-        );
-
-        // Reuse existing in-progress secret if present; refresh TTL to give user a full window
-        let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
-        if (secret) {
-          await authServerCacheRedis.set(
-            toRedisTotpSecretKey(uid),
-            secret,
-            'EX',
-            TOTP_SECRET_REDIS_TTL
-          );
-        } else {
-          secret = authenticator.generateSecret();
-          await authServerCacheRedis.set(
-            toRedisTotpSecretKey(uid),
-            secret,
-            'EX',
-            TOTP_SECRET_REDIS_TTL
-          );
-        }
-
-        log.info('totpToken.replace.created', { uid });
-        await request.emitMetricsEvent('totpToken.replace.created', { uid });
-
-        const otpauth = authenticator.keyuri(email, service, secret);
-
-        const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
-
-        return {
-          qrCodeUrl,
-          secret,
-        };
       },
     },
     {
@@ -1102,152 +1243,7 @@ module.exports = (
           }),
         },
       },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/replace/start' && route.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/totp/replace/confirm',
-      options: {
-        ...TOTP_DOCS.TOTP_REPLACE_CONFIRM_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .required()
-              .description(DESCRIPTION.codeTotp),
-          }),
-        },
-        response: {
-          schema: isA.object({
-            success: isA.boolean(),
-          }),
-        },
-      },
-      handler: async function (request) {
-        log.begin('totp.replace.confirm', request);
-
-        const code = request.payload.code;
-        const { uid, email, tokenVerified } = request.auth.credentials;
-
-        if (!tokenVerified) {
-          throw errors.unverifiedSession();
-        }
-
-        await customs.checkAuthenticated(request, uid, email, 'totpReplace');
-        // check the redis cache for the NEW secret. Since the existing code
-        // is verified and stored in the db we must use the redis cache
-        const newSharedSecret = await authServerCacheRedis.get(
-          toRedisTotpSecretKey(uid)
-        );
-
-        if (!newSharedSecret) {
-          throw errors.totpTokenNotFound();
-        }
-
-        // Default options for TOTP
-        const otpOptions = {
-          encoding: 'hex',
-          step: config.step,
-          window: config.window,
-        };
-
-        // validate the incoming code
-        const { valid: isValidCode } = otpUtils.verifyOtpCode(
-          code,
-          newSharedSecret,
-          otpOptions,
-          'totp.verify'
-        );
-
-        if (!isValidCode) {
-          glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
-          throw errors.invalidTokenVerficationCode();
-        }
-
-        try {
-          // new code is valid so we can replace the
-          // existing TOTP token with the new one
-          await db.replaceTotpToken({
-            uid,
-            sharedSecret: newSharedSecret,
-            verified: true,
-            enabled: true,
-            epoch: 0,
-          });
-
-          await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
-
-          await recordSecurityEvent('account.two_factor_replace_success', {
-            db,
-            request,
-          });
-          glean.twoFactorAuth.replaceSuccess(request, { uid });
-
-          await sendEmailNotification();
-
-          await profileClient.deleteCache(uid);
-          await log.notifyAttachedServices('profileDataChange', request, {
-            uid,
-          });
-
-          return {
-            success: true,
-          };
-        } catch (error) {
-          await recordSecurityEvent('account.two_factor_replace_failure', {
-            db,
-            request,
-          });
-          glean.twoFactorAuth.replaceFailure(request, { uid });
-          return {
-            success: false,
-          };
-        }
-
-        async function sendEmailNotification() {
-          const account = await db.account(uid);
-          const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
-          const service = request.payload.service || request.query.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip: ip,
-            location: geoData.location,
-            service: service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: uid,
-          };
-          try {
-            await mailer.sendPostChangeTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          } catch (error) {
-            log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
-              error,
-            });
-          }
-        }
-      },
+      handler: totpReplaceStartHandler,
     },
     {
       method: 'POST',
@@ -1275,15 +1271,7 @@ module.exports = (
           }),
         },
       },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/replace/confirm' &&
-              route.method === 'POST'
-          )
-          .handler(request);
-      },
+      handler: totpReplaceConfirmHandler,
     },
   ];
 

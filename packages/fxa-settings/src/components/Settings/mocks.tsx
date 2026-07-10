@@ -6,6 +6,7 @@ import Settings from '.';
 import { GenericData } from '../../lib/model-data';
 import { IntegrationData, IntegrationType } from '../../models';
 import { SettingsIntegration } from './interfaces';
+import { Routes, Route } from 'react-router';
 
 export function createMockSettingsIntegration({
   type = IntegrationType.Web,
@@ -27,8 +28,15 @@ const flowQueryParams = {
 };
 
 export const Subject = () => (
-  <Settings
-    {...{ flowQueryParams }}
-    integration={createMockSettingsIntegration()}
-  />
+  <Routes>
+    <Route
+      path="/settings/*"
+      element={
+        <Settings
+          {...{ flowQueryParams }}
+          integration={createMockSettingsIntegration()}
+        />
+      }
+    />
+  </Routes>
 );

@@ -18,10 +18,6 @@ import {
   MozillaSubscriptionTypes,
   SubscriptionType,
 } from 'fxa-shared/subscriptions/types';
-import {
-  capabilitiesClientIdPattern,
-  subscriptionProductMetadataBaseValidator,
-} from 'fxa-shared/subscriptions/validation';
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
@@ -150,13 +146,6 @@ export class StripeService extends StripeHelper {
   }
 
   /**
-   * Ensures a stripe plan has a valid state.
-   */
-  protected override async validatePlan(plan: Stripe.Plan): Promise<boolean> {
-    return validateStripePlan(plan);
-  }
-
-  /**
    * Resolves the latest stripe invoice.
    * @param invoice - an invoice id
    * @returns a stripe invoice
@@ -199,27 +188,3 @@ export function iapPurchaseToPlan(
   });
 }
 
-export function validateStripePlan(plan: Partial<Stripe.Plan>) {
-  const metadata = {
-    ...plan.metadata,
-    ...(plan.product as Stripe.Product)?.metadata,
-  };
-
-  const hasCapabilities = Object.keys(metadata).some((k) =>
-    capabilitiesClientIdPattern.test(k)
-  );
-
-  if (!hasCapabilities) {
-    return false;
-  }
-
-  const validationResult = subscriptionProductMetadataBaseValidator.validate(
-    metadata,
-    {
-      abortEarly: false,
-    }
-  );
-
-  // If there is no error, then result was valid.
-  return !validationResult.error;
-}

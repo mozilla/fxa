@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
@@ -24,10 +23,13 @@ const defaultProps = {
 };
 
 describe('ModalMfaProtected', () => {
-  it('renders correctly', () => {
+  it('renders correctly', async () => {
     renderWithRouter(<ModalMfaProtected {...defaultProps} />);
 
-    expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
+    // Await to let react-hook-form's internal state updates settle.
+    expect(
+      await screen.findByText('Enter confirmation code')
+    ).toBeInTheDocument();
     expect(
       screen.getByText('Help us make sure it’s you changing your account info')
     ).toBeInTheDocument();
@@ -119,22 +121,22 @@ describe('ModalMfaProtected', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
-  it('displays error banner', () => {
+  it('displays error banner', async () => {
     renderWithRouter(
       <ModalMfaProtected
         {...defaultProps}
         localizedErrorBannerMessage="error banner"
       />
     );
-    expect(screen.getByText('error banner')).toBeInTheDocument();
+    expect(await screen.findByText('error banner')).toBeInTheDocument();
   });
 
-  it('shows code resend success banner', () => {
+  it('shows code resend success banner', async () => {
     renderWithRouter(
       <ModalMfaProtected {...defaultProps} showResendSuccessBanner={true} />
     );
     expect(
-      screen.getByText('A new code was sent to your email.')
+      await screen.findByText('A new code was sent to your email.')
     ).toBeInTheDocument();
     expect(
       screen.getByText(

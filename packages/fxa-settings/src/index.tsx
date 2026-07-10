@@ -11,12 +11,11 @@ import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
-import { ApolloProvider } from '@apollo/client';
-import { createApolloClient } from './lib/gql';
+import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
-import { navigate } from '@reach/router';
+import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
 
 export interface FlowQueryParams {
@@ -52,7 +51,7 @@ try {
     return document.head.querySelector(name);
   });
 
-  // Must be configured before apollo is created. Otherwise baggage and sentry-trace headers won't be added
+  // Must be configured early. Otherwise baggage and sentry-trace headers won't be added
   sentryMetrics.configure({
     release: config.version,
     sentry: {
@@ -70,29 +69,30 @@ try {
     },
   });
 
-  const apolloClient = createApolloClient(config.servers.gql.url);
   const appContext = initializeAppContext();
 
   const View = Storage.isLocalStorageEnabled(window)
     ? () => <App {...{ flowQueryParams }} />
     : () => {
-        navigate('/cookies_disabled');
+        window.location.replace('/cookies_disabled');
         return <CookiesDisabled />;
       };
 
   render(
     <React.StrictMode>
-      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-        <AppErrorBoundary>
-          <AppContext.Provider value={appContext}>
-            <NimbusProvider>
-              <ApolloProvider client={apolloClient}>
-                <View />
-              </ApolloProvider>
-            </NimbusProvider>
-          </AppContext.Provider>
-        </AppErrorBoundary>
-      </DynamicLocalizationProvider>
+      <BrowserRouter>
+        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+          <AppErrorBoundary>
+            <AppContext.Provider value={appContext}>
+              <NimbusProvider>
+                <ThemeProvider enabled={config.darkMode?.enabled}>
+                  <View />
+                </ThemeProvider>
+              </NimbusProvider>
+            </AppContext.Provider>
+          </AppErrorBoundary>
+        </DynamicLocalizationProvider>
+      </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')
   );

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { LocationProvider } from '@reach/router';
 import {
   IntegrationType,
   OAuthIntegrationData,
@@ -86,18 +84,16 @@ export const Subject = ({
   verificationReason?: VerificationReasons;
 }) => {
   return (
-    <LocationProvider>
-      <SigninTokenCode
-        {...{
-          finishOAuthFlowHandler,
-          integration,
-          onSessionVerified,
-        }}
-        signinState={createMockSigninLocationState(
-          integration.wantsKeys(),
-          verificationReason
-        )}
-      />
-    </LocationProvider>
+    <SigninTokenCode
+      {...{
+        finishOAuthFlowHandler,
+        integration,
+        onSessionVerified,
+      }}
+      signinState={createMockSigninLocationState(
+        integration.wantsKeys(),
+        verificationReason
+      )}
+    />
   );
 };

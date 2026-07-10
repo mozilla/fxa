@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsEmail, IsIn, IsOptional, Validate } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, Validate } from 'class-validator';
 import {
   bind,
   KeyTransforms,
@@ -22,7 +22,7 @@ export class IndexQueryParams extends ModelDataProvider {
   loginHint: string | undefined;
 
   @IsOptional()
-  @IsIn(['googleLogin', 'appleLogin'])
-  @bind()
-  deeplink: string | undefined;
+  @IsBoolean()
+  @bind(KeyTransforms.snakeCase)
+  forcePasswordless: boolean | undefined;
 }

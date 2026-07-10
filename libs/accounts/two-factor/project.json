@@ -6,24 +6,21 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/libs/accounts/two-factor",
         "tsConfig": "libs/accounts/two-factor/tsconfig.lib.json",
         "packageJson": "libs/accounts/two-factor/package.json",
         "main": "libs/accounts/two-factor/src/index.ts",
-        "assets": ["libs/accounts/two-factor/*.md"],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        "assets": ["libs/accounts/two-factor/*.md"]
       }
     },
     "test-unit": {

@@ -5,6 +5,7 @@
 import { HandledError } from '../../../lib/error-utils';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { AuthUiError } from '../../../lib/auth-errors/auth-errors';
+import { ResetPasswordIntegration } from '../interfaces';
 
 export type ResetPasswordRecoveryPhoneLocationState =
   CompleteResetPasswordLocationState & {
@@ -29,4 +30,5 @@ export type ResetPasswordRecoveryPhoneProps = {
   resendCode: () => Promise<HandledError | void>;
   sendError?: AuthUiError;
   numBackupCodes?: number;
+  integration: ResetPasswordIntegration;
 };

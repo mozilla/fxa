@@ -19,6 +19,9 @@ signin-desktop-relay = { -brand-firefox } will try sending you back to use an em
 
 signin-code-expired-error = Code expired. Please sign in again.
 
+# Error message displayed when OAuth native flow recovery fails
+signin-recovery-error = Something went wrong. Please sign in again.
+
 signin-account-locked-banner-heading = Reset your password
 signin-account-locked-banner-description = We locked your account to keep it safe from suspicious activity.
 # This link points to https://accounts.firefox.com/reset_password

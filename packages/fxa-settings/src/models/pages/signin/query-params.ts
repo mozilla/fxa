@@ -11,7 +11,6 @@ import {
   MaxLength,
   Matches,
   Validate,
-  IsIn,
 } from 'class-validator';
 import {
   bind,
@@ -53,7 +52,7 @@ export class SigninQueryParams extends ModelDataProvider {
   redirectTo: string | undefined = undefined;
 
   @IsOptional()
-  @IsIn(['googleLogin', 'appleLogin'])
+  @IsBoolean()
   @bind(T.snakeCase)
-  deeplink!: string;
+  forcePasswordless: boolean | undefined = undefined;
 }

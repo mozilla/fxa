@@ -7,18 +7,29 @@ import { config } from 'apps/payments/next/config';
 import { getMetricsFlowAction } from '@fxa/payments/ui/actions';
 import { ManageParams } from '@fxa/payments/ui';
 import { redirect } from 'next/navigation';
+import { getApp } from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: ManageParams }
+  { params }: { params: Promise<ManageParams> }
 ) {
+  const resolvedParams = await params;
   const requestSearchParams = request.nextUrl.searchParams;
-  const { locale } = params;
+  const logger = getApp().getLogger();
+  const { locale } = resolvedParams;
+
+  const redirectToParam = requestSearchParams.get('redirect_to');
+  requestSearchParams.delete('redirect_to');
+
+  const redirectToPath =
+    redirectToParam && redirectToParam.startsWith('/')
+      ? redirectToParam
+      : `/${locale}/subscriptions/manage`;
 
   const redirectToUrl = new URL(
-    `${config.paymentsNextHostedUrl}/${locale}/subscriptions/manage`
+    `${config.paymentsNextHostedUrl}${redirectToPath}`
   );
   redirectToUrl.search = requestSearchParams.toString();
 
@@ -35,7 +46,7 @@ export async function GET(
       );
     } catch (error) {
       // Prevent error propagation on failed metrics flow fetch
-      console.error(error);
+      logger.error('Failed to fetch metrics flow', { error });
     }
   }
 
@@ -50,7 +61,7 @@ export async function GET(
       { prompt: 'none', return_on_error: 'false' }
     );
   } catch (error) {
-    console.error(error);
+    logger.error('Failed to sign in', { error });
   }
 
   redirect(redirectUrl ?? redirectToUrl.href);

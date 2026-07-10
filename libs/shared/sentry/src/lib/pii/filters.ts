@@ -1,9 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import * as Sentry from '@sentry/node';
-import { ErrorEvent } from '@sentry/core';
-
 import { Message } from '@aws-sdk/client-sqs';
 
 import { IFilterAction, PiiData } from '../models/pii';
@@ -52,119 +49,6 @@ export abstract class FilterBase {
   }
 
   abstract filter(data: PiiData): PiiData;
-}
-
-/**
- * Defacto Sentry Event Filter. Can be extended and customized as needed.
- */
-export class SentryPiiFilter extends FilterBase {
-  /**
-   * Creates a new PII Filter for sentry data
-   * @param actions - Set of filters to apply
-   */
-  constructor(actions: IFilterAction[]) {
-    super(actions);
-  }
-
-  /**
-   * Filter PII from all known sentry fields
-   */
-  public filter(event: ErrorEvent) {
-    // Target key parts of sentry event structure
-    this.scrubMessage(event)
-      .scrubContext(event)
-      .scrubBreadCrumbs(event)
-      .scrubRequest(event)
-      .scrubTags(event)
-      .scrubException(event)
-      .scrubExtra(event)
-      .scrubUser(event);
-    return event;
-  }
-
-  protected scrubMessage(event: Sentry.Event) {
-    if (event.message) {
-      event.message = this.applyFilters(event.message);
-    }
-    return this;
-  }
-
-  protected scrubBreadCrumbs(event: Sentry.Event) {
-    for (const bc of event.breadcrumbs || []) {
-      if (bc.message) {
-        bc.message = this.applyFilters(bc.message);
-      }
-      if (bc.data) {
-        bc.data = this.applyFilters(bc.data);
-      }
-    }
-    return this;
-  }
-
-  protected scrubRequest(event: Sentry.Event) {
-    if (event.request?.headers) {
-      event.request.headers = this.applyFilters(event.request.headers);
-    }
-
-    if (event.request?.data) {
-      event.request.data = this.applyFilters(event.request.data);
-    }
-
-    if (event.request?.query_string) {
-      event.request.query_string = this.applyFilters(
-        event.request.query_string
-      );
-    }
-
-    if (event.request?.env) {
-      event.request.env = this.applyFilters(event.request.env);
-    }
-
-    if (event.request?.url) {
-      event.request.url = this.applyFilters(event.request.url);
-    }
-
-    if (event.request?.cookies) {
-      event.request.cookies = this.applyFilters(event.request.cookies);
-    }
-
-    return this;
-  }
-
-  protected scrubTags(event: Sentry.Event) {
-    if (typeof event.tags?.url === 'string') {
-      event.tags.url = this.applyFilters(event.tags.url);
-    }
-    return this;
-  }
-
-  protected scrubException(event: Sentry.Event) {
-    if (event.exception) {
-      event.exception = this.applyFilters(event.exception);
-    }
-    return this;
-  }
-
-  protected scrubExtra(event: Sentry.Event) {
-    if (event.extra) {
-      event.extra = this.applyFilters(event.extra);
-    }
-    return this;
-  }
-
-  protected scrubUser(event: Sentry.Event) {
-    if (event.user) {
-      event.user = this.applyFilters(event.user);
-    }
-    return this;
-  }
-
-  protected scrubContext(event: Sentry.Event) {
-    if (event.contexts) {
-      event.contexts = this.applyFilters(event.contexts);
-    }
-    return this;
-  }
 }
 
 /**

@@ -19,7 +19,18 @@ module.exports = function () {
     // from `/.well-known/apple-app-site-association` path, describing what apps can open which links.
     // The structure below enables FxiOS Fennec (developer builds), FirefoxBeta (Test Flight builds)
     // and Firefox (App store builds) to open FxA links.
-    const paths = ['/verify_email', '/complete_signin'];
+    //
+    // FXA-13863: `/pair*` and `/poc_deep_link` are added to validate the deep-link
+    // round-trip for the new native-camera pairing QR flow. The Firefox iOS app
+    // must also register `applinks:accounts.firefox.com` in its Associated Domains
+    // entitlement and handle these paths for Universal Links to open the app.
+    const paths = [
+      '/verify_email',
+      '/complete_signin',
+      '/pair',
+      '/pair/*',
+      '/poc_deep_link',
+    ];
     res.json({
       applinks: {
         apps: [],

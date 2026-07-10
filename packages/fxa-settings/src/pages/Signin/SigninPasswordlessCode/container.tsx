@@ -1,0 +1,133 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { useLocation } from 'react-router';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import SigninPasswordlessCode from '.';
+import AppLayout from '../../../components/AppLayout';
+import { useAuthClient } from '../../../models';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  PasswordlessLocationState,
+  SigninPasswordlessCodeContainerProps,
+} from './interfaces';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { useEffect, useState } from 'react';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { getHandledError, type HandledError } from '../../../lib/error-utils';
+
+const SigninPasswordlessCodeContainer = ({
+  integration,
+  flowQueryParams,
+  isSignedIntoFirefox,
+  setCurrentSplitLayout,
+  useFxAStatusResult,
+}: SigninPasswordlessCodeContainerProps) => {
+  const navigateWithQuery = useNavigateWithQuery();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state?: PasswordlessLocationState;
+  };
+
+  const authClient = useAuthClient();
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
+
+  const email = location.state?.email;
+  const service = location.state?.service;
+  const isSignup = location.state?.isSignup;
+
+  const [codeSent, setCodeSent] = useState(
+    // If location state already has codeSent (persisted across page refresh
+    // via the History API), skip sending again.
+    () => location.state?.codeSent === true
+  );
+  const [sendError, setSendError] = useState<HandledError | null>(null);
+
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout;
+
+  // If no email in state, redirect to signin
+  useEffect(() => {
+    if (!email) {
+      navigateWithQuery('/');
+    }
+  }, [email, navigateWithQuery]);
+
+  // Send the initial code when component mounts, but skip if already sent
+  // (e.g. after a page refresh). On success, replace the current history
+  // entry with codeSent: true so the browser-persisted location state
+  // prevents re-sending on refresh.
+  useEffect(() => {
+    if (email && !codeSent) {
+      const sendCode = async () => {
+        try {
+          await authClient.passwordlessSendCode(email, {
+            clientId: integration.getClientId(),
+            service: service || integration.getService(),
+            metricsContext: {
+              ...queryParamsToMetricsContext(
+                flowQueryParams as unknown as Record<string, string>
+              ),
+              clientId: integration.getClientId(),
+            },
+          });
+          setCodeSent(true);
+          // Persist codeSent in location state so it survives page refresh
+          navigateWithQuery(location.pathname + location.search, {
+            replace: true,
+            state: { ...location.state, codeSent: true },
+          });
+        } catch (error: any) {
+          const { error: handledError } = getHandledError(error);
+          setSendError(handledError);
+        }
+      };
+      sendCode();
+    }
+    // Only run this on initial render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!email) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
+  }
+
+  if (oAuthDataError) {
+    return <OAuthDataError error={oAuthDataError} />;
+  }
+
+  if (!codeSent && !sendError) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
+  }
+
+  return (
+    <SigninPasswordlessCode
+      {...{
+        email,
+        expirationMinutes: 10,
+        integration,
+        finishOAuthFlowHandler,
+        flowQueryParams,
+        sendError,
+        setCurrentSplitLayout,
+        isSignup,
+        isSignedIntoFirefox,
+        resendCountdownSeconds: 5,
+        useFxAStatusResult,
+      }}
+    />
+  );
+};
+
+export default SigninPasswordlessCodeContainer;

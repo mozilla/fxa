@@ -10,13 +10,13 @@ import {
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
-import { RouteComponentProps } from '@reach/router';
+
 import { MfaReason } from '../../../lib/types';
 
-export const PageMfaGuardTestWithAuthClient = (props: RouteComponentProps) => {
+export const PageMfaGuardTestWithAuthClient = () => {
   return (
     <MfaGuard requiredScope="test" reason={MfaReason.test}>
-      <TestWithAuthClient {...{ props }} />
+      <TestWithAuthClient />
     </MfaGuard>
   );
 };
@@ -28,7 +28,7 @@ export default PageMfaGuardTestWithAuthClient;
  *
  * This will go away as soon as we actually start applying the guard to real pages/flows.
  */
-const TestWithAuthClient = (_: RouteComponentProps) => {
+const TestWithAuthClient = () => {
   const handleMfaError = useMfaErrorHandler();
   const jwtCache = useSyncExternalStore(
     JwtTokenCache.subscribe,

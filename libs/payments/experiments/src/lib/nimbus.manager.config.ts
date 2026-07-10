@@ -4,7 +4,8 @@
 
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
-import { IsBoolean, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class NimbusManagerConfig {
   @IsBoolean()
@@ -12,11 +13,26 @@ export class NimbusManagerConfig {
 
   @IsString()
   public readonly namespace!: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value !== 'string') {
+      return value;
+    }
+    const deletionNamespaces = value
+      .split(',')
+      .map((namespace) => namespace.trim())
+      .filter(Boolean);
+    return deletionNamespaces.length > 0 ? deletionNamespaces : undefined;
+  })
+  public readonly deletionNamespaces?: string[];
 }
 
 export const MockNimbusManagerConfig = {
   enabled: faker.datatype.boolean(),
   namespace: faker.string.uuid(),
+  deletionNamespaces: [faker.string.uuid(), faker.string.uuid()],
 } satisfies NimbusManagerConfig;
 
 export const MockNimbusManagerConfigProvider = {

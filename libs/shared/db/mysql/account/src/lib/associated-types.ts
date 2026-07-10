@@ -10,6 +10,7 @@ import {
   AccountCustomers,
   Accounts,
   Carts,
+  Passkeys,
   PaypalCustomers,
   SessionTokens,
   UnverifiedTokens,
@@ -43,3 +44,7 @@ export type CartUpdate = Updateable<Carts>;
 export type RecoveryPhone = Selectable<RecoveryPhones>;
 export type NewRecoveryPhone = Insertable<RecoveryPhones>;
 export type RecoveryPhoneUpdate = Updateable<RecoveryPhones>;
+
+export type Passkey = Selectable<Passkeys>;
+export type NewPasskey = Insertable<Passkeys>;
+export type PasskeyUpdate = Updateable<Passkeys>;

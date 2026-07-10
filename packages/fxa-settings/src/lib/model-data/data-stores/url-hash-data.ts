@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { UrlData } from './url-data';
-import { ReachRouterWindow } from '../../window';
+import { RouterWindow } from '../../window';
 
 /**
  * Creates a data store from the current URL state.
  * Uses window.location.hash to hold state.
  */
 export class UrlHashData extends UrlData {
-  constructor(public readonly window: ReachRouterWindow) {
+  constructor(public readonly window: RouterWindow) {
     super(window);
   }
 

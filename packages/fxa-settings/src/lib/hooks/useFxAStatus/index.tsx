@@ -19,7 +19,10 @@ import {
 import firefox from '../../channels/firefox';
 import { Constants } from '../../constants';
 
-type FxAStatusIntegration = Pick<Integration, 'type' | 'isSync'>;
+type FxAStatusIntegration = Pick<
+  Integration,
+  'type' | 'isSync' | 'isFirefoxNonSync'
+>;
 
 /**
  * If integration.isSync or integration is OAuthNative, sends firefox.fxaStatus to retrieve
@@ -40,8 +43,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
   const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
     useState<boolean>(false);
-  const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] =
-    useState<boolean>(false);
+  const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] = useState<
+    boolean | undefined
+  >(undefined);
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
@@ -56,21 +60,27 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           isPairing: false,
           service: Constants.SYNC_SERVICE,
         });
-        if (!webChannelEngines && status.capabilities.engines) {
+
+        // Very old versions of Firefox iOS do not send `capabilities` in the
+        // fxa_status response. This suppresses TypeErrors due to this.
+        const capabilities = status.capabilities || {};
+
+        if (!webChannelEngines && capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
           // https://github.com/mozilla/application-services/issues/1761
           // Desktop OAuth Sync will always provide this capability too
           // for consistency.
           if (
             isSyncDesktopV3 ||
-            (isSyncOAuth && status.capabilities.choose_what_to_sync)
+            (isSyncOAuth && capabilities.choose_what_to_sync)
           ) {
-            setWebChannelEngines(status.capabilities.engines);
+            setWebChannelEngines(capabilities.engines);
           }
         }
-        // Check if third party auth (passwordless) log in to the browser is supported
+        // Check if third party auth (passwordless) log in to the browser is supported,
+        // currently only Firefox desktop 147+ as of Q1 2026
         if (
-          status.capabilities.keys_optional &&
+          capabilities.keys_optional &&
           isOAuthNative &&
           integration.isFirefoxNonSync()
         ) {
@@ -78,7 +88,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         } else {
           setSupportsKeysOptionalLogin(false);
         }
-        if (status.capabilities.can_link_account_uid) {
+        if (capabilities.can_link_account_uid) {
           setSupportsCanLinkAccountUid(true);
         } else {
           setSupportsCanLinkAccountUid(false);

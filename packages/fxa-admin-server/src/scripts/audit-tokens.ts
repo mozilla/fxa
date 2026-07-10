@@ -5,6 +5,7 @@
 import program from 'commander';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import {
   setupAuthDatabase,
   setupDatabase,
@@ -42,10 +43,10 @@ function getKnex(table: string) {
   }
 }
 
-Sentry.init({});
-
 const logFactory = mozlog(config.log);
 let log: ILogger = logFactory('default');
+
+initSentry({ ...config, release: packageJson.version }, log);
 
 //#region Table Definitions
 /** Defines table and key column */
@@ -243,8 +244,8 @@ export async function auditRowCounts(table: string) {
     table_rows AS table_size
   FROM INFORMATION_SCHEMA.TABLES
   WHERE table_schema = '${table.split('.')[0]}' and table_name = '${
-      table.split('.')[1]
-    }'
+    table.split('.')[1]
+  }'
   `;
   }
 
@@ -310,11 +311,11 @@ export async function auditOrphanedRows(
       COUNT(IF(parent.${parent.keyCol} is NULL, 1, NULL)) AS total_missing
     FROM
       (SELECT ${child.keyCol} FROM ${child.name} ${buildLimit(
-      child.name
-    )}) as child
+        child.name
+      )}) as child
         LEFT JOIN ${parent.name} parent ON child.${child.keyCol} = parent.${
-      parent.keyCol
-    }
+          parent.keyCol
+        }
     ${buildLimit(child.name)}
   ) AS missing;
   `;
@@ -481,19 +482,17 @@ export async function run() {
 if (require.main === module) {
   process.on('exit', (code) => log.info('exit', { code }));
 
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'audit-tokens',
-    status: 'in_progress',
+  Sentry.captureMessage('Audit tokens started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-admin-server',
+      env: config.env,
+    },
   });
 
   run()
     .then((result) => {
       log.info('result', { result });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'ok',
-      });
     })
     .then(() => {
       // Make sure statsd closes cleanly so we don't lose any metrics
@@ -510,11 +509,6 @@ if (require.main === module) {
     })
     .catch((error) => {
       log.error('audit-tokens', { error });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'error',
-      });
     })
     .then(() => {
       return Sentry.close(2000);

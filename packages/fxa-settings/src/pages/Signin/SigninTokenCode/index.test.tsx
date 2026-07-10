@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,6 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 import { viewName } from '.';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -17,7 +17,11 @@ import { Session, AppContext } from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
 import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
-import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_EMAIL,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+} from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
@@ -25,7 +29,7 @@ import {
   createMockSigninWebIntegration,
 } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
-import { navigate } from '@reach/router';
+
 import { SigninOAuthIntegration } from '../interfaces';
 import * as SigninUtils from '../utils';
 
@@ -33,7 +37,6 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
-
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -53,11 +56,12 @@ function applyDefaultMocks() {
   mockReactUtilsModule();
 }
 
-jest.mock('@reach/router', () => {
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
-    navigate: jest.fn(),
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockNavigate,
     useLocation: () => () => {},
   };
 });
@@ -73,18 +77,17 @@ function render(
       createMockSigninWebIntegration() as SigninOAuthIntegration;
   }
   renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ session })}>
-      <Subject {...props} />
-    </AppContext.Provider>
+    <MemoryRouter>
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <Subject {...props} />
+      </AppContext.Provider>
+    </MemoryRouter>
   );
 }
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('SigninTokenCode page', () => {
   beforeEach(() => {
@@ -126,12 +129,17 @@ describe('SigninTokenCode page', () => {
 
     // initially hidden
     expect(screen.queryByRole('Code expired?')).not.toBeInTheDocument();
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
-  it('renders expected text when service=relay', () => {
-    render({ integration: createOAuthNativeIntegration(false) });
-    screen.getByText(serviceRelayText);
+  it('renders additional accessibility info from CMS', () => {
+    const mockIntegrationWithCms = createOAuthNativeIntegration(
+      true,
+      MOCK_CMS_INFO
+    );
+    render({ integration: mockIntegrationWithCms });
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
   });
 
   it('emits a metrics event on render', () => {
@@ -165,12 +173,70 @@ describe('SigninTokenCode page', () => {
       await renderAndResend();
       screen.getByText('You’ve tried too many times. Please try again later.');
     });
+
+    it('on throttled resend, disables the submit button', async () => {
+      session = {
+        sendVerificationCode: jest
+          .fn()
+          .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 }),
+      } as unknown as Session;
+      render();
+
+      // Enter a valid code so the submit button is enabled absent throttling;
+      // this isolates the throttle disable from the empty-input disable.
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText('Enter 6-digit code'),
+        MOCK_SIGNUP_CODE
+      );
+      expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Email new code.' }));
+      await waitFor(() => {
+        expect(session.sendVerificationCode).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      });
+    });
     it('on other error, renders banner with expected default error message', async () => {
       session = {
         sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Session;
       await renderAndResend();
       screen.getByText('Something went wrong. A new code could not be sent.');
+    });
+
+    it('shows countdown timer after successful resend', async () => {
+      jest.useFakeTimers();
+      session = mockSession();
+      render();
+      await waitFor(() => {
+        screen.getByText('Code expired?');
+      });
+
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(session.sendVerificationCode).toHaveBeenCalled();
+      });
+
+      // Countdown button should appear and be disabled
+      const resendButtonAfter = await waitFor(() => {
+        const button = screen.getByRole('button', {
+          name: /Email new code in/,
+        });
+        expect(button).toBeDisabled();
+        return button;
+      });
+
+      expect(resendButtonAfter.textContent).toMatch(/\d+/);
+
+      jest.useRealTimers();
     });
   });
 
@@ -253,6 +319,23 @@ describe('SigninTokenCode page', () => {
       expect(GleanMetrics.loginConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.loginConfirmation.success).not.toHaveBeenCalled();
     });
+
+    it('on throttled submit with retryAfter, disables both buttons', async () => {
+      session = {
+        verifySession: jest
+          .fn()
+          .mockRejectedValue({ ...AuthUiErrors.THROTTLED, retryAfter: 60_000 }),
+      } as unknown as Session;
+      render();
+      await submitCode();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+      });
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
+    });
     it('on other error, renders expected default error message in tooltip', async () => {
       session = {
         verifySession: jest
@@ -298,7 +381,7 @@ describe('SigninTokenCode page', () => {
 
         await expectSuccessGleanEvents();
         expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
-        expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();

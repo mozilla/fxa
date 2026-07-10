@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import {
-  IntegrationType,
-  RelierCmsInfo,
-  OAuthNativeServices,
-} from '../../models/integrations';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { IntegrationType, RelierCmsInfo } from '../../models/integrations';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,
@@ -36,11 +33,15 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     getClientId: () => undefined,
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
+    requiresKeys: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -51,11 +52,15 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     getClientId: () => undefined,
     isSync: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
-    wantsKeys: () => false,
+    requiresKeys: () => true,
+    wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -72,21 +77,27 @@ export function createMockSignupOAuthWebIntegration(
     getClientId: () => clientId || MOCK_CLIENT_ID,
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
+    requiresKeys: () => false,
     wantsKeys: () => false,
+    requiresPasswordForLogin: () => false,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
   };
 }
 
 export function createMockSignupOAuthNativeIntegration(
   service?: string,
   isSync = true,
-  cmsInfo?: RelierCmsInfo
+  cmsInfo?: RelierCmsInfo,
+  requiresPasswordForLogin = true
 ): SignupOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
-  const isAiWindow = service === OAuthNativeServices.AiWindow;
+  const isSmartWindow = service === OAuthNativeServices.SmartWindow;
+  const isVpn = service === OAuthNativeServices.Vpn;
   return {
     type: IntegrationType.OAuthNative,
     getRedirectUri: () => MOCK_REDIRECT_URI,
@@ -95,15 +106,20 @@ export function createMockSignupOAuthNativeIntegration(
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => isSync,
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiWindow: () => isAiWindow,
-    isFirefoxNonSync: () => isRelay || isAiWindow,
+    isFirefoxClientServiceSmartWindow: () => isSmartWindow,
+    isFirefoxClientServiceVpn: () => isVpn,
+    isFirefoxNonSync: () => isRelay || isSmartWindow || isVpn,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
-      isAiWindow,
+      isSmartWindow,
+      isVpn,
     }),
+    requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => requiresPasswordForLogin,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -168,7 +184,7 @@ export const Subject = ({
     supportsKeysOptionalLogin,
   });
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <Signup
         {...{
           integration,
@@ -178,6 +194,6 @@ export const Subject = ({
           isMobile,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

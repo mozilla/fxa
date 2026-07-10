@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
 
 export const CurrentUser = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
-    const ctx = GqlExecutionContext.create(context);
-    return ctx.getContext().req.user;
+    const request = context.switchToHttp().getRequest();
+    return request.user;
   }
 );

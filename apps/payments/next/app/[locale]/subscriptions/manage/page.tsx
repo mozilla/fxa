@@ -15,7 +15,9 @@ import {
   Banner,
   BannerVariant,
   formatPlanInterval,
+  FreeTrialContent,
   getCardIcon,
+  GleanPageView,
   ManageParams,
   SubscriptionContent,
 } from '@fxa/payments/ui';
@@ -37,27 +39,33 @@ export default async function Manage({
   params,
   searchParams,
 }: {
-  params: ManageParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<ManageParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
   if (!session?.user?.id) {
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
-    redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.search = new URLSearchParams(resolvedSearchParams).toString();
     redirect(redirectToUrl.href);
   }
 
-  const userId = session.user.id;
-
+  const entrypoint =
+    resolvedSearchParams?.utm_medium === 'email'
+      ? 'email'
+      : resolvedSearchParams?.entrypoint === 'internal_nav'
+        ? 'internal_nav'
+        : undefined;
   const experiments = await getExperimentsAction({
-    fxaUid: userId,
     language: locale,
-    experimentationPreview: searchParams?.experimentationPreview === 'true',
+    experimentationPreview:
+      resolvedSearchParams?.experimentationPreview === 'true',
   });
 
   const {
@@ -67,7 +75,13 @@ export default async function Manage({
     subscriptions,
     appleIapSubscriptions,
     googleIapSubscriptions,
-  } = await getSubManPageContentAction(session.user?.id);
+    trialSubscriptions,
+  } = await getSubManPageContentAction(
+    { ...resolvedParams },
+    { ...resolvedSearchParams },
+    acceptLanguage,
+    locale
+  );
   const {
     billingAgreementId,
     brand,
@@ -86,6 +100,10 @@ export default async function Manage({
       className="w-full tablet:px-8 desktop:max-w-[1024px]"
       aria-labelledby="subscription-management"
     >
+      <GleanPageView
+        metricsEnabled={session?.user?.metricsEnabled ?? true}
+        pageMetrics={{ pageName: 'management', entrypoint }}
+      />
       {experiments?.Features['welcome-feature']?.enabled && (
         <Banner variant={BannerVariant.Success}>
           <div className="leading-6 text-base">
@@ -134,7 +152,7 @@ export default async function Manage({
 
       {isStripeCustomer &&
         !defaultPaymentMethod &&
-        subscriptions.length > 0 && (
+        (subscriptions.length > 0 || trialSubscriptions.length > 0) && (
           <Banner variant={BannerVariant.Warning}>
             <div className="leading-6 text-base">
               <p className="font-bold">
@@ -173,7 +191,8 @@ export default async function Manage({
 
       {(subscriptions.length > 0 ||
         appleIapSubscriptions.length > 0 ||
-        googleIapSubscriptions.length > 0) && (
+        googleIapSubscriptions.length > 0 ||
+        trialSubscriptions.length > 0) && (
         <nav
           className="px-4 tablet:hidden"
           aria-labelledby="mobile-quick-links-menu"
@@ -185,6 +204,26 @@ export default async function Manage({
             )}
           </h2>
           <ul className="flex flex-col gap-6">
+            {trialSubscriptions.length > 0 && (
+              <li>
+                <Link
+                  className="flex items-center justify-between text-blue-500 hover:text-blue-600 cursor-pointer underline"
+                  href="#free-trial"
+                >
+                  {l10n.getString(
+                    'subscription-management-nav-free-trials',
+                    'Free trials'
+                  )}
+                  <Image
+                    src={arrowDownIcon}
+                    alt=""
+                    width={12}
+                    height={12}
+                    aria-hidden="true"
+                  />
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 className="flex items-center justify-between text-blue-500 hover:text-blue-600 cursor-pointer underline"
@@ -227,6 +266,93 @@ export default async function Manage({
             )}
           </ul>
         </nav>
+      )}
+
+      {trialSubscriptions.length > 0 && (
+        <section
+          id="free-trial"
+          className="scroll-mt-16"
+          aria-labelledby="free-trial-heading"
+        >
+          <h2
+            id="free-trial-heading"
+            className="font-bold px-4 pt-8 pb-4 text-lg tablet:px-6"
+          >
+            {l10n.getString(
+              'subscription-management-free-trial-heading',
+              'Free trials'
+            )}
+          </h2>
+          <ul
+            aria-label={l10n.getString(
+              'subscription-management-your-free-trials-aria',
+              'Your free trials'
+            )}
+          >
+            {trialSubscriptions.map((trial, index: number) => (
+              <li
+                key={`${trial.productName}-${index}`}
+                aria-labelledby={`${trial.productName}-trial-information`}
+                className="leading-6 pb-4 last:pb-0"
+              >
+                <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                  <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                    <div className="tablet:min-w-[160px]">
+                      <Image
+                        src={trial.webIcon}
+                        alt={trial.productName}
+                        height={64}
+                        width={64}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-4 w-full">
+                      <div className="flex items-start justify-between mt-4 tablet:mt-0">
+                        <div>
+                          <h3
+                            id={`${trial.productName}-trial-information`}
+                            className="font-bold text-lg"
+                          >
+                            {trial.productName}
+                          </h3>
+                          <p className="text-grey-500">
+                            {trial.interval &&
+                              formatPlanInterval(trial.interval)}
+                          </p>
+                        </div>
+                        <LinkExternal
+                          href={trial.supportUrl}
+                          className="text-blue-500 hover:text-blue-600 cursor-pointer overflow-hidden text-ellipsis underline whitespace-nowrap"
+                          aria-label={l10n.getString(
+                            'subscription-management-button-support-aria',
+                            { productName: trial.productName },
+                            `Get help for ${trial.productName}`
+                          )}
+                          data-testid={`link-external-support-${trial.productName}`}
+                        >
+                          <span>
+                            {l10n.getString(
+                              'subscription-management-button-support',
+                              'Get help'
+                            )}
+                          </span>
+                        </LinkExternal>
+                      </div>
+                      <FreeTrialContent
+                        trial={trial}
+                        locale={locale}
+                        updatePaymentUrl={
+                          type === SubPlatPaymentMethodType.PayPal
+                            ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
+                            : `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <section
@@ -288,7 +414,7 @@ export default async function Manage({
               )}
 
             {isStripeCustomer &&
-              (defaultPaymentMethod || subscriptions.length > 0) && (
+              (defaultPaymentMethod || subscriptions.length > 0 || trialSubscriptions.length > 0) && (
                 <>
                   <div
                     className="border-none h-px bg-grey-100 my-5 tablet:my-8"
@@ -801,7 +927,7 @@ export default async function Manage({
                                         {
                                           vars: { date: nextBillDate },
                                         },
-                                        <p>Next bill &bull; {nextBillDate}</p>
+                                        <span>Next bill &bull; {nextBillDate}</span>
                                       )}
                                     </p>
                                   ) : (

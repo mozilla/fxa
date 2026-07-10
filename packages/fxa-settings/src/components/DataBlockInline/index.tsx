@@ -36,7 +36,7 @@ export const DataBlockInline = ({
   return (
     <div
       className={classNames(
-        'relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent max-w-lg flex-nowrap w-full rounded py-2 px-3',
+        'relative flex font-mono text-center text-sm font-bold text-black dark:text-grey-10 bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent max-w-lg flex-nowrap w-full rounded py-2 px-3',
         extraClassnames
       )}
       data-testid={dataTestId}

@@ -5,6 +5,7 @@
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import {
   CartCurrencyNotFoundError,
+  CartFreeTrialMismatchError,
   CartStateProcessingError,
   CartTotalMismatchError,
 } from '../cart.error';
@@ -16,6 +17,7 @@ import {
   IntentGetInTouchError,
   IntentTryAgainError,
   IntentInsufficientFundsError,
+  NewAccountPrepaidCardFreeTrialNotAllowedError,
 } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
 import {
@@ -37,6 +39,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR;
     case error instanceof CartTotalMismatchError:
       return CartErrorReasonId.CART_TOTAL_MISMATCH;
+    case error instanceof CartFreeTrialMismatchError:
+      return CartErrorReasonId.CART_FREE_TRIAL_ELIGIBILITY_MISMATCH;
 
     // Payment failed errors
     case error instanceof IntentCardDeclinedError:
@@ -57,6 +61,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.GENERAL_PAYPAL_ERROR;
 
     // Checkout Errors
+    case error instanceof NewAccountPrepaidCardFreeTrialNotAllowedError:
+      return CartErrorReasonId.NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED;
     case error instanceof CheckoutError:
       return CartErrorReasonId.BASIC_ERROR;
 

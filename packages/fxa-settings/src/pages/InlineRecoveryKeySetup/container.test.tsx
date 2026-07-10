@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { render } from '@testing-library/react';
-import React from 'react';
 import InlineRecoveryKeySetupContainer from './container';
 import * as InlineRecoveryKeySetupModule from '.';
 import * as ModelsModule from '../../models';
@@ -20,7 +19,7 @@ import {
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -109,9 +108,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
     mockCurrentAccount(storedAccount);
 
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(hardNavigateSpy).toHaveBeenCalledWith(
@@ -122,9 +121,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('gets data from sensitive data client, renders component', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
       SensitiveData.Key.Auth
@@ -134,16 +133,16 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('createRecoveryKey calls expected authClient methods', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(currentProps).toBeDefined();
     await currentProps?.createRecoveryKeyHandler();
     expect(mockAuthClient.sessionReauthWithAuthPW).toHaveBeenCalledWith(
       MOCK_SESSION_TOKEN,
-      'bloop@gmail.com',
+      { primary: 'bloop@gmail.com' },
       MOCK_AUTH_PW,
       { keys: true, reason: 'recovery_key' }
     );
@@ -153,9 +152,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
 
   it('updateRecoveryHint calls authClient', async () => {
     render(
-      <LocationProvider>
+      <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     expect(currentProps).toBeDefined();

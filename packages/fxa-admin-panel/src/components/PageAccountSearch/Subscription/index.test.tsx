@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import Subscription from '.';
-import { MozSubscription } from 'fxa-admin-server/src/graphql';
+import { MozSubscription } from 'fxa-admin-server/src/dto';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const subscription: MozSubscription = {

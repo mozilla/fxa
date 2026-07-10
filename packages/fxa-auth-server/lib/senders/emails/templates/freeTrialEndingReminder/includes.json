@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "freeTrialEndingReminder-subject",
+    "message": "Your <%- productName %> free trial ends soon"
+  }
+}

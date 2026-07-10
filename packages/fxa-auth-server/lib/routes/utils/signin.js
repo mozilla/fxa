@@ -16,6 +16,11 @@ const otp = require('../utils/otp');
 const { fetchRpCmsData } = require('../utils/account');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const requestHelper = require('./request_helper');
+const { FxaMailer } = require('../../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
+const {
+  OAuthClientInfoServiceName,
+} = require('../../senders/oauth_client_info');
 
 const BASE_36 = validators.BASE_36;
 
@@ -48,6 +53,9 @@ module.exports = (
   const cmsManager = Container.has(RelyingPartyConfigurationManager)
     ? Container.get(RelyingPartyConfigurationManager)
     : null;
+
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
   return {
     validators: {
@@ -421,23 +429,38 @@ module.exports = (
           sessionToken.tokenVerificationId ||
           accountRecord.primaryEmail.emailCode;
         try {
-          await mailer.sendVerifyEmail([], accountRecord, {
-            code: emailCode,
-            service,
-            redirectTo,
-            resume,
-            acceptLanguage: request.app.acceptLanguage,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            timeZone: request.app.geo.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
-          });
+          if (fxaMailer.canSend('verify')) {
+            await fxaMailer.sendVerifyEmail({
+              ...FxaMailerFormat.account(accountRecord),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              code: emailCode,
+              resume,
+              redirectTo,
+              service,
+            });
+          } else {
+            await mailer.sendVerifyEmail([], accountRecord, {
+              code: emailCode,
+              service,
+              redirectTo,
+              resume,
+              acceptLanguage: request.app.acceptLanguage,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              timeZone: request.app.geo.timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: sessionToken.uid,
+            });
+          }
           await request.emitMetricsEvent('email.verification.sent');
         } catch (err) {
           log.error('mailer.verification.error', {
@@ -484,28 +507,46 @@ module.exports = (
 
         const geoData = request.app.geo;
         try {
-          await mailer.sendVerifyLoginEmail(
-            accountRecord.emails,
-            accountRecord,
-            {
-              acceptLanguage: request.app.acceptLanguage,
+          if (fxaMailer.canSend('verifyLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            await fxaMailer.sendVerifyLoginEmail({
+              ...FxaMailerFormat.account(accountRecord),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
               code: sessionToken.tokenVerificationId,
-              deviceId,
-              flowId,
-              flowBeginTime,
+              clientName: clientInfo.name,
               redirectTo: redirectTo,
-              resume: resume,
               service: service,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
+              resume: resume,
               uid: sessionToken.uid,
-            }
-          );
+            });
+          } else {
+            await mailer.sendVerifyLoginEmail(
+              accountRecord.emails,
+              accountRecord,
+              {
+                acceptLanguage: request.app.acceptLanguage,
+                code: sessionToken.tokenVerificationId,
+                deviceId,
+                flowId,
+                flowBeginTime,
+                redirectTo: redirectTo,
+                resume: resume,
+                service: service,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: sessionToken.uid,
+              }
+            );
+          }
           await request.emitMetricsEvent('email.confirmation.sent');
         } catch (err) {
           log.error('mailer.confirmation.error', {
@@ -522,50 +563,72 @@ module.exports = (
 
         const secret = accountRecord.primaryEmail.emailCode;
         const code = otpUtils.generateOtpCode(secret, otpOptions);
-        const { timeZone } = request.app.geo;
-        const emailContext = {
-          acceptLanguage: request.app.acceptLanguage,
-          code,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          redirectTo,
-          resume,
-          service,
-          timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: sessionToken.uid,
-        };
         const rpCmsConfig = await fetchRpCmsData(request, cmsManager, log);
 
         try {
-          if (!rpCmsConfig || !rpCmsConfig.VerifyLoginCodeEmail) {
-            await mailer.sendVerifyLoginCodeEmail(
-              accountRecord.emails,
-              accountRecord,
-              emailContext
-            );
+          if (fxaMailer.canSend('verifyLoginCode')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            await fxaMailer.sendVerifyLoginCodeEmail({
+              ...FxaMailerFormat.account(accountRecord),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
+              ...FxaMailerFormat.cmsLogo(rpCmsConfig?.shared),
+              ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+              ...FxaMailerFormat.cmsEmailSubject(
+                rpCmsConfig?.VerifyLoginCodeEmail
+              ),
+              code,
+              redirectTo,
+              resume,
+              serviceName: clientInfo.name,
+            });
           } else {
-            const metricsContext = await request.app.metricsContext;
-            await mailer.sendVerifyLoginCodeEmail(
-              accountRecord.emails,
-              accountRecord,
-              {
-                ...emailContext,
-                target: 'strapi',
-                cmsRpClientId: rpCmsConfig.clientId,
-                cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-                entrypoint: metricsContext.entrypoint,
-                logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-                logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-                ...rpCmsConfig.VerifyLoginCodeEmail,
-              }
-            );
+            const { timeZone } = request.app.geo;
+            const emailContext = {
+              acceptLanguage: request.app.acceptLanguage,
+              code,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              redirectTo,
+              resume,
+              service,
+              timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: sessionToken.uid,
+            };
+
+            if (!rpCmsConfig || !rpCmsConfig.VerifyLoginCodeEmail) {
+              await mailer.sendVerifyLoginCodeEmail(
+                accountRecord.emails,
+                accountRecord,
+                emailContext
+              );
+            } else {
+              const metricsContext = await request.app.metricsContext;
+              await mailer.sendVerifyLoginCodeEmail(
+                accountRecord.emails,
+                accountRecord,
+                {
+                  ...emailContext,
+                  target: 'strapi',
+                  cmsRpClientId: rpCmsConfig.clientId,
+                  cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+                  entrypoint: metricsContext.entrypoint,
+                  logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+                  logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+                  logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
+                  ...rpCmsConfig.VerifyLoginCodeEmail,
+                }
+              );
+            }
           }
 
           await request.emitMetricsEvent('email.tokencode.sent');
@@ -579,6 +642,8 @@ module.exports = (
       }
 
       async function recordSecurityEvent() {
+        const clientId = request.app.clientIdTag;
+        const service = request.app.serviceTag;
         await accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
@@ -587,6 +652,8 @@ module.exports = (
           additionalInfo: {
             userAgent: request.headers['user-agent'],
             location: request.app.geo.location,
+            ...(clientId && { client_id: clientId }),
+            ...(service && { service }),
           },
         });
       }

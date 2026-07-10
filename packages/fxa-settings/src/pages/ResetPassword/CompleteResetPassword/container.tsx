@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import {
@@ -41,7 +41,7 @@ const CompleteResetPasswordContainer = ({
   integration,
 }: {
   integration: Integration;
-} & RouteComponentProps) => {
+}) => {
   const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
 
   const account = useAccount();
@@ -126,7 +126,10 @@ const CompleteResetPasswordContainer = ({
   ) => {
     if (accountResetData.sessionVerified) {
       // For verified users with OAuth integration, navigate to confirmation page then to the relying party
-      if (isOAuth && !integration.isSync()) {
+      if (
+        isOAuth &&
+        !(integration.isSync() || integration.isFirefoxNonSync())
+      ) {
         sensitiveDataClient.setDataType(SensitiveData.Key.AccountReset, {
           keyFetchToken: accountResetData.keyFetchToken,
           unwrapBKey: accountResetData.unwrapBKey,
@@ -136,7 +139,7 @@ const CompleteResetPasswordContainer = ({
         });
       }
 
-      // For web integration and sync navigate to settings
+      // For web integration and sync/relay/smart window navigate to settings
       // Sync users will see an account recovery key promotion banner in settings
       // if they don't have one configured
       alertBar.success(
@@ -205,7 +208,6 @@ const CompleteResetPasswordContainer = ({
         undefined,
         includeRecoveryKeyPrompt
       );
-    console.log('accountResetData', accountResetData);
     return accountResetData;
   };
 
@@ -222,11 +224,12 @@ const CompleteResetPasswordContainer = ({
       lastLogin: Date.now(),
       sessionToken: accountResetData.sessionToken,
       verified: accountResetData.sessionVerified,
+      sessionVerified: accountResetData.sessionVerified,
     });
 
     // This handles the sync desktop v3 case and the sync oauth_webchannel_v1 case.
     // Other oauth flows are handled in the next step.
-    if (integration.isSync()) {
+    if (integration.isSync() || integration.isFirefoxNonSync()) {
       firefox.fxaLoginSignedInUser({
         authAt: accountResetData.authAt,
         email,
@@ -244,12 +247,15 @@ const CompleteResetPasswordContainer = ({
       });
 
       if (isOAuth) {
-        const { error, redirect, code, state } = await finishOAuthFlowHandler(
-          accountResetData.uid,
-          accountResetData.sessionToken,
-          accountResetData.keyFetchToken,
-          accountResetData.unwrapBKey
-        );
+        // `scope` is the server-resolved scope per ADR 0049, only
+        // forwarded to Firefox via fxaOAuthLogin; ignored otherwise.
+        const { error, redirect, code, state, scope } =
+          await finishOAuthFlowHandler(
+            accountResetData.uid,
+            accountResetData.sessionToken,
+            accountResetData.keyFetchToken,
+            accountResetData.unwrapBKey
+          );
 
         if (error) {
           const localizedBannerMessage = getLocalizedErrorMessage(
@@ -265,6 +271,7 @@ const CompleteResetPasswordContainer = ({
           code,
           redirect,
           state,
+          scope,
         });
       }
     }
@@ -320,7 +327,8 @@ const CompleteResetPasswordContainer = ({
           );
         }
       } else if (isResetWithoutRecoveryKey) {
-        GleanMetrics.passwordReset.createNewSubmit();
+        const reason = recoveryKeyExists ? 'with key' : 'without key';
+        GleanMetrics.passwordReset.createNewSubmit({ event: { reason } });
         const includeRecoveryKeyPrompt = !!isSyncUser;
         const accountResetData = await resetPasswordWithoutRecoveryKey(
           code,
@@ -367,8 +375,7 @@ const CompleteResetPasswordContainer = ({
         recoveryKeyExists,
         estimatedSyncDeviceCount,
       }}
-      isFirefoxClientServiceRelay={integration.isFirefoxClientServiceRelay()}
-      integrationIsSync={integration.isSync()}
+      integration={integration}
       locationState={location.state as CompleteResetPasswordLocationState}
     />
   );

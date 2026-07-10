@@ -1,0 +1,7 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM emailTypes WHERE emailType IN (
+--   'subscriptionEndingReminder'
+-- );
+--
+-- UPDATE dbMetadata SET value = '181' WHERE name = 'schema-patch-level';

@@ -31,17 +31,20 @@ export interface AuthApp extends RequestApplicationState {
     deviceType: string;
     formFactor: string;
   };
+  clientIdTag?: string;
+  serviceTag?: string;
   isSuspiciousRequest: boolean;
   isMetricsEnabled: Promise<boolean>;
   geo: {
     location?: {
       city: string;
       state: string;
+      stateCode: string;
       country: string;
       countryCode: string;
       postalCode?: string;
     };
-    [key: string]: any;
+    timeZone: string;
   };
 }
 
@@ -113,6 +116,22 @@ export interface AuthLogger extends Logger {
     request: AuthRequest,
     data: Record<string, any>
   ): Promise<void>;
+
+  activityEvent(data: Record<string, any>): void;
+
+  amplitudeEvent(data: Record<string, any>): void;
+
+  flowEvent(data: Record<string, any>): void;
+
+  summary(request: AuthRequest, response: unknown): void;
+}
+
+export interface AuthClientInfoService {
+  // `service` is optional: when absent (or falsy) the service resolves the
+  // generic "Mozilla" client, used for sign-ins that aren't tied to a client.
+  fetch(service?: string): Promise<{
+    name: string;
+  }>;
 }
 
 // Container token types

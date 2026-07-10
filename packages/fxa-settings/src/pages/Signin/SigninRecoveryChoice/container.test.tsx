@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ModelsModule from '../../../models';
-import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryChoiceModule from './index';
 
 import { waitFor } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   MOCK_MASKED_NUMBER_ENDING_IN_1234,
@@ -72,24 +71,31 @@ function mockCache(opts: any = {}, isEmpty = false) {
   );
 }
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationStateValue: any = {};
+let mockNavigateFn = jest.fn();
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigateFn,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
 
 function mockReachRouter(
   pathname = '',
-  mockLocationState = {},
-  mockNavigate = jest.fn()
+  locationState = {},
+  navigateFn = jest.fn()
 ) {
-  mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  navigateFn.mockReset();
+  mockNavigateFn = navigateFn;
+  mockLocationPathname = pathname;
+  mockLocationStateValue = locationState;
 }
 
 function applyDefaultMocks() {
@@ -105,9 +111,9 @@ function applyDefaultMocks() {
 
 function render() {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninRecoveryChoiceContainer {...{ integration }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 

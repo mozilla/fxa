@@ -9,9 +9,9 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import InlineRecoveryKeySetup from '.';
-import { cache, currentAccount } from '../../lib/cache';
+import { currentAccount } from '../../lib/cache';
 import { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { CreateRecoveryKeyHandler } from './interfaces';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -21,7 +21,7 @@ import { formatRecoveryKey } from '../../lib/utilities';
 
 const InlineRecoveryKeySetupContainer = ({
   cmsInfo,
-}: { cmsInfo?: RelierCmsInfo } & RouteComponentProps) => {
+}: { cmsInfo?: RelierCmsInfo }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -54,7 +54,7 @@ const InlineRecoveryKeySetupContainer = ({
           // We must reauth for another `keyFetchToken` because we sent it to Sync
           const reauth = await authClient.sessionReauthWithAuthPW(
             sessionToken,
-            emailForAuth,
+            { primary: emailForAuth },
             authPW,
             {
               keys: true,
@@ -74,16 +74,6 @@ const InlineRecoveryKeySetupContainer = ({
             recoveryData
           );
 
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              recoveryKey() {
-                return {
-                  exists: true,
-                };
-              },
-            },
-          });
           setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
           navigateForward();
           return { data: { recoveryKey } };

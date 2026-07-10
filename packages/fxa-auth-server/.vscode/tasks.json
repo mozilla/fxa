@@ -2,18 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Current AuthServer Local Test",
+      "label": "Jest Current File",
       "type": "shell",
-      "command": "./scripts/mocha-coverage.js",
-      "args": [
-        "-R",
-        "dot",
-        "--recursive",
-        "--timeout",
-        "5000",
-        "--exit",
-        "${relativeFile}"
-      ],
+      "command": "npx jest --no-coverage --forceExit ${relativeFile}",
       "group": "test",
       "presentation": {
         "echo": true,
@@ -25,7 +16,6 @@
         "env": {
           "NODE_ENV": "dev",
           "VERIFIER_VERSION": "0",
-          "NO_COVERAGE": "1",
           "CORS_ORIGIN": "http://foo,http://bar"
         }
       }

@@ -49,15 +49,23 @@ function getIndexRouteDefinition(config) {
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
   const BRAND_MESSAGING_MODE = config.get('brandMessagingMode');
-  const FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS = config.get(
-    'featureFlags.sendFxAStatusOnSettings'
-  );
   const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
     'featureFlags.recoveryCodeSetupOnSyncSignIn'
   );
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
+  const FEATURE_FLAGS_PASSKEYS_ENABLED = config.get(
+    'featureFlags.passkeysEnabled'
+  );
+  const FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED = config.get(
+    'featureFlags.passkeyRegistrationEnabled'
+  );
+  const FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED = config.get(
+    'featureFlags.passkeyAuthenticationEnabled'
+  );
+  const PASSKEYS_MAX_PER_USER = config.get('passkeys.maxPerUser');
+  const DARK_MODE_ENABLED = config.get('darkMode.enabled');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -121,14 +129,23 @@ function getIndexRouteDefinition(config) {
     showReactApp: SHOW_REACT_APP,
     brandMessagingMode: BRAND_MESSAGING_MODE,
     featureFlags: {
-      sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
+      passkeysEnabled: FEATURE_FLAGS_PASSKEYS_ENABLED,
+      passkeyRegistrationEnabled: FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED,
+      passkeyAuthenticationEnabled:
+        FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED,
+    },
+    darkMode: {
+      enabled: DARK_MODE_ENABLED,
     },
     cms: {
       enabled: CMS_ENABLED,
       l10nEnabled: CMS_L10N_ENABLED,
+    },
+    passkeys: {
+      maxPerUser: PASSKEYS_MAX_PER_USER,
     },
     nimbus: {
       enabled: NIMBUS_ENABLED,

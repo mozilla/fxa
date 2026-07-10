@@ -109,6 +109,13 @@ class Localizer {
     }/auth.ftl`;
     results.push(await this.bindings.fetchResource(authPath));
 
+    // Once we migrate fully over to /libs/accounts/email-render for rendering email templates,
+    // this can go away. Note that there shouldn't be overlap between auth.ftl and emails.ftl strings!
+    const emailsPath = `${this.bindings.opts.translations.basePath}/${
+      locale || 'en'
+    }/emails.ftl`;
+    results.push(await this.bindings.fetchResource(emailsPath));
+
     const brandingPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/branding.ftl`;

@@ -11,12 +11,13 @@ const apps = [];
 
 apps.push({
   name: 'content',
-  script: 'node --inspect=9130 server/bin/fxa-content-server.js',
+  script:
+    'node --inspect=9130 -r ts-node/register/transpile-only -r tsconfig-paths/register server/bin/fxa-content-server.js',
   cwd: __dirname,
   watch: ['server/**/*.js', 'server/**/*.html', 'server/**/*.json'],
   env: {
     NODE_ENV: 'development',
-    NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
     CONFIG_FILES: 'server/config/local.json',
     PORT: 3030,
     PATH,

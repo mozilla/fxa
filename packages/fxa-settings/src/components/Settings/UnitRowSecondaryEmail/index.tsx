@@ -162,7 +162,7 @@ export const UnitRowSecondaryEmail = () => {
               l10n.getString(
                 'se-verify-session-3',
                 null,
-                "You'll need to confirm your current session to perform this action"
+                'You’ll need to confirm your current session to perform this action'
               )
             );
           }}
@@ -191,6 +191,11 @@ export const UnitRowSecondaryEmail = () => {
         header={l10n.getString('se-heading', null, 'Secondary email')}
         headerId="secondary-email"
         prefixDataTestId="secondary-email"
+        defaultHeaderValueText={l10n.getString(
+          'se-secondary-email-none',
+          null,
+          'None'
+        )}
         route={`${SETTINGS_PATH}/emails`}
         ctaOnClickAction={() => GleanMetrics.accountPref.secondaryEmailSubmit()}
         {...{
@@ -268,7 +273,7 @@ export const UnitRowSecondaryEmail = () => {
                   ),
                 }}
               >
-                <p className="text-xs mt-3 text-grey-400">
+                <p className="text-xs mt-3 text-grey-400 dark:text-grey-200">
                   Confirmation needed.{' '}
                   <button
                     className="link-blue"
@@ -419,7 +424,7 @@ const SecondaryEmailDefaultContent = () => (
         ),
       }}
     >
-      <p className="text-grey-400 text-xs mt-2">
+      <p className="text-grey-400 dark:text-grey-200 text-xs mt-2">
         Note: a secondary email won’t restore your information — you’ll need an{' '}
         <a
           className="link-blue"

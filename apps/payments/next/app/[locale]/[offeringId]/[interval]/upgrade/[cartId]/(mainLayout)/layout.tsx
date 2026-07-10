@@ -22,13 +22,14 @@ export default async function UpgradeSuccessLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: CheckoutParams;
+  params: Promise<CheckoutParams>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const cartDataPromise = getCartAction(params.cartId);
-  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
+  const cartDataPromise = getCartAction(resolvedParams.cartId);
+  const cmsDataPromise = fetchCMSData(resolvedParams.offeringId, locale);
   const sessionPromise = auth();
   const [cms, cart, session] = await Promise.all([
     cmsDataPromise,
@@ -55,7 +56,9 @@ export default async function UpgradeSuccessLayout({
             <SignedIn email={session.user.email} />
           </section>
         )}
-        <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
+        <div
+          className={`mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr] ${session?.user?.email ? 'mt-12 tablet:mt-0' : ''}`}
+        >
           <SubscriptionTitle cart={cart} l10n={l10n} />
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
             <PurchaseDetails
@@ -86,6 +89,7 @@ export default async function UpgradeSuccessLayout({
               locale={locale}
               showPrices={
                 cart.state === CartState.START ||
+                cart.state === CartState.PROCESSING ||
                 cart.state === CartState.SUCCESS
               }
             />

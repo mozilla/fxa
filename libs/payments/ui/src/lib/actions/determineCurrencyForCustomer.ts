@@ -4,9 +4,11 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
-export const determineCurrencyForCustomerAction = async (uid: string) => {
+export const determineCurrencyForCustomerAction = async () => {
+  const uid = await requireSessionUid();
   const { currency } = await getApp()
     .getActionsService()
     .determineCurrencyForCustomer({

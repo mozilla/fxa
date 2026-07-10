@@ -8,10 +8,13 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import { PasskeyMetricsSurface } from '../../lib/passkeys/signin-flow';
 import { MozServices } from '../../lib/types';
+import type { NavigateFunction } from 'react-router';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
+import AuthClient from 'fxa-auth-client/browser';
 
 export interface AvatarResponse {
   account: {
@@ -27,16 +30,23 @@ export type SigninUnblockIntegration = Pick<
   | 'getClientId'
   | 'wantsTwoStepAuthentication'
   | 'clientInfo'
+  | 'requiresKeys'
+  | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'wantsLogin'
   | 'getCmsInfo'
+  | 'isFirefoxClient'
   | 'isFirefoxMobileClient'
+  | 'isFirefoxDesktopClient'
+  | 'getLegalTerms'
 >;
 
 export type SigninIntegration =
@@ -46,15 +56,22 @@ export type SigninIntegration =
       | 'isSync'
       | 'getService'
       | 'getClientId'
+      | 'requiresKeys'
+      | 'wantsKeysIfPasswordEntered'
       | 'wantsKeys'
+      | 'requiresPasswordForLogin'
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
-      | 'isFirefoxClientServiceAiWindow'
+      | 'isFirefoxClientServiceSmartWindow'
+      | 'isFirefoxClientServiceVpn'
       | 'isFirefoxNonSync'
       | 'getWebChannelServices'
       | 'getCmsInfo'
+      | 'isFirefoxClient'
       | 'isFirefoxMobileClient'
+      | 'isFirefoxDesktopClient'
+      | 'getLegalTerms'
     >
   | SigninOAuthIntegration;
 
@@ -65,16 +82,23 @@ export type SigninOAuthIntegration = Pick<
   | 'getService'
   | 'getClientId'
   | 'wantsTwoStepAuthentication'
+  | 'requiresKeys'
+  | 'wantsKeysIfPasswordEntered'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'getCmsInfo'
+  | 'isFirefoxClient'
   | 'isFirefoxMobileClient'
+  | 'isFirefoxDesktopClient'
+  | 'getLegalTerms'
 >;
 
 export interface LocationState {
@@ -87,15 +111,13 @@ export interface LocationState {
     localizedSuccessBannerHeading?: string;
     localizedSuccessBannerDescription?: string;
   };
+  /** When redirecting from passwordless with TOTP_REQUIRED, skip redirect back to passwordless */
+  skipPasswordlessRedirect?: boolean;
 }
 
-export interface SigninProps {
+interface SigninSharedProps {
   integration: SigninIntegration;
   email: string;
-  beginSigninHandler: BeginSigninHandler;
-  cachedSigninHandler: CachedSigninHandler;
-  sendUnblockEmailHandler: SendUnblockEmailHandler;
-  sessionToken?: hexstring;
   hasLinkedAccount: boolean;
   hasPassword: boolean;
   serviceName: MozServices;
@@ -105,11 +127,27 @@ export interface SigninProps {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   localizedSuccessBannerHeading?: string;
   localizedSuccessBannerDescription?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
-  useFxAStatusResult: UseFxAStatusResult;
+  isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
+
+export interface SigninProps extends SigninSharedProps {
+  beginSigninHandler: BeginSigninHandler;
+  sendUnblockEmailHandler: SendUnblockEmailHandler;
+  useFxAStatusResult: UseFxAStatusResult;
+}
+
+export interface SigninCachedProps extends SigninSharedProps {
+  sessionToken: hexstring;
+  cachedSigninHandler: CachedSigninHandler;
+  onSessionExpired: (localizedErrorMessage: string) => void;
+  supportsKeysOptionalLogin?: boolean;
+}
+
+export type SigninAlternativeAuthOptionsProps = SigninSharedProps & {
+  supportsKeysOptionalLogin?: boolean;
+};
 
 export type BeginSigninHandler = (
   email: string,
@@ -149,6 +187,7 @@ export interface CachedSigninHandlerResponse {
     uid: hexstring;
     sessionVerified: boolean;
     emailVerified: boolean;
+    totpIsActive: boolean;
   };
   error?: AuthUiError;
 }
@@ -203,6 +242,7 @@ export interface SendUnblockEmailHandlerResponse {
 }
 
 export interface NavigationOptions {
+  navigate: NavigateFunction;
   email: string;
   signinData: {
     uid: hexstring;
@@ -223,12 +263,17 @@ export interface NavigationOptions {
   replace?: boolean;
   queryParams: string;
   // include when there's a condition based on what page it originated from
-  origin?: 'post-verify-set-password';
+  origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
   isSessionAALUpgrade?: boolean;
+  // Browser "keys optional" capability (Sync decoupled from other services,
+  // Fx desktop 147+). When false, a non-Sync Firefox client that wants keys
+  // (e.g. Android VPN) must set a password before keys can be derived. Used together
+  // with `requiresPasswordForLogin` to decide the set_password redirect.
+  supportsKeysOptionalLogin?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
@@ -238,6 +283,15 @@ export interface NavigationOptions {
   // If false, skip actually navigating. Still sends web channel messages etc.
   performNavigation?: boolean;
   isServiceWithEmailVerification?: boolean;
+  // Set by passwordless OTP signin. Flows into SigninLocationState so
+  // downstream 2FA / recovery pages skip the OAuth keys check — no
+  // password yet means no unwrapBKey to derive.
+  isPasswordlessOtpSignin?: boolean;
+  // True when the session was established by a passkey assertion; pairs
+  // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
+  isPasskeySession?: boolean;
+  accountHasTotp?: boolean;
+  authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 
 export interface OAuthSigninResult {
@@ -257,4 +311,11 @@ export interface SigninLocationState {
   showInlineRecoveryKeySetup?: boolean;
   isSessionAALUpgrade?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
+  isPasswordlessOtpSignin?: boolean;
+  /**
+   * Sign-in surface the user came from before reaching SigninPasskeyFallback.
+   * Used to populate the `reason` extra on `passkey_enter_password.*` Glean
+   * events.
+   */
+  passkeySurface?: PasskeyMetricsSurface;
 }

@@ -9,17 +9,19 @@ const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
-const Localizer = require('../l10n').default;
-const NodeRendererBindings =
-  require('../senders/renderer/bindings-node').default;
 const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
+const { getClientServiceTags } = require('../metrics/client-tags');
 
 module.exports = function (
   log,
@@ -46,6 +48,9 @@ module.exports = function (
     ? Container.get(RelyingPartyConfigurationManager)
     : null;
 
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
+
   const routes = [
     {
       method: 'POST',
@@ -53,7 +58,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           // since payload is allowed to be empty we do not
           // do hawk payload validation otherwise we may break existing clients
         },
@@ -98,6 +103,14 @@ module.exports = function (
           request,
         });
 
+        // Best-effort telemetry; don't let a Glean failure fail the sign-out.
+        glean.account
+          .sessionDestroyed(request, {
+            uid,
+            platform: platformFromOS(request.app.ua && request.app.ua.os),
+          })
+          ?.catch(() => {});
+
         return {};
       },
     },
@@ -117,7 +130,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_REAUTH_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -182,19 +195,24 @@ module.exports = function (
 
         // Start temporary metrics section
         if (!account?.primaryEmail?.isVerified) {
-          statsd.increment('session_reauth.primary_email_not_verified');
+          statsd.increment(
+            'session_reauth.primary_email_not_verified',
+            getClientServiceTags(request)
+          );
         }
         if (!sessionToken.tokenVerified) {
-          statsd.increment('session_reauth.token_not_verified');
+          statsd.increment(
+            'session_reauth.token_not_verified',
+            getClientServiceTags(request)
+          );
         }
-        const accountAmr = await authMethods.availableAuthenticationMethods(
-          db,
-          account
-        );
-        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const requiresAal2 = await authMethods.accountRequiresAAL2(db, account);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
-        if (sessionAal < accountAal) {
-          statsd.increment('session_reauth.all_not_met');
+        if (requiresAal2 && sessionAal < 2) {
+          statsd.increment(
+            'session_reauth.all_not_met',
+            getClientServiceTags(request)
+          );
         }
         // End temporary metrics section
 
@@ -296,7 +314,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_STATUS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA.object({
@@ -323,11 +341,7 @@ module.exports = function (
         }
 
         // Check account assurance level
-        const accountAmr = await authMethods.availableAuthenticationMethods(
-          db,
-          account
-        );
-        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const requiresAal2 = await authMethods.accountRequiresAAL2(db, account);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
 
         // Build response
@@ -340,7 +354,8 @@ module.exports = function (
         const sessionVerified = sessionToken.tokenVerified;
 
         // Account Assurance Level
-        const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
+        const sessionVerificationMeetsMinimumAAL =
+          !requiresAal2 || sessionAal >= 2;
 
         // Legacy verified flag. Keep for backwards compatibility.
         const verified = accountEmailVerified && sessionVerified;
@@ -364,7 +379,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_DUPLICATE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -446,7 +461,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -511,7 +526,54 @@ module.exports = function (
           await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
-          await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+          push
+            .notifyAccountUpdated(uid, devices, 'accountConfirm')
+            .catch((err) =>
+              log.error('push.accountConfirm.error', { uid, err })
+            );
+
+          // Send new device login notification email after successful verification
+          const geoData = request.app.geo;
+          const service = options.service || request.query.service;
+
+          try {
+            if (fxaMailer.canSend('newDeviceLogin')) {
+              const clientInfo = await oauthClientInfoService.fetch(service);
+              await fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+              });
+            } else {
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: request.app.clientAddress, // TODO: Double check this... It doesn't seem to be used?
+                location: geoData.location,
+                service,
+                timeZone: geoData.timeZone,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+                uaDeviceType: sessionToken.uaDeviceType,
+                uid,
+              };
+              await mailer.sendNewDeviceLoginEmail(
+                account.emails,
+                account,
+                emailOptions
+              );
+            }
+          } catch (err) {
+            log.trace('Session.verify_code.sendNewDeviceLoginEmail.error', {
+              error: err,
+            });
+          }
         }
 
         return {};
@@ -523,7 +585,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_RESEND_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: async function (request) {
@@ -580,219 +642,72 @@ module.exports = function (
         if (account.primaryEmail.isVerified) {
           // Unverified emails mean that the user is attempting to resend the code from signup page,
           // therefore they get sent a different email template with the code.
-          await mailer.sendVerifyLoginCodeEmail(
-            account.emails,
-            account,
-            await getOptionalCmsEmailConfig(options, {
+          if (fxaMailer.canSend('verifyLoginCode')) {
+            // This will just short-circuit to Mozilla, but leaving for future proofing.
+            const clientInfo = await oauthClientInfoService.fetch(undefined);
+            const cmsConfig = await getOptionalCmsEmailConfig(options, {
               request,
               cmsManager,
               log,
               emailTemplate: 'VerifyLoginCodeEmail',
-            })
-          );
+            });
+            await fxaMailer.sendVerifyLoginCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.cmsLogo(cmsConfig),
+              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+              code,
+              service: clientInfo.name,
+              serviceName: clientInfo.name,
+            });
+          } else {
+            await mailer.sendVerifyLoginCodeEmail(
+              account.emails,
+              account,
+              await getOptionalCmsEmailConfig(options, {
+                request,
+                cmsManager,
+                log,
+                emailTemplate: 'VerifyLoginCodeEmail',
+              })
+            );
+          }
         } else {
-          await mailer.sendVerifyShortCodeEmail(
-            [],
-            account,
-            await getOptionalCmsEmailConfig(options, {
+          if (fxaMailer.canSend('verifyShortCode')) {
+            const cmsConfig = await getOptionalCmsEmailConfig(options, {
               request,
               cmsManager,
               log,
               emailTemplate: 'VerifyShortCodeEmail',
-            })
-          );
-        }
-
-        return {};
-      },
-    },
-    {
-      method: 'POST',
-      path: '/session/verify/send_push',
-      options: {
-        ...SESSION_DOCS.SESSION_SEND_PUSH_POST,
-        auth: {
-          strategy: 'sessionToken',
-        },
-      },
-      handler: async function (request) {
-        log.begin('Session.send_push', request);
-
-        const sessionToken = request.auth.credentials;
-        const { uid, email, tokenVerificationId } = sessionToken;
-
-        // Check to see if this account has a verified TOTP token. If so, then it should
-        // not be allowed to bypass TOTP requirement by sending a sign-in push notification.
-        try {
-          const result = await db.totpToken(sessionToken.uid);
-
-          if (result && result.verified && result.enabled) {
-            return {};
-          }
-        } catch (err) {
-          if (err.errno !== error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            throw err;
-          }
-        }
-
-        const allDevices = await db.devices(uid);
-
-        const account = await db.account(sessionToken.uid);
-        const secret = account.primaryEmail.emailCode;
-
-        const code = otpUtils.generateOtpCode(secret, otpOptions);
-
-        // Filter devices that can accept the push notification.
-        const filteredDevices = allDevices.filter((d) => {
-          // Don't push to the current device
-          if (d.sessionTokenId === sessionToken.id) {
-            return false;
-          }
-          // Exclude expired devices
-          if (d.pushEndpointExpired === true) {
-            return false;
-          }
-          // Currently, we only support sending push notifications to Firefox Desktop
-          return d.type === 'desktop' && d.uaBrowser === 'Firefox';
-        });
-
-        const confirmUrl = `${config.contentServer.url}/signin_push_code_confirm`;
-
-        const localizer = new Localizer(new NodeRendererBindings());
-
-        // If/when we use .localizeStrings in other files, probably move where strings are
-        // maintained to separate file?
-        const titleFtlId = 'session-verify-send-push-title-2';
-        const bodyFtlId = 'session-verify-send-push-body-2';
-
-        const ftlIdMsgs = [
-          {
-            id: titleFtlId,
-            message: 'Logging in to your Mozilla account?',
-          },
-          {
-            id: bodyFtlId,
-            message: 'Click here to confirm it’s you',
-          },
-        ];
-        const localizedStrings = await localizer.localizeStrings(
-          request.app.locale,
-          ftlIdMsgs
-        );
-
-        const options = {
-          title: localizedStrings[titleFtlId],
-          body: localizedStrings[bodyFtlId],
-        };
-
-        const { region, city, country } = request.app.geo;
-        const remoteMetaData = {
-          deviceName: sessionToken.deviceName,
-          deviceFamily: sessionToken.uaBrowser,
-          deviceOS: sessionToken.uaOS,
-          ipAddress: request.app.clientAddress,
-          city,
-          region,
-          country,
-        };
-        const params = new URLSearchParams({
-          tokenVerificationId,
-          code,
-          uid,
-          email,
-          remoteMetaData: encodeURIComponent(JSON.stringify(remoteMetaData)),
-        });
-        const url = `${confirmUrl}?${params.toString()}`;
-        try {
-          await push.notifyVerifyLoginRequest(uid, filteredDevices, {
-            ...options,
-            url,
-          });
-        } catch (err) {
-          log.error('Session.send_push', {
-            uid: uid,
-            error: err,
-          });
-        }
-
-        return {};
-      },
-    },
-    {
-      method: 'POST',
-      path: '/session/verify/verify_push',
-      options: {
-        ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
-        auth: {
-          strategy: 'sessionToken',
-        },
-        validate: {
-          payload: isA.object({
-            code: validators.DIGITS,
-            tokenVerificationId: validators.hexString.length(32),
-          }),
-        },
-      },
-      handler: async function (request) {
-        log.begin('Session.verify_push', request);
-        const options = request.payload;
-        const sessionToken = request.auth.credentials;
-        const { uid, email } = sessionToken;
-        const { code, tokenVerificationId } = options;
-
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          email,
-          'verifySessionCode'
-        );
-        request.emitMetricsEvent('session.verify_push');
-
-        const device = await db.deviceFromTokenVerificationId(
-          uid,
-          tokenVerificationId
-        );
-
-        // If device is not found, this means the device has already been verified.
-        // Since the user can not take any additional action, it is safe to return
-        // a successful response.
-        if (!device) {
-          return {};
-        }
-
-        // Check to see if the otp code passed matches the expected value from
-        // using the account's' `emailCode` as the secret in the otp code generation.
-        const account = await db.account(uid);
-        const secret = account.primaryEmail.emailCode;
-
-        const { valid: isValidCode } = otpUtils.verifyOtpCode(
-          code,
-          secret,
-          otpOptions,
-          'session.verify_push'
-        );
-
-        if (!isValidCode) {
-          if (customs.v2Enabled()) {
-            await customs.checkAuthenticated(
-              request,
-              uid,
-              email,
-              'verifySessionCodeFailed'
+            });
+            await fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.cmsLogo(cmsConfig),
+              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+              code,
+            });
+          } else {
+            await mailer.sendVerifyShortCodeEmail(
+              [],
+              account,
+              await getOptionalCmsEmailConfig(options, {
+                request,
+                cmsManager,
+                log,
+                emailTemplate: 'VerifyShortCodeEmail',
+              })
             );
           }
-          throw error.invalidOrExpiredOtpCode();
         }
-
-        await db.verifyTokens(tokenVerificationId, account);
-
-        // We have a matching code! Let's verify session and send the
-        // corresponding email and emit metrics.
-        request.emitMetricsEvent('account.confirmed', { uid });
-        glean.login.verifyCodeConfirmed(request, { uid });
-        await signinUtils.cleanupReminders({ verified: true }, account);
-        const devices = await db.devices(uid);
-        await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
 
         return {};
       },

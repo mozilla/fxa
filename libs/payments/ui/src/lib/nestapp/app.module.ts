@@ -13,6 +13,7 @@ import {
   CheckoutService,
   TaxService,
   ChurnInterventionManager,
+  FreeTrialManager,
 } from '@fxa/payments/cart';
 import {
   EligibilityManager,
@@ -29,6 +30,7 @@ import {
   ContentServerManager,
 } from '@fxa/payments/content-server';
 import {
+  ConfirmationTokenManager,
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
@@ -40,7 +42,11 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
 } from '@fxa/payments/customer';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import {
+  CHECKOUT_EVENT_EMITTER_TOKEN,
+  PaymentsGleanManager,
+} from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import {
@@ -58,7 +64,10 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
-import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
+import {
+  SubscriptionManagementService,
+  ChurnInterventionService,
+} from '@fxa/payments/management';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
@@ -87,6 +96,8 @@ import { NimbusManager } from '@fxa/payments/experiments';
           {
             ...process.env,
             GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+            GLEAN_CLIENT_CONFIG__VERSION:
+              process.env['GLEAN_CLIENT_CONFIG__VERSION'],
           },
           RootConfig
         ),
@@ -105,6 +116,8 @@ import { NimbusManager } from '@fxa/payments/experiments';
     CheckoutTokenManager,
     ChurnInterventionManager,
     ChurnInterventionService,
+    ConfirmationTokenManager,
+    FreeTrialManager,
     ContentServerManager,
     ContentServerClient,
     CustomerManager,
@@ -144,7 +157,14 @@ import { NimbusManager } from '@fxa/payments/experiments';
     SubscriptionManager,
     PaymentsGleanFactory,
     PaymentsGleanManager,
+    PaymentsMetricsAggregatorService,
     PaymentsEmitterService,
+    {
+      provide: CHECKOUT_EVENT_EMITTER_TOKEN,
+      useFactory: (emitterService: PaymentsEmitterService) =>
+        emitterService.getEmitter(),
+      inject: [PaymentsEmitterService],
+    },
     StripeEventManager,
     SubscriptionEventsService,
     StripeWebhookService,

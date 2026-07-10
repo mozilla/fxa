@@ -4,7 +4,10 @@
 
 import { faker } from '@faker-js/faker';
 
-import { RelyingPartiesQuery } from '../../../__generated__/graphql';
+import {
+  RelyingPartiesQuery,
+  Enum_Componentaccountsshared_Headlinefontsize,
+} from '../../../__generated__/graphql';
 import { RelyingPartyResult } from '@fxa/shared/cms';
 
 export const RelyingPartyQueryFactory = (
@@ -61,6 +64,19 @@ export const RelyingPartyResultFactory = (
     },
     splitLayout: faker.datatype.boolean(),
   },
+  SignupPasswordlessCodePage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
   shared: {
     buttonColor: faker.color.rgb(),
     logoUrl: faker.internet.url(),
@@ -75,6 +91,16 @@ export const RelyingPartyResultFactory = (
       header: faker.color.rgb(),
       splitLayoutAltText: faker.string.sample(),
     },
+    illustrationsTheme: {
+      primary: faker.color.rgb(),
+      primaryAlt: faker.color.rgb(),
+      secondary: faker.color.rgb(),
+      accentBg: faker.color.rgb(),
+      accentFg: faker.color.rgb(),
+      cloudPrimary: faker.color.rgb(),
+      cloudShadow: faker.color.rgb(),
+      hideClouds: faker.datatype.boolean(),
+    },
     pageTitle: faker.string.sample(),
     headerLogoUrl: faker.internet.url(),
     headerLogoAltText: faker.string.sample(),
@@ -83,8 +109,31 @@ export const RelyingPartyResultFactory = (
       syncHidePromoAfterLogin: faker.datatype.boolean(),
     },
     favicon: faker.internet.url(),
+    headlineFontSize: faker.helpers.arrayElement([
+      Enum_Componentaccountsshared_Headlinefontsize.Default,
+      Enum_Componentaccountsshared_Headlinefontsize.Medium,
+      Enum_Componentaccountsshared_Headlinefontsize.Large,
+    ]),
+    headlineTextColor: faker.color.rgb(),
+    additionalAccessibilityInfo: faker.string.sample(),
   },
   NewDeviceLoginEmail: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    subject: faker.string.sample(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  PasswordlessSigninOtpEmail: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    subject: faker.string.sample(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  PasswordlessSignupOtpEmail: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),
     subject: faker.string.sample(),
@@ -117,6 +166,28 @@ export const RelyingPartyResultFactory = (
     pageTitle: faker.string.sample(),
     splitLayout: faker.datatype.boolean(),
   },
+  SigninCachedPage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninPasswordlessCodePage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
   SigninTokenCodePage: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),
@@ -134,6 +205,48 @@ export const RelyingPartyResultFactory = (
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
     splitLayout: faker.datatype.boolean(),
+  },
+  SigninTotpCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryChoicePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryPhonePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
+  PostVerifySetPasswordPage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   ...override,
 });

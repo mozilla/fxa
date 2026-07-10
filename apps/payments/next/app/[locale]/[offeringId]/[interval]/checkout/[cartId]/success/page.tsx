@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { auth } from 'apps/payments/next/auth';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
-import { getCardIcon } from '@fxa/payments/ui';
+import { buildRedirectUrl, getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -20,6 +20,7 @@ import {
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,16 +28,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'success',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -44,21 +47,25 @@ export default async function CheckoutSuccess({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
 
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/success`;
   const cartDataPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.SUCCESS,
-    searchParams
+    currentPathname,
+    resolvedSearchParams
   );
   const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
@@ -67,6 +74,25 @@ export default async function CheckoutSuccess({
     cartDataPromise,
     sessionPromise,
   ]);
+
+  if (!session?.user?.id || cart.uid !== session.user.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      resolvedSearchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      resolvedParams.offeringId,
+      resolvedParams.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;

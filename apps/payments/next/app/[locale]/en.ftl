@@ -27,6 +27,7 @@ checkout-error-contact-support = Please contact support so we can help you.
 cart-error-currency-not-determined = We were unable to determine the currency for this purchase, please try again.
 checkout-processing-general-error = An unexpected error has occurred while processing your payment, please try again.
 cart-total-mismatch-error = The invoice amount has changed. Please try again.
+cart-free-trial-mismatch-error = Your free trial eligibility has changed. Please try again.
 
 ## Error pages - Payment method failure messages
 intent-card-error = Your transaction could not be processed. Please verify your credit card information and try again.
@@ -37,6 +38,7 @@ intent-payment-error-generic = An unexpected error has occurred while processing
 intent-payment-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
 general-paypal-error = An unexpected error has occurred while processing your payment, please try again.
 paypal-active-subscription-no-billing-agreement-error = It looks like there was a problem billing your { -brand-paypal } account. Please re-enable automatic payments for your subscription.
+new-account-prepaid-card-free-trial-not-allowed = Prepaid cards cannot be used to start a free trial on new accounts. Please try a different payment method.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages

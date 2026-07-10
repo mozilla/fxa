@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
@@ -20,6 +19,12 @@ jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
   sessionToken: jest.fn(),
   currentAccount: jest.fn(),
+  JwtTokenCache: {
+    hasToken: jest.fn(),
+    getToken: jest.fn(),
+    getSnapshot: jest.fn().mockReturnValue({}),
+    subscribe: jest.fn().mockReturnValue(() => {}),
+  },
 }));
 
 const sessionToken = 'session-123';
@@ -40,7 +45,15 @@ const accountWithoutPassword = {
   recoveryKey: { exists: false },
 } as unknown as Account;
 
-const authClient = {} as unknown as AuthClient;
+const authClient = {
+  sessionStatus: jest.fn().mockResolvedValue({
+    state: 'verified',
+    details: {
+      sessionVerified: true,
+    },
+  }),
+  mfaRequestOtp: jest.fn().mockResolvedValue({ code: 200, errno: 0 }),
+} as unknown as AuthClient;
 
 const renderWithContext = (
   account: Partial<Account>,
@@ -87,7 +100,7 @@ describe('UnitRowRecoveryKey', () => {
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     const createRKLink = screen.getByRole('link', { name: 'Create' });
     expect(createRKLink).toHaveAttribute('href', '/settings/account_recovery');
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -98,7 +111,7 @@ describe('UnitRowRecoveryKey', () => {
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     const createRKButton = screen.getByTestId('recovery-key-unit-row-disabled');
     expect(createRKButton).toBeDisabled();
     expect(createRKButton).toHaveAttribute(

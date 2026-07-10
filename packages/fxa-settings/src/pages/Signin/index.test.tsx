@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import {
   fireEvent,
   screen,
@@ -23,6 +22,7 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   Subject,
+  SubjectProps,
 } from './mocks';
 import {
   MOCK_CMS_INFO,
@@ -38,16 +38,11 @@ import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
-import { navigate } from '@reach/router';
-import {
-  IntegrationType,
-  OAuthNativeServices,
-  RelierCmsInfo,
-} from '../../models';
+
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { IntegrationType, RelierCmsInfo } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
@@ -65,6 +60,7 @@ jest.mock('../../lib/metrics', () => ({
     logViewEventOnce: jest.fn(),
   }),
 }));
+
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -78,6 +74,7 @@ jest.mock('../../lib/glean', () => ({
       diffAccountLinkClick: jest.fn(),
       engage: jest.fn(),
       lockedAccountBannerView: jest.fn(),
+      alternativeAuthView: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -86,14 +83,18 @@ jest.mock('../../lib/glean', () => ({
       success: jest.fn(),
     },
     thirdPartyAuth: {
-      loginNoPwView: jest.fn(),
       startGoogleAuthFromLogin: jest.fn(),
       startAppleAuthFromLogin: jest.fn(),
       appleDeeplink: jest.fn(),
       googleDeeplink: jest.fn(),
     },
+    passkey: {
+      buttonView: jest.fn(),
+      authSuccess: jest.fn(),
+    },
   },
 }));
+
 jest.mock('../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
 }));
@@ -113,20 +114,22 @@ jest.mock('../../models', () => {
     }),
     useConfig: () => ({
       servicesWithEmailVerification: ['123456'],
+      featureFlags: {
+        passkeysEnabled: true,
+        passkeyAuthenticationEnabled: true,
+      },
     }),
   };
 });
 
 const mockNavigate = jest.fn();
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
+// Alias for backward compatibility with tests referencing `navigate` directly
+const navigate = mockNavigate;
 
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
 // add the l10n tests back in. Right now, they can't handle embedded tags.
@@ -144,9 +147,8 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (
-  props: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}
-) => renderWithLocalizationProvider(<Subject {...props} />);
+const render = (props: SubjectProps = {}) =>
+  renderWithLocalizationProvider(<Subject {...props} />);
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -155,6 +157,7 @@ function signInHeaderRendered(service: MozServices = MozServices.Default) {
   });
   screen.getByText(`Continue to ${service}`);
 }
+
 function privacyAndTermsRendered() {
   const terms = screen.getByRole('link', {
     name: /Terms of Service/,
@@ -174,6 +177,16 @@ function thirdPartyAuthRendered() {
     name: /Continue with Apple/,
   });
 }
+
+function thirdPartyAuthNotRendered() {
+  expect(
+    screen.queryByRole('button', { name: /Continue with Google/ })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /Continue with Apple/ })
+  ).not.toBeInTheDocument();
+}
+
 function signInButtonAndSeparatorRendered() {
   screen.getByRole('button', { name: 'Sign in' });
   screen.getByText('or');
@@ -242,7 +255,6 @@ describe('Signin component', () => {
         privacyAndTermsRendered();
         resetPasswordLinkRendered();
         differentAccountLinkRendered();
-        expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
       });
 
       it('does not render third party auth for sync, emits expected Glean event', async () => {
@@ -259,12 +271,7 @@ describe('Signin component', () => {
         // to `enterPasswordAndSubmit()` because it's wrapped in a `setTimeout`
         expect(hardNavigateSpy).toHaveBeenCalled();
 
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
+        thirdPartyAuthNotRendered();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
           event: { thirdPartyLinks: false },
         });
@@ -280,12 +287,7 @@ describe('Signin component', () => {
           supportsKeysOptionalLogin: false,
         });
 
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
+        thirdPartyAuthNotRendered();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
           event: { thirdPartyLinks: false },
         });
@@ -312,9 +314,9 @@ describe('Signin component', () => {
         });
       });
 
-      it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', () => {
+      it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', () => {
         const integration = createMockSigninOAuthNativeIntegration({
-          service: OAuthNativeServices.AiWindow,
+          service: OAuthNativeServices.SmartWindow,
           isSync: false,
         });
         render({
@@ -407,7 +409,7 @@ describe('Signin component', () => {
             });
             expect(resetPasswordLink).toHaveAttribute(
               'href',
-              `/reset_password?email=${MOCK_EMAIL}&email_to_hash_with=`
+              `/reset_password?email=${MOCK_EMAIL}`
             );
             expect(resetPasswordLink).toHaveAttribute(
               'data-glean-id',
@@ -672,7 +674,7 @@ describe('Signin component', () => {
               await act(() => {
                 render({ beginSigninHandler, integration });
               });
-              await await enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
             });
             it('is not sent otherwise', async () => {
@@ -811,7 +813,10 @@ describe('Signin component', () => {
                 });
                 expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
                   action: 'signin',
-                  ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+                  code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+                  redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+                  state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+                  scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
                 });
 
                 const fxaLoginCallOrder =
@@ -846,7 +851,6 @@ describe('Signin component', () => {
                 integration,
                 finishOAuthFlowHandler,
               });
-              screen.getByText(serviceRelayText);
               await enterPasswordAndSubmit();
               await waitFor(() => {
                 // Ensure it's not called with keyFetchToken or unwrapBKey, or services: { sync: {} }
@@ -859,7 +863,10 @@ describe('Signin component', () => {
                 });
                 expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
                   action: 'signin',
-                  ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+                  code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+                  redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+                  state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+                  scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
                 });
 
                 const fxaLoginCallOrder =
@@ -961,50 +968,9 @@ describe('Signin component', () => {
       });
     });
 
-    describe('user does not have a password', () => {
-      it('renders as expected without linked account', () => {
-        render({ hasPassword: false });
-
-        signInHeaderRendered();
-        defaultAvatarAndEmailRendered();
-        signInButtonAndSeparatorRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
-        differentAccountLinkRendered();
-        resetPasswordLinkRendered();
-
-        passwordInputNotRendered();
-      });
-
-      it('renders as expected with linked account', () => {
-        render({ hasPassword: false, hasLinkedAccount: true });
-        signInHeaderRendered();
-        defaultAvatarAndEmailRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
-
-        passwordInputNotRendered();
-        expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-        expect(screen.queryByText('Or')).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: 'Sign in' })
-        ).not.toBeInTheDocument();
-      });
-
-      it('renders third party auth options for sync with linked account', () => {
-        const integration = createMockSigninOAuthNativeSyncIntegration();
-        render({ integration, hasPassword: false, hasLinkedAccount: true });
-
-        signInHeaderRendered();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).toBeInTheDocument();
-      });
+    it('does not fire login.alternativeAuthView (owned by SigninAlternativeAuthOptions)', () => {
+      render({ hasPassword: true, hasLinkedAccount: true });
+      expect(GleanMetrics.login.alternativeAuthView).not.toHaveBeenCalled();
     });
   });
 
@@ -1016,52 +982,41 @@ describe('Signin component', () => {
 
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: true },
+        event: { thirdPartyLinks: false },
       });
       signInHeaderRendered();
       avatarAndEmailRendered();
-      thirdPartyAuthRendered();
-      signInButtonAndSeparatorRendered();
+      screen.getByRole('button', { name: 'Sign in' });
       privacyAndTermsRendered();
-      resetPasswordLinkRendered();
       differentAccountLinkRendered();
-
+      thirdPartyAuthNotRendered();
+      expect(
+        screen.queryByRole('link', { name: 'Forgot password?' })
+      ).not.toBeInTheDocument();
       passwordInputNotRendered();
     });
 
-    // This is wrapped so that the HTMLFormElement.submit can be mocked
-    // without affecting other tests.
-    describe('deeplinking', () => {
-      beforeEach(() => {
-        HTMLFormElement.prototype.submit = jest.fn();
-      });
-      afterEach(() => {
-        jest.resetAllMocks();
-      });
-      it('does not render when deeplinking third party auth', () => {
-        renderWithLocalizationProvider(
-          <Subject sessionToken={MOCK_SESSION_TOKEN} deeplink="appleLogin" />
-        );
+    it('sends webchannel message if cached signin for service=relay when supportsKeysOptionalLogin is true', async () => {
+      const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
       });
-    });
-
-    it('emits an event on forgot password link click', async () => {
-      renderWithLocalizationProvider(
-        <Subject sessionToken={MOCK_SESSION_TOKEN} />
-      );
-
-      fireEvent.click(screen.getByText('Forgot password?'));
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        supportsKeysOptionalLogin: true,
+      });
+      await submit();
       await waitFor(() => {
-        expect(GleanMetrics.cachedLogin.forgotPassword).toHaveBeenCalledTimes(
-          1
-        );
+        expect(fxaLoginSpy).toHaveBeenCalledWith({
+          email: MOCK_EMAIL,
+          sessionToken: MOCK_SESSION_TOKEN,
+          uid: MOCK_UID,
+          verified: true,
+          services: { relay: {} },
+        });
       });
     });
 
@@ -1097,12 +1052,292 @@ describe('Signin component', () => {
           hardNavigateSpy.mockRestore();
         });
 
-        it('always renders password input when integration wants keys', () => {
-          const integration = createMockSigninOAuthIntegration({
-            wantsKeys: true,
+        it('passes isSignInWithThirdPartyAuth for cached Sync passwordless user', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
           });
-          render({ integration });
-          passwordInputRendered();
+
+          await submit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                isSignInWithThirdPartyAuth: true,
+                handleFxaLogin: false,
+                handleFxaOAuthLogin: false,
+              })
+            );
+          });
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('allows navigation for cached Sync passwordless user on mobile', async () => {
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration({
+            isMobile: true,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                performNavigation: true,
+              })
+            );
+          });
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('shows merge warning for cached Sync passwordless signin when user accepts', async () => {
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('aborts cached Sync passwordless signin when user rejects merge', async () => {
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(false);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          // Should NOT call handleNavigation when user rejects merge
+          expect(handleNavigationSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for cached Sync signin with linked account', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect when hasLinkedAccount is true
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for non-Sync cached passwordless signin', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration(); // Non-Sync integration
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect for non-Sync integrations
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('shows merge warning for cached Firefox non-Sync (Relay) passwordless signin when user accepts', async () => {
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for cached Firefox non-Sync signin with linked account', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect when hasLinkedAccount is true
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
         });
 
         it('navigates to OAuth redirect', async () => {
@@ -1117,7 +1352,6 @@ describe('Signin component', () => {
             cachedSigninHandler,
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
@@ -1219,7 +1453,6 @@ describe('Signin component', () => {
             ),
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
@@ -1252,7 +1485,6 @@ describe('Signin component', () => {
             ),
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
@@ -1349,25 +1581,6 @@ describe('Signin component', () => {
     });
 
     describe('errored submission', () => {
-      it('requires password if cached credentials have expired', async () => {
-        const cachedSigninHandler = jest
-          .fn()
-          .mockReturnValueOnce(createCachedSigninResponseError());
-        renderWithLocalizationProvider(
-          <Subject
-            sessionToken={MOCK_SESSION_TOKEN}
-            {...{ cachedSigninHandler }}
-          />
-        );
-
-        await submit();
-        await waitFor(() => {
-          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-          screen.getByText('Session expired. Sign in to continue.');
-          passwordInputRendered();
-        });
-      });
-
       it('displays other errors', async () => {
         const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
         const cachedSigninHandler = jest.fn().mockReturnValueOnce(
@@ -1390,24 +1603,71 @@ describe('Signin component', () => {
       });
     });
 
-    describe('user does not have a password', () => {
-      it('renders as expected without linked account', () => {
+    describe('UI simplification for cached users', () => {
+      it('hides OAuth buttons for cached users', () => {
         renderWithLocalizationProvider(
-          <Subject sessionToken={MOCK_SESSION_TOKEN} hasPassword={false} />
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
         );
 
-        signInHeaderRendered();
-        avatarAndEmailRendered();
-        signInButtonAndSeparatorRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
-        differentAccountLinkRendered();
-        resetPasswordLinkRendered();
-
-        passwordInputNotRendered();
+        thirdPartyAuthNotRendered();
       });
 
-      it('renders as expected with linked account', () => {
+      it('hides forgot password link for cached users', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Forgot password?' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('hides "use a different account" link when signed into Firefox desktop with a service', () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        renderWithLocalizationProvider(
+          <Subject
+            integration={integration}
+            sessionToken={MOCK_SESSION_TOKEN}
+            isSignedIntoFirefox={true}
+          />
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Use a different account' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('hides "use a different account" link when signed into Firefox mobile with a service (cached view via keys_optional)', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Vpn,
+          isSync: false,
+          isMobile: true,
+        });
+        renderWithLocalizationProvider(
+          <Subject
+            integration={integration}
+            sessionToken={MOCK_SESSION_TOKEN}
+            isSignedIntoFirefox={true}
+            supportsKeysOptionalLogin={true}
+          />
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Use a different account' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('shows "use a different account" link when not signed into Firefox', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        expect(
+          screen.getByRole('link', { name: 'Use a different account' })
+        ).toBeInTheDocument();
+      });
+
+      it('shows cached signin button for passwordless accounts', () => {
         renderWithLocalizationProvider(
           <Subject
             sessionToken={MOCK_SESSION_TOKEN}
@@ -1415,19 +1675,21 @@ describe('Signin component', () => {
             hasLinkedAccount={true}
           />
         );
-        signInHeaderRendered();
-        avatarAndEmailRendered();
-        thirdPartyAuthRendered();
-        privacyAndTermsRendered();
 
-        passwordInputNotRendered();
+        // Sign in button should be visible for passwordless cached users
         expect(
-          screen.queryByRole('link', { name: 'Forgot password?' })
-        ).not.toBeInTheDocument();
-        expect(screen.queryByText('Or')).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: 'Sign in' })
-        ).not.toBeInTheDocument();
+          screen.getByRole('button', { name: 'Sign in' })
+        ).toBeInTheDocument();
+      });
+
+      it('emits correct Glean metrics for cached signin with hidden OAuth', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: false },
+        });
       });
     });
   });
@@ -1465,36 +1727,6 @@ describe('Signin component', () => {
     });
   });
 
-  describe('when client is Monitor', () => {
-    it('shows Monitor-specific TOS', async () => {
-      renderWithLocalizationProvider(
-        <Subject
-          integration={createMockSigninOAuthIntegration({
-            clientId: MONITOR_CLIENTIDS[0],
-            service: MozServices.Monitor,
-          })}
-        />
-      );
-
-      // Monitor links should always open in a new window (announced by screen readers)
-      const monitorTermsLink = screen.getByRole('link', {
-        name: 'Terms of Service Opens in new window',
-      });
-      const monitorPrivacyLink = screen.getByRole('link', {
-        name: 'Privacy Notice Opens in new window',
-      });
-
-      expect(monitorTermsLink).toHaveAttribute(
-        'href',
-        'https://www.mozilla.org/about/legal/terms/subscription-services/'
-      );
-      expect(monitorPrivacyLink).toHaveAttribute(
-        'href',
-        'https://www.mozilla.org/privacy/subscription-services/'
-      );
-    });
-  });
-
   describe('snapshots - CMS', () => {
     const cmsProps = {
       cmsInfo: MOCK_CMS_INFO,
@@ -1507,7 +1739,7 @@ describe('Signin component', () => {
     it('sets the shared page title from CMS', () => {
       // Ensure pageTitle is not available on SigninPage, cast to type
       // to allow undefined
-      (cmsProps.cmsInfo as RelierCmsInfo).SigninPage.pageTitle = undefined;
+      (cmsProps.cmsInfo as RelierCmsInfo).SigninPage!.pageTitle = undefined;
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
       expect(document.title).toBe(
@@ -1554,27 +1786,6 @@ describe('Signin component', () => {
       expect(cmsDescription).toMatchSnapshot('cms description');
     });
 
-    it('renders CardHeader with CMS content when password is not needed', () => {
-      // This path: isPasswordNeededRef.current && hasPassword === false
-      // Renders CardHeader with different props but still uses CMS logo
-      render({
-        integration: createMockSigninWebIntegration(cmsProps),
-        hasPassword: false,
-      });
-
-      // the specific case here is the falsy condition of the above ternary
-      // so, we make sure our mock headline is NOT in the document as a guard against
-      // snapshotting the wrong render.
-      expect(
-        screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)
-      ).not.toBeInTheDocument();
-
-      const cmsLogo = screen.getByRole('img', {
-        name: cmsProps.cmsInfo.shared.logoAltText,
-      });
-      expect(cmsLogo).toMatchSnapshot();
-    });
-
     it('renders the CMS-styled submit button', () => {
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
@@ -1591,6 +1802,113 @@ describe('Signin component', () => {
       });
 
       expect(headerLogo).toMatchSnapshot();
+    });
+
+    it('renders additional accessibility info from CMS', () => {
+      render({ integration: createMockSigninWebIntegration(cmsProps) });
+
+      const additionalInfo = screen.getByText(
+        cmsProps.cmsInfo.shared.additionalAccessibilityInfo
+      );
+
+      expect(additionalInfo).toBeInTheDocument();
+    });
+
+    describe('activePageCms resolution', () => {
+      const cachedCmsInfo: RelierCmsInfo = {
+        ...MOCK_CMS_INFO,
+        SigninCachedPage: {
+          headline: 'Welcome back',
+          description: 'Continue to your Mozilla account',
+          primaryButtonText: 'Continue',
+          pageTitle: 'Welcome back',
+        },
+      };
+
+      it('cached user sees SigninCachedPage CMS content', () => {
+        render({
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Welcome back' })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText('Continue to your Mozilla account')
+        ).toBeInTheDocument();
+      });
+
+      it('cached user sees SigninCachedPage button text', () => {
+        render({
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: 'Continue' })
+        ).toBeInTheDocument();
+      });
+
+      it('cached user falls back to default when SigninCachedPage is not set', () => {
+        render({
+          integration: createMockSigninWebIntegration(cmsProps),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.queryByRole('heading', {
+            name: cmsProps.cmsInfo.SigninPage.headline,
+          })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: 'Sign in' })
+        ).toBeInTheDocument();
+      });
+
+      it('non-cached user uses SigninPage CMS even when SigninCachedPage is set', () => {
+        render({
+          integration: createMockSigninWebIntegration({
+            cmsInfo: cachedCmsInfo,
+          }),
+          hasPassword: true,
+          sessionToken: undefined,
+        });
+
+        expect(
+          screen.getByRole('heading', {
+            name: cachedCmsInfo.SigninPage?.headline,
+          })
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('heading', { name: 'Welcome back' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('signed-into-Firefox cached signin uses SigninCachedPage CMS content', () => {
+        render({
+          integration: createMockSigninOAuthNativeIntegration({
+            service: OAuthNativeServices.Vpn,
+            isSync: false,
+            cmsInfo: cachedCmsInfo,
+          }),
+          isSignedIntoFirefox: true,
+          supportsKeysOptionalLogin: true,
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Welcome back' })
+        ).toBeInTheDocument();
+      });
     });
   });
 });

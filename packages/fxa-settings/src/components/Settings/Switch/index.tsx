@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Localized, LocalizedProps, useLocalization } from '@fluent/react';
 import { ReactElement } from 'react';
 
@@ -36,8 +35,8 @@ export const Switch = ({
           isSubmitting
             ? l10n.getString('switch-submitting', null, 'Submitting…')
             : isOn
-            ? l10n.getString('switch-turn-off', null, 'Turn off')
-            : l10n.getString('switch-turn-on', null, 'Turn on')
+              ? l10n.getString('switch-turn-off', null, 'Turn off')
+              : l10n.getString('switch-turn-on', null, 'Turn on')
         }
         onClick={handler}
         type="button"

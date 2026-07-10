@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CmsButtonWithFallback from '.';
@@ -76,7 +75,25 @@ describe('CmsButtonWithFallback', () => {
       '--cta-bg': buttonColor,
       '--cta-border': buttonColor,
       '--cta-active': buttonColor,
-      '--cta-disabled': `${buttonColor}60`,
+      '--cta-disabled': buttonColor,
+    });
+  });
+
+  it('applies expected CMS styles when buttonColor is provided and button is disabled', () => {
+    const buttonColor = '#FF5733';
+    render(
+      <CmsButtonWithFallback buttonColor={buttonColor} disabled={true}>
+        CMS Button
+      </CmsButtonWithFallback>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveStyle({
+      '--cta-bg': buttonColor,
+      '--cta-border': buttonColor,
+      '--cta-active': buttonColor,
+      '--cta-disabled': buttonColor,
+      opacity: '0.5',
     });
   });
 
@@ -153,7 +170,7 @@ describe('CmsButtonWithFallback', () => {
       '--cta-bg': buttonColor,
       '--cta-border': buttonColor,
       '--cta-active': buttonColor,
-      '--cta-disabled': `${buttonColor}60`,
+      '--cta-disabled': buttonColor,
       background: 'red',
       fontSize: '16px',
     });

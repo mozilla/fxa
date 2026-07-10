@@ -4,38 +4,41 @@ import { AppError as error } from '@fxa/accounts/errors';
 import { reportSentryError } from '../../../lib/sentry';
 import { RelyingPartiesQuery } from '../../../../../libs/shared/cms/src/__generated__/graphql';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { DB } from '../../db';
+import { getClientServiceTags } from '../../metrics/client-tags';
 
-export const deleteAccountIfUnverified = async (
-  db: any,
-  stripeHelper: StripeHelper,
+export async function deleteAccountIfUnverified(
+  db: DB,
+  stripeHelper: StripeHelper | undefined,
   log: AuthLogger,
   request: AuthRequest,
   email: string
-) => {
+) {
   try {
     const secondaryEmailRecord = await db.getSecondaryEmail(email);
-    // Currently, users cannot create an account from a verified
-    // secondary email address
     if (secondaryEmailRecord.isPrimary) {
-      if (
-        secondaryEmailRecord.isVerified ||
-        (await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid))
-      ) {
+      const hasActiveSubscription = stripeHelper
+        ? await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid)
+        : false;
+
+      if (secondaryEmailRecord.isVerified || hasActiveSubscription) {
         throw error.accountExists(secondaryEmailRecord.email);
       }
       request.app.accountRecreated = true;
 
-      // If an unverified (stub) account has a Stripe customer without any
-      // subscriptions, delete the customer.
-      try {
-        await stripeHelper.removeCustomer(secondaryEmailRecord.uid);
-      } catch (err) {
-        // It's not an error where we'd want to stop the deletion of the
-        // account.
-        reportSentryError(err, request);
+      if (stripeHelper) {
+        try {
+          await stripeHelper.removeCustomer(secondaryEmailRecord.uid);
+        } catch (err) {
+          reportSentryError(err, request);
+        }
       }
 
-      const deleted = await db.deleteAccount(secondaryEmailRecord);
+      const deleted = await db.deleteAccount(
+        secondaryEmailRecord,
+        ReasonForDeletion.AccountRecreated
+      );
       log.info('accountDeleted.unverifiedSecondaryEmail', {
         ...secondaryEmailRecord,
       });
@@ -55,7 +58,7 @@ export const deleteAccountIfUnverified = async (
       throw err;
     }
   }
-};
+}
 
 export const fetchRpCmsData = async (
   request: AuthRequest,
@@ -82,6 +85,94 @@ export const fetchRpCmsData = async (
   return null;
 };
 
+/**
+ * Emit SNS notifications to attached services (Basket, etc.) for
+ * account creation / login events.
+ *
+ * Mirrors the set of notifications `AccountHandler.createAccount` in
+ * `routes/account.ts` fires, so that flows that bypass that handler
+ * (passwordless OTP, Google/Apple third-party auth) deliver the same
+ * events to downstream subscribers.
+ *
+ * - `isNewAccount && emailVerified`      → fires `verified` (Basket creates the user)
+ * - always                               → fires `login`    (session/device tracking)
+ * - `isNewAccount` or `profileChanged`   → fires `profileDataChange`
+ *
+ * `emailVerified` is independent of `isNewAccount` to match the gate in
+ * `AccountHandler.createAccount`, which only fires `verified` when the
+ * account is email-verified at creation time. Password-based signups
+ * create unverified accounts and fire `verified` later from
+ * `signupUtils.verifyAccount`; passwordless and third-party auth create
+ * already-verified accounts and should fire it immediately.
+ */
+export async function notifyAttachedServicesForAccountSession(options: {
+  log: AuthLogger;
+  request: AuthRequest;
+  account: { uid: string; primaryEmail: { email: string }; locale?: string };
+  service: string | undefined;
+  deviceCount: number;
+  isNewAccount: boolean;
+  emailVerified: boolean;
+  profileChanged: boolean;
+}): Promise<void> {
+  const {
+    log,
+    request,
+    account,
+    service,
+    deviceCount,
+    isNewAccount,
+    emailVerified,
+    profileChanged,
+  } = options;
+  const email = account.primaryEmail.email;
+
+  const geoData = request.app.geo;
+  const country = geoData.location && geoData.location.country;
+  const countryCode = geoData.location && geoData.location.countryCode;
+  const userAgent = request.headers['user-agent'];
+
+  const notifications: Promise<void>[] = [];
+
+  if (isNewAccount && emailVerified) {
+    const { clientId } = getClientServiceTags(request);
+    notifications.push(
+      log.notifyAttachedServices('verified', request, {
+        country,
+        countryCode,
+        email,
+        locale: account.locale,
+        service,
+        uid: account.uid,
+        userAgent,
+        ...(clientId && { clientId }),
+      })
+    );
+  }
+
+  notifications.push(
+    log.notifyAttachedServices('login', request, {
+      country,
+      countryCode,
+      deviceCount,
+      email,
+      service,
+      uid: account.uid,
+      userAgent,
+    })
+  );
+
+  if (isNewAccount || profileChanged) {
+    notifications.push(
+      log.notifyAttachedServices('profileDataChange', request, {
+        uid: account.uid,
+      })
+    );
+  }
+
+  await Promise.all(notifications);
+}
+
 export async function getOptionalCmsEmailConfig(
   emailOptions,
   { request, cmsManager, log, emailTemplate }
@@ -99,9 +190,9 @@ export async function getOptionalCmsEmailConfig(
     cmsRpClientId: rpCmsConfig.clientId,
     cmsRpFromName: rpCmsConfig.shared?.emailFromName,
     entrypoint: metricsContext.entrypoint,
-    logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-    logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-    logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
+    emailLogoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+    emailLogoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+    emailLogoWidth: rpCmsConfig?.shared?.emailLogoWidth,
     ...rpCmsConfig[emailTemplate],
   };
 }

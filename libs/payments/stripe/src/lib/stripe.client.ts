@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import { Cacheable } from '@type-cacheable/core';
 
 import {
   StripeApiList,
+  type StripeConfirmationToken,
   StripeCustomer,
   StripeCustomerSession,
   StripeDeletedCustomer,
@@ -52,7 +54,8 @@ export class StripeClient {
   private readonly stripe: Stripe;
   constructor(
     private stripeConfig: StripeConfig,
-    @Inject(StatsDService) public statsd: StatsD
+    @Inject(StatsDService) public statsd: StatsD,
+    @Inject(Logger) public log: LoggerService
   ) {
     this.stripe = new Stripe(
       // 'api_key_placeholder' is currently needed during build time
@@ -139,8 +142,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('subscriptionsList', undefined, args[0]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
@@ -150,6 +155,16 @@ export class StripeClient {
     });
 
     return result as StripeApiList<StripeSubscription>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async *subscriptionsListGenerator(params?: Stripe.SubscriptionListParams) {
+    for await (const subscription of this.stripe.subscriptions.list({
+      ...params,
+      expand: undefined,
+    })) {
+      yield subscription as StripeSubscription;
+    }
   }
 
   @CaptureTimingWithStatsD()
@@ -184,8 +199,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('subscriptionsRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async subscriptionsRetrieve(
@@ -305,8 +322,10 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('paymentMethodsRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    client: (_: any, context: StripeClient) =>
+      new AsyncLocalStorageAdapter(false, context.log),
   })
   @CaptureTimingWithStatsD()
   async paymentMethodRetrieve(
@@ -333,7 +352,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('pricesRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -349,7 +369,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('productsRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -365,7 +386,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('promotionCodesList', undefined, args[0]),
-    strategy: new CacheFirstStrategy(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -381,7 +403,8 @@ export class StripeClient {
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('promotionCodesRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: 600,
     client: new MemoryAdapter(),
   })
@@ -452,5 +475,36 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentConfirm(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentConfirmParams
+  ) {
+    const result = await this.stripe.setupIntents.confirm(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentUpdate(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentUpdateParams
+  ) {
+    const result = await this.stripe.setupIntents.update(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async confirmationTokenRetrieve(confirmationTokenId: string) {
+    const result =
+      await this.stripe.confirmationTokens.retrieve(confirmationTokenId);
+    return result as StripeResponse<StripeConfirmationToken>;
   }
 }

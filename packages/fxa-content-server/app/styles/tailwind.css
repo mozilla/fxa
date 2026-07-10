@@ -18,5 +18,5 @@
 @import './tailwind/tooltips';
 
 body {
-  @apply min-h-screen mobileLandscape:pt-12 text-black flex flex-col justify-center;
+  @apply min-h-screen mobileLandscape:pt-12 text-black dark:text-grey-10 bg-grey-10 dark:bg-grey-900 flex flex-col justify-center;
 }

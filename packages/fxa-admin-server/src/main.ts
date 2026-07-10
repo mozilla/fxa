@@ -9,11 +9,12 @@ import './monitoring';
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import helmet from 'helmet';
+import cors from 'cors';
+import * as Sentry from '@sentry/nestjs';
+
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
-import cors from 'cors';
 
 const appConfig = Config.getProperties() as AppConfig;
 
@@ -31,7 +32,7 @@ async function bootstrap() {
     cors({
       origin: appConfig.cors.origin,
       credentials: true,
-      methods: ['GET', 'POST', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: [
         'Content-Type',
         'Authorization',
@@ -40,9 +41,6 @@ async function bootstrap() {
       ],
     })
   );
-
-  // This applies GQL query allowlisting
-  app.use(allowlistGqlQueries(appConfig.gql));
 
   if (appConfig.hstsEnabled) {
     const maxAge = appConfig.hstsMaxAge;
@@ -57,6 +55,15 @@ async function bootstrap() {
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
+
+  // Capture a sentry message to 'monitor startup'.
+  Sentry.captureMessage('Admin server started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-admin-server',
+      environment: appConfig.env,
+    },
+  });
 
   await app.listen(appConfig.port);
 }

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import Signin from '.';
+import SigninDecider from './components/SigninDecider';
 import {
   Integration,
   useAuthClient,
@@ -21,40 +21,28 @@ import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
   SigninQueryParams,
+  OAuthNativeQueryParameters,
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
 } from '../../models/pages/signin';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  cache,
   currentAccount,
   lastStoredAccount,
   findAccountByEmail,
+  discardSessionToken,
 } from '../../lib/cache';
-import { MutationFunction, useMutation, useQuery } from '@apollo/client';
-import {
-  AVATAR_QUERY,
-  BEGIN_SIGNIN_MUTATION,
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from './gql';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
-  AvatarResponse,
   BeginSigninHandler,
   BeginSigninResponse,
   CachedSigninHandler,
   LocationState,
-  PasswordChangeStartResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  CredentialStatusResponse,
 } from './interfaces';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
+import VerificationReasons from '../../constants/verification-reasons';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
@@ -71,16 +59,17 @@ import {
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import {
-  isFirefoxService,
+  resolveServiceOrClientId,
   isUnsupportedContext,
 } from '../../models/integrations/utils';
-import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
+import { AuthKeyStretchUpgrade } from '../../lib/auth-key-stretch-upgrade';
 import {
   setCurrentAccount,
   storeAccountData,
   StoredAccountData,
 } from '../../lib/storage-utils';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../lib/oauth';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
 
@@ -106,11 +95,6 @@ function getAccountInfo(email?: string): {
   uid?: string;
 } {
   const apply = (targetAccount: StoredAccountData) => {
-    // Always calling setCurrentAccount might seem odd... but the
-    // currentAccount function is a bit twisty. This is just being a bit
-    // paranoid about how that resolves and makes sure going forward a
-    // currenAccount actually is set.
-    setCurrentAccount(targetAccount.uid);
     return {
       email: targetAccount.email,
       sessionToken: targetAccount.sessionToken,
@@ -126,7 +110,6 @@ function getAccountInfo(email?: string): {
     if (targetAccount) {
       return apply(targetAccount);
     } else {
-      setCurrentAccount('');
       return { email };
     }
   }
@@ -155,14 +138,16 @@ const SigninContainer = ({
   serviceName,
   flowQueryParams,
   useFxAStatusResult,
+  isSignedIntoFirefox = false,
   setCurrentSplitLayout,
 }: {
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const config = useConfig();
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -178,11 +163,21 @@ const SigninContainer = ({
     true
   );
 
-  // Validates that query parameters are valid for an oauth integration
+  // Validates that query parameters are valid for an oauth web (non-native)
+  // RP integration. scope is required per RFC 6749 §3.3.
   useValidatedQueryParams(
     OAuthQueryParams,
     true,
-    !isOAuthIntegration(integration)
+    !isOAuthIntegration(integration) || isOAuthNativeIntegration(integration)
+  );
+
+  // Validates that query parameters are valid for an OAuthNative (Firefox)
+  // integration. Scope is optional — auth-server resolves from service=
+  // at /oauth/authorization when omitted.
+  useValidatedQueryParams(
+    OAuthNativeQueryParameters,
+    true,
+    !isOAuthNativeIntegration(integration)
   );
 
   // Validates that query parameters are valid for a sync oauth integration
@@ -202,20 +197,27 @@ const SigninContainer = ({
   // email will either come from React (location state) or Backbone (query param)
   const {
     email: emailFromLocationState,
-    // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
+    // TODO: in FXA-9177, consider storing hasLinkedAccount and hasPassword in localStorage
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
     canLinkAccountOk,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
+    // Used when redirecting from passwordless flow with TOTP_REQUIRED error
+    // to prevent redirect loop back to passwordless
+    skipPasswordlessRedirect,
   } = location.state || ({} as LocationState);
 
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
     successBanner || {};
 
-  const [accountStatus, setAccountStatus] = useState({
+  const [accountStatus, setAccountStatus] = useState<{
+    hasLinkedAccount?: boolean;
+    hasPassword?: boolean;
+    passwordlessSupported?: boolean;
+  }>({
     hasLinkedAccount:
-      // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
+      // TODO: in FXA-9177, consider retrieving hasLinkedAccount and hasPassword from localStorage
       hasLinkedAccountFromLocationState !== undefined
         ? hasLinkedAccountFromLocationState
         : queryParamModel.hasLinkedAccount,
@@ -223,12 +225,23 @@ const SigninContainer = ({
       hasPasswordFromLocationState !== undefined
         ? hasPasswordFromLocationState
         : queryParamModel.hasPassword,
+    passwordlessSupported: undefined,
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const { email, sessionToken } = getAccountInfo(
+  const { email, sessionToken, uid } = getAccountInfo(
     emailFromLocationState || queryParamModel.email
   );
+
+  // Handle setCurrentAccount side effect after render to avoid updating parent during child render
+  useEffect(() => {
+    if (uid) {
+      setCurrentAccount(uid);
+    } else if (email && !uid) {
+      // Email provided but no matching account in storage
+      setCurrentAccount('');
+    }
+  }, [uid, email]);
 
   const wantsKeys = integration.wantsKeys();
 
@@ -239,29 +252,67 @@ const SigninContainer = ({
         // (on this page or email-first) this means the account status hasn't been checked
         if (
           accountStatus.hasLinkedAccount === undefined ||
-          accountStatus.hasPassword === undefined
+          accountStatus.hasPassword === undefined ||
+          // When hasPassword is false (from locationState) but passwordlessSupported
+          // is still unknown, we need to fetch account status to determine whether
+          // to redirect to the passwordless flow. Without this, passwordless accounts
+          // arriving via email-first with locationState would skip the API call and
+          // fall through to the password-based signin path.
+          (accountStatus.hasPassword === false &&
+            accountStatus.passwordlessSupported === undefined &&
+            !skipPasswordlessRedirect)
         ) {
           try {
-            const { exists, hasLinkedAccount, hasPassword } =
-              await authClient.accountStatusByEmail(email, {
-                thirdPartyAuthStatus: true,
-              });
+            const {
+              exists,
+              hasLinkedAccount,
+              hasPassword,
+              passwordlessSupported,
+            } = await authClient.accountStatusByEmail(email, {
+              thirdPartyAuthStatus: true,
+              clientId: integration.getClientId(),
+              service: integration.getService(),
+            });
             if (!exists) {
-              const signUpPath = location.pathname.startsWith('/oauth')
-                ? '/oauth/signup'
-                : '/signup';
+              // For new accounts, passwordless requires the feature flag + server support
+              // The forcePasswordless query param will be respected if it's provided
+              const passwordlessEnabled =
+                (config.featureFlags?.passwordlessEnabled === true &&
+                  queryParamModel.forcePasswordless !== false) ||
+                queryParamModel.forcePasswordless === true;
 
-              navigateWithQuery(signUpPath, {
-                state: {
-                  email,
-                  emailStatusChecked: true,
-                },
-              });
+              if (
+                passwordlessEnabled &&
+                passwordlessSupported &&
+                integration.isFirefoxNonSync()
+              ) {
+                navigateWithQuery('/signin_passwordless_code', {
+                  state: {
+                    email,
+                    isSignup: true,
+                    clientId: integration.getClientId(),
+                  },
+                });
+              } else {
+                const signUpPath = location.pathname.startsWith('/oauth')
+                  ? '/oauth/signup'
+                  : '/signup';
+
+                navigateWithQuery(signUpPath, {
+                  state: {
+                    email,
+                    emailStatusChecked: true,
+                  },
+                });
+              }
             } else {
-              // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
+              // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
+              // Passwordless-redirect for existing accounts is handled in
+              // SigninDecider so all routing decisions live in one place.
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
+                passwordlessSupported,
               });
             }
           } catch (error) {
@@ -284,31 +335,116 @@ const SigninContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: avatarData, loading: avatarLoading } =
-    useQuery<AvatarResponse>(AVATAR_QUERY);
+  // Avatar state - fetched directly from profile server
+  const [avatarData, setAvatarData] = useState<
+    { account: { avatar: { id: string; url: string } } } | undefined
+  >(undefined);
+  const [avatarLoading, setAvatarLoading] = useState(true);
 
-  const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
+  // Fetch avatar on mount from profile server (requires OAuth token)
+  useEffect(() => {
+    if (
+      sessionToken &&
+      config?.servers?.profile?.url &&
+      config?.oauth?.clientId
+    ) {
+      // Get OAuth token with profile:avatar scope (required by profile server)
+      authClient
+        .createOAuthToken(sessionToken, config.oauth.clientId, {
+          scope: 'profile:avatar',
+          ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
+        })
+        .then(({ access_token }) => {
+          return fetch(`${config.servers.profile.url}/v1/avatar`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        })
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to fetch avatar');
+          return response.json();
+        })
+        .then((data: { id: string; url: string; avatar?: string }) => {
+          setAvatarData({
+            account: {
+              avatar: {
+                id: data.id,
+                url: data.avatar || data.url,
+              },
+            },
+          });
+        })
+        .catch(() => {
+          // Avatar fetch failed, use default
+          setAvatarData(undefined);
+        })
+        .finally(() => {
+          setAvatarLoading(false);
+        });
+    } else {
+      setAvatarLoading(false);
+    }
+  }, [authClient, config, sessionToken]);
 
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
+  // For Firefox non-Sync flows, validate the cached session token before rendering.
+  // This is because if users "sign out" from the browser menu, FxA doesn't know
+  // about it (and can't, because even with a web channel message, FxA would need
+  // to be pulled up in a tab) and Fx non-Sync flows will see cached sign-in.
+  // This provides those users with slightly less friction since they'd see an error
+  // message and then be asked to enter their password. If the session token is
+  // invalid, we discard it so the user sees the password field right away.
+  const needsSessionValidation =
+    integration.isFirefoxNonSync() && !!sessionToken;
+  const [sessionValidationComplete, setSessionValidationComplete] = useState(
+    !needsSessionValidation
   );
 
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
+  const hasValidated = useRef(false);
+  useEffect(() => {
+    // This ensures the useEffect is only ran once
+    if (hasValidated.current) return;
+    hasValidated.current = true;
 
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
+    if (!needsSessionValidation) {
+      setSessionValidationComplete(true);
+      return;
+    }
 
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
-  );
+    (async () => {
+      const isValid = await session.isValid(sessionToken!);
+      if (!isValid) {
+        discardSessionToken();
+      }
+      setSessionValidationComplete(true);
+    })();
+  }, [needsSessionValidation, session, sessionToken]);
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
+      // Guard: passwordless accounts should never hit password-based endpoints.
+      // If hasPassword is false, redirect to the passwordless OTP flow.
+      // The server always returns passwordlessSupported=true for existing
+      // passwordless accounts, so the useEffect redirect should normally
+      // handle this. This guard is a safety net.
+      // Third-party auth accounts also have hasPassword=false but should
+      // use their linked provider, not passwordless OTP.
+      if (hasPassword === false && !hasLinkedAccount) {
+        if (!skipPasswordlessRedirect) {
+          navigateWithQuery('/signin_passwordless_code', {
+            state: {
+              email,
+              clientId: integration.getClientId(),
+            },
+          });
+        }
+        return { data: undefined };
+      }
+
       // - If the user came from email-first WITHOUT a linked third‑party account, Index already showed
-      //   the merge prompt.
+      //   the merge prompt for old firefox versions (supportsCanLinkAccountUid=false).
       // - If the user HAS a linked third‑party account, Index deferred the prompt to avoid duplicates,
       //   so we must prompt here instead.
       // Note: the browser will repond {ok} if the email matches stored data or the user accepts the merge.
@@ -327,19 +463,12 @@ const SigninContainer = ({
         }
       }
 
-      const service = integration.getService();
-      const clientId = integration.getClientId();
+      const service = resolveServiceOrClientId(integration);
 
       const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
 
       // Create client to handle key stretching upgrades
-      const upgradeClient = new GqlKeyStretchUpgrade(
-        'signin',
-        credentialStatus,
-        getWrappedKeys,
-        passwordChangeStart,
-        passwordChangeFinish
-      );
+      const upgradeClient = new AuthKeyStretchUpgrade('signin', authClient);
 
       // Get the current state of user credentials. This could indicate
       // the user has already upgraded, or it could indicate an upgrade
@@ -359,10 +488,8 @@ const SigninContainer = ({
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
-        // See oauth_client_info in the auth-server for details on service/clientId
-        // Sending up the clientId when the user is not signing in to the browser
-        // is used to show the correct service name in emails
-        ...(isFirefoxService(service) ? { service } : { service: clientId }),
+        // See oauth_client_info in the auth-server for details on service/clientId.
+        ...(service ? { service } : {}),
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as ReturnType<typeof searchParams>
         ),
@@ -371,7 +498,7 @@ const SigninContainer = ({
         email,
         v1Credentials,
         v2Credentials,
-        beginSignin,
+        authClient,
         options,
         sensitiveDataClient,
         async (correctedEmail: string) => {
@@ -408,22 +535,11 @@ const SigninContainer = ({
           ) !== 'true'
         ) {
           try {
-            // We must use auth-client here in case the user has 2FA or should be
-            // taken to signin_token_code, else GQL responds with 'Invalid token'
+            // Check recovery key status to determine if we should show inline setup
             const { exists } = await authClient.recoveryKeyExists(
               result.data.signIn.sessionToken,
               email
             );
-            cache.modify({
-              id: cache.identify({ __typename: 'Account' }),
-              fields: {
-                recoveryKey() {
-                  return {
-                    exists,
-                  };
-                },
-              },
-            });
             result.data.showInlineRecoveryKeySetup = !exists;
           } catch (e) {
             // no-op, don't block the user from anything and just
@@ -445,7 +561,9 @@ const SigninContainer = ({
           lastLogin: Date.now(),
           sessionToken: result.data.signIn.sessionToken,
           verified: emailVerified && sessionVerified,
+          sessionVerified,
           metricsEnabled: result.data.signIn.metricsEnabled,
+          hasPassword: true,
         };
 
         storeAccountData(accountData);
@@ -454,28 +572,41 @@ const SigninContainer = ({
           credentials.credentialStatus?.upgradeNeeded === true &&
           credentials.v2Credentials
         ) {
-          let upgraded = false;
-          const sessionToken = result.data.signIn.sessionToken;
-          const isVerified =
-            result.data.signIn.emailVerified &&
-            result.data.signIn.sessionVerified;
-          if (sessionToken && isVerified) {
-            upgraded = await upgradeClient.upgrade(
-              email,
+          const { sessionToken, emailVerified, sessionVerified } =
+            result.data.signIn;
+
+          // To simplify this process. Fetch the original account sign in email.
+          const emails = await authClient.accountEmails(sessionToken);
+
+          // Edge case. The primary email and original account email differ. In this case
+          // Update the v1Credentials object to make sure the authPW is in fact correct. It
+          // needs to be derived from the original account email, not the current primary.
+          if (emails.original !== email) {
+            credentials.v1Credentials = await getCredentials(
+              emails.original,
+              password
+            );
+          }
+
+          sensitiveDataClient.KeyStretchUpgradeData = {
+            email: emails.original,
+            v1Credentials: credentials.v1Credentials,
+            v2Credentials: credentials.v2Credentials,
+          };
+
+          if (sessionToken && emailVerified && sessionVerified) {
+            const success = await upgradeClient.upgrade(
+              emails.original,
               credentials.v1Credentials,
               credentials.v2Credentials,
               sessionToken
             );
-          }
 
-          if (upgraded) {
-            sensitiveDataClient.KeyStretchUpgradeData = undefined;
-          } else {
-            sensitiveDataClient.KeyStretchUpgradeData = {
-              email,
-              v1Credentials: credentials.v1Credentials,
-              v2Credentials: credentials.v2Credentials,
-            };
+            // If the attempt was successful, we can clear out the upgrade data, since we won't
+            // attempt the upgrade later on.
+            if (success) {
+              sensitiveDataClient.KeyStretchUpgradeData = undefined;
+            }
           }
         }
       }
@@ -483,14 +614,9 @@ const SigninContainer = ({
       return result;
     },
     [
-      beginSignin,
       config,
-      credentialStatus,
-      getWrappedKeys,
       integration,
       keyStretchExp.queryParamModel,
-      passwordChangeFinish,
-      passwordChangeStart,
       wantsKeys,
       flowQueryParams,
       authClient,
@@ -499,13 +625,15 @@ const SigninContainer = ({
       ftlMsgResolver,
       navigateWithQuery,
       useFxAStatusResult,
+      hasPassword,
+      hasLinkedAccount,
+      skipPasswordlessRedirect,
     ]
   );
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
-    async (sessionToken: hexstring) =>
-      cachedSignIn(sessionToken, authClient, cache, session),
-    [authClient, session]
+    async (sessionToken: hexstring) => cachedSignIn(sessionToken, authClient),
+    [authClient]
   );
 
   const sendUnblockEmailHandler = useCallback(
@@ -533,7 +661,11 @@ const SigninContainer = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
-  const splitLayout = cmsInfo?.SigninPage?.splitLayout;
+  // sessionToken is a necessary precondition for showing the cached page
+  const splitLayout = sessionToken
+    ? (cmsInfo?.SigninCachedPage?.splitLayout ??
+      cmsInfo?.SigninPage?.splitLayout)
+    : cmsInfo?.SigninPage?.splitLayout;
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
@@ -546,8 +678,12 @@ const SigninContainer = ({
     );
   }
 
-  // Wait for async call (if needed) to complete
-  if (hasLinkedAccount === undefined || hasPassword === undefined) {
+  // Wait for async calls (if needed) to complete
+  if (
+    hasLinkedAccount === undefined ||
+    hasPassword === undefined ||
+    !sessionValidationComplete
+  ) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -562,10 +698,8 @@ const SigninContainer = ({
     );
   }
 
-  const deeplink = queryParamModel.deeplink;
-
   return (
-    <Signin
+    <SigninDecider
       {...{
         integration,
         serviceName,
@@ -582,17 +716,19 @@ const SigninContainer = ({
         finishOAuthFlowHandler,
         localizedSuccessBannerHeading,
         localizedSuccessBannerDescription,
-        deeplink,
         flowQueryParams,
         useFxAStatusResult,
+        isSignedIntoFirefox,
         setCurrentSplitLayout,
+        passwordlessSupported: accountStatus.passwordlessSupported,
+        skipPasswordlessRedirect,
       }}
     />
   );
 };
 
 export async function getCurrentCredentials(
-  client: GqlKeyStretchUpgrade,
+  client: AuthKeyStretchUpgrade,
   email: string,
   password: string,
   v2Enabled: boolean
@@ -617,12 +753,12 @@ export async function trySignIn(
   email: string,
   v1Credentials: { authPW: string; unwrapBKey: string },
   v2Credentials: { authPW: string; unwrapBKey: string } | undefined,
-  beginSignin: MutationFunction<BeginSigninResponse>,
+  authClient: ReturnType<typeof useAuthClient>,
   options: {
     verificationMethod: VerificationMethods;
     keys: boolean;
     metricsContext: MetricsContext;
-    service?: any;
+    service?: string;
     unblockCode?: string;
     originalLoginEmail?: string;
   },
@@ -636,17 +772,20 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const { data } = await beginSignin({
-      variables: {
-        input: {
-          email,
-          authPW,
-          options,
-        },
-      },
-    });
+    const response = await authClient.signInWithAuthPW(
+      { primary: email },
+      authPW,
+      {
+        verificationMethod: options.verificationMethod,
+        keys: options.keys,
+        service: options.service,
+        metricsContext: options.metricsContext,
+        unblockCode: options.unblockCode,
+        originalLoginEmail: options.originalLoginEmail,
+      }
+    );
 
-    if (data) {
+    if (response) {
       const unwrapBKey = v2Credentials
         ? v2Credentials.unwrapBKey
         : v1Credentials.unwrapBKey;
@@ -657,17 +796,30 @@ export async function trySignIn(
         // Store this in case the email was corrected
         emailForAuth: email,
         unwrapBKey,
-        keyFetchToken: data.signIn.keyFetchToken,
+        keyFetchToken: response.keyFetchToken,
       });
 
-      return {
-        data: {
-          ...data,
-          ...(options.keys && {
-            unwrapBKey,
-          }),
+      // Transform response to match expected BeginSigninResponse format
+      const data: BeginSigninResponse = {
+        signIn: {
+          uid: response.uid,
+          sessionToken: response.sessionToken,
+          authAt: response.authAt,
+          metricsEnabled: response.metricsEnabled ?? true,
+          emailVerified: response.emailVerified ?? false,
+          sessionVerified: response.sessionVerified ?? false,
+          verificationMethod: (response.verificationMethod ||
+            VerificationMethods.EMAIL_OTP) as VerificationMethods,
+          verificationReason:
+            response.verificationReason as VerificationReasons,
+          keyFetchToken: response.keyFetchToken,
         },
+        ...(options.keys && {
+          unwrapBKey,
+        }),
       };
+
+      return { data };
     }
     return { data: undefined };
   } catch (error) {
@@ -690,7 +842,7 @@ export async function trySignIn(
         result.error.email,
         v1Credentials,
         v2Credentials,
-        beginSignin,
+        authClient,
         {
           ...options,
           originalLoginEmail: email,

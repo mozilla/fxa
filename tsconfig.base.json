@@ -1,5 +1,10 @@
 {
   "compileOnSave": false,
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
   "compilerOptions": {
     "rootDir": ".",
     "allowJs": false,
@@ -24,35 +29,57 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
-      "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/email-renderer": [
+        "libs/accounts/email-renderer/src/index.ts"
+      ],
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index.ts"],
-      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index.ts"],
+      "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index.ts"],
+      "@fxa/accounts/passkey": ["libs/accounts/passkey/src/index.ts"],
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
       ],
       "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
+      "@fxa/entitlements/metering": ["libs/entitlements/metering/src/index.ts"],
       "@fxa/google": ["libs/google/src/index.ts"],
+      "@fxa/payments/api-server": ["libs/payments/api-server/src/index.ts"],
+      "@fxa/payments/auth": ["libs/payments/auth/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/cart/testing": ["libs/payments/cart/src/testing.ts"],
       "@fxa/payments/content-server": [
         "libs/payments/content-server/src/index.ts"
       ],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
+      "@fxa/payments/customer/testing": [
+        "libs/payments/customer/src/testing.ts"
+      ],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/events": ["libs/payments/events/src/index.ts"],
       "@fxa/payments/experiments": ["libs/payments/experiments/src/index.ts"],
       "@fxa/payments/iap": ["libs/payments/iap/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
+      "@fxa/payments/management/testing": [
+        "libs/payments/management/src/testing.ts"
+      ],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
+      "@fxa/payments/metrics-aggregator": [
+        "libs/payments/metrics-aggregator/src/index.ts"
+      ],
+      "@fxa/payments/metrics/client": ["libs/payments/metrics/src/client.ts"],
       "@fxa/payments/metrics/provider": [
         "libs/payments/metrics/src/provider.ts"
       ],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
+      "@fxa/payments/ui-auth": ["libs/payments/ui-auth/src/index.ts"],
+      "@fxa/payments/ui-auth/testing": [
+        "libs/payments/ui-auth/src/testing.ts"
+      ],
       "@fxa/payments/ui/actions": ["libs/payments/ui/src/lib/actions/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
       "@fxa/payments/ui/utils": ["libs/payments/ui/src/utils.ts"],
@@ -64,6 +91,7 @@
       "@fxa/shared/assets/*": ["libs/shared/assets/src/*"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index.ts"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index.ts"],
+      "@fxa/shared/cms/testing": ["libs/shared/cms/src/testing.ts"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"

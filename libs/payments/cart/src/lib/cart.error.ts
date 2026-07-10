@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError } from '@fxa/shared/error';
-import { FinishErrorCart, SetupCart, UpdateCart } from './cart.types';
+import {
+  FinishErrorCart,
+  SetupCart,
+  UpdateCart,
+  UpdateProcessingCart,
+} from './cart.types';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 /**
@@ -93,6 +98,20 @@ export class UpdateFreshCartFailedError extends CartError {
   }
 }
 
+export class UpdateProcessingCartFailedError extends CartError {
+  constructor(cartId: string, items: UpdateProcessingCart, cause?: Error) {
+    super(
+      'Update processing cart failed',
+      {
+        cartId,
+        items,
+      },
+      cause
+    );
+    this.name = 'UpdateProcessingCartFailedError';
+  }
+}
+
 export class FinishCartFailedError extends CartError {
   constructor(cartId: string, version: number, cause?: Error) {
     super(
@@ -157,6 +176,17 @@ export class DeleteCartFailedError extends CartError {
       cause
     );
     this.name = 'DeleteCartFailedError';
+  }
+}
+
+export class CartProcessingConflictError extends CartError {
+  constructor(cartId: string, uid: string, conflictingCartId: string) {
+    super('Account already has a cart in a processing state', {
+      cartId,
+      uid,
+      conflictingCartId,
+    });
+    this.name = 'CartProcessingConflictError';
   }
 }
 
@@ -229,12 +259,34 @@ export class CartEligibilityMismatchError extends CartError {
   }
 }
 
+export class CartFreeTrialMismatchError extends CartError {
+  constructor(
+    cartId: string,
+    cartIsFreeTrial: boolean,
+    incomingIsFreeTrial: boolean
+  ) {
+    super('Cart free trial eligibility mismatch', {
+      cartId,
+      cartIsFreeTrial,
+      incomingIsFreeTrial,
+    });
+    this.name = 'CartFreeTrialMismatchError';
+  }
+}
+
 export class CartAccountNotFoundError extends CartError {
   constructor(cartId: string) {
     super('Cart account not found for uid', {
       cartId,
     });
     this.name = 'CartAccountNotFoundError';
+  }
+}
+
+export class SetupCartAccountNotFoundError extends CartError {
+  constructor(uid: string) {
+    super('Cart setup account not found', { uid });
+    this.name = 'SetupCartAccountNotFoundError';
   }
 }
 
@@ -375,6 +427,97 @@ export class CartIntentNotFoundError extends CartError {
   }
 }
 
+export class GetCartMissingTaxAddressError extends CartError {
+  constructor(cartId: string) {
+    super('Cart must have a tax address', { cartId });
+    this.name = 'GetCartMissingTaxAddressError';
+  }
+}
+
+export class GetCartFailureFromPriceMissingError extends CartError {
+  constructor(cartId: string) {
+    super('fromPrice not present for upgrade cart', { cartId });
+    this.name = 'GetCartFailureFromPriceMissingError';
+  }
+}
+
+export class GetCartFromPriceMissingError extends CartError {
+  constructor(cartId: string) {
+    super('fromPrice not present for upgrade cart', { cartId });
+    this.name = 'GetCartFromPriceMissingError';
+  }
+}
+
+export class GetCartCustomerMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Customer is required for upgrade', { cartId });
+    this.name = 'GetCartCustomerMissingError';
+  }
+}
+
+export class GetCartSubscriptionMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Subscription required', { cartId });
+    this.name = 'GetCartSubscriptionMissingError';
+  }
+}
+
+export class GetCartLatestInvoicePreviewMissingError extends CartError {
+  constructor(cartId: string) {
+    super('latestInvoicePreview not present for success cart', { cartId });
+    this.name = 'GetCartLatestInvoicePreviewMissingError';
+  }
+}
+
+export class GetCartPaymentInfoMissingError extends CartError {
+  constructor(cartId: string) {
+    super('PaymentInfo not present for success cart', { cartId });
+    this.name = 'GetCartPaymentInfoMissingError';
+  }
+}
+
+export class GetCartIntervalMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Interval not found but is required', { cartId });
+    this.name = 'GetCartIntervalMissingError';
+  }
+}
+
+export class GetCartUnitAmountForCurrencyMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Unit amount for currency is required', { cartId });
+    this.name = 'GetCartUnitAmountForCurrencyMissingError';
+  }
+}
+
+export class GetCartPriceForCurrencyRecurringMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Price for currency recurring is required', { cartId });
+    this.name = 'GetCartPriceForCurrencyRecurringMissingError';
+  }
+}
+
+export class SubmitNeedsInputCustomerIdMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Cart must have a stripeCustomerId', { cartId });
+    this.name = 'SubmitNeedsInputCustomerIdMissingError';
+  }
+}
+
+export class SubmitNeedsInputSubscriptionIdMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Cart must have a stripeSubscriptionId', { cartId });
+    this.name = 'SubmitNeedsInputSubscriptionIdMissingError';
+  }
+}
+
+export class SubmitNeedsInputUidMissingError extends CartError {
+  constructor(cartId: string) {
+    super('Cart must have a uid', { cartId });
+    this.name = 'SubmitNeedsInputUidMissingError';
+  }
+}
+
 export class CartSubscriptionNotFoundError extends CartError {
   constructor(message: string, cartId: string, subscriptionId?: string) {
     super(message, {
@@ -460,6 +603,20 @@ export class PaidPaymentIntendOnFailedCartError extends CartError {
       paymentIntentId,
     });
     this.name = 'PaidPaymentIntendOnFailedCartError';
+  }
+}
+
+export class CartSubscriptionDeletionFailedError extends CartError {
+  constructor(cartId: string, subscriptionId: string, cause: Error) {
+    super(
+      'Subscription deletion failed during cart cleanup',
+      {
+        cartId,
+        subscriptionId,
+      },
+      cause
+    );
+    this.name = 'CartSubscriptionDeletionFailedError';
   }
 }
 

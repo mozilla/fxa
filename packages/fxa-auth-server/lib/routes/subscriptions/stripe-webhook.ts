@@ -15,12 +15,7 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
-import {
-  formatMetadataValidationErrorMessage,
-  reportSentryError,
-  reportSentryMessage,
-  reportValidationError,
-} from '../../../lib/sentry';
+import { reportSentryError, reportSentryMessage } from '../../../lib/sentry';
 import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import { RefundType } from '@fxa/payments/paypal';
@@ -32,10 +27,10 @@ import {
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
+  SUBSCRIPTIONS_RESOURCE,
   VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
 import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestore';
 
@@ -49,7 +44,7 @@ import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestor
 // replaced Plans, but since it is backwards compatible, we haven't needed to
 // update our plans handling code.  Prices should be treated in the same
 // fashion as plans, so it's on this list.
-const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
+const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product', 'setup_intent'];
 const BYPASS_LATEST_FETCH_EVENTS = [
   'invoice.upcoming',
   'payment_method.detached',
@@ -188,6 +183,9 @@ export class StripeWebhookHandler extends StripeHandler {
       case 'invoice.paid':
         await this.handleInvoicePaidEvent(request, event);
         break;
+      case 'setup_intent.succeeded':
+        await this.handleSetupIntentSucceededEvent(request, event);
+        break;
       case 'invoice.payment_failed':
         await this.handleInvoicePaymentFailedEvent(request, event);
         break;
@@ -266,7 +264,7 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const creditNote = event.data.object as Stripe.CreditNote;
-    const invoice = await this.stripeHelper.expandResource(
+    let invoice = await this.stripeHelper.expandResource(
       creditNote.invoice,
       'invoices'
     );
@@ -292,14 +290,31 @@ export class StripeWebhookHandler extends StripeHandler {
     }
 
     // We can't issue a refund if there's no paypal transaction to refund.
-    const transactionId =
+    let transactionId =
       this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+
+    // Re-fetch if there's no transaction id on the invoice
+    if (!transactionId) {
+      invoice = await this.stripeHelper.getInvoiceWithDiscount(invoice.id);
+      transactionId = this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+    }
+
     if (!transactionId) {
       this.log.error('handleCreditNoteEvent', {
         invoiceId: invoice.id,
         message:
           'Credit note issued on invoice without a PayPal transaction id.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note issued on invoice without a PayPal transaction id.'
+      );
+      reportSentryError(
+        new Error(
+          `Credit note on invoice without PayPal transaction id: ${invoice.id}`
+        ),
+        request
+      );
       return;
     }
 
@@ -312,6 +327,10 @@ export class StripeWebhookHandler extends StripeHandler {
         invoiceId: invoice.id,
         message: 'Credit note exceeds invoice amount.',
       });
+      await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+        invoice,
+        'Credit note amount exceeds invoice amount; refund not issued.'
+      );
       reportSentryError(
         new Error(`Credit amount exceeds invoice: ${invoice.id}.`),
         request
@@ -458,22 +477,21 @@ export class StripeWebhookHandler extends StripeHandler {
 
       const uid = customer.metadata.userid;
       const account = await Account.findByUid(uid, { include: ['emails'] });
+      const suppressCancellationEmail =
+        subscription.metadata['suppress_cancellation_email'] === 'true';
+      if (suppressCancellationEmail) {
+        this.log.info('subscription.deleted.emailSuppressed', {
+          subscriptionId: subscription.id,
+          customerId: subscription.customer,
+        });
+      }
       if (
-        // When SubPlat cannot collect a PayPal customer's first payment while
-        // attempting to subscribe to a product, the subscription is canceled.
-        // (At the time of writing, this is happening in
-        // `_createPaypalBillingAgreementAndSubscription` of the
-        // `PayPalHandler` route handler.)  We should not send an email in that
-        // case.
-        //
-        // If we can retreive the subscription and customer, but the account record
-        // cannot be retrieved from the db, the user has deleted their Mozilla
-        // account which subsequently deletes their subscription from stripe.
-        !account ||
-        !(
-          subscription.collection_method === 'send_invoice' &&
-          account.verifierSetAt <= 0
-        )
+        !suppressCancellationEmail &&
+        (!account ||
+          !(
+            subscription.collection_method === 'send_invoice' &&
+            account.verifierSetAt <= 0
+          ))
       ) {
         await this.sendSubscriptionDeletedEmail(subscription);
       }
@@ -665,6 +683,144 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
+    // invoice.paid fires before the SetupIntent confirms on the Stripe-card
+    // flow; handleSetupIntentSucceededEvent emails after the SetupIntent has
+    // had a chance to fail. PayPal (send_invoice) has no SetupIntent and
+    // still emails from here.
+    if (
+      invoice.amount_due === 0 &&
+      invoice.collection_method !== 'send_invoice'
+    ) {
+      return;
+    }
+
+    try {
+      await this.sendSubscriptionInvoiceEmail(invoice);
+    } catch (err) {
+      reportSentryError(err, request);
+      return;
+    }
+  }
+
+  /**
+   * Handle `setup_intent.succeeded` Stripe webhook events.
+   *
+   * Used to send welcome/first-invoice emails for $0 subscriptions, where
+   * `invoice.paid` fires too early to be a reliable trigger.
+   *
+   * The SetupIntent is stamped with a `subscription_id` metadata key at
+   * creation time in `checkout.service.ts`; we use it to locate the
+   * subscription and its paid invoice, then dispatch the same emails the
+   * `invoice.paid` handler would for non-zero invoices.
+   *
+   * SetupIntents not tied to a checkout subscription (e.g. the
+   * manage-payment-method flow) are silently ignored.
+   */
+  async handleSetupIntentSucceededEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const setupIntent = event.data.object as Stripe.SetupIntent;
+    const subscriptionId = setupIntent.metadata?.['subscription_id'];
+    if (!subscriptionId) {
+      return;
+    }
+
+    const reportUnexpectedState = (reason: string, extra: object = {}) => {
+      Sentry.withScope((scope) => {
+        scope.setContext('setupIntentSucceeded', {
+          eventId: event.id,
+          setupIntentId: setupIntent.id,
+          subscriptionId,
+          reason,
+          ...extra,
+        });
+        reportSentryMessage(
+          `setup_intent.succeeded unexpected state: ${reason}`,
+          'warning' as SeverityLevel
+        );
+      });
+      this.log.warn('handleSetupIntentSucceededEvent.unexpectedState', {
+        eventId: event.id,
+        setupIntentId: setupIntent.id,
+        subscriptionId,
+        reason,
+      });
+    };
+
+    let subscription: Stripe.Subscription;
+    try {
+      subscription =
+        await this.stripeHelper.expandResource<Stripe.Subscription>(
+          subscriptionId,
+          SUBSCRIPTIONS_RESOURCE
+        );
+    } catch (err) {
+      reportUnexpectedState('subscription_not_found', {
+        error: err?.message,
+      });
+      return;
+    }
+    if (!subscription) {
+      reportUnexpectedState('subscription_not_found');
+      return;
+    }
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+      reportUnexpectedState('subscription_not_active', {
+        status: subscription.status,
+      });
+      return;
+    }
+    if (!subscription.latest_invoice) {
+      reportUnexpectedState('subscription_has_no_invoice');
+      return;
+    }
+
+    const invoice = await this.stripeHelper.expandResource<Stripe.Invoice>(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
+    if (!invoice || invoice.status !== 'paid') {
+      reportUnexpectedState('invoice_not_paid', {
+        status: invoice?.status,
+        invoiceId: invoice?.id,
+      });
+      return;
+    }
+
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+    let invalidCustomer = false;
+    const deletedData: Record<string, any> = {
+      customerId: invoice.customer,
+      invoiceId: invoice.id,
+    };
+    if (!customer || customer.deleted) {
+      invalidCustomer = true;
+      deletedData.reason = 'customer_deleted';
+    } else {
+      const uid = customer.metadata?.userid;
+      if (!uid) {
+        invalidCustomer = true;
+        deletedData.reason = 'no_userid';
+      } else {
+        deletedData.userId = uid;
+        deletedData.reason = 'fxa_deleted';
+        const account = await Account.findByUid(uid);
+        invalidCustomer = !account;
+      }
+    }
+    if (invalidCustomer) {
+      const err = Object.assign(
+        new Error('SetupIntent succeeded for invalid customer.'),
+        deletedData
+      );
+      reportSentryError(err, request);
+      return;
+    }
+
     try {
       await this.sendSubscriptionInvoiceEmail(invoice);
     } catch (err) {
@@ -762,7 +918,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Validate plan metadata and update cached plans.
+   * Update cached plans on plan create/update.
    */
   async handlePlanCreatedOrUpdatedEvent(
     request: AuthRequest,
@@ -773,7 +929,6 @@ export class StripeWebhookHandler extends StripeHandler {
       plan.product as string
     );
     const allPlans = await this.stripeHelper.allPlans();
-    // remove the plan until we have validated its metadata
     const updatedList = allPlans.filter((p) => p.id !== plan.id);
 
     if (!product || product.deleted) {
@@ -787,32 +942,6 @@ export class StripeWebhookHandler extends StripeHandler {
 
       this.stripeHelper.updateAllPlans(updatedList);
       return;
-    }
-
-    // We'll keep validating the metadata, but if the Firestore config docs
-    // feature flag is on, we add the plan to the list regardless of the
-    // validation result.
-    //
-    // TODO remove metadata validation once we've successfully moved to
-    // Firestore based product configs
-
-    const { error } = await subscriptionProductMetadataValidator.validateAsync({
-      ...product.metadata,
-      ...plan.metadata,
-    });
-
-    if (error) {
-      const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
-      this.log.error(`handlePlanCreatedOrUpdatedEvent: ${msg}`, {
-        error,
-        plan,
-      });
-      reportValidationError(msg, error as any);
-
-      if (!this.config.subscriptions.productConfigsFirestore.enabled) {
-        this.stripeHelper.updateAllPlans(updatedList);
-        return;
-      }
     }
 
     // The original plans list has the product expanded so we attach the
@@ -840,7 +969,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Update products cache and validate metadata.
+   * Update products cache.
    */
   async handleProductWebhookEvent(request: AuthRequest, event: Stripe.Event) {
     const allProducts = await this.stripeHelper.allProducts();
@@ -862,43 +991,12 @@ export class StripeWebhookHandler extends StripeHandler {
 
     if (event.type !== 'product.deleted') {
       for (const plan of cachedPlans) {
-        const { error } =
-          await subscriptionProductMetadataValidator.validateAsync({
-            ...product.metadata,
-            ...plan.metadata,
-          });
-
-        if (error) {
-          const msg = formatMetadataValidationErrorMessage(
-            plan.id,
-            error as any
-          );
-          this.log.error(`handleProductWebhookEvent: ${msg}`, {
-            error,
-            product,
-          });
-          reportValidationError(msg, error as any);
-        }
-
-        // We'll keep validating the metadata, but if the Firestore config docs
-        // feature flag is on, we add the plan to the list regardless of the
-        // validation result.
-        //
-        // TODO remove metadata validation once we've successfully moved to
-        // Firestore based product configs
-        if (
-          this.config.subscriptions.productConfigsFirestore.enabled ||
-          !error
-        ) {
-          updatedPlans.push({
-            ...plan,
-            product,
-          });
-        }
+        updatedPlans.push({
+          ...plan,
+          product,
+        });
       }
-      // Add any valid plans found in Stripe that are missing from the cache.
-      // This is possible e.g. if a plan was created before a product's metadata
-      // was valid and was never updated afterward.
+      // Add any plans found in Stripe that are missing from the cache.
       for (const plan of latestStripePlansForProduct) {
         const cachedPlan = updatedPlans.find((p) => p.id === plan.id);
         if (!cachedPlan) {
@@ -958,7 +1056,8 @@ export class StripeWebhookHandler extends StripeHandler {
 
   /**
    * Send out the appropriate invoice email, depending on whether it's the
-   * initial or a subsequent invoice.
+   * initial or a subsequent invoice. Callers are responsible for any
+   * zero-total filtering (see handleInvoicePaidEvent).
    */
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
@@ -974,15 +1073,37 @@ export class StripeWebhookHandler extends StripeHandler {
         email: account.primaryEmail,
       },
     ];
+    const subscription = invoice.subscription
+      ? await this.stripeHelper.expandResource(
+          invoice.subscription,
+          SUBSCRIPTIONS_RESOURCE
+        )
+      : null;
+
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
-
-        // To not overwhelm users with emails, we only send download subscription email
-        // for existing accounts. Passwordless accounts get their own email.
-        if (account.verifierSetAt > 0) {
-          await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
+        // Do not send the first invoice email for free trial,
+        // as no payment has been charged yet.
+        if (subscription?.status !== 'trialing') {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
         }
+
+        await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
+        break;
+      case 'subscription_cycle':
+        if (
+          subscription?.trial_end &&
+          invoice.period_start === subscription.trial_end
+        ) {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        } else {
+          await this.mailer.sendSubscriptionSubsequentInvoiceEmail(
+            ...mailParams
+          );
+        }
+        break;
+      case 'subscription_update':
+        // We already send an email for subscription updates. https://mozilla-hub.atlassian.net/browse/PAY-2290
         break;
       default:
         // Other billing reasons should be covered in subsequent invoice email
@@ -1092,6 +1213,13 @@ export class StripeWebhookHandler extends StripeHandler {
         // If invoice is open or draft, assume there is an oustanding balance
         const showOutstandingBalance =
           invoiceStatus && ['open', 'draft'].includes(invoiceStatus);
+        const isFreeTrialCancellation =
+          subscription.trial_start != null &&
+          subscription.trial_end != null &&
+          subscription.canceled_at != null &&
+          subscription.canceled_at >= subscription.trial_start &&
+          subscription.canceled_at <= subscription.trial_end;
+
         await this.mailer.sendSubscriptionCancellationEmail(
           account.emails,
           account,
@@ -1100,6 +1228,10 @@ export class StripeWebhookHandler extends StripeHandler {
             ...invoiceDetails,
             showOutstandingBalance,
             cancelAtEnd: subscription.cancel_at_period_end,
+            isFreeTrialCancellation,
+            ...(isFreeTrialCancellation && subscription.trial_end
+              ? { trialEnd: new Date(subscription.trial_end * 1000) }
+              : {}),
             email: account.primaryEmail,
           }
         );

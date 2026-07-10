@@ -160,11 +160,6 @@ export const UnitRowTwoStepAuth = () => {
         headerId="two-step-authentication"
         prefixDataTestId="two-step"
         {...conditionalUnitRowProps}
-        disabled={!account.hasPassword}
-        disabledReason={ftlMsgResolver.getMsg(
-          'security-set-password',
-          'Set a password to sync and use certain account security features.'
-        )}
         subRows={getSubRows()}
       >
         {exists && verified ? (

@@ -20,7 +20,7 @@ module.exports = (log, db) => {
       options: {
         ...MISC_DOCS.NEWSLETTERS_POST,
         auth: {
-          strategies: ['sessionToken', 'oauthToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'oauthToken'],
         },
         validate: {
           payload: Joi.object({
@@ -31,7 +31,9 @@ module.exports = (log, db) => {
       handler: async function (request) {
         log.begin('newsletters', request);
 
-        const usingSessionToken = request.auth.strategy === 'sessionToken';
+        const usingSessionToken =
+          request.auth.strategy === 'sessionToken' ||
+          request.auth.strategy === 'sessionTokenBearer';
 
         if (!usingSessionToken) {
           const scope = ScopeSet.fromArray(request.auth.credentials.scope);

@@ -2,38 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import SigninTokenCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import {
   Integration,
+  isOAuthNativeIntegration,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import {
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-  SigninLocationState,
-} from '../interfaces';
+import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { useMutation } from '@apollo/client';
-import {
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from '../gql';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
+import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -44,8 +34,9 @@ const SigninTokenCodeContainer = ({
 }: {
   integration: Integration;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const navigateWithQuery = useNavigateWithQuery();
+  const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -66,20 +57,45 @@ const SigninTokenCodeContainer = ({
     unwrapBKey
   );
 
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
-  );
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
-  );
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
+  // Hook to recover OAuth flow after page refresh or browser crash
+  const { isRecovering, recoveryFailed, attemptOAuthFlowRecovery } =
+    useOAuthFlowRecovery(integration);
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
+  const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
+
+  // Attempt OAuth flow recovery for Sync when state is missing or keys are lost
+  useEffect(() => {
+    const shouldAttemptRecovery =
+      !recoveryAttempted &&
+      isOAuthNativeIntegration(integration) &&
+      (!signinState || !signinState.sessionToken || oAuthKeysCheckError);
+
+    if (shouldAttemptRecovery) {
+      setRecoveryAttempted(true);
+      attemptOAuthFlowRecovery();
+    }
+  }, [
+    recoveryAttempted,
+    integration,
+    signinState,
+    oAuthKeysCheckError,
+    attemptOAuthFlowRecovery,
+  ]);
+
+  // Handle recovery failure - navigate to signin with error message
+  useEffect(() => {
+    if (recoveryFailed) {
+      const localizedErrorMessage = ftlMsgResolver.getMsg(
+        'signin-recovery-error',
+        'Something went wrong. Please sign in again.'
+      );
+      navigateWithQuery('/signin', {
+        state: { localizedErrorMessage },
+      });
+    }
+  }, [recoveryFailed, ftlMsgResolver, navigateWithQuery]);
+
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
       // case handled after the useEffect
@@ -101,8 +117,21 @@ const SigninTokenCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
 
+  // Show loading while attempting OAuth flow recovery
+  if (isRecovering) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
+  }
+
   if (!signinState || !signinState.sessionToken) {
-    navigateWithQuery('/');
+    // For non-OAuth Native flows, navigate to root
+    // For OAuth Native flows, recovery was already attempted above
+    if (!isOAuthNativeIntegration(integration)) {
+      navigateWithQuery('/');
+    }
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -126,7 +155,8 @@ const SigninTokenCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
-  if (oAuthKeysCheckError) {
+  // For OAuth Native, recovery should have been attempted; for others, show error
+  if (oAuthKeysCheckError && !isOAuthNativeIntegration(integration)) {
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
@@ -136,10 +166,7 @@ const SigninTokenCodeContainer = ({
       sessionId,
       sensitiveDataClient,
       'signin-token-code',
-      credentialStatus,
-      getWrappedKeys,
-      passwordChangeStart,
-      passwordChangeFinish
+      authClient
     );
   };
 

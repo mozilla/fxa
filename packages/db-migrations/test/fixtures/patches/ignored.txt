@@ -1,0 +1,1 @@
+This file is ignored, since we tell mysql-patcher to look for files with a particular filename.

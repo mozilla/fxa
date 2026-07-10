@@ -10,6 +10,15 @@ import { PayPalHelper } from '../../lib/payments/paypal';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { RefundType } from '@fxa/payments/paypal';
 
+/**
+  * For RAM-preserving pruposes only
+  */
+const QUEUE_SIZE_LIMIT = 1000;
+/**
+  * For RAM-preserving pruposes only
+  */
+const QUEUE_CONCURRENCY_LIMIT = 100;
+
 export class CustomerPlanMover {
   private stripeQueue: PQueue;
 
@@ -25,7 +34,8 @@ export class CustomerPlanMover {
     private coupon: string | null,
     private prorationBehavior: 'none' | 'create_prorations' | 'always_invoice',
     private skipSubscriptionIfSetToCancel: boolean,
-    private paypalHelper: PayPalHelper,
+    private resetBillingCycleAnchor: boolean,
+    private paypalHelper: PayPalHelper
   ) {
     if (proratedRefundRate !== null && proratedRefundRate <= 0) {
       throw new Error("proratedRefundRate must be greater than zero");
@@ -44,16 +54,35 @@ export class CustomerPlanMover {
   async convert() {
     await this.writeReportHeader();
 
-    await this.stripe.subscriptions.list({
+    const destinationPrice = await this.stripe.prices.retrieve(this.destinationPlanId, {
+      expand: ['currency_options'],
+    });
+
+    const conversionQueue = new PQueue({ concurrency: QUEUE_CONCURRENCY_LIMIT });
+
+    for await (const subscription of this.stripe.subscriptions.list({
       price: this.sourcePlanId,
       limit: 100,
-    }).autoPagingEach((subscription) => {
-      return this.convertSubscription(subscription);
-    });
+    })) {
+      if (conversionQueue.size + conversionQueue.pending >= QUEUE_SIZE_LIMIT) {
+        await conversionQueue.onSizeLessThan(QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT);
+      }
+
+      conversionQueue.add(() => {
+        return this.convertSubscription(subscription, destinationPrice);;
+      });
+    }
+
+    await conversionQueue.onIdle();
   }
 
-  async convertSubscription(subscription: Stripe.Subscription) {
+  async convertSubscription(subscription: Stripe.Subscription, destinationPrice: Stripe.Price) {
+    const paymentProvider =
+      subscription.collection_method === 'send_invoice' ? 'PayPal' : 'Stripe';
+
     try {
+      console.log(`Processing ${subscription.id}`);
+
       const customerId =
         typeof subscription.customer === 'string'
           ? subscription.customer
@@ -74,11 +103,18 @@ export class CustomerPlanMover {
       }
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
+      const destinationPriceCurrencyOptionForCurrency = destinationPrice.currency_options?.[subscription.currency];
+      const destinationPriceUnitAmountForCurrency =
+        destinationPriceCurrencyOptionForCurrency?.unit_amount ??
+        (typeof destinationPriceCurrencyOptionForCurrency?.unit_amount_decimal === "string"
+          ? Math.round(parseFloat(destinationPriceCurrencyOptionForCurrency.unit_amount_decimal))
+          : null);
+
       let amountRefunded: number | null = null;
       let approximateAmountWasOwed: number | null = null;
       let daysUntilNextBill: number | null = null;
       let daysSinceLastBill: number | null = null;
-      let previousInvoiceAmountPaid: number | null = null;
+      let previousInvoiceAmountDue: number | null = null;
       let isOwed = !isExcluded;
 
       if (!isExcluded) {
@@ -88,7 +124,7 @@ export class CustomerPlanMover {
             approximateAmountWasOwed = calculation.refundAmount;
             daysUntilNextBill = calculation.daysUntilBill;
             daysSinceLastBill = calculation.daysSinceBill;
-            previousInvoiceAmountPaid = calculation.invoice.amount_paid;
+            previousInvoiceAmountDue = calculation.invoice.amount_due;
           } catch(e) {
             console.warn(e);
           }
@@ -105,6 +141,13 @@ export class CustomerPlanMover {
                 coupon: this.coupon
               }] : undefined,
               proration_behavior: this.prorationBehavior,
+              metadata: {
+                currency: subscription.currency,
+                plan_change_date: Math.floor(new Date().getTime() / 1000),
+                previous_plan_id: this.sourcePlanId,
+                amount: destinationPriceUnitAmountForCurrency,
+              },
+              billing_cycle_anchor: this.resetBillingCycleAnchor ? "now" : "unchanged"
             })
           );
         }
@@ -126,12 +169,13 @@ export class CustomerPlanMover {
       await this.writeReport({
         subscription,
         customer,
+        paymentProvider,
         isExcluded,
         amountRefunded,
         approximateAmountWasOwed,
         daysUntilNextBill,
         daysSinceLastBill,
-        previousInvoiceAmountPaid,
+        previousInvoiceAmountDue,
         isOwed,
         error: false,
       });
@@ -142,12 +186,13 @@ export class CustomerPlanMover {
       await this.writeReport({
         subscription,
         customer: null,
+        paymentProvider,
         isExcluded: false,
         amountRefunded: null,
         approximateAmountWasOwed: null,
         daysUntilNextBill: null,
         daysSinceLastBill: null,
-        previousInvoiceAmountPaid: null,
+        previousInvoiceAmountDue: null,
         isOwed: false,
         error: true,
       });
@@ -222,8 +267,8 @@ export class CustomerPlanMover {
     const refundAmount = calculation.refundAmount;
     const invoice = calculation.invoice;
 
-    if (refundAmount > invoice.amount_paid) {
-      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount paid on the invoice`);
+    if (refundAmount > invoice.amount_due) {
+      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount due on the invoice`);
     }
 
     if (refundAmount <= 0) {
@@ -231,7 +276,7 @@ export class CustomerPlanMover {
     }
 
     if (invoice.paid_out_of_band) {
-      const behavior = refundAmount === invoice.amount_paid ? {
+      const behavior = refundAmount === invoice.amount_due ? {
         refundType: RefundType.Full
       } as const : {
         refundType: RefundType.Partial,
@@ -292,9 +337,10 @@ export class CustomerPlanMover {
       "approximateAmountWasOwed",
       "daysUntilNextBill",
       "daysSinceLastBill",
-      "previousInvoiceAmountPaid",
+      "previousInvoiceAmountDue",
       "isOwed",
-      "error"
+      "error",
+      "paymentProvider"
     ];
 
     const reportCSV = data.join(',') + '\n';
@@ -308,12 +354,13 @@ export class CustomerPlanMover {
   async writeReport(args: {
     subscription: Stripe.Subscription,
     customer: Stripe.Customer | null,
+    paymentProvider: 'Stripe' | 'PayPal',
     isExcluded: boolean,
     amountRefunded: number | null,
     approximateAmountWasOwed: number | null,
     daysUntilNextBill: number | null,
     daysSinceLastBill: number | null,
-    previousInvoiceAmountPaid: number | null,
+    previousInvoiceAmountDue: number | null,
     isOwed: boolean,
     error: boolean
   }) {
@@ -329,13 +376,15 @@ export class CustomerPlanMover {
       args.approximateAmountWasOwed ?? "null",
       args.daysUntilNextBill ?? "null",
       args.daysSinceLastBill ?? "null",
-      args.previousInvoiceAmountPaid ?? "null",
+      args.previousInvoiceAmountDue ?? "null",
       args.isOwed,
-      args.error
+      args.error,
+      args.paymentProvider
     ];
 
     const reportCSV = data.join(',') + '\n';
 
+    console.log(reportCSV);
     await writeFile(this.outputFile, reportCSV, {
       flag: 'a+',
       encoding: 'utf-8',

@@ -5,9 +5,13 @@
 import { checkEmailDomain } from './email-domain-validator';
 import { AuthUiErrors } from './auth-errors/auth-errors';
 import topEmailDomains from 'fxa-shared/email/topEmailDomains';
-import { resolveDomain } from './email-domain-validator-resolve-domain';
+import {
+  resolveDomain,
+  DomainValidationError,
+} from './email-domain-validator-resolve-domain';
 
 jest.mock('./email-domain-validator-resolve-domain', () => ({
+  ...jest.requireActual('./email-domain-validator-resolve-domain'),
   resolveDomain: jest.fn(),
 }));
 
@@ -61,6 +65,24 @@ describe('checkEmailDomain', () => {
     );
     await expect(
       checkEmailDomain('user@server-down.com')
+    ).resolves.toBeUndefined();
+  });
+
+  it('should throw INVALID_EMAIL_DOMAIN on 400 Bad Request error', async () => {
+    (resolveDomain as jest.Mock).mockRejectedValueOnce(
+      new DomainValidationError('Failed to check domain: 400 Bad Request', 400)
+    );
+    await expect(checkEmailDomain('user@bad-domain.com')).rejects.toBe(
+      AuthUiErrors.INVALID_EMAIL_DOMAIN
+    );
+  });
+
+  it('should allow submission on non-400 HTTP errors', async () => {
+    (resolveDomain as jest.Mock).mockRejectedValueOnce(
+      new DomainValidationError('Failed to check domain: 500 Internal Server Error', 500)
+    );
+    await expect(
+      checkEmailDomain('user@server-error.com')
     ).resolves.toBeUndefined();
   });
 

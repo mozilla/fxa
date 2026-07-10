@@ -288,6 +288,7 @@ config.theme.extend = {
     'wait-and-rotate': 'wait-and-rotate 5s infinite ease-out',
     'fade-in': 'fade-in 1s 1 ease-in',
     'spin-xl': 'spin-xl 1s forwards ease-in-out',
+    'spin-slow': 'spin 1.2s linear infinite',
     'spin-pause': 'spin-pause 4s ease-in-out forwards',
     'fade-out-in': 'fade-out-in 2s forwards',
     'grow-and-stay': 'grow 1s ease-in-out forwards',

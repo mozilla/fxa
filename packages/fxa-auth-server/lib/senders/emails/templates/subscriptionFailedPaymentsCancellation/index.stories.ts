@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionFailedPaymentsCancellation',
   'Sent when failed payments result in cancellation of user subscription.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     isCancellationEmail: true,
     cancellationSurveryUrl:
       'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',

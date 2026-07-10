@@ -120,7 +120,7 @@ describe('useFxAStatus', () => {
         });
       });
 
-      it('returns supportsKeysOptionalLogin: true when Relay or AiWindow service', async () => {
+      it('returns supportsKeysOptionalLogin: true when Relay or SmartWindow service', async () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => false,
@@ -140,7 +140,10 @@ describe('useFxAStatus', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
         };
-        const { result } = renderHook(() => useFxAStatus(integration));
+        const { result, waitForNextUpdate } = renderHook(() =>
+          useFxAStatus(integration)
+        );
+        await waitForNextUpdate();
         expect(result.current.supportsKeysOptionalLogin).toBe(false);
       });
     });
@@ -151,6 +154,7 @@ describe('useFxAStatus', () => {
       const integration = {
         type: IntegrationType.Web,
         isSync: () => false,
+        isFirefoxNonSync: () => false,
       };
 
       renderHook(() => useFxAStatus(integration));

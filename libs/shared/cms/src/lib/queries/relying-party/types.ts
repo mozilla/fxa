@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Enum_Componentaccountsshared_Headlinefontsize } from '../../../__generated__/graphql';
+
 export interface Page {
-  headline: string;
+  headline: string | null;
   description: string | null;
-  primaryButtonText: string;
+  primaryButtonText: string | null;
   logoUrl: string | null;
   logoAltText: string | null;
   pageTitle: string | null;
@@ -33,11 +35,26 @@ export interface Shared {
     splitLayout: string | null;
     splitLayoutAltText: string | null;
   };
+  illustrationsTheme: IllustrationsTheme | null;
   pageTitle: string | null;
   headerLogoUrl: string | null;
   headerLogoAltText: string | null;
   featureFlags: FeatureFlags | null;
   favicon: string | null;
+  headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null;
+  headlineTextColor: string | null;
+  additionalAccessibilityInfo: string | null;
+}
+
+export interface IllustrationsTheme {
+  primary: string | null;
+  primaryAlt: string | null;
+  secondary: string | null;
+  accentBg: string | null;
+  accentFg: string | null;
+  cloudPrimary: string | null;
+  cloudShadow: string | null;
+  hideClouds: boolean | null;
 }
 
 export interface FeatureFlags {
@@ -55,8 +72,14 @@ export interface RelyingPartyResult {
   SignupConfirmCodePage: Page;
   SignupConfirmedSyncPage: Page;
   SigninPage: Page;
+  SigninCachedPage?: Page;
   SigninTokenCodePage?: Page;
   SigninUnblockCodePage?: Page;
+  SigninTotpCodePage?: Page;
+  SigninRecoveryChoicePage?: Page;
+  SigninRecoveryCodePage?: Page;
+  SigninRecoveryPhonePage?: Page;
+  PostVerifySetPasswordPage?: Page;
   shared: Shared;
   NewDeviceLoginEmail?: Email;
   VerifyLoginCodeEmail?: Email;

@@ -14,6 +14,13 @@ signin-token-code-confirm-button = Confirm
 signin-token-code-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 signin-token-code-resend-code-link = Email new code.
+# Countdown message shown when user must wait before resending code
+# { $seconds } represents the number of seconds remaining
+signin-token-code-resend-code-countdown =
+    { $seconds ->
+        [one] Email new code in { $seconds } second
+        *[other] Email new code in { $seconds } seconds
+    }
 # Error displayed in a tooltip when the form is submitted without a code
 signin-token-code-required-error = Confirmation code required
 signin-token-code-resend-error = Something went wrong. A new code could not be sent.

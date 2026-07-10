@@ -12,6 +12,7 @@ const AccessToken = require('./accessToken');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
 const { ConnectedServicesDb } = require('fxa-shared/connected-services');
+const resolveScopesForService = require('./resolve-scopes-for-service');
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
@@ -23,6 +24,67 @@ const JWT_ACCESS_TOKENS_CLIENT_IDS = new Set(
 const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
   'oauthServer.refreshToken.updateAfter'
 );
+
+// Service map and policy flags for token-exchange consent gating. Read
+// once at module load; updates require a process restart.
+const EXCHANGE_SERVICE_SCOPES = config.get(
+  'oauthServer.exchange.serviceScopes'
+);
+const EXCHANGE_KNOWN_SERVICES = new Set(Object.keys(EXCHANGE_SERVICE_SCOPES));
+// Inverse map: canonical scope URL -> service name. Used by the
+// exchange path to resolve the requested scope to its owning service
+// without touching the DB.
+const EXCHANGE_SCOPE_TO_SERVICE = new Map(
+  Object.entries(EXCHANGE_SERVICE_SCOPES).map(([service, scope]) => [
+    scope,
+    service,
+  ])
+);
+const EXCHANGE_DENY_SILENT_FOR_SERVICES = new Set(
+  config.get('oauthServer.exchange.denySilentForServices')
+);
+const EXCHANGE_BYPASS_CONSENT_FOR_SERVICES = new Set(
+  config.get('oauthServer.exchange.bypassConsentForServices')
+);
+// service -> Set<clientId> of OAuth clients permitted to write a consent row
+// for that service. Services not present here are unrestricted.
+const EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE = new Map(
+  Object.entries(
+    config.get('oauthServer.exchange.allowedClientsForService') || {}
+  ).map(([service, clientIds]) => [
+    service,
+    new Set((clientIds || []).map((c) => c.toLowerCase())),
+  ])
+);
+
+// `/oauth/authorization` scope resolution: per-service base scope set,
+// plus a single conditional scope added when keysJwe is present.
+const AUTHORIZATION_SERVICE_SCOPES = config.get(
+  'oauthServer.authorization.serviceScopes'
+);
+const AUTHORIZATION_KEYS_CONDITIONAL_SCOPE = config.get(
+  'oauthServer.authorization.keysConditionalScope'
+);
+
+// Token-exchange consent-check outcomes. Callers in lib/routes/oauth/token.js
+// switch on `result` and convert to metric outcomes and HTTP responses.
+const EXCHANGE_DECISION = Object.freeze({
+  // The user has a recorded consent row for this (scope, service).
+  ALLOWED: 'allowed',
+  // The service is on the bypass allowlist; consent is not consulted.
+  // Transitional, exists for Relay until mobile clients ship 4xx handling.
+  BYPASS: 'bypass',
+  // The exchange is rejected. `reason` is one of the EXCHANGE_DENY_REASON values.
+  DENIED: 'denied',
+  // The scope is not in serviceScopes; caller falls back to clients.allowedScopes.
+  FALL_THROUGH: 'fall-through',
+});
+const EXCHANGE_DENY_REASON = Object.freeze({
+  // The service is on the silent-deny list (e.g. sync).
+  SILENT_DISALLOWED: 'silent-disallowed',
+  // No accountAuthorizations row exists for this (uid, scope, service).
+  NO_CONSENT: 'no-consent',
+});
 
 class OauthDB extends ConnectedServicesDb {
   get mysql() {
@@ -133,9 +195,16 @@ class OauthDB extends ConnectedServicesDb {
     return t;
   }
 
-  async getRefreshTokensByUid(uid) {
-    await this.ready();
-    const tokens = await this.mysql._getRefreshTokensByUid(uid);
+  /**
+   * Processes each refresh token, checking it against the redis cache. If
+   * found, it merges the metadata from redis into the token object. Objects
+   * found in redis, but not in mysql, are pruned.
+   * @param {*} uid
+   * @param {*} getTokens
+   * @returns
+   */
+  async _processRefreshTokens(uid, getTokens) {
+    const tokens = await getTokens;
     const extraMetadata = await this.redis.getRefreshTokens(uid);
     // We'll take this opportunity to clean up any tokens that exist in redis but
     // not in mysql, so this loop deletes each token from `extraMetadata` once handled.
@@ -152,6 +221,34 @@ class OauthDB extends ConnectedServicesDb {
       await this.redis.pruneRefreshTokens(uid, toDel);
     }
     return tokens;
+  }
+
+  /**
+   * Fetches all refresh tokens for a given uid. Multiple tokens can be
+   * returned for a single clientId
+   * @param uid
+   * @returns {Promise<*>}
+   */
+  async getRefreshTokensByUid(uid) {
+    await this.ready();
+    return this._processRefreshTokens(
+      uid,
+      this.mysql._getRefreshTokensByUid(uid)
+    );
+  }
+
+  /**
+   * Fetches all unique refresh tokens for a given uid. A clientId will
+   * only appear once, prioritized by lastUsedAt date
+   * @param uid
+   * @returns {Promise<*>}
+   */
+  async getUniqueRefreshTokensByUid(uid) {
+    await this.ready();
+    return await this._processRefreshTokens(
+      uid,
+      this.mysql._getUniqueRefreshTokensByUid(uid)
+    );
   }
 
   async removeRefreshToken(token) {
@@ -194,6 +291,8 @@ class OauthDB extends ConnectedServicesDb {
     return ok;
   }
 
+  // Called from both account deletion AND password reset, so this must
+  // not touch the consent ledger — consent survives credential rotation.
   async removeTokensAndCodes(uid) {
     await this.ready();
     await this.redis.removeAccessTokensForUser(uid);
@@ -201,9 +300,167 @@ class OauthDB extends ConnectedServicesDb {
     await this.mysql._removeTokensAndCodes(uid);
   }
 
+  async recordAccountActivity(userId, clientId, scopes, now, throttleMs) {
+    await this.ready();
+    return await this.mysql._recordAccountActivity(
+      userId,
+      clientId,
+      scopes,
+      now,
+      throttleMs
+    );
+  }
+
+  async listAccountActivity(userId, clientId) {
+    await this.ready();
+    return await this.mysql._listAccountActivity(userId, clientId);
+  }
+
   async pruneAuthorizationCodes(ttlInMs) {
     return await this.mysql._pruneAuthorizationCodes(
       ttlInMs || config.get('oauthServer.expiration.code')
+    );
+  }
+
+  // Upserts a consent row for the (uid, scope, service, clientId)
+  // tuple. First write seeds both timestamps to `now`; subsequent
+  // writes preserve firstAuthorizedTosAt and bump lastAuthorizedTosAt.
+  async recordSignInConsent({ uid, scope, service, clientId, now }) {
+    await this.ready();
+    return this.mysql._upsertAccountConsent(
+      uid,
+      scope,
+      service,
+      clientId,
+      now || Date.now()
+    );
+  }
+
+  // True when a consent row exists for the exact (uid, scope, service).
+  // Used by the /authorization pre-prompt check.
+  async hasConsentForSignIn(uid, scope, service) {
+    await this.ready();
+    const row = await this.mysql._findAccountConsentForSignIn(
+      uid,
+      scope,
+      service
+    );
+    return !!row;
+  }
+
+  // Applies the token-exchange decision matrix. See EXCHANGE_DECISION for the
+  // shape of the returned `result`, and EXCHANGE_DENY_REASON for `reason` when
+  // `result` is DENIED. Scope -> service resolution comes from the
+  // oauthServer.exchange.serviceScopes config map; unmapped scopes fall
+  // through to clients.allowedScopes.
+  async hasConsentForExchange(uid, scope) {
+    const service = EXCHANGE_SCOPE_TO_SERVICE.get(scope);
+    if (!service) {
+      return { result: EXCHANGE_DECISION.FALL_THROUGH };
+    }
+    if (EXCHANGE_DENY_SILENT_FOR_SERVICES.has(service)) {
+      return {
+        result: EXCHANGE_DECISION.DENIED,
+        service,
+        reason: EXCHANGE_DENY_REASON.SILENT_DISALLOWED,
+      };
+    }
+    if (EXCHANGE_BYPASS_CONSENT_FOR_SERVICES.has(service)) {
+      return { result: EXCHANGE_DECISION.BYPASS, service };
+    }
+    await this.ready();
+    const hasConsent = await this.mysql._hasConsentForScope(
+      uid,
+      scope,
+      service
+    );
+    if (hasConsent) {
+      return { result: EXCHANGE_DECISION.ALLOWED, service };
+    }
+    return {
+      result: EXCHANGE_DECISION.DENIED,
+      service,
+      reason: EXCHANGE_DENY_REASON.NO_CONSENT,
+    };
+  }
+
+  // True iff the user has any prior consent for this service (any scope/client).
+  // Used for the browser-service grain of the first-authorization signal.
+  async hasConsentForService(uid, service) {
+    await this.ready();
+    return this.mysql._hasConsentForService(uid, service);
+  }
+
+  // True iff the user has any prior consent for this client (any scope/service).
+  // Used for the web-RP grain of the first-authorization signal.
+  async hasConsentForClient(uid, clientId) {
+    await this.ready();
+    return this.mysql._hasConsentForClient(uid, clientId);
+  }
+
+  async deleteAllConsentsForUser(uid) {
+    await this.ready();
+    return this.mysql._deleteAllAccountConsentsForUser(uid);
+  }
+
+  async listAccountConsentsByUid(uid) {
+    await this.ready();
+    return this.mysql._listAccountConsentsByUid(uid);
+  }
+
+  // True iff the (service, clientId) pair is permitted to record a consent
+  // row. Services not configured in allowedClientsForService are
+  // unrestricted. Configured services require the clientId to be on the
+  // list. Used by the /authorization writer to gate the upsert so a
+  // non-Mozilla RP cannot forge consent for a privileged service.
+  isClientAllowedForService(serviceName, clientId) {
+    if (!serviceName) {
+      return true;
+    }
+    const allowed = EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE.get(serviceName);
+    if (!allowed) {
+      return true;
+    }
+    return allowed.has((clientId || '').toLowerCase());
+  }
+
+  // True iff serviceName appears in the oauthServer.exchange.serviceScopes
+  // config map. Used by the /authorization writer to validate the URL's
+  // service= param before persisting it; unknown values are dropped to ''.
+  isKnownService(serviceName) {
+    if (!serviceName) {
+      return false;
+    }
+    return EXCHANGE_KNOWN_SERVICES.has(serviceName);
+  }
+
+  // Canonical scope URL for a configured service, or undefined if the
+  // service isn't in oauthServer.exchange.serviceScopes. Used by the
+  // /authorization writer to record an explicit consent row for the
+  // service's umbrella scope alongside the user's requested scopes,
+  // so cross-device token-exchange for that scope has a per-scope
+  // match without relying on a service-only lookup.
+  getCanonicalScopeForService(serviceName) {
+    return EXCHANGE_SERVICE_SCOPES[serviceName];
+  }
+
+  // Service name for a canonical scope URL, or undefined if the scope
+  // is not the canonical of any configured service. Used by the
+  // /authorization writer to recover service= when the URL omits it
+  // (e.g. VPN cached sign-in, where the OAuth client only sends scope=).
+  // Returns undefined for scopes that no service owns.
+  getServiceForCanonicalScope(scope) {
+    return EXCHANGE_SCOPE_TO_SERVICE.get(scope);
+  }
+
+  // Server-side scope resolution when scope is missing, service is present,
+  // and the client is Firefox
+  resolveScopesForService(serviceName, withKeys) {
+    return resolveScopesForService(
+      AUTHORIZATION_SERVICE_SCOPES,
+      AUTHORIZATION_KEYS_CONDITIONAL_SCOPE,
+      serviceName,
+      withKeys
     );
   }
 }
@@ -320,3 +577,5 @@ async function scopes(db) {
   }
 }
 module.exports = new OauthDB();
+module.exports.EXCHANGE_DECISION = EXCHANGE_DECISION;
+module.exports.EXCHANGE_DENY_REASON = EXCHANGE_DENY_REASON;

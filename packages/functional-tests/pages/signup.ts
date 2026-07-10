@@ -10,11 +10,9 @@ export class SignupPage extends BaseLayout {
   readonly path = 'signup';
 
   get emailFormHeading() {
-    return this.page.getByRole('heading', {
-      // Fluent inserts directional markers around "Mozilla account" so
-      // just look for partial match
-      name: /^Enter your email|^Continue to your/,
-    });
+    // Match by role/level only — the heading text can be overridden by CMS
+    // configuration per relying party, so asserting on copy is fragile.
+    return this.page.getByRole('heading', { level: 1 });
   }
 
   get emailTextbox() {
@@ -22,7 +20,9 @@ export class SignupPage extends BaseLayout {
   }
 
   get submitButton() {
-    return this.page.getByRole('button', { name: 'Sign up or sign in' });
+    return this.page
+      .getByRole('button')
+      .and(this.page.locator('button[type="submit"]'));
   }
 
   get signupFormHeading() {
@@ -70,6 +70,9 @@ export class SignupPage extends BaseLayout {
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');
+    if (!params.has('force_passwordless')) {
+      params.set('force_passwordless', 'false');
+    }
     return this.page.goto(
       getReactFeatureFlagUrl(this.target, route, params.toString())
     );
@@ -77,6 +80,7 @@ export class SignupPage extends BaseLayout {
 
   async fillOutEmailForm(email: string) {
     await expect(this.emailFormHeading).toBeVisible();
+    await expect(this.emailTextbox).toBeVisible();
 
     await this.emailTextbox.fill(email);
     await this.submitButton.click();

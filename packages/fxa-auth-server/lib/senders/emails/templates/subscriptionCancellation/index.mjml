@@ -13,7 +13,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <% if (!showOutstandingBalance) { %>
+      <% if (isFreeTrialCancellation) { %>
+        <span data-l10n-id="subscriptionCancellation-freeTrial-content" data-l10n-args="<%= JSON.stringify({productName, trialEndDateOnly}) %>">
+          Your free trial of <%- productName %> has been canceled. Your access will end on <%- trialEndDateOnly %>. You will not be charged.
+        </span>
+      <% } else if (!showOutstandingBalance) { %>
         <span data-l10n-id="subscriptionCancellation-content-2" data-l10n-args="<%= JSON.stringify({productName, invoiceTotal, invoiceDateOnly, serviceLastActiveDateOnly}) %>">
           We’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>.
       </span>
@@ -22,7 +26,7 @@
           We’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> will be paid on <%- invoiceDateOnly %>.
       </span>
       <% } %>
-      <% if (cancelAtEnd) { %>
+      <% if (!isFreeTrialCancellation && cancelAtEnd) { %>
         <span data-l10n-id="subscriptionCancellation-content-continue" data-l10n-args="<%= JSON.stringify({serviceLastActiveDateOnly}) %>">
           Your service will continue until the end of your current billing period, which is <%- serviceLastActiveDateOnly %>.
         </span>

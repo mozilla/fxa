@@ -36,14 +36,6 @@ export async function handleAuth(
   };
 }
 
-export function handleUidAuth(auth: AuthRequest['auth']): string {
-  const scope = ScopeSet.fromArray(auth.credentials.scope || []);
-  if (!scope.contains(OAUTH_SCOPE_SUBSCRIPTIONS)) {
-    throw error.invalidScopes();
-  }
-  return auth.credentials.user as string;
-}
-
 export function handleAuthScoped(auth: AuthRequest['auth'], scopes: string[]) {
   const scope = ScopeSet.fromArray(auth.credentials.scope || []);
   for (const requiredScope of scopes) {

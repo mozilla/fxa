@@ -6,5 +6,3 @@ passwordResetRecoveryPhone-device = "Recovery phone used from:"
 <%- include('/partials/manageAccount/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPasswordTwoFactor/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>

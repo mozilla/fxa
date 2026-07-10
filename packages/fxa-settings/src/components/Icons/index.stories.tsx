@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 
 import {
@@ -16,6 +15,7 @@ import {
   CheckmarkGreenIcon,
   CheckmarkCircleFullGreenIcon,
   CheckmarkCircleOutlineCurrentIcon,
+  ChevronRightIcon,
   CloseIcon,
   CodeIcon,
   ErrorOutlineCurrentIcon,
@@ -24,6 +24,7 @@ import {
   InformationOutlineBlueIcon,
   InformationOutlineCurrentIcon,
   LightbulbIcon,
+  LoadingArrowIcon,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -40,6 +41,7 @@ export default {
     CheckmarkGreenIcon,
     CheckmarkCircleFullGreenIcon,
     CheckmarkCircleOutlineCurrentIcon,
+    ChevronRightIcon,
     CloseIcon,
     CodeIcon,
     ErrorOutlineCurrentIcon,
@@ -48,6 +50,7 @@ export default {
     InformationOutlineBlueIcon,
     InformationOutlineCurrentIcon,
     LightbulbIcon,
+    LoadingArrowIcon,
   },
   decorators: [withLocalization],
 } as Meta;
@@ -68,6 +71,7 @@ export const CheckmarkCircleFull = () => (
 export const CheckmarkCircleOutlineCurrent = () => (
   <CheckmarkCircleOutlineCurrentIcon mode="success" />
 );
+export const ChevronRight = () => <ChevronRightIcon className="w-6 h-6" />;
 export const Close = () => <CloseIcon />;
 export const Code = () => <CodeIcon />;
 export const ErrorOutlineCurrent = () => <ErrorOutlineCurrentIcon />;
@@ -80,3 +84,6 @@ export const InformationCircleOutlineCurrent = () => (
   <InformationOutlineCurrentIcon />
 );
 export const Lightbulb = () => <LightbulbIcon />;
+export const LoadingArrow = () => (
+  <LoadingArrowIcon className="w-5 h-5 animate-spin-slow" />
+);

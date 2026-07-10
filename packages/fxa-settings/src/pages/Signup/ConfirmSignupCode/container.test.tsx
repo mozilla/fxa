@@ -6,20 +6,19 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ConfirmSignupCodeModule from './index';
 import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
+import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecovery';
 import * as CacheModule from '../../../lib/cache';
-import * as ApolloModule from '@apollo/client';
-import * as ReachRouterModule from '@reach/router';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
 import { screen, waitFor } from '@testing-library/react';
-import AuthClient from 'fxa-auth-client/browser';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SignupConfirmCodeContainer from './container';
 import { Integration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 
 import {
   MOCK_EMAIL,
@@ -42,9 +41,18 @@ jest.mock('../../../models', () => {
 });
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+let mockLocationStateValue: any = {};
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/',
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
 }));
 
 jest.mock('../../../lib/glean', () => ({
@@ -60,46 +68,43 @@ jest.mock('../../../lib/glean', () => ({
 
 // Global instances
 let integration: Integration;
-let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
 let currentProps: any | undefined;
-let mockEmailBounceStatusQuery = jest.fn();
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+
+// Mock auth client with emailBounceStatus method
+const mockAuthClient = {
+  emailBounceStatus: jest.fn(),
+};
 
 function mockLocation(
   originIsSignup: boolean = true,
   withAccountInfo: boolean = true
 ) {
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      state: {
-        uid: withAccountInfo ? MOCK_UID : undefined,
-        email: withAccountInfo ? MOCK_EMAIL : undefined,
-        sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
-        origin: originIsSignup ? 'signup' : null,
-        selectedNewsletterSlugs: 'slugs',
-      },
-    } as ReturnType<typeof ReachRouterModule.useLocation>;
-  });
+  mockLocationStateValue = {
+    uid: withAccountInfo ? MOCK_UID : undefined,
+    email: withAccountInfo ? MOCK_EMAIL : undefined,
+    sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
+    origin: originIsSignup ? 'signup' : null,
+    selectedNewsletterSlugs: 'slugs',
+  };
 }
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
-function mockEmailBounceQuery() {
-  mockEmailBounceStatusQuery.mockImplementation(() => {
-    return {
-      data: {
-        emailBounceStatus: {
-          hasHardBounce: false,
-        },
-      },
-    };
+function mockModelsModule() {
+  mockAuthClient.emailBounceStatus.mockResolvedValue({ hasHardBounce: false });
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
+  );
+  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
   });
-
-  jest
-    .spyOn(ApolloModule, 'useQuery')
-    .mockReturnValue(mockEmailBounceStatusQuery());
 }
 
 // Apply default mocks
@@ -109,6 +114,7 @@ function applyMocks() {
 
   integration = {
     type: ModelsModule.IntegrationType.OAuthWeb,
+    requiresKeys: () => false,
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   } as Integration;
@@ -122,16 +128,7 @@ function applyMocks() {
     return <div>loading spinner mock</div>;
   });
 
-  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
-    () => mockAuthClient
-  );
-  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
-    () => mockSensitiveDataClient
-  );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
-    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-    unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  mockModelsModule();
   jest
     .spyOn(HooksModule, 'useFinishOAuthFlowHandler')
     .mockImplementation(() => {
@@ -153,18 +150,23 @@ function applyMocks() {
   mockLocation();
   mockReactUtilsModule();
   jest.spyOn(SentryModule.default, 'captureException');
-
-  mockEmailBounceQuery();
+  jest.spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery').mockReturnValue({
+    isRecovering: false,
+    recoveryFailed: false,
+    attemptOAuthFlowRecovery: jest.fn().mockResolvedValue({ success: false }),
+  });
 }
 
 async function render() {
   renderWithLocalizationProvider(
-    <SignupConfirmCodeContainer
-      {...{
-        integration,
-      }}
-      flowQueryParams={{ flowId: MOCK_FLOW_ID }}
-    />
+    <MemoryRouter>
+      <SignupConfirmCodeContainer
+        {...{
+          integration,
+        }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
+      />
+    </MemoryRouter>
   );
 }
 
@@ -213,20 +215,11 @@ describe('confirm-signup-container', () => {
     });
   });
 
-  describe('email bounce query', () => {
+  describe('email bounce status', () => {
     beforeEach(() => {
-      mockEmailBounceStatusQuery.mockImplementation(() => {
-        return {
-          data: {
-            emailBounceStatus: {
-              hasHardBounce: true,
-            },
-          },
-        };
+      mockAuthClient.emailBounceStatus.mockResolvedValue({
+        hasHardBounce: true,
       });
-      jest
-        .spyOn(ApolloModule, 'useQuery')
-        .mockReturnValue(mockEmailBounceStatusQuery());
     });
 
     it('redirects to email-first signup if there is a bounce on signup', async () => {
@@ -235,10 +228,12 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/', {
-        state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
-      });
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledWith(MOCK_EMAIL);
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/', {
+          state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
+        })
+      );
     });
 
     it('redirects to signin_bounced if there is a bounce that is not on signup', async () => {
@@ -248,8 +243,10 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced');
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledWith(MOCK_EMAIL);
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced')
+      );
     });
   });
 
@@ -304,9 +301,10 @@ describe('confirm-signup-container', () => {
     });
   });
   describe('useOAuthKeysCheck', () => {
-    it('renders error component when value is undefined', () => {
+    it('renders error component when value is undefined for non-OAuthNative', () => {
       integration = {
-        type: ModelsModule.IntegrationType.OAuthNative,
+        type: ModelsModule.IntegrationType.OAuthWeb,
+        requiresKeys: () => true,
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
@@ -317,6 +315,41 @@ describe('confirm-signup-container', () => {
       render();
       expect(mockNavigate).toHaveBeenCalledWith('/signin', {
         state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
+      });
+    });
+  });
+
+  describe('useOAuthFlowRecovery', () => {
+    it('navigates to signin with error when recovery fails for OAuthNative', async () => {
+      integration = {
+        type: ModelsModule.IntegrationType.OAuthNative,
+        requiresKeys: () => true,
+        wantsKeys: () => true,
+        getCmsInfo: () => undefined,
+      } as Integration;
+      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+        keyFetchToken: undefined,
+        unwrapBKey: undefined,
+      });
+      jest
+        .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
+        .mockReturnValue({
+          isRecovering: false,
+          recoveryFailed: true,
+          attemptOAuthFlowRecovery: jest
+            .fn()
+            .mockResolvedValue({ success: false }),
+        });
+
+      render();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', {
+          state: {
+            localizedErrorMessage:
+              'Something went wrong. Please sign in again.',
+          },
+        });
       });
     });
   });

@@ -297,6 +297,12 @@ const convictConf = convict({
     },
   },
   amplitude: {
+    enabled: {
+      default: true,
+      doc: 'Enable Amplitude event logging',
+      env: 'AMPLITUDE_ENABLED',
+      format: Boolean,
+    },
     schemaValidation: {
       default: true,
       doc: 'Validate events against a JSON schema',
@@ -366,26 +372,11 @@ const convictConf = convict({
     default: 'http://localhost:7000',
     env: 'CUSTOMS_SERVER_URL',
   },
-  customsHttpAgent: {
-    maxSockets: {
-      doc: 'The maximum number of sockets to be opened per host',
-      default: 10000,
-      env: 'CUSTOMS_MAX_SOCKETS',
-    },
-    maxFreeSockets: {
-      doc: 'The maximum number of free sockets to keep open for a host',
-      default: 10,
-      env: 'CUSTOMS_MAX_FREE_SOCKETS',
-    },
+  customsClient: {
     timeoutMs: {
-      doc: 'The timeout in milliseconds for the sockets',
+      doc: 'Request timeout in milliseconds for calls to the customs server',
       default: 30000,
       env: 'CUSTOMS_TIMEOUT_MS',
-    },
-    freeSocketTimeoutMs: {
-      doc: 'The time in milliseconds for which a socket should remain open while unused',
-      default: 15000,
-      env: 'CUSTOMS_FREE_SOCKET_TIMEOUT_MS',
     },
   },
   contentServer: {
@@ -470,6 +461,12 @@ const convictConf = convict({
       env: 'SMTP_MAX_CONNECTIONS',
       format: Number,
     },
+    sendingRate: {
+      default: 1000,
+      doc: 'Maximum number of ses messages to send per second.',
+      env: 'SMTP_MAX_SENDING_RATE',
+      format: Number,
+    },
     prependVerificationSubdomain: {
       enabled: {
         doc: 'Flag to prepend a verification subdomain to verification emails',
@@ -501,6 +498,11 @@ const convictConf = convict({
       default:
         'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
     },
+    mozillaSupportUrl: {
+      doc: 'url to general Mozilla support page',
+      format: String,
+      default: 'https://support.mozilla.org',
+    },
     supportUrl: {
       doc: 'url to Mozilla account support page',
       format: String,
@@ -522,6 +524,25 @@ const convictConf = convict({
       doc: 'url to Mozilla Accounts privacy page',
       format: String,
       default: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+    },
+    twoFactorSupportUrl: {
+      doc: 'url to support page about two factor auth',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+    },
+    passkeySupportUrl: {
+      doc: 'url to support article about passkeys and Firefox Sync',
+      format: String,
+      default: 'https://support.mozilla.org/kb/use-passkey-mozilla-account',
+      env: 'PASSKEY_SUPPORT_URL',
+    },
+    reviewActivitySupportUrl: {
+      doc: 'url to support article about reviewing Mozilla account activity',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
+      env: 'REVIEW_ACTIVITY_SUPPORT_URL',
     },
     passwordManagerInfoUrl: {
       doc: 'url to Firefox password manager information',
@@ -548,6 +569,12 @@ const convictConf = convict({
       env: 'UNSUBSCRIBE_EMAIL_LISTS_URL',
       default:
         'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
+    },
+    defaultSurveyUrl: {
+      doc: 'The default survey link',
+      format: String,
+      default:
+        'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
     },
     sesConfigurationSet: {
       doc:
@@ -597,13 +624,7 @@ const convictConf = convict({
       ignoreTemplates: {
         doc: 'Always ignore bounces from these email templates',
         format: Array,
-        default: [
-          'verifyLoginCode',
-          'verifyLogin',
-          'recovery',
-          'unblockCode',
-          'subscriptionAccountFinishSetup',
-        ],
+        default: ['verifyLoginCode', 'verifyLogin', 'recovery', 'unblockCode'],
         env: 'BOUNCES_IGNORE_TEMPLATES',
       },
       deleteAccount: {
@@ -611,6 +632,20 @@ const convictConf = convict({
         format: Boolean,
         default: true,
         env: 'BOUNCES_DELETE_ACCOUNT',
+      },
+      emailAliasNormalization: {
+        default: JSON.stringify([
+          { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
+        ]),
+        doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. The replace value is used for the root email (strip alias), and can be overridden with a wildcard pattern at runtime. Example: [{domain: "mozilla.com", regex: "\\+.*", replace: "" }].',
+        env: 'BOUNCES_EMAIL_ALIAS_NORMALIZATION',
+        format: String,
+      },
+      aliasCheckEnabled: {
+        doc: 'Flag to enable checking email bounces on normalized email aliases',
+        format: Boolean,
+        default: false,
+        env: 'BOUNCES_ALIAS_CHECK_ENABLED',
       },
     },
     connectionTimeout: {
@@ -636,6 +671,44 @@ const convictConf = convict({
       format: 'int',
       default: 30000,
       env: 'SMTP_DNS_TIMEOUT',
+    },
+    retry: {
+      maxAttempts: {
+        doc: 'Maximum number of attempts for sending an email IF it fails. 1 means 1 additional attempt after the initial failure.',
+        format: 'int',
+        default: 3,
+        env: 'SMTP_RETRY_MAX_RETRIES',
+      },
+      backOffMs: {
+        doc: `Number of milliseconds to exponentially back off when retrying sending an email.`,
+        format: 'int',
+        default: 200,
+        env: 'SMTP_RETRY_BACKOFF_MS',
+      },
+      jitter: {
+        doc: 'Jitter factor (0-1) to add randomness to backoff timing. 0 = no jitter, 1 = up to 100% jitter.',
+        format: Number,
+        default: 0.3,
+        env: 'SMTP_RETRY_JITTER',
+      },
+      maxDelayMs: {
+        doc: 'Maximum delay in milliseconds to cap the backoff at.',
+        format: 'int',
+        default: 1000 * 10, // 10 seconds maximum delay
+        env: 'SMTP_RETRY_MAX_DELAY_MS',
+      },
+    },
+    metricsEnabled: {
+      doc: 'Flag to enable UTM metrics for SMTP links',
+      format: Boolean,
+      default: true,
+      env: 'SMTP_METRICS_ENABLED',
+    },
+    fxaMailerDisableSend: {
+      doc: 'Array of templates that should not be supported by fxa mailer. Used to fallback to previous email sending if in a pinch.',
+      format: Array,
+      default: [''],
+      env: 'SMTP_FXA_MAILER_DISABLE_SEND',
     },
   },
   maxEventLoopDelay: {
@@ -755,6 +828,12 @@ const convictConf = convict({
       doc: 'The email delivery queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'DELIVERY_QUEUE_URL',
+      default: '',
+    },
+    deliveryDelayQueueUrl: {
+      doc: 'The email delivery delay queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      format: String,
+      env: 'DELIVERY_DELAY_QUEUE_URL',
       default: '',
     },
     notificationQueueUrl: {
@@ -1104,10 +1183,22 @@ const convictConf = convict({
       env: 'OAUTH_CLIENT_IDS',
     },
     oldSyncClientIds: {
-      doc: 'Client IDs of sync clients that migrated to OAuth.',
+      doc: 'Client IDs of sync clients that migrated to OAuth. Used only by routes/oauth/token.js to label the account.signed metrics event service as "sync" for continuity with the retired BrowserID /certificate/sign flow',
       format: Array,
       default: ['5882386c6d801776', '1b1a3e44c54fbb58'],
       env: 'OAUTH_OLD_SYNC_CLIENT_IDS',
+    },
+    deviceManagementClientIds: {
+      doc: 'OAuth client_ids whose refresh tokens may register, read, destroy, notify, read own commands, and invoke commands for devices. Replaces the legacy oldsync-scope-only gate so Firefox sign-ins without Sync can still manage devices.',
+      format: Array,
+      default: [
+        '5882386c6d801776', // Firefox Desktop
+        '1b1a3e44c54fbb58', // Firefox iOS
+        '3332a18d142636cb', // Firefox Android (Fennec)
+        'a2270f727f45f648', // Firefox Android (Fenix)
+        '3c49430b43dfba77', // Android Components Reference Browser
+      ],
+      env: 'OAUTH_DEVICE_MANAGEMENT_CLIENT_IDS',
     },
     // A safety switch for disabling new signins/signups from particular clients,
     // as a hedge against unexpected client behaviour.
@@ -1327,6 +1418,100 @@ const convictConf = convict({
         format: 'duration',
         default: '24 hours',
         env: 'FXA_REFRESH_TOKEN_UPDATE_AFTER',
+      },
+    },
+    accountActivity: {
+      sampleRate: {
+        doc: 'Decimal value between 0 & 1 representing the percentage of account activity events that should be recorded. For example, 0.25 means 25% of events will be recorded.',
+        format: Number,
+        default: 0,
+        env: 'FXA_ACCOUNT_ACTIVITY_SAMPLE_RATE',
+      },
+      updateAfter: {
+        doc: 'lastSeenAt in accountActivity is only updated in MySQL after this delay per (userId, clientId). Mirrors refreshToken.updateAfter.',
+        format: 'duration',
+        default: '24 hours',
+        env: 'FXA_ACCOUNT_ACTIVITY_UPDATE_AFTER',
+      },
+    },
+    tokenExchange: {
+      allowedClientIds: {
+        doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',
+        format: Array,
+        default: [
+          '1b1a3e44c54fbb58',
+          '3332a18d142636cb',
+          'a2270f727f45f648',
+          '3c49430b43dfba77',
+        ],
+        env: 'OAUTH_TOKEN_EXCHANGE_CLIENT_IDS',
+      },
+      allowedScopes: {
+        doc: 'Scopes that can be requested via token exchange grant type',
+        format: Array,
+        default: ['https://identity.mozilla.com/apps/relay'],
+        env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
+      },
+    },
+    exchange: {
+      serviceScopes: {
+        doc: 'Map from browser-service name to its authoritative scope URL. Drives token-exchange scope resolution, /authorization service= validation, and the per-RP ToS audit. Adding a new browser service is a config change plus deploy, with no schema migration required.',
+        format: Object,
+        default: {
+          sync: 'https://identity.mozilla.com/apps/oldsync',
+          relay: 'https://identity.mozilla.com/apps/relay',
+          smartwindow: 'https://identity.mozilla.com/apps/smartwindow',
+          vpn: 'https://identity.mozilla.com/apps/vpn',
+        },
+        env: 'OAUTH_EXCHANGE_SERVICE_SCOPES',
+      },
+      denySilentForServices: {
+        doc: 'Services for which silent token-exchange is always rejected, irrespective of accountAuthorizations rows. Wins over bypass. Today: sync, the Sync refresh token is the keys-bearing master credential.',
+        format: Array,
+        default: ['sync'],
+        env: 'OAUTH_EXCHANGE_DENY_SILENT_FOR_SERVICES',
+      },
+      bypassConsentForServices: {
+        doc: 'Services granted at token-exchange without consulting accountAuthorizations. Transitional; remove once application-services ships a 4xx rejection handler in iOS/Android Relay clients.',
+        format: Array,
+        default: ['relay'],
+        env: 'OAUTH_EXCHANGE_BYPASS_CONSENT_FOR_SERVICES',
+      },
+      allowedClientsForService: {
+        doc: 'Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf).',
+        format: Object,
+        default: {
+          vpn: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+          ],
+        },
+        env: 'OAUTH_EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE',
+      },
+    },
+    authorization: {
+      serviceScopes: {
+        doc: 'Per-service scope set granted by the /oauth/authorization gate when the client omits scope= and provides service= (ADR 0049). The full array is granted unconditionally. The keysConditionalScope below is added when keysJwe is present in the request, so non-Sync browser-service flows can opt into Sync once the user enters a password.',
+        format: Object,
+        default: {
+          sync: ['https://identity.mozilla.com/apps/oldsync', 'profile'],
+          relay: ['https://identity.mozilla.com/apps/relay', 'profile'],
+          smartwindow: [
+            'https://identity.mozilla.com/apps/smartwindow',
+            'profile:uid',
+          ],
+          vpn: ['https://identity.mozilla.com/apps/vpn', 'profile'],
+        },
+        env: 'OAUTH_AUTHORIZATION_SERVICE_SCOPES',
+      },
+      keysConditionalScope: {
+        doc: 'Scope added to ADR 0049 resolutions when keysJwe is present in the /oauth/authorization request (i.e. the user entered a password and the client computed wrapped keys). Lets non-Sync Firefox-service flows opt into Sync without each per-service serviceScopes entry having to duplicate apps/oldsync.',
+        format: 'String',
+        default: 'https://identity.mozilla.com/apps/oldsync',
+        env: 'OAUTH_AUTHORIZATION_KEYS_CONDITIONAL_SCOPE',
       },
     },
     git: {
@@ -1588,20 +1773,20 @@ const convictConf = convict({
   },
   signinConfirmation: {
     forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating a non-Sync non-2FA unverified session state',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
-    skipForEmailAddresses: {
-      doc: 'Comma separated list of email addresses that will always skip any non TOTP sign-in confirmation',
-      format: Array,
-      default: [],
-      env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS',
+    skipForEmailRegex: {
+      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation.',
+      format: RegExp,
+      default: /^$/,
+      env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip sign-in confirmation for newly-created accounts. Use this in tandem with forcedEmailAddresses',
+        doc: 'Skip all sign-in email confirmations for newly-created accounts',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1765,8 +1950,8 @@ const convictConf = convict({
     env: 'SIGNIN_CODE_SIZE',
   },
   servicesWithEmailVerification: {
-    doc: 'Services that will alwasy send a session verification email on sign in',
-    default: ['e6eb0d1e856335fc'],
+    doc: 'For users in a non-2FA non-Sync unverified session state going through an RP redirect flow, we skip 1) redirecting the user to enter emailed code verification page, and we skip 2) sending that email verification. Services in this list will NOT skip the redirect or email, and are blocked in the BE from completing the oauth flow by hitting our API directly in this state. Content-server has this config as well.',
+    default: ['32aaeb6f1c21316a', '98e6508e88680e1a'],
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
@@ -2072,6 +2257,32 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  passwordlessOtp: {
+    enabled: {
+      doc: 'Enable passwordless authentication feature',
+      default: false,
+      format: Boolean,
+      env: 'PASSWORDLESS_ENABLED',
+    },
+    allowedClientServices: {
+      doc: 'Map of client IDs to their allowed services for passwordless authentication. Format: {"clientId": {"allowedServices": ["service1", "service2"]}}. Use "*" in allowedServices for all services. Empty array denies all services.',
+      format: Object,
+      default: {},
+      env: 'PASSWORDLESS_ALLOWED_CLIENT_SERVICES',
+    },
+    digits: {
+      doc: 'Number of digits in passwordless OTP code',
+      default: 6,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_DIGITS',
+    },
+    ttl: {
+      doc: 'Duration in seconds when the passwordless OTP is valid',
+      default: 10 * 60,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_TTL',
+    },
+  },
   accountDestroy: {
     requireVerifiedAccount: {
       doc: 'Whether or not the account must be verified in order to destroy it.',
@@ -2160,12 +2371,6 @@ const convictConf = convict({
       env: 'AUTH_GLEAN_LOGGER_APP_NAME',
       format: String,
     },
-  },
-  certificateSignDisableRolloutRate: {
-    default: 0,
-    doc: 'Rollout rate for disabling certificate signing, in the range 0 .. 1',
-    env: 'CERTIFICATE_SIGN_DISABLE_ROLLOUT_RATE',
-    format: Number,
   },
   cms: {
     enabled: {
@@ -2317,6 +2522,52 @@ const convictConf = convict({
       env: 'RATE_LIMIT__SKIP_ENDPOINTS',
       format: Array,
     },
+    emailAliasNormalization: {
+      default: JSON.stringify([
+        { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
+      ]),
+      doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+", replace: ""}]',
+      env: 'RATE_LIMIT__EMAIL_ALIAS_NORMALIZATION',
+      format: String,
+    },
+    bigquery: {
+      enabled: {
+        default: false,
+        doc: 'Enable logging rate limit checks to BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__ENABLED',
+        format: Boolean,
+      },
+      projectId: {
+        default: '',
+        doc: 'GCP project ID for BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__PROJECT_ID',
+        format: String,
+      },
+      dataset: {
+        default: 'fxa',
+        doc: 'BigQuery dataset name',
+        env: 'RATE_LIMIT__BIGQUERY__DATASET',
+        format: String,
+      },
+      table: {
+        default: 'rate_limit_checks',
+        doc: 'BigQuery table name',
+        env: 'RATE_LIMIT__BIGQUERY__TABLE',
+        format: String,
+      },
+      flushIntervalMs: {
+        default: 5000,
+        doc: 'How often to flush buffered events to BigQuery (ms)',
+        env: 'RATE_LIMIT__BIGQUERY__FLUSH_INTERVAL_MS',
+        format: Number,
+      },
+      batchSize: {
+        default: 100,
+        doc: 'Max events to buffer before flushing to BigQuery',
+        env: 'RATE_LIMIT__BIGQUERY__BATCH_SIZE',
+        format: Number,
+      },
+    },
   },
   recoveryPhone: {
     enabled: {
@@ -2394,6 +2645,74 @@ const convictConf = convict({
         env: 'RECOVERY_PHONE__SMS__EXTRA_LOOKUP_FIELDS',
         format: Array,
       },
+    },
+  },
+  passkeys: {
+    enabled: {
+      default: false,
+      doc: 'Master switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
+      env: 'PASSKEYS__ENABLED',
+      format: Boolean,
+    },
+    registrationEnabled: {
+      default: false,
+      doc: 'Enable passkey registration and management (add/view/delete/rename). Requires passkeys.enabled.',
+      env: 'PASSKEYS__REGISTRATION_ENABLED',
+      format: Boolean,
+    },
+    authenticationEnabled: {
+      default: false,
+      doc: 'Enable passkey authentication (sign in with passkey). Requires passkeys.enabled.',
+      env: 'PASSKEYS__AUTHENTICATION_ENABLED',
+      format: Boolean,
+    },
+    rpId: {
+      default: '',
+      doc: 'WebAuthn Relying Party ID. Must match the domain of the deployment (e.g. "accounts.firefox.com"). Required when passkeys are enabled.',
+      env: 'PASSKEYS__RP_ID',
+      format: String,
+    },
+    allowedOrigins: {
+      default: [],
+      doc: 'List of allowed origins for WebAuthn registration and authentication ceremonies. Must be full origins (scheme + host + optional port), e.g. ["https://accounts.firefox.com"]. Must have at least one entry when passkeys are enabled.',
+      env: 'PASSKEYS__ALLOWED_ORIGINS',
+      format: Array,
+    },
+    challengeTimeout: {
+      default: 300000,
+      doc: 'Time in milliseconds before a WebAuthn challenge expires. Defaults to 300000 ms (5 minutes).',
+      env: 'PASSKEYS__CHALLENGE_TIMEOUT',
+      format: Number,
+    },
+    maxPasskeysPerUser: {
+      default: 10,
+      doc: 'Maximum number of passkeys a single user account may register.',
+      env: 'PASSKEYS__MAX_PASSKEYS_PER_USER',
+      format: Number,
+    },
+    residentKey: {
+      default: 'required',
+      doc: 'WebAuthn resident-key (discoverable credential) requirement. One of "required", "preferred", or "discouraged". Discoverable credential flow won\'t work if not set to "required".',
+      env: 'PASSKEYS__RESIDENT_KEY',
+      format: ['required', 'preferred', 'discouraged'],
+    },
+    authenticatorAttachment: {
+      default: '',
+      doc: 'Optional authenticator attachment preference. One of "platform" (device-bound) or "cross-platform" (roaming key)',
+      env: 'PASSKEYS__AUTHENTICATOR_ATTACHMENT',
+      format: ['platform', 'cross-platform', ''],
+    },
+    requestPrfAtRegistration: {
+      default: false,
+      doc: 'Request the WebAuthn PRF extension at passkey registration.',
+      env: 'PASSKEYS__REQUEST_PRF_AT_REGISTRATION',
+      format: Boolean,
+    },
+    prfSalt: {
+      default: '',
+      doc: 'Static base64url salt supplied as the WebAuthn PRF eval input',
+      env: 'PASSKEYS__PRF_SALT',
+      format: String,
     },
   },
   twilio: {
@@ -2562,7 +2881,7 @@ const convictConf = convict({
       env: 'MFA__ENABLED',
     },
     actions: {
-      default: ['test', '2fa', 'email', 'recovery_key', 'password'],
+      default: ['test', '2fa', 'email', 'recovery_key', 'password', 'passkey'],
       doc: 'Actions protected by MFA',
       format: Array,
       env: 'MFA__ACTIONS',
@@ -2602,7 +2921,7 @@ const convictConf = convict({
       },
       step: {
         // The time interval to use. In this case 1 second
-        default: 1,
+        default: 5 * 60,
         doc: 'Overrides step otp options',
         format: Number,
         env: 'MFA__OTP__STEP',
@@ -2610,7 +2929,7 @@ const convictConf = convict({
       window: {
         // Number of steps contained in the window. In this case
         // 5 minutes worth of steps
-        default: 5 * 60,
+        default: 1,
         doc: 'Overrides window otp options',
         format: Number,
         env: 'MFA__OTP__WINDOW',
@@ -2621,6 +2940,14 @@ const convictConf = convict({
         format: Number,
         env: 'MFA__OTP__DIGITS',
       },
+    },
+  },
+  registeredClients: {
+    refreshInterval: {
+      default: 60_000,
+      doc: 'The interval in ms at which we update the list of known registered client ids',
+      env: 'REGISTERED_CLIENTS__REFRESH_INTERVAL',
+      format: Number,
     },
   },
 });
@@ -2645,8 +2972,11 @@ convictConf.set(
   'smtp.accountRecoveryCodesUrl',
   `${baseUri}/settings/two_step_authentication/replace_codes`
 );
+convictConf.set(
+  'smtp.twoFactorSupportUrl',
+  'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication'
+);
 convictConf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
-convictConf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);
 convictConf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
 convictConf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
 convictConf.set(

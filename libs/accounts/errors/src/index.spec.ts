@@ -334,4 +334,168 @@ describe('AppErrors', () => {
       );
     });
   });
+
+  describe('Passkey errors', () => {
+    it('creates passkeyNotFound', () => {
+      const result = AppError.passkeyNotFound();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 224,
+        message: 'Passkey not found',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 224,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyAlreadyRegistered', () => {
+      const result = AppError.passkeyAlreadyRegistered();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 225,
+        message: 'Passkey already registered',
+        output: {
+          statusCode: 409,
+          payload: {
+            error: 'Conflict',
+            errno: 225,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyLimitReached', () => {
+      const result = AppError.passkeyLimitReached(3);
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 226,
+        message: 'Maximum number of passkeys reached',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 226,
+            limit: 3,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyAuthenticationFailed', () => {
+      const result = AppError.passkeyAuthenticationFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 227,
+        message: 'Passkey authentication failed',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 227,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRegistrationFailed', () => {
+      const result = AppError.passkeyRegistrationFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 228,
+        message: 'Passkey registration failed',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 228,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRegistrationFailed with custom message', () => {
+      const customMessage = 'Registration failed due to server error';
+      const result = AppError.passkeyRegistrationFailed(customMessage);
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 228,
+        message: customMessage,
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 228,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyChallengeExpired', () => {
+      const result = AppError.passkeyChallengeExpired();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 238,
+        message: 'Passkey challenge expired',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 238,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyInvalidName', () => {
+      const result = AppError.passkeyInvalidName();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 230,
+        message: 'Invalid passkey name',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 230,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyDeleteFailed', () => {
+      const result = AppError.passkeyDeleteFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 231,
+        message: 'Failed to delete passkey',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 231,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRenameFailed', () => {
+      const result = AppError.passkeyRenameFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 232,
+        message: 'Failed to rename passkey',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 232,
+          },
+        },
+      });
+    });
+  });
 });

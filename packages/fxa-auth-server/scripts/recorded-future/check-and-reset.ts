@@ -24,6 +24,8 @@
 import crypto from 'crypto';
 import { promisify } from 'util';
 
+import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import { Command } from 'commander';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
@@ -53,6 +55,13 @@ import {
 } from './lib';
 import { AppConfig } from '../../lib/types';
 import { AccountEventsManager } from '../../lib/account-events';
+import { FxaMailer } from '../../lib/senders/fxa-mailer';
+import { FxaMailerFormat } from '../../lib/senders/fxa-mailer-format';
+import {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} from '@fxa/accounts/email-renderer';
+import { EmailSender, Bounces } from '@fxa/accounts/email-sender';
 
 type ResetableAccount = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
@@ -73,6 +82,9 @@ const client = createClient<paths>({
 
 Container.set(AppConfig, config);
 Container.set(StatsD, statsd);
+
+const pckg = require('../../package.json');
+initSentry({ ...config, release: pckg.version }, log);
 
 let authDb: Awaited<ReturnType<typeof DB.connect>> | null;
 
@@ -244,13 +256,25 @@ async function findLeakedAccounts(
   );
 
   for (const foundCredentials of cleartextCredentials) {
-    const acct = accountsByLogin[foundCredentials.subject as string];
-    const passwordMatched = await verifyPassword(foundCredentials, acct);
+    try {
+      const acct = accountsByLogin[foundCredentials.subject as string];
+      const passwordMatched = await verifyPassword(foundCredentials, acct);
 
-    if (passwordMatched) {
-      accountsToReset.push(acct);
+      if (passwordMatched) {
+        accountsToReset.push(acct);
+        statsd.increment(
+          'recorded-future.identity.credentials-lookup.password-match'
+        );
+      }
+    } catch (err) {
+      // A single malformed credential must not abort the entire run, which
+      // would silently skip every remaining account.
+      log.error('recordedFuture.verifyPassword.error', {
+        subject: foundCredentials.subject,
+        error: err,
+      });
       statsd.increment(
-        'recorded-future.identity.credentials-lookup.password-match'
+        'recorded-future.identity.credentials-lookup.verify-error'
       );
     }
   }
@@ -292,6 +316,27 @@ async function resetAccounts(
   const mailer: any = senders.email;
   const accountEventManager = new AccountEventsManager();
 
+  // setup for fxa-mailer, since this runs outside of the key_server context we
+  // have to do a bit of manual setup
+  const bounce = new Bounces(config.smtp.bounces, {
+    // libs expectation for db is a bit simpler so we just pass through the
+    // existing function
+    emailBounces: { findByEmail: (email) => authDb.emailBounces(email) },
+  });
+  const emailSender = new EmailSender(config.smtp, bounce, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings(),
+    accountEventManager
+  );
+
   for (const acct of accountsToReset) {
     try {
       await authDb.resetAccount(
@@ -306,7 +351,41 @@ async function resetAccounts(
         }
       );
       await oauthDb.removeTokensAndCodes(acct.uid);
-      await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      if (fxaMailer.canSend('passwordChangeRequired')) {
+        // the new fxa-mailer is more type script, so we create a 'fake'
+        // request to satisfy the type checking
+        const request = {
+          app: {
+            ua: {},
+            metricsContext: Promise.resolve({
+              flowBeginTime: 1234567890,
+              flowId: 'fxa-internal-flow-id',
+            }),
+            geo: {
+              timeZone: '',
+              location: {
+                city: '',
+                state: '',
+                stateCode: '',
+                country: '',
+                countryCode: '',
+                postalCode: '',
+              },
+            },
+            acceptLanguage: acct.locale || 'en', // should be set, but fallback if not
+          },
+        };
+        await fxaMailer.sendPasswordChangeRequiredEmail({
+          ...FxaMailerFormat.account(acct as unknown as any), // this _should_ be safe
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
+      } else {
+        await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      }
       await accountEventManager.recordSecurityEvent(authDb, {
         uid: acct.uid,
         name: 'account.must_reset',
@@ -358,6 +437,14 @@ async function getHasTotp2faFn() {
 }
 
 if (require.main === module) {
+  Sentry.captureMessage('Recorded Future check-and-reset started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
+
   checkAndReset()
     .then(
       (exitCode) => {

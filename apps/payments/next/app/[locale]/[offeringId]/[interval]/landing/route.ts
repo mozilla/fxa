@@ -21,16 +21,6 @@ import * as Sentry from '@sentry/nextjs';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
-function reportError(message: string, details?: any) {
-  if (details) {
-    console.error(message, details);
-    Sentry.captureMessage(message, details);
-  } else {
-    console.error(message);
-    Sentry.captureMessage(message, 'error');
-  }
-}
-
 /**
  * This landing route will initiate the OAuth no prompt signin
  * attempt with FxA.
@@ -51,18 +41,30 @@ function reportError(message: string, details?: any) {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: BaseParams }
+  { params }: { params: Promise<BaseParams> }
 ) {
+  const resolvedParams = await params;
   const requestSearchParams = request.nextUrl.searchParams;
+  const logger = getApp().getLogger();
   const emitterService = getApp().getEmitterService();
-  const ipAddress = getIpAddress();
+  const ipAddress = await getIpAddress();
+
+  const reportError = (message: string, details?: any) => {
+    if (details) {
+      logger.error(message, details);
+      Sentry.captureMessage(message, details);
+    } else {
+      logger.error(message);
+      Sentry.captureMessage(message, 'error');
+    }
+  };
 
   if (config.sp2redirect.enabled) {
     const queryCurrency = requestSearchParams.get('currency');
     const querySpVersion = requestSearchParams.get('spVersion');
     const shouldRedirectToSp2 = determineRedirectToSp2(
       config.sp2redirect,
-      params.offeringId,
+      resolvedParams.offeringId,
       crypto.randomInt(1, 100),
       reportError,
       querySpVersion
@@ -77,8 +79,8 @@ export async function GET(
         const { productId, priceId } = getSP2Params(
           config.sp2map,
           reportError,
-          params.offeringId,
-          params.interval,
+          resolvedParams.offeringId,
+          resolvedParams.interval,
           currency
         );
 
@@ -91,27 +93,27 @@ export async function GET(
 
         emitterService.emit('sp3Rollout', {
           version: '2',
-          offeringId: params.offeringId,
-          interval: params.interval,
+          offeringId: resolvedParams.offeringId,
+          interval: resolvedParams.interval,
           shadowMode: config.sp2redirect.shadowMode,
         });
 
         if (config.sp2redirect.shadowMode) {
-          console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
+          logger.info('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
         }
       } catch (error) {
-        console.log(error);
+        logger.error('SP2 redirect error', { error });
       } finally {
         if (!config.sp2redirect.shadowMode) {
           if (!sp2RedirectUrl) {
             const pageNotFoundUrl = new URL(
               buildRedirectUrl(
-                params.offeringId,
-                params.interval,
+                resolvedParams.offeringId,
+                resolvedParams.interval,
                 'page-not-found',
                 'checkout',
                 {
-                  locale: params.locale,
+                  locale: resolvedParams.locale,
                   baseUrl: config.paymentsNextHostedUrl,
                 }
               )
@@ -124,8 +126,8 @@ export async function GET(
     } else {
       emitterService.emit('sp3Rollout', {
         version: '3',
-        offeringId: params.offeringId,
-        interval: params.interval,
+        offeringId: resolvedParams.offeringId,
+        interval: resolvedParams.interval,
         shadowMode: config.sp2redirect.shadowMode,
       });
     }
@@ -138,8 +140,8 @@ export async function GET(
   }
 
   const redirectToUrl = new URL(
-    buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
-      locale: params.locale,
+    buildRedirectUrl(resolvedParams.offeringId, resolvedParams.interval, 'new', 'checkout', {
+      locale: resolvedParams.locale,
       baseUrl: config.paymentsNextHostedUrl,
       searchParams,
     })
@@ -155,7 +157,7 @@ export async function GET(
         metricsFlow.flowBeginTime.toString()
       );
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to fetch metrics flow', { error });
     }
     redirectUrl = await signIn(
       'fxa',
@@ -167,7 +169,7 @@ export async function GET(
     );
   } catch (error) {
     // Log the error and redirect to /new without attempting signIn
-    console.error(error);
+    logger.error('Failed to sign in', { error });
   }
 
   if (!redirectUrl) {

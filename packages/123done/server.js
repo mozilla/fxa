@@ -1,5 +1,3 @@
-require('module-alias/register');
-
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
@@ -72,6 +70,7 @@ app.get('/api/auth_status', function (req, res) {
       subscriptions: req.session.subscriptions || [],
       amr: req.session.amr || null,
       acr: req.session.acr || '0',
+      account_aal2: req.session.account_aal2 || false,
       keys_jwe: req.session.keys_jwe || null,
     })
   );

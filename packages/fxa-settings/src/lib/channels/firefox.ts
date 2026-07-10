@@ -22,6 +22,18 @@ export enum FirefoxCommand {
   // support will be added on Android (https://bugzilla.mozilla.org/show_bug.cgi?id=1968130)
   // and iOS (https://github.com/mozilla-mobile/firefox-ios/issues/26837)
   SyncPreferences = 'fxaccounts:sync_preferences',
+  // Check if Firefox has an active OAuth flow
+  OAuthFlowIsActive = 'fxaccounts:oauth_flow_is_active',
+  // Start new OAuth flow and get fresh params
+  OAuthFlowBegin = 'fxaccounts:oauth_flow_begin',
+
+  // Pairing commands — sent between web page and Firefox browser
+  PairHeartbeat = 'fxaccounts:pair_heartbeat',
+  PairSupplicantMetadata = 'fxaccounts:pair_supplicant_metadata',
+  PairAuthorize = 'fxaccounts:pair_authorize',
+  PairDecline = 'fxaccounts:pair_decline',
+  PairComplete = 'fxaccounts:pair_complete',
+  PairPreferences = 'fxaccounts:pair_preferences',
 }
 
 export interface FirefoxMessageDetail {
@@ -37,6 +49,7 @@ export interface FirefoxMessage {
       stack: string;
     };
   };
+  params?: Record<string, any>; // Some commands use params instead of data
   messageId: string;
   error?: string;
 }
@@ -107,12 +120,15 @@ export type WebChannelServices =
   | {
       sync: SyncEngines;
     }
-  // For sync optional flows (currently Relay and AiWindow)
+  // For sync optional flows (currently Relay and SmartWindow)
   | {
       relay: {};
     }
   | {
-      aiwindow: {};
+      smartwindow: {};
+    }
+  | {
+      vpn: {};
     };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
@@ -130,6 +146,11 @@ export type FxAOAuthLogin = {
   // eventually move to look at fxaLogin as well to prevent FXA-10596.
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
+  /**
+   * Space-separated list of granted scopes, sent so the browser knows
+   * which scopes were authorized in this flow; this implements ADR 0049.
+   */
+  scope?: string;
 };
 
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230
@@ -143,6 +164,63 @@ export type FxACanLinkAccount = {
 type FxACanLinkAccountResponse = {
   ok: boolean;
 };
+
+export type FxAOAuthFlowIsActiveResponse = {
+  isActive: boolean;
+};
+
+// Pairing types
+export type PairHeartbeatResponse = {
+  err?: { errno: number; message: string };
+  suppAuthorized?: boolean;
+};
+
+export type PairSupplicantMetadataResponse = {
+  ua: string;
+  city: string;
+  country: string;
+  region: string;
+  ipAddress: string;
+};
+
+export type FxAOAuthFlowBeginResponse = {
+  action: string;
+  response_type: string;
+  access_type: string;
+  scope: string;
+  client_id: string;
+  state: string;
+  code_challenge?: string;
+  code_challenge_method?: string;
+  // Forward to /authorization, otherwise the OAuth code is keyless and Sync never enables.
+  keys_jwk?: string;
+};
+
+// Builds the oauth_webchannel_v1 Sync sign-in URL search params from the
+// fxa_oauth_flow_begin response. Callers may set additional params on the
+// returned URLSearchParams (e.g. entrypoint, email, utm_*).
+export function buildSyncOAuthSearch(
+  oauthParams: FxAOAuthFlowBeginResponse
+): URLSearchParams {
+  const search = new URLSearchParams({
+    context: 'oauth_webchannel_v1',
+    service: 'sync',
+    client_id: oauthParams.client_id,
+    state: oauthParams.state,
+    scope: oauthParams.scope,
+    access_type: oauthParams.access_type ?? 'offline',
+    response_type: oauthParams.response_type ?? 'code',
+  });
+  if (oauthParams.action) search.set('action', oauthParams.action);
+  if (oauthParams.code_challenge) {
+    search.set('code_challenge', oauthParams.code_challenge);
+  }
+  if (oauthParams.code_challenge_method) {
+    search.set('code_challenge_method', oauthParams.code_challenge_method);
+  }
+  if (oauthParams.keys_jwk) search.set('keys_jwk', oauthParams.keys_jwk);
+  return search;
+}
 
 // timeout tuned for device latency
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
@@ -200,17 +278,18 @@ export class Firefox extends EventTarget {
       }
       const message = detail.message;
       if (message) {
-        if (message.error || message.data.error) {
+        if (message.error || message.data?.error) {
           const error = {
             message: message.error || message.data.error?.message,
-            stack: message.data.error?.stack,
+            stack: message.data?.error?.stack,
           };
           this.dispatchEvent(
             new CustomEvent(FirefoxCommand.Error, { detail: error })
           );
         } else {
+          const responseData = message.data || message.params;
           this.dispatchEvent(
-            new CustomEvent(message.command, { detail: message.data })
+            new CustomEvent(message.command, { detail: responseData })
           );
         }
       }
@@ -374,6 +453,175 @@ export class Firefox extends EventTarget {
         this.send(FirefoxCommand.CanLinkAccount, options);
       });
     });
+  }
+
+  /** Check if Firefox has an active OAuth flow in memory. */
+  async fxaOAuthFlowIsActive(): Promise<FxAOAuthFlowIsActiveResponse> {
+    let timeoutId: number;
+    return Promise.race<FxAOAuthFlowIsActiveResponse>([
+      new Promise<FxAOAuthFlowIsActiveResponse>((resolve) => {
+        const eventHandler = (firefoxEvent: any) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(
+            FirefoxCommand.OAuthFlowIsActive,
+            eventHandler
+          );
+          const response = firefoxEvent.detail as FxAOAuthFlowIsActiveResponse;
+          resolve(response);
+        };
+
+        this.addEventListener(FirefoxCommand.OAuthFlowIsActive, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.OAuthFlowIsActive, {});
+        });
+      }),
+      new Promise<FxAOAuthFlowIsActiveResponse>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          // If timeout, assume no active flow (older Firefox or not supported)
+          resolve({ isActive: false });
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
+  }
+
+  /** Start new OAuth flow in Firefox and get fresh params for recovery. */
+  async fxaOAuthFlowBegin(
+    scopes: string[]
+  ): Promise<FxAOAuthFlowBeginResponse | null> {
+    let timeoutId: number;
+    return Promise.race<FxAOAuthFlowBeginResponse | null>([
+      new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
+        const eventHandler = (firefoxEvent: any) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
+          const response = firefoxEvent.detail as FxAOAuthFlowBeginResponse;
+          resolve(response);
+        };
+
+        this.addEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.OAuthFlowBegin, { scopes });
+        });
+      }),
+      new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          resolve(null);
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
+  }
+
+  // Pairing methods
+
+  /** Poll for heartbeat — authority calls this every ~1000ms. */
+  async pairHeartbeat(channelId: string): Promise<PairHeartbeatResponse> {
+    let timeoutId: number;
+    let eventHandler: EventListener | null = null;
+    return Promise.race<PairHeartbeatResponse>([
+      new Promise<PairHeartbeatResponse>((resolve) => {
+        eventHandler = (firefoxEvent: Event) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(FirefoxCommand.PairHeartbeat, eventHandler!);
+          resolve(
+            (firefoxEvent as CustomEvent).detail as PairHeartbeatResponse
+          );
+        };
+        this.addEventListener(FirefoxCommand.PairHeartbeat, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.PairHeartbeat, { channel_id: channelId });
+        });
+      }),
+      new Promise<PairHeartbeatResponse>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          if (eventHandler) {
+            this.removeEventListener(
+              FirefoxCommand.PairHeartbeat,
+              eventHandler
+            );
+          }
+          resolve({});
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
+  }
+
+  /** Request supplicant device metadata from browser. */
+  async pairSupplicantMetadata(
+    channelId: string
+  ): Promise<PairSupplicantMetadataResponse> {
+    return new Promise((resolve, reject) => {
+      const timeoutId = window.setTimeout(() => {
+        this.removeEventListener(
+          FirefoxCommand.PairSupplicantMetadata,
+          eventHandler
+        );
+        reject(new Error('pairSupplicantMetadata timed out'));
+      }, 10000);
+
+      const eventHandler = (firefoxEvent: Event) => {
+        clearTimeout(timeoutId);
+        this.removeEventListener(
+          FirefoxCommand.PairSupplicantMetadata,
+          eventHandler
+        );
+        resolve(
+          (firefoxEvent as CustomEvent).detail as PairSupplicantMetadataResponse
+        );
+      };
+      this.addEventListener(
+        FirefoxCommand.PairSupplicantMetadata,
+        eventHandler
+      );
+      requestAnimationFrame(() => {
+        this.send(FirefoxCommand.PairSupplicantMetadata, {
+          channel_id: channelId,
+        });
+      });
+    });
+  }
+
+  /**
+   * Send a pairing command using the request/response pattern (not
+   * fire-and-forget) so the browser's WebChannel handler completes
+   * before we proceed — matches Backbone's authority.js which uses
+   * request() instead of send().  Resolves after the browser responds
+   * or after a timeout (whichever comes first).
+   */
+  private sendPairingCommand(
+    command: FirefoxCommand,
+    channelId: string
+  ): Promise<void> {
+    return new Promise<void>((resolve) => {
+      const timeoutId = window.setTimeout(() => {
+        this.removeEventListener(command, handler);
+        resolve(); // resolve anyway — browser may not respond
+      }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+
+      const handler = () => {
+        clearTimeout(timeoutId);
+        this.removeEventListener(command, handler);
+        resolve();
+      };
+      this.addEventListener(command, handler);
+      requestAnimationFrame(() => {
+        this.send(command, { channel_id: channelId });
+      });
+    });
+  }
+
+  /** Notify browser that authority approved the pairing request. */
+  async pairAuthorize(channelId: string): Promise<void> {
+    return this.sendPairingCommand(FirefoxCommand.PairAuthorize, channelId);
+  }
+
+  /** Notify browser that authority declined the pairing request. */
+  async pairDecline(channelId: string): Promise<void> {
+    return this.sendPairingCommand(FirefoxCommand.PairDecline, channelId);
+  }
+
+  /** Notify browser that pairing is complete. */
+  async pairComplete(channelId: string): Promise<void> {
+    return this.sendPairingCommand(FirefoxCommand.PairComplete, channelId);
   }
 
   /*

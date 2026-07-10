@@ -79,3 +79,20 @@ declare module '*.module.sass' {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
+
+declare module 'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js' {
+  interface FxaPairingChannelSocket {
+    send(data: unknown): Promise<void>;
+    close(): Promise<void>;
+    addEventListener(type: string, listener: EventListener): void;
+    removeEventListener(type: string, listener: EventListener): void;
+  }
+
+  export const PairingChannel: {
+    connect(
+      channelServerUri: string,
+      channelId: string,
+      psk: Uint8Array
+    ): Promise<FxaPairingChannelSocket>;
+  };
+}

@@ -12,12 +12,12 @@ import {
   SpanExporter,
 } from '@opentelemetry/sdk-trace-node';
 import { expect } from 'chai';
-import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { TracingOpts } from '../../tracing/config';
-import { ILogger } from '../../../../libs/shared/log/src';
+import { ILogger } from '../../log';
 
-proxyquire.noCallThru();
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ProxyquireClass: any = require('proxyquire/lib/proxyquire');
 
 describe('node-tracing', () => {
   const sandbox = sinon.createSandbox();
@@ -44,6 +44,11 @@ describe('node-tracing', () => {
     getOtlpTraceExporter: sandbox.mock().callsFake(() => {}),
   };
 
+  // Create proxyquire instance with the current module to avoid Node 24
+  // module.parent deprecation issue in proxyquire's default export.
+  const pq = new ProxyquireClass(module);
+  pq.noCallThru();
+
   // Proxy require exporters to prevent pulling in extra modules and to isolate tests.
   const {
     getCurrent,
@@ -51,7 +56,7 @@ describe('node-tracing', () => {
     initTracing,
     NodeTracingInitializer,
     reset,
-  } = proxyquire('../../tracing/node-tracing', {
+  } = pq('../../tracing/node-tracing', {
     './exporters/fxa-console': {
       getConsoleTraceExporter: mocks.getConsoleExporter,
     },

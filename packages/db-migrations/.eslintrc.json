@@ -1,0 +1,13 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "root": true,
+  "ignorePatterns": ["dist", "databases", "contentful"],
+  "overrides": [
+    {
+      "files": ["**/*.spec.js"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}

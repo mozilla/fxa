@@ -7,7 +7,10 @@ import { Test } from '@nestjs/testing';
 import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
 import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookService } from './stripe-webhooks.service';
-import { CustomerSubscriptionDeletedResponseFactory } from './factories';
+import {
+  CustomerSubscriptionDeletedResponseFactory,
+  CustomerSubscriptionUpdatedResponseFactory,
+} from './factories';
 import { SubscriptionEventsService } from './subscription-handler.service';
 import {
   CustomerManager,
@@ -30,6 +33,7 @@ import {
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
@@ -52,13 +56,18 @@ import {
   NimbusManager,
 } from '@fxa/payments/experiments';
 
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
+jest.mock('@sentry/node', () => {
+  const actual = jest.requireActual('@sentry/node');
+  return {
+    ...actual,
+    captureException: jest.fn(),
+  };
+});
 
 describe('StripeWebhookService', () => {
   let stripeEventManager: StripeEventManager;
   let stripeWebhookService: StripeWebhookService;
+  let subscriptionEventsService: SubscriptionEventsService;
 
   const mockLogger = {
     error: jest.fn(),
@@ -93,6 +102,7 @@ describe('StripeWebhookService', () => {
         PayPalClient,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        PaymentsMetricsAggregatorService,
         PaymentsGleanManager,
         MockPaymentsGleanConfigProvider,
         MockPaymentsGleanFactory,
@@ -116,6 +126,7 @@ describe('StripeWebhookService', () => {
 
     stripeEventManager = module.get(StripeEventManager);
     stripeWebhookService = module.get(StripeWebhookService);
+    subscriptionEventsService = module.get(SubscriptionEventsService);
   });
 
   afterEach(() => {
@@ -154,6 +165,32 @@ describe('StripeWebhookService', () => {
           (stripeWebhookService as any).dispatchEventToHandler
         ).not.toHaveBeenCalled();
         expect(stripeEventManager.markAsProcessed).not.toHaveBeenCalled();
+      });
+
+      it('should dispatch customer.subscription.updated to handler', async () => {
+        const mockResponse = CustomerSubscriptionUpdatedResponseFactory(
+          undefined,
+          { status: 'active' },
+          { status: 'trialing' }
+        );
+        jest
+          .spyOn(stripeWebhookService as any, 'dispatchEventToHandler')
+          .mockRestore();
+        jest
+          .spyOn(stripeEventManager, 'constructWebhookEventResponse')
+          .mockReturnValue(mockResponse);
+        jest
+          .spyOn(subscriptionEventsService, 'handleCustomerSubscriptionUpdated')
+          .mockResolvedValue(undefined);
+
+        await stripeWebhookService.handleWebhookEvent({}, 'signature');
+
+        expect(
+          subscriptionEventsService.handleCustomerSubscriptionUpdated
+        ).toHaveBeenCalledWith(
+          mockResponse.event,
+          mockResponse.eventObjectData
+        );
       });
 
       it('should report exception to Sentry and throw on exception', async () => {

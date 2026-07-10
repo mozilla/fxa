@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { Link } from 'react-router';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { SETTINGS_PATH } from '../../../constants';
 import CardHeader from '../../CardHeader';
@@ -28,7 +28,7 @@ const sumoTwoStepLink = (
   </LinkExternal>
 );
 
-export const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
+export const PageRecoveryPhoneRemove = () => {
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const alertBar = useAlertBar();
@@ -142,10 +142,10 @@ export const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   );
 };
 
-export const PageMfaGuardRecoveryPhoneRemove = (props: RouteComponentProps) => {
+export const PageMfaGuardRecoveryPhoneRemove = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.removeRecoveryPhone}>
-      <PageRecoveryPhoneRemove {...props} />
+      <PageRecoveryPhoneRemove />
     </MfaGuard>
   );
 };

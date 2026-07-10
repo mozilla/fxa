@@ -43,12 +43,18 @@ class PairAuthCompleteView extends FormView {
   setInitialContext(context) {
     const deviceContext = assign({}, this.broker.get('remoteMetaData'));
     const graphicId = this.getGraphicsId();
+    const entrypoint =
+      (this.relier && this.relier.get && this.relier.get('entrypoint')) ||
+      this.getSearchParam('entrypoint');
+    const isSendTab =
+      !!entrypoint && Constants.SEND_TAB_ENTRYPOINTS.indexOf(entrypoint) !== -1;
 
     context.set({
       graphicId,
       deviceFamily: deviceContext.family,
       deviceOS: deviceContext.OS,
       hasFirefoxViewSupport: this._hasFirefoxViewSupport(),
+      isSendTab,
     });
   }
 

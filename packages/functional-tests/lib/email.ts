@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import got from 'got';
+import mysql from 'mysql2/promise';
 
 function wait() {
   return new Promise((r) => setTimeout(r, 50));
@@ -33,6 +34,8 @@ export enum EmailType {
   passwordChanged,
   passwordChangeRequired,
   passwordForgotOtp,
+  passwordlessSigninOtp,
+  passwordlessSignupOtp,
   passwordReset,
   passwordResetAccountRecovery,
   passwordResetRequired,
@@ -73,6 +76,8 @@ export enum EmailHeader {
   shortCode = 'x-verify-short-code',
   unblockCode = 'x-unblock-code',
   signinCode = 'x-signin-verify-code',
+  passwordlessSignupCode = 'x-passwordless-signup-otp',
+  passwordlessSigninCode = 'x-passwordless-signin-otp',
   recoveryCode = 'x-recovery-code',
   uid = 'x-uid',
   serviceId = 'x-service-id',
@@ -122,6 +127,43 @@ export class EmailClient {
    */
   async clear(emailAddress: string) {
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
+  }
+
+  /**
+   * Returns a summary of all emails for the given address (template name and subject).
+   * Useful for debugging which emails have been delivered.
+   * @param emailAddress - The email address to check.
+   * @returns Array of { template, subject } for each email.
+   */
+  async getEmailsByType(
+    emailAddress: string
+  ): Promise<{ template: string; subject: string }[]> {
+    const mail = (await got(
+      `${this.host}/mail/${toUsername(emailAddress)}`
+    ).json()) as any[];
+    return mail.map((m) => ({
+      template: m.headers[EmailHeader.templateName] || 'unknown',
+      subject: m.subject || '',
+    }));
+  }
+
+  /**
+   * Counts how many emails of a specific type exist for the given address.
+   * Does not clear or consume the emails.
+   * @param emailAddress - The email address to check.
+   * @param type - The type of email to count.
+   * @returns The number of matching emails.
+   */
+  async countEmailsByType(
+    emailAddress: string,
+    type: EmailType
+  ): Promise<number> {
+    const mail = (await got(
+      `${this.host}/mail/${toUsername(emailAddress)}`
+    ).json()) as any[];
+    return mail.filter(
+      (m) => m.headers[EmailHeader.templateName] === EmailType[type]
+    ).length;
   }
 
   /**
@@ -252,5 +294,73 @@ export class EmailClient {
     );
     await this.clear(email);
     return code;
+  }
+
+  /**
+   * Gets the passwordless OTP code from the email.
+   * Note: Passwordless uses the same email template as password forgot OTP.
+   * @param email - The email address that is expected to receive the code.
+   * @returns The passwordless OTP code.
+   */
+  async getPasswordlessSignupCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.passwordlessSignupOtp,
+      EmailHeader.passwordlessSignupCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  /**
+   * Gets the passwordless OTP code from the email.
+   * Note: Passwordless uses the same email template as password forgot OTP.
+   * @param email - The email address that is expected to receive the code.
+   * @returns The passwordless OTP code.
+   */
+  async getPasswordlessSigninCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.passwordlessSigninOtp,
+      EmailHeader.passwordlessSigninCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  /** Creates a bounce record. Note, this only works on localhost. For stage / prod, we expect we can generate a real bounce. */
+  async createBounce(
+    email: string,
+    bounceType = 1,
+    bounceSubType = 1,
+    emailTypeId = 39,
+    diagnosticCode = ''
+  ): Promise<void> {
+    try {
+      // create the connection to database
+      const connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        database: 'fxa',
+        // Since this is local, wait up to a second and fail other wise.
+        connectTimeout: 1000,
+      });
+
+      // execute will internally call prepare and query
+      connection.execute(
+        `INSERT INTO emailBounces (email, bounceType, bounceSubType, createdAt, emailTypeId, diagnosticCode)
+         VALUES (?, ?, ?, ?, ?, ?);`,
+        [
+          email,
+          bounceType,
+          bounceSubType,
+          Date.now(),
+          emailTypeId,
+          diagnosticCode,
+        ]
+      );
+    } catch (err) {
+      console.log('Could not create bounce record in local db!');
+    }
   }
 }

@@ -2,35 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import classNames from 'classnames';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import InputPassword from '../../components/InputPassword';
-import Avatar from '../../components/Settings/Avatar';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import { REACT_ENTRYPOINT } from '../../constants';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
-import { usePageViewEvent } from '../../lib/metrics';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
   isWebIntegration,
-  isOAuthIntegration,
   isOAuthNativeIntegration,
+  useAuthClient,
   useConfig,
 } from '../../models';
-import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
+import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
@@ -39,19 +31,17 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import SigninUserLockup from './components/SigninUserLockup';
 
 export const viewName = 'signin';
 
-const avatarClassNames = 'h-12 w-12 desktop:h-22 desktop:w-22';
-
+// Password-input signin. The container only renders this component when the
+// flow needs a password.
 const Signin = ({
   integration,
   email,
-  sessionToken,
-  serviceName,
   hasLinkedAccount,
   beginSigninHandler,
-  cachedSigninHandler,
   sendUnblockEmailHandler,
   hasPassword,
   avatarData,
@@ -60,18 +50,38 @@ const Signin = ({
   finishOAuthFlowHandler,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
-  deeplink,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
+  isSignedIntoFirefox = false,
   setCurrentSplitLayout,
-}: SigninProps & RouteComponentProps) => {
+}: SigninProps) => {
   const config = useConfig();
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
+  const authClient = useAuthClient();
+
+  // Button stays visible without WebAuthn support; the hook surfaces an error.
+  const showPasskeySignin = !!(
+    config.featureFlags?.passkeysEnabled &&
+    config.featureFlags?.passkeyAuthenticationEnabled
+  );
+
+  const passkey = usePasskeySignIn({
+    integration,
+    authClient,
+    finishOAuthFlowHandler,
+    ftlMsgResolver,
+    navigateWithQuery,
+    queryParams: location.search,
+    flowQueryParams,
+    surface: 'login',
+    isButtonVisible: showPasskeySignin,
+    supportsKeysOptionalLogin,
+  });
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -86,24 +96,20 @@ const Signin = ({
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
-  const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);
-  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
+  const isSync = integration.isSync();
   const clientId = integration.getClientId();
-  const isMonitorClient = isOAuth && isClientMonitor(clientId);
-  const isRelayClient = isOAuth && isClientRelay(clientId);
-  const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
-  const isDeeplinking = !!deeplink;
+  const legalTerms = integration.getLegalTerms();
+
+  // Hide "Use a different account" when the user is signed into Firefox Desktop.
+  // Users cannot choose another account due to the inability to merge
+  // account/sync data (the "merge stop"/warning).
+  const hideAccountSwitchLink =
+    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
+
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
-
-  // We must use a ref because we may update this value in a callback
-  let isPasswordNeededRef = useRef(
-    (!sessionToken && hasPassword) ||
-      integration.wantsKeys() ||
-      (isOAuth && integration.wantsLogin())
-  );
 
   const localizedPasswordFormLabel = ftlMsgResolver.getMsg(
     'signin-password-button-label',
@@ -128,82 +134,15 @@ const Signin = ({
   // to create a PW at the end of the flow.
   // - Hide third party auth if it's an oauth native integration without passwordless support
   // Show for all other cases.
-  const hideThirdPartyAuth = integration.isSync()
+  const hideThirdPartyAuth = isSync
     ? hasPassword
     : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
-    if (!isPasswordNeededRef.current) {
-      GleanMetrics.cachedLogin.view({
-        event: { thirdPartyLinks: !hideThirdPartyAuth },
-      });
-    } else {
-      GleanMetrics.login.view({
-        event: { thirdPartyLinks: !hideThirdPartyAuth },
-      });
-    }
-  }, [isPasswordNeededRef, hideThirdPartyAuth]);
-
-  const signInWithCachedAccount = useCallback(
-    async (sessionToken: hexstring) => {
-      setSigninLoading(true);
-      GleanMetrics.cachedLogin.submit();
-
-      const { data, error } = await cachedSigninHandler(sessionToken);
-
-      if (data) {
-        GleanMetrics.cachedLogin.success();
-
-        const navigationOptions = {
-          email,
-          signinData: {
-            emailVerified: data.emailVerified,
-            sessionVerified: data.sessionVerified,
-            verificationMethod: data.verificationMethod,
-            verificationReason: data.verificationReason,
-            uid: data.uid,
-            sessionToken,
-          },
-          integration,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
-          finishOAuthFlowHandler,
-          queryParams: location.search,
-          performNavigation: !integration.isFirefoxMobileClient(),
-          isServiceWithEmailVerification,
-        };
-
-        const { error: navError } = await handleNavigation(navigationOptions);
-        if (navError) {
-          setLocalizedBannerError(
-            getLocalizedErrorMessage(ftlMsgResolver, navError)
-          );
-        }
-      }
-      if (error) {
-        setLocalizedBannerError(
-          getLocalizedErrorMessage(ftlMsgResolver, error)
-        );
-        if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
-          isPasswordNeededRef.current = true;
-        }
-        setSigninLoading(false);
-      }
-    },
-    [
-      cachedSigninHandler,
-      email,
-      ftlMsgResolver,
-      setLocalizedBannerError,
-      integration,
-      finishOAuthFlowHandler,
-      location.search,
-      webRedirectCheck,
-      isServiceWithEmailVerification,
-    ]
-  );
+    GleanMetrics.login.view({
+      event: { thirdPartyLinks: !hideThirdPartyAuth },
+    });
+  }, [hideThirdPartyAuth]);
 
   const signInWithPassword = useCallback(
     async (password: string) => {
@@ -218,6 +157,7 @@ const Signin = ({
         const isFullyVerified =
           data.signIn.emailVerified && data.signIn.sessionVerified;
         const navigationOptions = {
+          navigate,
           email,
           signinData: data.signIn,
           unwrapBKey: data.unwrapBKey,
@@ -235,6 +175,7 @@ const Signin = ({
             integration.isFirefoxMobileClient() && isFullyVerified
           ),
           isServiceWithEmailVerification,
+          authClient,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -281,8 +222,7 @@ const Signin = ({
               navigateWithQuery('/signin_unblock', {
                 state: {
                   email,
-                  // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword from state
-                  // will be stored in Apollo cache at the container level
+                  // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
                   hasPassword,
                   hasLinkedAccount,
                 },
@@ -306,7 +246,7 @@ const Signin = ({
                 )
               );
               setLocalizedBannerErrorLink({
-                path: `/reset_password?email=${email}&email_to_hash_with=`,
+                path: `/reset_password?email=${email}`,
                 localizedText: ftlMsgResolver.getMsg(
                   'signin-account-locked-banner-link',
                   'Reset your password to sign in'
@@ -331,6 +271,7 @@ const Signin = ({
       ftlMsgResolver,
       hasLinkedAccount,
       hasPassword,
+      navigate,
       navigateWithQuery,
       sendUnblockEmailHandler,
       setLocalizedBannerError,
@@ -340,44 +281,27 @@ const Signin = ({
       webRedirectCheck,
       sensitiveDataClient,
       isServiceWithEmailVerification,
+      authClient,
     ]
   );
 
   const onSubmit = useCallback(
     async ({ password }: { password: string }) => {
-      if (isPasswordNeededRef.current && password === '') {
+      if (password === '') {
         setPasswordTooltipErrorText(localizedValidPasswordError);
         return;
       }
-
-      !isPasswordNeededRef.current && sessionToken
-        ? signInWithCachedAccount(sessionToken)
-        : signInWithPassword(password);
+      signInWithPassword(password);
     },
-    [
-      signInWithCachedAccount,
-      signInWithPassword,
-      isPasswordNeededRef,
-      localizedValidPasswordError,
-      sessionToken,
-    ]
+    [signInWithPassword, localizedValidPasswordError]
   );
 
-  if (isDeeplinking) {
-    // To avoid flickering, we only render third party auth and navigate
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
-
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.SigninPage.pageTitle;
-  const splitLayout = cmsInfo?.SigninPage.splitLayout;
+  const signinPageCms = cmsInfo?.SigninPage;
+  const title = signinPageCms?.pageTitle;
+  const splitLayout = signinPageCms?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -390,31 +314,18 @@ const Signin = ({
           }}
         />
       )}
-      {isPasswordNeededRef.current && hasPassword ? (
-        <CardHeader
-          headingText="Enter your password"
-          headingAndSubheadingFtlId="signin-password-needed-header-2"
-          {...{
-            cmsLogoUrl: cmsInfo?.shared.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: cmsInfo?.SigninPage.headline,
-            cmsDescription: cmsInfo?.SigninPage.description,
-          }}
-        />
-      ) : (
-        <CardHeader
-          headingText="Sign in"
-          headingTextFtlId="signin-header"
-          subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
-          subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
-          {...{
-            clientId,
-            serviceName,
-            cmsLogoUrl: cmsInfo?.shared.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared.logoAltText,
-          }}
-        />
-      )}
+      <CardHeader
+        headingText="Enter your password"
+        headingAndSubheadingFtlId="signin-password-needed-header-2"
+        {...{
+          cmsLogoUrl: cmsInfo?.shared.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared.logoAltText,
+          cmsHeadline: signinPageCms?.headline,
+          cmsDescription: signinPageCms?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
+        }}
+      />
       {localizedBannerError && (
         <Banner
           type="error"
@@ -425,152 +336,111 @@ const Signin = ({
           link={localizedBannerErrorLink}
         />
       )}
-      <div className="mt-8 mb-7 desktop:my-6">
-        <div className="flex desktop:flex-col items-center gap-3 desktop:gap-2">
-          {sessionToken && avatarData?.account?.avatar ? (
-            <Avatar
-              className={avatarClassNames}
-              avatar={avatarData.account.avatar}
-            />
-          ) : avatarLoading ? (
-            <div
-              className={classNames(
-                avatarClassNames,
-                'flex justify-center items-center'
-              )}
-            >
-              <LoadingSpinner />
-            </div>
-          ) : (
-            // There was an error, so just show default avatar
-            <Avatar className={avatarClassNames} />
-          )}
-          <div className="text-base break-all text-start desktop:text-center">
-            {email}
-          </div>
-        </div>
-
-        {isFirefoxClientServiceRelay && (
-          <FtlMsg id="signin-desktop-relay">
-            <p className="mt-6 mb-4 text-sm">
-              Firefox will try sending you back to use an email mask after you
-              sign in.
-            </p>
-          </FtlMsg>
-        )}
-      </div>
-      {!hasLinkedAccountAndNoPassword && (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input type="email" className="hidden" value={email} disabled />
-
-          {isPasswordNeededRef.current && (
-            <InputPassword
-              name="password"
-              anchorPosition="start"
-              className="mb-5"
-              label={localizedPasswordFormLabel}
-              errorText={passwordTooltipErrorText}
-              tooltipPosition="bottom"
-              required
-              autoFocus
-              onChange={() => {
-                // Only log the engage event once. Note that this text box is autofocused, so
-                // using autofocus wouldn't be a good way to do this.
-                if (hasEngaged === false) {
-                  setHasEngaged(true);
-                  GleanMetrics.login.engage();
-                }
-
-                // clear error tooltip if user types in the field
-                if (passwordTooltipErrorText) {
-                  setPasswordTooltipErrorText('');
-                }
-                // if the request errored, loading state must be marked as false to reenable submission on input type
-                setSigninLoading(false);
-              }}
-              inputRef={register()}
-            />
-          )}
-          {/* This non-fulfilled input tricks the browser, when trying to
-              sign in with the wrong password, into not showing the doorhanger.
-              TODO: this causes problems with react-hook-form, do we even need it?
-           */}
-          {/* <input className="hidden" required /> */}
-
-          <div className="flex">
-            <FtlMsg id="signin-button">
-              <CmsButtonWithFallback
-                className="cta-primary cta-xl"
-                type="submit"
-                disabled={signinLoading}
-                buttonColor={cmsInfo?.shared.buttonColor}
-              >
-                Sign in
-              </CmsButtonWithFallback>
-            </FtlMsg>
-          </div>
-        </form>
-      )}
-
-      {!hideThirdPartyAuth && (
-        <ThirdPartyAuth
-          showSeparator={true}
-          separatorType={
-            hasLinkedAccountAndNoPassword ? 'signInWith' : undefined
-          }
-          {...{ viewName, flowQueryParams }}
-        />
-      )}
-
-      <TermsPrivacyAgreement
+      <SigninUserLockup
         {...{
-          isMonitorClient,
-          isFirefoxClientServiceRelay,
-          isRelayClient,
+          email,
+          avatarData,
+          avatarLoading,
+          additionalAccessibilityInfo,
         }}
       />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input type="email" className="hidden" value={email} disabled />
+
+        <InputPassword
+          name="password"
+          anchorPosition="start"
+          className="mb-5"
+          label={localizedPasswordFormLabel}
+          errorText={passwordTooltipErrorText}
+          tooltipPosition="bottom"
+          required
+          autoFocus
+          onChange={() => {
+            // Only log the engage event once. Note that this text box is autofocused, so
+            // using autofocus wouldn't be a good way to do this.
+            if (hasEngaged === false) {
+              setHasEngaged(true);
+              GleanMetrics.login.engage();
+            }
+
+            // clear error tooltip if user types in the field
+            if (passwordTooltipErrorText) {
+              setPasswordTooltipErrorText('');
+            }
+            // if the request errored, loading state must be marked as false to reenable submission on input type
+            setSigninLoading(false);
+          }}
+          inputRef={register()}
+        />
+
+        <div className="flex">
+          <FtlMsg id="signin-button">
+            <CmsButtonWithFallback
+              type="submit"
+              disabled={signinLoading}
+              buttonColor={cmsInfo?.shared.buttonColor}
+              buttonText={signinPageCms?.primaryButtonText}
+            >
+              Sign in
+            </CmsButtonWithFallback>
+          </FtlMsg>
+        </div>
+      </form>
+
+      <AlternativeAuthOptions
+        showThirdPartyAuth={!hideThirdPartyAuth}
+        showPasskeySignin={showPasskeySignin}
+        passkeySignIn={
+          showPasskeySignin
+            ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
+            : undefined
+        }
+        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        {...{ viewName, flowQueryParams }}
+      />
+
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
-        <FtlMsg id="signin-use-a-different-account-link">
-          <a
-            href="/"
-            className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
-            onClick={(e) => {
-              e.preventDefault();
-              GleanMetrics.login.diffAccountLinkClick();
+        {!hideAccountSwitchLink && (
+          <FtlMsg id="signin-use-a-different-account-link">
+            <a
+              href="/"
+              className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
+              onClick={(e) => {
+                e.preventDefault();
+                GleanMetrics.login.diffAccountLinkClick();
 
-              // Some RPs may specify an email address in the query params which
-              // we prioritize. Users attempting to change their email address is a signal
-              // that the email in query params is not correct.
-              const searchParams = new URLSearchParams(window.location.search);
-              searchParams.delete('email');
-              navigateWithQuery(`/?${searchParams.toString()}`, {
-                state: {
-                  prefillEmail: email,
-                },
-              });
-            }}
-          >
-            Use a different account
-          </a>
-        </FtlMsg>
-        {!hasLinkedAccountAndNoPassword && (
-          <FtlMsg id="signin-forgot-password-link">
-            <Link
-              to={`/reset_password${
-                location?.search ? `/${location?.search}` : ''
-              }`}
-              className="text-sm link-blue mx-auto tablet:mx-0"
-              onClick={() =>
-                !isPasswordNeededRef.current
-                  ? GleanMetrics.cachedLogin.forgotPassword()
-                  : GleanMetrics.login.forgotPassword()
-              }
+                // Some RPs may specify an email address in the query params which
+                // we prioritize. Users attempting to change their email address is a signal
+                // that the email in query params is not correct.
+                const searchParams = new URLSearchParams(
+                  window.location.search
+                );
+                searchParams.delete('email');
+                navigateWithQuery(`/?${searchParams.toString()}`, {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              }}
             >
-              Forgot password?
-            </Link>
+              Use a different account
+            </a>
           </FtlMsg>
         )}
+        <FtlMsg id="signin-forgot-password-link">
+          <Link
+            to={`/reset_password${
+              location?.search ? `/${location?.search}` : ''
+            }`}
+            className="text-sm link-blue mx-auto tablet:mx-0"
+            onClick={() => GleanMetrics.login.forgotPassword()}
+          >
+            Forgot password?
+          </Link>
+        </FtlMsg>
       </div>
     </AppLayout>
   );

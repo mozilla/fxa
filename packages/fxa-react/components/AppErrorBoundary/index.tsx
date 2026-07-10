@@ -12,6 +12,7 @@ type AppErrorBoundaryProps = {
 
 type AppErrorBoundaryState = {
   error: Error | undefined;
+  sentryEventId: string | undefined;
 };
 
 class AppErrorBoundary extends React.Component<
@@ -20,11 +21,12 @@ class AppErrorBoundary extends React.Component<
 > {
   state: {
     error: undefined | Error;
+    sentryEventId: undefined | string;
   };
 
   constructor(props: AppErrorBoundaryProps) {
     super(props);
-    this.state = { error: undefined };
+    this.state = { error: undefined, sentryEventId: undefined };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -33,12 +35,19 @@ class AppErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error) {
     console.error('AppError', error);
-    Sentry.captureException(error, { tags: { source: 'AppErrorBoundary' } });
+    const sentryEventId = Sentry.captureException(error, {
+      tags: { source: 'AppErrorBoundary' },
+    });
+    this.setState({ sentryEventId });
   }
 
   render() {
-    const { error } = this.state;
-    return error ? <AppErrorDialog /> : this.props.children;
+    const { error, sentryEventId } = this.state;
+    return error ? (
+      <AppErrorDialog {...{ error, sentryEventId }} />
+    ) : (
+      this.props.children
+    );
   }
 }
 

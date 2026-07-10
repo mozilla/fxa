@@ -9,6 +9,7 @@ import { getApp } from '../nestapp/app';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
+import { sanitizePathname } from '../utils/sanitizePathname';
 import {
   StartCartDTO,
   ProcessingCartDTO,
@@ -22,45 +23,62 @@ import {
  * Get Cart or Redirect if cart state does not match supported page
  * @@param cartId - Cart ID
  * @@param page - Page that action is being called from
+ * @@param currentPathname - Current pathname for constructing redirect URLs
  */
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.START,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<StartCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.PROCESSING,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<ProcessingCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.NEEDS_INPUT,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<NeedsInputCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.ERROR,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<FailCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.SUCCESS,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<SuccessCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages,
-  searchParams?: Record<string, string | string[]>
+  currentPathname: string,
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<CartDTO> {
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const filteredParams = searchParams
+    ? Object.fromEntries(Object.entries(searchParams).filter(([, v]) => v != null)) as Record<string, string | string[]>
+    : undefined;
+  const urlSearchParams = new URLSearchParams(filteredParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   const cart = await getApp().getActionsService().getCart({
     cartId,
   });
 
   if (!validateCartState(cart.state, page)) {
-    redirect(getRedirect(cart.state) + params);
+    // Sanitize pathname to prevent open redirect vulnerabilities
+    const safePath = sanitizePathname(currentPathname);
+
+    // Replace the last segment with the redirect path to maintain the full path structure
+    const pathSegments = safePath.split('/');
+    pathSegments[pathSegments.length - 1] = getRedirect(cart.state);
+    const redirectPath = pathSegments.join('/');
+    redirect(redirectPath + params);
   }
 
   return cart;

@@ -46,9 +46,37 @@ AppError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
-AppError.from = function from(obj) {
-  var err = new AppError(obj);
-  err.cause = obj.cause;
+// Accepts AppError-shape, Boom-shape (statusCode), Boom errors (output.payload),
+// plain Errors, or null/undefined; merges `context` into payload so callers like
+// batch.js can attach the failing sub-request URL for Sentry.
+AppError.from = function from(obj, context) {
+  var source = obj;
+  if (source && typeof source === 'object' && source.output && source.output.payload) {
+    source = source.output.payload;
+  }
+
+  var safe = source && typeof source === 'object' ? source : {};
+  var code = safe.code || safe.statusCode;
+  var errno = safe.errno;
+  var message = safe.message || (obj instanceof Error ? obj.message : undefined);
+
+  var err = new AppError(
+    {
+      code: code,
+      errno: errno,
+      error: safe.error,
+      message: message,
+      info: safe.info,
+    },
+    Object.assign(
+      {},
+      safe.validation ? { validation: safe.validation } : null,
+      // Surface raw upstream in Sentry when we couldn't extract a typed errno or message.
+      !errno || !message ? { upstream: obj === undefined ? null : obj } : null,
+      context || null
+    )
+  );
+  err.cause = obj && obj.cause;
   return err;
 };
 

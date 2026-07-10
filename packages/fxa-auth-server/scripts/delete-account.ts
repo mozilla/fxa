@@ -1,4 +1,4 @@
-#!/usr/bin/env node -r esbuild-register
+#!/usr/bin/env node -r ts-node/register/transpile-only -r tsconfig-paths/register
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -35,6 +35,16 @@ import {
   DeleteAccountTasksFactory,
 } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
+import oauthClientInfo, {
+  OAuthClientInfoServiceName,
+} from '../lib/senders/oauth_client_info';
+import { Bounces, EmailSender } from '@fxa/accounts/email-sender';
+import {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} from '@fxa/accounts/email-renderer';
+import { FxaMailer } from '../lib/senders/fxa-mailer';
+
 const { gleanMetrics } = require('../lib/metrics/glean');
 
 const config = configProperties.getProperties();
@@ -63,6 +73,10 @@ const profile = new ProfileClient(log, statsd, {
   serviceName: 'subhub',
 });
 Container.set(ProfileClient, profile);
+Container.set({
+  id: OAuthClientInfoServiceName,
+  factory: () => oauthClientInfo(log, config),
+});
 
 DB.connect(config).then(async (db: any) => {
   // Bypass customs checks.
@@ -129,6 +143,26 @@ DB.connect(config).then(async (db: any) => {
 
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
   Container.set(DeleteAccountTasks, accountTasks);
+
+  // mailer lib setup
+  const bounces = new Bounces(config.smtp.bounces, {
+    // libs expectation for db is a bit simpler so we just pass through the
+    // existing function
+    emailBounces: { findByEmail: (email) => db.emailBounces(email) },
+  });
+  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings()
+  );
+  Container.set(FxaMailer, fxaMailer);
 
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: db,

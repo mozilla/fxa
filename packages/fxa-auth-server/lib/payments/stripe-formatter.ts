@@ -65,38 +65,6 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 }
 
 /**
- * Formats an array of Stripe Invoice to the SubsequentInvoicePreview DTO format.
- */
-export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
-  invoices: Stripe.UpcomingInvoice[]
-): invoiceDTO.SubsequentInvoicePreview[] {
-  return invoices.map((invoice) => {
-    const invoicePreview: invoiceDTO.subsequentInvoicePreview = {
-      currency: invoice.currency,
-      subscriptionId: invoice.subscription as string,
-      period_start: invoice.period_end,
-      subtotal: invoice.subtotal,
-      subtotal_excluding_tax: invoice.subtotal_excluding_tax,
-      total: invoice.total,
-      total_excluding_tax: invoice.total_excluding_tax,
-    };
-
-    if (invoice.total_tax_amounts.length > 0) {
-      invoicePreview.tax = invoice.total_tax_amounts.map((tax) => ({
-        amount: tax.amount,
-        inclusive: tax.inclusive,
-        display_name:
-          typeof tax.tax_rate === 'object'
-            ? tax.tax_rate.display_name || undefined
-            : undefined,
-      }));
-    }
-
-    return invoicePreview;
-  });
-}
-
-/**
  * Formats an array of Stripe Invoice to the stripeInvoiceToLatestInvoiceItemsDTO DTO format.
  *
  * Currently this is the same as stripeInvoiceToFirstInvoicePreviewDTO, however could change

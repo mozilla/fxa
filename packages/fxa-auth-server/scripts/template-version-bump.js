@@ -16,19 +16,21 @@ const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT_DIR = path.join(__dirname, '..');
-const TEMPLATE_DIR = 'lib/senders/emails/templates';
-const VERSIONS_FILE = '_versions.json';
-const IGNORE = new Set([VERSIONS_FILE, '_storybook']);
+const IGNORE = new Set(['_versions.json', '_storybook']);
 const DEDUP = {};
 
-const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
+const versions = require('../lib/senders/emails/templates/_versions.json');
 
 const stagedTemplates = cp
-  .execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
+  .execSync('git status --porcelain', {
+    cwd: path.join(__dirname, '..'),
+    encoding: 'utf8',
+  })
   .split('\n')
   .filter((line) =>
-    line.match(`^[AM]. packages/fxa-auth-server/${TEMPLATE_DIR}/\\w+`)
+    line.match(
+      `^[AM]. packages/fxa-auth-server/lib/senders/emails/templates/\\w+`
+    )
   )
   .map((line) => {
     const parts = line.split(' ');
@@ -67,7 +69,7 @@ if (stagedTemplates.length === 0) {
   });
 
   fs.writeFileSync(
-    path.join(`${ROOT_DIR}/${TEMPLATE_DIR}/${VERSIONS_FILE}`),
+    path.join(__dirname, '..', 'lib/senders/emails/templates/_versions.json'),
     JSON.stringify(versions, null, '  ')
   );
 }

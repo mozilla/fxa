@@ -4,24 +4,18 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
-import { SubplatInterval } from '@fxa/payments/customer';
 
 export const determineCancellationInterventionAction = async (args: {
-    uid: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+  subscriptionId: string;
+  acceptLanguage?: string | null;
+  selectedLanguage?: string;
 }) => {
+  const uid = await requireSessionUid();
   return await getApp().getActionsService().determineCancellationIntervention({
-    uid: args.uid,
+    uid,
     subscriptionId: args.subscriptionId,
-    offeringApiIdentifier: args.offeringApiIdentifier,
-    currentInterval: args.currentInterval,
-    upgradeInterval: args.upgradeInterval,
     acceptLanguage: args.acceptLanguage,
     selectedLanguage: args.selectedLanguage,
   });

@@ -46,6 +46,7 @@ export const PageContentByPriceIdsPurchaseResultFactory = (
 export const PageContentByPriceIdsOfferingResultFactory = (
   override?: Partial<PageContentByPriceIdsOfferingResult>
 ): PageContentByPriceIdsOfferingResult => ({
+  apiIdentifier: faker.string.sample(),
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
     () => ({
@@ -53,8 +54,14 @@ export const PageContentByPriceIdsOfferingResultFactory = (
     })
   ),
   commonContent: {
+    emailIcon: faker.internet.url(),
     supportUrl: faker.internet.url(),
-    localizations: [{ supportUrl: faker.internet.url() }],
+    localizations: [
+      {
+        emailIcon: faker.internet.url(),
+        supportUrl: faker.internet.url(),
+      },
+    ],
   },
   ...override,
 });

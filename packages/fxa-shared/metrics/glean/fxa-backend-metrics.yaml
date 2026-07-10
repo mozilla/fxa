@@ -136,6 +136,51 @@ account:
         description: |
           The reason for the deletion.
         type: string
+  device_disconnected:
+    type: event
+    description: |
+      A device signed out of / disconnected from the browser (Sync or OAuth),
+      via /account/device/destroy. Captures browser- and app-initiated
+      sign-outs that the frontend account_pref.device_signout event does not.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13092
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      platform:
+        description: One of 'desktop', 'ios', 'android', or 'unknown'.
+        type: string
+  session_destroyed:
+    type: event
+    description: |
+      An account session was destroyed (web/settings sign out),
+      via /session/destroy.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13092
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      platform:
+        description: One of 'desktop', 'ios', 'android', or 'unknown'.
+        type: string
 
 relying_party:
   service:
@@ -461,6 +506,9 @@ access_token:
       reason:
         description: additional context-dependent info, e.g. the cause of an error
         type: string
+      scopes:
+        description: The OAuth scopes granted for the access token, in a comma-separated list
+        type: string
 login:
   backup_code_success:
     type: event
@@ -498,6 +546,11 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates how the user completed login. Values include "email" (traditional email/password), "otp" (passwordless OTP code), "google" (third-party login via Google), "apple" (third-party login via Apple), "passkey" (WebAuthn passkey).
+        type: string
   email_confirmation_sent:
     type: event
     description: |
@@ -881,6 +934,11 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates how the user completed registration. Values include "email" (traditional email verification), "otp" (passwordless OTP code), "google" (Google third-party auth), "apple" (Apple third-party auth).
+        type: string
   email_sent:
     type: event
     description: |
@@ -1671,6 +1729,100 @@ login_confirm_skip_for:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+passkey:
+  authentication_started:
+    type: event
+    description: |
+      Passkey authentication (assertion) ceremony started on the server: a
+      challenge was generated for the client. Pairs with the
+      login.complete (reason=passkey) completion signal to measure the
+      server-side passkey sign-in funnel.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  authentication_verification_success:
+    type: event
+    description: |
+      Passkey authentication assertion verified successfully on the server,
+      before any session/token work. Sits between
+      passkey.authentication_started and login.complete (reason=passkey) so
+      failures during token/session creation are distinguishable from a
+      failed WebAuthn ceremony.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  create_complete:
+    type: event
+    description: |
+      Passkey registration completed successfully on the server
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  delete_success:
+    type: event
+    description: |
+      Passkey deletion completed successfully on the server
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  rename_success:
+    type: event
+    description: |
+      Passkey rename completed successfully on the server
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
     data_sensitivity:
       - interaction

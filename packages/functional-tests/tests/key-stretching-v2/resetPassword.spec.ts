@@ -18,10 +18,15 @@ test.describe('severity-2 #smoke', () => {
     password: string
   ) {
     const client = target.createAuthClient(version);
-    const response = await client.signIn(email, password, {
-      keys: true,
-      skipPasswordUpgrade: true,
-    });
+    const response = await client.signIn(
+      email,
+      password,
+      {
+        keys: true,
+        skipPasswordUpgrade: true,
+      },
+      target.ciHeader
+    );
     expect(response.keyFetchToken).toBeDefined();
     expect(response.unwrapBKey).toBeDefined();
 
@@ -60,7 +65,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
@@ -78,7 +83,7 @@ test.describe('severity-2 #smoke', () => {
         password
       );
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
       );
       await signin.fillOutEmailFirstForm(email);
       await signin.fillOutPasswordForm(password);

@@ -86,6 +86,8 @@ module.exports = (printLogs) => {
           const sc = mail.headers['x-signin-verify-code'];
           const rpc = mail.headers['x-password-forgot-otp'];
           const mfa = mail.headers['x-account-change-verify-code'];
+          const plSignup = mail.headers['x-passwordless-signup-otp'];
+          const plSignin = mail.headers['x-passwordless-signin-otp'];
           const template = mail.headers['x-template-name'];
 
           // Workaround because the email service wraps this header in `< >`.
@@ -108,6 +110,10 @@ module.exports = (printLogs) => {
             console.log('\x1B[36mReset password Otp:', rpc, '\x1B[39m');
           } else if (mfa) {
             console.log('\x1B[36mMfa code:', mfa, '\x1B[39m');
+          } else if (plSignup) {
+            console.log('\x1B[35mPasswordless signup code:', plSignup, '\x1B[39m');
+          } else if (plSignin) {
+            console.log('\x1B[35mPasswordless signin code:', plSignin, '\x1B[39m');
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
           } else {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NavigateFn, WindowLocation } from '@reach/router';
+import { NavigateFunction } from 'react-router';
 import { ReachRouterWindow } from './window';
 
 describe('window', () => {
@@ -23,9 +23,9 @@ describe('window', () => {
       };
 
       const window = new ReachRouterWindow({
-        location: fakeOverride as WindowLocation<any>,
-        navigate: fakeOverride as NavigateFn,
-        history: fakeOverride as History,
+        location: fakeOverride as Location,
+        navigate: fakeOverride as NavigateFunction,
+        history: fakeOverride as any,
         localStorage: fakeOverride as Storage,
         sessionStorage: fakeOverride as Storage,
       });

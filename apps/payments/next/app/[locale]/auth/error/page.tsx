@@ -11,20 +11,21 @@ import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
 import { config } from '../../../../config';
 import { getApp } from '@fxa/payments/ui/server';
 
-export default function AuthErrorPage({
+export default async function AuthErrorPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[]>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
+  const resolvedSearchParams = await searchParams;
   const redirectUrl =
     cookieStore.get('__Secure-authjs.callback-url')?.value ||
     cookieStore.get('authjs.callback-url')?.value;
   const supportUrl = config.supportUrl;
   const l10n = getApp().getL10n();
-  const errorMessage = Array.isArray(searchParams?.error)
-    ? searchParams.error[0]
-    : searchParams?.error;
+  const errorMessage = Array.isArray(resolvedSearchParams?.error)
+    ? resolvedSearchParams.error[0]
+    : resolvedSearchParams?.error;
   getApp().getEmitterService().emit('auth', { type: 'error', errorMessage });
 
   return (

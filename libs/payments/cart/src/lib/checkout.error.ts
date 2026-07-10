@@ -47,6 +47,13 @@ export class InvalidIntentStateError extends CheckoutError {
   }
 }
 
+export class AccountCustomerAlreadyExistsError extends CheckoutError {
+  constructor(uid: string) {
+    super('account customer already exists for uid', { uid });
+    this.name = 'AccountCustomerAlreadyExistsError';
+  }
+}
+
 export class SubmitNeedsInputFailedError extends CheckoutError {
   constructor(cartId: string) {
     super('payment failed while submitting user needs_input', { cartId });
@@ -71,6 +78,16 @@ export class UpgradeForSubscriptionNotFoundError extends CheckoutError {
   }
 }
 
+export class UpgradeSubscriptionNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'UpgradeSubscriptionNullCurrencyError';
+  }
+}
+
 export class LatestInvoiceNotFoundOnSubscriptionError extends CheckoutError {
   constructor(cartId: string, subscriptionId: string) {
     super('latest_invoice could not be found on subscription', {
@@ -91,6 +108,36 @@ export class PaymentMethodUpdateFailedError extends CheckoutError {
   }
 }
 
+export class PayWithStripeLatestInvoiceNotFoundOnSubscriptionError extends CheckoutError {
+  constructor(cartId: string, subscriptionId: string) {
+    super('latest_invoice does not exist on subscription', {
+      cartId,
+      subscriptionId,
+    });
+    this.name = 'PayWithStripeLatestInvoiceNotFoundOnSubscriptionError';
+  }
+}
+
+export class PayWithStripeNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'PayWithStripeNullCurrencyError';
+  }
+}
+
+export class PayWithPaypalNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'PayWithPaypalNullCurrencyError';
+  }
+}
+
 export class DetermineCheckoutAmountCustomerRequiredError extends CheckoutError {
   constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
     super('Customer is required for upgrade', {
@@ -108,7 +155,7 @@ export class DetermineCheckoutAmountSubscriptionRequiredError extends CheckoutEr
       customerId,
       fromPriceId,
     });
-    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
+    this.name = 'DetermineCheckoutAmountSubscriptionRequiredError';
   }
 }
 
@@ -205,14 +252,38 @@ export class IntentInsufficientFundsError extends IntentFailedHandledError {
     paymentIntentId: string,
     intentType: 'SetupIntent' | 'PaymentIntent'
   ) {
+    super('Intent payment method card has insufficient funds', {
+      cartId,
+      paymentIntentId,
+      intentType,
+    });
+    this.name = 'IntentInsufficientFundsError';
+  }
+}
+
+export class NewAccountPrepaidCardFreeTrialNotAllowedError extends CheckoutError {
+  constructor(cartId: string, uid: string) {
     super(
-      'Intent payment method card has insufficient funds',
+      'New accounts cannot start a free trial with a prepaid card',
       {
         cartId,
-        paymentIntentId,
-        intentType,
+        uid,
       }
     );
-    this.name = 'IntentInsufficientFundsError';
+    this.name = 'NewAccountPrepaidCardFreeTrialNotAllowedError';
+  }
+}
+
+export class UnexpectedSubscriptionStatusForTrialError extends CheckoutError {
+  constructor(cartId: string, subscriptionId: string, actualStatus: string) {
+    super(
+      'Expected subscription status to be trialing for free trial checkout',
+      {
+        cartId,
+        subscriptionId,
+        actualStatus,
+      }
+    );
+    this.name = 'UnexpectedSubscriptionStatusForTrialError';
   }
 }

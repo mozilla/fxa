@@ -27,15 +27,18 @@ import {
   TotpToken,
 } from 'fxa-shared/db/models/auth';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { Knex } from 'knex';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
 import {
+  verificationMethodToNumber,
   verificationMethodToString,
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -82,15 +85,17 @@ export const createDB = (
 
   class DB {
     redis: any;
+    knex: Knex | null;
     metrics?: StatsD;
 
-    constructor(options: { redis?: any; metrics?: StatsD }) {
+    constructor(options: { redis?: any; knex?: Knex; metrics?: StatsD }) {
       this.redis =
         options.redis ||
         require('./redis')(
           { ...config.redis, ...config.redis.sessionTokens },
           log
         );
+      this.knex = options.knex ?? null;
       this.metrics = options.metrics || resolveMetrics();
     }
 
@@ -107,12 +112,17 @@ export const createDB = (
           console.dir(data);
         });
       }
-      return new DB({ redis, metrics });
+      return new DB({ redis, knex, metrics });
     }
 
     async close() {
       if (this.redis) {
         await this.redis.close();
+        this.redis = null;
+      }
+      if (this.knex) {
+        await this.knex.destroy();
+        this.knex = null;
       }
     }
 
@@ -172,6 +182,34 @@ export const createDB = (
       return sessionToken;
     }
 
+    async createPasskeyVerifiedSessionToken(authToken: any) {
+      const { uid } = authToken;
+
+      log.trace('DB.createPasskeyVerifiedSessionToken', { uid });
+
+      const verifiedAt = Date.now();
+      const sessionToken = await SessionToken.create({
+        ...authToken,
+        mustVerify: false,
+        tokenVerificationId: null,
+        verificationMethod: verificationMethodToNumber('passkey'),
+        verifiedAt,
+      });
+
+      const { id } = sessionToken;
+
+      // Ensure there are no clashes with zombie tokens left behind in Redis
+      try {
+        await this.deleteSessionTokenFromRedis(uid, id);
+      } catch (unusedErr) {
+        // Ignore errors deleting the token.
+      }
+      await RawSessionToken.createVerified(sessionToken);
+
+      this.metrics?.increment('db.sessionToken.created', { method: 'passkey' });
+      return sessionToken;
+    }
+
     async createKeyFetchToken(authToken: any) {
       log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
       const keyFetchToken = await KeyFetchToken.create(authToken);
@@ -202,7 +240,19 @@ export const createDB = (
 
     async checkPassword(uid: string, verifyHash: string) {
       log.trace('DB.checkPassword', { uid, verifyHash });
-      const result = await Account.checkPassword(uid, verifyHash);
+      let result;
+      try {
+        result = await Account.checkPassword(uid, verifyHash);
+      } catch (err) {
+        // Concurrent /account/destroy can delete the row between the route's
+        // accountRecord() and this read. Translate to ACCOUNT_UNKNOWN to
+        // match the pattern in db.account() / db.accountRecord().
+        if (isNotFoundError(err)) {
+          this.metrics?.increment('db.checkPassword.notFound');
+          throw error.unknownAccount();
+        }
+        throw err;
+      }
 
       if (result.v1) {
         this.metrics?.increment('check.password.v1.success');
@@ -847,15 +897,21 @@ export const createDB = (
 
     // DELETE
 
-    async deleteAccount(authToken: { uid: string }) {
+    async deleteAccount(
+      authToken: { uid: string },
+      reason?: ReasonForDeletion
+    ) {
       const { uid } = authToken;
 
       log.info('DB.deleteAccount', { uid });
       if (this.redis) {
         await this.redis.del(uid);
       }
-      this.metrics?.increment('db.account.delete');
-      return Account.delete(uid);
+      // reason is a bounded enum, so it is safe to use as a metric tag.
+      this.metrics?.increment('db.account.delete', {
+        reason: reason ?? 'unknown',
+      });
+      return Account.delete(uid, reason);
     }
 
     async deleteSessionToken(sessionToken: { id: string; uid: string }) {

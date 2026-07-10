@@ -1,0 +1,777 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { Test } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
+import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
+import {
+  MockStatsDProvider,
+  StatsDService,
+} from '@fxa/shared/metrics/statsd';
+import { MockLoggerProvider } from '@fxa/shared/log';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import type { StatsD } from 'hot-shots';
+import {
+  MockPaymentsMetricsAggregatorServiceFactory,
+  PaymentsMetricsAggregatorService,
+} from '@fxa/payments/metrics-aggregator';
+import {
+  AccountCustomerManager,
+  AccountCustomerNotFoundError,
+  MockStripeConfigProvider,
+  ResultAccountCustomerFactory,
+  StripeClient,
+  StripeCustomerFactory,
+  StripeResponseFactory,
+} from '@fxa/payments/stripe';
+import { CustomerManager, CustomerDeletedError } from '@fxa/payments/customer';
+import { FxaWebhookService } from './fxa-webhooks.service';
+import {
+  MockFxaWebhookConfig,
+  MockFxaWebhookConfigProvider,
+} from './fxa-webhooks.config';
+import {
+  FxaProfileChangeEventFactory,
+  FxaProfileChangeSecurityEventTokenPayloadFactory,
+  FxaSecurityEventTokenPayloadFactory,
+} from './factories';
+import {
+  FxaWebhookAuthError,
+  FxaWebhookJwksError,
+  FxaWebhookValidationError,
+} from './fxa-webhooks.error';
+import {
+  FXA_DELETE_EVENT_URI,
+  FXA_METRICS_OPT_IN_EVENT_URI,
+  FXA_METRICS_OPT_OUT_EVENT_URI,
+  FXA_PASSWORD_EVENT_URI,
+  FXA_PROFILE_EVENT_URI,
+  FXA_SUBSCRIPTION_STATE_EVENT_URI,
+  FxaSecurityEventTokenPayload,
+} from './fxa-webhooks.types';
+
+jest.mock('@sentry/nestjs', () => {
+  const actual = jest.requireActual('@sentry/nestjs');
+  return {
+    ...actual,
+    captureException: jest.fn(),
+  };
+});
+
+jest.mock('@type-cacheable/core', () => {
+  const noopDecorator =
+    () =>
+    (
+      target: any,
+      propertyKey: string | symbol,
+      descriptor: PropertyDescriptor
+    ) =>
+      descriptor;
+
+  const Cacheable = jest.fn(() => noopDecorator);
+  const CacheClear = jest.fn(() => noopDecorator);
+
+  const defaultExport = {
+    setOptions: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: defaultExport,
+    Cacheable,
+    CacheClear,
+  };
+});
+
+jest.mock('@fxa/shared/db/type-cacheable', () => ({
+  MemoryAdapter: jest.fn().mockImplementation(() => ({})),
+  CacheFirstStrategy: jest.fn().mockImplementation(() => ({})),
+  StaleWhileRevalidateWithFallbackStrategy: jest
+    .fn()
+    .mockImplementation(() => ({})),
+}));
+
+// Test RSA key pair from packages/fxa-event-broker/src/jwtset/jwtset.service.spec.ts
+const TEST_KEY = {
+  d: 'nvfTzcMqVr8fa-b3IIFBk0J69sZQsyhKc3jYN5pPG7FdJyA-D5aPNv5zsF64JxNJetAS44cAsGAKN3Kh7LfjvLCtV56Ckg2tkBMn3GrbhE1BX6ObYvMuOBz5FJ9GmTOqSCxotAFRbR6AOBd5PCw--Rls4MylX393TFg6jJTGLkuYGuGHf8ILWyb17hbN0iyT9hME-cgLW1uc_u7oZ0vK9IxGPTblQhr82RBPQDTvZTM4s1wYiXzbJNrI_RGTAhdbwXuoXKiBN4XL0YRDKT0ENVqQLMiBwfdT3sW-M0L6kIv-L8qX3RIhbM3WA_a_LjTOM3WwRcNanSGiAeJLHwE5cQ',
+  dp: '5U4HJsH2g_XSGw8mrv5LZ2kvnh7cibWfmB2x_h7ZFGLsXSphG9xSo3KDQqlLw4WiUHZ5kTyL9x-MiaUSxo-yEgtoyUy8C6gGTzQGxUyAq8nvQUq0J3J8kdCvdxM370Is7QmUF97LDogFlYlJ4eY1ASaV39SwwMd0Egf-JsPA9bM',
+  dq: 'k65nnWFsWAnPunppcedFZ6x6It1BZhqUiQQUN0Mok2aPiKjSDbQJ8_CospKDoTOgU0i3Bbnfp--PuUNwKO2VZoZ4clD-5vEJ9lz7AxgHMp4lJ-gy0TLEnITBmrYRdJY4aSGZ8L4IiUTFDUvmx8KdzkLGYZqH3cCVDGZANjgXoDU',
+  e: 'AQAB',
+  'fxa-createdAt': 1557356400,
+  kid: '2019-05-08-cd8b15e7a1d6d51e31de4f6aa79e9f9e',
+  kty: 'RSA',
+  n: 'uJIoiOOZsS7XZ5HuyBTV59YMpm73sF1OwlNgLYJ5l3RHskVp6rR7UCDZCU7tAVSx4mHl1qoqbfUSlVeseY3yuSa7Tz_SW_WDO4ihYelXX5lGF7uxn5KmY1--6p9Gx7oiwgO5EdU6vkh2T4xD1BY4GUpqTLCdYDdAsykhVpNyQiO2tSJrxJLIMAYxUIw6lMHtyJDRe6m_OUAjBm_xyS3JbbTXOoeYbFXXvktqxkxNtmYEDCjdj8v2NGy9z9zMao2KwCmu-S6L6BJid3W0rKNR_yxAQPLSSrqUwyO1wPntR5qVJ3C0n-HeqOZK3M3ObHAFK0vShNZsrY4gPpwUl3BZsw',
+  p: '72yifmIgqTJwpU06DyKwnhJbmAXRmKZH3QswH1OvXx_o5jjr9oLLN9xdQeIt3vo2OqlLLeFf8nk0q-kQVU0f1yOB5LAaIxm7SgYA6S1qMfDIc2H8TBnG0-dJ_yNcfef2LPKuDhljiwXN5Z-SadsRbuxh1JcGHqngTJiOSc43PO8',
+  q: 'xVlYc0LRkOvQOpl0WSOPQ-0SVYe-v29RYamYlxTvq3mHkpexvERWVlHR94Igz5Taip1pxfhAHCREInJwMtncHnEcLQt-0T62I_BTmjpGzmRLTXx2Slmn-mlRSW_rwrdxeONPzxmJiSZE0dMOln9NBjr6Vp-5-J8TYE8TChoj930',
+  qi: 'E5GCQCyG7AGplCUyZPBS4OEW9QTmzJoG42rLZc9HNJPfjE2hrNUJqmjIWy_n3QQZaNJwps_t-PNaLHBwM043yM_neBGPIgGQwOw6YJp_nbUvDaJnHAtDhAaR7jPWQeDqypg0ysrZvWsd2x1BNowFUFNjmHkpejp2ueS6C_hgv_g',
+};
+
+const TEST_PUBLIC_KEY = {
+  e: TEST_KEY.e,
+  kid: TEST_KEY.kid,
+  kty: TEST_KEY.kty,
+  n: TEST_KEY.n,
+};
+
+const TEST_UID = 'uid1234';
+
+const privateKey = JWTool.JWK.fromObject(TEST_KEY, {
+  iss: MockFxaWebhookConfig.fxaWebhookIssuer,
+}) as PrivateJWK;
+
+async function signToken(
+  events: Record<string, any>,
+  overrides: Partial<FxaSecurityEventTokenPayload> = {}
+): Promise<string> {
+  const payload = FxaSecurityEventTokenPayloadFactory(events, {
+    sub: TEST_UID,
+    iss: MockFxaWebhookConfig.fxaWebhookIssuer,
+    aud: MockFxaWebhookConfig.fxaWebhookAudience,
+    jti: 'test-jti',
+    ...overrides,
+  });
+  return privateKey.sign(payload);
+}
+
+function mockFetchForJwks() {
+  return jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ keys: [TEST_PUBLIC_KEY] }),
+    })
+  ) as jest.Mock;
+}
+
+describe('FxaWebhookService', () => {
+  let service: FxaWebhookService;
+  let statsd: StatsD;
+  let logger: LoggerService;
+  let paymentsGleanService: PaymentsMetricsAggregatorService;
+  let accountCustomerManager: AccountCustomerManager;
+  let customerManager: CustomerManager;
+  let originalFetch: typeof global.fetch;
+
+  beforeEach(async () => {
+    originalFetch = global.fetch;
+    global.fetch = mockFetchForJwks();
+
+    const module = await Test.createTestingModule({
+      providers: [
+        FxaWebhookService,
+        MockFxaWebhookConfigProvider,
+        MockStatsDProvider,
+        MockLoggerProvider,
+        MockPaymentsMetricsAggregatorServiceFactory,
+        AccountCustomerManager,
+        MockAccountDatabaseNestFactory,
+        CustomerManager,
+        StripeClient,
+        MockStripeConfigProvider,
+      ],
+    }).compile();
+
+    service = module.get(FxaWebhookService);
+    statsd = module.get(StatsDService);
+    logger = module.get<LoggerService>(Logger);
+    paymentsGleanService = module.get(PaymentsMetricsAggregatorService);
+    accountCustomerManager = module.get(AccountCustomerManager);
+    customerManager = module.get(CustomerManager);
+
+    jest.spyOn(statsd, 'increment');
+    jest.spyOn(logger, 'log');
+    jest.spyOn(logger, 'error');
+    jest.spyOn(paymentsGleanService, 'handleUserDelete');
+
+    // Default behaviour: no AccountCustomer for the test uid. Tests that need
+    // a customer override this with mockResolvedValue.
+    jest
+      .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+      .mockRejectedValue(
+        new AccountCustomerNotFoundError(TEST_UID, new Error('not found'))
+      );
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.restoreAllMocks();
+  });
+
+  describe('handleWebhookEvent', () => {
+    it('handles password-change event', async () => {
+      const token = await signToken({
+        [FXA_PASSWORD_EVENT_URI]: { changeTime: Date.now() },
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'password-change',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handlePasswordChange',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+    });
+
+    it('handles profile-change event', async () => {
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          locale: 'en-US',
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'profile-change',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handleProfileChange',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+    });
+
+    it('handles subscription-state-change event', async () => {
+      const token = await signToken({
+        [FXA_SUBSCRIPTION_STATE_EVENT_URI]: {
+          capabilities: ['cap1'],
+          isActive: true,
+          changeTime: Date.now(),
+        },
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'subscription-state-change',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handleSubscriptionStateChange',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+    });
+
+    it('handles delete-user event', async () => {
+      const token = await signToken({
+        [FXA_DELETE_EVENT_URI]: {},
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'delete-user',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handleDeleteUser',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+      expect(paymentsGleanService.handleUserDelete).toHaveBeenCalledWith(
+        TEST_UID
+      );
+    });
+
+    it('handles metrics-opt-out event', async () => {
+      const token = await signToken({
+        [FXA_METRICS_OPT_OUT_EVENT_URI]: {},
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'metrics-opt-out',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handleMetricsOptOut',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+    });
+
+    it('handles metrics-opt-in event', async () => {
+      const token = await signToken({
+        [FXA_METRICS_OPT_IN_EVENT_URI]: {},
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'metrics-opt-in',
+      });
+      expect(logger.log).toHaveBeenCalledWith(
+        'handleMetricsOptIn',
+        expect.objectContaining({ sub: TEST_UID })
+      );
+    });
+
+    it('handles multiple events in a single SET', async () => {
+      const token = await signToken({
+        [FXA_PASSWORD_EVENT_URI]: { changeTime: Date.now() },
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory(),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'password-change',
+      });
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
+        eventType: 'profile-change',
+      });
+    });
+
+    it('rejects missing authorization header', async () => {
+      await expect(
+        service.handleWebhookEvent(undefined as unknown as string)
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'missing_token' }
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('rejects malformed authorization header', async () => {
+      await expect(
+        service.handleWebhookEvent('not-a-bearer-token')
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'missing_token' }
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('rejects invalid JWT signature', async () => {
+      const token = await signToken({
+        [FXA_DELETE_EVENT_URI]: {},
+      });
+      // Corrupt the signature
+      const corrupted = token.slice(0, -5) + 'XXXXX';
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${corrupted}`)
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'invalid_token' }
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('rejects wrong issuer', async () => {
+      // Spread to avoid mutating the shared TEST_KEY (addExtras mutates in-place)
+      const wrongIssuerKey = JWTool.JWK.fromObject(
+        { ...TEST_KEY },
+        {
+          iss: 'https://wrong-issuer.example.com/',
+        }
+      ) as PrivateJWK;
+      const token = await wrongIssuerKey.sign(
+        FxaSecurityEventTokenPayloadFactory(
+          { [FXA_DELETE_EVENT_URI]: {} },
+          {
+            sub: TEST_UID,
+            aud: MockFxaWebhookConfig.fxaWebhookAudience,
+            iss: MockFxaWebhookConfig.fxaWebhookIssuer,
+            jti: 'test-jti',
+          }
+        )
+      );
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'invalid_issuer' }
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('rejects wrong audience', async () => {
+      const token = await signToken(
+        { [FXA_DELETE_EVENT_URI]: {} },
+        { aud: 'wrong-audience' }
+      );
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'invalid_audience' }
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('captures unhandled event types in Sentry and StatsD', async () => {
+      const unknownUri = 'https://schemas.accounts.firefox.com/event/unknown';
+      const token = await signToken({
+        [unknownUri]: {},
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.unhandled_event'
+      );
+      expect(Sentry.captureException).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
+    });
+
+    it('rejects SET payload with missing events field', async () => {
+      const token = await privateKey.sign({
+        aud: MockFxaWebhookConfig.fxaWebhookAudience,
+        sub: TEST_UID,
+        iat: Date.now() / 1000,
+        jti: 'test-jti',
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.validation.error',
+        { context: 'SET payload' }
+      );
+    });
+
+    it('rejects password-change event with missing changeTime', async () => {
+      const token = await signToken({
+        [FXA_PASSWORD_EVENT_URI]: {},
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.validation.error',
+        { context: FXA_PASSWORD_EVENT_URI }
+      );
+    });
+
+    it('rejects password-change event with non-numeric changeTime', async () => {
+      const token = await signToken({
+        [FXA_PASSWORD_EVENT_URI]: { changeTime: 'not-a-number' },
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+    });
+
+    it('rejects subscription-state-change with missing capabilities', async () => {
+      const token = await signToken({
+        [FXA_SUBSCRIPTION_STATE_EVENT_URI]: {
+          isActive: true,
+          changeTime: Date.now(),
+        },
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+    });
+
+    it('rejects subscription-state-change with non-boolean isActive', async () => {
+      const token = await signToken({
+        [FXA_SUBSCRIPTION_STATE_EVENT_URI]: {
+          capabilities: ['cap1'],
+          isActive: 'yes',
+          changeTime: Date.now(),
+        },
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+    });
+
+    it('rejects profile-change event with non-string email', async () => {
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: { email: 12345 },
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookValidationError);
+    });
+  });
+
+  describe('handleProfileChange email sync', () => {
+    const NEW_EMAIL = 'new@mozilla.com';
+    const OLD_EMAIL = 'old@mozilla.com';
+    const STRIPE_CUSTOMER_ID = 'cus_abc123';
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(
+          ResultAccountCustomerFactory({
+            stripeCustomerId: STRIPE_CUSTOMER_ID,
+          })
+        );
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeCustomerFactory({
+              id: STRIPE_CUSTOMER_ID,
+              email: OLD_EMAIL,
+            })
+          )
+        );
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeCustomerFactory({
+              id: STRIPE_CUSTOMER_ID,
+              email: NEW_EMAIL,
+            })
+          )
+        );
+    });
+
+    it('does nothing when event has no email', async () => {
+      const payload = FxaProfileChangeSecurityEventTokenPayloadFactory(
+        { email: undefined, locale: 'en-US' },
+        {
+          sub: TEST_UID,
+          iss: MockFxaWebhookConfig.fxaWebhookIssuer,
+          aud: MockFxaWebhookConfig.fxaWebhookAudience,
+          jti: 'test-jti',
+        }
+      );
+      const token = await privateKey.sign(payload);
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(
+        accountCustomerManager.getAccountCustomerByUid
+      ).not.toHaveBeenCalled();
+      expect(customerManager.retrieve).not.toHaveBeenCalled();
+      expect(customerManager.update).not.toHaveBeenCalled();
+    });
+
+    it('records no_customer outcome when AccountCustomer is not found', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError(TEST_UID, new Error('not found'))
+        );
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.profile_change.email_sync',
+        { outcome: 'no_customer' }
+      );
+      expect(customerManager.retrieve).not.toHaveBeenCalled();
+      expect(customerManager.update).not.toHaveBeenCalled();
+    });
+
+    it('records no_stripe_customer_id outcome when stripeCustomerId is null', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(
+          ResultAccountCustomerFactory({ stripeCustomerId: null })
+        );
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.profile_change.email_sync',
+        { outcome: 'no_stripe_customer_id' }
+      );
+      expect(customerManager.retrieve).not.toHaveBeenCalled();
+      expect(customerManager.update).not.toHaveBeenCalled();
+    });
+
+    it('records customer_deleted outcome when Stripe customer is deleted', async () => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockRejectedValue(new CustomerDeletedError(STRIPE_CUSTOMER_ID));
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.profile_change.email_sync',
+        { outcome: 'customer_deleted' }
+      );
+      expect(customerManager.update).not.toHaveBeenCalled();
+    });
+
+    it('records no_change outcome when Stripe customer email already matches', async () => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeCustomerFactory({
+              id: STRIPE_CUSTOMER_ID,
+              email: NEW_EMAIL,
+            })
+          )
+        );
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.profile_change.email_sync',
+        { outcome: 'no_change' }
+      );
+      expect(customerManager.update).not.toHaveBeenCalled();
+    });
+
+    it('updates Stripe customer email and records updated outcome when emails differ', async () => {
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(customerManager.update).toHaveBeenCalledWith(STRIPE_CUSTOMER_ID, {
+        email: NEW_EMAIL,
+      });
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.profile_change.email_sync',
+        { outcome: 'updated' }
+      );
+    });
+
+    it('propagates non-NotFound errors from AccountCustomerManager', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(new Error('database unreachable'));
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow('database unreachable');
+    });
+
+    it('propagates non-Deleted errors from CustomerManager.retrieve', async () => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockRejectedValue(new Error('stripe down'));
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow('stripe down');
+    });
+
+    it('propagates errors from CustomerManager.update', async () => {
+      jest
+        .spyOn(customerManager, 'update')
+        .mockRejectedValue(new Error('stripe rate limited'));
+
+      const token = await signToken({
+        [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
+          email: NEW_EMAIL,
+        }),
+      });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow('stripe rate limited');
+    });
+  });
+
+  describe('JWKS fetching', () => {
+    it('fetches JWKS on each request', async () => {
+      const token = await signToken({ [FXA_DELETE_EVENT_URI]: {} });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      const token2 = await signToken({ [FXA_DELETE_EVENT_URI]: {} });
+      await service.handleWebhookEvent(`Bearer ${token2}`);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws FxaWebhookJwksError when JWKS fetch fails', async () => {
+      global.fetch = jest.fn(() =>
+        Promise.resolve({ ok: false, status: 500 })
+      ) as jest.Mock;
+
+      const token = await signToken({ [FXA_DELETE_EVENT_URI]: {} });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookJwksError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.jwks.error'
+      );
+    });
+
+    it('throws FxaWebhookAuthError with unknown_kid when kid is not in JWKS', async () => {
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              keys: [{ ...TEST_PUBLIC_KEY, kid: 'different-kid' }],
+            }),
+        })
+      ) as jest.Mock;
+
+      const token = await signToken({ [FXA_DELETE_EVENT_URI]: {} });
+
+      await expect(
+        service.handleWebhookEvent(`Bearer ${token}`)
+      ).rejects.toThrow(FxaWebhookAuthError);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'fxa.webhook.auth.error',
+        { reason: 'unknown_kid' }
+      );
+    });
+  });
+});

@@ -118,6 +118,7 @@ export async function scaffoldDb(
 
 export async function clearDb() {
   await Email.knexQuery().del();
+  await Account.knex().raw('DELETE FROM passkeys');
   await Account.knexQuery().del();
   await Device.knexQuery().del();
   await SessionToken.knexQuery().del();

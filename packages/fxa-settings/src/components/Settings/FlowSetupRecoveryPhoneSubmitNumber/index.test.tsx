@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import FlowSetupRecoveryPhoneSubmitNumber from '.';
 import '@testing-library/jest-dom';
@@ -41,7 +40,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
    * @param props
    */
   async function renderWith(props = defaultProps) {
-    await act(() => {
+    await act(async () => {
       renderWithLocalizationProvider(
         <FlowSetupRecoveryPhoneSubmitNumber {...props} />
       );
@@ -85,12 +84,12 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
         '1231231234'
       )
     );
-    user.click(screen.getByRole('button', { name: /Send code/i }));
+    await user.click(screen.getByRole('button', { name: /Send code/i }));
 
     await waitFor(() => expect(mockVerifyPhoneNumber).toHaveBeenCalledTimes(1));
     expect(mockNavigateForward).toHaveBeenCalledTimes(1);
   });
-   test('handles error during number verification', async () => {
+  test('handles error during number verification', async () => {
     mockVerifyPhoneNumber.mockRejectedValueOnce(new Error('error'));
     const user = userEvent.setup();
     await renderWith();

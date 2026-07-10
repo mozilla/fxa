@@ -14,6 +14,7 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   RelierCmsInfo,
+  RelierLegalTerms,
   OAuthIntegration,
   ThirdPartyAuthCallbackIntegration,
 } from '../../models/integrations';
@@ -24,7 +25,7 @@ import {
   UrlQueryData,
 } from '../model-data';
 import { OAuthError } from '../oauth';
-import { ReachRouterWindow } from '../window';
+import { RouterWindow } from '../window';
 import { IntegrationFlags } from './interfaces';
 import { DefaultIntegrationFlags } from '.';
 import config from '../config';
@@ -67,16 +68,20 @@ export class IntegrationFactory {
   protected readonly channelData: ModelDataStore;
   protected readonly storageData: ModelDataStore;
   protected readonly clientInfo?: RelierClientInfo;
+  protected readonly clientInfoLoadFailed: boolean;
   protected readonly cmsInfo?: RelierCmsInfo;
+  protected readonly legalTerms?: RelierLegalTerms;
   protected readonly productInfo?: RelierSubscriptionInfo;
   protected readonly loading?: boolean;
   public readonly flags: IntegrationFlags;
 
   constructor(opts: {
-    window: ReachRouterWindow;
+    window: RouterWindow;
     productInfo?: RelierSubscriptionInfo;
     clientInfo?: RelierClientInfo;
+    clientInfoLoadFailed?: boolean;
     cmsInfo?: RelierCmsInfo;
+    legalTerms?: RelierLegalTerms;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
     storageData?: ModelDataStore;
@@ -93,8 +98,10 @@ export class IntegrationFactory {
         new StorageData(window)
       );
     this.clientInfo = opts.clientInfo;
+    this.clientInfoLoadFailed = opts.clientInfoLoadFailed ?? false;
     this.productInfo = opts.productInfo;
     this.cmsInfo = opts.cmsInfo;
+    this.legalTerms = opts.legalTerms;
   }
 
   /**
@@ -111,7 +118,11 @@ export class IntegrationFactory {
     if (flags.isThirdPartyAuthCallback()) {
       return this.createThirdPartyAuthCallbackIntegration(data);
     } else if (flags.isDevicePairingAsAuthority()) {
-      return this.createPairingAuthorityIntegration(channelData, storageData);
+      return this.createPairingAuthorityIntegration(
+        data,
+        channelData,
+        storageData
+      );
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
     } else if (flags.isOAuth()) {
@@ -138,10 +149,12 @@ export class IntegrationFactory {
 
   private createPairingAuthorityIntegration(
     data: ModelDataStore,
+    channelData: ModelDataStore,
     storageData: ModelDataStore
   ) {
     const integration = new PairingAuthorityIntegration(
       data,
+      channelData,
       storageData,
       config.oauth
     );
@@ -178,6 +191,7 @@ export class IntegrationFactory {
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
     this.initCmsInfo(integration);
+    this.initLegalTerms(integration);
     return integration;
   }
 
@@ -194,11 +208,14 @@ export class IntegrationFactory {
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
     this.initCmsInfo(integration);
+    this.initLegalTerms(integration);
     return integration;
   }
 
   private createWebIntegration(data: ModelDataStore) {
-    const integration = new WebIntegration(data);
+    const integration = new WebIntegration(data, {
+      clientIdFallback: config.oauth.clientId,
+    });
     this.initIntegration(integration);
     return integration;
   }
@@ -273,6 +290,10 @@ export class IntegrationFactory {
     integration.cmsInfo = this.cmsInfo;
   }
 
+  initLegalTerms(integration: Integration) {
+    integration.legalTerms = this.legalTerms;
+  }
+
   initClientInfo(integration: OAuthIntegration) {
     /* TODO: Possibly create SyncMobile integration if we need more special cases
      * for sync mobile, or, probably remove 'isOAuthVerificationDifferentBrowser'
@@ -286,6 +307,13 @@ export class IntegrationFactory {
      * acts as a clientId, and we currently consider this an OAuth flow (in Backbone as well)
      * that does not want to redirect. In this case, createClientInfo with 'service'.
      */
+
+    // Without this flag, a failed `/v1/oauth/client/:id` fetch leaves every
+    // `clientInfo` field undefined, which reads as `trusted=false` and silently
+    // strips every requested scope. `useClientInfoState` is the source of truth
+    // — we don't infer from `integration.data.clientId` because some flows
+    // (e.g. `/oauth/success/:clientId`) populate it without a fetch.
+    integration.clientInfoLoadFailed = this.clientInfoLoadFailed;
 
     const redirectUris = this.clientInfo?.redirectUri?.split(',');
     const clientRedirectUri = getClientRedirect(

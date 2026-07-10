@@ -16,7 +16,9 @@ const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const googleOIDC = require('./routes/auth-schemes/google-oidc');
 const { HEX_STRING } = require('./routes/validators');
+const Sentry = require('@sentry/node');
 const { configureSentry } = require('./sentry');
+const { resolveClientTags } = require('./metrics/client-tags');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('../../../libs/shared/l10n/src');
@@ -83,8 +85,19 @@ function translateStripeErrors(response) {
   return response;
 }
 
-async function create(log, error, config, routes, db, statsd, glean, customs) {
+async function create(
+  log,
+  error,
+  config,
+  routes,
+  db,
+  statsd,
+  glean,
+  customs,
+  oauthDb
+) {
   const getGeoData = require('./geodb')(log);
+  const { getRegisteredClientIds } = require('./registeredClients');
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
@@ -125,7 +138,7 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        additionalHeaders: ['sentry-trace', 'baggage'],
+        additionalHeaders: ['sentry-trace', 'baggage', 'fxa-ci'],
         // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
         // which is more forgiving of missing Origin header.
         origin: config.corsOrigin[0] === '*' ? 'ignore' : config.corsOrigin,
@@ -158,6 +171,27 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
         },
       },
       response: { options: { abortEarly: false } },
+      // TEMP (FXA-AUTH-2ST diag): if the log above reports side:'response-schema',
+      // REPLACE the `response:` line above with the block below to capture the
+      // failing response's key NAMES (not values) — i.e. which field matches no
+      // response alternative. Global (affects all routes); re-throws to preserve
+      // existing 500 behavior.
+      // response: {
+      //   options: { abortEarly: false },
+      //   failAction: (request, h, err) => {
+      //     log.error('oauth.response.validationError.debug', {
+      //       path: request.route?.path,
+      //       grantType: request.payload?.grant_type,
+      //       responseKeys: request.response?.source
+      //         ? Object.keys(request.response.source)
+      //         : undefined,
+      //       failedPaths: (err.details || []).map((d) =>
+      //         Array.isArray(d.path) ? d.path.join('.') : d.path
+      //       ),
+      //     });
+      //     throw err;
+      //   },
+      // },
     },
     load: {
       sampleInterval: 1000,
@@ -315,6 +349,19 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       await customs.checkIpOnly(request, action);
     }
 
+    const tags = await resolveClientTags(
+      request,
+      await getRegisteredClientIds(oauthDb)
+    );
+    if (tags.clientId) {
+      request.app.clientIdTag = tags.clientId;
+      Sentry.setTag('clientId', tags.clientId);
+    }
+    if (tags.service) {
+      request.app.serviceTag = tags.service;
+      Sentry.setTag('service', tags.service);
+    }
+
     return h.continue;
   });
 
@@ -331,6 +378,23 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
         response.output &&
         response.output.statusCode >= 500
       ) {
+        // TEMP (FXA-AUTH-2ST diag): grant_type is scrubbed in Sentry; capture it
+        // here, plus whether this was request- or response-schema validation and
+        // the failing Joi paths/types. NOTE: paths/types only — never
+        // d.context.value, which may contain a token.
+        log.error('oauth.token.validationError.debug', {
+          path: request.route?.path,
+          method: request.method,
+          grantType: request.payload?.grant_type,
+          side: request.app?.oauthTokenHandlerReached
+            ? 'response-schema'
+            : 'request-payload',
+          rootType: response.details?.[0]?.type,
+          failedPaths: (response.details || []).map((d) => ({
+            path: Array.isArray(d.path) ? d.path.join('.') : d.path,
+            type: d.type,
+          })),
+        });
         logValidationError(response, log);
       }
 
@@ -392,31 +456,58 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
 
   const hawkFxAToken = require('./routes/auth-schemes/hawk-fxa-token');
   // Register auth strategies for all token types. These strategies support Hawk (without validation) and FxA token types.
+  // `statsd`+`kind` drive the `auth.strategy.used{scheme,kind,path}` metric
+  // that tracks Hawk vs Bearer traffic during the FXA-9392 migration.
   server.auth.scheme(
     'fxa-hawk-session-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
+      throwOnFailure: true,
+      statsd,
+      kind: 'sessionToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-keyFetch-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.keyFetchToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.keyFetchToken.bind(db)), {
+      throwOnFailure: true,
+      statsd,
+      kind: 'keyFetchToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-keyFetch-with-verification-token',
     hawkFxAToken.strategy(
-      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db))
+      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+      {
+        throwOnFailure: true,
+        statsd,
+        kind: 'keyFetchTokenWithVerificationStatus',
+      }
     )
   );
   server.auth.scheme(
     'fxa-hawk-accountReset-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)), {
+      throwOnFailure: true,
+      statsd,
+      kind: 'accountResetToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-passwordForgot-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)), {
+      throwOnFailure: true,
+      statsd,
+      kind: 'passwordForgotToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-passwordChange-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)), {
+      throwOnFailure: true,
+      statsd,
+      kind: 'passwordChangeToken',
+    })
   );
 
   // the recoveryKey/exists route accepts a session token or a password-forgot
@@ -428,12 +519,16 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
     'multi-strategy-fxa-hawk-session-token',
     hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
       throwOnFailure: false,
+      statsd,
+      kind: 'sessionToken',
     })
   );
   server.auth.scheme(
     'multi-strategy-fxa-hawk-passwordForgot-token',
     hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)), {
       throwOnFailure: false,
+      statsd,
+      kind: 'passwordForgotToken',
     })
   );
 
@@ -456,6 +551,105 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
   server.auth.strategy(
     'multiStrategyPasswordForgotToken',
     'multi-strategy-fxa-hawk-passwordForgot-token'
+  );
+
+  // Additive Bearer-token strategies for the Hawk -> Bearer migration
+  // (FXA-9392, ADR-0022). Wire format: `Authorization: Bearer <prefix>_<hex>`
+  // where `<prefix>` disambiguates token kinds. Routes are not wired yet; M2
+  // flips the client and the first route batch.
+  const bearerFxaToken = require('./routes/auth-schemes/bearer-fxa-token');
+  server.auth.scheme(
+    'fxa-bearer-session-token',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-keyFetch-token',
+    bearerFxaToken.strategy(
+      'keyFetchToken',
+      makeCredentialFn(db.keyFetchToken.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-keyFetch-with-verification-token',
+    bearerFxaToken.strategy(
+      'keyFetchTokenWithVerificationStatus',
+      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-accountReset-token',
+    bearerFxaToken.strategy(
+      'accountResetToken',
+      makeCredentialFn(db.accountResetToken.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-passwordForgot-token',
+    bearerFxaToken.strategy(
+      'passwordForgotToken',
+      makeCredentialFn(db.passwordForgotToken.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-passwordChange-token',
+    bearerFxaToken.strategy(
+      'passwordChangeToken',
+      makeCredentialFn(db.passwordChangeToken.bind(db)),
+      { throwOnFailure: true, statsd }
+    )
+  );
+
+  // Non-throwing variants for routes that chain Bearer with another strategy.
+  server.auth.scheme(
+    'multi-strategy-fxa-bearer-session-token',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      { throwOnFailure: false, statsd }
+    )
+  );
+  server.auth.scheme(
+    'multi-strategy-fxa-bearer-passwordForgot-token',
+    bearerFxaToken.strategy(
+      'passwordForgotToken',
+      makeCredentialFn(db.passwordForgotToken.bind(db)),
+      { throwOnFailure: false, statsd }
+    )
+  );
+
+  server.auth.strategy('sessionTokenBearer', 'fxa-bearer-session-token');
+  server.auth.strategy('keyFetchTokenBearer', 'fxa-bearer-keyFetch-token');
+  server.auth.strategy(
+    'keyFetchTokenWithVerificationStatusBearer',
+    'fxa-bearer-keyFetch-with-verification-token'
+  );
+  server.auth.strategy(
+    'accountResetTokenBearer',
+    'fxa-bearer-accountReset-token'
+  );
+  server.auth.strategy(
+    'passwordForgotTokenBearer',
+    'fxa-bearer-passwordForgot-token'
+  );
+  server.auth.strategy(
+    'passwordChangeTokenBearer',
+    'fxa-bearer-passwordChange-token'
+  );
+  server.auth.strategy(
+    'multiStrategySessionTokenBearer',
+    'multi-strategy-fxa-bearer-session-token'
+  );
+  server.auth.strategy(
+    'multiStrategyPasswordForgotTokenBearer',
+    'multi-strategy-fxa-bearer-passwordForgot-token'
   );
 
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
@@ -509,6 +703,29 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
     )
   );
   server.auth.strategy('verifiedSessionToken', 'verified-session-token');
+
+  // Bearer counterpart — same post-lookup guard (email verified, token
+  // verified, AAL2) as the Hawk-backed strategy above.
+  server.auth.scheme(
+    'verified-session-token-bearer',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      {
+        throwOnFailure: true,
+        statsd,
+        postAuthenticate: verifiedSessionToken.makePostLookupGuard(
+          db,
+          config,
+          statsd
+        ),
+      }
+    )
+  );
+  server.auth.strategy(
+    'verifiedSessionTokenBearer',
+    'verified-session-token-bearer'
+  );
 
   // register all plugins and Swagger configuration
   await server.register([
@@ -575,16 +792,23 @@ function metricFactory(statsdClient) {
       path = '/{cors*}';
     }
 
+    const tags = {
+      path: normalizePath(path),
+      method: request.method.toUpperCase(),
+      statusCode,
+      errno,
+    };
+    if (request.app.clientIdTag) {
+      tags.clientId = request.app.clientIdTag;
+    }
+    if (request.app.serviceTag) {
+      tags.service = request.app.serviceTag;
+    }
     statsdClient.timing(
       'url_request',
       request.info.completed - request.info.received,
       1,
-      {
-        path: normalizePath(path),
-        method: request.method.toUpperCase(),
-        statusCode,
-        errno,
-      }
+      tags
     );
   }
   return reportMetrics;

@@ -5,8 +5,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import {
-  hasSufficientContrast,
-  TEXT_COLORS,
+  getTextColorClassName,
+  TEXT_COLOR_CSS_VALUES,
 } from 'fxa-react/lib/calculate-contrast';
 
 export type CmsButtonType = {
@@ -21,9 +21,17 @@ export type CmsButtonType = {
 interface CmsButtonWithFallbackProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
-   * The color to use for CMS styling. When provided, the button will use
+   * The color or gradient to use for CMS styling. When provided, the button will use
    * CMS-specific classes and CSS custom properties for styling.
    * If not provided or falsy, the button will use default styling.
+   *
+   * Supports:
+   * - Solid colors: "#592ACB", "rgb(89, 42, 203)", etc.
+   * - CSS gradients: "linear-gradient(90deg, #592ACB 0%, #FF4F5E 100%)"
+   *
+   * Note: Text color is automatically adjusted based on WCAG contrast requirements
+   * for both solid colors and gradients. For gradients, the effective color is
+   * calculated by blending all gradient color stops.
    */
   buttonColor?: string;
 
@@ -52,11 +60,20 @@ interface CmsButtonWithFallbackProps
  * </CmsButtonWithFallback>
  *
  * @example
- * // CMS-styled button
+ * // CMS-styled button with solid color
  * <CmsButtonWithFallback
  *   type="submit"
  *   buttonColor="#592ACB"
  *   buttonText="Continue with CMS"
+ *   disabled={false}
+ * />
+ *
+ * @example
+ * // CMS-styled button with gradient
+ * <CmsButtonWithFallback
+ *   type="submit"
+ *   buttonColor="linear-gradient(90deg, #592ACB 0%, #FF4F5E 100%)"
+ *   buttonText="Continue with Gradient"
  *   disabled={false}
  * />
  *
@@ -80,42 +97,44 @@ const CmsButtonWithFallback: React.FC<CmsButtonWithFallbackProps> = ({
   disabled,
   ...rest
 }) => {
-  // Determine the default color of a disabled button
-  const disabledButtonColor = buttonColor ? `${buttonColor}60` : undefined;
-
-  // Determines whether to use a dark or light text color depending on contrast
-  const getTextColor = () => {
-    const { r, g, b } = TEXT_COLORS['text-grey-600'];
-    const defaultTextColor = '#ffffff';
-
-    if (
-      disabled &&
-      disabledButtonColor &&
-      !hasSufficientContrast(disabledButtonColor, defaultTextColor)
-    ) {
-      return { color: `rgb(${r} ${g} ${b} / .5)` };
-    }
-
-    if (
-      !disabled &&
-      buttonColor &&
-      !hasSufficientContrast(buttonColor, defaultTextColor)
-    ) {
-      return { color: `rgb(${r} ${g} ${b} / var(--tw-text-opacity, 1))` };
-    }
-
-    return {};
-  };
+  // Check if buttonColor is a gradient
+  const isGradient = buttonColor?.toLowerCase().includes('gradient');
 
   // Determines the styles to apply based on isCms state
   const getStyle = () => {
     if (buttonColor) {
+      const textColorClass = getTextColorClassName(buttonColor, 'maximum');
+      // Map textColorClass to actual CSS color value
+      const mappedTextColor =
+        TEXT_COLOR_CSS_VALUES[textColorClass] || 'rgb(12, 12, 13)';
+      const textColorStyle = {
+        color: mappedTextColor,
+      };
+      if (isGradient) {
+        // For gradients, use backgroundImage
+        // Border is handled by CSS (removed in normal mode, added back for HCM)
+        // Use default blue focus outline (same as non-CMS buttons)
+
+        return {
+          backgroundImage: buttonColor,
+          '--cta-bg': 'transparent',
+          '--cta-border': 'transparent',
+          '--cta-active': 'transparent',
+          '--cta-focus-outline': 'rgb(59, 130, 246)', // Default blue-500; trying to map a color from the gradient can lead to odd results
+          ...(disabled && { opacity: '0.5' }),
+          ...textColorStyle,
+          ...(style || {}),
+        } as unknown as React.CSSProperties;
+      }
+
+      // For solid colors, use existing logic
       return {
         '--cta-bg': buttonColor,
         '--cta-border': buttonColor,
         '--cta-active': buttonColor,
-        '--cta-disabled': disabledButtonColor,
-        ...getTextColor(),
+        '--cta-disabled': buttonColor,
+        ...(disabled && { opacity: '0.5' }),
+        ...textColorStyle,
         ...(style || {}),
       };
     }
@@ -124,9 +143,15 @@ const CmsButtonWithFallback: React.FC<CmsButtonWithFallbackProps> = ({
 
   // Determines which classnames to apply
   const getClassName = () => {
-    return buttonColor
-      ? classNames('cta-primary-cms', 'cta-xl', className)
-      : classNames('cta-primary', 'cta-xl', className);
+    if (buttonColor) {
+      return classNames(
+        'cta-primary-cms',
+        'cta-xl',
+        { 'cta-gradient': isGradient },
+        className
+      );
+    }
+    return classNames('cta-primary', 'cta-xl', className);
   };
 
   return (

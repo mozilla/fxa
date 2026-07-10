@@ -51,7 +51,7 @@ function purchaseToFirestoreObject(
  * while the record from Firestore can be outdated, so we want to merge the objects to create an updated representation of a purchase.
  * We only skip our internal shopkeeping meta-data that the library consumer doesn't have to worry about.
  */
-export function mergePurchaseWithFirestorePurchaseRecord(
+export function mergeGooglePurchaseWithFirestorePurchaseRecord(
   purchase: any,
   firestoreObject: any
 ) {
@@ -148,7 +148,7 @@ export class PlayStoreSubscriptionPurchase implements Purchase {
   }
 
   mergeWithFirestorePurchaseRecord(firestoreObject: any) {
-    mergePurchaseWithFirestorePurchaseRecord(this, firestoreObject);
+    mergeGooglePurchaseWithFirestorePurchaseRecord(this, firestoreObject);
   }
 
   isRegisterable(): boolean {

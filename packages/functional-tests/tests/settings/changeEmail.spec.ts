@@ -71,7 +71,7 @@ test.describe('severity-1 #smoke', () => {
         initialPassword,
         newPassword,
         target,
-        credentials.email
+        newEmail
       );
 
       credentials.password = newPassword;
@@ -119,7 +119,7 @@ test.describe('severity-1 #smoke', () => {
         initialPassword,
         newPassword,
         target,
-        credentials.email
+        secondEmail
       );
 
       credentials.password = newPassword;
@@ -130,9 +130,16 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(secondEmail);
       await signin.fillOutPasswordForm(newPassword);
 
-      // Change back the primary email again
+      // Clear stale MFA OTP codes from the password change step
+      await target.emailClient.clear(secondEmail);
+
+      // makePrimaryButton is wrapped in MfaGuard(scope="email").
+      // After sign-out + sign-in, the JWT cache is cleared, so the MFA modal appears.
       await settings.secondaryEmail.makePrimaryButton.click();
-      await settings.confirmMfaGuard(credentials.email);
+      await settings.confirmMfaGuard(secondEmail);
+      await expect(settings.alertBar).toHaveText(
+        new RegExp(`${initialEmail}.*is now your primary email`)
+      );
       await settings.signOut();
 
       // Login with primary email and new password
@@ -141,8 +148,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
 
-      console.log('credentials.password', credentials.password);
-      // Update which password to use the account cleanup
+      // Update which password to use for account cleanup
       credentials.password = newPassword;
     });
 
@@ -175,7 +181,12 @@ test.describe('severity-1 #smoke', () => {
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
 
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
+
       // Try creating a new account with the same secondary email as previous account and new password
+      await signup.goto();
       await signup.fillOutEmailForm(newEmail);
       await signup.fillOutSignupForm(newPassword);
       await expect(page).toHaveURL(/confirm_signup_code/);
@@ -290,6 +301,9 @@ async function setNewPassword(
 ): Promise<void> {
   await settings.password.changeButton.click();
 
+  // PageChangePassword is wrapped in MfaGuard(scope="password").
+  // signUpAndPrimeMfa only primes the "email" scope JWT, so the
+  // "password" scope JWT is never cached and the MFA modal always appears.
   await settings.confirmMfaGuard(email);
 
   await changePassword.fillOutChangePassword(oldPassword, newPassword);

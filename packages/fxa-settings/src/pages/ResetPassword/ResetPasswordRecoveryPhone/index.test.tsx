@@ -2,13 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import ResetPasswordRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
+import { ResetPasswordIntegration } from '../interfaces';
+import { MemoryRouter } from 'react-router';
+
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
 
 describe('ResetPasswordRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
@@ -25,6 +30,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
     numBackupCodes: 4,
+    integration: mockIntegration,
   };
 
   const propsWithError = {
@@ -32,6 +38,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 4,
+    integration: mockIntegration,
   };
 
   const propsWithErrorNoBackupCodes = {
@@ -39,6 +46,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 0,
+    integration: mockIntegration,
   };
 
   beforeEach(() => {
@@ -47,7 +55,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('renders as expected', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
@@ -74,7 +84,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   it('has expected glean click events', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     await waitFor(() => user.type(screen.getByRole('textbox'), '123456'));
@@ -100,7 +112,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('submits with valid code', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     const input = screen.getByRole('textbox');
@@ -114,7 +128,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('handles invalid code with backup codes available', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...propsWithError} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...propsWithError} />
+      </MemoryRouter>
     );
 
     const input = screen.getByRole('textbox');
@@ -136,7 +152,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('handles invalid code without backup codes available', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...propsWithErrorNoBackupCodes} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...propsWithErrorNoBackupCodes} />
+      </MemoryRouter>
     );
 
     const input = screen.getByRole('textbox');
@@ -159,7 +177,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('handles resend code', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     userEvent.click(screen.getByRole('button', { name: 'Resend code' }));
@@ -169,7 +189,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('handles `Are you locked out?` link', async () => {
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     const link = screen.getByRole('link', { name: /Are you locked out/i });
@@ -185,12 +207,14 @@ describe('ResetPasswordRecoveryPhone', () => {
     );
 
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        resendCode={mockResendCodeWithError}
-        sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
-        numBackupCodes={0}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          resendCode={mockResendCodeWithError}
+          sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
+          numBackupCodes={0}
+        />
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -204,11 +228,13 @@ describe('ResetPasswordRecoveryPhone', () => {
   it('clears initial sendError banner when user interacts', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
-        numBackupCodes={0}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
+          numBackupCodes={0}
+        />
+      </MemoryRouter>
     );
 
     // Banner should be visible initially
@@ -239,10 +265,12 @@ describe('ResetPasswordRecoveryPhone', () => {
 
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        resendCode={mockResendCodeWithError}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          resendCode={mockResendCodeWithError}
+        />
+      </MemoryRouter>
     );
 
     await user.click(screen.getByRole('button', { name: 'Resend code' }));
@@ -266,10 +294,12 @@ describe('ResetPasswordRecoveryPhone', () => {
 
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        resendCode={mockResendCodeWithError}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          resendCode={mockResendCodeWithError}
+        />
+      </MemoryRouter>
     );
 
     await user.click(screen.getByRole('button', { name: 'Resend code' }));
@@ -290,10 +320,12 @@ describe('ResetPasswordRecoveryPhone', () => {
 
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        resendCode={mockResendCodeWithError}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          resendCode={mockResendCodeWithError}
+        />
+      </MemoryRouter>
     );
 
     await user.click(screen.getByRole('button', { name: 'Resend code' }));
@@ -314,10 +346,12 @@ describe('ResetPasswordRecoveryPhone', () => {
 
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone
-        {...defaultProps}
-        verifyCode={mockVerifyCodeWithError}
-      />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone
+          {...defaultProps}
+          verifyCode={mockVerifyCodeWithError}
+        />
+      </MemoryRouter>
     );
 
     const input = screen.getByRole('textbox');
@@ -339,7 +373,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   it('shows success banner after successful resend', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(
-      <ResetPasswordRecoveryPhone {...defaultProps} />
+      <MemoryRouter>
+        <ResetPasswordRecoveryPhone {...defaultProps} />
+      </MemoryRouter>
     );
 
     await user.click(screen.getByRole('button', { name: 'Resend code' }));

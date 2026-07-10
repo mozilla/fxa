@@ -4,7 +4,12 @@
 
 import React, { useState } from 'react';
 import ConfirmBackupCodeResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
+import { ResetPasswordIntegration } from '../interfaces';
+
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
 
 export const Subject = ({
   verifyBackupCode = () => Promise.resolve(),
@@ -12,14 +17,15 @@ export const Subject = ({
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmBackupCodeResetPassword
         {...{
           verifyBackupCode,
           codeErrorMessage,
           setCodeErrorMessage,
+          integration: mockIntegration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

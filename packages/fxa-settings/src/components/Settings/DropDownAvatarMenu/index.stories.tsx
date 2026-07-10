@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import DropDownAvatarMenu from '.';
@@ -48,4 +47,4 @@ const storyWithContext = (account: Partial<Account>) => {
 export const DefaultNoAvatarOrDisplayName =
   storyWithContext(accountWithoutAvatar);
 
-export const WithAvatarAndDisplayName = () => <DropDownAvatarMenu />;
+export const WithAvatarAndDisplayName = storyWithContext(MOCK_ACCOUNT);

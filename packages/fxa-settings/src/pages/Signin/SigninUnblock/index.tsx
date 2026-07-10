@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
@@ -17,6 +17,7 @@ import FormVerifyCode, {
 import {
   isWebIntegration,
   useAlertBar,
+  useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -45,7 +46,7 @@ export const SigninUnblock = ({
   integration,
   finishOAuthFlowHandler,
   setCurrentSplitLayout,
-}: SigninUnblockProps & RouteComponentProps) => {
+}: SigninUnblockProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [bannerErrorMessage, setBannerErrorMessage] = useState('');
@@ -58,7 +59,9 @@ export const SigninUnblock = ({
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
+  const authClient = useAuthClient();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
@@ -132,12 +135,15 @@ export const SigninUnblock = ({
         lastLogin: Date.now(),
         sessionToken: data.signIn.sessionToken,
         verified: isFullyVerified,
+        sessionVerified: data.signIn.sessionVerified,
         metricsEnabled: data.signIn.metricsEnabled,
+        hasPassword: true,
       };
 
       storeAccountData(accountData);
 
       const navigationOptions = {
+        navigate,
         email,
         signinData: data.signIn,
         unwrapBKey: data.unwrapBKey,
@@ -150,6 +156,7 @@ export const SigninUnblock = ({
         performNavigation: !(
           integration.isFirefoxMobileClient() && isFullyVerified
         ),
+        authClient,
       };
 
       // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar
@@ -179,7 +186,7 @@ export const SigninUnblock = ({
           navigateWithQuery(`/signin`, {
             state: {
               email,
-              // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache
+              // TODO: in FXA-9177, consider retrieving hasLinkedAccount and hasPassword from localStorage
               hasLinkedAccount,
               hasPassword,
               localizedErrorMessage,
@@ -211,6 +218,8 @@ export const SigninUnblock = ({
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninUnblockCodePage?.pageTitle;
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -222,6 +231,8 @@ export const SigninUnblock = ({
           cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninUnblockCodePage?.headline,
           cmsDescription: cmsInfo?.SigninUnblockCodePage?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
         }}
       />
       {bannerErrorMessage && (
@@ -231,20 +242,17 @@ export const SigninUnblock = ({
         />
       )}
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
       <FtlMsg id="signin-unblock-body" vars={{ email }}>
         <p className="text-sm">
           Check your email for the authorization code sent to {email}.
         </p>
       </FtlMsg>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-unblock-desktop-relay">
-          <p className="text-sm mt-2">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="text-sm mt-2">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode

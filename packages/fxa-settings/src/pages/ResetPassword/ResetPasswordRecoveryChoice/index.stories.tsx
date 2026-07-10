@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import ResetPasswordRecoveryChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../../mocks';
 
@@ -23,7 +22,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <ResetPasswordRecoveryChoice
       handlePhoneChoice={() => Promise.resolve()}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -31,11 +30,11 @@ export const Default = () => (
       numBackupCodes={4}
       completeResetPasswordLocationState={fakeState}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithSMSSendRateLimitExceeded = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <ResetPasswordRecoveryChoice
       handlePhoneChoice={() =>
         Promise.resolve(AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED)
@@ -45,11 +44,11 @@ export const WithSMSSendRateLimitExceeded = () => (
       numBackupCodes={4}
       completeResetPasswordLocationState={fakeState}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithUnexpectedError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <ResetPasswordRecoveryChoice
       handlePhoneChoice={() => Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR)}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -57,11 +56,11 @@ export const WithUnexpectedError = () => (
       numBackupCodes={4}
       completeResetPasswordLocationState={fakeState}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithBackendServiceFailure = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <ResetPasswordRecoveryChoice
       handlePhoneChoice={() =>
         Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE)
@@ -71,11 +70,11 @@ export const WithBackendServiceFailure = () => (
       numBackupCodes={4}
       completeResetPasswordLocationState={fakeState}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithThrottlingError = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <ResetPasswordRecoveryChoice
       handlePhoneChoice={() => Promise.resolve(AuthUiErrors.THROTTLED)}
       maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
@@ -83,5 +82,5 @@ export const WithThrottlingError = () => (
       numBackupCodes={4}
       completeResetPasswordLocationState={fakeState}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

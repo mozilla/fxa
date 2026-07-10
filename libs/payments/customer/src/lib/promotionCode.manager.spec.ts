@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 import { Stripe } from 'stripe';
 
 import { ProductManager } from './product.manager';
@@ -71,6 +72,7 @@ describe('PromotionCodeManager', () => {
         PromotionCodeManager,
         StripeClient,
         SubscriptionManager,
+        MockLoggerProvider,
       ],
     }).compile();
 
@@ -649,5 +651,43 @@ describe('PromotionCodeManager', () => {
         mockTaxAddress,
       )).rejects.toThrow(Error);
     })
+
+    it('throws CouponErrorInvalidCurrency when currency does not match', async () => {
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockRejectedValue(new CouponErrorInvalidCurrency());
+
+      await expect(
+        promotionCodeManager.assertValidForPriceAndCustomer(
+          mockPromoCodeName,
+          mockPrice,
+          'eur',
+          mockCustomer,
+          mockTaxAddress
+        )
+      ).rejects.toBeInstanceOf(CouponErrorInvalidCurrency);
+
+      expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
+    });
+
+    it('throws CouponErrorCannotRedeem when customer has prior transactions', async () => {
+      jest.spyOn(invoiceManager, 'previewUpcoming').mockRejectedValue(
+        new Stripe.errors.StripeInvalidRequestError({
+          type: 'invalid_request_error',
+          message:
+            'This promotion code cannot be redeemed because the associated customer has prior transactions.',
+        })
+      );
+
+      await expect(
+        promotionCodeManager.assertValidForPriceAndCustomer(
+          mockPromoCodeName,
+          mockPrice,
+          mockCurrency,
+          mockCustomer,
+          mockTaxAddress
+        )
+      ).rejects.toBeInstanceOf(CouponErrorCannotRedeem);
+    });
   })
 });

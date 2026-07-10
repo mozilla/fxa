@@ -8,6 +8,7 @@ import {
   IntentCardExpiredError,
   IntentFailedGenericError,
   IntentGetInTouchError,
+  IntentInsufficientFundsError,
   IntentTryAgainError,
 } from '../checkout.error';
 
@@ -16,10 +17,11 @@ const paymentIntentId = 'test-intent-id';
 const intentType = 'PaymentIntent' as const;
 
 describe('throwIntentFailedError', () => {
-  test.each([
+  const declineCodeCases: [string, typeof Error][] = [
     ['approve_with_id', IntentTryAgainError],
     ['issuer_not_available', IntentTryAgainError],
     ['reenter_transaction', IntentTryAgainError],
+    ['insufficient_funds', IntentInsufficientFundsError],
     ['call_issuer', IntentGetInTouchError],
     ['card_not_supported', IntentGetInTouchError],
     ['card_velocity_exceeded', IntentGetInTouchError],
@@ -42,7 +44,9 @@ describe('throwIntentFailedError', () => {
     ['stop_payment_order', IntentGetInTouchError],
     ['transaction_not_allowed', IntentGetInTouchError],
     ['unexpected_code', IntentCardDeclinedError],
-  ])(
+  ];
+
+  test.each(declineCodeCases)(
     'returns correct error class for card_declined with decline_code=%s',
     (declineCode, ExpectedError) => {
       expect(() =>
@@ -57,17 +61,50 @@ describe('throwIntentFailedError', () => {
     }
   );
 
-  it('returns IntentCardDeclinedError for incorrect_cvc', () => {
-    expect(() =>
-      throwIntentFailedError(
-        'incorrect_cvc',
-        undefined,
-        cartId,
-        paymentIntentId,
-        intentType
-      )
-    ).toThrow(IntentCardDeclinedError);
-  });
+  test.each(declineCodeCases)(
+    'returns correct error class for payment_intent_payment_attempt_failed with decline_code=%s',
+    (declineCode, ExpectedError) => {
+      expect(() =>
+        throwIntentFailedError(
+          'payment_intent_payment_attempt_failed' as any,
+          declineCode,
+          cartId,
+          paymentIntentId,
+          intentType
+        )
+      ).toThrow(ExpectedError);
+    }
+  );
+
+  test.each(declineCodeCases)(
+    'returns correct error class for payment_method_provider_decline with decline_code=%s',
+    (declineCode, ExpectedError) => {
+      expect(() =>
+        throwIntentFailedError(
+          'payment_method_provider_decline' as any,
+          declineCode,
+          cartId,
+          paymentIntentId,
+          intentType
+        )
+      ).toThrow(ExpectedError);
+    }
+  );
+
+  test.each(['incorrect_cvc', 'incorrect_number', 'incorrect_zip', 'invalid_cvc'])(
+    'returns IntentCardDeclinedError for %s',
+    (errorCode) => {
+      expect(() =>
+        throwIntentFailedError(
+          errorCode as any,
+          undefined,
+          cartId,
+          paymentIntentId,
+          intentType
+        )
+      ).toThrow(IntentCardDeclinedError);
+    }
+  );
 
   it('returns IntentCardExpiredError for expired_card', () => {
     expect(() =>

@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import InlineRecoverySetup from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { InlineRecoverySetupProps } from './interfaces';
@@ -32,9 +31,9 @@ const completeBackupCodeSetup = async () => {};
 const successfulSetupHandler = () => {};
 
 const ComponentWithRouter = (props: InlineRecoverySetupProps) => (
-  <LocationProvider>
+  <MemoryRouter>
     <InlineRecoverySetup {...props} />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const ChoiceScreen = () => (

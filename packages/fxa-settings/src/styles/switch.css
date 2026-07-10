@@ -61,18 +61,18 @@
   }
 
   &[aria-checked='false'] {
-    @apply text-end border-grey-200;
+    @apply text-end border-grey-200 dark:border-grey-500;
 
     .slider {
-      @apply bg-grey-50;
+      @apply bg-grey-50 dark:bg-grey-600;
 
       &:not(:disabled):hover {
-        @apply bg-grey-100;
+        @apply bg-grey-100 dark:bg-grey-500;
       }
 
       &:active,
       &:focus {
-        @apply bg-grey-200;
+        @apply bg-grey-200 dark:bg-grey-400;
       }
 
       &::before {

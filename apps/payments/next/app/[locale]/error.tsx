@@ -32,7 +32,8 @@ export default function Error({
   const [loading, setLoading] = useState(false);
   const { locale, offeringId, interval, cartId } = useParams<ErrorParams>();
   const hasProductData = locale && offeringId && interval;
-  const queryParams = useSearchParams().toString();
+  const searchParams = useSearchParams();
+  const queryParams = searchParams.toString();
 
   const SUPPORT_URL = process.env.SUPPORT_URL ?? 'https://support.mozilla.org';
 
@@ -58,9 +59,9 @@ export default function Error({
     }
   }
 
-  function handleProductRetry() {
+  async function handleProductRetry() {
     if (cartId) {
-      redirectWithCart();
+      await redirectWithCart();
     } else {
       router.push(`/${locale}/${offeringId}/${interval}/landing` + (queryParams ? `?${queryParams}` : ''));
     }

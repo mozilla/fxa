@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { ReactComponent as IconFolder } from './icon-folder.svg';
 import { ReactComponent as IconGlobe } from './icon-globe.svg';
 import { ReactComponent as IconKey } from './icon-key.svg';
@@ -21,7 +20,7 @@ interface IconListItemProps {
 export const IconListItem = ({
   icon,
   listItemClassnames,
-  spanClassNames = 'me-1 text-grey-400',
+  spanClassNames = 'me-1 text-grey-400 dark:text-grey-200',
   children,
 }: IconListItemProps) => {
   return (
@@ -44,7 +43,7 @@ export const FolderIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600"
+      spanClassNames="text-grey-600 dark:text-grey-200"
       icon={<IconFolder className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
@@ -60,7 +59,7 @@ export const GlobeIconListItem = ({
   return (
     <IconListItem
       {...{ listItemClassnames }}
-      spanClassNames="text-grey-600"
+      spanClassNames="text-grey-600 dark:text-grey-200"
       icon={<IconGlobe className="w-4 h-4 items-center justify-center" />}
     >
       {children}
@@ -88,7 +87,7 @@ export const LockIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600"
+      spanClassNames="text-grey-600 dark:text-grey-200"
       icon={<IconLock className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
@@ -103,7 +102,7 @@ export const PrinterIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600"
+      spanClassNames="text-grey-600 dark:text-grey-200"
       icon={<IconPrinter className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >

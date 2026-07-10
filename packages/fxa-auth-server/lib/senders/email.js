@@ -23,7 +23,6 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { Container } = require('typedi');
 
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_TIMEZONE = 'Etc/UTC';
 const UTM_PREFIX = 'fx-';
 
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
@@ -45,9 +44,10 @@ module.exports = function (log, config, bounces, statsd) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
-    subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
     subscriptionReactivation: 'subscription-reactivation',
     subscriptionRenewalReminder: 'subscription-renewal-reminder',
+    freeTrialEndingReminder: 'free-trial-ending-reminder',
+    subscriptionEndingReminder: 'subscription-ending-reminder',
     subscriptionReplaced: 'subscription-replaced',
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
@@ -112,9 +112,10 @@ module.exports = function (log, config, bounces, statsd) {
   // Please create a DB migration to add the new templates into `emailTypes`
   // when you add new templates.
   const templateNameToContentMap = {
-    subscriptionAccountFinishSetup: 'subscriptions',
     subscriptionReactivation: 'subscriptions',
     subscriptionRenewalReminder: 'subscriptions',
+    freeTrialEndingReminder: 'subscriptions',
+    subscriptionEndingReminder: 'subscriptions',
     subscriptionReplaced: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
@@ -184,15 +185,11 @@ module.exports = function (log, config, bounces, statsd) {
   }
 
   function constructLocalTimeString(timeZone, locale) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let timeMoment = moment();
-    if (timeZone) {
-      timeMoment = timeMoment.tz(timeZone);
-    }
+    const timeMoment = moment()
+      .locale(locale)
+      .tz(timeZone || 'Etc/UTC');
     // return a locale-specific time
     // if date or time is passed, return it as the current date or time
     const timeNow = timeMoment.format('LTS (z)');
@@ -206,20 +203,15 @@ module.exports = function (log, config, bounces, statsd) {
     date,
     formatString = 'L'
   ) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let time = moment(date);
-    if (timeZone) {
-      time = time.tz(timeZone);
-    }
+    const time = moment(date)
+      .locale(locale)
+      .tz(timeZone || 'Etc/UTC');
     // return a locale-specific date
     return time.format(formatString);
   }
 
-  // Borrowed from fxa-payments-server/src/lib/formats.ts
   // TODO: Would be nice to share this if/when TypeScript conversion reaches here.
   const baseCurrencyOptions = {
     style: 'currency',
@@ -229,7 +221,6 @@ module.exports = function (log, config, bounces, statsd) {
   /**
    * This returns a string that is formatted according to the given locale.
    *
-   * Borrowed from fxa-payments-server/src/lib/formats.ts
    * TODO: Would be nice to share this if/when TypeScript conversion reaches here.
    *
    * @param {number} amountInCents
@@ -386,12 +377,9 @@ module.exports = function (log, config, bounces, statsd) {
 
   Mailer.prototype._passwordResetLinkAttributes = function (
     email,
-    templateName,
-    emailToHashWith
+    templateName
   ) {
-    return linkAttributes(
-      this.createPasswordResetLink(email, templateName, emailToHashWith)
-    );
+    return linkAttributes(this.createPasswordResetLink(email, templateName));
   };
 
   Mailer.prototype._twoFactorSettingsLinkAttributes = function (
@@ -507,6 +495,16 @@ module.exports = function (log, config, bounces, statsd) {
 
     const to = message.email;
 
+    // Skip non-ASCII local parts. SES doesn't support SMTPUTF8, so these
+    // always fail at RCPT TO. Silently return (like bounce check below)
+    // to avoid Sentry noise from pre-existing accounts.
+    const [localPart] = to.split('@');
+    if (/[^\x20-\x7E]/.test(localPart)) {
+      statsd.increment('email.nonAsciiLocalPart', { template });
+      log.warn('mailer.send.nonAsciiLocalPart', { to, template });
+      return;
+    }
+
     try {
       await bounces.check(to, template);
     } catch (err) {
@@ -570,14 +568,32 @@ module.exports = function (log, config, bounces, statsd) {
     await new Promise((resolve, reject) => {
       this.mailer.sendMail(emailConfig, (err, status) => {
         if (err) {
-          log.error('mailer.send.error', {
+          const errorLogDetails = {
             err: err.message,
             code: err.code,
             errno: err.errno,
             message: status && status.message,
             to: emailConfig && emailConfig.to,
             template,
-          });
+          };
+
+          if (emailConfig && emailConfig.cc) {
+            errorLogDetails.cc = emailConfig.cc;
+          }
+          if (err.response) {
+            errorLogDetails.smtpResponse = err.response;
+          }
+          if (err.responseCode) {
+            errorLogDetails.smtpResponseCode = err.responseCode;
+          }
+          if (err.rejected && err.rejected.length) {
+            errorLogDetails.rejectedRecipients = err.rejected;
+          }
+          if (err.accepted && err.accepted.length) {
+            errorLogDetails.acceptedRecipients = err.accepted;
+          }
+
+          log.error('mailer.send.error', errorLogDetails);
 
           return reject(err);
         }
@@ -1251,7 +1267,7 @@ module.exports = function (log, config, bounces, statsd) {
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
-      { email: message.email, email_to_hash_with: message.emailToHashWith },
+      { email: message.email },
       templateName
     );
 
@@ -2202,100 +2218,6 @@ module.exports = function (log, config, bounces, statsd) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
-    message
-  ) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      acceptLanguage,
-      productName,
-      invoiceNumber,
-      invoiceTotalInCents,
-      invoiceTotalCurrency,
-      planEmailIconURL,
-      invoiceDate,
-      nextInvoiceDate,
-      token,
-      flowId,
-      flowBeginTime,
-      deviceId,
-    } = message;
-
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-
-    log.trace('mailer.subscriptionAccountFinishSetupEmail', {
-      enabled,
-      email,
-      productId,
-      uid,
-    });
-    if (!enabled) {
-      return;
-    }
-
-    const query = {
-      email,
-      product_name: productName,
-      token,
-      product_id: productId,
-      flowId,
-      flowBeginTime,
-      deviceId,
-    };
-    const template = 'subscriptionAccountFinishSetup';
-
-    const links = this._generateLinks(
-      this.accountFinishSetupUrl,
-      message,
-      query,
-      template
-    );
-    const cmsLinks = await this._generateCmsLinks(
-      planId,
-      acceptLanguage,
-      template
-    );
-    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
-    const headers = {
-      'X-Link': links.link,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      layout: 'subscription',
-      template,
-      templateValues: {
-        ...links,
-        uid,
-        email,
-        productName,
-        invoiceNumber,
-        invoiceTotal: this._getLocalizedCurrencyString(
-          invoiceTotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          invoiceDate
-        ),
-        isFinishSetup: true,
-        nextInvoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          nextInvoiceDate
-        ),
-        icon: planEmailIconURL,
-        product: productName,
-      },
-    });
-  };
-
   Mailer.prototype.subscriptionReplacedEmail = async function (message) {
     const { email, uid, productId, planId, acceptLanguage, productName } =
       message;
@@ -2783,7 +2705,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
-    const { email, uid, planId, acceptLanguage, subscriptions } = message;
+    const { email, uid, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentExpired', {
@@ -2818,7 +2740,7 @@ module.exports = function (log, config, bounces, statsd) {
     }
 
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscriptions[0]?.planId,
       acceptLanguage,
       template
     );
@@ -2842,7 +2764,7 @@ module.exports = function (log, config, bounces, statsd) {
   Mailer.prototype.subscriptionPaymentProviderCancelledEmail = async function (
     message
   ) {
-    const { email, uid, planId, acceptLanguage, subscriptions } = message;
+    const { email, uid, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentProviderCancelled', {
@@ -2877,7 +2799,7 @@ module.exports = function (log, config, bounces, statsd) {
     }
 
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscriptions[0]?.planId,
       acceptLanguage,
       template
     );
@@ -3024,6 +2946,8 @@ module.exports = function (log, config, bounces, statsd) {
       serviceLastActiveDate,
       showOutstandingBalance,
       cancelAtEnd = true,
+      isFreeTrialCancellation = false,
+      trialEnd,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -3078,6 +3002,16 @@ module.exports = function (log, config, bounces, statsd) {
         ),
         showOutstandingBalance,
         cancelAtEnd,
+        isFreeTrialCancellation,
+        ...(trialEnd
+          ? {
+              trialEndDateOnly: this._constructLocalDateString(
+                message.timeZone,
+                message.acceptLanguage,
+                trialEnd
+              ),
+            }
+          : {}),
       },
     });
   };
@@ -3147,6 +3081,7 @@ module.exports = function (log, config, bounces, statsd) {
       lastFour,
       nextInvoiceDate,
       payment_provider,
+      isFreeTrialReactivation = false,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -3197,12 +3132,181 @@ module.exports = function (log, config, bounces, statsd) {
         cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
+        isFreeTrialReactivation,
+      },
+    });
+  };
+
+  Mailer.prototype.freeTrialEndingReminderEmail = async function (message) {
+    const { email, uid, acceptLanguage, subscription } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.freeTrialEndingReminderEmail', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const headers = {};
+    const template = 'freeTrialEndingReminder';
+    const productName = subscription.productName;
+    const links = this._generateLinks(
+      null,
+      message,
+      {
+        plan_id: subscription.planId,
+        product_id: subscription.productId,
+        uid,
+      },
+      template
+    );
+    const cmsLinks = await this._generateCmsLinks(
+      subscription.planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        productName,
+        serviceLastActiveDateOnly:
+          message.serviceLastActiveDate.toLocaleDateString(
+            determineLocale(message.acceptLanguage),
+            {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }
+          ),
+        invoiceTotal: this._getLocalizedCurrencyString(
+          message.invoiceTotalInCents,
+          message.invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceSubtotal: this._getLocalizedCurrencyString(
+          message.invoiceSubtotalInCents,
+          message.invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceDiscountAmount:
+          message.invoiceDiscountAmountInCents &&
+          this._getLocalizedCurrencyString(
+            -1 * message.invoiceDiscountAmountInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceTaxAmount:
+          message.invoiceTaxAmountInCents &&
+          this._getLocalizedCurrencyString(
+            message.invoiceTaxAmountInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        showTaxAmount: message.showTaxAmount,
+        showDiscount: message.showDiscount,
+        subscriptionSupportUrlWithUtm: this._generateUTMLink(
+          message.subscriptionSupportUrl,
+          {},
+          template,
+          'subscription-product-support'
+        ),
+        productIconURLNew: message.productIconURLNew,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionEndingReminderEmail = async function (message) {
+    const { email, uid, acceptLanguage, subscription } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionEndingReminderEmail', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const headers = {};
+    const template = 'subscriptionEndingReminder';
+    const productName = subscription.productName;
+    const links = this._generateLinks(
+      null,
+      message,
+      {
+        plan_id: subscription.planId,
+        product_id: subscription.productId,
+        uid,
+      },
+      template
+    );
+    const cmsLinks = await this._generateCmsLinks(
+      subscription.planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        productName,
+        serviceLastActiveDateOnly:
+          message.serviceLastActiveDate.toLocaleDateString(
+            determineLocale(message.acceptLanguage),
+            {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }
+          ), // @@TODO - Include customers timezone
+        subscriptionSupportUrlWithUtm: this._generateUTMLink(
+          message.subscriptionSupportUrl,
+          {},
+          template,
+          'subscription-product-support'
+        ),
+        churnTermsUrlWithUtm: this._generateUTMLink(
+          message.churnTermsUrl,
+          {},
+          template,
+          'subscription-product-support'
+        ),
+        productIconURLNew: message.productIconURLNew,
+        ctaButtonLabel: message.ctaButtonLabel,
+        ctaButtonUrlWithUtm:
+          message.ctaButtonUrl &&
+          this._generateUTMLink(
+            message.ctaButtonUrl,
+            {},
+            template,
+            'subscription-product-support'
+          ),
+        showChurn: message.showChurn,
       },
     });
   };
 
   Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
-    const { email, uid, planId, acceptLanguage, subscription } = message;
+    const { email, uid, acceptLanguage, subscription } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionRenewalReminderEmail', {
@@ -3228,7 +3332,7 @@ module.exports = function (log, config, bounces, statsd) {
       template
     );
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscription.planId,
       acceptLanguage,
       template
     );
@@ -3245,13 +3349,29 @@ module.exports = function (log, config, bounces, statsd) {
         email,
         productName,
         reminderLength: message.reminderLength,
-        planIntervalCount: message.planIntervalCount,
         planInterval: message.planInterval,
+        showTax: message.showTax,
+        invoiceTotalExcludingTax:
+          message.invoiceTotalExcludingTaxInCents &&
+          this._getLocalizedCurrencyString(
+            message.invoiceTotalExcludingTaxInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceTax:
+          message.invoiceTaxInCents &&
+          this._getLocalizedCurrencyString(
+            message.invoiceTaxInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceTotal: this._getLocalizedCurrencyString(
           message.invoiceTotalInCents,
           message.invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        discountEnding: message.discountEnding || false,
+        hasDifferentDiscount: message.hasDifferentDiscount || false,
       },
     });
   };
@@ -3986,15 +4106,10 @@ module.exports = function (log, config, bounces, statsd) {
       templateName
     );
 
-    links['resetLink'] = this.createPasswordResetLink(
-      email,
-      templateName,
-      query.emailToHashWith
-    );
+    links['resetLink'] = this.createPasswordResetLink(email, templateName);
     links['resetLinkAttributes'] = this._passwordResetLinkAttributes(
       email,
-      templateName,
-      query.emailToHashWith
+      templateName
     );
 
     links['twoFactorSettingsLink'] = this.createTwoFactorSettingsLink(
@@ -4070,8 +4185,25 @@ module.exports = function (log, config, bounces, statsd) {
         'subscription-privacy'
       )
     );
+
+    const subscriptionId =
+      message.subscriptionId ??
+      message.subscription?.subscriptionId ??
+      (message.subscriptions?.length === 1
+        ? message.subscriptions[0]?.subscriptionId
+        : undefined);
+    const subscriptionPageUrl = (path) => {
+      if (!subscriptionId) {
+        return this.subscriptionSettingsUrl;
+      }
+      const base = this.subscriptionSettingsUrl.endsWith('/')
+        ? this.subscriptionSettingsUrl
+        : `${this.subscriptionSettingsUrl}/`;
+      return new URL(`subscriptions/${subscriptionId}/${path}`, base).href;
+    };
+
     links.cancelSubscriptionUrl = this._generateUTMLink(
-      this.subscriptionSettingsUrl,
+      subscriptionPageUrl('cancel'),
       { ...query, email, uid },
       templateName,
       'cancel-subscription'
@@ -4083,7 +4215,7 @@ module.exports = function (log, config, bounces, statsd) {
       'manage-subscription'
     );
     links.reactivateSubscriptionUrl = this._generateUTMLink(
-      this.subscriptionSettingsUrl,
+      subscriptionPageUrl('stay-subscribed'),
       { ...query, email, uid },
       templateName,
       'reactivate-subscription'
@@ -4169,15 +4301,8 @@ module.exports = function (log, config, bounces, statsd) {
     );
   };
 
-  Mailer.prototype.createPasswordResetLink = function (
-    email,
-    templateName,
-    emailToHashWith
-  ) {
-    const query = {
-      email: email,
-      email_to_hash_with: emailToHashWith,
-    };
+  Mailer.prototype.createPasswordResetLink = function (email, templateName) {
+    const query = { email };
 
     return this._generateUTMLink(
       this.initiatePasswordResetUrl,

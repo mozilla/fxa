@@ -3,17 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'reflect-metadata';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
-import { useCmsInfoState } from './hooks';
+import { useClientInfoState, useCmsInfoState } from './hooks';
 import { AppContext } from './contexts/AppContext';
 
 // Mock all external dependencies before importing the hook
 jest.mock('@sentry/browser', () => ({
   captureMessage: jest.fn(),
   captureException: jest.fn(),
+  addBreadcrumb: jest.fn(),
 }));
 
 jest.mock('class-validator', () => ({
@@ -74,6 +75,10 @@ const mockConfig = {
       url: 'http://localhost:9000',
     },
   },
+  oauth: {
+    clientInfoRetries: 4,
+    clientInfoTimeout: 20_000,
+  },
 };
 
 const MockAppProvider = ({ children }: { children: ReactNode }) =>
@@ -83,7 +88,6 @@ const MockAppProvider = ({ children }: { children: ReactNode }) =>
       value: {
         config: mockConfig as any,
         account: undefined,
-        apolloClient: undefined,
       },
     },
     children
@@ -192,7 +196,6 @@ describe('useCmsInfoState', () => {
           value: {
             config: disabledConfig as any,
             account: undefined,
-            apolloClient: undefined,
           },
         },
         children
@@ -323,7 +326,13 @@ describe('useCmsInfoState', () => {
     // why we changed the hook to start with.
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
       tags: { area: 'useCmsInfoState' },
-      extra: { clientId: '1234567890abcdef', entrypoint: 'preferences' },
+      extra: {
+        clientId: '1234567890abcdef',
+        entrypoint: 'preferences',
+        cancelled: false,
+        errorName: 'Error',
+        fetchDuration: expect.any(Number),
+      },
     });
   });
 
@@ -413,7 +422,6 @@ describe('useCmsInfoState', () => {
           value: {
             config: l10nEnabledConfig as any,
             account: undefined,
-            apolloClient: undefined,
           },
         },
         children
@@ -525,5 +533,200 @@ describe('useCmsInfoState', () => {
     expect(result.current.data?.cmsInfo).toEqual({
       customization: 'english-selected-test',
     });
+  });
+});
+
+describe('useClientInfoState', () => {
+  let mockUrlQueryData: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+
+    const { UrlQueryData } = require('../lib/model-data');
+    mockUrlQueryData = { get: jest.fn() };
+    UrlQueryData.mockImplementation(() => mockUrlQueryData);
+
+    const { isHexadecimal, length } = require('class-validator');
+    isHexadecimal.mockReturnValue(true);
+    length.mockReturnValue(true);
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        id: '1234567890abcdef',
+        name: 'Test RP',
+        redirect_uri: 'https://example.test/redirect',
+        image_uri: '',
+        trusted: true,
+      }),
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  })
+
+  it('populates clientInfo from the fetch response', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.data?.clientInfo).toEqual({
+      clientId: '1234567890abcdef',
+      imageUri: null,
+      redirectUri: 'https://example.test/redirect',
+      serviceName: 'Test RP',
+      trusted: true,
+    });
+    expect(result.current.error).toBeUndefined();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it('captures fetch errors to Sentry with a dedicated area tag', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    const fetchError = new Error('Network error');
+    mockFetch.mockRejectedValue(fetchError);
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toEqual(fetchError);
+    expect(result.current.data).toBeUndefined();
+    expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
+      tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' },
+      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined, mounted:true, attempt:3 },
+    });
+  });
+
+  it('captures non-OK HTTP responses to Sentry', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    mockFetch.mockResolvedValue({ ok: false, status: 403 });
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toMatch(/403/);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringMatching(/403/) }),
+      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined, mounted:true, attempt:3} })
+    );
+  });
+
+  it('aborts a hung fetch after the timeout, retries, and surfaces an error', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    // The request never resolves on its own — it only rejects when its
+    // AbortSignal fires, i.e. when the hook's per-attempt timeout aborts it.
+    mockFetch.mockImplementation(
+      (_url: string, opts: { signal: AbortSignal }) =>
+        new Promise((_resolve, reject) => {
+          opts.signal.addEventListener('abort', () =>
+            reject(opts.signal.reason ?? new DOMException('aborted', 'AbortError'))
+          );
+        })
+    );
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    // Drive the fake clock past all four 20s (REQUEST_TIMEOUT_MS) attempt
+    // timeouts plus the intervening linear backoffs (0 + 250 + 500ms), with a
+    // margin so the final attempt's timeout fires rather than landing on the
+    // advance boundary.
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5 * 20_000);
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(4);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.stringContaining('/v1/oauth/client/1234567890abcdef'),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports loading on the very first render when a fetch will run (race regression)', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    let resolveFetch!: (value: unknown) => void;
+    mockFetch.mockReturnValue(
+      new Promise((resolve) => {
+        resolveFetch = resolve;
+      })
+    );
+
+    // A settled-empty render (no loading/data/error) is the race that fed
+    // useIntegration an empty clientInfo before the fetch ran.
+    const settledEmptyRenders: boolean[] = [];
+    const { result } = renderHook(
+      () => {
+        const state = useClientInfoState();
+        settledEmptyRenders.push(!state.loading && !state.data && !state.error);
+        return state;
+      },
+      { wrapper: MockAppProvider }
+    );
+
+    resolveFetch({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        id: '1234567890abcdef',
+        name: 'Test RP',
+        redirect_uri: 'https://example.test/redirect',
+        image_uri: '',
+        trusted: true,
+      }),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.clientInfo.trusted).toBe(true);
+    expect(settledEmptyRenders).not.toContain(true);
+  });
+
+  it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {
+    mockUrlQueryData.get.mockReturnValue(null);
+    const { isHexadecimal, length } = require('class-validator');
+    isHexadecimal.mockReturnValue(false);
+    length.mockReturnValue(false);
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(result.current.loading).toBe(false);
+    // Fail fast: a missing/invalid clientId is surfaced as an error so the
+    // App-level guard can render OAuthDataError rather than proceeding with
+    // half-populated client info. This is a breadcrumb, not a Sentry capture.
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toBe('Invalid clientId');
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

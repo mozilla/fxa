@@ -3,9 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAlertBar, useFtlMsgResolver, useSession } from '../../../models';
+import {
+  useAlertBar,
+  useAuthClient,
+  useFtlMsgResolver,
+  useSession,
+} from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import firefox from '../../../lib/channels/firefox';
@@ -15,6 +20,7 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getLocalizedErrorMessage,
@@ -35,10 +41,10 @@ export type SigninTotpCodeProps = {
   integration: SigninIntegration;
   redirectTo?: string;
   signinState: SigninLocationState;
-  // TODO: Switch to gql error shaped object
   submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
   setCurrentSplitLayout?: (value: boolean) => void;
+  useFxAStatusResult: UseFxAStatusResult;
 } & SensitiveData.AuthData;
 
 export const viewName = 'signin-totp-code';
@@ -52,13 +58,16 @@ export const SigninTotpCode = ({
   keyFetchToken,
   unwrapBKey,
   setCurrentSplitLayout,
-}: SigninTotpCodeProps & RouteComponentProps) => {
+  useFxAStatusResult,
+}: SigninTotpCodeProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
   const alertBar = useAlertBar();
+  const authClient = useAuthClient();
 
   const [bannerError, setBannerError] = useState<string>('');
 
@@ -126,15 +135,44 @@ export const SigninTotpCode = ({
         showInlineRecoveryKeySetup,
       } = signinState;
 
+      const isPasswordlessSignin =
+        signinState.isPasswordlessOtpSignin ||
+        signinState.isSignInWithThirdPartyAuth;
+
       storeAccountData({
         sessionToken,
         email,
         uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
+        // OTP sign-in is the only genuinely passwordless case; a third-party
+        // account may have a password, so leave it unset and let SetPassword verify.
+        ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
+      // Passwordless sign-in needing keys: redirect to set_password.
+      // Other flows continue through handleNavigation.
+      // passwordCreationReason tags the Glean reason on the destination page.
+      if (
+        isPasswordlessSignin &&
+        integration.requiresPasswordForLogin(
+          useFxAStatusResult.supportsKeysOptionalLogin
+        )
+      ) {
+        navigateWithQuery('/post_verify/set_password', {
+          replace: true,
+          state: {
+            passwordCreationReason: signinState.isSignInWithThirdPartyAuth
+              ? 'third_party_auth'
+              : 'otp',
+          },
+        });
+        return;
+      }
+
       const navigationOptions = {
+        navigate,
         email,
         signinData: {
           uid,
@@ -155,6 +193,7 @@ export const SigninTotpCode = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        authClient,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -165,29 +204,15 @@ export const SigninTotpCode = ({
   };
 
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
-  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
-
+  const cmsPage = cmsInfo?.SigninTotpCodePage;
+  const title = cmsPage?.pageTitle;
+  const splitLayout = cmsPage?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
-      {cmsInfo ? (
-        <>
-          {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (
-            <img
-              src={cmsInfo.shared.logoUrl}
-              alt={cmsInfo.shared.logoAltText}
-              className="justify-start mb-4 max-h-[40px]"
-            />
-          )}
-        </>
-      ) : (
-        <FtlMsg id="signin-totp-code-header">
-          <HeadingPrimary>Sign in</HeadingPrimary>
-        </FtlMsg>
-      )}
-
-      <FtlMsg id="signin-totp-code-subheader-v2">
-        <h2 className="card-header">Enter two-step authentication code</h2>
+      <FtlMsg id="signin-totp-code-header">
+        <HeadingPrimary>Sign in</HeadingPrimary>
       </FtlMsg>
 
       {isSessionAALUpgrade && localizedBannerAALUpgrade && (
@@ -200,23 +225,30 @@ export const SigninTotpCode = ({
         />
       )}
 
+      {cmsPage?.headline ? (
+        <h2 className="card-header">{cmsPage.headline}</h2>
+      ) : (
+        <FtlMsg id="signin-totp-code-subheader-v2">
+          <h2 className="card-header">Enter two-step authentication code</h2>
+        </FtlMsg>
+      )}
+
       <div className="flex space-x-4">
         <img src={protectionShieldIcon} alt="" />
-        <FtlMsg id="signin-totp-code-instruction-v4">
-          <p className="mt-5 text-md">
-            Check your <strong>authenticator app</strong> to confirm your
-            sign-in.
-          </p>
-        </FtlMsg>
+        {cmsPage?.description ? (
+          <p className="mt-5 text-md">{cmsPage.description}</p>
+        ) : (
+          <FtlMsg id="signin-totp-code-instruction-v4">
+            <p className="mt-5 text-md">
+              Check your <strong>authenticator app</strong> to confirm your
+              sign-in.
+            </p>
+          </FtlMsg>
+        )}
       </div>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-totp-code-desktop-relay">
-          <p className="mt-2 mb-4 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 mb-4 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       {bannerError && (
@@ -231,10 +263,10 @@ export const SigninTotpCode = ({
           'signin-totp-code-input-label-v4',
           'Enter 6-digit code'
         )}
-        localizedSubmitButtonText={ftlMsgResolver.getMsg(
-          'signin-totp-code-confirm-button',
-          'Confirm'
-        )}
+        localizedSubmitButtonText={
+          cmsPage?.primaryButtonText ||
+          ftlMsgResolver.getMsg('signin-totp-code-confirm-button', 'Confirm')
+        }
         setErrorMessage={setBannerError}
         verifyCode={onSubmit}
         className="my-6"

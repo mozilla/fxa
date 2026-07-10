@@ -21,22 +21,35 @@ import errorIcon from '@fxa/shared/assets/images/error.svg';
 export default async function PaypalPaymentManagementPage({
   params,
 }: {
-  params: ManageParams;
+  params: Promise<ManageParams>;
 }) {
-  const acceptLanguage = headers().get('accept-language');
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
   const session = await auth();
-  const { locale } = params;
+  const { locale } = await params;
 
-  const nonce = headers().get('x-nonce') || undefined;
+  const nonce = headersList.get('x-nonce') || undefined;
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }
-  const sessionUid = session.user.id;
-  const [paypalBillingAgreementId, currency] = await Promise.all([
-    getPayPalBillingAgreementId(session.user.id),
-    determineCurrencyForCustomerAction(session.user.id),
-  ]);
+  let paypalBillingAgreementId;
+  let currency;
+  try {
+    [paypalBillingAgreementId, currency] = await Promise.all([
+      getPayPalBillingAgreementId(),
+      determineCurrencyForCustomerAction(),
+    ]);
+  } catch (error) {
+    if (
+      error.name === 'AccountCustomerNotFoundError') {
+      redirect(
+        `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
+      );
+    } else {
+      throw error;
+    }
+  }
 
   if (paypalBillingAgreementId || !currency) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
@@ -96,7 +109,6 @@ export default async function PaypalPaymentManagementPage({
             ></div>
           </div>
           <PaypalManagement
-            sessionUid={sessionUid}
             paypalClientId={config.paypal.clientId}
             nonce={nonce}
             currency={currency}

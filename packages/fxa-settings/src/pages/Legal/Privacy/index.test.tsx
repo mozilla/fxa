@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import LegalPrivacy, { viewName } from '.';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -11,6 +10,7 @@ import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { fetchLegalMd } from '../../../lib/file-utils-legal';
+import { MemoryRouter } from 'react-router';
 
 jest.mock('../../../lib/file-utils-legal');
 jest.mock('../../../lib/metrics', () => ({
@@ -41,7 +41,7 @@ describe('Legal/Privacy', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithLocalizationProvider(<LegalPrivacy />);
+    renderWithLocalizationProvider(<MemoryRouter><LegalPrivacy /></MemoryRouter>);
     await waitFor(() => {
       testAllL10n(screen, bundle);
 
@@ -53,7 +53,7 @@ describe('Legal/Privacy', () => {
   });
 
   it('emits metrics events as expected', () => {
-    renderWithLocalizationProvider(<LegalPrivacy />);
+    renderWithLocalizationProvider(<MemoryRouter><LegalPrivacy /></MemoryRouter>);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
 
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));

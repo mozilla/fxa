@@ -4,7 +4,6 @@
 
 'use strict';
 
-const chunk = require('lodash/chunk');
 const config = require('../../config').default.getProperties();
 const readUserRecords = require('./read-user-records');
 const sendEmailBatches = require('./send-email-batches');
@@ -12,6 +11,11 @@ const Senders = require('../../lib/senders');
 const UserRecordNormalizer = require('./normalize-user-records');
 const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock');
 const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
+
+const chunk = (arr, size) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
+    arr.slice(i * size, (i + 1) * size)
+  );
 
 /**
  * Send an email to users listed in the file `userRecordFilename` using `mailerMethodName`

@@ -1,4 +1,4 @@
-#!/usr/bin/env node -r esbuild-register
+#!/usr/bin/env node -r ts-node/register/transpile-only -r tsconfig-paths/register
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -119,11 +119,10 @@ function sendMail(mailer, messageToSend) {
     numberRemaining: 2,
     productId: '0123456789abcdef',
     planId: 'plan-example',
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     planEmailIconURL: planConfig.urls.emailIcon,
     planSuccessActionButtonURL: planConfig.urls.download,
     planInterval: 'week',
-    planIntervalCount: 4,
     playStoreLink: 'https://example.com/play-store',
     invoiceNumber: '8675309',
     cardType: 'MasterCard',
@@ -131,12 +130,16 @@ function sendMail(mailer, messageToSend) {
     invoiceDate: new Date(),
     nextInvoiceDate: new Date(Date.now() + 1000 * 3600 * 24 * 30),
     serviceLastActiveDate: new Date(Date.now() + 1000 * 3600 * 24 * 60),
+    trialEnd: new Date(Date.now() + 1000 * 3600 * 24 * 14),
     productIconURLNew: 'http://placekitten.com/512/512?image=2',
     productIconURLOld: 'http://placekitten.com/512/512?image=1',
     productNameOld: 'Product A',
     productNameNew: 'Product B',
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
+    showTax: true,
+    invoiceTotalExcludingTaxInCents: 869565.1,
+    invoiceTaxInCents: 130434.8,
     invoiceTotalInCents: 999999.9,
     invoiceTotalCurrency: 'eur',
     paymentAmountOldInCents: 9999099.9,
@@ -173,7 +176,7 @@ function sendMail(mailer, messageToSend) {
       planId: 'plan-example',
       productId: '0123456789abcdef',
       productMetadata,
-      productName: 'Firefox Fortress',
+      productName: '123Done Pro',
     },
     subscriptions: [
       {
@@ -182,10 +185,16 @@ function sendMail(mailer, messageToSend) {
         planId: 'plan-example',
         productId: '0123456789abcdef',
         productMetadata,
-        productName: 'Firefox Fortress',
+        productName: '123Done Pro',
       },
     ],
     planConfig,
+    subscriptionSupportUrl: 'https://support.mozilla.org/products/vpn',
+    invoiceSubtotalInCents: 1299,
+    invoiceDiscountAmountInCents: 300,
+    invoiceTaxAmountInCents: 120,
+    showTaxAmount: true,
+    showDiscount: true,
   };
 
   return mailer[messageType](message);
