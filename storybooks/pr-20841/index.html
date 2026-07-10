@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 671772797773b4c1c3d0695a9e46d46e8d95023c</title>
+  <title>Storybooks for commit c07a3b2c04ce4baf35eb15ede36c96b9689bc1eb</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 671772797773b4c1c3d0695a9e46d46e8d95023c</h1>
+  <h1>Storybooks for commit c07a3b2c04ce4baf35eb15ede36c96b9689bc1eb</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,22 +31,9 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/9/2026, 10:03:11 PM UTC</dd>
+    <dd>7/10/2026, 8:17:37 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): migrate react-hook-form v6 to v7</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-- react-hook-form v6 does not support React 19, blocking the planned upgrade
-- v6 is unmaintained and has known issues with formState reactivity
-
-This commit:
-- Bumps react-hook-form from ^6.15.8 to ^7.54.0
-- Adds `registration` prop to InputText/InputPassword for v7&#039;s register() API
-- Migrates all 30+ form components from inputRef={register({...})} to registration={register(&#039;fieldName&#039;, {...})}
-- Updates type interfaces from UseFormMethods to UseFormReturn
-- Moves errors from top-level useForm destructure to formState.errors
-- Fixes InputPhoneNumber to use setValue with shouldDirty/shouldValidate (v7 no longer auto-tracks dirty state via setValue)
-- Updates tests for v7&#039;s async formState updates (userEvent over fireEvent, waitFor for formState assertions, VerifiedSessionGuard mock)</pre></dd>
+    <dd><pre>needs extra eyes?</pre></dd>
   </dl>
 </body>
 </html>
