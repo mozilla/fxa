@@ -1,8 +1,8 @@
 {
-  "commit": "cfc9196ee74e7896897e00acabc22e7433acc6bd",
-  "summary": "Merge pull request #20799 from sreecharan-desu/fix/auth-server-mock-statsd-histogram",
-  "description": "fix(auth-server): add histogram to disabled StatsD mock",
-  "timestamp": 1783712981000,
+  "commit": "f1842033ed1fb3a57803f327f041f2a27139fc88",
+  "summary": "Merge pull request #20764 from mozilla/pay-3780-add-free-access-program",
+  "description": "feat(subplat): add support for free access program",
+  "timestamp": 1783721020000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
