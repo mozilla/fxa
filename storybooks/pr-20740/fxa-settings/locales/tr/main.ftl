@@ -35,6 +35,9 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Bir sorun oluştu
+app-error-id = Hata kimliği: { $errorId }
+app-error-details-summary = Hata ayrıntıları
 app-query-parameter-err-heading = Hatalı istek: Geçersiz sorgu parametresi
 
 
@@ -286,6 +289,7 @@ input-phone-number-enter-number = Telefon numarasını yazın
 input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
 legal-back-button = Geri
+app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 
 reset-pwd-link-damaged-header = Parolayı sıfırlama bağlantısı hasarlı
@@ -442,6 +446,9 @@ cs-disconnect-suspicious-advice-content-2 = Bağlantısını kestiğiniz cihaz g
 cs-sign-out-button = Çıkış yap
 
 
+cs-scope-firefox-vpn = { -brand-firefox }’un VPN özelliği
+
+
 dc-heading = Veri toplanması ve kullanımı
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } tarayıcısı
@@ -522,6 +529,7 @@ flow-setup-2fa-backup-code-dl-button-continue = İleri
 
 
 flow-setup-2fa-inline-complete-success-banner = İki aşamalı kimlik doğrulama etkinleştirildi
+flow-setup-2fa-inline-complete-success-banner-description = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 flow-setup-2fa-inline-complete-backup-code = Yedek kimlik doğrulama kodları
 flow-setup-2fa-inline-complete-backup-phone = Kurtarma telefonu
 flow-setup-2fa-inline-complete-backup-code-info =
@@ -883,7 +891,6 @@ passkey-sub-row-created-date = Oluşturma: { $createdDate }
 passkey-sub-row-last-used-date = Son kullanım: { $lastUsedDate }
 passkey-sub-row-delete-title = Geçiş anahtarını sil
 passkey-delete-modal-heading = Geçiş anahtarınız silinsin mi?
-passkey-delete-modal-content = Bu geçiş anahtarı hesabınızdan silinecektir. Bundan sonra farklı bir yolla giriş yapmanız gerekecektir.
 passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
@@ -1037,8 +1044,10 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+passkey-registration-canceled-link = Daha fazla bilgi alın
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
+passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
 
 
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.

@@ -155,6 +155,14 @@ device-info-browser-os = { $browserName } em { $genericOSName }
 device-info-ip-address = Endereço de IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Obtenha o { -brand-firefox } onde quer que esteja
+firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores e palavras-passe entre os seus dispositivos. Além disso, tudo permanece encriptado com segurança.
+firefox-promo-banner-mobile-cta = Ligar um dispositivo
+firefox-promo-banner-switch-heading = Rápido para mudar. Fácil de instalar.
+firefox-promo-banner-switch-description = Ao mudar para { -brand-firefox }, pode trazer os seus marcadores, palavras-passe, histórico e muito mais, para que possa navegar sem perder o ritmo.
+firefox-promo-banner-switch-cta = Mudar para { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Palavra-passe
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -919,7 +927,7 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar chave de acesso
 passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content = Esta chave será removida da sua conta. Terá de iniciar a sessão de uma forma diferente.
+passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar chave de acesso
 passkey-delete-success = Chave eliminada

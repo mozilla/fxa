@@ -151,6 +151,14 @@ device-info-browser-os = { $browserName } op { $genericOSName }
 device-info-ip-address = IP-adres: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Untfang { -brand-firefox } wêr’t jo ek binne
+firefox-promo-banner-mobile-description = Syngronisearje jo ljepblêden, blêdwizers en wachtwurden op al jo apparaten. Boppedat bliuwt alles feilich fersifere.
+firefox-promo-banner-mobile-cta = In apparaat ferbine
+firefox-promo-banner-switch-heading = Fluch om te wikseljen. Maklik om yn te setten.
+firefox-promo-banner-switch-description = As jo nei { -brand-firefox }, oerskeakelje kinne jo jo blêdwizers, wachtwurden, skiednis en mear meinimme, sadat jo sûnder problemen sneupe kinne.
+firefox-promo-banner-switch-cta = Oerstappe nei { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Wachtwurd
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -921,7 +929,7 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content = Dizze wachtwurdkaai wurdt fan jo account fuortsmiten. Jo moatte jo op in oare manier oanmelde.
+passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten

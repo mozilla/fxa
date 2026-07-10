@@ -73,6 +73,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Ceva nu a funcționat
+app-something-went-wrong-message = Am fost anunțați despre problemă. Reîmprospătează pagina pentru a încerca din nou.
+app-error-id = ID eroare: { $errorId }
+app-error-details-summary = Detaliile erorii
 app-query-parameter-err-heading = Cerere greșită: Parametri de interogare nevalizi
 
 

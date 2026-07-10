@@ -163,6 +163,17 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Majte { -brand-firefox(case: "acc") } so sebou kdekoľvek sa nachádzate
+firefox-promo-banner-mobile-description = Synchronizujte si karty, záložky a heslá na všetkých svojich zariadeniach. Navyše, všetko zostane bezpečne šifrované.
+firefox-promo-banner-mobile-cta = Pripojiť zariadenie
+firefox-promo-banner-switch-heading = Rýchle prepnutie. Ľahké usadenie sa.
+firefox-promo-banner-switch-description = Keď prejdete na { -brand-firefox(case: "acc") }, môžete si preniesť svoje záložky, heslá, históriu a ďalšie informácie, aby ste mohli prehliadať bez problémov.
+firefox-promo-banner-switch-cta = Prejsť na { -brand-firefox(case: "acc") }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1247,7 +1258,7 @@ passkey-sub-row-created-date = Vytvorený: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použitý: { $lastUsedDate }
 passkey-sub-row-delete-title = Odstrániť prístupový kľúč
 passkey-delete-modal-heading = Odstrániť prístupový kľúč?
-passkey-delete-modal-content = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť iným spôsobom.
+passkey-delete-modal-content-v2 = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť inou metódou (heslo, iný prístupový kľúč alebo prepojený účet).
 passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený

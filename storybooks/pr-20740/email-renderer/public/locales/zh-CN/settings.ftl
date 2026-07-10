@@ -341,6 +341,8 @@ input-phone-number-country-united-states = 美国
 input-phone-number-country-canada = 加拿大
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = 后退
+# Generic error shown when the legal document fails to load
+app-general-err-message = 出了点问题，请稍后再试。
 
 ## LinkDamaged component
 
@@ -1209,7 +1211,6 @@ passkey-sub-row-created-date = 创建时间：{ $createdDate }
 passkey-sub-row-last-used-date = 上次使用：{ $lastUsedDate }
 passkey-sub-row-delete-title = 删除通行密钥
 passkey-delete-modal-heading = 确定要删除通行密钥吗？
-passkey-delete-modal-content = 此通行密钥将从您的账户移除。您将需要使用其他方式登录。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 删除通行密钥
 passkey-delete-success = 通行密钥已删除

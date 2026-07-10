@@ -112,18 +112,21 @@ datablock-print =
 
 datablock-copy-success =
     { $count ->
-        [one] Cod copiat
-       *[other] Coduri copiate
+        [one] cod copiat
+        [few] coduri copiate
+       *[other] de coduri copiate
     }
 datablock-download-success =
     { $count ->
-        [one] Cod descărcat
-       *[other] Coduri descărcate
+        [one] cod descărcat
+        [few] coduri descărcate
+       *[other] de coduri descărcate
     }
 datablock-print-success =
     { $count ->
-        [one] Cod printat
-       *[other] Coduri printate
+        [one] cod printat
+        [few] coduri printate
+       *[other] de coduri printate
     }
 
 ##
@@ -156,6 +159,17 @@ device-info-browser-os = { $browserName } pe { $genericOSName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresă IP: { $ipAddress }
+
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Obține { -brand-firefox } oriunde te afli
+firefox-promo-banner-mobile-description = Sincronizează-ți filele, marcajele și parolele pe toate dispozitivele. În plus, totul rămâne criptat în siguranță.
+firefox-promo-banner-mobile-cta = Conectează un dispozitiv
+firefox-promo-banner-switch-heading = Schimbare rapidă. Acomodare ușoară.
+firefox-promo-banner-switch-description = Când treci la { -brand-firefox }, poți să-ți iei marcajele, parolele, istoricul și multe altele, astfel încât să poți începe navigarea fără probleme.
+firefox-promo-banner-switch-cta = Treci pe { -brand-firefox }
 
 ## FormPasswordInlineCriteria
 
@@ -353,6 +367,8 @@ input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Înapoi
+# Generic error shown when the legal document fails to load
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
 
 ## LinkDamaged component
 
@@ -1238,7 +1254,7 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content = Cheia de acces va fi eliminată din cont. Va trebui să te autentifici altfel.
+passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă

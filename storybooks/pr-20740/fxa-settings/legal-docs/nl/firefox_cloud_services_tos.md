@@ -59,7 +59,7 @@ Dit bovenste gedeelte biedt een overzicht van de voorwaarden hieronder. Dit over
     U kunt uw e-mailabonnementen bij Mozilla wijzigen via onze e-mails (klik hiertoe op de link onderaan de e-mail) of via de browser (ga naar Firefox / Voorkeuren / Sync / Account beheren / E-mailvoorkeuren).
     
     We sturen mogelijk ook belangrijke accountinformatie, zoals updates voor juridische of privacyvoorwaarden of beveiligingsberichten, zoals voor het opnieuw instellen van wachtwoorden, e-mailverificatie en gekoppelde apparaten. Deze zijn noodzakelijke voor onze services en u kunt zich hier niet voor uitschrijven. 
-U kunt contact op nemen met Mozilla via _Mozilla Corporation Attn: Mozilla – Legal Notices 149 New Montgomery St, 4th Floor, San Francisco, CA 94105 of legal-notices@mozilla.com_ 
+U kunt contact op nemen met Mozilla via _Mozilla Corporation Attn: Mozilla – Legal Notices 1875 Mission Street, Suite 103, San Francisco, CA 94103 of legal-notices@mozilla.com_ 
 
 6. #### Uw content in onze Services
 

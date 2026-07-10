@@ -18,9 +18,16 @@
 -brand-paypal = PayPal
 -brand-link = តំណភ្ជាប់
 
+app-something-went-wrong-heading = មានអ្វីខុសប្រក្រតី
+app-something-went-wrong-message = យើងត្រូវបានជូនដំណឹងអំពីបញ្ហាទាំងនេះ។ សូមផ្ទុកទំព័រឡើងវិញ ដើម្បីព្យាយាមម្ដងទៀត។
+app-error-id = ID កំហុស៖ { $errorId }
+app-error-details-summary = ព័ត៌មានលម្អិតអំពីកំហុស
+app-query-parameter-err-heading = សំណើមិនល្អ៖ ប៉ារ៉ាម៉ែត្រសំណួរមិនត្រឹមត្រូវ
+
+
 app-footer-mozilla-logo-label = ឡូហ្គោ { -brand-mozilla }
 app-footer-privacy-notice = ការជូនដំណឹងអំពីភាពឯកជនរបស់គេហទំព័រ
-app-footer-terms-of-service = លក្ខខ័ណ្ឌ​សេវាកម្ម
+app-footer-terms-of-service = លក្ខខណ្ឌនៃសេវាកម្ម
 
 
 app-default-title-2 = { -product-mozilla-accounts }

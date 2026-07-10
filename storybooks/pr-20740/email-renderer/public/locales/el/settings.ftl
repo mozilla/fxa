@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } σε { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Διεύθυνση IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Αποκτήστε το { -brand-firefox } σε όλες τις συσκευές σας
+firefox-promo-banner-mobile-description = Συγχρονίστε τις καρτέλες, τους σελιδοδείκτες και τους κωδικούς πρόσβασής σας με τις συσκευές σας. Επιπλέον, όλα παραμένουν κρυπτογραφημένα.
+firefox-promo-banner-mobile-cta = Συνδέστε μια συσκευή
+firefox-promo-banner-switch-heading = Γρήγορη μετάβαση. Εύκολη ρύθμιση.
+firefox-promo-banner-switch-description = Όταν κάνετε τη μετάβαση στο { -brand-firefox }, μπορείτε να μεταφέρετε τους σελιδοδείκτες, τους κωδικούς πρόσβασης, το ιστορικό σας και πολλά άλλα, ώστε να κάνετε περιήγηση όπως πριν.
+firefox-promo-banner-switch-cta = Μετάβαση στο { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1239,7 +1250,7 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
-passkey-delete-modal-content = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με διαφορετικό τρόπο.
+passkey-delete-modal-content-v2 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με διαφορετική μέθοδο (κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό).
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1433,13 +1444,13 @@ auth-error-216 = Έχετε φτάσει το όριο των μηνυμάτων
 auth-error-218 = Δεν είναι δυνατή η αφαίρεση του τηλεφώνου ανάκτησης, δεν υπάρχουν εφεδρικοί κωδικοί ταυτοποίησης.
 auth-error-219 = Αυτός ο αριθμός τηλεφώνου έχει καταχωρηθεί σε πάρα πολλούς λογαριασμούς. Δοκιμάστε έναν άλλο αριθμό.
 auth-error-224 = Δεν βρέθηκε το κλειδί πρόσβασης
-auth-error-225 = Το κλειδί πρόσβασης έχει ήδη καταχωρηθεί
+auth-error-225 = Έχει ήδη καταχωρηθεί κλειδί πρόσβασης
 auth-error-226 = Έχετε φτάσει το όριο κλειδιών πρόσβασης
 auth-error-227 = Αποτυχία ταυτοποίησης με κλειδί πρόσβασης
 auth-error-228 = Αποτυχία καταχώρησης κλειδιού πρόσβασης
 auth-error-238 = Αποτυχία ελέγχου κλειδιού πρόσβασης
 auth-error-239 = Δυστυχώς, δεν ήταν δυνατή η διαγραφή του λογαριασμού σας. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει.
-auth-error-999 = Απροσδόκητο σφάλμα
+auth-error-999 = Μη αναμενόμενο σφάλμα
 auth-error-1001 = Η προσπάθεια σύνδεσης ακυρώθηκε
 auth-error-1002 = Η συνεδρία έληξε. Συνδεθείτε για να συνεχίσετε.
 auth-error-1003 = Η τοπική αποθήκευση ή τα cookie εξακολουθούν να είναι απενεργοποιημένα

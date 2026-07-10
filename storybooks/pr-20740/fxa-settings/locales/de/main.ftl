@@ -151,6 +151,14 @@ device-info-browser-os = { $browserName } auf { $genericOSName }
 device-info-ip-address = IP-Adresse: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Holen Sie sich { -brand-firefox }, egal wo Sie sind
+firefox-promo-banner-mobile-description = Synchronisieren Sie Ihre Tabs, Lesezeichen und Passwörter auf allen Ihren Geräten. Außerdem bleibt alles sicher verschlüsselt.
+firefox-promo-banner-mobile-cta = Ein Gerät verbinden
+firefox-promo-banner-switch-heading = Schnell zu wechseln. Einfache Eingewöhnung.
+firefox-promo-banner-switch-description = Wenn Sie zu { -brand-firefox } wechseln, können Sie Ihre Lesezeichen, Passwörter, Chronik und mehr mitnehmen, damit Sie nahtlos weiter surfen können.
+firefox-promo-banner-switch-cta = Zu { -brand-firefox } wechseln
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Passwort
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -915,7 +923,7 @@ passkey-sub-row-created-date = Erstellt: { $createdDate }
 passkey-sub-row-last-used-date = Zuletzt verwendet: { $lastUsedDate }
 passkey-sub-row-delete-title = Zugangsschlüssel löschen
 passkey-delete-modal-heading = Ihren Zugangsschlüssel löschen?
-passkey-delete-modal-content = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich auf andere Weise anmelden.
+passkey-delete-modal-content-v2 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einer anderen Methode anmelden (Passwort, anderer Zugangsschlüssel oder verknüpftes Konto).
 passkey-delete-modal-cancel-button = Abbrechen
 passkey-delete-modal-confirm-button = Zugangsschlüssel löschen
 passkey-delete-success = Zugangsschlüssel gelöscht

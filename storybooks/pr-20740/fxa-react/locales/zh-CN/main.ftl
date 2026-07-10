@@ -35,6 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = 出了点问题
+app-something-went-wrong-message = 我们已获知此问题。请刷新页面，再试一次。
+app-error-id = 错误 ID：{ $errorId }
+app-error-details-summary = 错误详情
 app-query-parameter-err-heading = 错误请求：查询参数无效
 
 

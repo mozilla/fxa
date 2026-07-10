@@ -163,6 +163,14 @@ device-info-browser-os = { $browserName } ar { $genericOSName }
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Cael { -brand-firefox } lle bynnag rydych chi
+firefox-promo-banner-mobile-description = Cydweddu eich tabiau, nodau tudalen, a chyfrineiriau ar draws eich dyfeisiau. Hefyd, mae popeth yn aros wedi'i amgryptio'n ddiogel.
+firefox-promo-banner-mobile-cta = Cysylltu dyfais
+firefox-promo-banner-switch-heading = Cyflym i newid. Hawdd i ymgartrefu.
+firefox-promo-banner-switch-description = Pan fyddwch yn newid i { -brand-firefox }, gallwch ddod â'ch nodau tudalen, cyfrineiriau, hanes a mwy er mwyn i chi allu pori heb golli dim.
+firefox-promo-banner-switch-cta = Newid i { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Cyfrinair
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -939,7 +947,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio ffordd wahanol.
+passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu

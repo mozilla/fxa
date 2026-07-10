@@ -1163,7 +1163,6 @@ passkey-sub-row-created-date = Krijuar më: { $createdDate }
 passkey-sub-row-last-used-date = Përdorur së fundi më: { $lastUsedDate }
 passkey-sub-row-delete-title = Fshije kyçkalimin
 passkey-delete-modal-heading = Të fshihet kyçkalimi juaj?
-passkey-delete-modal-content = Ky kyçkalim do të hiqet nga llogaria juaj. Do t’ju duhet të bëni hyrjen duke përdorur tjetër mënyrë.
 passkey-delete-modal-cancel-button = Anuloje
 passkey-delete-modal-confirm-button = Fshije kyçkalimin
 passkey-delete-success = Kyçkalimi u fshi

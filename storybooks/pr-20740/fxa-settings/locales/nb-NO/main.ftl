@@ -155,6 +155,14 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-mobile-description = Synkroniser faner, bokmerker og passord mellom enhetene dine. I tillegg forblir alt trygt kryptert.
+firefox-promo-banner-mobile-cta = Koble til en enhet
+firefox-promo-banner-switch-heading = Rask å bytte til. Enkel å ta i bruk.
+firefox-promo-banner-switch-description = Når du bytter til { -brand-firefox }, kan du ta med bokmerker, passord, historikk og mer, slik at du kan fortsette å surfe uten avbrudd.
+firefox-promo-banner-switch-cta = Bytt til { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Passord
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -919,7 +927,7 @@ passkey-sub-row-created-date = Opprettet: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen din?
-passkey-delete-modal-content = Denne passnøkkelen vil bli fjernet fra kontoen din. Du må logge inn på en annen måte.
+passkey-delete-modal-content-v2 = Denne passnøkkelen blir fjernet fra kontoen din. Du må logge inn med en annen metode (passord, en annen passnøkkel eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel slettet

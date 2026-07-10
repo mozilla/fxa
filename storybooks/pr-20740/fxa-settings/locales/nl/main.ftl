@@ -151,6 +151,14 @@ device-info-browser-os = { $browserName } op { $genericOSName }
 device-info-ip-address = IP-adres: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Ontvang { -brand-firefox } waar u ook bent
+firefox-promo-banner-mobile-description = Synchroniseer uw tabbladen, bladwijzers en wachtwoorden op al uw apparaten. Bovendien blijft alles veilig versleuteld.
+firefox-promo-banner-mobile-cta = Een apparaat verbinden
+firefox-promo-banner-switch-heading = Snel om te schakelen. Snel gewend.
+firefox-promo-banner-switch-description = Wanneer u naar { -brand-firefox } overschakelt, kunt u uw bladwijzers, wachtwoorden, geschiedenis en meer meenemen, zodat u naadloos kunt surfen.
+firefox-promo-banner-switch-cta = Overstappen naar { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Wachtwoord
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -917,7 +925,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich op een andere manier aan te melden.
+passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd

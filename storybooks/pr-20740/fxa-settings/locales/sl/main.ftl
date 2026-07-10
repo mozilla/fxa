@@ -277,6 +277,14 @@ device-info-browser-os = { $browserName } v { $genericOSName }
 device-info-ip-address = Naslov IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Prejmite { -brand-firefox } ne glede na to, ali ste
+firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
+firefox-promo-banner-mobile-cta = Povežite napravo
+firefox-promo-banner-switch-heading = Hitro preklop. Enostaven za namestitev.
+firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
+firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Geslo
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -1049,7 +1057,7 @@ passkey-sub-row-created-date = Ustvarjen: { $createdDate }
 passkey-sub-row-last-used-date = Nazadnje uporabljen: { $lastUsedDate }
 passkey-sub-row-delete-title = Izbriši ključ za dostop
 passkey-delete-modal-heading = Želite izbrisati svoj ključ za dostop?
-passkey-delete-modal-content = Ta ključ za dostop bo odstranjen iz vašega računa. Prijavljati se boste morali na drug način.
+passkey-delete-modal-content-v2 = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali na drug način (geslo, drugo geslo ali povezan račun).
 passkey-delete-modal-cancel-button = Prekliči
 passkey-delete-modal-confirm-button = Izbriši ključ za dostop
 passkey-delete-success = Ključ za dostop izbrisan

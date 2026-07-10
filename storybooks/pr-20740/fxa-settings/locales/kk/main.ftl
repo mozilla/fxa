@@ -151,6 +151,14 @@ device-info-browser-os = { $genericOSName } жүйесінде { $browserName }
 device-info-ip-address = IP адресі: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Қай жерде болсаңыз да, { -brand-firefox } алыңыз
+firefox-promo-banner-mobile-description = Беттер, бетбелгілер және парольдерді құрылғыларыңыз арасында синхрондаңыз. Сонымен қатар, барлығы қауіпсіз шифрленген күйде қалады.
+firefox-promo-banner-mobile-cta = Құрылғыны байланыстыру
+firefox-promo-banner-switch-heading = Жылдам ауысу. Оңай орналасу.
+firefox-promo-banner-switch-description = { -brand-firefox } ішіне ауысқан кезде, бетбелгілер, парольдер, шолу тарихы және т.б. алып жүре аласыз, осылайша сіз еш кедергісіз шолуды бастай аласыз.
+firefox-promo-banner-switch-cta = { -brand-firefox } ішіне ауысу
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -919,7 +927,7 @@ passkey-sub-row-created-date = Жасалған: { $createdDate }
 passkey-sub-row-last-used-date = Соңғы рет қолданылған: { $lastUsedDate }
 passkey-sub-row-delete-title = Рұқсат кілтін өшіру
 passkey-delete-modal-heading = Рұқсат кілтіңізді өшіру керек пе?
-passkey-delete-modal-content = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен кіруіңіз керек болады.
+passkey-delete-modal-content-v2 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен (пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі) кіруіңіз керек.
 passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді

@@ -35,6 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Jokin meni pieleen
+app-something-went-wrong-message = Olemme saaneet ilmoituksen ongelmasta. Päivitä sivu yrittääksesi uudelleen.
+app-error-id = Virhetunniste: { $errorId }
+app-error-details-summary = Virheen tiedot
 app-query-parameter-err-heading = Virheellinen pyyntö: Virheelliset kyselyparametrit
 
 

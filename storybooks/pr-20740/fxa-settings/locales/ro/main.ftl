@@ -73,6 +73,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Ceva nu a funcționat
+app-something-went-wrong-message = Am fost anunțați despre problemă. Reîmprospătează pagina pentru a încerca din nou.
+app-error-id = ID eroare: { $errorId }
+app-error-details-summary = Detaliile erorii
 app-query-parameter-err-heading = Cerere greșită: Parametri de interogare nevalizi
 
 
@@ -157,18 +161,21 @@ datablock-print =
 
 datablock-copy-success =
     { $count ->
-        [one] Cod copiat
-       *[other] Coduri copiate
+        [one] cod copiat
+        [few] coduri copiate
+       *[other] de coduri copiate
     }
 datablock-download-success =
     { $count ->
-        [one] Cod descărcat
-       *[other] Coduri descărcate
+        [one] cod descărcat
+        [few] coduri descărcate
+       *[other] de coduri descărcate
     }
 datablock-print-success =
     { $count ->
-        [one] Cod printat
-       *[other] Coduri printate
+        [one] cod printat
+        [few] coduri printate
+       *[other] de coduri printate
     }
 
 
@@ -183,6 +190,14 @@ device-info-block-location-country = { $country } (estimată)
 device-info-block-location-unknown = Locație necunoscută
 device-info-browser-os = { $browserName } pe { $genericOSName }
 device-info-ip-address = Adresă IP: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Obține { -brand-firefox } oriunde te afli
+firefox-promo-banner-mobile-description = Sincronizează-ți filele, marcajele și parolele pe toate dispozitivele. În plus, totul rămâne criptat în siguranță.
+firefox-promo-banner-mobile-cta = Conectează un dispozitiv
+firefox-promo-banner-switch-heading = Schimbare rapidă. Acomodare ușoară.
+firefox-promo-banner-switch-description = Când treci la { -brand-firefox }, poți să-ți iei marcajele, parolele, istoricul și multe altele, astfel încât să poți începe navigarea fără probleme.
+firefox-promo-banner-switch-cta = Treci pe { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -328,6 +343,7 @@ input-phone-number-enter-number = Introdu numărul de telefon
 input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
 legal-back-button = Înapoi
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
 
 
 reset-pwd-link-damaged-header = Link de resetare a parolei corupt
@@ -953,7 +969,7 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content = Cheia de acces va fi eliminată din cont. Va trebui să te autentifici altfel.
+passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă

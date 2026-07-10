@@ -3,16 +3,150 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
+## Banner component
+
+resend-code-success-banner-heading = កូដថ្មីត្រូវបានផ្ញើទៅអុីមែលរបស់អ្នក។
+resend-link-success-banner-heading = បញ្ជាប់ថ្មីមួយត្រូវបានផ្ញើទៅកាន់អុីមែលរបស់អ្នក។
+# $accountsEmail is the Mozilla accounts sender email address (e.g. accounts@firefox.com)
+resend-success-banner-description = បន្ថែម { $accountsEmail } ទៅក្នុងទំនាក់ទំនងរបស់អ្នក ដើម្បីធានាបាននូវការបញ្ជូនដ៏រលូន។
+
+## Brand Messaging component
+## Used to show in product messaging about upcoming brand changes
+
+# This message is displayed as the title element in the banner, prior to actually launching the new brand
+brand-prelaunch-title = { -product-firefox-accounts } នឹងអាចប្ដូរឈ្មោះ { -product-mozilla-accounts } នៅថ្ងៃទី ១ ខែវិច្ឆិកា
+
+## ButtonPasskeySignin
+
+button-passkey-signin = បញ្ជាប់ចូលជាមួយសោសម្ងាត់
+
+## ChooseNewsletters component
+## Checklist of newsletters that the user can choose to sign up to
+
+# Newsletter checklist item
+choose-newsletters-option-test-pilot =
+    .label = អាក់សេសមុនគេ ដើម្បីសាកល្បងផលិតផលថ្មី
+
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-switch-cta = ប្ដូរទៅ { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
     .label = ពាក្យ​សម្ងាត់
+form-password-with-inline-criteria-signup-confirm-password-label =
+    .label = ពាក្យសម្ងាត់ម្ដងទៀត
+form-password-with-inline-criteria-signup-submit-button = បង្កើតគណនី
+form-password-with-inline-criteria-reset-new-password =
+    .label = ពាក្យសម្ងាត់ថ្មី
+form-password-with-inline-criteria-confirm-password =
+    .label = អះអាង​ពាក្យសម្ងាត់
+form-password-with-inline-criteria-reset-submit-button = បង្កើតពាក្យសម្ងាត់ថ្មី
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = ពាក្យ​សម្ងាត់
 form-password-with-inline-criteria-match-error = ពាក្យសម្ងាត់មិនត្រូវគ្នាទេ
 form-password-with-inline-criteria-sr-too-short-message = ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ 8 តួអក្សរ។
 form-password-with-inline-criteria-sr-not-email-message = ពាក្យសម្ងាត់មិនត្រូវមានអាសយដ្ឋានអ៊ីមែលរបស់អ្នកទេ។
 form-password-with-inline-criteria-sr-not-common-message = ពាក្យសម្ងាត់មិនគួរជាពាក្យសម្ងាត់ដែលប្រើជាទូទៅទេ។
+form-password-with-inline-criteria-sr-requirements-met = ពាក្យសម្ងាត់ដែលបានបញ្ចូលគោរពទៅតាមតម្រូវការពាក្យសម្ងាត់ទាំងអស់។
+form-password-with-inline-criteria-sr-passwords-match = ពាក្យសម្ងាត់ដែលបានបញ្ចូលត្រូវគ្នា។
+
+## FormVerifyCode
+
+# Fallback default localized error message for empty input field
+form-verify-code-default-error = ចន្លោះនេះត្រូវបានទាមទារ
+
+## FormVerifyTotp component
+## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
+
+# Information explaining why button is disabled, also read to screen readers
+# Submit button is disabled unless a valid code format is entered
+# Used when the code may only contain numbers
+# $codeLength : number of digits in a valid code
+form-verify-totp-disabled-button-title-numeric = បញ្ចូលកូដ { $codeLength }-ខ្ទង់ ដើម្បីបន្ត
+# Information explaining why button is disabled, also read to screen readers
+# Submit button is disabled unless a valid code format is entered
+# Used when the code may contain numbers and/or letters
+# $codeLength : number of characters in a valid code
+form-verify-totp-disabled-button-title-alphanumeric = បញ្ចូលកូដ { $codeLength }-តួ ដើម្បីបន្ត
+
+# GetDataTrio component, part of Account Recovery Key flow
+
+get-data-trio-title-firefox = { -brand-firefox }
+get-data-trio-title-firefox-recovery-key = សោសង្គ្រោះគណនី { -brand-firefox }
+get-data-trio-title-backup-verification-codes = កូដយថាភូតកម្មសំណៅចម្លងបម្រុងទុក
+get-data-trio-download-2 =
+    .title = ទាញយក
+    .aria-label = ទាញយក
+get-data-trio-copy-2 =
+    .title = ចម្លង
+    .aria-label = ចម្លង
+get-data-trio-print-2 =
+    .title = បោះពុម្ព
+    .aria-label = បោះពុម្ព
+
+## Images - these are all aria labels used for illustrations
+## Aria labels are used as alternate text that can be read aloud by screen readers.
+
+# Aria-label option for an alert symbol
+alert-icon-aria-label =
+    .aria-label = សញ្ញាដាស់តឿន
+# Aria-label option for an alert symbol
+icon-attention-aria-label =
+    .aria-label = ប្រុងប្រយ័ត្ន
+# Aria-label option for an alert symbol
+icon-warning-aria-label =
+    .aria-label = ការ​ព្រមាន
+authenticator-app-aria-label =
+    .aria-label = កម្មវិធីយថាភូតកម្ម
+backup-codes-icon-aria-label-v2 =
+    .aria-label = កូដយថាភូតកម្មសំណៅចម្លងបម្រុងទុកត្រូវបានភ្ជាប់
+backup-codes-disabled-icon-aria-label-v2 =
+    .aria-label = កូដយថាភូតកម្មសំណៅចម្លងបម្រុងទុកត្រូវបានផ្ដាច់
+# An icon of phone with text message. A back recovery phone number
+backup-recovery-sms-icon-aria-label =
+    .aria-label = សេវាសារខ្លីសង្គ្រោះត្រូវបានបើក
+# Disabled version of backup-recovery-sms-icon-aria-label
+backup-recovery-sms-disabled-icon-aria-label =
+    .aria-label = សេវាសារខ្លីសង្គ្រោះត្រូវបានបិទ
+# Used to select Canada as country code for phone number
+canadian-flag-icon-aria-label =
+    .aria-label = ទង់ជាតិកាណាដា
+# Used to  indicate a general checkmark, as in something checked off in a list!
+checkmark-icon-aria-label =
+    .aria-label = ធីក
+# Used to  indicate a check mark for a successful state/action
+checkmark-success-icon-aria-label =
+    .aria-label = ជោគជ័យ
+# Used to indicate a check mark for an enabled state/option
+checkmark-enabled-icon-aria-label =
+    .aria-label = បាន​បើក
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = សញ្ញាព្រួញឯស្ដាំ
+# Used on X icon to dismiss a message such as an alert or banner
+close-icon-aria-label =
+    .aria-label = បិទសារ
+# Used to decorate a code you enter for verification purposes
+code-icon-aria-label =
+    .aria-label = កូដ
+error-icon-aria-label =
+    .aria-label = កំហុស​
+# Used as information icon for informative messaging
+info-icon-aria-label =
+    .aria-label = ព័ត៌មាន
+# Used to select United States as a country code for phone number
+usa-flag-icon-aria-label =
+    .aria-label = ទង់ជាតិសហរដ្ឋអាម៉េរិក
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = កំពុង​ផ្ទុក
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = សោសម្ងាត់
 
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password

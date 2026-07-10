@@ -145,6 +145,17 @@ device-info-browser-os = { $browserName } trên { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Địa chỉ IP: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Nhận { -brand-firefox } ở bất kỳ đâu
+firefox-promo-banner-mobile-description = Đồng bộ hóa các thẻ, dấu trang và mật khẩu của bạn trên tất cả các thiết bị. Hơn nữa, mọi thứ đều được mã hóa an toàn.
+firefox-promo-banner-mobile-cta = Kết nối thiết bị
+firefox-promo-banner-switch-heading = Chuyển đổi nhanh chóng. Dễ dàng làm quen.
+firefox-promo-banner-switch-description = Khi bạn chuyển sang { -brand-firefox }, bạn có thể chuyển dấu trang, mật khẩu, lịch sử và nhiều thứ khác để có thể duyệt web mà không bị gián đoạn.
+firefox-promo-banner-switch-cta = Chuyển sang { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1213,7 +1224,7 @@ passkey-sub-row-created-date = Đã tạo: { $createdDate }
 passkey-sub-row-last-used-date = Sử dụng lần cuối: { $lastUsedDate }
 passkey-sub-row-delete-title = Xoá passkey
 passkey-delete-modal-heading = Xoá passkey của bạn?
-passkey-delete-modal-content = Passkey này sẽ bị xóa khỏi tài khoản của bạn. Bạn cần đăng nhập bằng phương thức khác.
+passkey-delete-modal-content-v2 = Passkey này sẽ bị xóa khỏi tài khoản của bạn. Bạn cần đăng nhập bằng phương thức khác (mật khẩu, passkey khác hoặc tài khoản được liên kết).
 passkey-delete-modal-cancel-button = Hủy bỏ
 passkey-delete-modal-confirm-button = Xoá passkey
 passkey-delete-success = Đã xoá passkey

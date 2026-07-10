@@ -151,6 +151,14 @@ device-info-browser-os = { $browserName } on { $genericOSName }
 device-info-ip-address = IP address: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Get { -brand-firefox } wherever you are
+firefox-promo-banner-mobile-description = Synchronise your tabs, bookmarks and passwords across your devices. Plus, everything stays safely encrypted.
+firefox-promo-banner-mobile-cta = Connect a device
+firefox-promo-banner-switch-heading = Fast to switch. Easy to settle in.
+firefox-promo-banner-switch-description = When you switch to { -brand-firefox }, you can bring your bookmarks, passwords, history and more so you can get to browsing without missing a beat.
+firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Password
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -917,7 +925,7 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content = This passkey will be removed from your account. You’ll need to sign in using a different way.
+passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted

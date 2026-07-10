@@ -167,6 +167,14 @@ device-info-browser-os = { $browserName } su { $genericOSName }
 device-info-ip-address = Indirizzo IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Usa { -brand-firefox } ovunque ti trovi
+firefox-promo-banner-mobile-description = Sincronizza schede, segnalibri e password su tutti i tuoi dispositivi. Tutti i tuoi dati sono protetti da crittografia.
+firefox-promo-banner-mobile-cta = Connetti un dispositivo
+firefox-promo-banner-switch-heading = Basta un attimo per cambiare. Ambientarsi è semplice.
+firefox-promo-banner-switch-description = Quando passi a { -brand-firefox }, puoi portare con te segnalibri, password, cronologia e molto altro per iniziare a navigare senza perdere un colpo.
+firefox-promo-banner-switch-cta = Passa a { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Password
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -929,7 +937,7 @@ passkey-sub-row-created-date = Creata: { $createdDate }
 passkey-sub-row-last-used-date = Ultimo utilizzo: { $lastUsedDate }
 passkey-sub-row-delete-title = Elimina passkey
 passkey-delete-modal-heading = Eliminare la passkey?
-passkey-delete-modal-content = Questa passkey verrà rimossa dal tuo account. Dovrai accedere in un altro modo.
+passkey-delete-modal-content-v2 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando un metodo diverso (password, un’altra passkey o un account collegato).
 passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata

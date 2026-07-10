@@ -950,7 +950,6 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
-passkey-delete-modal-content = ეს საშვი მოცილდება თქვენი ანგარიშიდან. მოგიწევთ სხვა გზით შესვლა.
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
