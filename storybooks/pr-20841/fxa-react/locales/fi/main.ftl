@@ -1,30 +1,5 @@
 
 
-app-something-went-wrong-heading = Jokin meni pieleen
-app-something-went-wrong-message = Olemme saaneet ilmoituksen ongelmasta. Päivitä sivu yrittääksesi uudelleen.
-app-error-id = Virhetunniste: { $errorId }
-app-error-details-summary = Virheen tiedot
-app-query-parameter-err-heading = Virheellinen pyyntö: Virheelliset kyselyparametrit
-
-
-app-footer-mozilla-logo-label = { -brand-mozilla }n logo
-app-footer-privacy-notice = Sivuston tietosuojakäytäntö
-app-footer-terms-of-service = Käyttöehdot
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Avautuu uuteen ikkunaan
-
-
-app-loading-spinner-aria-label-loading = Ladataan…
-
-
-app-logo-alt-3 =
-    .alt = { -brand-mozilla }n m-logo
-
 
 
 -brand-mozilla = Mozilla

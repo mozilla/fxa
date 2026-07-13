@@ -59,28 +59,3 @@ app-loading-spinner-aria-label-loading = Lade…
 
 app-logo-alt-3 =
     .alt = { -brand-mozilla } m-logo
-
-app-something-went-wrong-heading = Der is wat misgien
-app-something-went-wrong-message = Wy binne op de hichte fan it probleem. Ferfarskje de side om it opnij te probearjen.
-app-error-id = Flater-ID: { $errorId }
-app-error-details-summary = Flaterdetails
-app-query-parameter-err-heading = Unjildige oanfraach: ûnjildige queryparameters
-
-
-app-footer-mozilla-logo-label = { -brand-mozilla }-logo
-app-footer-privacy-notice = Privacyferklearring foar website
-app-footer-terms-of-service = Tsjinstbetingsten
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Iepenet yn nij finster
-
-
-app-loading-spinner-aria-label-loading = Lade…
-
-
-app-logo-alt-3 =
-    .alt = { -brand-mozilla } m-logo

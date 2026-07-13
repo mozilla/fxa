@@ -1,28 +1,5 @@
 
 
-app-something-went-wrong-heading = Нешта пайшло не так
-app-error-id = Ідэнтыфікатар памылкі: { $errorId }
-app-error-details-summary = Падрабязнасці пра памылку
-
-
-app-footer-mozilla-logo-label = Лагатып { -brand-mozilla }
-app-footer-privacy-notice = Паведамленні аб прыватнасці сайта
-app-footer-terms-of-service = Умовы абслугоўвання
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Адкрыць у новым акне
-
-
-app-loading-spinner-aria-label-loading = Загрузка…
-
-
-app-logo-alt-3 =
-    .alt = Лагатып { -brand-mozilla } m
-
 
 
 -brand-mozilla = Mozilla

@@ -1,9 +1,5 @@
 
 
-app-footer-mozilla-logo-label = { -brand-mozilla } logo
-app-footer-privacy-notice = Veebisaidi privaatsusteade
-app-footer-terms-of-service = Teenuse tingimused
-
 
 
 -brand-mozilla = Mozilla

@@ -1,15 +1,5 @@
 
 
-app-footer-mozilla-logo-label = { -brand-mozilla } logo
-app-footer-privacy-notice = Taq Rutzijol Richinanem Ajk'amaya'l Ruxaq
-app-footer-terms-of-service = Taq Rojqanem Samaj
-
-
-link-sr-new-window = Kejaq pa jun k'ak'a' tzuwäch
-
-
-app-loading-spinner-aria-label-loading = Nisamäj…
-
 
 
 -brand-mozilla = Mozilla

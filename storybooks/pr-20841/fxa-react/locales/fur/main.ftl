@@ -1,26 +1,5 @@
 
 
-app-query-parameter-err-heading = Domande sbaliade: parametris de interogazion no valits
-
-
-app-footer-mozilla-logo-label = Logo { -brand-mozilla }
-app-footer-privacy-notice = Informative su la riservatece dal sît web
-app-footer-terms-of-service = Tiermins dal servizi
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Si vierç intun gnûf barcon
-
-
-app-loading-spinner-aria-label-loading = Daûr a cjariâ…
-
-
-app-logo-alt-3 =
-    .alt = Logo cu la m di  { -brand-mozilla }
-
 
 
 -brand-mozilla = Mozilla

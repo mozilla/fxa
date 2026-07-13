@@ -1,30 +1,5 @@
 
 
-app-something-went-wrong-heading = Něco se pokazilo
-app-something-went-wrong-message = Na problém jsme byli upozorněni. Obnovte stránku a zkuste to znovu.
-app-error-id = ID chyby: { $errorId }
-app-error-details-summary = Podrobnosti o chybě
-app-query-parameter-err-heading = Špatný požadavek: neplatné parametry v dotazu
-
-
-app-footer-mozilla-logo-label = logo { -brand-mozilla(case: "gen") }
-app-footer-privacy-notice = Zásady ochrany osobních údajů
-app-footer-terms-of-service = Podmínky služby
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Otevře se v novém okně
-
-
-app-loading-spinner-aria-label-loading = Načítání…
-
-
-app-logo-alt-3 =
-    .alt = Logo { -brand-mozilla } m
-
 
 
 -brand-mozilla =

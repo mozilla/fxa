@@ -1,30 +1,5 @@
 
 
-app-something-went-wrong-heading = Something went wrong
-app-something-went-wrong-message = We’ve been notified of the issue. Refresh the page to try again.
-app-error-id = Error ID: { $errorId }
-app-error-details-summary = Error details
-app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
-
-
-app-footer-mozilla-logo-label = { -brand-mozilla } logo
-app-footer-privacy-notice = Web Site Privacy Notice
-app-footer-terms-of-service = Terms of Service
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Opens in new window
-
-
-app-loading-spinner-aria-label-loading = Loading…
-
-
-app-logo-alt-3 =
-    .alt = { -brand-mozilla } m logo
-
 
 
 -brand-mozilla = Mozilla

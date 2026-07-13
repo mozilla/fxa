@@ -1,30 +1,5 @@
 
 
-app-something-went-wrong-heading = Něco njejo se raźiło
-app-something-went-wrong-message = Problem jo se nam k wěsći dał. Aktualizěrujśo bok, aby hyšći raz wopytał.
-app-error-id = ID zmólki: { $errorId }
-app-error-details-summary = Drobnostki zmólkow
-app-query-parameter-err-heading = Špatne napšašowanje: Njepłaśiwe napšašowańske parametry
-
-
-app-footer-mozilla-logo-label = Logo { -brand-mozilla }
-app-footer-privacy-notice = Pšawidła priwatnosći websedła
-app-footer-terms-of-service = Wužywańske wuměnjenja
-
-
-app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
-
-
-link-sr-new-window = Wócynja w nowem woknje
-
-
-app-loading-spinner-aria-label-loading = Zacytujo se…
-
-
-app-logo-alt-3 =
-    .alt = Logo m { -brand-mozilla }
-
 
 
 -brand-mozilla = Mozilla
