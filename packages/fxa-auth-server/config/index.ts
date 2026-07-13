@@ -1451,6 +1451,7 @@ const convictConf = convict({
           '3332a18d142636cb',
           'a2270f727f45f648',
           '3c49430b43dfba77',
+          '5882386c6d801776',
         ],
         env: 'OAUTH_TOKEN_EXCHANGE_CLIENT_IDS',
       },
