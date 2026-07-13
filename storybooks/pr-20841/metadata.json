@@ -1,8 +1,8 @@
 {
-  "commit": "cb37bb6493aaf1da849aa3480828a69f1d3df18c",
-  "summary": "needs extra eyes?",
+  "commit": "c36ab8cd1ce4ade1704c3c1043f21ce42196c3f8",
+  "summary": "fix(settings): extract lazy() from test-utils to avoid prod dependency on test helpers",
   "description": "",
-  "timestamp": 1783951877000,
+  "timestamp": 1783952753000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
