@@ -311,6 +311,10 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 

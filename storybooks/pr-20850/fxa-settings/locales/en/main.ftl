@@ -283,6 +283,9 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 
