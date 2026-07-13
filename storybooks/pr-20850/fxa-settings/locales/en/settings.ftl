@@ -1404,8 +1404,10 @@ passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
-# Shown in the tooltip/aria-label of the button that opens the inline passkey rename field
+# Accessible label of the button that opens the rename passkey dialog
 passkey-sub-row-rename-title = Rename passkey
+# Heading of the rename passkey dialog
+passkey-rename-modal-heading = Rename passkey
 # Label for the text field used to rename a passkey
 passkey-rename-input-label = Passkey name
 # Button to save the new passkey name

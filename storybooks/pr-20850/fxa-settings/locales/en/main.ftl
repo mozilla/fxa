@@ -1073,6 +1073,7 @@ passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
 passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
 passkey-rename-input-label = Passkey name
 passkey-rename-save-button = Save
 passkey-rename-cancel-button = Cancel
