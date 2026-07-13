@@ -1412,6 +1412,8 @@ passkey-delete-error = There was a problem deleting your passkey. Try again in a
 passkey-sub-row-rename-title = Rename passkey
 # Heading of the rename passkey dialog
 passkey-rename-modal-heading = Rename passkey
+# Visually hidden description of the rename passkey dialog, announced by screen readers
+passkey-rename-modal-description = Enter a new name for this passkey.
 # Label for the text field used to rename a passkey
 passkey-rename-input-label = Passkey name
 # Button to save the new passkey name
