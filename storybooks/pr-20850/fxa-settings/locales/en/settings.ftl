@@ -1408,29 +1408,17 @@ passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
-# Accessible label of the button that opens the rename passkey dialog
 passkey-sub-row-rename-title = Rename passkey
-# Heading of the rename passkey dialog
 passkey-rename-modal-heading = Rename passkey
-# Visually hidden description of the rename passkey dialog, announced by screen readers
 passkey-rename-modal-description = Enter a new name for this passkey.
-# Label for the text field used to rename a passkey
 passkey-rename-input-label = Passkey name
-# Button to save the new passkey name
 passkey-rename-save-button = Save
-# Button to cancel renaming a passkey
 passkey-rename-cancel-button = Cancel
-# Validation error shown when the passkey name field is left empty
 passkey-rename-error-empty = Enter a name for this passkey
-# Validation error shown when the passkey name is too long
 passkey-rename-error-too-long = The name must contain fewer than 256 characters.
-# Validation error shown when the passkey name contains disallowed characters
 passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
-# Validation error shown when the name matches another passkey on the account
 passkey-rename-error-duplicate = A passkey with this name already exists
-# Success message shown after a passkey is successfully renamed
 passkey-rename-success = Passkey renamed
-# Error message shown when renaming a passkey fails
 passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
 
 ##
