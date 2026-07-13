@@ -1,8 +1,8 @@
 {
-  "commit": "8133fba6b66c445c782cd7ba00378383d08c35f2",
-  "summary": "fix(settings): clarify passkey user-verification error copy",
-  "description": "Because:\n - The errno-233 message used \"biometric\" as a noun, which reads awkwardly and is harder to localize (PR #20821 review feedback).\n\nThis commit:\n - Reword the auth-error-233 FTL string and its fallback, and update the matching PagePasskeyAdd test assertion, to guide users to set up a screen lock, PIN, fingerprint, or face recognition, then try again.",
-  "timestamp": 1783976638000,
+  "commit": "8d96221005a0b12bdef6cab9e39ad1a3b00dcbc7",
+  "summary": "fix(passkeys): handle authenticator user-verification failures",
+  "description": "Because:\n* Passkey registration threw a 500 and was captured in Sentry (FXA-AUTH-39Z)\n  whenever an authenticator completed the ceremony without user verification\n  (UV=0) — e.g. a roaming security key with no PIN — while the server requires\n  UV for the AAL2 invariant. This is expected client/authenticator behaviour,\n  not a server fault.\n* Affected users saw a generic \"Passkey registration failed\" with no guidance\n  on how to succeed.\n\nThis commit:\n* Classifies the UV failure in the passkey adapter (UserVerificationRequiredError)\n  and returns a 422 (errno PASSKEY_USER_VERIFICATION_REQUIRED = 233) instead of a\n  500, without capturing it in Sentry; keeps a\n  passkey.registration.failed{reason=userVerificationFailed} metric for sizing.\n* Applies the same classification to the authentication path (metric only; keeps\n  the existing 401, no distinct errno to avoid leaking credential capability).\n* Registers errno 233 on the client with a device-agnostic message guiding users\n  to add a screen lock, PIN, or biometric, or choose another method.\n* Keeps user verification strictly required; adds unit and component tests.\n\ncloses FXA-14080",
+  "timestamp": 1783979261000,
   "storybooks": [
     "fxa-settings"
   ],
