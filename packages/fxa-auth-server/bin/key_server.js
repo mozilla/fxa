@@ -243,20 +243,22 @@ async function run(config) {
       );
       Container.set(DefaultCmsConfigurationManager, defaultCmsManager);
 
-      freeAccessConfigurationManager =
-        new FreeAccessProgramConfigurationManager(
-          strapiClientConfig,
-          strapiClient,
-          firestore,
-          log
+      if (config.subscriptions.freeAccessProgram.enabled) {
+        freeAccessConfigurationManager =
+          new FreeAccessProgramConfigurationManager(
+            strapiClientConfig,
+            strapiClient,
+            firestore,
+            log
+          );
+        freeAccessJournalManagerConfig = Object.assign(
+          new FreeAccessProgramJournalManagerConfig(),
+          {
+            collectionName:
+              config.subscriptions.freeAccessProgramJournal.collectionName,
+          }
         );
-      freeAccessJournalManagerConfig = Object.assign(
-        new FreeAccessProgramJournalManagerConfig(),
-        {
-          collectionName:
-            config.subscriptions.freeAccessProgramJournal.collectionName,
-        }
-      );
+      }
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');
