@@ -14,6 +14,7 @@ export const checkoutCartWithStripe = async (
   cartId: string,
   version: number,
   confirmationTokenId: string,
+  paymentMethod: string,
   attribution: SubscriptionAttributionParams,
   params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string | string[] | undefined>
@@ -29,6 +30,7 @@ export const checkoutCartWithStripe = async (
     cartId,
     version,
     confirmationTokenId,
+    paymentMethod,
     attribution,
     requestArgs,
     sessionUid,

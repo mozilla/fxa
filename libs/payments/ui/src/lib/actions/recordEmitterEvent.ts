@@ -6,41 +6,12 @@
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import {
-  PaymentProvidersType,
-  SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
-import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 
-const paymentMethodTypeMap: Record<string, SubPlatPaymentMethodType> = {
-  card: SubPlatPaymentMethodType.Card,
-  link: SubPlatPaymentMethodType.Link,
-  apple_pay: SubPlatPaymentMethodType.ApplePay,
-  google_pay: SubPlatPaymentMethodType.GooglePay,
-  external_paypal: SubPlatPaymentMethodType.PayPal,
-};
-
-async function recordEmitterEventAction(
-  eventName: 'checkoutSubmit',
-  params: Record<string, string | string[] | undefined>,
-  searchParams: Record<string, string | string[] | undefined>,
-  paymentProvider: PaymentProvidersType,
-  paymentMethod: string
-): Promise<void>;
-async function recordEmitterEventAction(
+export async function recordEmitterEventAction(
   eventName: 'checkoutView' | 'checkoutEngage',
   params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string | string[] | undefined>
-): Promise<void>;
-async function recordEmitterEventAction(
-  eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[] | undefined>,
-  searchParams: Record<string, string | string[] | undefined>,
-  paymentProvider?: PaymentProvidersType,
-  paymentMethod?: string
-) {
-  // isFreeTrial is resolved cart-side in populateCommonMetrics, so the FE
-  // no longer needs to thread it through.
+): Promise<void> {
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
@@ -50,11 +21,5 @@ async function recordEmitterEventAction(
   return getApp().getActionsService().recordEmitterEvent({
     eventName,
     requestArgs,
-    paymentProvider,
-    paymentMethod: paymentMethod
-      ? paymentMethodTypeMap[paymentMethod]
-      : undefined,
   });
 }
-
-export { recordEmitterEventAction };

@@ -239,13 +239,6 @@ export function CheckoutForm({
     setLoading(true);
 
     if (cart?.paymentInfo?.type === 'external_paypal') {
-      recordEmitterEventAction(
-        'checkoutSubmit',
-        { ...params },
-        Object.fromEntries(searchParams),
-        'paypal',
-        'external_paypal'
-      );
       if (interstitialOfferBase) {
         glean.recordInterstitialOfferSubmit({
           ...interstitialOfferBase,
@@ -317,16 +310,6 @@ export function CheckoutForm({
       }
     }
 
-    const paymentProvider =
-      selectedPaymentMethod === 'external_paypal' ? 'paypal' : 'stripe';
-
-    recordEmitterEventAction(
-      'checkoutSubmit',
-      { ...params },
-      Object.fromEntries(searchParams),
-      paymentProvider,
-      selectedPaymentMethod
-    );
     if (interstitialOfferBase) {
       glean.recordInterstitialOfferSubmit({
         ...interstitialOfferBase,
@@ -338,6 +321,7 @@ export function CheckoutForm({
       cart.id,
       cart.version,
       confirmationToken.id,
+      selectedPaymentMethod,
       getAttributionParams(searchParams),
       params,
       Object.fromEntries(searchParams)
