@@ -1,8 +1,8 @@
 {
-  "commit": "8b340e27b1ffd89b7bb2651cd077acbfbb3f3da9",
-  "summary": "Merge pull request #20840 from mozilla/PAY-3795-f-001-get-cart-mints-stripe-customer-session-secret-without-ownership-check",
-  "description": "fix(payments-next): [f001] getCart mints Stripe Customer Session secret without ownership check",
-  "timestamp": 1783961377000,
+  "commit": "ce0034da107af5a17b0e60d4da5e6b7fee8df933",
+  "summary": "Merge pull request #20834 from mozilla/FXA-14122",
+  "description": "chore(auth): Add firefox client id to OAUTH_TOKEN_EXCHANGE_CLIENT_IDS",
+  "timestamp": 1783964412000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
