@@ -1212,6 +1212,7 @@ auth-error-225 = Passkey already registered
 auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
+auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
