@@ -112,18 +112,21 @@ datablock-print =
 
 datablock-copy-success =
     { $count ->
-        [one] Cod copiat
-       *[other] Coduri copiate
+        [one] cod copiat
+        [few] coduri copiate
+       *[other] de coduri copiate
     }
 datablock-download-success =
     { $count ->
-        [one] Cod descărcat
-       *[other] Coduri descărcate
+        [one] cod descărcat
+        [few] coduri descărcate
+       *[other] de coduri descărcate
     }
 datablock-print-success =
     { $count ->
-        [one] Cod printat
-       *[other] Coduri printate
+        [one] cod printat
+        [few] coduri printate
+       *[other] de coduri printate
     }
 
 ##
