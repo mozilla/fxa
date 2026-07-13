@@ -1,5 +1,26 @@
 
 
+app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
+
+
+app-footer-mozilla-logo-label = { -brand-mozilla } logo
+app-footer-privacy-notice = Website Privacy Notice
+app-footer-terms-of-service = Terms of Service
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Opens in new window
+
+
+app-loading-spinner-aria-label-loading = Loading…
+
+
+app-logo-alt-3 =
+    .alt = { -brand-mozilla } m logo
+
 
 
 -brand-mozilla = Mozilla

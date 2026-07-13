@@ -1,5 +1,30 @@
 
 
+app-something-went-wrong-heading = Κάτι πήγε στραβά
+app-something-went-wrong-message = Έχουμε ειδοποιηθεί για το ζήτημα. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.
+app-error-id = Αναγνωριστικό σφάλματος: { $errorId }
+app-error-details-summary = Λεπτομέρειες σφάλματος
+app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυρες παράμετροι ερωτήματος
+
+
+app-footer-mozilla-logo-label = Λογότυπο { -brand-mozilla }
+app-footer-privacy-notice = Σημείωση απορρήτου ιστοτόπου
+app-footer-terms-of-service = Όροι υπηρεσίας
+
+
+app-default-title-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+
+
+link-sr-new-window = Ανοίγει σε νέο παράθυρο
+
+
+app-loading-spinner-aria-label-loading = Φόρτωση…
+
+
+app-logo-alt-3 =
+    .alt = Λογότυπο «m» της { -brand-mozilla }
+
 
 
 -brand-mozilla = Mozilla

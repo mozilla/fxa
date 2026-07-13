@@ -1,5 +1,30 @@
 
 
+app-something-went-wrong-heading = Aeth rhywbeth o'i le
+app-something-went-wrong-message = Rydym wedi cael gwybod am y mater. Ail-lwythwch y dudalen i geisio eto.
+app-error-id = ID gwall: { $errorId }
+app-error-details-summary = Manylion gwall
+app-query-parameter-err-heading = Cais Gwael: Paramedrau Ymholiad Annilys
+
+
+app-footer-mozilla-logo-label = Logo { -brand-mozilla }
+app-footer-privacy-notice = Hysbysiad Preifatrwydd Gwefan
+app-footer-terms-of-service = Amodau Gwasanaeth
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Yn agor mewn ffenestr newydd
+
+
+app-loading-spinner-aria-label-loading = Llwytho…
+
+
+app-logo-alt-3 =
+    .alt = Logo m { -brand-mozilla }
+
 
 
 -brand-mozilla = Mozilla

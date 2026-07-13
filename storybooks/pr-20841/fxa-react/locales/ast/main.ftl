@@ -1,5 +1,12 @@
 
 
+app-footer-mozilla-logo-label = Logotipu de { -brand-mozilla }
+app-footer-privacy-notice = Avisu de privacidá del sitiu web
+app-footer-terms-of-service = Términos del serviciu
+
+
+app-loading-spinner-aria-label-loading = Cargando…
+
 
 
 -brand-mozilla = Mozilla

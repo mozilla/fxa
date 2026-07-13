@@ -1,5 +1,30 @@
 
 
+app-something-went-wrong-heading = Etwas ist schiefgegangen
+app-something-went-wrong-message = Wir wurden über das Problem informiert. Aktualisieren Sie die Seite, um es erneut zu versuchen.
+app-error-id = Fehler-ID: { $errorId }
+app-error-details-summary = Fehlerdetails
+app-query-parameter-err-heading = Fehlerhafte Anfrage: Ungültige Anfrageparameter
+
+
+app-footer-mozilla-logo-label = { -brand-mozilla }-Logo
+app-footer-privacy-notice = Datenschutzhinweis zu dieser Website
+app-footer-terms-of-service = Nutzungsbedingungen
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Öffnet in neuem Fenster
+
+
+app-loading-spinner-aria-label-loading = Wird geladen…
+
+
+app-logo-alt-3 =
+    .alt = { -brand-mozilla }-m-Logo
+
 
 
 -brand-mozilla = Mozilla

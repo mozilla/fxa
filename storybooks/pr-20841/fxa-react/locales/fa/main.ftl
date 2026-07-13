@@ -1,5 +1,23 @@
 
 
+app-footer-mozilla-logo-label = آرم { -brand-mozilla }
+app-footer-privacy-notice = نکات حفظ محرمانگی وبگاه
+app-footer-terms-of-service = شرایط ارائهٔ خدمات
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = باز کردن در یک پنجره جدید
+
+
+app-loading-spinner-aria-label-loading = در حال بارگیری…
+
+
+app-logo-alt-3 =
+    .alt = { -brand-mozilla } چ آرم
+
 
 
 -brand-mozilla = Mozilla

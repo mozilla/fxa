@@ -1,5 +1,30 @@
 
 
+app-something-went-wrong-heading = Algo salió mal
+app-something-went-wrong-message = Hemos sido notificados del problema. Refrescá la página para volver a probar.
+app-error-id = ID de error: { $errorId }
+app-error-details-summary = Detalles del error
+app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
+
+
+app-footer-mozilla-logo-label = Logo de { -brand-mozilla }
+app-footer-privacy-notice = Nota de privacidad del sitio web
+app-footer-terms-of-service = Términos del servicio
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Se abre en ventana nueva
+
+
+app-loading-spinner-aria-label-loading = Cargando…
+
+
+app-logo-alt-3 =
+    .alt = Logotipo de { -brand-mozilla } m
+
 
 
 -brand-mozilla = Mozilla

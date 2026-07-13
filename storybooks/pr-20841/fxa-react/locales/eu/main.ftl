@@ -1,5 +1,26 @@
 
 
+app-query-parameter-err-heading = Eskaera okerra: kontsulta-parametro baliogabeak
+
+
+app-footer-mozilla-logo-label = { -brand-mozilla } logoa
+app-footer-privacy-notice = Webgunearen pribatutasun-oharra
+app-footer-terms-of-service = Zerbitzuaren baldintzak
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Ireki leiho berrian
+
+
+app-loading-spinner-aria-label-loading = Kargatzen…
+
+
+app-logo-alt-3 =
+    .alt = { -brand-mozilla } logoa
+
 
 
 -brand-mozilla = Mozilla

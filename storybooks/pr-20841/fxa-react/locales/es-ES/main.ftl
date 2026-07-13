@@ -1,5 +1,26 @@
 
 
+app-query-parameter-err-heading = Solicitud incorrecta: parámetros de consulta no válidos
+
+
+app-footer-mozilla-logo-label = Logo de { -brand-mozilla }
+app-footer-privacy-notice = Aviso de privacidad del sitio web
+app-footer-terms-of-service = Términos del servicio
+
+
+app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
+
+
+link-sr-new-window = Se abre en una ventana nueva
+
+
+app-loading-spinner-aria-label-loading = Cargando…
+
+
+app-logo-alt-3 =
+    .alt = Logo con la m de { -brand-mozilla }
+
 
 
 -brand-mozilla = Mozilla
