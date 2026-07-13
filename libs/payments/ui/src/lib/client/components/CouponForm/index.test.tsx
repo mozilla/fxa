@@ -6,16 +6,15 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 jest.mock('@radix-ui/react-form');
 
-jest.mock('react-dom', () => {
-  const React = jest.requireActual('react');
-  const actual = jest.requireActual('react-dom');
+jest.mock('react', () => {
+  const actual = jest.requireActual<typeof import('react')>('react');
   return {
     ...actual,
-    useFormState: <S, P>(
+    useActionState: <S, P>(
       action: (state: S, payload: P) => Promise<S> | S,
       initial: S
     ) => {
-      const [state, setState] = React.useState<S>(initial);
+      const [state, setState] = actual.useState<S>(initial);
       const formAction = async (payload: P) => {
         const result = await action(state, payload);
         setState(result);
@@ -23,6 +22,13 @@ jest.mock('react-dom', () => {
       };
       return [state, formAction];
     },
+  };
+});
+
+jest.mock('react-dom', () => {
+  const actual = jest.requireActual('react-dom');
+  return {
+    ...actual,
     useFormStatus: () => ({
       pending: false,
       data: null,
@@ -107,7 +113,9 @@ describe('CouponForm', () => {
       expect(screen.getByTestId('coupon-error')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/code you entered is invalid/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/code you entered is invalid/i)
+    ).toBeInTheDocument();
     expect(screen.getByTestId('coupon-input')).toBeInTheDocument();
     expect(screen.queryByTestId('coupon-hascoupon')).not.toBeInTheDocument();
   });
