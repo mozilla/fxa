@@ -1161,6 +1161,14 @@ const convictConf = convict({
         default: 'subplat-free-access-program-journal',
       },
     },
+    freeAccessProgram: {
+      enabled: {
+        doc: 'Indicates whether the Free Access Program is enabled',
+        format: Boolean,
+        env: 'FREE_ACCESS_PROGRAM_ENABLED',
+        default: false,
+      },
+    },
   },
   currenciesToCountries: {
     doc: 'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',

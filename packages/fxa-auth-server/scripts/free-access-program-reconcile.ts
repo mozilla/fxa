@@ -40,6 +40,12 @@ async function main() {
     });
     return 0;
   }
+  if (!config.subscriptions.freeAccessProgram?.enabled) {
+    log.warn('free-access-program-reconcile.skipped', {
+      reason: 'free-access-program-disabled',
+    });
+    return 0;
+  }
   const strapiClientConfig = config.cms?.strapiClient;
   if (
     !strapiClientConfig?.graphqlApiUri ||
