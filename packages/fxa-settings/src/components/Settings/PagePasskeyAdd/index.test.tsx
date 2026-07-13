@@ -418,6 +418,31 @@ describe('PagePasskeyAdd', () => {
     });
   });
 
+  it('shows the user-verification-required message when completePasskeyRegistration returns errno 233', async () => {
+    const uvError = {
+      errno: 233,
+      message: 'Passkey requires user verification (PIN or biometric)',
+      code: 422,
+    };
+    mockCompletePasskeyRegistration.mockRejectedValue(uvError);
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalledWith(
+        'To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.'
+      );
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'auth_error_233' },
+    });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
   it('shows "Passkey limit reached" when beginPasskeyRegistration returns errno 226', async () => {
     const limitError = {
       errno: 226,
