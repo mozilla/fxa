@@ -1,8 +1,8 @@
 {
-  "commit": "4cb57d61ff507f562b787931f87fb891f83b1b07",
+  "commit": "7d1f3aa2612ff876fc2df68c0d2dcfdbe5714c2c",
   "summary": "feat(signin): gate passkey CTA on account hasPasskey",
   "description": "Because:\n - Per product, the \"Sign in with Passkey\" CTA should only appear for\n   accounts that actually have a passkey, on every page except email-first.\n\nThis commit:\n - Exposes hasPasskey on the unauthenticated POST /account/status,\n   computed via PasskeyService.hasPasskey when the feature is enabled;\n   fails closed on error.\n - Threads hasPasskey through the signin flow and gates the CTA on the\n   signin, alternative-auth, and passwordless-OTP pages via a shared helper.\n\nCloses FXA-13823",
-  "timestamp": 1783635168000,
+  "timestamp": 1783964329000,
   "storybooks": [
     "fxa-settings"
   ],
