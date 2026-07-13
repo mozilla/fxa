@@ -363,10 +363,11 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.accountStatusByEmail = function (email) {
+  ClientApi.prototype.accountStatusByEmail = function (email, options) {
     if (email) {
       return this.doRequest('POST', `${this.baseURL}/account/status`, null, {
         email: email,
+        ...options,
       });
     } else {
       return this.doRequest('POST', `${this.baseURL}/account/status`);

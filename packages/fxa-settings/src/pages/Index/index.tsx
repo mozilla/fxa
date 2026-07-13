@@ -26,6 +26,7 @@ import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { passkeySigninFeatureEnabled } from '../../lib/passkeys';
 
 export const Index = ({
   integration,
@@ -50,10 +51,7 @@ export const Index = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
-  const showPasskeySignin = !!(
-    config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled
-  );
+  const showPasskeySignin = passkeySigninFeatureEnabled(config);
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();

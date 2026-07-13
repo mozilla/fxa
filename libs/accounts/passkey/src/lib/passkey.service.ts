@@ -220,6 +220,16 @@ export class PasskeyService {
   }
 
   /**
+   * Returns whether the user has at least one registered passkey.
+   *
+   * @param uid - User ID as a hex string
+   * @returns true if the user has one or more passkeys
+   */
+  async hasPasskey(uid: string): Promise<boolean> {
+    return (await this.passkeyManager.countPasskeys(uid)) > 0;
+  }
+
+  /**
    * Updates the friendly name for a passkey, ensuring the passkey belongs to the user.
    * The name is trimmed before validation and storage.
    *

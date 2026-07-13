@@ -82,6 +82,7 @@ describe('PasskeyService', () => {
     checkPasskeyCount: jest.fn(),
     registerPasskey: jest.fn(),
     listPasskeysForUser: jest.fn(),
+    countPasskeys: jest.fn(),
     findPasskeyByCredentialId: jest.fn(),
     updatePasskeyAfterAuth: jest.fn(),
     renamePasskey: jest.fn(),
@@ -806,6 +807,26 @@ describe('PasskeyService', () => {
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.list.success'
       );
+    });
+  });
+
+  describe('hasPasskey', () => {
+    it('returns true when the manager reports one or more passkeys', async () => {
+      mockManager.countPasskeys.mockResolvedValue(2);
+      const result = await service.hasPasskey(MOCK_UID);
+      expect(result).toBe(true);
+      expect(mockManager.countPasskeys).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('returns false when the manager reports zero passkeys', async () => {
+      mockManager.countPasskeys.mockResolvedValue(0);
+      const result = await service.hasPasskey(MOCK_UID);
+      expect(result).toBe(false);
+    });
+
+    it('propagates manager rejections', async () => {
+      mockManager.countPasskeys.mockRejectedValue(new Error('db down'));
+      await expect(service.hasPasskey(MOCK_UID)).rejects.toThrow('db down');
     });
   });
 

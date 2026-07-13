@@ -47,9 +47,15 @@ import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
+import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
+jest.mock('../../lib/passkeys/webauthn', () => ({
+  ...jest.requireActual('../../lib/passkeys/webauthn'),
+  isWebAuthnSupported: jest.fn(),
+}));
+
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
@@ -234,6 +240,31 @@ describe('Signin component', () => {
   afterEach(() => {
     jest.resetAllMocks();
     jest.clearAllMocks();
+  });
+
+  describe('passkey signin CTA gating', () => {
+    beforeEach(() => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+    });
+
+    const passkeyButton = () =>
+      screen.queryByRole('button', { name: 'Sign in with passkey' });
+
+    it('renders the passkey CTA when hasPasskey is true', () => {
+      render({ hasPasskey: true });
+      expect(passkeyButton()).toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when hasPasskey is undefined (fails closed)', () => {
+      render({ hasPasskey: undefined });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when WebAuthn is unsupported', () => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
+      render({ hasPasskey: true });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
   });
 
   describe('without sessionToken', () => {
