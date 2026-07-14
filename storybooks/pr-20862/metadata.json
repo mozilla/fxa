@@ -1,0 +1,11 @@
+{
+  "commit": "e0db07de813a90a0c3e09fcc490b5fa20b12aae3",
+  "summary": "fix(payments-next): [f006] CMS webhook secret length leaked via timingSafeEqual exception Because:",
+  "description": "* No length pre-check in verifyWebhookSignature let an attacker learn the secret's byte-length by observing 500 vs 200 responses.\n* Auth failures returned 200 {success:true},\n\nThis commit:\n\n* Makes handleValidationWebhook return 401 on auth failure instead of silently returning 200.\n* Note: the length check was implemented as part of PAY-3780.\n\nCloses #[PAY-3799](https://mozilla-hub.atlassian.net/browse/PAY-3799)",
+  "timestamp": 1784049164000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
