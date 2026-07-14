@@ -60,7 +60,6 @@ export type TrialConvertedEvents = {
 export const PaymentsEmitterEventsKeys = [
   'checkoutView',
   'checkoutEngage',
-  'checkoutSubmit',
 ] as const;
 export type PaymentsEmitterEventsKeysType =
   (typeof PaymentsEmitterEventsKeys)[number];

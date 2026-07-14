@@ -9,6 +9,7 @@ import {
   CartInvalidStateForActionError,
   CartManager,
   CartService,
+  stripePaymentElementTypeToSubPlatPaymentType,
   SubscriptionAttributionParams,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
@@ -80,9 +81,8 @@ import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionRes
 import {
   CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
+  SubPlatPaymentMethodType,
   TaxAddress,
-  type PaymentProvidersType,
-  type SubPlatPaymentMethodType,
   type SubplatInterval,
 } from '@fxa/payments/customer';
 import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
@@ -620,6 +620,12 @@ export class NextJSActionsService {
     sessionUid?: string;
     token?: string;
   }) {
+    this.emitterService.getEmitter().emit('checkoutSubmit', {
+      ...args.requestArgs,
+      paymentProvider: 'paypal',
+      paymentMethod: SubPlatPaymentMethodType.PayPal,
+    });
+
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
@@ -638,10 +644,29 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
+    paymentMethod: string;
     attribution: SubscriptionAttributionParams;
     requestArgs: CommonMetrics;
     sessionUid?: string;
   }) {
+    const mappedPaymentMethod =
+      stripePaymentElementTypeToSubPlatPaymentType[args.paymentMethod];
+
+    if (args.paymentMethod && !mappedPaymentMethod) {
+      const safeToken = /^[a-z_]+$/.test(args.paymentMethod)
+        ? args.paymentMethod
+        : `<invalid:${args.paymentMethod.length}>`;
+      this.log.warn('checkoutSubmit.unmappedPaymentMethod', {
+        paymentMethod: safeToken,
+      });
+    }
+
+    this.emitterService.getEmitter().emit('checkoutSubmit', {
+      ...args.requestArgs,
+      paymentProvider: 'stripe',
+      paymentMethod: mappedPaymentMethod ?? SubPlatPaymentMethodType.Stripe,
+    });
+
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
@@ -732,26 +757,16 @@ export class NextJSActionsService {
   @NextIOValidator(RecordEmitterEventArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   async recordEmitterEvent(args: {
-    eventName: string;
+    eventName: 'checkoutView' | 'checkoutEngage';
     requestArgs: CommonMetrics;
-    paymentProvider?: PaymentProvidersType;
-    paymentMethod?: SubPlatPaymentMethodType;
   }) {
-    const { eventName, requestArgs, paymentProvider, paymentMethod } = args;
+    const { eventName, requestArgs } = args;
 
     switch (eventName) {
       case 'checkoutView':
       case 'checkoutEngage': {
         this.emitterService.getEmitter().emit(eventName, {
           ...requestArgs,
-        });
-        break;
-      }
-      case 'checkoutSubmit': {
-        this.emitterService.getEmitter().emit(eventName, {
-          ...requestArgs,
-          paymentProvider,
-          paymentMethod,
         });
         break;
       }
@@ -1104,10 +1119,10 @@ export class NextJSActionsService {
           }
         }
       }
-        return {
-          isValid: true,
-          status: locationStatus,
-        };
+      return {
+        isValid: true,
+        status: locationStatus,
+      };
     } else {
       return {
         isValid: false,

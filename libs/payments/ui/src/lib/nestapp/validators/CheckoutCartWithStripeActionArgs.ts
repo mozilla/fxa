@@ -6,6 +6,7 @@ import { Type } from 'class-transformer';
 import {
   IsNumber,
   IsString,
+  MaxLength,
   ValidateNested,
   IsOptional,
 } from 'class-validator';
@@ -60,6 +61,15 @@ export class CheckoutCartWithStripeActionArgs {
 
   @IsString()
   confirmationTokenId!: string;
+
+  // A Stripe Payment Element type string (e.g. card/link/apple_pay/google_pay).
+  // Not constrained to a fixed set: the enabled types are account-driven and an
+  // unrecognized value is safely bounded to SubPlatPaymentMethodType.Stripe in
+  // NextJSActionsService rather than rejected. MaxLength guards against oversized
+  // input on this publicly callable boundary.
+  @IsString()
+  @MaxLength(64)
+  paymentMethod!: string;
 
   @IsString()
   @IsOptional()

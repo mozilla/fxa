@@ -438,6 +438,7 @@ describe('CheckoutForm', () => {
             'cart-id',
             1,
             `ctoken_${paymentType}_123`,
+            paymentType,
             expect.any(Object),
             expect.any(Object),
             expect.any(Object)
@@ -449,35 +450,6 @@ describe('CheckoutForm', () => {
         });
       }
     );
-
-    it('records the selected payment method type in the emitter event on submit', async () => {
-      const user = userEvent.setup();
-      mockElementsSubmit.mockResolvedValue({ error: undefined });
-      mockCreateConfirmationToken.mockResolvedValue({
-        confirmationToken: { id: 'ctoken_link_submit' },
-      });
-      mockCheckoutCartWithStripe.mockResolvedValue(undefined);
-
-      render(<CheckoutForm {...baseProps} />);
-      fireStripeReady();
-      await user.click(screen.getByTestId('consent-checkbox'));
-      fireStripeChange({
-        complete: true,
-        value: { type: 'link' },
-      });
-
-      await user.click(screen.getByRole('button', { name: /Subscribe Now/i }));
-
-      await waitFor(() => {
-        expect(mockRecordEmitterEventAction).toHaveBeenCalledWith(
-          'checkoutSubmit',
-          expect.any(Object),
-          expect.any(Object),
-          'stripe',
-          'link'
-        );
-      });
-    });
 
     it('does not show PayPal buttons for non-PayPal wallet types', async () => {
       render(<CheckoutForm {...baseProps} />);
