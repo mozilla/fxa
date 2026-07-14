@@ -206,6 +206,15 @@ describe('StrapiClient', () => {
       expect(strapiClient.verifyWebhookSignature('')).toBe(false);
     });
 
+    it('returns false for an undefined authorization header without throwing', () => {
+      expect(() =>
+        strapiClient.verifyWebhookSignature(undefined as unknown as string)
+      ).not.toThrow();
+      expect(
+        strapiClient.verifyWebhookSignature(undefined as unknown as string)
+      ).toBe(false);
+    });
+
     it('returns false for a mismatched-length header without throwing', () => {
       const longGarbage = 'Bearer ' + 'x'.repeat(WEBHOOK_SECRET.length + 50);
       expect(() => strapiClient.verifyWebhookSignature(longGarbage)).not.toThrow();

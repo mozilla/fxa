@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { Logger } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { CmsWebhookService } from './cms-webhooks.service';
 import { CmsContentValidationManager, StrapiClient } from '@fxa/shared/cms';
@@ -64,7 +64,9 @@ describe('CmsWebhookService', () => {
   it('rejects invalid authorization', async () => {
     mockStrapiClient.verifyWebhookSignature.mockReturnValue(false);
 
-    await service.handleValidationWebhook('Bearer wrong', mockPayload);
+    await expect(
+      service.handleValidationWebhook('Bearer wrong', mockPayload)
+    ).rejects.toThrow(UnauthorizedException);
 
     expect(statsd.increment).toHaveBeenCalledWith('cms.validation.auth.error');
     expect(validator.validateAll).not.toHaveBeenCalled();
