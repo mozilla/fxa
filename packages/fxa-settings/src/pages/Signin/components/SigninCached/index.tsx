@@ -170,6 +170,9 @@ const SigninCached = ({
         // Redirect these passwordless users to set_password after session
         // verification.
         isSignInWithThirdPartyAuth: deferKeysUntilPasswordSet,
+        // Cached signin performs no server-side login, so the OTP email must be
+        // sent client-side during navigation to the code screen (FXA-14109).
+        sendVerificationEmailFromClient: true,
         authClient,
       };
       const { error: navError } = await handleNavigation(navigationOptions);

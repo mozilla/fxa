@@ -150,6 +150,12 @@ describe('AuthorizationContainer', () => {
       expect(SigninUtilsModule.handleNavigation).toHaveBeenCalledTimes(1);
     });
 
+    // prompt=none uses cachedSignIn (no server-side send), so it must opt in to
+    // sending the OTP email client-side during navigation (FXA-14109).
+    expect(SigninUtilsModule.handleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ sendVerificationEmailFromClient: true })
+    );
+
     expect(mockIntegration.validatePromptNoneRequest).toHaveBeenCalledWith(
       expect.objectContaining({
         uid: mockAccount.uid,
