@@ -76,6 +76,16 @@ export function annotateWebhookRoutes(document: OpenAPIObject): void {
         },
       },
     },
+    '/webhooks/strapi/free-access-program/access': {
+      summary:
+        'Refresh the Free Access Program projection cache on a Strapi access change',
+      headers: {
+        authorization: {
+          description: 'Webhook authorization token',
+          required: true,
+        },
+      },
+    },
     '/webhooks/fxa': {
       summary: 'Handle FXA account event webhook',
       headers: {
