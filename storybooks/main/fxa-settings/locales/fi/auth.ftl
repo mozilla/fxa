@@ -191,7 +191,14 @@ freeTrialEndingReminder-subject = Ilmainen { $productName } -kokeilujaksosi pä�
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Arvoisa { $productName } -asiakas
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-trial-ending = Ilmainen kokeilujaksosi päättyy <strong>{ $serviceLastActiveDateOnly }</strong>.
 freeTrialEndingReminder-content-trial-ending-plaintext = Ilmainen kokeilujaksosi päättyy { $serviceLastActiveDateOnly }.
+# Variables:
+#   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+freeTrialEndingReminder-content-auto-charge = Ellet peruuta tilaustasi ennen sitä, tilauksesi alkaa automaattisesti ja veloitamme <strong>{ $invoiceTotal }</strong> tilisi maksutavalta <strong>{ $serviceLastActiveDateOnly }</strong>.
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
@@ -205,6 +212,8 @@ freeTrialEndingReminder-content-charge-discount-2 = Alennus
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Vero: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Vero
+freeTrialEndingReminder-content-account-link-plaintext = Voit tarkistaa tai päivittää maksutapasi ja tilitietosi täällä:
+freeTrialEndingReminder-content-cancel-link-plaintext = Vältä veloitus peruuttamalla tilauksen ennen { $serviceLastActiveDateOnly }:
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-signature = { $productName } -tiimi
