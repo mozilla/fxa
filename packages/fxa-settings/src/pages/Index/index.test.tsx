@@ -145,12 +145,12 @@ describe('Index page', () => {
     ).toBeInTheDocument();
 
     screen.getByRole('heading', {
-      name: 'Sign up or sign in to your Mozilla account',
+      name: MOCK_CMS_INFO.EmailFirstPage.headline,
     });
-    screen.getByText(
-      'Stay protected with continuous data monitoring and automatic data removal.'
-    );
-    screen.getByRole('button', { name: 'Continue' });
+    screen.getByText(MOCK_CMS_INFO.EmailFirstPage.description);
+    screen.getByRole('button', {
+      name: MOCK_CMS_INFO.EmailFirstPage.primaryButtonText,
+    });
   });
 
   it('renders as expected with cms info on mobile', () => {

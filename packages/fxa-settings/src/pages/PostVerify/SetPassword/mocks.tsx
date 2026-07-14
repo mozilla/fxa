@@ -12,14 +12,19 @@ import {
 import { MOCK_EMAIL } from '../../mocks';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { RelierCmsInfo } from '../../../models';
+import { RelierLegalTerms } from '../../../models/integrations/relier-interfaces';
 
 export function createMockIntegration(
   cmsInfo?: RelierCmsInfo,
-  { isSync = true } = {}
+  {
+    isSync = true,
+    legalTerms,
+  }: { isSync?: boolean; legalTerms?: RelierLegalTerms } = {}
 ): PostVerifySetPasswordIntegration {
   return {
     getCmsInfo: () => cmsInfo,
     isSync: () => isSync,
+    getLegalTerms: () => legalTerms,
   };
 }
 

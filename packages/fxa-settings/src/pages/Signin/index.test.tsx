@@ -1820,7 +1820,9 @@ describe('Signin component', () => {
     it('renders the CMS-styled submit button', () => {
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
-      const submitButton = screen.getByRole('button', { name: 'Sign in' });
+      const submitButton = screen.getByRole('button', {
+        name: cmsProps.cmsInfo.SigninPage.primaryButtonText,
+      });
 
       expect(submitButton).toMatchSnapshot();
     });
