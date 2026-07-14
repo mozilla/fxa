@@ -70,6 +70,11 @@ export const FormPassword = ({
   onFocusMetricsEvent,
   loading,
 }: FormPasswordProps) => {
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one. Short-circuit `||` in the disabled expression would skip
+  // later accesses, preventing re-renders when those properties change.
+  const { isDirty, isValid, dirtyFields } = formState;
+
   const navigate = useNavigate();
   const goHome = useCallback(
     () => navigate(SETTINGS_PATH + '#password', { replace: true }),
@@ -96,21 +101,21 @@ export const FormPassword = ({
       >
         <li data-testid="change-password-length">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.length}
           />
           <Localized id="pw-8-chars">At least 8 characters</Localized>
         </li>
         <li data-testid="change-password-email">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.notEmail}
           />
           <Localized id="pw-not-email">Not your email address</Localized>
         </li>
         <li data-testid="change-password-common">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.uncommon}
           />
           <Localized id="pw-commonly-used">
@@ -119,7 +124,7 @@ export const FormPassword = ({
         </li>
         <li data-testid="change-password-match">
           <ValidationIcon
-            isSet={formState.dirtyFields.confirmPassword}
+            isSet={dirtyFields.confirmPassword}
             hasError={errors.confirmPassword?.types?.validate}
           />
           <Localized id="pw-change-must-match">
@@ -238,7 +243,7 @@ export const FormPassword = ({
             data-testid="save-password-button"
             type="submit"
             className="cta-primary cta-base-p mx-2 flex-1"
-            disabled={!formState.isDirty || !formState.isValid || loading}
+            disabled={!isDirty || !isValid || loading}
           >
             Save
           </button>

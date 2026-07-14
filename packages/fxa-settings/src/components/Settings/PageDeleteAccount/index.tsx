@@ -87,10 +87,11 @@ export const PageDeleteAccount = () => {
       password: '',
     },
   });
-  // TODO: the `.errors.password` clause shouldn't be necessary, but `isValid` isn't updating
-  // properly. I think this is a bug in react-hook-form.
-  const disabled =
-    !formState.isDirty || !formState.isValid || !!formState.errors.password;
+  // Read all formState properties eagerly so react-hook-form's Proxy
+  // subscribes to each one. Short-circuit `||` would skip later accesses,
+  // preventing re-renders when those properties change.
+  const { isDirty, isValid, errors } = formState;
+  const disabled = !isDirty || !isValid || !!errors.password;
   const [errorText, setErrorText] = useState<string>();
   const [confirmed, setConfirmed] = useState<boolean>(false);
   const [subtitleText, setSubtitleText] = useState<string>(

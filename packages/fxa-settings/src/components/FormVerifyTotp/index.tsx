@@ -31,11 +31,12 @@ const FormVerifyTotp = ({
   className = '',
   cmsButton,
 }: FormVerifyTotpProps) => {
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCodeReady, setIsCodeReady] = useState(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const { handleSubmit, register } = useForm<VerifyTotpFormData>({
+  const { handleSubmit, register, setValue } = useForm<VerifyTotpFormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
@@ -56,23 +57,28 @@ const FormVerifyTotp = ({
       codeType === 'numeric' ? /[^0-9]/g : /[^a-zA-Z0-9]/g,
       ''
     );
+    // Mutate the DOM value so the user sees the filtered text, then sync
+    // RHF's internal state via setValue. registration.onChange (called first
+    // by InputText) may have captured the unfiltered value, so setValue
+    // ensures RHF's store matches the filtered value on submit.
     e.target.value = filteredCode;
-    e.target.value.length === codeLength
-      ? setIsSubmitDisabled(false)
-      : setIsSubmitDisabled(true);
+    setValue('code', filteredCode);
+    setIsCodeReady(filteredCode.length === codeLength);
   };
 
   const onSubmit = async ({ code }: VerifyTotpFormData) => {
     clearBanners && clearBanners();
-    setIsSubmitDisabled(true);
+    setIsSubmitting(true);
     // Only submit the code if it is the correct length
     // Otherwise, show an error message
     if (code.length !== codeLength) {
       setErrorMessage(
         getLocalizedErrorMessage(ftlMsgResolver, AuthUiErrors.INVALID_OTP_CODE)
       );
-    } else if (!isSubmitDisabled) {
+      setIsSubmitting(false);
+    } else {
       await verifyCode(code);
+      setIsSubmitting(false);
     }
   };
 
@@ -110,7 +116,10 @@ const FormVerifyTotp = ({
         anchorPosition="start"
         autoComplete="one-time-code"
         spellCheck={false}
-        registration={register('code', { required: true })}
+        registration={{
+          ...register('code', { required: true }),
+          onChange: async () => {},
+        }}
         hasErrors={!!errorMessage}
         ariaDescribedBy={errorBannerId}
       />
@@ -118,8 +127,8 @@ const FormVerifyTotp = ({
       <CmsButtonWithFallback
         type="submit"
         className="cta-primary cta-xl"
-        disabled={isSubmitDisabled}
-        title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
+        disabled={!isCodeReady || isSubmitting}
+        title={!isCodeReady ? getDisabledButtonTitle() : ''}
         {...(gleanDataAttrs && {
           'data-glean-id': gleanDataAttrs.id,
           'data-glean-label': gleanDataAttrs.label,

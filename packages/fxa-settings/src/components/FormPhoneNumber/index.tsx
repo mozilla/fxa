@@ -42,6 +42,9 @@ const FormPhoneNumber = ({
         countryCode: '',
       },
     });
+  // Eagerly read isDirty so react-hook-form's Proxy subscribes to it
+  // even when isSubmitting short-circuits the disabled expression.
+  const { isDirty } = formState;
 
   // Use `useWatch` to observe the `phoneNumber` field without causing re-renders
   const phoneNumberInput: string | undefined = useWatch({
@@ -115,7 +118,7 @@ const FormPhoneNumber = ({
           className="cta-primary cta-xl"
           disabled={
             isSubmitting ||
-            !formState.isDirty ||
+            !isDirty ||
             phoneNumberInput === undefined ||
             phoneNumberInput.replace(/\D/g, '').length !== 10
           }

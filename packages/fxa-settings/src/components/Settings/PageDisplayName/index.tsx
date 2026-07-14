@@ -41,6 +41,9 @@ export const PageDisplayName = () => {
       displayName: initialValue,
     },
   });
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation.
+  const { isDirty, isValid } = formState;
   const isValidDisplayName = validateDisplayName(initialValue);
 
   const onSubmit = useCallback(
@@ -95,9 +98,7 @@ export const PageDisplayName = () => {
                 type="submit"
                 data-testid="submit-display-name"
                 className="cta-primary cta-base-p mx-2 flex-1"
-                disabled={
-                  !formState.isDirty || !formState.isValid || account.loading
-                }
+                disabled={!isDirty || !isValid || account.loading}
               >
                 Save
               </button>

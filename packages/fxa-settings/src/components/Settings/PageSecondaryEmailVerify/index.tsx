@@ -37,6 +37,9 @@ export const PageSecondaryEmailVerify = () => {
       verificationCode: '',
     },
   });
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation.
+  const { isDirty, isValid } = formState;
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const goHome = useCallback(
@@ -132,8 +135,7 @@ export const PageSecondaryEmailVerify = () => {
     }
   }, [email, navigateWithQuery]);
 
-  const buttonDisabled =
-    !formState.isDirty || !formState.isValid || account.loading;
+  const buttonDisabled = !isDirty || !isValid || account.loading;
   const resendDisabled =
     resendCodeLoading || account.loading || resendCooldownActive;
   return (

@@ -96,6 +96,10 @@ export const FormPasswordWithInlineCriteria = ({
   submitButtonGleanId,
   cmsButton,
 }: FormPasswordWithInlineCriteriaProps) => {
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation in disabled expressions.
+  const { isValid, dirtyFields } = formState;
+
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
@@ -169,7 +173,7 @@ export const FormPasswordWithInlineCriteria = ({
       setPasswordMatchErrorText(localizedPasswordMatchError);
     }
 
-    if (!formState.isValid && showConfirmPasswordInput) {
+    if (!isValid && showConfirmPasswordInput) {
       trigger('confirmPassword');
     }
   };
@@ -191,11 +195,11 @@ export const FormPasswordWithInlineCriteria = ({
       setSROnlyConfirmPwdFeedbackMessage(srOnlyPasswordsMatch);
     }
 
-    if (!formState.isValid) {
+    if (!isValid) {
       trigger('newPassword');
     }
   }, [
-    formState,
+    isValid,
     ftlMsgResolver,
     getValues,
     localizedPasswordMatchError,
@@ -277,9 +281,7 @@ export const FormPasswordWithInlineCriteria = ({
               onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
               onChange={() => onChangePassword('newPassword')}
-              hasErrors={
-                formState.dirtyFields.newPassword ? errors.newPassword : false
-              }
+              hasErrors={dirtyFields.newPassword ? errors.newPassword : false}
               registration={register('newPassword', {
                 required: true,
                 validate: {
@@ -374,9 +376,7 @@ export const FormPasswordWithInlineCriteria = ({
           <CmsButtonWithFallback
             type="submit"
             className="cta-primary cta-xl"
-            disabled={
-              loading || (disableButtonUntilValid && !formState.isValid)
-            }
+            disabled={loading || (disableButtonUntilValid && !isValid)}
             data-glean-id={submitButtonGleanId && submitButtonGleanId}
             buttonColor={cmsButton?.color}
             buttonText={cmsButton?.text}

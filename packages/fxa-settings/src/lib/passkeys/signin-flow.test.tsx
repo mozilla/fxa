@@ -26,6 +26,10 @@ import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../pages/Signin/utils';
+import type {
+  BannerProps,
+  ExternalLinkProps,
+} from '../../components/Banner/interfaces';
 
 jest.mock('./webauthn', () => ({
   __esModule: true,
@@ -650,7 +654,8 @@ describe('usePasskeySignIn', () => {
       });
 
       expect(handleNavigation).not.toHaveBeenCalled();
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
       expect(banner.props.type).toBe('error');
       expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
         expectedFtlId,
@@ -680,13 +685,15 @@ describe('usePasskeySignIn', () => {
 
       // The core contract: a neutral warning banner (not the red error banner)
       // carrying the help link.
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
       expect(banner.props.type).toBe('warning');
       expect(banner.props.content).toEqual({
         localizedHeading: 'Couldn’t sign in with a passkey',
         localizedDescription: 'Try again or use another sign-in option.',
       });
-      expect(banner.props.link.localizedText).toBe('How to use passkeys');
+      const link = banner.props.link as ExternalLinkProps;
+      expect(link.localizedText).toBe('How to use passkeys');
       // Never routed to the red error banner copy, and never reported to Sentry.
       expect(spies.ftlMsgResolver.getMsg).not.toHaveBeenCalledWith(
         'passkey-authentication-error-not-allowed',
@@ -708,7 +715,8 @@ describe('usePasskeySignIn', () => {
       await result.current.onClick();
     });
 
-    const banner = result.current.errorBanner as React.ReactElement;
+    const banner = result.current
+      .errorBanner as React.ReactElement<BannerProps>;
     expect(banner.props.type).toBe('warning');
     expect(banner.props.content).toEqual({
       localizedHeading: 'Passkey sign-in timed out. Try again.',
@@ -738,10 +746,12 @@ describe('usePasskeySignIn', () => {
         await result.current.onClick();
       });
 
-      const banner = result.current.errorBanner as React.ReactElement;
-      expect(banner.props.link.url).toBe(expectedUrl);
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
+      const link = banner.props.link as ExternalLinkProps;
+      expect(link.url).toBe(expectedUrl);
 
-      banner.props.link.onClick();
+      link.onClick?.();
       expect(GleanMetrics.passkey.getHelpLinkClick).toHaveBeenCalledWith({
         event: { reason: expectedReason },
       });

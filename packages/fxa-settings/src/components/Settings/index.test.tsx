@@ -217,7 +217,7 @@ describe('Settings App', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', undefined);
     });
     expect(warnSpy).toHaveBeenCalledWith(
       'Account data unavailable, redirecting to sign-in'
@@ -254,7 +254,7 @@ describe('Settings App', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', undefined);
     });
     warnSpy.mockRestore();
   });
@@ -285,7 +285,7 @@ describe('Settings App', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', undefined);
     });
     warnSpy.mockRestore();
   });
@@ -308,7 +308,7 @@ describe('Settings App', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', undefined);
     });
     warnSpy.mockRestore();
   });
