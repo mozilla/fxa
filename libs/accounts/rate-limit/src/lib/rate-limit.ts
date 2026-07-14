@@ -265,7 +265,7 @@ export class RateLimit {
       wasBlocked: result != null,
       blockPolicy: result?.policy,
       blockDurationSeconds: result
-        ? Math.round(result.duration / 1000)
+        ? result.duration
         : undefined,
       wasSkipped,
       usedDefaultRule: firstRule?.isDefault ?? false,
