@@ -162,7 +162,10 @@ device-info-ip-address = IP kundaharape: { $ipAddress }
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
 firefox-promo-banner-mobile-heading = Emohenda { -brand-firefox } peteĩva mba’e’okápe
+firefox-promo-banner-mobile-description = Embojuehepa ne rendayke, techaukaha ha ñe’ẽñemi opaite ne mba’e’okápe. Avei, ipapapypa tekorosãme.
 firefox-promo-banner-mobile-cta = Embojuaju ba’e’oka
+firefox-promo-banner-switch-heading = Pya’e iñambue. Ndahasýi imohenda.
+firefox-promo-banner-switch-description = Emoambuévo { -brand-firefox }-pe, eguerukuaa nde rechaukaha, ñe’ẽñemi, tembiasakue ha hetave mba’e ikatu hag̃uáicha eñepyrũ eikundaha apañuai’ỹre.
 firefox-promo-banner-switch-cta = Eguerova { -brand-firefox }-pe
 
 ## FormPasswordInlineCriteria
@@ -1245,6 +1248,7 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
+passkey-delete-modal-content-v2 = Ko ñe’ẽñemi jeikerã reheguáva oñembogueva’erã nde mba’etégui. Eikeva’erã ambueháicha (ñe’ẽñemi, ambue mba’e jeikerã térã mba’ete heseguáva).
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1490,6 +1494,10 @@ passkey-registration-canceled-link = Eikuaave
 passkey-registration-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Eikuaave
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Ñe’ẽñemi jeikerã ñemboheko nahu’ãporãi. Eiporu ayvu térã ambue mba’e’oka.
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Eikuaave
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
