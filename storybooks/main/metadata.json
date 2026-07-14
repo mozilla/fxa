@@ -1,8 +1,8 @@
 {
-  "commit": "48d1133d4c9f3660e34265a0f828ca3265f2570b",
-  "summary": "Merge pull request #20851 from mozilla/pay-3770-move-submit",
-  "description": "fix(payments-ui): move checkoutSubmit emit server-side",
-  "timestamp": 1784035316000,
+  "commit": "f18265dd0be4896ca37ae59464259decc41eb84b",
+  "summary": "Merge pull request #20503 from mozilla/PAY-3614",
+  "description": "chore(auth-client,auth,content): Remove /subscriptions/plans",
+  "timestamp": 1784036203000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
