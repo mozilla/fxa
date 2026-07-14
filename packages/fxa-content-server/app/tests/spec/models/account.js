@@ -2902,17 +2902,6 @@ describe('models/account', function () {
     });
   });
 
-  describe('fetchSubscriptionPlans', () => {
-    it('delegates to the fxa-client', () => {
-      const plans = [{ product_id: 'foo', plan: 'bar' }];
-      sinon.stub(fxaClient, 'getSubscriptionPlans').resolves(plans);
-
-      return account.fetchSubscriptionPlans().then((resp) => {
-        assert.deepEqual(resp, plans);
-      });
-    });
-  });
-
   describe('fetchActiveSubscriptions', () => {
     it('delegates to the fxa-client', () => {
       const token = 'tickettoride';
