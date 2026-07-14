@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../../models/pages/signin';
@@ -122,6 +123,18 @@ export const SigninTotpCodeContainer = ({
     }
   };
 
+  // React 19 forbids calling navigate() during render.
+  const shouldRedirectFromTotp =
+    !signinState ||
+    (signinState.isSessionAALUpgrade !== true &&
+      signinState.verificationMethod &&
+      signinState.verificationMethod !== VerificationMethods.TOTP_2FA);
+  useEffect(() => {
+    if (shouldRedirectFromTotp) {
+      navigateWithQuery('/');
+    }
+  }, [shouldRedirectFromTotp, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -133,13 +146,7 @@ export const SigninTotpCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
-  if (
-    !signinState ||
-    (signinState.isSessionAALUpgrade !== true &&
-      signinState.verificationMethod &&
-      signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
-  ) {
-    navigateWithQuery('/');
+  if (shouldRedirectFromTotp) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
