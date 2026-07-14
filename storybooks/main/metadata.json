@@ -1,8 +1,8 @@
 {
-  "commit": "e94f67b00274a1c0d8299686df0766d238de0ed3",
-  "summary": "Merge pull request #20835 from mozilla/PAY-3792",
-  "description": "feat(payments): Add OpenAPI documentation for payments-api",
-  "timestamp": 1784034832000,
+  "commit": "48d1133d4c9f3660e34265a0f828ca3265f2570b",
+  "summary": "Merge pull request #20851 from mozilla/pay-3770-move-submit",
+  "description": "fix(payments-ui): move checkoutSubmit emit server-side",
+  "timestamp": 1784035316000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
