@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 014ff53ea614965368cb3a6950e3511c217bb33a</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 014ff53ea614965368cb3a6950e3511c217bb33a</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/14/2026, 8:01:44 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): update Stripe SDK to 22.3.1 (2026-06-24.dahlia)</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Stripe&#039;s &quot;basil&quot; billing redesign — crossed by the acacia -&gt; dahlia
+  API-version bump — reshaped the invoice, subscription, line-item,
+  discount, and payment-intent objects FxA relies on.
+
+This commit:
+
+* Pins `stripe` to 22.3.1 (from 17.4.0) and pins the apiVersion
+  &#039;2026-06-24.dahlia&#039; via a shared STRIPE_API_VERSION constant.
+* Migrates every affected call site across the modern libs/payments/*
+  StripeClient stack and the legacy fxa-auth-server StripeHelper:
+  invoice.subscription -&gt; parent.subscription_details.subscription,
+  invoice.payment_intent/charge -&gt; payments[]/confirmation_secret,
+  subscription.current_period_* -&gt; subscription-item level,
+  invoices.retrieveUpcoming -&gt; invoices.createPreview, plus the basil
+  tax/discount/pricing reshape and the PromotionCode.coupon and branded
+  Decimal changes.
+* Reads webhook-delivered invoices with a transitional dual-read (old +
+  new shapes) to survive the Stripe Dashboard API-version rollout window.
+* Patches stripe to re-add the top-level `types` field it dropped as an
+  exports-only package, so the SDK resolves under TypeScript.
+* Updates the hand-written Stripe factories and co-located specs and
+  fixtures to the new basil shapes.
+
+Closes: PAY-3759</pre></dd>
+  </dl>
+</body>
+</html>
