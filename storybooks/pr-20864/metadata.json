@@ -1,0 +1,10 @@
+{
+  "commit": "e66521e9cd00f6808a82bb03e79ab06a43097cf0",
+  "summary": "feat(settings): pre-keys keyless login for desktop passkey Sync sign-in",
+  "description": "Because:\n - A keys-required (Sync) passkey sign-in withheld both WebChannel messages\n   until after the password step, so the browser reflected nothing as\n   signed-in until keys were ready.\n - The keys-optional check lived in the fxa_status hook, conflating the raw\n   browser capability with per-integration client requirements.\n\nThis commit:\n - Fires a keyless fxaccounts:login right after passkey verification on desktop\n   when the browser advertises keys_optional; defers only the keyed oauth_login\n   until keys exist (Sync enables once keys arrive).\n - useFxAStatus now reports only the raw browser capability\n   (browserSupportsKeysOptional). The per-login keys policy moves onto the\n   integration model: requiresPasswordForLogin, supportsKeylessLogin,\n   allowsPreKeysSyncLogin (unit-tested).\n - Renames the threaded supportsKeysOptionalLogin prop to\n   browserSupportsKeysOptional across settings.\n - No functional change for non-Sync integrations: supportsKeylessLogin\n   reproduces the prior derived value (isFirefoxNonSync implies isOAuthNative).\n\nCloses #FXA-14129",
+  "timestamp": 1784049199000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
