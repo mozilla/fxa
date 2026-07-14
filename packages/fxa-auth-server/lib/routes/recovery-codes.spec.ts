@@ -90,6 +90,9 @@ describe('backup authentication codes', () => {
   describe('GET /recoveryCodes', () => {
     it('should replace backup authentication codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
+      db.totpToken = jest.fn(() =>
+        Promise.resolve({ verified: true, enabled: true })
+      );
       return runTest('/recoveryCodes', requestOptions, 'GET').then(
         (res: any) => {
           expect(res.recoveryCodes).toHaveLength(2);
@@ -120,12 +123,25 @@ describe('backup authentication codes', () => {
         }
       );
     });
+
+    it('rejects with totpTokenNotFound when TOTP is not enabled', async () => {
+      db.totpToken = jest.fn(() => Promise.resolve({ enabled: false }));
+      await expect(
+        runTest('/recoveryCodes', requestOptions, 'GET')
+      ).rejects.toMatchObject({
+        errno: error.totpTokenNotFound().errno,
+      });
+      expect(db.replaceRecoveryCodes).not.toHaveBeenCalled();
+    });
   });
 
   describe('PUT /recoveryCodes', () => {
     it('should overwrite backup authentication codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
       requestOptions.payload.recoveryCodes = ['123'];
+      db.totpToken = jest.fn(() =>
+        Promise.resolve({ verified: true, enabled: true })
+      );
 
       return runTest('/recoveryCodes', requestOptions, 'PUT').then(
         (res: any) => {
@@ -158,6 +174,17 @@ describe('backup authentication codes', () => {
           });
         }
       );
+    });
+
+    it('rejects with totpTokenNotFound when TOTP is not enabled', async () => {
+      requestOptions.payload.recoveryCodes = ['123'];
+      db.totpToken = jest.fn(() => Promise.resolve({ enabled: false }));
+      await expect(
+        runTest('/recoveryCodes', requestOptions, 'PUT')
+      ).rejects.toMatchObject({
+        errno: error.totpTokenNotFound().errno,
+      });
+      expect(db.updateRecoveryCodes).not.toHaveBeenCalled();
     });
   });
 
