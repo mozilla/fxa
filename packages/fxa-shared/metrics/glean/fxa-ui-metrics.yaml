@@ -2857,9 +2857,11 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Reason the password entry failed: 'incorrect_password' (sessionReauth
-          rejected the password) or 'server_error' (the request failed for any
-          other reason).
+          Reason the sign-in did not complete after password entry:
+          'incorrect_password' (sessionReauth rejected the password),
+          'server_error' (the sessionReauth request failed for any other
+          reason), or 'navigation_error' (sessionReauth succeeded but the
+          post-reauth Sync/OAuth sign-in handoff failed).
         type: string
   success:
     type: event
