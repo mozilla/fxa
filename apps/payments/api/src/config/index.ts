@@ -1,5 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsDefined, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsDefined,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 
 import { CurrencyConfig } from '@fxa/payments/currency';
 import { MeteringConfig } from '@fxa/entitlements/metering';
@@ -90,4 +95,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly meteringConfig!: Partial<MeteringConfig>;
+
+  /** Serve interactive Swagger UI at /api-docs. Off by default; enable for local dev. */
+  @IsBoolean()
+  @IsOptional()
+  public readonly swaggerUi: boolean = false;
 }

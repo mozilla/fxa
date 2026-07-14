@@ -8,12 +8,23 @@ import { METERING_WINDOWS } from '@fxa/shared/cms';
 
 const slugRegex = /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/;
 
-export const meterSlugSchema = z.string().min(1).max(128).regex(slugRegex, {
-  message:
-    'slug must be lowercase alphanumeric with optional underscores or hyphens',
-});
+export const meterSlugSchema = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(slugRegex, {
+    message:
+      'slug must be lowercase alphanumeric with optional underscores or hyphens',
+  })
+  .describe(
+    'Meter slug identifier (lowercase alphanumeric, hyphens, underscores)'
+  );
 
-export const userIdentifierSchema = z.string().min(1).max(256);
+export const userIdentifierSchema = z
+  .string()
+  .min(1)
+  .max(256)
+  .describe('Unique identifier for the user being metered');
 
 /**
  * OpenMeter deduplicates events by source and id, so a retried ingest with the
@@ -22,28 +33,48 @@ export const userIdentifierSchema = z.string().min(1).max(256);
  * each logical event rather than a fresh id per HTTP attempt.
  */
 export const ingestUsageRequestSchema = z.object({
-  id: z.string().min(1).max(256),
+  id: z
+    .string()
+    .min(1)
+    .max(256)
+    .describe(
+      'Stable idempotency key for this usage event; retries with the same id will not double-count'
+    ),
   userIdentifier: userIdentifierSchema,
   slug: meterSlugSchema,
-  amount: z.number().positive(),
-  timestamp: z.iso.datetime({ offset: true }).optional(),
+  amount: z
+    .number()
+    .positive()
+    .describe('Usage amount to record (must be positive)'),
+  timestamp: z.iso
+    .datetime({ offset: true })
+    .optional()
+    .describe(
+      'ISO 8601 timestamp with offset; defaults to server time if omitted'
+    ),
 });
 
 export type IngestUsageRequest = z.infer<typeof ingestUsageRequestSchema>;
 
 export const usageQueryParamsSchema = z.object({
-  userIdentifier: userIdentifierSchema,
-  slug: meterSlugSchema,
+  userIdentifier: userIdentifierSchema.describe(
+    'User identifier to query usage for'
+  ),
+  slug: meterSlugSchema.describe('Meter slug to query'),
 });
 
 export type UsageQueryParams = z.infer<typeof usageQueryParamsSchema>;
 
 export const usageQueryResponseSchema = z.object({
-  usage: z.number(),
-  limit: z.number(),
-  unit: z.string(),
-  windowStart: z.iso.datetime({ offset: true }),
-  windowEnd: z.iso.datetime({ offset: true }),
+  usage: z.number().describe('Current usage amount within the billing window'),
+  limit: z.number().describe('Usage limit for the current plan'),
+  unit: z.string().describe('Unit of measurement (e.g. "requests", "gb")'),
+  windowStart: z.iso
+    .datetime({ offset: true })
+    .describe('ISO 8601 start of the current metering window'),
+  windowEnd: z.iso
+    .datetime({ offset: true })
+    .describe('ISO 8601 end of the current metering window'),
 });
 
 export type UsageQueryResponse = z.infer<typeof usageQueryResponseSchema>;
@@ -51,8 +82,10 @@ export type UsageQueryResponse = z.infer<typeof usageQueryResponseSchema>;
 export const meteringWindowSchema = z.enum(METERING_WINDOWS);
 
 export const thresholdCheckTaskBodySchema = z.object({
-  slug: meterSlugSchema,
-  userIdentifier: userIdentifierSchema,
+  slug: meterSlugSchema.describe('Meter slug to check thresholds for'),
+  userIdentifier: userIdentifierSchema.describe(
+    'User identifier to check thresholds for'
+  ),
 });
 
 export type ThresholdCheckTaskBody = z.infer<

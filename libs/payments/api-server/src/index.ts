@@ -6,3 +6,5 @@ export * from './lib/billing-and-subscriptions.controller';
 export * from './lib/billing-and-subscriptions.service';
 export * from './lib/billing-and-subscriptions.schema';
 export * from './lib/billing-and-subscriptions.factories';
+export * from './lib/util/openapi';
+export * from './lib/util/response-validation.interceptor';
