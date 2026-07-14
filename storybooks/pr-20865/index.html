@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f2b575e276b563de90aaf3fa480d4215b2689721</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f2b575e276b563de90aaf3fa480d4215b2689721</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/14/2026, 8:56:24 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>bug(settings): Stop duplicate sign-in verification emails for dormant accounts</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Dormant accounts signing in to Settings/Sync received two identical OTP
+  verification emails. The auth-server sends one during `signInWithAuthPW`,
+  and the shared `handleNavigation` sent a second via `sessionResendVerifyCode`
+  (added in 2fce100 to fix a cached-flow duplicate, but it also fired in the
+  password flow where the server already sent).
+
+This commit:
+- Gates the client-side `sessionResendVerifyCode` in `handleNavigation` behind
+  a new optional `sendVerificationEmailFromClient` NavigationOptions flag.
+- Sets the flag only in the cached-signin paths (`SigninCached` and the
+  prompt=none `Authorization` container), the only flows that perform no
+  server-side login and therefore must send the OTP client-side.
+- Leaves the flag falsey for the password/unblock/reauth paths, which already
+  send server-side, eliminating the duplicate email.
+- Adds regression tests covering both the gated (cached) and non-gated
+  (server-login) paths so the duplicate cannot silently return.
+
+Closes #FXA-14109</pre></dd>
+  </dl>
+</body>
+</html>

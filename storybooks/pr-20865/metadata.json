@@ -1,0 +1,10 @@
+{
+  "commit": "f2b575e276b563de90aaf3fa480d4215b2689721",
+  "summary": "bug(settings): Stop duplicate sign-in verification emails for dormant accounts",
+  "description": "Because:\n- Dormant accounts signing in to Settings/Sync received two identical OTP\n  verification emails. The auth-server sends one during `signInWithAuthPW`,\n  and the shared `handleNavigation` sent a second via `sessionResendVerifyCode`\n  (added in 2fce100 to fix a cached-flow duplicate, but it also fired in the\n  password flow where the server already sent).\n\nThis commit:\n- Gates the client-side `sessionResendVerifyCode` in `handleNavigation` behind\n  a new optional `sendVerificationEmailFromClient` NavigationOptions flag.\n- Sets the flag only in the cached-signin paths (`SigninCached` and the\n  prompt=none `Authorization` container), the only flows that perform no\n  server-side login and therefore must send the OTP client-side.\n- Leaves the flag falsey for the password/unblock/reauth paths, which already\n  send server-side, eliminating the duplicate email.\n- Adds regression tests covering both the gated (cached) and non-gated\n  (server-login) paths so the duplicate cannot silently return.\n\nCloses #FXA-14109",
+  "timestamp": 1784062584000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
