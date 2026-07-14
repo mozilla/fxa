@@ -813,6 +813,50 @@ describe('rate-limit', () => {
       );
     });
 
+    it('reports blockDurationSeconds in seconds, matching the block duration', async () => {
+      mockIncr.mockResolvedValue(6); // exceeds maxAttempts of 5
+      redis.set = jest.fn().mockResolvedValue('OK');
+
+      rateLimit = new RateLimit(
+        // 5 minute block duration => 300 seconds
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      // The block's duration is already in seconds, so it must be reported
+      // as-is (300), not divided by 1000.
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: true,
+          blockDurationSeconds: 300,
+        })
+      );
+    });
+
+    it('reports blockDurationSeconds as undefined when no block is triggered', async () => {
+      mockIncr.mockResolvedValue(1); // under maxAttempts of 5
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: false,
+          blockDurationSeconds: undefined,
+        })
+      );
+    });
+
     it('calls bqWriter.write on skip() with wasSkipped true', () => {
       rateLimit = new RateLimit(
         { rules: {}, ignoreIPs: ['127.0.0.1'] },
