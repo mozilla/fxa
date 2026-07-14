@@ -176,12 +176,12 @@ export class NextJSActionsService {
   ) {}
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     CancelSubscriptionAtPeriodEndActionArgs,
     CancelSubscriptionAtPeriodEndActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async cancelSubscriptionAtPeriodEnd(args: {
     uid: string;
     subscriptionId: string;
@@ -203,12 +203,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     CancelSubscriptionImmediatelyActionArgs,
     CancelSubscriptionImmediatelyActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async cancelSubscriptionImmediately(args: {
     uid: string;
     subscriptionId: string;
@@ -230,9 +230,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({ allowlist: [CartUidMismatchError] })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetDbCartActionArgs, GetDbCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async getDbCart(args: { cartId: string }) {
     const cart = await this.cartService.getDbCart(args.cartId);
@@ -241,18 +241,18 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({ allowlist: [CartUidMismatchError] })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async getCart(args: { cartId: string }) {
     return this.cartService.getCart(args.cartId);
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetExperimentsActionArgs, GetExperimentsActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getExperiments(args: {
     language: string;
     ip: string;
@@ -284,9 +284,9 @@ export class NextJSActionsService {
   @SanitizeExceptions({
     allowlist: [CartInvalidStateForActionError],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
     const cart = await this.cartService.getCart(args.cartId);
@@ -299,12 +299,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetChurnInterventionDataActionArgs,
     GetChurnInterventionDataActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getChurnInterventionEntryData(args: {
     customerId: string;
     churnInterventionId: string;
@@ -318,12 +318,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     DetermineChurnEligibilityActionArgs,
     DetermineChurnCancelEligibilityActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async determineChurnCancelEligibility(args: {
     uid: string;
     subscriptionId: string;
@@ -355,12 +355,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     DetermineChurnEligibilityActionArgs,
     DetermineStaySubscribedEligibilityActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async determineStaySubscribedEligibility(args: {
     uid: string;
     subscriptionId: string;
@@ -390,12 +390,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     DetermineCancellationInterventionActionArgs,
     DetermineCancellationInterventionActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async determineCancellationIntervention(args: {
     uid: string;
     subscriptionId: string;
@@ -414,9 +414,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(RedeemChurnCouponActionArgs, RedeemChurnCouponActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async redeemChurnCoupon(args: {
     uid: string;
     subscriptionId: string;
@@ -458,9 +458,9 @@ export class NextJSActionsService {
   @SanitizeExceptions({
     allowlist: [PromotionCodeSanitizedError, CartVersionMismatchError],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async updateCart(args: {
     cartId: string;
@@ -482,9 +482,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetCouponArgs, GetCouponResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async getCoupon(args: { cartId: string; version: number }) {
     const couponCode = await this.cartService.getCoupon({
@@ -495,9 +495,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(RestartCartActionArgs, RestartCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async restartCart(args: { cartId: string }) {
     const cart = await this.cartService.restartCart(args.cartId);
@@ -513,9 +513,9 @@ export class NextJSActionsService {
       SetupCartAccountNotFoundError,
     ],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;
@@ -532,9 +532,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async finalizeCartWithError(args: {
     cartId: string;
@@ -547,18 +547,18 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(FinalizeProcessingCartActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async finalizeProcessingCart(args: { cartId: string }) {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetPayPalCheckoutTokenArgs, GetPayPalCheckoutTokenResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getPayPalCheckoutToken(args: { currencyCode: string }) {
     const token = await this.checkoutTokenManager.get(args.currencyCode);
 
@@ -568,11 +568,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetPaypalBillingAgreementActiveIdArgs,
     GetPaypalBillingAgreementActiveIdResult
   )
-  @CaptureTimingWithStatsD()
   async getPaypalBillingAgreementActiveId(args: { uid: string }) {
     const paypalBillingAgreementId =
       await this.paypalBillingAgreementManager.retrieveActiveId(args.uid);
@@ -583,9 +583,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(CreatePaypalBillingAgreementIdArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async createPayPalBillingAgreementId(args: { uid: string; token: string }) {
     await this.subscriptionManagementService.createPaypalBillingAgreementId(
       args.uid,
@@ -594,9 +594,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetTaxAddressArgs, GetTaxAddressResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getTaxAddress(args: { ipAddress: string; uid?: string }) {
     const result = await this.taxService.getTaxAddress(
       args.ipAddress,
@@ -609,9 +609,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(CheckoutCartWithPaypalActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async checkoutCartWithPaypal(args: {
     cartId: string;
     version: number;
@@ -631,9 +631,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(CheckoutCartWithStripeActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async checkoutCartWithStripe(args: {
     cartId: string;
     version: number;
@@ -653,9 +653,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({ allowlist: [ProductConfigError] })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(FetchCMSDataActionArgs, FetchCMSDataActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async fetchCMSData(args: {
     offeringId: string;
     acceptLanguage?: string | null;
@@ -671,12 +671,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetSubManPageContentActionArgs,
     GetSubManPageContentActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getSubManPageContent(args: {
     uid: string;
     requestArgs: CommonMetrics;
@@ -728,9 +728,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(RecordEmitterEventArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
@@ -762,18 +762,18 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetNeedsInputActionArgs, getNeedsInputActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async getNeedsInput(args: { cartId: string }) {
     return await this.cartService.getNeedsInput(args.cartId);
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async submitNeedsInput(args: {
     cartId: string;
@@ -783,16 +783,16 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(undefined, GetMetricsFlowActionResult)
   @CaptureTimingWithStatsD()
+  @NextIOValidator(undefined, GetMetricsFlowActionResult)
   async getMetricsFlow() {
     return this.contentServerManager.getMetricsFlow();
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(ValidatePostalCodeActionArgs, ValidatePostalCodeActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async validateAndFormatPostalCode(args: {
     postalCode: string;
     countryCode: string;
@@ -804,12 +804,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetSubscriptionPageContentActionArgs,
     GetCancelFlowContentActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getCancelFlowContent(args: {
     uid: string;
     subscriptionId: string;
@@ -825,12 +825,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetSubscriptionPageContentActionArgs,
     GetStaySubscribedFlowContentActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getStaySubscribedFlowContent(args: {
     uid: string;
     subscriptionId: string;
@@ -846,12 +846,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetInterstitialOfferContentActionArgs,
     GetInterstitialOfferContentActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getInterstitialOfferContent(args: {
     uid: string;
     subscriptionId: string;
@@ -920,9 +920,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(DetermineCurrencyActionArgs, DetermineCurrencyActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async determineCurrency(args: { ip: string }) {
     const location = this.geodbManager.getTaxAddress(args.ip);
 
@@ -942,12 +942,12 @@ export class NextJSActionsService {
   @SanitizeExceptions({
     allowlist: [AccountCustomerNotFoundError],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     DetermineCurrencyForCustomerActionArgs,
     DetermineCurrencyForCustomerActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async determineCurrencyForCustomer(args: { uid: string }) {
     const currency =
       await this.subscriptionManagementService.getCurrencyForCustomer(args.uid);
@@ -958,12 +958,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     ResubscribeSubscriptionActionArgs,
     ResubscribeSubscriptionActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async resubscribeSubscription(args: {
     uid: string;
 
@@ -986,9 +986,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(UpdateTaxAddressActionArgs, UpdateTaxAddressActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   @AssertCartOwnership()
   async updateTaxAddress(args: {
     cartId: string;
@@ -1059,9 +1059,9 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(ValidateLocationActionArgs, ValidateLocationActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async validateLocation(args: {
     offeringId: string;
     taxAddress?: TaxAddress;
@@ -1117,17 +1117,17 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(ServerLogActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async serverLog(args: { message: string; data?: any }) {
     this.log.log(args.message, args.data);
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(GetUserinfoArgs, GetUserinfoResult)
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getUserinfo(args: { accessToken: string; userinfoUrl: string }) {
     return await this.profileClient.getUserinfo(
       args.userinfoUrl,
@@ -1138,12 +1138,12 @@ export class NextJSActionsService {
   @SanitizeExceptions({
     allowlist: [AccountCustomerNotFoundError, CurrencyForCustomerNotFoundError],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetStripePaymentManagementDetailsArgs,
     GetStripePaymentManagementDetailsResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getStripePaymentManagementDetails(args: { uid: string }) {
     return await this.subscriptionManagementService.getStripePaymentManagementDetails(
       args.uid
@@ -1161,11 +1161,11 @@ export class NextJSActionsService {
       ManagePaymentMethodTaxAddressRequiredError,
     ],
   })
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     UpdateStripePaymentDetailsArgs,
     UpdateStripePaymentDetailsResult
   )
-  @CaptureTimingWithStatsD()
   async updateStripePaymentDetails(args: {
     uid: string;
     confirmationTokenId: string;
@@ -1195,8 +1195,8 @@ export class NextJSActionsService {
   @SanitizeExceptions({
     allowlist: [ManagePaymentMethodTaxAddressRequiredError],
   })
-  @NextIOValidator(SetDefaultStripePaymentDetailsActionArgs, undefined)
   @CaptureTimingWithStatsD()
+  @NextIOValidator(SetDefaultStripePaymentDetailsActionArgs, undefined)
   async setDefaultStripePaymentDetails(args: {
     uid: string;
     paymentMethodId: string;
@@ -1210,12 +1210,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @CaptureTimingWithStatsD()
   @NextIOValidator(
     GetCMSChurnInterventionActionArgs,
     GetCMSChurnInterventionActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
-  @CaptureTimingWithStatsD()
   async getCMSChurnIntervention(args: {
     interval: SubplatInterval;
     churnType: 'cancel' | 'stay_subscribed';
