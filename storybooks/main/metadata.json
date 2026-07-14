@@ -1,8 +1,8 @@
 {
-  "commit": "e8120837e532e0beee0fdfe8f9f010e93110d228",
-  "summary": "Merge pull request #20857 from mozilla/PAY-3817-reorder-capture-timing-with-stats-d-so-its-called-early",
-  "description": "fix(payments-next): Reorder @CaptureTimingWithStatsD so it's called early",
-  "timestamp": 1784031993000,
+  "commit": "e94f67b00274a1c0d8299686df0766d238de0ed3",
+  "summary": "Merge pull request #20835 from mozilla/PAY-3792",
+  "description": "feat(payments): Add OpenAPI documentation for payments-api",
+  "timestamp": 1784034832000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
