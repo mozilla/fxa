@@ -275,6 +275,31 @@ export async function updatePasskeyName(
 }
 
 /**
+ * Roll a passkey's `prfEnabled` flag forward from false to true. Monotonic: the
+ * `prfEnabled = false` guard means an already-true flag is never rewritten, so
+ * capability detected on one device can't be erased by a device lacking PRF.
+ * Scoped to both uid and credentialId so one user can't flip another's passkey.
+ *
+ * @returns Rows updated: 1 on a false→true flip, 0 when already true, not found,
+ *   or owned by another user.
+ */
+export async function updatePasskeyPrfEnabled(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string
+): Promise<number> {
+  const result = await db
+    .updateTable('passkeys')
+    .set({ prfEnabled: 1 })
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .where('prfEnabled', '=', false)
+    .executeTakeFirst();
+
+  return Number(result.numUpdatedRows);
+}
+
+/**
  * Delete a specific passkey for a user.
  *
  * @param db - Database instance

@@ -75,6 +75,8 @@ jest.mock('../glean', () => ({
       buttonView: jest.fn(),
       authSuccess: jest.fn(),
       getHelpLinkClick: jest.fn(),
+      signinPrfSupport: jest.fn(),
+      signinRetryWithoutPrfRequest: jest.fn(),
     },
   },
 }));
@@ -1252,6 +1254,104 @@ describe('usePasskeySignIn', () => {
           accountHasTotp: true,
         })
       );
+    });
+  });
+
+  describe('PRF at sign-in', () => {
+    const optionsWithPrf = {
+      challenge: CHALLENGE,
+      userVerification: 'required',
+      extensions: { prf: { eval: { first: 'c2FsdA' } } },
+    };
+    const credentialWithPrf = {
+      ...MOCK_CREDENTIAL,
+      clientExtensionResults: {
+        prf: { results: { first: new ArrayBuffer(32) } },
+      },
+    };
+
+    it('passes the keysRequired hint to beginPasskeyAuthentication', async () => {
+      const { args, spies } = buildArgs({
+        integration: {
+          isSync: () => false,
+          isFirefoxNonSync: () => false,
+          isFirefoxMobileClient: () => false,
+          requiresPasswordForLogin: () => true,
+        } as unknown as PasskeySignInIntegration,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
+        keysRequired: true,
+      });
+    });
+
+    it('records present support and sends prfSupported=true in the finish request when the output is present', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
+        event: { supported: 'present' },
+      });
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options.prfSupported).toBe(true);
+    });
+
+    it('strips the PRF output from the credential before sending it to the server', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      const [sentCredential] =
+        spies.completePasskeyAuthentication.mock.calls[0];
+      expect(sentCredential.clientExtensionResults).not.toHaveProperty('prf');
+    });
+
+    it('records absent support and sends prfSupported=false when no output is present', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
+        event: { supported: 'absent' },
+      });
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options.prfSupported).toBe(false);
+    });
+
+    it('omits prfSupported and the support event when the server did not request PRF', async () => {
+      const { args, spies } = buildArgs();
+      // Default beginPasskeyAuthentication returns options without extensions.
+      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).not.toHaveBeenCalled();
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options).not.toHaveProperty('prfSupported');
     });
   });
 });

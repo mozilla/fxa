@@ -2737,6 +2737,12 @@ const convictConf = convict({
       env: 'PASSKEYS__PRF_SALT',
       format: String,
     },
+    requestPrfAtAuthentication: {
+      default: 'off',
+      doc: 'Scope of the WebAuthn PRF request at sign-in. "off" (kill switch) never requests PRF; "keys-required" requests it only for keys-required (Sync) sign-ins; "all" requests it for every passkey sign-in. Validated/normalized in buildPasskeyConfig (invalid → "off"); String format here so a bad value cannot crash startup.',
+      env: 'PASSKEYS__REQUEST_PRF_AT_AUTHENTICATION',
+      format: String,
+    },
   },
   twilio: {
     credentialMode: {

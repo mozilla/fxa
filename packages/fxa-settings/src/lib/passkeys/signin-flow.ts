@@ -33,11 +33,15 @@ import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import { queryParamsToMetricsContext } from '../metrics';
 import type { QueryParams } from '../..';
 import {
-  getCredential,
   handleWebAuthnError,
   isWebAuthnSupported,
   type PublicKeyCredentialJSON,
 } from './';
+import {
+  extractPrfSupport,
+  getCredentialWithPrfFallback,
+  stripPrfResults,
+} from './prf-fallback';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 
@@ -374,18 +378,39 @@ export function usePasskeySignIn({
     setIsLoading(true);
     gleanEvents.submit();
 
+    // True when this login still needs Sync-scoped keys that a follow-up
+    // password step will provide. Computed up front so it can also hint the
+    // server whether to request PRF under the keys-required scope; reused below
+    // to route to the password step.
+    const keysRequired = integration.requiresPasswordForLogin(
+      supportsKeysOptionalLogin
+    );
+
     try {
       // Discoverable credentials only — the Signin page's email field is
       // intentionally ignored. The browser surfaces all credentials for the
-      // RP and the user picks one.
-      const challengeOptions = await authClient.beginPasskeyAuthentication();
+      // RP and the user picks one. The keysRequired hint lets the server decide
+      // whether to attach the PRF extension to the returned options.
+      const challengeOptions = await authClient.beginPasskeyAuthentication({
+        keysRequired,
+      });
 
       // Isolated try/catch so a network-layer TypeError (e.g. fetch failure)
       // from surrounding auth-client calls can't be miscategorised as a
       // WebAuthn error.
       let credential: PublicKeyCredentialJSON;
       try {
-        credential = await getCredential(challengeOptions);
+        // If the server attached PRF and the first attempt fails in a way PRF
+        // could have caused, retry once without PRF (never blocks sign-in).
+        credential = await getCredentialWithPrfFallback(
+          challengeOptions,
+          undefined,
+          ({ reason, outcome }) => {
+            GleanMetrics.passkey.signinRetryWithoutPrfRequest({
+              event: { reason, outcome },
+            });
+          }
+        );
       } catch (err) {
         if (err instanceof DOMException || err instanceof TypeError) {
           const categorized = handleWebAuthnError(
@@ -408,22 +433,30 @@ export function usePasskeySignIn({
         throw err;
       }
 
+      // Read support (presence only) before stripping the output from the
+      // credential; only meaningful when the server requested PRF.
+      const prfRequested = !!challengeOptions.extensions?.prf;
+      const prfSupported = prfRequested && extractPrfSupport(credential);
+      if (prfRequested) {
+        GleanMetrics.passkey.signinPrfSupport({
+          event: { supported: prfSupported ? 'present' : 'absent' },
+        });
+      }
+      credential = stripPrfResults(credential);
+
       const serviceForRequest = resolvePasskeyService(integration);
       const metricsContext = queryParamsToMetricsContext(flowQueryParams);
 
-      const keysRequired = integration.requiresPasswordForLogin(
-        supportsKeysOptionalLogin
-      );
       const completion = await authClient.completePasskeyAuthentication(
         credential,
         challengeOptions.challenge,
         {
           ...(serviceForRequest ? { service: serviceForRequest } : {}),
-          // True when this login still needs Sync-scoped keys that a
-          // follow-up password step will provide. The server uses it to
-          // defer its login metrics/email framing until keys exist; the
-          // client uses the same value below to route to that step.
+          // The server uses keysRequired to defer its login metrics/email
+          // framing until keys exist; the client uses the same value below to
+          // route to that step.
           keysRequired,
+          ...(prfRequested ? { prfSupported } : {}),
           metricsContext,
         }
       );

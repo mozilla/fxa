@@ -382,13 +382,21 @@ export class PasskeyHandler {
    * browser. No email or uid is accepted in the request body — discoverable
    * credentials only.
    *
-   * @param request - Unauthenticated Hapi request.
+   * @param request - Unauthenticated Hapi request. An optional `keysRequired`
+   *   flag in the payload lets the server decide, under the `keys-required`
+   *   PRF scope, whether to request the PRF extension in the returned options.
    * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
    */
   async authenticationStart(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthStart');
 
-    const options = await this.service.generateAuthenticationChallenge();
+    const { keysRequired } = (request.payload ?? {}) as {
+      keysRequired?: boolean;
+    };
+
+    const options = await this.service.generateAuthenticationChallenge({
+      keysRequired,
+    });
 
     this.glean.passkey.authenticationStarted(request);
 
@@ -403,24 +411,29 @@ export class PasskeyHandler {
    * with flags the UI needs to drive the post-login flow.
    *
    * @param request - Unauthenticated Hapi request containing `response`,
-   *   `challenge`, and optional `service` / `keysRequired` in the payload.
+   *   `challenge`, and optional `service` / `keysRequired` / `prfSupported` in
+   *   the payload.
    * @returns Session token, uid, `verified`, and `hasPassword`.
    */
   async authenticationFinish(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthFinish');
 
-    const { response, challenge, service, keysRequired } = request.payload as {
-      response: AuthenticationResponseJSON;
-      challenge: string;
-      service?: string;
-      keysRequired: boolean;
-    };
+    const { response, challenge, service, keysRequired, prfSupported } =
+      request.payload as {
+        response: AuthenticationResponseJSON;
+        challenge: string;
+        service?: string;
+        keysRequired: boolean;
+        prfSupported?: boolean;
+      };
 
     let uid: string;
     try {
       ({ uid } = await this.service.verifyAuthenticationResponse(
         response,
-        challenge
+        challenge,
+        undefined,
+        prfSupported
       ));
     } catch (err) {
       await recordSecurityEvent('account.passkey.authentication_failure', {
@@ -906,6 +919,12 @@ export const passkeyRoutes = (
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_START_POST,
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
+        validate: {
+          payload: isA.object({
+            // Hint for the keys-required PRF scope; omitted = not keys-required.
+            keysRequired: isA.boolean().optional(),
+          }),
+        },
         response: {
           schema: isA.object({
             challenge: isA.string().required(),
@@ -949,16 +968,17 @@ export const passkeyRoutes = (
                     signature: base64urlString(1024).required(),
                     userHandle: base64urlString(128).optional(),
                   })
-                  .unknown(true)
                   .required(),
               })
-              .unknown(true)
               .required(),
             challenge: base64urlChallenge().required(),
             service: validators.service.optional(),
             // When true, this login still needs Sync-scoped keys obtained via a
             // follow-up step, so the server defers login notifications/metrics.
             keysRequired: isA.boolean().required(),
+            // Whether the browser returned a PRF output at get(); rolls
+            // prfEnabled forward. Never the PRF output itself.
+            prfSupported: isA.boolean().optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },

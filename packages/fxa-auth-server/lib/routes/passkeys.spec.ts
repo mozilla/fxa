@@ -1092,7 +1092,19 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.generateAuthenticationChallenge
-      ).toHaveBeenCalledWith();
+      ).toHaveBeenCalledWith({ keysRequired: undefined });
+    });
+
+    it('forwards the keysRequired hint from the payload to the service', async () => {
+      await runTest('/passkey/authentication/start', {
+        auth: { credentials: {} },
+        payload: { keysRequired: true },
+        app: { ua: {} },
+      });
+
+      expect(
+        mockPasskeyService.generateAuthenticationChallenge
+      ).toHaveBeenCalledWith({ keysRequired: true });
     });
 
     it('records glean.passkey.authenticationStarted with the request', async () => {
@@ -1154,7 +1166,12 @@ describe('passkeys routes', () => {
 
       expect(
         mockPasskeyService.verifyAuthenticationResponse
-      ).toHaveBeenCalledWith(payload.response, payload.challenge);
+      ).toHaveBeenCalledWith(
+        payload.response,
+        payload.challenge,
+        undefined,
+        undefined
+      );
       expect(db.createPasskeyVerifiedSessionToken).toHaveBeenCalledWith(
         expect.objectContaining({ uid: UID })
       );
@@ -1164,6 +1181,23 @@ describe('passkeys routes', () => {
         verified: true,
         hasPassword: true,
       });
+    });
+
+    it('forwards prfSupported from the payload to verifyAuthenticationResponse', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload: { ...payload, prfSupported: true },
+      });
+
+      expect(
+        mockPasskeyService.verifyAuthenticationResponse
+      ).toHaveBeenCalledWith(
+        payload.response,
+        payload.challenge,
+        undefined,
+        true
+      );
     });
 
     it('sets hasPassword false for passwordless accounts', async () => {

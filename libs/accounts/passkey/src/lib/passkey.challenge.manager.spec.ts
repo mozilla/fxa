@@ -37,6 +37,7 @@ function makeConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     rpId: 'accounts.firefox.com',
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
     ...overrides,
   });
 

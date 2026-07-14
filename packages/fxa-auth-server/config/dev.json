@@ -470,6 +470,7 @@
     "registrationEnabled": true,
     "authenticationEnabled": true,
     "requestPrfAtRegistration": true,
+    "requestPrfAtAuthentication": "all",
     "prfSalt": "dGVzdC1wcmYtc2FsdA",
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]

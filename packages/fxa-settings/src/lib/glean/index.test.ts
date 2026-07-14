@@ -13,6 +13,7 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
@@ -829,6 +830,36 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventNameStub, 'passkey_auth_success');
         sinon.assert.calledOnce(setEventReasonStub);
         sinon.assert.calledWith(setEventReasonStub, reason);
+      });
+
+      it('submits passkey_signin_prf_support with the supported extra', async () => {
+        const spy = sandbox.spy(passkey.signinPrfSupport, 'record');
+        GleanMetrics.passkey.signinPrfSupport({
+          event: { supported: 'present' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'passkey_signin_prf_support');
+        sinon.assert.calledOnceWithExactly(spy, {
+          supported: 'present',
+        });
+      });
+
+      it('submits passkey_signin_retry_without_prf_request with reason and outcome', async () => {
+        const spy = sandbox.spy(passkey.signinRetryWithoutPrfRequest, 'record');
+        GleanMetrics.passkey.signinRetryWithoutPrfRequest({
+          event: { reason: 'UnknownError', outcome: 'success' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_signin_retry_without_prf_request'
+        );
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'UnknownError',
+          outcome: 'success',
+        });
       });
     });
 

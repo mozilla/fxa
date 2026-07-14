@@ -21,6 +21,7 @@ import {
   PasskeyRecord,
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
+  updatePasskeyPrfEnabled,
 } from './passkey.repository';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import { AppError } from '@fxa/accounts/errors';
@@ -162,6 +163,28 @@ export class PasskeyManager {
       uid,
       credentialId,
       newName
+    );
+    return rowsUpdated > 0;
+  }
+
+  /**
+   * Roll a passkey's `prfEnabled` flag forward from false to true.
+   *
+   * Monotonic: never flips an already-true flag back to false. Both uid and
+   * credentialId must match to prevent one user from flipping another user's
+   * passkey.
+   *
+   * @returns true if the flag was rolled false→true; false if it was already
+   *   true, the credential was not found, or it belongs to another user.
+   */
+  async setPasskeyPrfEnabled(
+    uid: string,
+    credentialId: string
+  ): Promise<boolean> {
+    const rowsUpdated = await updatePasskeyPrfEnabled(
+      this.db,
+      uid,
+      credentialId
     );
     return rowsUpdated > 0;
   }

@@ -4,12 +4,16 @@
 
 import {
   createCredentialWithPrfFallback,
+  getCredentialWithPrfFallback,
+  extractPrfSupport,
   isRetriableWithoutPrf,
   stripPrfExtension,
+  stripPrfResults,
 } from './prf-fallback';
-import { createCredential } from './webauthn';
+import { createCredential, getCredential } from './webauthn';
 import type {
   PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
   PublicKeyCredentialJSON,
 } from './webauthn';
 
@@ -18,6 +22,9 @@ import type {
 jest.mock('./webauthn');
 const mockCreateCredential = createCredential as jest.MockedFunction<
   typeof createCredential
+>;
+const mockGetCredential = getCredential as jest.MockedFunction<
+  typeof getCredential
 >;
 
 const PRF_SALT = 'dGVzdC1wcmYtc2FsdA';
@@ -291,5 +298,138 @@ describe('createCredentialWithPrfFallback', () => {
     );
 
     expect(onPrfFallback).not.toHaveBeenCalled();
+  });
+});
+
+const requestOptionsWithPrf: PublicKeyCredentialRequestOptionsJSON = {
+  challenge: 'Y2hhbGxlbmdl',
+  userVerification: 'required',
+  extensions: { prf: { eval: { first: PRF_SALT } } },
+};
+
+const assertionResult: PublicKeyCredentialJSON = {
+  id: 'bW9jay1pZA',
+  rawId: 'bW9jay1yYXctaWQ',
+  type: 'public-key',
+  response: {
+    clientDataJSON: 'bW9jay1jbGllbnQtZGF0YQ',
+    authenticatorData: 'bW9jay1hdXRoLWRhdGE',
+    signature: 'bW9jay1zaWduYXR1cmU',
+  },
+  clientExtensionResults: {},
+};
+
+const assertionWithPrfOutput: PublicKeyCredentialJSON = {
+  ...assertionResult,
+  clientExtensionResults: { prf: { results: { first: new ArrayBuffer(32) } } },
+};
+
+describe('getCredentialWithPrfFallback', () => {
+  it('returns the credential from the first attempt without retrying on success', async () => {
+    mockGetCredential.mockResolvedValueOnce(assertionWithPrfOutput);
+
+    const result = await getCredentialWithPrfFallback(requestOptionsWithPrf);
+
+    expect(result).toBe(assertionWithPrfOutput);
+    expect(mockGetCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries once without PRF on a retriable UnknownError', async () => {
+    mockGetCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockResolvedValueOnce(assertionResult);
+
+    const result = await getCredentialWithPrfFallback(requestOptionsWithPrf);
+
+    expect(result).toBe(assertionResult);
+    expect(mockGetCredential).toHaveBeenCalledTimes(2);
+    const [retriedOptions] = mockGetCredential.mock.calls[1];
+    expect(retriedOptions.extensions ?? {}).not.toHaveProperty('prf');
+  });
+
+  it('does not retry when the options carried no PRF extension', async () => {
+    const noPrf: PublicKeyCredentialRequestOptionsJSON = {
+      ...requestOptionsWithPrf,
+      extensions: undefined,
+    };
+    mockGetCredential.mockRejectedValueOnce(
+      new DOMException('transient', 'UnknownError')
+    );
+
+    await expect(getCredentialWithPrfFallback(noPrf)).rejects.toThrow(
+      'transient'
+    );
+    expect(mockGetCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry a user-cancel (NotAllowedError) and rethrows it', async () => {
+    const cancel = new DOMException('cancelled', 'NotAllowedError');
+    mockGetCredential.mockRejectedValueOnce(cancel);
+
+    await expect(
+      getCredentialWithPrfFallback(requestOptionsWithPrf)
+    ).rejects.toBe(cancel);
+    expect(mockGetCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports the retry outcome to onPrfFallback', async () => {
+    const onPrfFallback = jest.fn();
+    mockGetCredential
+      .mockRejectedValueOnce(new DOMException('transient', 'UnknownError'))
+      .mockResolvedValueOnce(assertionResult);
+
+    await getCredentialWithPrfFallback(
+      requestOptionsWithPrf,
+      undefined,
+      onPrfFallback
+    );
+
+    expect(onPrfFallback).toHaveBeenCalledWith({
+      reason: 'UnknownError',
+      outcome: 'success',
+    });
+  });
+});
+
+describe('extractPrfSupport', () => {
+  it('returns true when the get() output carries a PRF result', () => {
+    expect(extractPrfSupport(assertionWithPrfOutput)).toBe(true);
+  });
+
+  it('returns false when there is no PRF result', () => {
+    expect(extractPrfSupport(assertionResult)).toBe(false);
+  });
+
+  it('returns false when prf is present but results are absent', () => {
+    expect(
+      extractPrfSupport({
+        ...assertionResult,
+        clientExtensionResults: { prf: {} },
+      })
+    ).toBe(false);
+  });
+});
+
+describe('stripPrfResults', () => {
+  it('removes the prf results from clientExtensionResults', () => {
+    const stripped = stripPrfResults(assertionWithPrfOutput);
+    expect(stripped.clientExtensionResults).not.toHaveProperty('prf');
+  });
+
+  it('preserves other clientExtensionResults entries', () => {
+    const stripped = stripPrfResults({
+      ...assertionResult,
+      clientExtensionResults: {
+        prf: { results: { first: new ArrayBuffer(8) } },
+        credProps: { rk: true },
+      },
+    });
+    expect(stripped.clientExtensionResults).toEqual({
+      credProps: { rk: true },
+    });
+  });
+
+  it('returns the same reference when there is no prf result', () => {
+    expect(stripPrfResults(assertionResult)).toBe(assertionResult);
   });
 });

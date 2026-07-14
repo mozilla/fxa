@@ -27,6 +27,7 @@ import {
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
   UserVerificationRequiredError,
+  shouldRequestPrfAtAuth,
 } from './webauthn-adapter';
 import { AppError } from '@fxa/accounts/errors';
 
@@ -404,13 +405,17 @@ export class PasskeyService {
   /**
    * Generate WebAuthn authentication (assertion) options.
    *
-   * @param uid - Optional user ID. When provided, restricts authentication to
-   *   the user's registered credentials (known-user flow).
+   * @param options.uid - Optional user ID. When provided, restricts
+   *   authentication to the user's registered credentials (known-user flow).
+   * @param options.keysRequired - Whether this sign-in is a keys-required
+   *   (Sync) flow, used to decide whether to request PRF under the
+   *   `keys-required` scope. Defaults to false.
    * @returns WebAuthn authentication options
    */
   async generateAuthenticationChallenge(
-    uid?: string
+    options: { uid?: string; keysRequired?: boolean } = {}
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    const { uid, keysRequired = false } = options;
     const challenge =
       await this.challengeManager.generateAuthenticationChallenge();
 
@@ -420,9 +425,15 @@ export class PasskeyService {
       allowCredentials = passkeys.map((p) => p.credentialId);
     }
 
+    const requestPrf = shouldRequestPrfAtAuth(this.config, keysRequired);
+    if (requestPrf) {
+      this.metrics.increment('passkey.authentication.prf.requested');
+    }
+
     return await generateWebauthnAuthenticationOptions(this.config, {
       challenge,
       allowCredentials,
+      requestPrf,
     });
   }
 
@@ -433,6 +444,8 @@ export class PasskeyService {
    * @param challenge - The challenge that was issued for this authentication.
    * @param expectedUid - Optional expected user ID. When provided, verifies that
    * the authenticating passkey belongs to this user.
+   * @param prfSupported - Whether the browser returned a PRF output at `get()`;
+   * when true, rolls `prfEnabled` forward false→true.
    * @returns Authentication result containing the uid of the authenticated user.
    * @throws {AppError} passkeyNotFound if the credential is not registered.
    * @throws {AppError} passkeyChallengeExpired if the challenge is invalid or expired.
@@ -442,7 +455,8 @@ export class PasskeyService {
   async verifyAuthenticationResponse(
     response: AuthenticationResponseJSON,
     challenge: string,
-    expectedUid?: string
+    expectedUid?: string,
+    prfSupported?: boolean
   ): Promise<AuthenticationResult> {
     const credentialId = response.id;
 
@@ -537,6 +551,27 @@ export class PasskeyService {
 
     this.metrics.increment('passkey.authentication.success');
     this.log?.log('passkey.authenticated', { uid });
+
+    // Best-effort roll-forward of newly detected PRF capability; a failure must
+    // never fail a verified sign-in. The guard skips a write when already set.
+    if (prfSupported && !passkey.prfEnabled) {
+      try {
+        const applied = await this.passkeyManager.setPasskeyPrfEnabled(
+          uid,
+          credentialId
+        );
+        this.metrics.increment(
+          applied
+            ? 'passkey.authentication.prf.update_applied'
+            : 'passkey.authentication.prf.update_noop'
+        );
+      } catch (err) {
+        Sentry.captureException(err);
+        this.metrics.increment('passkey.authentication.prf.update_failed', {
+          reason: 'dbError',
+        });
+      }
+    }
 
     return { uid };
   }

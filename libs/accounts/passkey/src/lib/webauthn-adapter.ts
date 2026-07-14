@@ -26,6 +26,30 @@ import { uuidTransformer } from '@fxa/shared/db/mysql/core';
 import { PasskeyConfig } from './passkey.config';
 
 /**
+ * Whether to request the PRF extension at sign-in. Requires a configured salt
+ * (an empty PRF eval is rejected by some authenticators, FXA-13991) and honours
+ * the scope; `keysRequired` only matters under the `keys-required` scope. This
+ * is the single gate — the returned boolean matches the options actually built.
+ */
+export function shouldRequestPrfAtAuth(
+  config: Pick<PasskeyConfig, 'requestPrfAtAuthentication' | 'prfSalt'>,
+  keysRequired: boolean
+): boolean {
+  if (!config.prfSalt) {
+    return false;
+  }
+  switch (config.requestPrfAtAuthentication) {
+    case 'all':
+      return true;
+    case 'keys-required':
+      return keysRequired;
+    case 'off':
+    default:
+      return false;
+  }
+}
+
+/**
  * A credential to exclude from a registration ceremony. When forwarded to the
  * authenticator, the browser surfaces a native "already registered" prompt
  * instead of completing the ceremony.
@@ -231,6 +255,8 @@ export interface AuthenticationOptionsInput {
    * Pass an empty array for usernameless/discoverable flows.
    */
   allowCredentials: string[];
+  /** When true (and a `prfSalt` is configured), request the PRF extension. */
+  requestPrf?: boolean;
 }
 
 /**
@@ -253,6 +279,16 @@ export async function generateWebauthnAuthenticationOptions(
       input.allowCredentials.length > 0
         ? input.allowCredentials.map((id) => ({ id }))
         : undefined,
+    // `eval` (single salt) fits the discoverable flow; an allow-listed ceremony
+    // could use `evalByCredential`. Gated on a salt like registration — an empty
+    // eval breaks Windows Hello (FXA-13991). Cast: bundled type predates PRF.
+    ...(input.requestPrf && config.prfSalt
+      ? {
+          extensions: {
+            prf: { eval: { first: config.prfSalt } },
+          } as AuthenticationExtensionsClientInputs,
+        }
+      : {}),
   });
 }
 

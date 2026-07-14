@@ -99,6 +99,7 @@ describe('PasskeyService', () => {
     findPasskeyByCredentialId: jest.fn(),
     updatePasskeyAfterAuth: jest.fn(),
     renamePasskey: jest.fn(),
+    setPasskeyPrfEnabled: jest.fn(),
     deletePasskey: jest.fn(),
   };
 
@@ -128,6 +129,7 @@ describe('PasskeyService', () => {
     residentKey: 'required',
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
   });
 
   beforeEach(async () => {
@@ -631,6 +633,7 @@ describe('PasskeyService', () => {
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [],
+        requestPrf: false,
       });
     });
 
@@ -642,7 +645,7 @@ describe('PasskeyService', () => {
     it('includes user credential IDs in allowCredentials when uid is provided', async () => {
       mockManager.listPasskeysForUser.mockResolvedValue([mockPasskey]);
 
-      await service.generateAuthenticationChallenge(MOCK_UID);
+      await service.generateAuthenticationChallenge({ uid: MOCK_UID });
 
       expect(mockManager.listPasskeysForUser).toHaveBeenCalledWith(MOCK_UID);
       expect(
@@ -650,20 +653,105 @@ describe('PasskeyService', () => {
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [MOCK_CREDENTIAL_ID],
+        requestPrf: false,
       });
     });
 
     it('passes empty allowCredentials when user has no passkeys', async () => {
       mockManager.listPasskeysForUser.mockResolvedValue([]);
 
-      await service.generateAuthenticationChallenge(MOCK_UID);
+      await service.generateAuthenticationChallenge({ uid: MOCK_UID });
 
       expect(
         webauthnAdapter.generateWebauthnAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [],
+        requestPrf: false,
       });
+    });
+
+    it('requests PRF and increments passkey.authentication.prf.requested under the all scope', async () => {
+      const configAll = new PasskeyConfig({
+        ...mockConfig,
+        requestPrfAtAuthentication: 'all',
+        prfSalt: 'dGVzdC1wcmYtc2FsdA',
+      });
+      const serviceAll = new PasskeyService(
+        mockManager as unknown as PasskeyManager,
+        mockChallengeManager as unknown as PasskeyChallengeManager,
+        configAll,
+        mockMetrics as never,
+        mockLogger as never
+      );
+
+      await serviceAll.generateAuthenticationChallenge({ keysRequired: false });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(configAll, {
+        challenge: MOCK_CHALLENGE,
+        allowCredentials: [],
+        requestPrf: true,
+      });
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.authentication.prf.requested'
+      );
+    });
+
+    it('does not request PRF (or increment the metric) when no salt is configured', async () => {
+      const configNoSalt = new PasskeyConfig({
+        ...mockConfig,
+        requestPrfAtAuthentication: 'all',
+        prfSalt: '',
+      });
+      const serviceNoSalt = new PasskeyService(
+        mockManager as unknown as PasskeyManager,
+        mockChallengeManager as unknown as PasskeyChallengeManager,
+        configNoSalt,
+        mockMetrics as never,
+        mockLogger as never
+      );
+
+      await serviceNoSalt.generateAuthenticationChallenge({
+        keysRequired: true,
+      });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(
+        configNoSalt,
+        expect.objectContaining({ requestPrf: false })
+      );
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.authentication.prf.requested'
+      );
+    });
+
+    it('requests PRF under keys-required scope only when keysRequired is true', async () => {
+      const configKeysRequired = new PasskeyConfig({
+        ...mockConfig,
+        requestPrfAtAuthentication: 'keys-required',
+        prfSalt: 'dGVzdC1wcmYtc2FsdA',
+      });
+      const serviceKeysRequired = new PasskeyService(
+        mockManager as unknown as PasskeyManager,
+        mockChallengeManager as unknown as PasskeyChallengeManager,
+        configKeysRequired,
+        mockMetrics as never,
+        mockLogger as never
+      );
+
+      await serviceKeysRequired.generateAuthenticationChallenge({
+        keysRequired: true,
+      });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(
+        configKeysRequired,
+        expect.objectContaining({ requestPrf: true })
+      );
     });
   });
 
@@ -883,6 +971,89 @@ describe('PasskeyService', () => {
         'passkey.authentication.failed',
         { reason: 'updateFailed' }
       );
+    });
+
+    describe('PRF roll-forward', () => {
+      it('rolls prfEnabled forward when prfSupported is true and the flag is currently false', async () => {
+        mockManager.setPasskeyPrfEnabled.mockResolvedValue(true);
+
+        const result = await service.verifyAuthenticationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          undefined,
+          true
+        );
+
+        expect(result).toEqual({ uid: MOCK_UID });
+        expect(mockManager.setPasskeyPrfEnabled).toHaveBeenCalledWith(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID
+        );
+        expect(mockMetrics.increment).toHaveBeenCalledWith(
+          'passkey.authentication.prf.update_applied'
+        );
+      });
+
+      it('does not attempt a roll-forward when prfSupported is false', async () => {
+        await service.verifyAuthenticationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          undefined,
+          false
+        );
+
+        expect(mockManager.setPasskeyPrfEnabled).not.toHaveBeenCalled();
+      });
+
+      it('does not attempt a roll-forward when the flag is already true (in-memory guard)', async () => {
+        mockManager.findPasskeyByCredentialId.mockResolvedValue({
+          ...mockPasskey,
+          prfEnabled: true,
+        });
+
+        await service.verifyAuthenticationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          undefined,
+          true
+        );
+
+        expect(mockManager.setPasskeyPrfEnabled).not.toHaveBeenCalled();
+      });
+
+      it('increments update_noop when the row was already flipped by a concurrent write', async () => {
+        mockManager.setPasskeyPrfEnabled.mockResolvedValue(false);
+
+        await service.verifyAuthenticationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          undefined,
+          true
+        );
+
+        expect(mockMetrics.increment).toHaveBeenCalledWith(
+          'passkey.authentication.prf.update_noop'
+        );
+      });
+
+      it('still returns uid and never fails sign-in when the roll-forward rejects', async () => {
+        mockManager.setPasskeyPrfEnabled.mockRejectedValue(
+          new Error('db down')
+        );
+
+        const result = await service.verifyAuthenticationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          undefined,
+          true
+        );
+
+        expect(result).toEqual({ uid: MOCK_UID });
+        expect(mockMetrics.increment).toHaveBeenCalledWith(
+          'passkey.authentication.prf.update_failed',
+          { reason: 'dbError' }
+        );
+      });
     });
   });
 
