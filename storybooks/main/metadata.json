@@ -1,8 +1,8 @@
 {
-  "commit": "f073f19008454ece119895867fae6ab1b14e0216",
-  "summary": "Merge pull request #20828 from mozilla/FXA-14047.2",
-  "description": "bug(settings): Make sure that PostVerify/SetPassword is aligned with Signup/Setpassword",
-  "timestamp": 1784062087000,
+  "commit": "67cd1e2443057dffdccb48eca277917e3746f53d",
+  "summary": "Merge pull request #20867 from mozilla/fix-block-duration-value",
+  "description": "bug(rate-limit): Fix value for blockDurationSeconds.",
+  "timestamp": 1784068725000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
