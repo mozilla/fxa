@@ -1,8 +1,8 @@
 {
-  "commit": "212b7615bdb1c93f4bc06cbd37ce384b62db4be3",
+  "commit": "d4ae28374821abc6e8dc5eb557450a68a0691940",
   "summary": "fix(settings): match passkey password-fallback error handling to sign-in",
   "description": "Because:\n- The passkey password fallback diverged from the sign-in page: incorrect\n  passwords showed in a blocking banner, Continue could be re-clicked with\n  the same wrong password, and editing the field did not clear the error.\n\nThis commit:\n- Routes password-validation and incorrect-password errors to an inline\n  field tooltip and all other errors to the banner; keeps Continue disabled\n  after a wrong password until the field is edited and clears the tooltip on\n  edit; shows a client-side \"Valid password required\" tooltip on empty\n  submit.\n- Has onContinue return a classified error so the component owns the\n  tooltip/banner surfaces instead of the container.\n- Relabels the post-reauth navigation-failure metric reason to\n  'navigation_error' (was 'server_error') and drops the unreachable\n  PASSWORD_REQUIRED (1010) routing branch.\n\nIssue #FXA-14131",
-  "timestamp": 1784065074000,
+  "timestamp": 1784065834000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
