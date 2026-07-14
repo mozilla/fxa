@@ -1,0 +1,10 @@
+{
+  "commit": "01254e252e7b4ff7b6b56fec4c7e1b7ab1d82ee8",
+  "summary": "bug(rate-limit): Ensure currentAttempts is populated correctly",
+  "description": "",
+  "timestamp": 1784066776000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
