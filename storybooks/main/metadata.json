@@ -1,8 +1,8 @@
 {
-  "commit": "864c8ce666c49cef282b363a345f00140c66c542",
-  "summary": "Merge pull request #20856 from mozilla/dependabot/npm_and_yarn/browserslist-4.28.4",
-  "description": "chore(deps): bump browserslist from 4.25.1 to 4.28.4",
-  "timestamp": 1784042527000,
+  "commit": "0003455041ec0442c8be3812f64b1107b71a2e4c",
+  "summary": "Merge pull request #20853 from mozilla/sec-audit-fresh-totp",
+  "description": "fix(auth-server): reset recovery methods when starting TOTP setup",
+  "timestamp": 1784045000000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
