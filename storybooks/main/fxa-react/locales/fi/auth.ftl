@@ -191,10 +191,12 @@ freeTrialEndingReminder-subject = Ilmainen { $productName } -kokeilujaksosi pä�
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Arvoisa { $productName } -asiakas
+freeTrialEndingReminder-content-trial-ending-plaintext = Ilmainen kokeilujaksosi päättyy { $serviceLastActiveDateOnly }.
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
 freeTrialEndingReminder-content-charge-subscription = { $productName }-tilaus: { $invoiceSubtotal }
+freeTrialEndingReminder-content-charge-subscription-2 = { $productName } -tilaus
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
 freeTrialEndingReminder-content-charge-discount = Alennus: { $invoiceDiscountAmount }
@@ -263,6 +265,15 @@ subscriptionDowngrade-content-charge-info = Seuraavasta laskustasi alkaen veloit
 # $productName (String) - The name of the new subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-content-install = Jos { $productName }:n käyttämistä varten on asennettavissa uusi ohjelmisto, saat erillisen sähköpostiviestin, joka sisältää latausohjeet.
 subscriptionDowngrade-content-auto-renew = Tilaus uusiutuu automaattisesti joka laskutuskauden päätteeksi, ellet peru tilausta.
+subscriptionEndingReminder-content-closing = Kiitos, että olet tilaaja!
+subscriptionEndingReminder-churn-title = Haluatko säilyttää käyttöoikeuden?
+subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingReminder-churn-terms">Rajoitetut ehdot ja rajoitukset ovat voimassa</a>
+# Variables:
+#  $churnTermsUrlWithUtm (String) - URL to the terms and restrictions page applied to this promotion
+subscriptionEndingReminder-churn-terms-plaintext = Rajoitetut ehdot ja rajoitukset ovat voimassa: { $churnTermsUrlWithUtm }
+# Variables:
+#  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
+subscriptionEndingReminder-content-support-plaintext = Ota yhteyttä tukitiimiimme: { $subscriptionSupportUrlWithUtm }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFailedPaymentsCancellation-subject = { $productName } -tilauksesi on peruttu
@@ -281,6 +292,9 @@ subscriptionFirstInvoice-content-processing = Maksuasi käsitellään parhaillaa
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFirstInvoice-content-install-2 = Saat erillisen sähköpostin { $productName } -palvelun käytön aloittamisesta.
 subscriptionFirstInvoice-content-auto-renew = Tilaus uusiutuu automaattisesti joka laskutuskauden päätteeksi, ellet peru tilausta.
+# Variables:
+#  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
+subscriptionFirstInvoice-content-your-next-invoice = Seuraava laskusi lähetetään { $nextInvoiceDateOnly }.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentExpired-subject-2 = Maksutapa tuotteelle { $productName } on vanhentunut tai vanhenee pian
@@ -301,7 +315,16 @@ subscriptionPaymentProviderCancelled-title = Valitettavasti valitsemasi maksutav
 subscriptionPaymentProviderCancelled-content-detect = Havaitsimme ongelman { $productName }:n kanssa käyttämäsi maksutavan kohdalla.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = { $productName } -tilauksesi on aktivoitu uudelleen
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = { $productName } -kokeilujaksosi on aktivoitu uudelleen
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Kiitos että aktivoit { $productName } -tilauksen uudelleen!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = Kiitos { $productName } -kokeilujakson uudelleenaktivoinnista!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
@@ -313,6 +336,9 @@ subscriptionRenewalReminder-title = Tilauksesi uusitaan pian
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionRenewalReminder-content-greeting = Arvoisa { $productName } -asiakas
+# Variables
+#   $reminderLength (String) - The number of days until the current subscription is set to automatically renew, e.g. 14
+subscriptionRenewalReminder-content-intro = Nykyinen tilauksesi uusiutuu automaattisesti { $reminderLength } päivän kuluttua.
 subscriptionRenewalReminder-content-closing = Terveisin
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -326,6 +352,9 @@ subscriptionSubsequentInvoice-title = Kiitos siitä, että olet tilaaja!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionSubsequentInvoice-content-received = Vastaanotimme viimeisimmän maksusi { $productName }:stä.
+# Variables:
+#  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
+subscriptionSubsequentInvoice-content-your-next-invoice = Seuraava laskusi lähetetään { $nextInvoiceDateOnly }.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionUpgrade-subject = Olet päivittänyt tuotteeseen { $productName }
@@ -341,6 +370,19 @@ subscriptionUpgrade-title = Kiitos, että päivitit!
 ## $invoiceAmountDue (String) - The total that the customer owes after all credits, discounts, and taxes have been applied
 ## $paymentProrated (String) - The one time fee to reflect the higher charge for the remainder of the payment cycle, including currency, e.g. $10.00
 
+subscriptionUpgrade-content-subscription-next-bill-change = Seuraavasta laskusta alkaen tilauksesi hinta muuttuu.
+subscriptionUpgrade-content-old-price-day = Aiempi hinta oli { $paymentAmountOld } päivässä.
+subscriptionUpgrade-content-old-price-week = Aiempi hinta oli { $paymentAmountOld } viikossa.
+subscriptionUpgrade-content-old-price-month = Aiempi hinta oli { $paymentAmountOld } kuukaudessa.
+subscriptionUpgrade-content-old-price-halfyear = Aiempi hinta oli { $paymentAmountOld } kuudelta kuukaudelta.
+subscriptionUpgrade-content-old-price-year = Aiempi hinta oli { $paymentAmountOld } vuodessa.
+subscriptionUpgrade-content-old-price-default = Aiempi hinta oli { $paymentAmountOld } laskutusväliä kohden.
+subscriptionUpgrade-content-old-price-day-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero päivässä.
+subscriptionUpgrade-content-old-price-week-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero viikossa.
+subscriptionUpgrade-content-old-price-month-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero kuukaudessa.
+subscriptionUpgrade-content-old-price-halfyear-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero kuudelta kuukaudelta.
+subscriptionUpgrade-content-old-price-year-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero vuodessa.
+subscriptionUpgrade-content-old-price-default-tax = Aiempi hinta oli { $paymentAmountOld } + { $paymentTaxOld } vero laskutusväliä kohden.
 subscriptionUpgrade-auto-renew = Tilaus uusiutuu automaattisesti joka laskutuskauden päätteeksi, ellet peru tilausta.
 subscriptionsPaymentExpired-subject-2 = Tilaustesi maksutapa on vanhentunut tai vanhenee pian
 subscriptionsPaymentExpired-title-2 = Maksutapasi on vanhentunut tai vanhenemassa
