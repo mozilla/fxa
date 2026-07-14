@@ -19,6 +19,7 @@ next-payment-method-first-approve = Sinun on ensin hyväksyttävä tilauksesi
 ## Error page
 
 error-page-account-not-found-heading = Tiliä ei löytynyt
+error-page-account-not-found-message = Istuntoosi liittyvää tiliä ei ole olemassa. Käytä toista tiliä tai luo uusi tilausta varten.
 error-page-account-not-found-continue-button = Jatka
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Valitse maasi ja anna postinumerosi <p>jatkaaksesi tuotteen { $productName } kanssa kassalle</p>
@@ -72,6 +73,7 @@ intent-payment-error-generic = Maksua käsitellessä tapahtui odottamaton virhe.
 intent-payment-error-insufficient-funds = Vaikuttaa siltä, että kortilla ei ole riittävästi varoja. Kokeile toista korttia.
 general-paypal-error = Maksua käsitellessä tapahtui odottamaton virhe. Yritä uudestaan.
 paypal-active-subscription-no-billing-agreement-error = Vaikuttaa siltä, että { -brand-paypal }-tilisi laskutuksessa oli ongelma. Ota automaattiset maksut uudelleen käyttöön tilauksessasi.
+new-account-prepaid-card-free-trial-not-allowed = Prepaid-kortteja ei voi käyttää ilmaisen kokeilujakson aloittamiseen uusilla tileillä. Kokeile toista maksutapaa.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
@@ -122,6 +124,7 @@ not-found-loyalty-discount-button-back-to-subscriptions = Takaisin tilauksiin
 ## Error page
 
 interstitial-offer-error-subscription-not-found-heading = Emme löytäneet aktiivista tilausta
+interstitial-offer-error-subscription-not-found-message = Vaikuttaa siltä, että tämä tilaus ei ehkä ole enää aktiivinen.
 interstitial-offer-error-customer-mismatch-heading = Tätä tilausta ei ole liitetty tiliisi
 interstitial-offer-error-general-heading = Tarjous ei ole saatavilla
 interstitial-offer-error-general-message = Vaikuttaa siltä, että tämä tarjous ei ole saatavilla tällä hetkellä.
@@ -140,6 +143,7 @@ subscription-management-nav-payment-details = Maksun tiedot
 subscription-management-nav-active-subscriptions = Aktiiviset tilaukset
 subscription-management-payment-details-heading = Maksun tiedot
 subscription-management-email-label = Sähköposti
+subscription-management-credit-balance-message = Hyvitys lisätään automaattisesti tuleviin laskuihin
 subscription-management-payment-method-label = Maksutapa
 subscription-management-button-add-payment-method-aria = Lisää maksutapa
 subscription-management-button-add-payment-method = Lisää
@@ -158,7 +162,9 @@ subscription-management-button-support = Tuki
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-support-aria = { $productName } -tuotetuki
 subscription-management-your-apple-iap-subscriptions-aria = Sovelluksen sisäiset { -brand-apple }-ostoksesi
+subscription-management-apple-in-app-purchase-2 = { -brand-apple }n sovelluksen sisäinen ostos
 subscription-management-your-google-iap-subscriptions-aria = Sovelluksen sisäiset { -brand-google }-ostoksesi
+subscription-management-google-in-app-purchase-2 = { -brand-google }n sovelluksen sisäinen ostos
 # $date (String) - Date of next bill
 subscription-management-iap-sub-expires-on-expiry-date = Vanhenee { $date }
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -180,6 +186,10 @@ page-not-found-back-button = Palaa takaisin
 ## Already Canceling
 
 already-canceling-title = Tilauksesi on asetettu päättymään
+# $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
+# $date (Date) - Last day of product access
+already-canceling-message = Voit käyttää { $productName } { $date } asti.
+already-canceling-turn-back-on = Voit ottaa tilauksesi takaisin käyttöön milloin tahansa ennen sen päättymistä.
 already-canceling-button-back-to-subscriptions = Takaisin tilauksiin
 
 ## Navigation breadcrumbs
@@ -197,9 +207,13 @@ subscription-management-breadcrumb-back-aria = Siirry takaisin sivulle { $page }
 
 subscription-cancellation-dialog-title = Jäämme kaipaamaan sinua
 subscription-cancellation-dialog-aside = Onko sinulla kysyttävää? Käy <LinkExternal>{ -brand-mozilla }-tuessa</LinkExternal>.
+# $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+cancel-subscription-heading = Peru tuotteen { $productName } tilaus
 
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
+cancel-subscription-button-cancel-subscription = Peru tilaus
+    .aria-label = Peru tuotteen { $productName } tilaus
 cancel-subscription-button-keep-subscription = Säilytä tilaus
 
 ## Component - Payment Consent Checkbox
@@ -208,20 +222,28 @@ next-payment-confirm-with-legal-links-static-3 = Valtuutan { -brand-mozilla }n v
 
 ## $endDate (Date) - The end date of the free trial
 
+checkbox-payment-required-no-charge = Maksutapa vaaditaan ilmaisen kokeilujakson aloittamiseksi. Sinua ei veloiteta ennen { $endDate }.
 next-payment-confirm-checkbox-error = Sinun on suoritettava tämä vaihe, ennen kuin jatkat eteenpäin
 
 ## Checkout Form
 
 next-new-user-submit = Tilaa nyt
 next-pay-with-heading-paypal = Maksa { -brand-paypal }illa
+free-trial-ineligible-notice = Tilisi ei ole oikeutettu ilmaiseen kokeilujaksoon. Voit jatkaa maksullisella tilauksella.
 
 ## Churn flow - cancel
 
+churn-cancel-flow-success-title = Olet edelleen tilaaja
+# $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'you’ll save 10% on your next bill', discountPercent = 10)
+churn-cancel-flow-success-message = Tilauksesi jatkuu ja säästät { $discountPercent } % seuraavasta laskustasi.
+# $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
+churn-cancel-flow-thanks-valued-subscriber = Kiitos, että käytit tuotetta { $productName }!
 churn-cancel-flow-button-back-to-subscriptions = Takaisin tilauksiin
 churn-cancel-flow-action-error = Tapahtui odottamaton virhe. Yritä uudelleen.
 # $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'Stay subscribed and save 10%', discountPercent = 10)
 churn-cancel-flow-button-stay-subscribed-and-save-discount = Pysy tilaajana ja säästä { $discountPercent } %
 churn-cancel-flow-button-stay-subscribed-and-save = Pysy tilaajana ja säästä
+churn-cancel-flow-link-terms-and-restrictions = Rajoitetut ehdot ja rajoitukset ovat voimassa
 churn-cancel-flow-discount-already-applied-title = Alennuskoodi on jo käytetty
 churn-cancel-flow-button-manage-subscriptions = Hallitse tilauksia
 churn-cancel-flow-button-contact-support = Ota yhteys tukeen
@@ -229,6 +251,7 @@ churn-cancel-flow-button-contact-support = Ota yhteys tukeen
 ## $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 
 churn-cancel-flow-subscription-active-title = { $productName }-tilauksesi on aktiivinen
+churn-cancel-flow-button-go-to-product-page = Siirry tuotteeseen { $productName }
 churn-cancel-flow-cancel-success-title = Jäämme kaipaamaan sinua
 
 ## Churn flow - stay subscribed
@@ -239,14 +262,19 @@ churn-stay-subscribed-button-stay-subscribed-and-save-discount = Pysy tilaajana 
 churn-stay-subscribed-button-stay-subscribed-and-save = Pysy tilaajana ja säästä
 churn-stay-subscribed-button-no-thanks = Ei kiitos
     .aria-label = Takaisin Tilaukset-sivulle
+churn-stay-subscribed-link-terms-and-restrictions = Rajoitetut ehdot ja rajoitukset ovat voimassa
 churn-stay-subscribed-title-offer-expired = Tämä tarjous on päättynyt
 
 ## $productName (String) - The name of the product associated with the subscription.
 
 churn-stay-subscribed-subtitle-offer-expired = Haluatko jatkaa tuotteen { $productName } käyttämistä?
+churn-stay-subscribed-message-access-will-continue = Pääsysi tuotteeseen { $productName } säilyy, ja laskutusjaksosi sekä maksusi pysyvät samoina.
 churn-stay-subscribed-title-subscription-renewed = Tilaus uusittu
 churn-stay-subscribed-title-subscription-active = { $productName }-tilauksesi on aktiivinen
+churn-stay-subscribed-thanks-valued-subscriber = Kiitos, että olet tilaaja!
+churn-stay-subscribed-button-go-to-product-page = Siirry tuotteeseen { $productName }
 churn-stay-subscribed-button-go-to-subscriptions = Siirry tilauksiin
+churn-stay-subscribed-button-stay-subscribed = Jatka tilausta
 
 ## Component - CouponForm
 
@@ -265,6 +293,7 @@ next-coupon-submit = Käytä
 ## $tax (Number) - The tax amount. It will be formatted as currency.
 
 free-trial-content-trial-expires = Ilmainen kokeilujaksosi päättyy { $date }.
+free-trial-content-trial-cancelled = Ilmainen kokeilujaksosi on peruttu.
 
 # Charge info strings - with tax, per interval
 
@@ -273,6 +302,7 @@ free-trial-content-trial-expires = Ilmainen kokeilujaksosi päättyy { $date }.
 
 free-trial-content-trial-active = Ilmainen kokeilujaksosi on aktiivinen.
 free-trial-content-action-error = Tapahtui odottamaton virhe. Yritä uudelleen.
+free-trial-content-button-resume-trial = Jatka kokeilua
 free-trial-content-button-cancel-trial = Peru kokeilujakso
 free-trial-content-button-cancel-subscription = Peru tilaus
 
@@ -287,6 +317,10 @@ free-trial-content-last-bill-no-tax = { $invoiceTotal }
 ##
 
 free-trial-content-link-view-invoice = Näytä lasku
+# $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+free-trial-content-link-view-invoice-aria = Näytä tuotteen { $productName } lasku
+# $date (Date) - The date the free trial ended (e.g., January 16, 2026)
+free-trial-content-trial-ended = Ilmainen kokeilujaksosi päättyi <bold>{ $date }</bold>.
 free-trial-content-button-update-payment = Päivitä maksutapa
 
 # Component - Header
@@ -318,9 +352,18 @@ payments-header-avatar-expanded-sign-out = Kirjaudu ulos
 ## Interstitial Offer
 
 interstitial-offer-success-cancel-title = Jäämme kaipaamaan sinua
+interstitial-offer-turn-back-on = Voit ottaa tilauksesi takaisin käyttöön milloin tahansa ennen sen päättymistä.
 interstitial-offer-button-back-to-subscriptions = Takaisin tilauksiin
 interstitial-offer-action-error = Tapahtui odottamaton virhe. Yritä uudelleen.
 interstitial-offer-cancel-subscription-button = Peru tilaus
+
+## Daily/Weekly/Monthly refers to the user's current subscription interval
+
+interstitial-offer-button-keep-current-interval-daily = Säilytä päivätilaus
+interstitial-offer-button-keep-current-interval-weekly = Säilytä viikkotilaus
+interstitial-offer-button-keep-current-interval-halfyearly = Säilytä kuuden kuukauden tilaus
+interstitial-offer-button-keep-current-interval-monthly = Säilytä kuukausitilaus
+interstitial-offer-button-keep-subscription = Säilytä tilaus
 
 ##
 
@@ -351,6 +394,19 @@ purchase-details-credit-applied-label = Hyvitys käytetty
 purchase-details-total-due-label = Maksettavaa
 next-plan-details-hide-button = Piilota tiedot
 next-plan-details-show-button = Näytä tiedot
+
+## $trialDayLength (Number) - The number of days in the free trial
+
+free-trial-start-title =
+    { $trialDayLength ->
+        [one] Aloita { $trialDayLength } päivän ilmainen kokeilujakso
+       *[other] Aloita { $trialDayLength } päivän ilmainen kokeilujakso
+    }
+free-trial-success-title =
+    { $trialDayLength ->
+        [one] { $trialDayLength } päivän ilmainen kokeilujaksosi on alkanut
+       *[other] { $trialDayLength } päivän ilmainen kokeilujaksosi on alkanut
+    }
 
 ##
 
@@ -422,12 +478,15 @@ subscription-content-button-stay-subscribed = Jatka tilausta
     .aria-label = Jatka tuotteen { $productName } tilausta
 subscription-content-button-cancel-subscription = Peruuta tilaus
     .aria-label = Peruuta tuotteen { $productName } tilaus
+# Link to the terms and restrictions for a coupon offer.
+subscription-content-link-churn-intervention-terms-apply = Ehdot ovat voimassa
 subscription-content-link-churn-intervention-terms-aria = Katso kupongin ehdot ja rajoitukset
 
 ##
 
 button-back-to-subscriptions = Takaisin tilauksiin
 subscription-content-cancel-action-error = Tapahtui odottamaton virhe. Yritä uudelleen.
+paypal-unavailable-error = { -brand-paypal } ei ole tällä hetkellä käytettävissä. Käytä toista maksuvaihtoehtoa tai yritä myöhemmin uudelleen.
 
 ## Churn flow - Error page
 
@@ -439,6 +498,10 @@ churn-error-page-title-customer-mismatch = Kuponkia ei voi lunastaa
 churn-error-page-button-sign-in = Kirjaudu sisään
 churn-error-page-title-general-error = Tilauksesi uusimisessa oli ongelma
 churn-error-page-message-general-error = Ota yhteys tukeen tai yritä uudelleen.
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-button-go-to-product-page = Siirry tuotteeseen { $productName }
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-title-subscription-not-active = Tämä alennus on saatavilla vain nykyisille { $productName } -tilaajille
 # $productName (String) - The name of the product associated with the subscription.
 churn-error-page-title-subscription-still-active = { $productName }-tilauksesi on edelleen aktiivinen
 
@@ -512,16 +575,22 @@ metadata-title-checkout-success = Onnistui | { $productTitle }
 metadata-description-checkout-success = Onnittelut! Olet suorittanut ostoksen onnistuneesti.
 # Checkout needs_input
 metadata-title-checkout-needs-input = Toimenpiteitä vaaditaan | { $productTitle }
+metadata-description-checkout-needs-input = Suorita vaadittu toiminto maksun suorittamiseksi.
+# Upgrade start
+metadata-title-upgrade-start = Päivitä | { $productTitle }
 metadata-description-upgrade-start = Kirjoita maksutietosi päivityksen suorittamiseksi loppuun.
 # Upgrade processing
 metadata-title-upgrade-processing = Käsitellään | { $productTitle }
 metadata-description-upgrade-processing = Odota, kun käsittelemme maksuasi.
 # Upgrade error
 metadata-title-upgrade-error = Virhe | { $productTitle }
+metadata-description-upgrade-error = Päivityksesi käsittelyssä tapahtui virhe. Jos ongelma jatkuu, ota yhteyttä tukeen.
 # Upgrade success
 metadata-title-upgrade-success = Onnistui | { $productTitle }
+metadata-description-upgrade-success = Onnittelut! Päivitys on suoritettu onnistuneesti.
 # Upgrade needs_input
 metadata-title-upgrade-needs-input = Toimenpiteitä vaaditaan | { $productTitle }
+metadata-description-upgrade-needs-input = Suorita vaadittu toiminto maksun suorittamiseksi.
 # Default
 metadata-title-default = Sivua ei löytynyt | { $productTitle }
 metadata-description-default = Pyytämääsi sivua ei löytynyt.
@@ -541,6 +610,7 @@ stay-subscribed-error-expired = Tämä tarjous on päättynyt.
 stay-subscribed-error-discount-used = Alennuskoodi on jo käytetty.
 # $productTitle (String) - The name of the product
 stay-subscribed-error-not-current-subscriber = Tämä alennus on saatavilla vain nykyisille { $productTitle }-tilaajille.
+stay-subscribed-error-still-active = { $productTitle }-tilauksesi on edelleen aktiivinen
 stay-subscribed-error-general = Tilauksesi uusimisessa oli ongelma.
 
 ## Manage Payment Method Error Messages
@@ -551,3 +621,4 @@ manage-payment-method-intent-error-try-again = Hmm. Maksun valtuuttamisessa ilme
 manage-payment-method-intent-error-get-in-touch = Hmm. Maksun valtuuttamisessa ilmeni ongelma. Ole yhteydessä kortin myöntäjään.
 manage-payment-method-intent-error-insufficient-funds = Vaikuttaa siltä, että kortilla ei ole riittävästi varoja. Kokeile toista korttia.
 manage-payment-method-intent-error-generic = Maksua käsitellessä tapahtui odottamaton virhe. Yritä uudestaan.
+manage-payment-method-tax-address-required = Emme voineet määrittää laskutuspaikkaasi. Vahvista maksutapasi tiedot ja yritä uudelleen.

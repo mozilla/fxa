@@ -1,8 +1,8 @@
 {
-  "commit": "352485dbb009cc7578f1c61bfe45df6340ec3e70",
-  "summary": "fix(payments-ui): Update CouponForm to use useActionState",
+  "commit": "a50851457397792bc82f727cd6bf497fbfefaa67",
+  "summary": "fix?",
   "description": "",
-  "timestamp": 1784038348000,
+  "timestamp": 1784053353000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
