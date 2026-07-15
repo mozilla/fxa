@@ -114,7 +114,7 @@ describe('InvoiceManager', () => {
 
       await expect(
         invoiceManager.finalizeWithoutAutoAdvance(mockInvoice.id)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
     });
   });
 
@@ -294,7 +294,7 @@ describe('InvoiceManager', () => {
           customer: mockCustomer,
           fromSubscriptionItem: mockSubscriptionItem,
         })
-      ).rejects.toThrowError(UpgradeCustomerMissingCurrencyInvoiceError);
+      ).rejects.toThrow(UpgradeCustomerMissingCurrencyInvoiceError);
     });
   });
 
@@ -373,7 +373,9 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.retrieve(mockInvoice.id);
 
-      expect(stripeClient.invoicesRetrieve).toBeCalledWith(mockInvoice.id);
+      expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
+        mockInvoice.id
+      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -396,7 +398,7 @@ describe('InvoiceManager', () => {
         .mockResolvedValue(StripeResponseFactory(mockInvoice));
 
       await invoiceManager.processPayPalInvoice(mockInvoice);
-      expect(invoiceManager.processPayPalZeroInvoice).toBeCalledWith(
+      expect(invoiceManager.processPayPalZeroInvoice).toHaveBeenCalledWith(
         mockInvoice.id
       );
       expect(invoiceManager.processPayPalNonZeroInvoice).not.toHaveBeenCalled();
@@ -423,7 +425,7 @@ describe('InvoiceManager', () => {
 
       await invoiceManager.processPayPalInvoice(mockInvoice);
 
-      expect(invoiceManager.processPayPalNonZeroInvoice).toBeCalledWith(
+      expect(invoiceManager.processPayPalNonZeroInvoice).toHaveBeenCalledWith(
         mockCustomer,
         mockInvoice
       );
@@ -444,9 +446,9 @@ describe('InvoiceManager', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      expect(invoiceManager.safeFinalizeWithoutAutoAdvance).toBeCalledWith(
-        mockInvoice.id
-      );
+      expect(
+        invoiceManager.safeFinalizeWithoutAutoAdvance
+      ).toHaveBeenCalledWith(mockInvoice.id);
     });
   });
 
@@ -543,7 +545,7 @@ describe('InvoiceManager', () => {
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
     });
     it('throws an error for an already-paid invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -556,7 +558,7 @@ describe('InvoiceManager', () => {
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
     });
     it('throws an error for an uncollectible invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -569,7 +571,7 @@ describe('InvoiceManager', () => {
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
     });
     it('returns on pending invoices without marking it as paid', async () => {
       const mockPaymentAttemptCount = 1;
@@ -675,7 +677,7 @@ describe('InvoiceManager', () => {
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
 
       expect(paypalClient.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: mockInvoice.amount_due,

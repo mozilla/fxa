@@ -8,6 +8,7 @@
     "build": {
       "dependsOn": ["build-ts", "l10n-merge", "build-css"],
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}/public/locales"],
       "options": {
         "commands": [
           "# Important!!! We have to do this cause these are .gitingored, which means nx ingores them too.",
@@ -61,6 +62,7 @@
     "test-integration": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "dependsOn": ["l10n-merge"],
       "options": {
         "jestConfig": "libs/accounts/email-renderer/jest.config.ts",
         "testPathPattern": ["\\.in\\.spec\\.ts$"]

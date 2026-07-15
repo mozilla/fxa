@@ -27,7 +27,7 @@ test.describe('relay integration', () => {
 
     await expect(
       signup.page.getByText(
-        'A password is needed to securely manage your masked emails and access ⁨Mozilla⁩’s security tools.'
+        'A password is needed to securely manage your masked emails and access Mozilla’s security tools.'
       )
     ).toBeVisible();
 

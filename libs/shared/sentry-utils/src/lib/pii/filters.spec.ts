@@ -55,7 +55,7 @@ describe('pii-filters', () => {
     it('handles errors and logs them', () => {
       const badFilter = new BadFilter(mockLogger);
       badFilter.filter({ foo: 'bar' });
-      expect(mockLogger.error).toBeCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 });

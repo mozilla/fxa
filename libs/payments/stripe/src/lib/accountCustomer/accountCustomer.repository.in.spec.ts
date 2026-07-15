@@ -56,7 +56,7 @@ describe('AccountCustomer Repository', () => {
 
       await expect(
         createAccountCustomer(kyselyDb, mockAccountCustomer)
-      ).rejects.toThrowError("Data too long for column 'uid' at row 1");
+      ).rejects.toThrow("Data too long for column 'uid' at row 1");
     });
   });
 

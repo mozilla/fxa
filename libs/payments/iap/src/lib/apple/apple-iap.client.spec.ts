@@ -88,7 +88,7 @@ describe('AppleIapClient', () => {
 
       expect(async () =>
         appleIapClient.getSubscriptionStatuses(mockBundleId, mockTransactionId)
-      ).rejects.toThrowError(AppleIapMissingCredentialsError);
+      ).rejects.toThrow(AppleIapMissingCredentialsError);
     });
   });
 });

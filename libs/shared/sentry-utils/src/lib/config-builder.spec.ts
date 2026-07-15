@@ -36,7 +36,7 @@ describe('config-builder', () => {
   it('builds', () => {
     const config = buildSentryConfig(testConfig, mockLogger);
     expect(config).toBeDefined();
-    expect(mockLogger.info).toBeCalledWith('sentry-config-builder', {
+    expect(mockLogger.info).toHaveBeenCalledWith('sentry-config-builder', {
       msg: `Config setting for sentry.dsn specified, enabling sentry for env ${testConfig.sentry?.env}!`,
     });
   });
@@ -65,7 +65,7 @@ describe('config-builder', () => {
 
     buildSentryConfig(clone, mockLogger);
 
-    expect(mockLogger.warn).toBeCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('errors on missing dsn', () => {
@@ -76,7 +76,7 @@ describe('config-builder', () => {
     expect(() => {
       buildSentryConfig(clone, mockLogger);
     }).toThrow('sentry.dsn not specified. sentry disabled.');
-    expect(mockLogger.warn).toBeCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('errors on unknown environment', () => {
@@ -89,7 +89,7 @@ describe('config-builder', () => {
     }).toThrow(
       'invalid config.env. xyz options are: test,local,dev,ci,stage,prod,production,development'
     );
-    expect(mockLogger.warn).toBeCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('errors on missing release', () => {
@@ -101,7 +101,7 @@ describe('config-builder', () => {
     expect(() => {
       buildSentryConfig(clone, mockLogger);
     }).toThrow('config missing either release or version.');
-    expect(mockLogger.warn).toBeCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('errors on missing sampleRate', () => {
@@ -112,7 +112,7 @@ describe('config-builder', () => {
     expect(() => {
       buildSentryConfig(clone, mockLogger);
     }).toThrow('sentry.sampleRate');
-    expect(mockLogger.warn).toBeCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('can use moz logger', () => {
