@@ -1,8 +1,8 @@
 {
-  "commit": "b8fb05627a25ee4ae46f625a13119c9b85b5d7d3",
-  "summary": "Merge pull request #20839 from mozilla/triage-skills",
-  "description": "chore(fxa-triage): add daily triage skill with corrected Sentry and Jira handling",
-  "timestamp": 1784126344000,
+  "commit": "52f17ae1ecc8320919f9a3c8cc53394b31840c7a",
+  "summary": "Merge pull request #20866 from mozilla/FXA-14131-password-input-fixes",
+  "description": "fix(settings): match passkey password-fallback error handling to sign-in",
+  "timestamp": 1784128741000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
