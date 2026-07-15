@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d311ff8e796a503d07ef1ced426a66c33404fc04</title>
+  <title>Storybooks for commit ee38cea124eaef16206facb0b558395cad0956b7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d311ff8e796a503d07ef1ced426a66c33404fc04</h1>
+  <h1>Storybooks for commit ee38cea124eaef16206facb0b558395cad0956b7</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,7 +31,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/15/2026, 3:47:59 PM UTC</dd>
+    <dd>7/15/2026, 4:13:41 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(functional): upgrade Playwright to 1.61.1 and stabilize Sync/OAuth/CMS tests</pre></dd>
     <dt>Description</dt>
@@ -49,6 +49,8 @@ This commit:
 - Centralizes Sync entry through a real /pair handshake via gotoSyncSession
   and updates the affected Sync/OAuth/CMS/passkey specs.
 - Removes the stale confirm-password step from Relay/SmartWindow signup.
+- Asserts the passkey password-fallback error via its inline text node
+  instead of a nonexistent alert role.
 - Adds navigation guards (waitForURL to settings/pair) to fix teardown
   races and documents the WebChannel responder duplicate-listener caveat.</pre></dd>
   </dl>
