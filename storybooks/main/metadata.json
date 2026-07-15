@@ -1,8 +1,8 @@
 {
-  "commit": "ddd7772228115dcd1ef6b03b80412e4ada7ee39f",
-  "summary": "Merge pull request #20869 from mozilla/ENT-37",
-  "description": "feat(entitlements): credit grants",
-  "timestamp": 1784130627000,
+  "commit": "53c7324fe32ac1c9984daf237340eb7faddc6d45",
+  "summary": "Merge pull request #20860 from mozilla/pay-3781-add-functional-tests",
+  "description": "test(functional-tests): Add functional test for the Free Access Program",
+  "timestamp": 1784131829000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
