@@ -31,3 +31,10 @@ export class MeterNotConfiguredError extends MeteringError {
     this.name = 'MeterNotConfiguredError';
   }
 }
+
+export class UsageGrantNotFoundError extends MeteringError {
+  constructor(grantId: string) {
+    super('Usage grant not found', { grantId });
+    this.name = 'UsageGrantNotFoundError';
+  }
+}

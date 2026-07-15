@@ -17,6 +17,7 @@ import {
   MeterNotConfiguredError,
   MeteringBufferOverflowError,
   MeteringError,
+  UsageGrantNotFoundError,
 } from './metering.error';
 
 interface MeteringErrorBody {
@@ -41,7 +42,10 @@ export class MeteringExceptionFilter implements ExceptionFilter {
   }
 
   respond(exception: MeteringError, response: HttpResponseWriter): void {
-    if (exception instanceof MeterNotConfiguredError) {
+    if (
+      exception instanceof MeterNotConfiguredError ||
+      exception instanceof UsageGrantNotFoundError
+    ) {
       response.status(HttpStatus.NOT_FOUND).json({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not Found',

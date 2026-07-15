@@ -67,7 +67,16 @@ export type UsageQueryParams = z.infer<typeof usageQueryParamsSchema>;
 
 export const usageQueryResponseSchema = z.object({
   usage: z.number().describe('Current usage amount within the billing window'),
-  limit: z.number().describe('Usage limit for the current plan'),
+  limit: z
+    .number()
+    .describe(
+      'Effective usage limit for the current plan, including any active grants'
+    ),
+  grantedAmount: z
+    .number()
+    .describe(
+      'Additional usage granted on top of the plan limit within the current window'
+    ),
   unit: z.string().describe('Unit of measurement (e.g. "requests", "gb")'),
   windowStart: z.iso
     .datetime({ offset: true })
