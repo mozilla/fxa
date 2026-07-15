@@ -2,11 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand } from '../../lib/channels';
-import { expect, test } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
+import { SigninPage } from '../../pages/signin';
+import { SigninTokenCodePage } from '../../pages/signinTokenCode';
+
+/**
+ * Firefox 147+ chains the legacy fx_desktop_v3 sign-in into an OAuth re-auth to
+ * derive Sync keys (keys decoupling): after the first password + token code, the
+ * flow redirects to context=oauth_webchannel_v1 and re-prompts for the password
+ * and a second token code before completing.
+ */
+async function completeForceAuthSignIn(
+  target: BaseTarget,
+  page: Page,
+  signin: SigninPage,
+  signinTokenCode: SigninTokenCodePage,
+  creds: { email: string; password: string }
+): Promise<void> {
+  await signin.fillOutPasswordForm(creds.password);
+  await expect(page).toHaveURL(/signin_token_code/);
+  let code = await target.emailClient.getVerifyLoginCode(creds.email);
+  await signinTokenCode.fillOutCodeForm(code);
+
+  await signin.fillOutPasswordForm(creds.password);
+  await expect(page).toHaveURL(/signin_token_code/);
+  code = await target.emailClient.getVerifyLoginCode(creds.email);
+  await signinTokenCode.fillOutCodeForm(code);
+}
 
 const makeUid = () =>
   [...Array(32)]
@@ -31,19 +56,11 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid: undefined,
       });
-      await signin.fillOutPasswordForm(credentials.password);
-
-      // fails on this chck for react (message not sent)
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        FirefoxCommand.LinkAccount
-      );
-      await expect(page).toHaveURL(/signin_token_code/);
-      const code = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
-      await signinTokenCode.fillOutCodeForm(code);
+      await completeForceAuthSignIn(target, page, signin, signinTokenCode, {
+        email: credentials.email,
+        password: credentials.password,
+      });
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('sync v3 with a registered email, registered uid', async ({
@@ -60,20 +77,12 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync();
 
       await fxDesktopV3ForceAuth.open(credentials);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      // fails on this chck for react (message not sent)
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        FirefoxCommand.LinkAccount
-      );
-      await expect(page).toHaveURL(/signin_token_code/);
-      const code = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
-      await signinTokenCode.fillOutCodeForm(code);
+      await completeForceAuthSignIn(target, page, signin, signinTokenCode, {
+        email: credentials.email,
+        password: credentials.password,
+      });
       await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('sync v3 with a registered email, unregistered uid', async ({
@@ -92,19 +101,12 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
       });
-      await signin.fillOutPasswordForm(credentials.password);
-      // fails on this chck for react (message not sent)
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        FirefoxCommand.LinkAccount
-      );
-      await expect(page).toHaveURL(/signin_token_code/);
-      const code = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
-      await signinTokenCode.fillOutCodeForm(code);
-      await signinTokenCode.page.waitForURL(/pair/);
+      await completeForceAuthSignIn(target, page, signin, signinTokenCode, {
+        email: credentials.email,
+        password: credentials.password,
+      });
+      await page.waitForURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('blocked with an registered email, unregistered uid', async ({
@@ -128,17 +130,12 @@ test.describe('severity-1 #smoke', () => {
         uid,
       });
       await signin.fillOutPasswordForm(credentials.password);
-      // fails on this check for react (message not sent)
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        FirefoxCommand.LinkAccount
-      );
       await expect(page).toHaveURL(/signin_unblock/);
       const code = await target.emailClient.getUnblockCode(credentials.email);
       await signinUnblock.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
 
       // Change primary email to non-blocked email
       await settings.goto();

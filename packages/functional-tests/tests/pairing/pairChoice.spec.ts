@@ -9,9 +9,20 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Pair entry flow', () => {
     test('direct /pair dispatches fxa_status and oauth_flow_begin and reveals the choice screen', async ({
       target,
-      syncOAuthBrowserPages: { page, settings },
+      syncOAuthBrowserPages: { page, settings, signin, signinTokenCode },
+      testAccountTracker,
     }) => {
+      // /pair requires a signed-in browser to reveal the choice screen; a fresh
+      // browser is redirected to sign-in first.
+      const credentials = await testAccountTracker.signUpSync();
       await page.goto(`${target.contentServerUrl}/pair`);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_token_code/);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
 
       // testid avoids the Localized/label text-content quirk that confuses
       // getByLabel/getByRole here.
@@ -24,9 +35,19 @@ test.describe('severity-2 #smoke', () => {
 
     test('Continue advances to the download view when no mobile is selected', async ({
       target,
-      syncOAuthBrowserPages: { page },
+      syncOAuthBrowserPages: { page, signin, signinTokenCode },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUpSync();
       await page.goto(`${target.contentServerUrl}/pair`);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_token_code/);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
       // Click the label so React's onChange fires; the radio is hidden behind
       // it, and check() on the input itself fails actionability.
       await page.locator('label[for="needs-mobile"]').click();

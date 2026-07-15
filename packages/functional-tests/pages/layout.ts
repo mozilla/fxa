@@ -208,33 +208,58 @@ export abstract class BaseLayout {
    */
 
   async respondToWebChannelMessage(webChannelMessage: FirefoxCommandResponse) {
+    await this.installWebChannelResponder(webChannelMessage, { once: true });
+  }
+
+  /**
+   * Like {@link respondToWebChannelMessage}, but keeps replying instead of
+   * detaching after the first, for commands re-dispatched (e.g. fxa_status).
+   */
+  async respondToWebChannelMessageAlways(
+    webChannelMessage: FirefoxCommandResponse
+  ) {
+    await this.installWebChannelResponder(webChannelMessage, { once: false });
+  }
+
+  /**
+   * Page init script replying to each `WebChannelMessageToChrome` with a
+   * matching `WebChannelMessageToContent`; detaches after one reply when `once`.
+   *
+   * Each call adds its own init-script listener, so calling this twice for the
+   * same command before a navigation registers duplicate listeners that both
+   * reply. Install one responder per command per page.
+   */
+  private async installWebChannelResponder(
+    webChannelMessage: FirefoxCommandResponse,
+    { once }: { once: boolean }
+  ) {
     const expectedCommand = webChannelMessage.message.command;
     const response = webChannelMessage.message.data;
 
     await this.page.addInitScript(
-      ({ expectedCommand, response }) => {
+      ({ expectedCommand, response, once }) => {
         function listener(e: CustomEvent) {
           const detail = JSON.parse(e.detail);
           const command = detail.message.command;
           const messageId = detail.message.messageId;
 
-          if (command === expectedCommand) {
+          if (command !== expectedCommand) {
+            return;
+          }
+
+          if (once) {
             // @ts-ignore
             window.removeEventListener('WebChannelMessageToChrome', listener);
+          }
 
-            const event = new CustomEvent('WebChannelMessageToContent', {
+          window.dispatchEvent(
+            new CustomEvent('WebChannelMessageToContent', {
               detail: {
                 id: 'account_updates',
-                message: {
-                  command,
-                  data: response,
-                  messageId,
-                },
+                message: { command, data: response, messageId },
               },
-            });
-
-            window.dispatchEvent(event);
-          }
+            })
+          );
         }
 
         function startListening() {
@@ -242,15 +267,14 @@ export abstract class BaseLayout {
             // @ts-ignore
             window.addEventListener('WebChannelMessageToChrome', listener);
           } catch (e) {
-            // problem adding the listener, window may not be
-            // ready, try again.
+            // window may not be ready yet; try again.
             setTimeout(startListening, 0);
           }
         }
 
         startListening();
       },
-      { expectedCommand, response }
+      { expectedCommand, response, once }
     );
   }
 
