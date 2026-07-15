@@ -1,0 +1,12 @@
+{
+  "commit": "5da515a43c4c1cf20aa669193bab8e90e3854a4e",
+  "summary": "chore(deps): bump websocket-driver from 0.7.4 to 0.7.5",
+  "description": "Bumps [websocket-driver](https://github.com/faye/websocket-driver-node) from 0.7.4 to 0.7.5.\n- [Changelog](https://github.com/faye/websocket-driver-node/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/faye/websocket-driver-node/compare/0.7.4...0.7.5)\n\n---\nupdated-dependencies:\n- dependency-name: websocket-driver\n  dependency-version: 0.7.5\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784153689000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
