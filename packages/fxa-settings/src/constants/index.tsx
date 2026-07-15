@@ -75,3 +75,9 @@ export const LINK = {
 export const DISPLAY_SAFE_UNICODE: RegExp =
   // eslint-disable-next-line no-control-regex
   /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
+
+// Like DISPLAY_SAFE_UNICODE but also allows emoji (code points above U+FFFF),
+// matching the auth_server validator for device and passkey names.
+export const DISPLAY_SAFE_UNICODE_WITH_NON_BMP: RegExp =
+  // eslint-disable-next-line no-control-regex
+  /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;

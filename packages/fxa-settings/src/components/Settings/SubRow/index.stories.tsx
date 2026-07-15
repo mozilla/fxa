@@ -27,6 +27,25 @@ export default {
       const mockAccount = {
         ...MOCK_ACCOUNT,
         deletePasskey: async () => {},
+        // Fake a successful rename so Save works in Storybook. Validation
+        // errors (empty, too long, invalid, duplicate) still surface
+        // client-side before this is ever called.
+        renamePasskey: async () => {},
+        // A sibling passkey so the duplicate-name check is exercisable — type
+        // "Existing passkey" in the rename dialog to trigger it.
+        passkeys: [
+          {
+            credentialId: 'existing',
+            name: 'Existing passkey',
+            createdAt: new Date('2025-01-01').getTime(),
+            lastUsedAt: null,
+            transports: ['internal'],
+            aaguid: 'aaguid-existing',
+            backupEligible: true,
+            backupState: true,
+            prfEnabled: false,
+          },
+        ],
       };
       return (
         <AppContext.Provider

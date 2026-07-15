@@ -8,6 +8,7 @@ import SubRow, {
   BackupCodesSubRow,
   BackupPhoneSubRow,
   PasskeySubRow,
+  validatePasskeyName,
 } from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
@@ -34,6 +35,8 @@ const mockAlertBar = {
 
 let mockAccount = {
   deletePasskey: jest.fn(),
+  renamePasskey: jest.fn(),
+  passkeys: [] as Passkey[],
 };
 
 jest.mock('../../../lib/glean', () => ({
@@ -44,6 +47,9 @@ jest.mock('../../../lib/glean', () => ({
       passkeyDeleteView: jest.fn(),
       passkeyDeleteSuccessView: jest.fn(),
       passkeyDeleteSubmitFrontendError: jest.fn(),
+      passkeyRenameView: jest.fn(),
+      passkeyRenameSuccessView: jest.fn(),
+      passkeyRenameSubmitFrontendError: jest.fn(),
       mfaGuardView: jest.fn(),
       mfaGuardSubmitSuccess: jest.fn(),
     },
@@ -315,6 +321,8 @@ describe('PasskeySubRow', () => {
 
   beforeEach(() => {
     mockAccount.deletePasskey.mockClear();
+    mockAccount.renamePasskey.mockClear();
+    mockAccount.passkeys = [];
     mockAlertBar.success.mockClear();
     mockAlertBar.error.mockClear();
     (GleanMetrics.accountPref.passkeyDeleteView as jest.Mock).mockClear();
@@ -323,6 +331,13 @@ describe('PasskeySubRow', () => {
     ).mockClear();
     (
       GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError as jest.Mock
+    ).mockClear();
+    (GleanMetrics.accountPref.passkeyRenameView as jest.Mock).mockClear();
+    (
+      GleanMetrics.accountPref.passkeyRenameSuccessView as jest.Mock
+    ).mockClear();
+    (
+      GleanMetrics.accountPref.passkeyRenameSubmitFrontendError as jest.Mock
     ).mockClear();
     (GleanMetrics.handleClickEvent as jest.Mock).mockClear();
     mockHasJwt = true;
@@ -523,5 +538,271 @@ describe('PasskeySubRow', () => {
       await screen.findByText('Enter confirmation code')
     ).toBeInTheDocument();
     expect(screen.queryByText('Delete your passkey?')).not.toBeInTheDocument();
+  });
+
+  describe('rename', () => {
+    it('renders a rename button', () => {
+      renderPasskeySubRow();
+      expect(
+        screen.getByRole('button', { name: /rename passkey/i })
+      ).toBeInTheDocument();
+    });
+
+    it('opens the rename dialog and records a view event', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      expect(
+        await screen.findByRole('heading', { name: 'Rename passkey' })
+      ).toBeInTheDocument();
+      expect(GleanMetrics.accountPref.passkeyRenameView).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
+    it('opens the dialog with the name pre-filled', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      expect(await screen.findByRole('textbox')).toHaveValue('MacBook Pro');
+    });
+
+    it('opens the dialog when the passkey name is clicked', async () => {
+      renderPasskeySubRow();
+      // Clicking the visible name text (inside the trigger button) opens it.
+      await userEvent.click(screen.getByText('MacBook Pro'));
+      expect(await screen.findByRole('textbox')).toHaveValue('MacBook Pro');
+    });
+
+    it('calls renamePasskey with the trimmed new name on save', async () => {
+      mockAccount.renamePasskey.mockResolvedValue(undefined);
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+
+      const input = screen.getByRole('textbox');
+      await userEvent.clear(input);
+      await userEvent.type(input, '  Work laptop  ');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(mockAccount.renamePasskey).toHaveBeenCalledWith(
+        'passkey-1',
+        'Work laptop'
+      );
+    });
+
+    it('shows a success banner and closes the dialog when rename succeeds', async () => {
+      mockAccount.renamePasskey.mockResolvedValue(undefined);
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      await userEvent.type(screen.getByRole('textbox'), ' 2');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      await waitFor(() => {
+        expect(mockAlertBar.success).toHaveBeenCalledWith('Passkey renamed');
+      });
+      expect(
+        GleanMetrics.accountPref.passkeyRenameSuccessView
+      ).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows a generic error banner when rename fails unexpectedly', async () => {
+      mockAccount.renamePasskey.mockRejectedValue(new Error('boom'));
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      await userEvent.type(screen.getByRole('textbox'), ' 2');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      // The error shows inside the modal, not in the (occluded) alert bar.
+      expect(
+        await screen.findByText(
+          'There was a problem renaming your passkey. Try again in a few minutes.'
+        )
+      ).toBeInTheDocument();
+      expect(mockAlertBar.error).not.toHaveBeenCalled();
+      expect(
+        GleanMetrics.accountPref.passkeyRenameSubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'server_error' } });
+    });
+
+    it('shows a localized auth error when rename fails with an auth error', async () => {
+      mockAccount.renamePasskey.mockRejectedValue(
+        AuthUiErrors.PASSKEY_NOT_FOUND
+      );
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      await userEvent.type(screen.getByRole('textbox'), ' 2');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(await screen.findByText('Passkey not found')).toBeInTheDocument();
+      expect(
+        GleanMetrics.accountPref.passkeyRenameSubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'auth_error' } });
+    });
+
+    it('closes the dialog without calling renamePasskey when cancelled', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      });
+      expect(mockAccount.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('keeps the save button enabled on open', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    it('disables save while an error is shown and re-enables it once the input is edited', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      const input = screen.getByRole('textbox');
+      await userEvent.clear(input);
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(
+        screen.getByText('Enter a name for this passkey')
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      await userEvent.type(input, 'New name');
+      expect(
+        screen.queryByText('Enter a name for this passkey')
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    it('does not validate or show an error while typing before submit', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      // Clearing makes the name invalid (empty), but nothing is submitted yet.
+      await userEvent.clear(screen.getByRole('textbox'));
+      expect(
+        screen.queryByText('Enter a name for this passkey')
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows an error and does not submit when the name is cleared', async () => {
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      await userEvent.clear(screen.getByRole('textbox'));
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      expect(
+        screen.getByText('Enter a name for this passkey')
+      ).toBeInTheDocument();
+      expect(mockAccount.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('blocks renaming to a name already used by another passkey', async () => {
+      mockAccount.passkeys = [
+        mockPasskey,
+        { ...mockPasskey, credentialId: 'passkey-2', name: 'Work laptop' },
+      ];
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      const input = screen.getByRole('textbox');
+      await userEvent.clear(input);
+      // Case-insensitive match against the sibling passkey "Work laptop".
+      await userEvent.type(input, 'work LAPTOP');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(
+        screen.getByText('A passkey with this name already exists')
+      ).toBeInTheDocument();
+      expect(mockAccount.renamePasskey).not.toHaveBeenCalled();
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('allows renaming to a name only used by the passkey being edited', async () => {
+      mockAccount.passkeys = [
+        mockPasskey,
+        { ...mockPasskey, credentialId: 'passkey-2', name: 'Work laptop' },
+      ];
+      mockAccount.renamePasskey.mockResolvedValue(undefined);
+      renderPasskeySubRow();
+      await userEvent.click(
+        screen.getByRole('button', { name: /rename passkey/i })
+      );
+      const input = screen.getByRole('textbox');
+      await userEvent.clear(input);
+      await userEvent.type(input, 'Home desktop');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(mockAccount.renamePasskey).toHaveBeenCalledWith(
+        'passkey-1',
+        'Home desktop'
+      );
+    });
+  });
+});
+
+describe('validatePasskeyName', () => {
+  it('returns undefined for a valid name', () => {
+    expect(validatePasskeyName('My Passkey')).toBeUndefined();
+  });
+
+  it('returns undefined for a name at the 255-character limit', () => {
+    expect(validatePasskeyName('a'.repeat(255))).toBeUndefined();
+  });
+
+  it('returns "empty" for an empty string', () => {
+    expect(validatePasskeyName('')).toBe('empty');
+  });
+
+  it('returns "empty" for a whitespace-only string', () => {
+    expect(validatePasskeyName('   ')).toBe('empty');
+  });
+
+  it('returns "too-long" for a name over 255 characters', () => {
+    expect(validatePasskeyName('a'.repeat(256))).toBe('too-long');
+  });
+
+  it('returns "duplicate" when the name matches another passkey (case-insensitive)', () => {
+    expect(validatePasskeyName('Work Laptop', ['work laptop'])).toBe(
+      'duplicate'
+    );
+  });
+
+  it('returns undefined when the name is unique among existing passkeys', () => {
+    expect(validatePasskeyName('Phone', ['Work Laptop'])).toBeUndefined();
+  });
+
+  it('returns "invalid" for a name containing control characters', () => {
+    expect(validatePasskeyName('bad\u0000name')).toBe('invalid');
+  });
+
+  // Most emoji are above the Basic Multilingual Plane (BMP), i.e. code points
+  // beyond U+FFFF encoded as UTF-16 surrogate pairs. These are allowed, matching
+  // the auth-server validator used for passkey and device names.
+  it('allows a name containing emoji', () => {
+    expect(validatePasskeyName('My Passkey \u{1F510}')).toBeUndefined();
   });
 });

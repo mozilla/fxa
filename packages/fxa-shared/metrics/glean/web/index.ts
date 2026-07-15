@@ -281,6 +281,10 @@ export const eventsMap = {
     passkeyDeleteSubmitFrontendError:
       'account_pref_passkey_delete_submit_frontend_error',
     passkeyDeleteSuccessView: 'account_pref_passkey_delete_success_view',
+    passkeyRenameView: 'account_pref_passkey_rename_view',
+    passkeyRenameSubmitFrontendError:
+      'account_pref_passkey_rename_submit_frontend_error',
+    passkeyRenameSuccessView: 'account_pref_passkey_rename_success_view',
   },
 
   accountBanner: {
