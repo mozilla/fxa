@@ -1,8 +1,8 @@
 {
-  "commit": "a92855db7f45172c4dbbbfbc529e6a8546637a77",
-  "summary": "Merge pull request #20873 from mozilla/fix-payments-api-boolean-transform",
-  "description": "fix(payments-api): transform string to boolean before validation",
-  "timestamp": 1784121365000,
+  "commit": "704274fe31c7bcb112b984b2c8e9efe873804b1e",
+  "summary": "Merge pull request #20862 from mozilla/PAY-3799-f-006",
+  "description": "fix(payments-next): [f006] CMS webhook secret length leaked via timingSafeEqual exception",
+  "timestamp": 1784124742000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
