@@ -249,6 +249,7 @@ export class RateLimit {
     }
 
     const firstRule = rules[0];
+
     this.bqWriter.write({
       timestamp: now,
       action,
@@ -259,9 +260,24 @@ export class RateLimit {
       ruleMaxAttempts: firstRule?.rule.maxAttempts,
       ruleWindowSeconds: firstRule?.rule.windowDurationInSeconds,
       ruleBlockSeconds: firstRule?.rule.blockDurationInSeconds,
-      currentAttempts: attemptCounts?.get(
-        firstRule?.rule.blockingOn
-      ),
+      currentAttempts: (() => {
+        // When attempt counts were tallied on this check, they hold the real
+        // per-rule attempt total, so prefer them.
+        if (attemptCounts && firstRule) {
+          return attemptCounts.get(firstRule.rule.blockingOn);
+        }
+
+        // Without attempt counts we may be short-circuiting on a pre-existing
+        // block. In that case the user has, at minimum, reached maxAttempts, so
+        // report that as the best available approximation.
+        if (result != null && firstRule) {
+          return firstRule.rule.maxAttempts;
+        }
+
+        // Otherwise (e.g. a ban, where no rule applies) we can't say how many
+        // attempts occurred.
+        return undefined;
+      })(),
       wasBlocked: result != null,
       blockPolicy: result?.policy,
       blockDurationSeconds: result

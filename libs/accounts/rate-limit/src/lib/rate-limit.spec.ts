@@ -9,6 +9,8 @@ import { BlockRecord, Rule, TOO_MANY_ATTEMPTS } from './models';
 import { calculateRetryAfter, getKey } from './util';
 import { StatsD } from 'hot-shots';
 
+const MOCK_NOW = 1_700_000_000_000;
+
 describe('rate-limit', () => {
   let redis: Redis;
   let mockIncrement: jest.Mock;
@@ -853,6 +855,126 @@ describe('rate-limit', () => {
         expect.objectContaining({
           wasBlocked: false,
           blockDurationSeconds: undefined,
+        })
+      );
+    });
+
+    it('reports currentAttempts as the tallied count when no block is triggered', async () => {
+      mockIncr.mockResolvedValue(3); // under maxAttempts of 5
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: false,
+          currentAttempts: 3,
+        })
+      );
+    });
+
+    it('reports currentAttempts as the tallied count when a new block is triggered', async () => {
+      mockIncr.mockResolvedValue(6); // exceeds maxAttempts of 5
+      redis.set = jest.fn().mockResolvedValue('OK');
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: true,
+          currentAttempts: 6,
+        })
+      );
+    });
+
+    it('reports currentAttempts as maxAttempts when short-circuiting on a pre-existing block', async () => {
+      // A block already exists in Redis, so check() never tallies attempts.
+      // The stored record's own attempt count (99) must NOT be used; the
+      // reported value falls back to the rule's maxAttempts (5).
+      const existingBlock = {
+        action: 'test',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: '1.2.3.4',
+        startTime: MOCK_NOW,
+        duration: 300,
+        attempts: 99,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+      // Bans are checked first via redis.get; return null for those, and the
+      // block record for the block key.
+      mockGet.mockImplementation((key: string) =>
+        Promise.resolve(
+          key.includes(':block:') ? JSON.stringify(existingBlock) : null
+        )
+      );
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:block']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockIncr).not.toHaveBeenCalled();
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: true,
+          currentAttempts: 5,
+        })
+      );
+    });
+
+    it('reports currentAttempts as undefined when a ban short-circuits the check', async () => {
+      // A ban has no associated rule (rules is empty), so the number of
+      // attempts cannot be determined.
+      const existingBan = {
+        action: 'test',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: '1.2.3.4',
+        startTime: MOCK_NOW,
+        duration: 300,
+        attempts: 42,
+        reason: 'too-many-attempts',
+        policy: 'ban',
+      };
+      mockGet.mockImplementation((key: string) =>
+        Promise.resolve(
+          key.includes(':ban:') ? JSON.stringify(existingBan) : null
+        )
+      );
+
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules(['test:ip:5:1 minute:5 minutes:ban']) },
+        redis,
+        statsd,
+        { write: mockWrite }
+      );
+
+      await rateLimit.check('test', { ip: '1.2.3.4' });
+
+      expect(mockIncr).not.toHaveBeenCalled();
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          wasBlocked: true,
+          currentAttempts: undefined,
         })
       );
     });
