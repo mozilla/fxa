@@ -28,10 +28,9 @@ test.describe('smart window integration', () => {
     await page.waitForURL(/signup/);
 
     await signup.passwordTextbox.fill(password);
-    // keys_optional can't be sent in Firefox tests yet (FXA-13647), so this
-    // key-deriving desktop signup requires a password and renders the
+    // Firefox 147+ sends the keys_optional capability, so this non-Sync
+    // service completes login without keys and renders no password
     // confirmation field.
-    await signup.verifyPasswordTextbox.fill(password);
     await signup.createAccountButton.click();
 
     await page.waitForURL(/confirm_signup_code/);

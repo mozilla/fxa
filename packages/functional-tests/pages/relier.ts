@@ -49,13 +49,19 @@ export class RelierPage extends BaseLayout {
     ]);
   }
 
+  /**
+   * Wait for the settled /oauth page, not the intermediate /authorization
+   * redirect a loose `${contentServerUrl}/**` glob would resolve on too early.
+   */
+  private waitForOauthPage() {
+    return this.page.waitForURL((url) => /^\/oauth(\/|$)/.test(url.pathname));
+  }
+
   async clickEmailFirst() {
     await expect(this.relierHeading).toBeVisible();
 
     await this.page.getByRole('button', { name: 'Email first' }).click();
-    // We need to add a `waitUntil` option here because the page gets redirected from
-    // /authorization to /oauth before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+    return this.waitForOauthPage();
   }
 
   async clickSignIn() {
@@ -113,12 +119,12 @@ export class RelierPage extends BaseLayout {
 
   async clickRequire2FA() {
     await this.page.getByText('Sign In (Require AAL2 Session)').click();
-    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+    return this.waitForOauthPage();
   }
 
   async clickRequireProfileAAL2() {
     await this.page.getByText('Sign In (Require Profile AAL2)').click();
-    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+    return this.waitForOauthPage();
   }
 
   async hasAccountAAL2Badge() {

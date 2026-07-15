@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
-import {
-  smartWindowDesktopOAuthQueryParams,
-  syncDesktopOAuthQueryParams,
-} from '../../lib/query-params';
+import { smartWindowDesktopOAuthQueryParams } from '../../lib/query-params';
+import { OLDSYNC_SCOPE } from '../../lib/scopes';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signin with OAuth after Sync', () => {
@@ -30,9 +30,7 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const syncCredentials = await testAccountTracker.signUpSync();
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&force_passwordless=false`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await expect(page).toHaveURL(/signin_token_code/);
@@ -101,9 +99,9 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    // After SyncOAuth signin and a localStorage wipe, OAuth-native flows
-    // should still suggest the browser user instead of the email-first form.
-    test('SmartWindow respects browser-signed-in user after SyncOAuth, localStorage cleared', async ({
+    // Sign in to Sync, then complete a SmartWindow OAuth sign-in for that browser
+    // user; the WebChannel oauth_login assertion proves it's actually delivered.
+    test('signin to Sync then SmartWindow delivers a real oauth login', async ({
       target,
       syncOAuthBrowserPages: {
         page,
@@ -115,8 +113,8 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const syncCredentials = await testAccountTracker.signUpSync();
 
-      // Real SyncOAuth signin so Firefox stores the user via fxaccounts:login.
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      // Sign in to Sync so Firefox stores the user via fxaccounts:login.
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await page.waitForURL(/signin_token_code/);
@@ -132,52 +130,18 @@ test.describe('severity-1 #smoke', () => {
         sessionStorage.clear();
       });
 
+      // SmartWindow recognizes the browser user and offers a cached sign-in.
       await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
-      await expect(signin.emailFirstHeading).not.toBeVisible();
-    });
+      await signin.signInButton.click();
 
-    // Same scenario, taken end-to-end through token-code to /settings.
-    test('SmartWindow cached signin completes token verification', async ({
-      target,
-      syncOAuthBrowserPages: {
-        page,
-        signin,
-        signinTokenCode,
-        connectAnotherDevice,
-      },
-      testAccountTracker,
-    }) => {
-      const syncCredentials = await testAccountTracker.signUpSync();
-
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
-      await signin.fillOutEmailFirstForm(syncCredentials.email);
-      await signin.fillOutPasswordForm(syncCredentials.password);
-      await page.waitForURL(/signin_token_code/);
-      let code = await target.emailClient.getVerifyLoginCode(
-        syncCredentials.email
+      // The browser is only truly signed in if fxa_oauth_login is delivered
+      // with the requested scope.
+      await signin.checkWebChannelMessageScope(
+        FirefoxCommand.OAuthLogin,
+        OLDSYNC_SCOPE
       );
-      await signinTokenCode.fillOutCodeForm(code);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-
-      await page.context().clearCookies();
-      await page.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-      });
-
-      await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
-      await expect(signin.passwordFormHeading).toBeVisible();
-      await expect(page.getByText(syncCredentials.email)).toBeVisible();
-      await expect(signin.emailFirstHeading).not.toBeVisible();
-
-      await signin.fillOutPasswordForm(syncCredentials.password);
-      await page.waitForURL(/signin_token_code/);
-      code = await target.emailClient.getVerifyLoginCode(syncCredentials.email);
-      await signinTokenCode.fillOutCodeForm(code);
-
-      await page.waitForURL(/settings/);
     });
   });
 
@@ -208,9 +172,7 @@ test.describe('severity-1 #smoke', () => {
 
       expect(await relier.isLoggedIn()).toBe(true);
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
-      );
+      await gotoSyncSession(page, target);
 
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
