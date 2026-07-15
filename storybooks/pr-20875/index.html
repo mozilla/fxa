@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1ff8386532c8571891dc9838fff25dc40fab268b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1ff8386532c8571891dc9838fff25dc40fab268b</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/15/2026, 3:18:11 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkeys): request PRF at sign-in to record capability</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - Ahead of passwordless Sync (Phase 2) we need the true PRF capability of
+   the passkey base; the registration-time prfEnabled flag under-reports it.
+
+This commit:
+ - Requests the WebAuthn PRF extension at passkey sign-in behind a new
+   scope-aware, default-off flag (PASSKEYS__REQUEST_PRF_AT_AUTHENTICATION).
+ - Detects PRF support client-side, strips the output so it never reaches
+   the server, and sends only a boolean on authentication/finish.
+ - Rolls prfEnabled forward false-&gt;true (monotonic, best-effort) inside the
+   verified finish flow; never blocks sign-in.
+ - Adds Glean + StatsD telemetry to back the kill switch.</pre></dd>
+  </dl>
+</body>
+</html>
