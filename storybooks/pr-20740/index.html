@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit fa411daa7dd28d0dc6be802a69483b7e68ae5107</title>
+  <title>Storybooks for commit 624c8b4456a176ab0dab350b501e2aadc5656a64</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit fa411daa7dd28d0dc6be802a69483b7e68ae5107</h1>
+  <h1>Storybooks for commit 624c8b4456a176ab0dab350b501e2aadc5656a64</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,20 +31,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/10/2026, 9:53:37 PM UTC</dd>
+    <dd>7/15/2026, 4:14:25 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(many): Upgrade nx</pre></dd>
+    <dd><pre>Merge branch &#039;main&#039; into upgrade-nx</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Now that we are node 24, we can use the latest version of NX.
-- There are supposed perf benefits
+- The upgrade-nx branch was 62 commits behind main; functional tests
+  need to run against current main.
 
-This Commit:
-- Upgrades NX, Next, Jest, and other support deps
-- Updates deprecated Jest assertions
-- Fixes a couple caching issues
-- Sets robust nx defaults that work well with our project
-- Removes NX commands from package.json &#039;scripts&#039;. They are no longer permitted by nx.</pre></dd>
+This commit:
+- Resolves tsconfig.base.json conflict by keeping the nx-upgrade &quot;./&quot;
+  path-prefix convention and adding main&#039;s new aliases
+  (@fxa/free-access-program, @fxa/payments/api-server/server-utils).
+- Regenerates yarn.lock via `yarn install` against the merged manifests.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) &lt;noreply@anthropic.com&gt;</pre></dd>
   </dl>
 </body>
 </html>
