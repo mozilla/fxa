@@ -25,13 +25,3 @@ export const Default = () => (
     <SigninPasskeyFallback email="user@example.com" {...handlers} />
   </MemoryRouter>
 );
-
-export const WithError = () => (
-  <MemoryRouter>
-    <SigninPasskeyFallback
-      email="user@example.com"
-      localizedErrorMessage="Incorrect password"
-      {...handlers}
-    />
-  </MemoryRouter>
-);

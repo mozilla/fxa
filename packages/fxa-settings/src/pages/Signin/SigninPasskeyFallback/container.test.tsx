@@ -269,23 +269,39 @@ describe('SigninPasskeyFallback container', () => {
       });
     });
 
-    it('renders an error banner when sessionReauth throws', async () => {
+    it('shows the incorrect-password error in the field tooltip and disables Continue', async () => {
       mockSessionReauth.mockRejectedValueOnce({
-        errno: 103,
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
         message: 'Incorrect password',
       });
-      const { getByTestId, findByText } = render();
+      const { getByTestId, findByTestId, queryByRole } = render();
       submitPassword(getByTestId);
-      expect(await findByText(/Incorrect password/i)).toBeInTheDocument();
+      expect(await findByTestId('tooltip')).toHaveTextContent(
+        /Incorrect password/i
+      );
+      expect(queryByRole('alert')).not.toBeInTheDocument();
+      expect(getByTestId('continue-button')).toBeDisabled();
     });
 
-    it('renders an error banner when handleNavigation returns an error', async () => {
-      mockHandleNavigation.mockResolvedValueOnce({
-        error: { errno: 103, message: 'Incorrect password' },
+    it('shows a banner for a non-password reauth error', async () => {
+      mockSessionReauth.mockRejectedValueOnce({
+        errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
+        message: 'Unexpected error',
       });
-      const { getByTestId, findByText } = render();
+      const { getByTestId, findByRole, queryByTestId } = render();
       submitPassword(getByTestId);
-      expect(await findByText(/Incorrect password/i)).toBeInTheDocument();
+      expect(await findByRole('alert')).toBeInTheDocument();
+      expect(queryByTestId('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('shows a banner when handleNavigation returns an error', async () => {
+      mockHandleNavigation.mockResolvedValueOnce({
+        error: { errno: 999, message: 'Nav broke' },
+      });
+      const { getByTestId, findByRole, queryByTestId } = render();
+      submitPassword(getByTestId);
+      expect(await findByRole('alert')).toBeInTheDocument();
+      expect(queryByTestId('tooltip')).not.toBeInTheDocument();
     });
   });
 
@@ -369,7 +385,7 @@ describe('SigninPasskeyFallback container', () => {
       });
     });
 
-    it('fires submit_frontend_error with reason=server_error when handleNavigation returns an error', async () => {
+    it('fires submit_frontend_error with reason=navigation_error when handleNavigation returns an error', async () => {
       mockHandleNavigation.mockResolvedValueOnce({
         error: { errno: 999, message: 'Nav broke' },
       });
@@ -378,7 +394,7 @@ describe('SigninPasskeyFallback container', () => {
       await waitFor(() => {
         expect(
           GleanMetrics.passkeyEnterPassword.submitFrontendError
-        ).toHaveBeenCalledWith({ event: { reason: 'server_error' } });
+        ).toHaveBeenCalledWith({ event: { reason: 'navigation_error' } });
       });
       expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
     });
