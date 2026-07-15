@@ -139,6 +139,9 @@ device-info-browser-os = { $genericOSName } 上的 { $browserName }
 device-info-ip-address = IP 地址：{ $ipAddress }
 
 
+firefox-promo-banner-switch-cta = 换用 { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = 密码
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -891,6 +894,7 @@ passkey-sub-row-created-date = 创建时间：{ $createdDate }
 passkey-sub-row-last-used-date = 上次使用：{ $lastUsedDate }
 passkey-sub-row-delete-title = 删除通行密钥
 passkey-delete-modal-heading = 确定要删除通行密钥吗？
+passkey-delete-modal-content-v2 = 此通行密钥将从您的账户移除，以后将需要使用其他方式（例如密码、其他通行密钥，或已关联账户）登录。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 删除通行密钥
 passkey-delete-success = 通行密钥已删除
