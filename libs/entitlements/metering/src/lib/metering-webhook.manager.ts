@@ -52,6 +52,7 @@ export class MeteringWebhookManager {
     threshold: number;
     currentUsage: number;
     limit: number;
+    grantedAmount: number;
     unit: string;
     windowStart: Date;
     windowEnd: Date;
@@ -71,6 +72,7 @@ export class MeteringWebhookManager {
       threshold: args.threshold,
       currentUsage: args.currentUsage,
       limit: args.limit,
+      grantedAmount: args.grantedAmount,
       unit: args.unit,
       windowStart: args.windowStart.toISOString(),
       windowEnd: args.windowEnd.toISOString(),

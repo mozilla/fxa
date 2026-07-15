@@ -62,6 +62,7 @@ describe('MeteringWebhookManager', () => {
       threshold: 80,
       currentUsage: 85,
       limit: 100,
+      grantedAmount: 20,
       unit: 'gigabytes',
       windowStart: new Date('2026-05-01T00:00:00.000Z'),
       windowEnd: new Date('2026-06-01T00:00:00.000Z'),
@@ -119,6 +120,7 @@ describe('MeteringWebhookManager', () => {
         threshold: 80,
         currentUsage: 85,
         limit: 100,
+        grantedAmount: 20,
         unit: 'gigabytes',
         eventId: 'evt-1',
       });

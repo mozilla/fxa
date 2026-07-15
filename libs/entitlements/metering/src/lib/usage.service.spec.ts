@@ -23,6 +23,7 @@ import {
   MeteringBufferOverflowError,
   OpenMeterQueryError,
 } from './metering.error';
+import { UsageGrantsManager } from './usage-grants.manager';
 import { UsageService } from './usage.service';
 
 describe('UsageService', () => {
@@ -31,6 +32,9 @@ describe('UsageService', () => {
   let meteringQueryManager: jest.Mocked<MeteringQueryManager>;
   let meteringIngestManager: jest.Mocked<MeteringIngestManager>;
   let meteringThresholdTasksManager: jest.Mocked<MeteringThresholdTasksManager>;
+  let usageGrantsManager: jest.Mocked<
+    Pick<UsageGrantsManager, 'getActiveGrantedAmount'>
+  >;
   let logger: jest.Mocked<Pick<LoggerService, 'error'>>;
 
   beforeEach(async () => {
@@ -67,6 +71,12 @@ describe('UsageService', () => {
           },
         },
         {
+          provide: UsageGrantsManager,
+          useValue: {
+            getActiveGrantedAmount: jest.fn().mockResolvedValue(0),
+          },
+        },
+        {
           provide: Logger,
           useValue: logger,
         },
@@ -80,6 +90,7 @@ describe('UsageService', () => {
     meteringThresholdTasksManager = moduleRef.get(
       MeteringThresholdTasksManager
     );
+    usageGrantsManager = moduleRef.get(UsageGrantsManager);
   });
 
   describe('ingestUsage', () => {
@@ -218,9 +229,43 @@ describe('UsageService', () => {
         from: new Date('2026-05-01T00:00:00.000Z'),
         to: new Date('2026-06-01T00:00:00.000Z'),
       });
+      expect(usageGrantsManager.getActiveGrantedAmount).toHaveBeenCalledWith(
+        params.userIdentifier,
+        params.slug,
+        now
+      );
       expect(result).toEqual({
         usage: 250,
         limit: 1000,
+        grantedAmount: 0,
+        unit: 'tokens',
+        windowStart: '2026-05-01T00:00:00.000Z',
+        windowEnd: '2026-06-01T00:00:00.000Z',
+      });
+    });
+
+    it('raises the reported limit by the active granted amount', async () => {
+      const meter = StrapiMeterFactory({
+        unit: 'tokens',
+        limit: 1000,
+        window: 'monthly',
+      });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+      meteringQueryManager.queryUsage.mockResolvedValue({
+        usage: 250,
+        from: new Date('2000-01-01T00:00:00.000Z'),
+        to: new Date('2000-01-02T00:00:00.000Z'),
+      });
+      usageGrantsManager.getActiveGrantedAmount.mockResolvedValue(500);
+
+      const now = new Date('2026-05-15T12:00:00.000Z');
+      const result = await usageService.queryUsage(params, now);
+
+      expect(result).toEqual({
+        usage: 250,
+        limit: 1500,
+        grantedAmount: 500,
         unit: 'tokens',
         windowStart: '2026-05-01T00:00:00.000Z',
         windowEnd: '2026-06-01T00:00:00.000Z',
@@ -237,6 +282,24 @@ describe('UsageService', () => {
 
       await expect(usageService.queryUsage(params)).rejects.toThrow(
         OpenMeterQueryError
+      );
+    });
+
+    it('propagates a failure from the grants manager', async () => {
+      const meter = StrapiMeterFactory({ window: 'monthly' });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+      meteringQueryManager.queryUsage.mockResolvedValue({
+        usage: 250,
+        from: new Date('2000-01-01T00:00:00.000Z'),
+        to: new Date('2000-01-02T00:00:00.000Z'),
+      });
+      usageGrantsManager.getActiveGrantedAmount.mockRejectedValue(
+        new Error('firestore unavailable')
+      );
+
+      await expect(usageService.queryUsage(params)).rejects.toThrow(
+        'firestore unavailable'
       );
     });
 
