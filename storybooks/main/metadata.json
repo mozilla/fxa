@@ -1,8 +1,8 @@
 {
-  "commit": "d5e015d864f538e771ccf2e4e6302595d83e64a1",
-  "summary": "Merge pull request #20791 from mozilla/fxa-13647",
-  "description": "test(functional): upgrade Playwright and fix Sync tests for keys_optional",
-  "timestamp": 1784133805000,
+  "commit": "93960f1977f2f2a2d59fc8a210c469db248b1b33",
+  "summary": "Merge pull request #20850 from mozilla/FXA-13962",
+  "description": "feat(settings): add passkey rename ui",
+  "timestamp": 1784135952000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
