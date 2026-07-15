@@ -1,8 +1,8 @@
 {
-  "commit": "624c8b4456a176ab0dab350b501e2aadc5656a64",
-  "summary": "Merge branch 'main' into upgrade-nx",
-  "description": "Because:\n- The upgrade-nx branch was 62 commits behind main; functional tests\n  need to run against current main.\n\nThis commit:\n- Resolves tsconfig.base.json conflict by keeping the nx-upgrade \"./\"\n  path-prefix convention and adding main's new aliases\n  (@fxa/free-access-program, @fxa/payments/api-server/server-utils).\n- Regenerates yarn.lock via `yarn install` against the merged manifests.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
-  "timestamp": 1784132065000,
+  "commit": "05db00faf902f65d399e42a3d61243b932ce3d76",
+  "summary": "chore(many): Upgrade nx",
+  "description": "Because:\n- Now that we are node 24, we can use the latest version of NX.\n- There are supposed perf benefits\n\nThis Commit:\n- Upgrades NX, Next, Jest, and other support deps\n- Updates deprecated Jest assertions\n- Fixes a couple caching issues\n- Sets robust nx defaults that work well with our project\n- Removes NX commands from package.json 'scripts'. They are no longer permitted by nx.",
+  "timestamp": 1784142578000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
