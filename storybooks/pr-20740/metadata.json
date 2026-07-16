@@ -1,8 +1,8 @@
 {
-  "commit": "8f47dcc54727c7fbe6f7bba1063dc9d3aebcbf38",
+  "commit": "9625ff7c0fda240aea3e3ff6fa0e476396ae0030",
   "summary": "chore(many): Upgrade nx",
   "description": "Because:\n- Now that we are node 24, we can use the latest version of NX.\n- There are supposed perf benefits\n\nThis Commit:\n- Upgrades NX, Next, Jest, and other support deps\n- Updates deprecated Jest assertions\n- Fixes a couple caching issues\n- Sets robust nx defaults that work well with our project\n- Removes NX commands from package.json 'scripts'. They are no longer permitted by nx.",
-  "timestamp": 1784216714000,
+  "timestamp": 1784229361000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
