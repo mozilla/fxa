@@ -1,8 +1,8 @@
 {
-  "commit": "6208b0562ce426d278ef540b5166b65de192987b",
-  "summary": "Merge pull request #20880 from mozilla/subplat_fix-341-stage",
-  "description": "fix(payments-ui): use @fxa/payments/cart alias in assertCartOwnership",
-  "timestamp": 1784217349000,
+  "commit": "bb1e0a09540e3d33f89b86447f22f90f8da4d56f",
+  "summary": "Merge pull request #20881 from mozilla/fix-waf-header-config-page",
+  "description": "fix(functional-tests): register WAF bypass header on the browser context",
+  "timestamp": 1784218251000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

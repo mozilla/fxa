@@ -154,8 +154,8 @@ device-info-ip-address = IP-adress: { $ipAddress }
 firefox-promo-banner-mobile-heading = Hämta { -brand-firefox } var du än är
 firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
 firefox-promo-banner-mobile-cta = Anslut en enhet
-firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
-firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-heading = Byt snabbt, lätt att komma igång.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa något.
 firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
 
 
