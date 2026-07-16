@@ -3,18 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getSessionUid } from '@fxa/payments/ui-auth';
-import { CartUidMismatchError } from 'libs/payments/cart/src/lib/cart.error';
+import { CartUidMismatchError } from '@fxa/payments/cart';
 
 /**
  * Throws CartUidMismatchError before the decorated method runs when the cart has
  * a uid and it does not match the current session uid.
  */
 export function AssertCartOwnership() {
-  return function (
-    _target: any,
-    _key: string,
-    descriptor: PropertyDescriptor
-  ) {
+  return function (_target: any, _key: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (this: any, args: any) {
