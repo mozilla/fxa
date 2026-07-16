@@ -1,8 +1,8 @@
 {
-  "commit": "e0f5229fd99b392fd7b59476b73a121ad3b29495",
+  "commit": "aa385ae16b86081c77b1865b3c5dac80f4de1b6a",
   "summary": "chore(deps): update Stripe SDK to 22.3.1 (2026-06-24.dahlia)",
   "description": "Because:\n\n* Stripe's \"basil\" billing redesign — crossed by the acacia -> dahlia\n  API-version bump — reshaped the invoice, subscription, line-item,\n  discount, and payment-intent objects FxA relies on.\n\nThis commit:\n\n* Pins `stripe` to 22.3.1 (from 17.4.0) and pins the apiVersion\n  '2026-06-24.dahlia' via a shared STRIPE_API_VERSION constant.\n* Migrates every affected call site across the modern libs/payments/*\n  StripeClient stack and the legacy fxa-auth-server StripeHelper:\n  invoice.subscription -> parent.subscription_details.subscription,\n  invoice.payment_intent/charge -> payments[]/confirmation_secret,\n  subscription.current_period_* -> subscription-item level,\n  invoices.retrieveUpcoming -> invoices.createPreview, plus the basil\n  tax/discount/pricing reshape and the PromotionCode.coupon and branded\n  Decimal changes.\n* Reads webhook-delivered invoices with a transitional dual-read (old +\n  new shapes) to survive the Stripe Dashboard API-version rollout window.\n* Patches stripe to re-add the top-level `types` field it dropped as an\n  exports-only package, so the SDK resolves under TypeScript.\n* Updates the hand-written Stripe factories and co-located specs and\n  fixtures to the new basil shapes.\n\nCloses: PAY-3759",
-  "timestamp": 1784214404000,
+  "timestamp": 1784232453000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
