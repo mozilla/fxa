@@ -9,7 +9,8 @@ export class ConfigPage extends BaseLayout {
 
   async getConfig() {
     if (!this.config) {
-      // Create a new page
+      // Create a new page. The WAF bypass header is registered on the browser
+      // context (see addWafBypassHeader), so this page inherits it.
       const page = await this.page.context().newPage();
 
       await page.goto(this.baseUrl);
