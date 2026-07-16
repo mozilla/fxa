@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSessionUid } from '@fxa/payments/ui-auth';
 import { CartUidMismatchError } from '@fxa/payments/cart';
 
 /**
@@ -15,6 +14,7 @@ export function AssertCartOwnership() {
 
     descriptor.value = async function (this: any, args: any) {
       const cartId = args?.cartId as string;
+      const { getSessionUid } = await import('@fxa/payments/ui-auth');
       const sessionUid = await getSessionUid();
 
       const cart = await this.cartManager.fetchCartById(cartId);
