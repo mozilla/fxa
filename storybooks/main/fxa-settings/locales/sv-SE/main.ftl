@@ -151,7 +151,7 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adress: { $ipAddress }
 
 
-firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-heading = Hämta { -brand-firefox } var du än är
 firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
 firefox-promo-banner-mobile-cta = Anslut en enhet
 firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
