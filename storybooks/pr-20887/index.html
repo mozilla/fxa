@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 5d782ba6e755f73cd555a293d918c57b6791744e</title>
+  <title>Storybooks for commit 904007b6b86a445e2f50e331a2cda9136a72acf7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 5d782ba6e755f73cd555a293d918c57b6791744e</h1>
+  <h1>Storybooks for commit 904007b6b86a445e2f50e331a2cda9136a72acf7</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/17/2026, 9:56:51 PM UTC</dd>
+    <dd>7/17/2026, 10:15:47 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): warn (not error) on cancelled/timed-out passkey sign-in</pre></dd>
     <dt>Description</dt>
@@ -40,9 +40,9 @@
 
 This commit:
 * Replaces the red error banner with an amber warning banner for a cancelled
-  ceremony (&quot;Passkey not working?&quot; + a &quot;How to use passkeys&quot; link) and, as a
-  separate message, for a timeout (&quot;Passkey sign-in timed out. Try again.&quot;);
-  genuine errors keep the error banner.
+  ceremony (&quot;Couldn’t sign in with a passkey&quot; + a &quot;How to use passkeys&quot; link)
+  and, as a separate message, for a timeout (&quot;Passkey sign-in timed out. Try
+  again.&quot;); genuine errors keep the error banner.
 * Routes the help link to the how-to article on email-first and the
   troubleshooting article on other surfaces, and adds a
   passkey.get_help_link_click Glean event (reason = surface).

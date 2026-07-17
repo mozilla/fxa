@@ -1701,12 +1701,12 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
-passkey-authentication-trouble-heading = Passkey not working?
-# "Try again" = attempt the passkey sign-in again (the "Sign in with passkey" button is shown
-# below this banner). "another sign-in option" = the other sign-in methods on the page, which
-# vary by page.
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
 passkey-authentication-trouble-description = Try again or use another sign-in option.
-# Link label appended to the banner above; opens a SUMO passkey support article.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
 passkey-authentication-trouble-link = How to use passkeys
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
