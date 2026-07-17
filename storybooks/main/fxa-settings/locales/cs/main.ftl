@@ -322,7 +322,7 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Něco se pokazilo
-app-something-went-wrong-message = Na problém jsme byli upozorněni. Obnovte stránku a zkuste to znovu.
+app-something-went-wrong-message = O tomto problému jsme byli informováni. Obnovte stránku a zkuste to znovu.
 app-error-id = ID chyby: { $errorId }
 app-error-details-summary = Podrobnosti o chybě
 app-query-parameter-err-heading = Špatný požadavek: neplatné parametry v dotazu
@@ -440,12 +440,12 @@ device-info-browser-os = { $browserName } na { $genericOSName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
-firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
-firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
+firefox-promo-banner-mobile-heading = Mějte { -brand-firefox(case: "acc") } s sebou kdekoliv se nacházíte
+firefox-promo-banner-mobile-description = Synchronizujte si panely, záložky a hesla napříč všemi svými zařízeními. Navíc je vše bezpečně zašifrováno.
 firefox-promo-banner-mobile-cta = Připojit zařízení
-firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
-firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
-firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }
+firefox-promo-banner-switch-heading = Rychlé přepnutí. Snadné zapojení.
+firefox-promo-banner-switch-description = Když přejdete na { -brand-firefox }, můžete si přenést své záložky, hesla, historii a další údaje, abyste mohli pokračovat v prohlížení webu bez problémů.
+firefox-promo-banner-switch-cta = Přejít na { -brand-firefox(case: "acc") }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1221,13 +1221,13 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content-v2 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení bude potřeba použít jinou metodu (heslo, jiné heslo nebo propojený účet).
+passkey-delete-modal-content-v2 = Tento přístupový klíč bude z vašeho účtu odstraněn. Budete se muset přihlásit jiným způsobem (heslem, jiným přístupovým klíčem nebo propojeným účtem).
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
 passkey-delete-error = Váš přístupový kód se nepodařilo smazat. Zkuste to znovu za několik minut.
-passkey-sub-row-rename-title = Přejmenovat přístupový kód
-passkey-rename-modal-heading = Přejmenovat přístupový kód
+passkey-sub-row-rename-title = Přejmenovat přístupový klíč
+passkey-rename-modal-heading = Přejmenovat přístupový klíč
 passkey-rename-modal-description = Zadejte nový název pro tento přístupový klíč.
 passkey-rename-input-label = Název přístupového klíče
 passkey-rename-save-button = Uložit
@@ -1237,7 +1237,7 @@ passkey-rename-error-too-long = Název musí obsahovat méně než 256 znaků.
 passkey-rename-error-invalid = Jsou povolena pouze písmena, čísla, interpunkční znaménka a symboly.
 passkey-rename-error-duplicate = Přístupový klíč s tímto názvem už existuje
 passkey-rename-success = Přístupový klíč byl přejmenován
-passkey-rename-error = Váš přístupový klíč se nepodařilo přejmenovat. Zkuste to znovu za několik minut.
+passkey-rename-error = Při přejmenování vašeho přístupového klíče došlo k problému. Zkuste to znovu za pár minut.
 
 
 switch-turn-off = Vypnout
@@ -1372,7 +1372,7 @@ auth-error-225 = Přístupový klíč je již zaregistrován
 auth-error-226 = Dosažen limit přístupových klíčů
 auth-error-227 = Ověření přístupovým klíčem selhalo
 auth-error-228 = Registrace přístupového klíče selhala
-auth-error-233 = Pro vytvoření bezpečnostního klíče si nastavte na svém zařízení zámek obrazovky, PIN, otisk prstu nebo rozpoznávání obličeje či bezpečnostní klíč. Zkuste to znovu.
+auth-error-233 = Chcete-li vytvořit přístupový klíč, nastavte na svém zařízení nebo bezpečnostním klíči zámek obrazovky, PIN, otisk prstu nebo rozpoznávání obličeje. Poté to zkuste znovu.
 auth-error-238 = Ověření pomocí přístupového klíče se nezdařilo
 auth-error-239 = Je nám líto, ale váš účet se nepodařilo smazat. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává.
 auth-error-999 = Neočekávaná chyba

@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Upraviť
 error-icon-aria-label =
     .aria-label = Chyba
 # Used as information icon for informative messaging
@@ -1263,6 +1266,18 @@ passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
 passkey-delete-error = Pri odstraňovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
+passkey-sub-row-rename-title = Premenovať prístupový kľúč
+passkey-rename-modal-heading = Premenovať prístupový kľúč
+passkey-rename-modal-description = Zadajte nový názov pre tento prístupový kľúč.
+passkey-rename-input-label = Názov prístupového kľúča
+passkey-rename-save-button = Uložiť
+passkey-rename-cancel-button = Zrušiť
+passkey-rename-error-empty = Zadajte názov pre tento prístupový kľúč
+passkey-rename-error-too-long = Názov musí obsahovať menej ako 256 znakov.
+passkey-rename-error-invalid = Povolené sú iba písmená, čísla, interpunkčné znamienka a symboly.
+passkey-rename-error-duplicate = Prístupový kľúč s týmto názvom už existuje
+passkey-rename-success = Prístupový kľúč premenovaný
+passkey-rename-error = Pri premenovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
 
 ## Switch component
 
@@ -1456,6 +1471,7 @@ auth-error-225 = Prístupový kľúč je už zaregistrovaný
 auth-error-226 = Dosiahnutý limit prístupových kľúčov
 auth-error-227 = Overenie pomocou prístupového kľúča zlyhalo
 auth-error-228 = Registrácia prístupového kľúča zlyhala
+auth-error-233 = Ak chcete vytvoriť prístupový kľúč, nastavte si na zariadení alebo bezpečnostnom kľúči zámok obrazovky, PIN kód, odtlačok prsta alebo rozpoznávanie tváre. Potom to skúste znova.
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
 auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
 auth-error-999 = Neočakávaná chyba

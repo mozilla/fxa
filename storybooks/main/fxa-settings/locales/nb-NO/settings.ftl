@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kode
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Feil
 # Used as information icon for informative messaging
@@ -1251,6 +1254,18 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel slettet
 passkey-delete-error = Det oppstod et problem med å slette passnøkkelen din. Prøv igjen om noen minutter.
+passkey-sub-row-rename-title = Endre navn på passnøkkel
+passkey-rename-modal-heading = Endre navn på passnøkkel
+passkey-rename-modal-description = Skriv inn et nytt navn for denne passnøkkelen.
+passkey-rename-input-label = Passnøkkelnavn
+passkey-rename-save-button = Lagre
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Skriv inn et navn for denne passnøkkelen.
+passkey-rename-error-too-long = Navnet må inneholde færre enn 256 tegn.
+passkey-rename-error-invalid = Bare bokstaver, tall, skilletegn og symboler er tillatt.
+passkey-rename-error-duplicate = En passnøkkel med dette navnet finnes allerede
+passkey-rename-success = Passnøkkel omdøpt
+passkey-rename-error = Det oppstod et problem med å endre navn på passnøkkelen din. Prøv igjen om noen minutter.
 
 ## Switch component
 
@@ -1434,6 +1449,7 @@ auth-error-225 = Passnøkkelen er allerede registrert
 auth-error-226 = Passnøkkelgrensen er nådd
 auth-error-227 = Passnøkkelautentisering mislyktes
 auth-error-228 = Registrering av passnøkkel mislyktes
+auth-error-233 = For å opprette en passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på enheten eller sikkerhetsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Passnøkkelutfordring mislyktes
 auth-error-239 = Beklager, vi kunne ikke slette kontoen din. Prøv på nytt, eller kontakt brukerstøtte hvis problemet vedvarer.
 auth-error-999 = Uventet feil

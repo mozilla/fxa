@@ -1,8 +1,8 @@
 {
-  "commit": "b77f919c5cb26b819bab041a46ccd2b9e057c877",
-  "summary": "Merge pull request #20855 from mozilla/dependabot/github_actions/actions/setup-node-7.0.0",
-  "description": "chore(deps): bump actions/setup-node from 6.4.0 to 7.0.0",
-  "timestamp": 1784305078000,
+  "commit": "00a9c0f9c34a80e717669ae38ce05c5a528fedcf",
+  "summary": "Merge pull request #20885 from mozilla/PAY-3808",
+  "description": "fix(payments): return accurate tag version info for payments-api and payments-next",
+  "timestamp": 1784320624000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
