@@ -18,6 +18,16 @@
 //   * A long-lived `refresh_token`, via `access_type=offline`
 //   * An OpenID Connect `id_token`, via `scope=openid`
 //
+// Which of those each grant returns:
+//
+//   * `refresh_token` — a fresh `access_token` only (never a new refresh_token).
+//   * token-exchange — an `access_token` + `refresh_token` (the presented
+//     refresh_token is then revoked).
+//   * `authorization_code` / `fxa-credentials` — an `access_token`; add
+//     `access_type=offline` for a `refresh_token` too, or `refresh_token_only=true`
+//     (offline only, `/oauth/token` route only — the legacy `/token` route strips
+//     it) for the `refresh_token` and no `access_token`.
+//
 // And because of the different client authentication methods:
 //
 //   * `client_secret`, provided in either header or request body
@@ -41,7 +51,6 @@ const { config } = require('../../../config');
 const encrypt = require('fxa-shared/auth/encrypt');
 const util = require('../../oauth/util');
 const oauthRouteUtils = require('../utils/oauth');
-const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const verifyAssertion = require('../../oauth/assertion');
@@ -266,6 +275,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     requestedGrant.ppidSeed = params.ppid_seed;
     requestedGrant.resource = params.resource;
     requestedGrant.ttl = Math.min(params.ttl, MAX_TTL_S);
+    // Opt-in for the authorization_code / fxa-credentials grants only (the
+    // payload schema exposes the param on just those two). Absent elsewhere,
+    // so this coerces to false for refresh_token / token-exchange grants.
+    requestedGrant.refreshTokenOnly = params.refresh_token_only === true;
     return requestedGrant;
   }
 
@@ -622,14 +635,21 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       service: oauthClientId,
       uid,
     });
-    glean.oauth.tokenCreated(req, {
-      uid,
-      oauthClientId,
-      reason: params.reason
-        ? `${params.grant_type}:${params.reason}`
-        : params.grant_type,
-      scopes: grant.scope?.toString() || '',
-    });
+    // This event maps to the `access_token.created` Glean event, so only emit it when
+    // an access token was _actually_ minted. A refresh_token_only grant creates no
+    // access token, so it is skipped here; the access token — and this event — come
+    // later when the client uses that refresh token to request an access token via
+    // the refresh_token grant.
+    if (!grant.refreshTokenOnly) {
+      glean.oauth.tokenCreated(req, {
+        uid,
+        oauthClientId,
+        reason: params.reason
+          ? `${params.grant_type}:${params.reason}`
+          : params.grant_type,
+        scopes: grant.scope?.toString() || '',
+      });
+    }
 
     if (tokens.keys_jwe) {
       const serviceTags = getClientServiceTags(req);
@@ -661,6 +681,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     // Include grant properties needed by the /oauth/token handler for newTokenNotification.
     // These are internal properties that get stripped before returning to the client.
     tokens._clientId = oauthClientId;
+    tokens._uid = uid;
     if (grant.existingDeviceId) {
       tokens._existingDeviceId = grant.existingDeviceId;
     }
@@ -713,6 +734,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           // Strip internal properties that are only used by /oauth/token handler
           delete result._clientId;
           delete result._existingDeviceId;
+          delete result._uid;
           return result;
         },
       },
@@ -758,6 +780,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               resource: validators.resourceUrl
                 .optional()
                 .description(DESCRIPTION.resource),
+              refresh_token_only: Joi.boolean()
+                .optional()
+                .default(false)
+                .description(DESCRIPTION.refreshTokenOnly),
             }).xor('client_secret', 'code_verifier'),
             // refresh token
             Joi.object({
@@ -782,6 +808,17 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               access_type: Joi.string()
                 .valid('online', 'offline')
                 .default('online'),
+              refresh_token_only: Joi.boolean()
+                .optional()
+                .default(false)
+                // refresh_token_only only makes sense for an offline grant (it
+                // returns just the refresh token); reject it up front otherwise
+                // rather than failing later in generateTokens.
+                .when('access_type', {
+                  is: 'offline',
+                  otherwise: Joi.valid(false),
+                })
+                .description(DESCRIPTION.refreshTokenOnly),
               // Note: the max allowed TTL is currently configured in oauth-server config,
               // making it hard to know what limit to set here.
               ttl: Joi.number().positive().optional(),
@@ -856,6 +893,17 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               scope: validators.scope.required(),
               token_type: Joi.string().valid('bearer').required(),
               expires_in: Joi.number().required(),
+            }),
+            // refresh_token_only grant: no access token is minted, so the usual
+            // access_token / token_type / expires_in fields are absent. Only the
+            // refresh_token and scope are returned (with auth_at, keys_jwe, and
+            // session_token included when the grant produced them).
+            Joi.object({
+              refresh_token: validators.refreshToken.required(),
+              scope: validators.scope.required(),
+              auth_at: Joi.number().optional(),
+              keys_jwe: validators.jwe.optional(),
+              session_token: validators.sessionToken.optional(),
             })
           ),
         },
@@ -907,6 +955,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         }
 
         const scopeSet = ScopeSet.fromString(grant.scope);
+
+        // Captured before the internal props are stripped below. Used as the uid
+        // source when there's no access token to verify (refresh_token_only).
+        const grantUid = grant._uid;
 
         // Token exchange doesn't provide a session token, and token migration
         // doesn't need a new session token created, so skip those blocks for both.
@@ -977,6 +1029,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               skipEmail: isSilentUpgrade,
               existingDeviceId: grant._existingDeviceId,
               clientId: grant._clientId,
+              uid: grantUid,
             }
           );
         }
@@ -989,18 +1042,14 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         // Strip internal properties before returning to client
         delete grant._clientId;
         delete grant._existingDeviceId;
+        delete grant._uid;
         delete grant.session_token_id;
 
         // attempt to record metrics, but swallow the error if one is thrown.
         try {
-          let uid = sessionToken && sessionToken.uid;
-
-          // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
-          // have the uid in `credentials`, so we get it from the oauth DB.
-          if (!uid) {
-            const tokenVerify = await token.verify(grant.access_token);
-            uid = tokenVerify.user;
-          }
+          // Some grant flows (e.g. authorization_code, token-exchange) have no
+          // session token, so fall back to the uid carried on the grant.
+          const uid = (sessionToken && sessionToken.uid) || grantUid;
 
           await req.emitMetricsEvent('oauth.token.created', {
             grantType: req.payload.grant_type,

@@ -186,6 +186,76 @@ describe.each(testVersions)(
       expect(devices.length).toBe(1);
     });
 
+    describe('refresh_token_only', () => {
+      it('returns a refresh token but no access token for an offline fxa-credentials grant', async () => {
+        const SCOPE = OAUTH_SCOPE_OLD_SYNC;
+        const res = await client.grantOAuthTokensFromSessionToken({
+          grant_type: 'fxa-credentials',
+          client_id: PUBLIC_CLIENT_ID,
+          access_type: 'offline',
+          scope: SCOPE,
+          refresh_token_only: true,
+        });
+
+        expect(res.refresh_token).toBeTruthy();
+        expect(res.scope).toBe(SCOPE);
+        expect(res.auth_at).toBeTruthy();
+        expect(res.access_token).toBeUndefined();
+        expect(res.token_type).toBeUndefined();
+        expect(res.expires_in).toBeUndefined();
+      });
+
+      it('returns a refresh token but no access token or id token for an offline authorization_code grant', async () => {
+        // openid is included specifically to prove the id_token is skipped when
+        // no access token is minted (its at_hash binds to the access token).
+        const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
+        let res = await client.createAuthorizationCode({
+          client_id: PUBLIC_CLIENT_ID,
+          state: 'abc',
+          code_challenge: MOCK_CODE_CHALLENGE,
+          code_challenge_method: 'S256',
+          scope: SCOPE,
+          access_type: 'offline',
+        });
+        expect(res.code).toBeTruthy();
+
+        res = await client.grantOAuthTokens({
+          client_id: PUBLIC_CLIENT_ID,
+          code: res.code,
+          code_verifier: MOCK_CODE_VERIFIER,
+          refresh_token_only: true,
+        });
+
+        expect(res.refresh_token).toBeTruthy();
+        expect(res.scope).toBe(SCOPE);
+        expect(res.auth_at).toBeTruthy();
+        expect(res.access_token).toBeUndefined();
+        expect(res.token_type).toBeUndefined();
+        expect(res.expires_in).toBeUndefined();
+        expect(res.id_token).toBeUndefined();
+      });
+
+      it('rejects refresh_token_only when the grant is not offline', async () => {
+        // Guards against a non-rejecting call silently passing the catch block.
+        expect.assertions(2);
+        try {
+          await client.grantOAuthTokensFromSessionToken({
+            grant_type: 'fxa-credentials',
+            client_id: PUBLIC_CLIENT_ID,
+            scope: OAUTH_SCOPE_OLD_SYNC,
+            refresh_token_only: true,
+          });
+          throw new Error('should have thrown');
+        } catch (err: any) {
+          // The oauth-layer OauthError.invalidRequestParameter is translated to
+          // an AppError at the HTTP boundary (errno 107), which also drops the
+          // parameter name from the response body.
+          expect(err.code).toBe(400);
+          expect(err.errno).toBe(error.ERRNO.INVALID_PARAMETER);
+        }
+      });
+    });
+
     it('successfully propagates `resource` and `clientId` in the ID token `aud` claim', async () => {
       const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
 

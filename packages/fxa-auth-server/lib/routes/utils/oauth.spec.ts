@@ -10,19 +10,7 @@ const MOCK_REFRESH_TOKEN_2 =
   '00661392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7';
 const MOCK_REFRESH_TOKEN_ID_2 =
   '0e4f2255bed0ae53af401150488e69f22beae103b7d6857a5194df00c9827d19';
-const OAUTH_CLIENT_ID = '3c49430b43dfba77';
-const MOCK_CHECK_RESPONSE = {
-  user: MOCK_UID,
-  client_id: OAUTH_CLIENT_ID,
-  scope: ['https://identity.mozilla.com/apps/oldsync', 'openid'],
-};
 const MOCK_DEVICE_ID = 'a72ed885e66cb9c96a12fde247112daa';
-
-jest.mock('../../oauth/token', () => ({
-  verify: async function () {
-    return MOCK_CHECK_RESPONSE;
-  },
-}));
 
 jest.mock('../../oauth/client', () => ({
   getClientById: async function () {
@@ -151,13 +139,22 @@ describe('newTokenNotification', () => {
     expect(devices.upsert).toHaveBeenCalledTimes(1);
   });
 
-  it('creates a device and sends an email with token uid', async () => {
+  it('resolves the uid from the uid option when credentials has none', async () => {
+    const MOCK_UID_FROM_OPTION = '11d4847823f24b0f95e1524987cb0391';
     credentials = {};
     request = mockRequest({ credentials });
-    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant, {
+      skipEmail: true,
+      uid: MOCK_UID_FROM_OPTION,
+    });
 
-    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
     expect(devices.upsert).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenNthCalledWith(
+      1,
+      expect.anything(),
+      expect.objectContaining({ uid: MOCK_UID_FROM_OPTION }),
+      expect.anything()
+    );
   });
 
   it('does nothing for non-NOTIFICATION_SCOPES', async () => {

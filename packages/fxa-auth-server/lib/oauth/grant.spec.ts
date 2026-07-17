@@ -328,4 +328,48 @@ describe('generateTokens', () => {
     const jwt = decodeJWT(result.id_token);
     expect(jwt.claims.auth_time).toBe(Math.floor(requestedGrant.authAt / 1000));
   });
+
+  describe('refreshTokenOnly', () => {
+    beforeEach(() => {
+      requestedGrant.offline = true;
+      requestedGrant.refreshTokenOnly = true;
+    });
+
+    it('returns the refresh token and scope but no access token', async () => {
+      const result = await generateTokens(requestedGrant);
+      expect(mockDB.generateAccessToken).not.toHaveBeenCalled();
+      expect(result.refresh_token).toBe('refresh_token');
+      expect(result.scope).toBe(
+        'profile:uid profile:email profile:subscriptions'
+      );
+      expect('access_token' in result).toBe(false);
+      expect('token_type' in result).toBe(false);
+      expect('expires_in' in result).toBe(false);
+    });
+
+    it('still returns keys_jwe from the grant', async () => {
+      requestedGrant.keysJwe = 'encrypted-keys';
+      const result = await generateTokens(requestedGrant);
+      expect(result.keys_jwe).toBe('encrypted-keys');
+      expect(result.refresh_token).toBe('refresh_token');
+    });
+
+    it('does not generate an id_token even when the openid scope is requested', async () => {
+      requestedGrant.scope = ScopeSet.fromArray(['openid']);
+      const result = await generateTokens(requestedGrant);
+      expect('id_token' in result).toBe(false);
+      expect('access_token' in result).toBe(false);
+      expect(result.refresh_token).toBe('refresh_token');
+    });
+
+    it('rejects with invalidRequestParameter when the grant is not offline', async () => {
+      requestedGrant.offline = false;
+      await expect(generateTokens(requestedGrant)).rejects.toMatchObject({
+        errno: 109,
+        message: 'Invalid request parameter',
+      });
+      expect(mockDB.generateAccessToken).not.toHaveBeenCalled();
+      expect(mockDB.generateRefreshToken).not.toHaveBeenCalled();
+    });
+  });
 });

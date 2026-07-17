@@ -705,6 +705,78 @@ describe('token exchange grant_type', () => {
 });
 
 describe('/oauth/token POST', () => {
+  describe('refresh_token_only input validation', () => {
+    // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
+    function v(req: any) {
+      const oauthTokenRoute = tokenRoutes[1];
+      return oauthTokenRoute.config.validate.payload.validate(req);
+    }
+
+    it('accepts refresh_token_only=true for the authorization_code grant', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: CODE,
+        refresh_token_only: true,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.refresh_token_only).toBe(true);
+    });
+
+    it('accepts refresh_token_only=true for the fxa-credentials grant', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+        access_type: 'offline',
+        refresh_token_only: true,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.refresh_token_only).toBe(true);
+    });
+
+    it('defaults refresh_token_only to false when omitted', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.refresh_token_only).toBe(false);
+    });
+
+    it('rejects refresh_token_only=true for fxa-credentials without access_type=offline', () => {
+      // access_type defaults to 'online', so the credentials alternative rejects
+      // refresh_token_only=true (contrast with the offline case accepted above).
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+        refresh_token_only: true,
+      });
+      expect(res.error).toBeDefined();
+      expect(res.error.isJoi).toBe(true);
+      expect(res.error.name).toBe('ValidationError');
+    });
+  });
+
+  describe('Glean metrics', () => {
+    it('does not log the token created event for a refresh_token_only grant', async () => {
+      const request = {
+        app: {},
+        auth: { credentials: { uid: 'abc' } },
+        headers: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          access_type: 'offline',
+          refresh_token_only: true,
+        },
+        emitMetricsEvent: async () => {},
+      };
+      await tokenRoutes[1].handler(request);
+      expect(mockGlean.oauth.tokenCreated).not.toHaveBeenCalled();
+    });
+  });
+
   describe('update session last access time', () => {
     beforeEach(() => {
       mockDb.touchSessionToken.mockClear();
@@ -861,6 +933,7 @@ describe('/oauth/token POST', () => {
           skipEmail: true,
           existingDeviceId: MOCK_DEVICE_ID,
           clientId: FIREFOX_IOS_CLIENT_ID,
+          uid: 'eaf0',
         }
       );
       expect(sessionTokenStub).not.toHaveBeenCalled();
@@ -951,6 +1024,7 @@ describe('/oauth/token POST', () => {
           skipEmail: true,
           existingDeviceId: undefined,
           clientId: FIREFOX_IOS_CLIENT_ID,
+          uid: 'eaf0',
         }
       );
     });

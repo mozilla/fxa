@@ -10,7 +10,6 @@ const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
 } = require('fxa-shared/oauth/constants');
-const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { Container } = require('typedi');
 const { FxaMailer } = require('../../senders/fxa-mailer');
@@ -32,7 +31,12 @@ module.exports = {
     grant,
     options = {}
   ) {
-    const { skipEmail = false, existingDeviceId, clientId: optionsClientId } = options;
+    const {
+      skipEmail = false,
+      existingDeviceId,
+      clientId: optionsClientId,
+      uid: optionsUid,
+    } = options;
     const fxaMailer = Container.get(FxaMailer);
     const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
@@ -49,10 +53,10 @@ module.exports = {
     }
 
     if (!credentials.uid) {
-      // this can be removed once issue #3000 has been resolved
-      const tokenVerify = await token.verify(grant.access_token);
-      // some grant flows won't have the uid in `credentials`
-      credentials.uid = tokenVerify.user;
+      // Some grant flows don't carry the uid in `credentials` (e.g. the mobile
+      // authorization_code flow has no session token). The caller passes it
+      // through from the validated grant via the `uid` option.
+      credentials.uid = optionsUid;
     }
 
     if (!credentials.refreshTokenId) {

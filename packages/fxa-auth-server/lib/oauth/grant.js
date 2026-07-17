@@ -183,16 +183,28 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
 // This function does *not* perform any authentication or validation, assuming that
 // the specified grant has been sufficiently vetted by calling code.
 module.exports.generateTokens = async function generateTokens(grant) {
-  // We always generate an access_token.
-  const access = await exports.generateAccessToken(grant);
+  // `refreshTokenOnly` lets a caller obtain a refresh token *without* minting an
+  // access token, deferring access-token creation (and the `access_token.created`
+  // Glean event it drives) until the service is actually used. It requires an
+  // offline grant — otherwise the response would be empty.
+  if (grant.refreshTokenOnly && !grant.offline) {
+    throw OauthError.invalidRequestParameter('refresh_token_only');
+  }
 
-  const result = {
-    access_token: access.jwt_token || access.token.toString('hex'),
-    token_type: access.type,
-    scope: access.scope.toString(),
-  };
-  result.expires_in =
-    grant.ttl || Math.floor((access.expiresAt - Date.now()) / 1000);
+  const result = {};
+  if (grant.refreshTokenOnly) {
+    // Access token intentionally omitted; carry the granted scope through so the
+    // client still learns what the eventual access token will be good for.
+    result.scope = grant.scope.toString();
+  } else {
+    // Always generate an access_token.
+    const access = await exports.generateAccessToken(grant);
+    result.access_token = access.jwt_token || access.token.toString('hex');
+    result.token_type = access.type;
+    result.scope = access.scope.toString();
+    result.expires_in =
+      grant.ttl || Math.floor((access.expiresAt - Date.now()) / 1000);
+  }
   if (grant.authAt) {
     result.auth_at = grant.authAt;
   }
@@ -205,7 +217,16 @@ module.exports.generateTokens = async function generateTokens(grant) {
     result.refresh_token = refresh.token.toString('hex');
   }
   // Maybe also generate an idToken?
-  if (grant.scope && grant.scope.contains(SCOPE_OPENID)) {
+  // The id_token is a separate token whose at_hash claim hashes the access token,
+  // so producing one requires an access token — which a refresh-token-only grant
+  // doesn't mint (hence the !refreshTokenOnly guard). A plain refresh_token grant
+  // has openid excluded from its scope upstream (validateRefreshTokenGrant), so it
+  // doesn't reach here with openid either.
+  if (
+    !grant.refreshTokenOnly &&
+    grant.scope &&
+    grant.scope.contains(SCOPE_OPENID)
+  ) {
     result.id_token = await generateIdToken(grant, result.access_token);
   }
 

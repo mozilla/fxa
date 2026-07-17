@@ -215,6 +215,14 @@ const DESCRIPTIONS = {
     - \`grant_type=authorization_code\` and the original authorization request included \`access_type=offline\`.
     - \`grant_type=fxa-credentials\` and the request included \`access_type=offline\`.
   `,
+  refreshTokenOnly: dedent`
+    When true, return a refresh token without minting an access token, deferring
+    access-token creation (and the \`access_token.created\` Glean event it drives)
+    until the client later uses that refresh token to request an access token.
+    Requires an offline grant: \`access_type=offline\` for
+    \`grant_type=fxa-credentials\`, or an authorization code created with
+    \`access_type=offline\` for \`grant_type=authorization_code\`.
+  `,
   refreshTokenId: 'The specific `refresh_token_id` to be destroyed.',
   reminder: 'Indicates that verification originates from a reminder email.',
   resource:
