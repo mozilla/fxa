@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Код
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Изменить
 error-icon-aria-label =
     .aria-label = Ошибка
 # Used as information icon for informative messaging
@@ -1257,6 +1260,18 @@ passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён
 passkey-delete-error = При удалении вашего ключа доступа произошла ошибка. Попробуйте снова через несколько минут.
+passkey-sub-row-rename-title = Переименовать ключ доступа
+passkey-rename-modal-heading = Переименовать ключ доступа
+passkey-rename-modal-description = Введите новое имя для этого ключа доступа.
+passkey-rename-input-label = Имя ключа доступа
+passkey-rename-save-button = Сохранить
+passkey-rename-cancel-button = Отмена
+passkey-rename-error-empty = Введите имя для этого ключа доступа
+passkey-rename-error-too-long = Имя должно содержать менее 256 символов.
+passkey-rename-error-invalid = Допускаются только буквы, цифры, знаки препинания и символы.
+passkey-rename-error-duplicate = Ключ доступа с таким именем уже существует
+passkey-rename-success = Ключ доступа переименован
+passkey-rename-error = При переименовании вашего ключа доступа возникла проблема. Попробуйте снова через несколько минут.
 
 ## Switch component
 
@@ -1450,6 +1465,7 @@ auth-error-225 = Ключ доступа уже зарегистрирован
 auth-error-226 = Достигнут предел ключей доступа
 auth-error-227 = Аутентификация по ключу доступа не удалась
 auth-error-228 = Регистрация ключа доступа не удалась
+auth-error-233 = Чтобы создать ключ доступа, настройте блокировку экрана, PIN-код, отпечаток пальца или распознавание лица на вашем устройстве или ключе безопасности. Затем попробуйте снова.
 auth-error-238 = Проверка ключа доступа не удалась
 auth-error-239 = Извините, мы не смогли удалить ваш аккаунт. Пожалуйста, попробуйте ещё раз или обратитесь в службу поддержки, если проблема не будет устранена.
 auth-error-999 = Непредвиденная ошибка

@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Cod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editează
 error-icon-aria-label =
     .aria-label = Eroare
 # Used as information icon for informative messaging
@@ -1259,6 +1262,18 @@ passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
 passkey-delete-error = A apărut o problemă la ștergerea cheii. Încearcă din nou peste câteva minute.
+passkey-sub-row-rename-title = Redenumește cheia de acces
+passkey-rename-modal-heading = Redenumește cheia de acces
+passkey-rename-modal-description = Introdu o denumire nouă pentru această cheie de acces.
+passkey-rename-input-label = Denumire cheie de acces
+passkey-rename-save-button = Salvează
+passkey-rename-cancel-button = Anulează
+passkey-rename-error-empty = Introdu o denumire pentru această cheie de acces
+passkey-rename-error-too-long = Denumirea trebuie să aibă mai puțin de 256 de caractere.
+passkey-rename-error-invalid = Sunt permise numai litere, cifre, semne de punctuație și simboluri.
+passkey-rename-error-duplicate = Există deja o cheie de acces cu această denumire
+passkey-rename-success = Cheia de acces a fost redenumită
+passkey-rename-error = A apărut o problemă la redenumirea cheii de acces. Încearcă din  nou în câteva minute.
 
 ## Switch component
 
@@ -1454,6 +1469,7 @@ auth-error-225 = Cheia de acces este deja înregistrată
 auth-error-226 = S-a atins limita de chei de acces
 auth-error-227 = Autentificarea cu cheie de acces a eșuat
 auth-error-228 = Înregistrarea cheii de acces a eșuat
+auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
 auth-error-999 = Eroare neașteptată

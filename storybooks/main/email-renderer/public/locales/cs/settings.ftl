@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Upravit
 error-icon-aria-label =
     .aria-label = Chyba
 # Used as information icon for informative messaging
@@ -1261,6 +1264,18 @@ passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
 passkey-delete-error = Váš přístupový kód se nepodařilo smazat. Zkuste to znovu za několik minut.
+passkey-sub-row-rename-title = Přejmenovat přístupový kód
+passkey-rename-modal-heading = Přejmenovat přístupový kód
+passkey-rename-modal-description = Zadejte nový název pro tento přístupový klíč.
+passkey-rename-input-label = Název přístupového klíče
+passkey-rename-save-button = Uložit
+passkey-rename-cancel-button = Zrušit
+passkey-rename-error-empty = Zadejte název pro tento přístupový klíč
+passkey-rename-error-too-long = Název musí obsahovat méně než 256 znaků.
+passkey-rename-error-invalid = Jsou povolena pouze písmena, čísla, interpunkční znaménka a symboly.
+passkey-rename-error-duplicate = Přístupový klíč s tímto názvem už existuje
+passkey-rename-success = Přístupový klíč byl přejmenován
+passkey-rename-error = Váš přístupový klíč se nepodařilo přejmenovat. Zkuste to znovu za několik minut.
 
 ## Switch component
 
@@ -1450,6 +1465,7 @@ auth-error-225 = Přístupový klíč je již zaregistrován
 auth-error-226 = Dosažen limit přístupových klíčů
 auth-error-227 = Ověření přístupovým klíčem selhalo
 auth-error-228 = Registrace přístupového klíče selhala
+auth-error-233 = Pro vytvoření bezpečnostního klíče si nastavte na svém zařízení zámek obrazovky, PIN, otisk prstu nebo rozpoznávání obličeje či bezpečnostní klíč. Zkuste to znovu.
 auth-error-238 = Ověření pomocí přístupového klíče se nezdařilo
 auth-error-239 = Je nám líto, ale váš účet se nepodařilo smazat. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává.
 auth-error-999 = Neočekávaná chyba

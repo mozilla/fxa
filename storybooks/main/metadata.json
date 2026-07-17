@@ -1,8 +1,8 @@
 {
-  "commit": "a28d5780d4c79d0ffe6723b7d6462b9334d1d4d2",
-  "summary": "Merge pull request #20882 from mozilla/subplat_fix-341-3",
-  "description": "fix(payments-ui): Fix circular dependency in assertCartOwnership decorator",
-  "timestamp": 1784226567000,
+  "commit": "4c88c53c9bc1d6e080c1680a37df534e5d4e8793",
+  "summary": "Merge pull request #20871 from mozilla/dependabot/npm_and_yarn/nestjs/config-4.0.4",
+  "description": "chore(deps): bump @nestjs/config from 3.3.0 to 4.0.4",
+  "timestamp": 1784303960000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

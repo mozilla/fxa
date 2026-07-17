@@ -200,6 +200,8 @@ close-icon-aria-label =
     .aria-label = بستن پیام
 code-icon-aria-label =
     .aria-label = کد
+edit-icon-aria-label =
+    .aria-label = ویرایش
 error-icon-aria-label =
     .aria-label = خطا
 info-icon-aria-label =
@@ -426,6 +428,8 @@ tfa-row-backup-codes-add-cta = افزودن
 tfa-row-backup-phone-change-cta = تغییر
 tfa-row-backup-phone-add-cta = افزودن
 tfa-row-backup-phone-delete-button = حذف
+passkey-rename-save-button = ذخیره
+passkey-rename-cancel-button = انصراف
 
 
 row-defaults-action-add = افزودن

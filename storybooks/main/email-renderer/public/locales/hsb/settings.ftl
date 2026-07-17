@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Wobdźěłać
 error-icon-aria-label =
     .aria-label = Zmylk
 # Used as information icon for informative messaging
@@ -1265,6 +1268,18 @@ passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
 passkey-delete-error = Při zhašenju wašeho hesłoweho kluča je problem nastał. Spytajće za mało mjeńšin hišće raz.
+passkey-sub-row-rename-title = Hesłowy kluč přemjenować
+passkey-rename-modal-heading = Hesłowy kluč přemjenować
+passkey-rename-modal-description = Zapodajće nowe mjeno za tutón hesłowy kluč.
+passkey-rename-input-label = Mjeno hesłoweho kluča
+passkey-rename-save-button = Składować
+passkey-rename-cancel-button = Přetorhnyć
+passkey-rename-error-empty = Zapodajće mjeno za tutón hesłowy kluč
+passkey-rename-error-too-long = Mjeno dyrbi mjenje hač 256 znamješkow wobsahować.
+passkey-rename-error-invalid = Jenož pismiki, ličby, interpunkciske znamješka a symbole su dowolene.
+passkey-rename-error-duplicate = Hesłowy kluč z tym mjenom hižo eksistuje
+passkey-rename-success = Hesłowy kluč je so přemjenował
+passkey-rename-error = Při přemjenowanju wašeho hesłoweho kluča je problem nastał. Spytajće za mało mjeńšin hišće raz.
 
 ## Switch component
 

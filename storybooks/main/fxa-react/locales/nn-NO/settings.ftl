@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kode
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Feil
 # Used as information icon for informative messaging
@@ -1253,6 +1256,17 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
 passkey-delete-error = Det oppstod eit problem med å slette passnøkkelen din. Prøv igjen om nokre minutt.
+passkey-sub-row-rename-title = Byt namn på passnøkkel
+passkey-rename-modal-heading = Byt namn på passnøkkel
+passkey-rename-modal-description = Skriv inn eit nytt namn for denne passnøkkelen
+passkey-rename-input-label = Passnøkkelnamn
+passkey-rename-save-button = Lagre
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Skriv inn eit namn for denne passnøkkelen
+passkey-rename-error-too-long = Namnet må innehalde færre enn 256 teikn.
+passkey-rename-error-invalid = Berre bokstavar, tal, teiknsetting og symbol er lov.
+passkey-rename-error-duplicate = Ein passnøkkel med dette namnet finst allereie
+passkey-rename-success = Passnøkkel har fått nytt namn
 
 ## Switch component
 

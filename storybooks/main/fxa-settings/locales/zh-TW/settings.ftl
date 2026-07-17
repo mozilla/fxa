@@ -259,6 +259,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = 驗證碼
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = 編輯
 error-icon-aria-label =
     .aria-label = 錯誤
 # Used as information icon for informative messaging
@@ -1218,13 +1221,25 @@ passkey-sub-row-created-date = 建立於：{ $createdDate }
 # Variables:
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = 最後使用於：{ $lastUsedDate }
-passkey-sub-row-delete-title = 刪除 passkey
-passkey-delete-modal-heading = 要刪除您的 passkey 嗎？
+passkey-sub-row-delete-title = 刪除 Passkey
+passkey-delete-modal-heading = 要刪除您的 Passkey 嗎？
 passkey-delete-modal-content-v2 = 將從您的帳號中移除這把 Passkey。您必須使用其他方式（密碼、另一把 Passkey 或連結的帳號）登入。
 passkey-delete-modal-cancel-button = 取消
-passkey-delete-modal-confirm-button = 刪除 passkey
-passkey-delete-success = 已刪除 passkey
-passkey-delete-error = 刪除您的 passkey 時遇到問題，請稍候幾分鐘再試一次。
+passkey-delete-modal-confirm-button = 刪除 Passkey
+passkey-delete-success = 已刪除 Passkey
+passkey-delete-error = 刪除您的 Passkey 時遇到問題，請稍候幾分鐘再試一次。
+passkey-sub-row-rename-title = 重新命名 Passkey
+passkey-rename-modal-heading = 重新命名 Passkey
+passkey-rename-modal-description = 請輸入這把 Passkey 的新名稱。
+passkey-rename-input-label = Passkey 名稱
+passkey-rename-save-button = 儲存
+passkey-rename-cancel-button = 取消
+passkey-rename-error-empty = 請輸入這把 Passkey 的名稱
+passkey-rename-error-too-long = 名稱不可超過 256 個字元。
+passkey-rename-error-invalid = 只接受英文字母、數字、標點符號。
+passkey-rename-error-duplicate = 已有一把使用此名稱的 Passkey
+passkey-rename-success = 已重新命名 Passkey
+passkey-rename-error = 重新命名您的 Passkey 時遇到問題，請稍候幾分鐘再試一次。
 
 ## Switch component
 
@@ -1405,6 +1420,7 @@ auth-error-225 = Passkey 已經註冊
 auth-error-226 = 已達 Passkey 限制
 auth-error-227 = Passkey 驗證失敗
 auth-error-228 = Passkey 註冊失敗
+auth-error-233 = 要建立 Passkey，請先在您的裝置或安全金鑰設定 PIN 碼、指紋或臉孔辨識等螢幕鎖定方式，然後再試一次。
 auth-error-238 = Passkey 挑戰失敗
 auth-error-239 = 抱歉，我們無法刪除您的帳號。請再試一次，若問題持續存在請聯絡技術支援團隊。
 auth-error-999 = 未預期的錯誤
