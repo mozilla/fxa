@@ -99,6 +99,7 @@ import {
 } from '@fxa/shared/notifier';
 import {
   CartEligibilityMismatchError,
+  CartEligibilityStatusNotAllowedError,
   CartFreeTrialMismatchError,
   CartTotalMismatchError,
   CartAccountNotFoundError,
@@ -516,6 +517,25 @@ describe('CheckoutService', () => {
         await expect(
           checkoutService.prePaySteps(mockCart, mockCart.uid)
         ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
+      });
+
+      it('rejects a disallowed eligibility status even when it matches the cart', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: mockCustomer.id,
+            eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
+            amount: mockInvoicePreview.subtotal,
+          })
+        );
+        jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+        });
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCart.uid)
+        ).rejects.toBeInstanceOf(CartEligibilityStatusNotAllowedError);
       });
 
       it('throws cart free trial mismatch error when cart promised a trial but user is no longer eligible', async () => {
