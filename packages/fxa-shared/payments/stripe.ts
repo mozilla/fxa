@@ -218,12 +218,14 @@ export abstract class StripeHelper {
     )[],
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<Stripe.Customer | void> {
+
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
       return;
     }
 
     // By default this has subscriptions expanded.
+    // DS: This can fail without error resutling in 0 subscriptions!
     let customer = await this.expandResource<Stripe.Customer>(
       stripeCustomerId,
       CUSTOMER_RESOURCE,
@@ -240,6 +242,7 @@ export abstract class StripeHelper {
     if (customer.subscriptions?.data.length && !customer.currency) {
       await this.stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
       // Retrieve the customer again.
+       // DS: This can fail without error resutling in 0 subscriptions!
       customer = await this.expandResource<Stripe.Customer>(
         stripeCustomerId,
         CUSTOMER_RESOURCE
@@ -507,8 +510,10 @@ export abstract class StripeHelper {
       case CUSTOMER_RESOURCE:
         const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
           resource,
-          true
+          true // DS: Suspicous! ignore error being set to true
         );
+        // DS: I guess this could be an potential edge case to investigate. This would result in 0 subscriptions.
+        //     What can trigger this state?
         if (customer?.deleted) {
           // There are no subscriptions for deleted customers on the customer object.
           // @ts-ignore
