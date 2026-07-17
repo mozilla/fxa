@@ -29,6 +29,7 @@ type MetricsData = {
   oauthClientId?: string;
   scopes?: string | Array<string>;
   platform?: string;
+  excludeDau?: boolean;
 };
 
 type AdditionalMetricsCallback = (
@@ -199,6 +200,29 @@ const extraKeyReasonCb = (metrics: Record<string, any>) => ({
   reason: metrics.reason ?? '',
 });
 
+// `scopes` may arrive as a string[] (e.g. verify.js getScopeValues()) or a
+// space/comma-separated string (token.js ScopeSet.toString()); normalize both to
+// a sorted, comma-separated string.
+const normalizeScopes = (scopes?: string | string[]): string => {
+  if (!scopes) {
+    return '';
+  }
+  // Copy the array before sorting — sort() mutates in place, and a caller may
+  // pass an array they still use (e.g. verify.js getScopeValues()).
+  const list = Array.isArray(scopes)
+    ? [...scopes]
+    : scopes.split(/[,\s]+/).filter(Boolean);
+  return list.sort().join(',');
+};
+
+// Extra metrics for the `access_token.created` event. `exclude_dau` flags a token
+// creation that should be excluded from the DAU signal (defaults to false).
+const accessTokenCreatedMetricsCb: AdditionalMetricsCallback = (metrics) => ({
+  reason: metrics.reason ?? '',
+  scopes: normalizeScopes(metrics.scopes),
+  exclude_dau: metrics.excludeDau === true,
+});
+
 const extraKeySignoutCb = (metrics: Record<string, any>) => ({
   platform: metrics.platform ?? 'unknown',
 });
@@ -278,20 +302,7 @@ export function gleanMetrics(config: ConfigType) {
 
     oauth: {
       tokenCreated: createEventFn('access_token_created', {
-        additionalMetrics: (metrics) => ({
-          reason: metrics.reason ?? '',
-          scopes: metrics.scopes
-            ? // Array: in at least verify.js, getScopeValues() returns string[]
-              Array.isArray(metrics.scopes)
-              ? metrics.scopes.sort().join(',')
-              : // String: in at least token.js, ScopeSet.toString() returns space-separated scopes
-                metrics.scopes
-                  .split(/[,\s]+/)
-                  .filter(Boolean)
-                  .sort()
-                  .join(',')
-            : '',
-        }),
+        additionalMetrics: accessTokenCreatedMetricsCb,
       }),
       tokenChecked: createEventFn('access_token_checked', {
         skipClientIp: true,
