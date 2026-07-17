@@ -1,0 +1,12 @@
+{
+  "commit": "1c812bc6cb72c530539ead51e8e191b6817b80b6",
+  "summary": "chore(auth): questions about zero subscrption scenarios",
+  "description": "",
+  "timestamp": 1784316680000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

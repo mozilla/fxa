@@ -1,0 +1,139 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+.text-xs {
+  font-size: 12px !important;
+  line-height: 20px !important;
+}
+.text-sm {
+  font-size: 14px !important;
+  line-height: 22px !important;
+}
+.text-md {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+.text-lg {
+  font-size: 18px !important;
+  line-height: 26px !important;
+}
+.text-xl {
+  font-size: 20px !important;
+  line-height: 28px !important;
+}
+.text-2xl {
+  font-size: 22px !important;
+  line-height: 30px !important;
+}
+.text-3xl {
+  font-size: 32px !important;
+  line-height: 36px !important;
+}
+
+.font-sans, .text-footer div, .text-footer-appBadges div, .text-footer-automatedEmail div {
+  font-family: sans-serif !important;
+}
+
+.text-blue-500, .link-blue {
+  color: #0060df;
+}
+
+.mt-2 {
+  margin-top: 8px !important;
+}
+.mt-4 {
+  margin-top: 16px !important;
+}
+.mt-5 {
+  margin-top: 20px !important;
+}
+.mt-6 {
+  margin-top: 24px !important;
+}
+.mt-8 {
+  margin-top: 32px !important;
+}
+.mt-10, .text-footer-automatedEmail div {
+  margin-top: 40px !important;
+}
+
+.mb-0 {
+  margin-bottom: 0px !important;
+}
+.mb-2 {
+  margin-bottom: 8px !important;
+}
+.mb-3, .text-footer-automatedEmail div {
+  margin-bottom: 12px !important;
+}
+.mb-4 {
+  margin-bottom: 16px !important;
+}
+.mb-5 {
+  margin-bottom: 20px !important;
+}
+.mb-6 {
+  margin-bottom: 24px !important;
+}
+.mb-8 {
+  margin-bottom: 32px !important;
+}
+
+.px-6 {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.p-4 {
+  padding: 16px !important;
+}
+.pb-1 {
+  padding-bottom: 4px !important;
+}
+.pb-2 {
+  padding-bottom: 8px !important;
+}
+
+tbody > td:first-child,
+tr > td:first-child {
+  padding: 0px !important;
+}
+
+.link-blue {
+  text-decoration: underline;
+  font-family: sans-serif;
+}
+
+.align-left div {
+  text-align: left !important;
+}
+
+.hidden {
+  display: none;
+  width: 0;
+  height: 0;
+  max-height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.text-footer div, .text-footer-appBadges div, .text-footer-automatedEmail div {
+  text-align: center !important;
+  color: #6d6d6e !important;
+}
+
+.app-badges {
+  max-width: 310px !important;
+  text-align: center !important;
+}
+
+.app-badge {
+  padding: 40px 0px 20px !important;
+}
+.app-badge img {
+  height: 44px !important;
+  margin: 0 auto !important;
+}

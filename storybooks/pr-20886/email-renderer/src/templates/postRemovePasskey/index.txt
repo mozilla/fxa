@@ -1,0 +1,10 @@
+postRemovePasskey-title = "You deleted your passkey"
+
+postRemovePasskey-description = "You’ll need to use another method to sign in."
+
+postRemovePasskey-requested-from = "You requested this from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
