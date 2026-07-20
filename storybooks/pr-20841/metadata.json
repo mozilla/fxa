@@ -1,8 +1,8 @@
 {
-  "commit": "d0b56478596f409e9ca5f67de2867d3da4a896cd",
+  "commit": "597f2144b020f79cf170951bddfee79cb279c3f1",
   "summary": "fix",
   "description": "",
-  "timestamp": 1784562479000,
+  "timestamp": 1784564865000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
