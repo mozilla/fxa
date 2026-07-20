@@ -904,3 +904,130 @@ describe('/oauth/authorization service-driven scope resolution', () => {
     });
   });
 });
+
+describe('isLocalHost', () => {
+  const { isLocalHost } = require('./authorization');
+
+  it.each([
+    'http://localhost',
+    'http://localhost:8080',
+    'http://localhost/callback',
+    'http://127.0.0.1',
+    'http://127.0.0.1:3030/callback',
+    'http://[::1]',
+    'http://[::1]:8080/callback',
+    'http://localhost.', // trailing-dot FQDN form
+  ])('accepts the loopback redirect %s', (uri) => {
+    expect(isLocalHost(uri)).toBe(true);
+  });
+
+  it.each([
+    'https://localhost.attacker.com',
+    'https://127.0.0.1.attacker.com',
+    'https://evil.localhost',
+    'https://127.0.0.1@attacker.com', // userinfo trick resolves to attacker.com
+    'https://attacker.com',
+    'http://0.0.0.0', // wildcard/unspecified is not loopback
+  ])('rejects the non-loopback redirect %s', (uri) => {
+    expect(isLocalHost(uri)).toBe(false);
+  });
+});
+
+describe('/authorization POST redirect_uri validation', () => {
+  const UID_HEX = 'a'.repeat(32);
+  const REGISTERED_URI = 'https://example.com/redirect';
+
+  async function runRedirect(opts: {
+    localRedirects: boolean;
+    redirect_uri: string;
+  }) {
+    let error: any;
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock('../../oauth/assertion', () =>
+        jest.fn(async () => ({ uid: UID_HEX }))
+      );
+      jest.doMock('../../oauth/grant', () => ({
+        validateRequestedGrant: jest.fn(async () => ({
+          clientId: Buffer.from(CLIENT_ID, 'hex'),
+          userId: Buffer.from(UID_HEX, 'hex'),
+          scope: { getScopeValues: () => ['profile'] },
+          offline: true,
+        })),
+        generateTokens: jest.fn(async () => ({})),
+      }));
+      const routes = require('./authorization')({
+        log: mockLog,
+        oauthDB: {
+          getClient: jest.fn(async () => ({
+            canGrant: true,
+            publicClient: false,
+            redirectUri: REGISTERED_URI,
+            id: Buffer.from(CLIENT_ID, 'hex'),
+          })),
+          generateCode: jest.fn(async () => 'code-xyz'),
+          recordSignInConsents: jest.fn().mockResolvedValue(undefined),
+          hasConsentForClient: jest.fn().mockResolvedValue(true),
+        },
+        config: {
+          ...baseConfig,
+          oauthServer: {
+            ...baseConfig.oauthServer,
+            localRedirects: opts.localRedirects,
+          },
+        },
+      });
+      try {
+        await routes[1].config.handler({
+          headers: {},
+          app: {},
+          payload: {
+            client_id: CLIENT_ID,
+            assertion: BASE64URL_STRING,
+            state: 'foo',
+            scope: 'profile',
+            response_type: 'code',
+            redirect_uri: opts.redirect_uri,
+          },
+        });
+      } catch (err) {
+        error = err;
+      }
+    });
+    return error;
+  }
+
+  it('allows an unregistered loopback redirect when localRedirects is true', async () => {
+    const error = await runRedirect({
+      localRedirects: true,
+      redirect_uri: 'http://127.0.0.1:8080/callback',
+    });
+    expect(error).toBeUndefined();
+  });
+
+  it('rejects an unregistered loopback redirect when localRedirects is false', async () => {
+    const error = await runRedirect({
+      localRedirects: false,
+      redirect_uri: 'http://127.0.0.1:8080/callback',
+    });
+    expect(error).toMatchObject({ errno: 103 });
+  });
+
+  it('rejects a loopback look-alike redirect even when localRedirects is true', async () => {
+    const error = await runRedirect({
+      localRedirects: true,
+      redirect_uri: 'https://127.0.0.1.attacker.com/callback',
+    });
+    expect(error).toMatchObject({ errno: 103 });
+  });
+
+  it.each([true, false])(
+    'accepts an exactly-registered redirect when localRedirects is %s',
+    async (localRedirects) => {
+      const error = await runRedirect({
+        localRedirects,
+        redirect_uri: REGISTERED_URI,
+      });
+      expect(error).toBeUndefined();
+    }
+  );
+});

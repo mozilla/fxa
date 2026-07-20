@@ -31,9 +31,15 @@ const ACCESS_TYPE_OFFLINE = 'offline';
 const PKCE_SHA256_CHALLENGE_METHOD = 'S256'; // This server only supports S256 PKCE, no 'plain'
 const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
+// RFC 8252 loopback hosts. Exact match (not substring/suffix) is what keeps
+// `localhost.attacker.com` and friends from becoming an open redirect.
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
 function isLocalHost(url) {
-  var host = new URL(url).hostname;
-  return host === 'localhost' || host === 'localhost';
+  // new URL().hostname is already lowercased and keeps IPv6 brackets; only the
+  // trailing-dot FQDN form (e.g. `localhost.`) needs normalizing.
+  const host = new URL(url).hostname.replace(/\.$/, '');
+  return LOOPBACK_HOSTS.has(host);
 }
 
 module.exports = ({ log, oauthDB, config, statsd }) => {
@@ -615,3 +621,5 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     },
   ];
 };
+
+module.exports.isLocalHost = isLocalHost;
