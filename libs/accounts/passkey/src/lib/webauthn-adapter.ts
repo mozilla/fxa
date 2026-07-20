@@ -17,6 +17,8 @@ import type {
   PublicKeyCredentialRequestOptionsJSON,
   AuthenticatorTransportFuture,
   AuthenticationExtensionsClientInputs,
+  VerifiedRegistrationResponse,
+  VerifiedAuthenticationResponse,
 } from '@simplewebauthn/server';
 
 import { uuidTransformer } from '@fxa/shared/db/mysql/core';
@@ -131,27 +133,68 @@ export function extractPrfEnabled(extensions: unknown): boolean {
 }
 
 /**
+ * Thrown when the authenticator completed a WebAuthn ceremony without performing
+ * user verification (the UV flag was not set) — e.g. a roaming security key with
+ * no PIN or biometric. Callers can surface a clear, actionable error and skip
+ * Sentry noise for this expected outcome, distinct from genuinely unexpected
+ * verification failures.
+ */
+export class UserVerificationRequiredError extends Error {
+  constructor() {
+    super('User verification was not performed by the authenticator');
+    this.name = 'UserVerificationRequiredError';
+  }
+}
+
+/**
+ * SimpleWebAuthn throws a generic `Error` (it exposes no error code) when UV was
+ * required but the authenticator did not verify the user. "user could not be
+ * verified" is the invariant phrase shared by both the registration
+ * ("...was required...") and authentication ("...required...") messages, so
+ * matching on it isolates this one expected case from all other library throws.
+ * The adapter UV specs exercise the real library, so a wording change on a
+ * SimpleWebAuthn upgrade fails CI rather than silently regressing UV → 500.
+ */
+function isUserVerificationError(err: unknown): boolean {
+  return (
+    err instanceof Error && /user could not be verified/i.test(err.message)
+  );
+}
+
+/**
  * Verify a WebAuthn registration (attestation) response.
  *
  * @param config - PasskeyConfig instance
  * @param input  - Per-request inputs
  * @returns a discriminated union indicating verification success or failure;
  * `data` contains extracted credential info on success.
- * @throws wrapped library function throws `Error` on invalid input.
+ * @throws {UserVerificationRequiredError} when the authenticator did not perform
+ *   user verification (UV flag unset).
+ * @throws wrapped library function throws `Error` on other invalid input.
  * See source code for possible errors: https://github.com/MasterKale/SimpleWebAuthn/blob/320757144749c742e58ab3bb181087f9fbcac074/packages/server/src/registration/verifyRegistrationResponse.ts
  */
 export async function verifyWebauthnRegistrationResponse(
   config: PasskeyConfig,
   input: VerifyRegistrationInput
 ): Promise<RegistrationVerificationResult> {
-  const { verified, registrationInfo } = await verifyRegistrationResponse({
-    response: input.response,
-    expectedChallenge: input.challenge,
-    expectedOrigin: config.allowedOrigins,
-    expectedRPID: config.rpId,
-    // Library defaults this to false; UV must be enforced for the AAL2 claim.
-    requireUserVerification: true,
-  });
+  let result: VerifiedRegistrationResponse;
+  try {
+    result = await verifyRegistrationResponse({
+      response: input.response,
+      expectedChallenge: input.challenge,
+      expectedOrigin: config.allowedOrigins,
+      expectedRPID: config.rpId,
+      // Library defaults this to false; UV must be enforced for the AAL2 claim.
+      requireUserVerification: true,
+    });
+  } catch (err: unknown) {
+    if (isUserVerificationError(err)) {
+      throw new UserVerificationRequiredError();
+    }
+    throw err;
+  }
+
+  const { verified, registrationInfo } = result;
 
   if (!verified) {
     return { verified: false };
@@ -268,15 +311,25 @@ export async function verifyWebauthnAuthenticationResponse(
     counter: input.signCount,
   };
 
-  const { verified, authenticationInfo } = await verifyAuthenticationResponse({
-    response: input.response,
-    expectedChallenge: input.challenge,
-    expectedOrigin: config.allowedOrigins,
-    expectedRPID: config.rpId,
-    credential,
-    // Library defaults this to false; UV must be enforced for the AAL2 claim.
-    requireUserVerification: true,
-  });
+  let result: VerifiedAuthenticationResponse;
+  try {
+    result = await verifyAuthenticationResponse({
+      response: input.response,
+      expectedChallenge: input.challenge,
+      expectedOrigin: config.allowedOrigins,
+      expectedRPID: config.rpId,
+      credential,
+      // Library defaults this to false; UV must be enforced for the AAL2 claim.
+      requireUserVerification: true,
+    });
+  } catch (err: unknown) {
+    if (isUserVerificationError(err)) {
+      throw new UserVerificationRequiredError();
+    }
+    throw err;
+  }
+
+  const { verified, authenticationInfo } = result;
 
   if (!verified) {
     return { verified: false };

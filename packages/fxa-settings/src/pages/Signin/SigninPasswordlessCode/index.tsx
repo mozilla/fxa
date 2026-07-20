@@ -24,6 +24,8 @@ import AlternativeAuthOptions from '../../../components/AlternativeAuthOptions';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import { usePasskeySignIn } from '../../../lib/passkeys/signin-flow';
+import { shouldShowPasskeySignin } from '../../../lib/passkeys';
+import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
 import { SigninPasswordlessCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -66,6 +68,7 @@ const SigninPasswordlessCode = ({
   sendError,
   setCurrentSplitLayout,
   isSignup = false,
+  hasPasskey,
   isSignedIntoFirefox = false,
   resendCountdownSeconds = 0,
   useFxAStatusResult,
@@ -80,15 +83,13 @@ const SigninPasswordlessCode = ({
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  // Passkey signin is offered as an alternative to waiting for an OTP. When
-  // the user has a passkey on this device, the WebAuthn ceremony skips the
-  // email round-trip entirely. Hidden during signup: a brand-new account
-  // can't have a passkey yet.
-  const showPasskeySignin = !!(
-    !isSignup &&
-    config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled
-  );
+  // Offered as an alternative to waiting for the OTP: with a passkey on the
+  // device, the WebAuthn ceremony skips the email round-trip.
+  const showPasskeySignin = shouldShowPasskeySignin(config, {
+    hasPasskey,
+    isSignup,
+    isWebAuthnSupported: isWebAuthnSupported(),
+  });
 
   const passkey = usePasskeySignIn({
     integration,

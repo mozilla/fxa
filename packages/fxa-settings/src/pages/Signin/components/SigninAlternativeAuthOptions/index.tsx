@@ -21,6 +21,8 @@ import {
   useFtlMsgResolver,
 } from '../../../../models';
 import { usePasskeySignIn } from '../../../../lib/passkeys/signin-flow';
+import { shouldShowPasskeySignin } from '../../../../lib/passkeys';
+import { isWebAuthnSupported } from '../../../../lib/passkeys/webauthn';
 
 export const viewName = 'signin-alternative-auth';
 
@@ -31,6 +33,7 @@ const SigninAlternativeAuthOptions = ({
   integration,
   email,
   serviceName,
+  hasPasskey,
   avatarData,
   avatarLoading,
   flowQueryParams,
@@ -48,10 +51,10 @@ const SigninAlternativeAuthOptions = ({
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
 
-  const showPasskeySignin = !!(
-    config.featureFlags?.passkeysEnabled &&
-    config.featureFlags?.passkeyAuthenticationEnabled
-  );
+  const showPasskeySignin = shouldShowPasskeySignin(config, {
+    hasPasskey,
+    isWebAuthnSupported: isWebAuthnSupported(),
+  });
 
   const passkey = usePasskeySignIn({
     integration,

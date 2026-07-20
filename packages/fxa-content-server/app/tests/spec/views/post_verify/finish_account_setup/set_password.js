@@ -133,9 +133,6 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon.stub(user, 'finishSetup').callsFake(() => Promise.resolve(true));
-        sinon
-          .stub(account, 'fetchSubscriptionPlans')
-          .callsFake(() => Promise.resolve([{}]));
         sinon.spy(view, 'navigateAway');
         view.$('#password').val('password');
         view.$('#vpassword').val('password');

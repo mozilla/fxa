@@ -161,7 +161,8 @@ const IndexContainer = ({
       hasPassword: boolean,
       email: string,
       canLinkAccountOk: boolean | undefined = undefined,
-      passwordlessSupported: boolean | undefined = undefined
+      passwordlessSupported: boolean | undefined = undefined,
+      hasPasskey: boolean | undefined = undefined
     ) => {
       const isOAuth = isOAuthWebIntegration(integration);
 
@@ -196,6 +197,7 @@ const IndexContainer = ({
             state: {
               email,
               service: integration.getService(),
+              hasPasskey,
             },
           });
         } else {
@@ -207,6 +209,7 @@ const IndexContainer = ({
               email,
               hasLinkedAccount,
               hasPassword,
+              hasPasskey,
               canLinkAccountOk,
             },
           });
@@ -277,12 +280,17 @@ const IndexContainer = ({
           throw AuthUiErrors.EMAIL_REQUIRED;
         }
 
-        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
-          await authClient.accountStatusByEmail(email, {
-            thirdPartyAuthStatus: true,
-            clientId: integration.getClientId(),
-            service: integration.getService(),
-          });
+        const {
+          exists,
+          hasLinkedAccount,
+          hasPassword,
+          hasPasskey,
+          passwordlessSupported,
+        } = await authClient.accountStatusByEmail(email, {
+          thirdPartyAuthStatus: true,
+          clientId: integration.getClientId(),
+          service: integration.getService(),
+        });
 
         accountExists = exists;
 
@@ -352,7 +360,8 @@ const IndexContainer = ({
           hasPassword,
           email,
           canLinkAccountOk,
-          passwordlessSupported
+          passwordlessSupported,
+          hasPasskey
         );
       } catch (error) {
         // If we reach the catch before accountStatusByEmail resolved (e.g. a

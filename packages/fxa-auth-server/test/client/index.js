@@ -1209,9 +1209,6 @@ module.exports = (config) => {
     return this.api.getSubscriptionClients(secret);
   };
 
-  Client.prototype.getSubscriptionPlans = function (refreshToken) {
-    return this.api.getSubscriptionPlans(refreshToken);
-  };
 
   Client.prototype.getActiveSubscriptions = function (refreshToken) {
     return this.api.getActiveSubscriptions(refreshToken);

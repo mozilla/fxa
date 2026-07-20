@@ -4,6 +4,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { getTotpCode } from '../../lib/totp';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 test.describe('recovery key promo', () => {
   test.describe('inline', () => {
@@ -126,9 +127,7 @@ test.describe('recovery key promo', () => {
     }) => {
       const credentials = await testAccountTracker.signUpSync();
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -215,9 +214,7 @@ test.describe('recovery key promo', () => {
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -241,11 +238,10 @@ test.describe('recovery key promo', () => {
       // Attempting to navigate back to the inline recovery key page,
       // it should redirect to the connect another device page since they user
       // clicked "do it later"
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
+      // The browser session persists, so returning to the sync flow lands
+      // directly on connect-another-device without re-prompting for sign-in.
+      await gotoSyncSession(page, target);
+      await page.waitForURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });

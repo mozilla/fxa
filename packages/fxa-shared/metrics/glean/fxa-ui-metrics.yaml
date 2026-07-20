@@ -2857,9 +2857,11 @@ passkey_enter_password:
     extra_keys:
       reason:
         description: |
-          Reason the password entry failed: 'incorrect_password' (sessionReauth
-          rejected the password) or 'server_error' (the request failed for any
-          other reason).
+          Reason the sign-in did not complete after password entry:
+          'incorrect_password' (sessionReauth rejected the password),
+          'server_error' (the sessionReauth request failed for any other
+          reason), or 'navigation_error' (sessionReauth succeeded but the
+          post-reauth Sync/OAuth sign-in handoff failed).
         type: string
   success:
     type: event
@@ -3864,6 +3866,58 @@ account_pref:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_rename_view:
+    type: event
+    description: |
+      User opens the rename passkey dialog
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13250
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_rename_submit_frontend_error:
+    type: event
+    description: |
+      Passkey rename fails; error alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13250
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Error type - auth_error or server_error
+        type: string
+  passkey_rename_success_view:
+    type: event
+    description: |
+      Passkey successfully renamed; success alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13250
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never

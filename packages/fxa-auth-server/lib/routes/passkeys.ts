@@ -339,7 +339,7 @@ export class PasskeyHandler {
   /**
    * Handles `PATCH /passkey/:credentialId`.
    *
-   * @param request - Authenticated Hapi request with a valid MFA JWT.
+   * @param request - Hapi request authenticated with a verified session token.
    * @returns Updated passkey metadata object.
    */
   async renamePasskey(request: AuthRequest) {
@@ -983,8 +983,7 @@ export const passkeyRoutes = (
         ...PASSKEYS_API_DOCS.PASSKEY_CREDENTIAL_PATCH,
         pre: [{ method: passkeysEnabledCheck }],
         auth: {
-          strategy: 'mfa',
-          scope: ['mfa:passkey'],
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {

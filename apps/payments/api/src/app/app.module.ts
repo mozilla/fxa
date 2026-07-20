@@ -30,6 +30,9 @@ import {
   OpenMeterClient,
   UsageController,
   UsageService,
+  UsageGrantsController,
+  UsageGrantsManager,
+  UsageGrantsService,
 } from '@fxa/entitlements/metering';
 import {
   CmsWebhooksController,
@@ -106,6 +109,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     FxaWebhooksController,
     StripeWebhooksController,
     UsageController,
+    UsageGrantsController,
     MeteringCloudTasksController,
   ],
   providers: [
@@ -168,6 +172,8 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     MeteringWebhookManager,
     OpenMeterClient,
     UsageService,
+    UsageGrantsManager,
+    UsageGrantsService,
   ],
 })
 export class AppModule implements NestModule {

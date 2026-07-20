@@ -83,6 +83,16 @@ describe('getErrorFtlId', () => {
     expect(stringId).toEqual(expectedStringId);
   });
 
+  it('returns the FTL ID for the passkey user-verification-required error (errno 233)', () => {
+    expect(AuthUiErrorNos[233]).toBeDefined();
+    expect(AuthUiErrorNos[233].version).toBeUndefined();
+    const stringId = getErrorFtlId({
+      message: AuthUiErrorNos[233].message,
+      errno: 233,
+    });
+    expect(stringId).toEqual('auth-error-233');
+  });
+
   it('correctly returns an FTL ID for an OAuth error', () => {
     const validErrorNo = 1000;
     // Ensure this errno is still valid before testing

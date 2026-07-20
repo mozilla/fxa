@@ -190,6 +190,8 @@ libs/shared/cms/src/__generated__/graphql.js
 
 # Anthropic's Claude AI — ignore everything except checked-in skills
 .claude/worktrees
+# Triage reports are local-only — never commit (may contain bug details / PII)
+.claude/skills/fxa-triage/history/
 
 # Local CircleCI logs downloaded by tooling
 .ci-logs/

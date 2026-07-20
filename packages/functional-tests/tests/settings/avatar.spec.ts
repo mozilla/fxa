@@ -73,9 +73,10 @@ test.describe('severity-1 #smoke', () => {
       /avatar/
     );
 
-    // Refresh to simulate returning to the page later, which causes the
-    // avatar ID to be lost (the /v1/profile endpoint doesn't return it)
-    await page.reload();
+    // Refresh to drop the avatar ID (/v1/profile omits it). waitUntil 'commit'
+    // since the heading assertion below gates readiness, avoiding a hang when a
+    // background request stalls the `load` event.
+    await page.reload({ waitUntil: 'commit' });
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.avatar.photo).not.toHaveAttribute('src', /avatar/);
 

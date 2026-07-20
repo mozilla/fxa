@@ -311,8 +311,10 @@ describe('Signup page', () => {
       screen.queryByRole('button', { name: /Continue with Apple/ })
     ).toBeInTheDocument();
 
-    screen.getByRole('heading', { name: 'Create a password' });
-    screen.getByText('to continue');
+    screen.getByRole('heading', {
+      name: MOCK_CMS_INFO.SignupSetPasswordPage.headline,
+    });
+    screen.getByText(MOCK_CMS_INFO.SignupSetPasswordPage.description);
   });
 
   it('renders as expected when cms enabled and on mobile', async () => {
@@ -328,7 +330,9 @@ describe('Signup page', () => {
     );
 
     // Await to let react-hook-form's internal state updates settle.
-    await screen.findByRole('heading', { name: 'Create a password' });
+    await screen.findByRole('heading', {
+      name: MOCK_CMS_INFO.SignupSetPasswordPage.headline,
+    });
 
     expect(
       screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)

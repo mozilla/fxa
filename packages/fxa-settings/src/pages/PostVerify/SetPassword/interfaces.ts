@@ -23,7 +23,7 @@ export type CreatePasswordHandler = (
 
 export type PostVerifySetPasswordIntegration = Pick<
   Integration,
-  'getCmsInfo' | 'isSync'
+  'getCmsInfo' | 'isSync' | 'getLegalTerms'
 >;
 
 /**

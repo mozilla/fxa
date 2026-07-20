@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
 import SigninPasskeyFallback from '.';
 import GleanMetrics from '../../../lib/glean';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -47,14 +48,119 @@ describe('SigninPasskeyFallback', () => {
     expect(onContinue).toHaveBeenCalledWith('hunter2-the-sequel');
   });
 
-  it('shows a banner when localizedErrorMessage is set', () => {
-    renderWithRouter(
-      <SigninPasskeyFallback
-        email="user@example.com"
-        localizedErrorMessage="Incorrect password"
-      />
-    );
-    expect(screen.getByText('Incorrect password')).toBeInTheDocument();
+  describe('password error handling', () => {
+    const incorrectPassword = {
+      errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+      localizedErrorMessage: 'Incorrect password',
+    };
+    const passwordField = () => screen.getByTestId('password-input-field');
+    const continueButton = () => screen.getByTestId('continue-button');
+
+    it('shows a validation tooltip and does not call onContinue when submitted empty', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(undefined);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.click(continueButton());
+      expect(await screen.findByTestId('tooltip')).toHaveTextContent(
+        'Valid password required'
+      );
+      expect(onContinue).not.toHaveBeenCalled();
+    });
+
+    it('shows an incorrect-password error in the field tooltip, not the banner', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(incorrectPassword);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.type(passwordField(), 'wrong-password');
+      await user.click(continueButton());
+      expect(await screen.findByTestId('tooltip')).toHaveTextContent(
+        'Incorrect password'
+      );
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('disables Continue after an incorrect password until the field is edited', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(incorrectPassword);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.type(passwordField(), 'wrong-password');
+      await user.click(continueButton());
+      await screen.findByTestId('tooltip');
+      expect(continueButton()).toBeDisabled();
+
+      await user.type(passwordField(), '!');
+      expect(continueButton()).toBeEnabled();
+    });
+
+    it('clears the tooltip when the password is edited', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(incorrectPassword);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.type(passwordField(), 'wrong-password');
+      await user.click(continueButton());
+      expect(await screen.findByTestId('tooltip')).toBeInTheDocument();
+
+      await user.type(passwordField(), '!');
+      expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('does not resubmit the same password until it is edited', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue(incorrectPassword);
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.type(passwordField(), 'wrong-password');
+      await user.click(continueButton());
+      await screen.findByTestId('tooltip');
+
+      await user.click(continueButton());
+      expect(onContinue).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows a non-password error in the banner and keeps Continue enabled', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue({
+        errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
+        localizedErrorMessage: 'Something went wrong',
+      });
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+      await user.type(passwordField(), 'some-password');
+      await user.click(continueButton());
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Something went wrong'
+      );
+      expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
+      expect(continueButton()).toBeEnabled();
+    });
   });
 
   describe('Glean events', () => {

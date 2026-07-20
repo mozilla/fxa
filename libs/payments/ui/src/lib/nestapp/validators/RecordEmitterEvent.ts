@@ -3,14 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Type } from 'class-transformer';
-import { IsEnum, IsIn, IsOptional, ValidateNested } from 'class-validator';
+import { IsEnum, ValidateNested } from 'class-validator';
 import { PaymentsEmitterEventsKeys } from '@fxa/payments/events';
 import type { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
-import { PaymentProvidersTypePartial } from '@fxa/payments/metrics';
-import {
-  SubPlatPaymentMethodType,
-  type PaymentProvidersType,
-} from '@fxa/payments/customer';
 import { RequestArgs } from './common/RequestArgs';
 
 export class RecordEmitterEventArgs {
@@ -20,12 +15,4 @@ export class RecordEmitterEventArgs {
   @Type(() => RequestArgs)
   @ValidateNested()
   requestArgs!: RequestArgs;
-
-  @IsOptional()
-  @IsIn([...PaymentProvidersTypePartial])
-  paymentProvider?: PaymentProvidersType;
-
-  @IsOptional()
-  @IsEnum(SubPlatPaymentMethodType)
-  paymentMethod?: SubPlatPaymentMethodType;
 }

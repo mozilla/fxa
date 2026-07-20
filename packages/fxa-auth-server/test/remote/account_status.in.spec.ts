@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -96,6 +99,34 @@ describe.each(testVersions)(
       );
       const response = await c.api.accountStatusByEmail(email);
       expect(response.exists).toBeTruthy();
+    });
+
+    it('account status by email reports hasPasskey=false for an account without a passkey', async () => {
+      const email = server.uniqueEmail();
+      const c = await Client.create(
+        server.publicUrl,
+        email,
+        'password',
+        testOptions
+      );
+      const response = await c.api.accountStatusByEmail(email, {
+        thirdPartyAuthStatus: true,
+      });
+      expect(response.exists).toBe(true);
+      expect(response.hasPasskey).toBe(false);
+    });
+
+    it('account status by email omits hasPasskey without thirdPartyAuthStatus', async () => {
+      const email = server.uniqueEmail();
+      const c = await Client.create(
+        server.publicUrl,
+        email,
+        'password',
+        testOptions
+      );
+      const response = await c.api.accountStatusByEmail(email);
+      expect(response.exists).toBe(true);
+      expect(response.hasPasskey).toBeUndefined();
     });
 
     it('account status by email with non-existing account', async () => {

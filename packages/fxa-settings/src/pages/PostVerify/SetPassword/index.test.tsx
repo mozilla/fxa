@@ -115,6 +115,51 @@ describe('SetPassword page', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the description above the email to match the Signup layout', () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    const description = screen.getByText(
+      'This encrypts your data. It needs to be different from your Google or Apple account password.'
+    );
+    const email = screen.getByText(MOCK_EMAIL);
+
+    // DOCUMENT_POSITION_FOLLOWING means `email` appears after `description`.
+    expect(
+      description.compareDocumentPosition(email) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  describe('terms and privacy agreement', () => {
+    it('renders the default Mozilla Terms of Service and Privacy Notice links when no custom legal terms are set', () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      expect(
+        screen.getByRole('link', { name: 'Terms of Service' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: 'Privacy Notice' })
+      ).toBeInTheDocument();
+    });
+
+    it('renders the client-specific legal terms when the integration provides them', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockIntegration(undefined, {
+            legalTerms: {
+              label: 'Mozilla VPN',
+              termsOfServiceLink: 'https://www.mozilla.org/vpn/terms/',
+              privacyNoticeLink: 'https://www.mozilla.org/vpn/privacy/',
+              fontSize: 'default',
+            },
+          })}
+        />
+      );
+
+      expect(screen.getByText(/Mozilla VPN:/)).toBeInTheDocument();
+    });
+  });
+
   describe('Glean events', () => {
     // First row asserts the default-arg behaviour (no prop passed); the
     // others assert explicit pass-through for each non-default value.

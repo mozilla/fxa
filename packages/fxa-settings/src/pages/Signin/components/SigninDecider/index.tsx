@@ -31,6 +31,7 @@ export interface SigninDeciderProps {
   sessionToken?: hexstring;
   hasLinkedAccount: boolean;
   hasPassword: boolean;
+  hasPasskey?: boolean;
   avatarData: AvatarResponse | undefined;
   avatarLoading: boolean;
   localizedErrorFromLocationState?: string;
@@ -66,6 +67,7 @@ export const SigninDecider = ({
   sessionToken,
   hasLinkedAccount,
   hasPassword,
+  hasPasskey,
   avatarData,
   avatarLoading,
   localizedErrorFromLocationState,
@@ -115,7 +117,7 @@ export const SigninDecider = ({
       ? '/oauth/signin_passwordless_code'
       : '/signin_passwordless_code';
     navigateWithQuery(passwordlessRoute, {
-      state: { email, clientId: integration.getClientId() },
+      state: { email, clientId: integration.getClientId(), hasPasskey },
     });
   }, [
     shouldRedirectToPasswordless,
@@ -123,6 +125,7 @@ export const SigninDecider = ({
     location.pathname,
     email,
     integration,
+    hasPasskey,
   ]);
 
   if (shouldRedirectToPasswordless) {
@@ -224,6 +227,7 @@ export const SigninDecider = ({
           email,
           hasLinkedAccount,
           hasPassword,
+          hasPasskey,
           avatarData,
           avatarLoading,
           localizedErrorFromLocationState: initialBannerError,
@@ -250,6 +254,7 @@ export const SigninDecider = ({
         sendUnblockEmailHandler,
         hasLinkedAccount,
         hasPassword,
+        hasPasskey,
         avatarData,
         avatarLoading,
         localizedErrorFromLocationState: initialBannerError,

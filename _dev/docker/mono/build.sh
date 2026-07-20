@@ -5,6 +5,9 @@ cd "$DIR/../../.."
 
 VERSION=$1
 
+# Strip known tag prefixes (e.g. subplat-v1.340.3 → v1.340.3)
+VERSION=$(echo "${VERSION}" | sed 's/^subplat-//')
+
 if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "Updating version in package.json to ${VERSION}"
 else

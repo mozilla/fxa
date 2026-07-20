@@ -62,9 +62,9 @@ describe('#integration - /oauth/token exchange honors accountAuthorizations', ()
   });
 
   async function seed(scope: string, service: string) {
-    await db.recordSignInConsent({
+    await db.recordSignInConsents({
       uid: client.uid,
-      scope,
+      scopes: [scope],
       service,
       clientId: IOS,
       now: Date.now(),

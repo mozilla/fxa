@@ -195,12 +195,17 @@ export class StrapiClient {
     if (!secret) {
       return false;
     }
-
+    if (!authorization?.startsWith('Bearer ')) {
+      return false;
+    }
     const expected = `Bearer ${secret}`;
-    return crypto.timingSafeEqual(
-      Buffer.from(authorization),
-      Buffer.from(expected)
-    );
+    const authBuf = Buffer.from(authorization);
+    const expectedBuf = Buffer.from(expected);
+    // timingSafeEqual throws on unequal-length inputs; header length isn't secret.
+    if (authBuf.length !== expectedBuf.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(authBuf, expectedBuf);
   }
 
   private async getLocales(): Promise<string[]> {

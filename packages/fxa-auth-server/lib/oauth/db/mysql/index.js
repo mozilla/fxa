@@ -199,15 +199,16 @@ const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
 const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
-// First insert sets both timestamps to now. Subsequent /authorization
-// completions for the same PK preserve firstAuthorizedTosAt and bump
-// lastAuthorizedTosAt only, using GREATEST to guard against clock skew
-// or reordered writes producing a backwards-moving lastAuthorizedTosAt.
-const QUERY_ACCOUNT_CONSENT_UPSERT =
+// First insert sets both timestamps to now. Later completions for the same PK
+// preserve firstAuthorizedTosAt and bump lastAuthorizedTosAt via GREATEST,
+// guarding against clock skew or reordered writes moving it backwards.
+// The VALUES list is built at call time so all scopes are recorded in one query.
+const QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX =
   'INSERT INTO accountAuthorizations ' +
   '(uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
-  'VALUES (?, ?, ?, ?, ?, ?) ' +
-  'ON DUPLICATE KEY UPDATE ' +
+  'VALUES ';
+const QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX =
+  ' ON DUPLICATE KEY UPDATE ' +
   'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
 const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
@@ -664,15 +665,25 @@ class MysqlStore extends MysqlOAuthShared {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
   }
 
-  _upsertAccountConsent(uid, scope, service, clientId, now) {
-    return this._write(QUERY_ACCOUNT_CONSENT_UPSERT, [
-      buf(uid),
-      scope,
-      service,
-      buf(clientId),
-      now,
-      now,
-    ]);
+  // Upserts one consent row per scope in a single INSERT. `scopes` must be
+  // non-empty; callers return early when there is nothing to record.
+  _upsertAccountConsents(uid, scopes, service, clientId, now) {
+    if (!Array.isArray(scopes) || scopes.length === 0) {
+      return Promise.resolve();
+    }
+    const uidBuf = buf(uid);
+    const clientIdBuf = buf(clientId);
+    const tuples = scopes.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
+    const params = [];
+    for (const scope of scopes) {
+      params.push(uidBuf, scope, service, clientIdBuf, now, now);
+    }
+    return this._write(
+      QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX +
+        tuples +
+        QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX,
+      params
+    );
   }
 
   async _findAccountConsentForSignIn(uid, scope, service) {

@@ -15,6 +15,7 @@ import {
   getCmsHeadlineClassName,
   getCmsHeadlineStyle,
 } from '../../../components/CardHeader';
+import TermsPrivacyAgreement from '../../../components/TermsPrivacyAgreement';
 import GleanMetrics from '../../../lib/glean';
 
 export const SetPassword = ({
@@ -118,8 +119,6 @@ export const SetPassword = ({
           <h1 className="card-header">Create password to sync</h1>
         </FtlMsg>
       )}
-      <p className="break-all mt-2">{email}</p>
-
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
@@ -143,6 +142,8 @@ export const SetPassword = ({
         </FtlMsg>
       )}
 
+      <p className="break-all mb-5">{email}</p>
+
       <FormSetupAccount
         {...{
           formState,
@@ -162,6 +163,8 @@ export const SetPassword = ({
         passwordFormType="post-verify-set-password"
         cmsButton={cmsButton}
       />
+
+      <TermsPrivacyAgreement legalTerms={integration.getLegalTerms?.()} />
     </AppLayout>
   );
 };

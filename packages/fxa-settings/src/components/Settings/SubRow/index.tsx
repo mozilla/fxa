@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import classNames from 'classnames';
 import { Passkey } from 'fxa-auth-client/browser';
 import { useAlertBar, useAccount, useFtlMsgResolver } from '../../../models';
 import { isAuthUiError } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { DISPLAY_SAFE_UNICODE_WITH_NON_BMP } from '../../../constants';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
+import InputText from '../../InputText';
+import { Banner } from '../../Banner';
 import {
   AlertFullIcon as AlertIcon,
   BackupCodesDisabledIcon,
@@ -17,6 +21,7 @@ import {
   BackupRecoverySmsDisabledIcon,
   BackupRecoverySmsIcon,
   CheckmarkGreenIcon,
+  EditIcon,
   LightbulbIcon,
   PasskeyIcon,
 } from '../../Icons';
@@ -43,6 +48,9 @@ type SubRowProps = {
   statusIcon?: 'checkmark' | 'alert';
   border?: boolean;
   localizedRowTitle: string;
+  // When provided, replaces the default row-title text — lets a consumer render
+  // its own title area (e.g. the passkey row's inline rename control).
+  rowTitleContent?: React.ReactNode;
   localizedDeleteIconTitle?: string;
   message?: React.ReactNode;
   onDeleteClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -74,6 +82,7 @@ const SubRow = ({
   onCtaClick,
   onDeleteClick,
   localizedRowTitle,
+  rowTitleContent,
   localizedDeleteIconTitle,
   linkExternalProps,
   deleteGleanId,
@@ -120,7 +129,9 @@ const SubRow = ({
         <div className="flex flex-row justify-between flex-1 flex-wrap items-center">
           <div className="flex items-center gap-2">
             <div className="grow-0 shrink-0">{icon}</div>
-            <p className="font-semibold">{localizedRowTitle}</p>
+            {rowTitleContent ?? (
+              <p className="font-semibold">{localizedRowTitle}</p>
+            )}
           </div>
           <div>
             <div
@@ -358,6 +369,46 @@ const formatDateText = (timestamp: number): string => {
   }).format(new Date(timestamp));
 };
 
+export const PASSKEY_NAME_MAX_LENGTH = 255;
+
+export type PasskeyNameError = 'empty' | 'too-long' | 'invalid' | 'duplicate';
+
+/**
+ * Validates a proposed passkey name (non-empty after trimming, max 255 chars,
+ * display-safe unicode including emoji), mirroring the
+ * authoritative auth-server rules.
+ *
+ * The duplicate check (case-insensitive, against `existingNames` — the other
+ * passkeys on the account) is a UX-only guard; the backend does not enforce
+ * name uniqueness on rename, so this only prevents obvious dupes in the UI.
+ *
+ * Returns an error code, or undefined if valid.
+ */
+export const validatePasskeyName = (
+  name: string,
+  existingNames: string[] = []
+): PasskeyNameError | undefined => {
+  const trimmed = name.trim();
+  if (trimmed.length === 0) {
+    return 'empty';
+  }
+  if (trimmed.length > PASSKEY_NAME_MAX_LENGTH) {
+    return 'too-long';
+  }
+  if (!DISPLAY_SAFE_UNICODE_WITH_NON_BMP.test(trimmed)) {
+    return 'invalid';
+  }
+  const normalized = trimmed.toLocaleLowerCase();
+  if (
+    existingNames.some(
+      (other) => other.trim().toLocaleLowerCase() === normalized
+    )
+  ) {
+    return 'duplicate';
+  }
+  return undefined;
+};
+
 type PasskeyDeleteModalProps = {
   passkey: Passkey;
   onDismiss: () => void;
@@ -468,8 +519,188 @@ const PasskeyDeleteModal = ({
   );
 };
 
+type PasskeyRenameModalProps = {
+  passkey: Passkey;
+  onDismiss: () => void;
+};
+
+type PasskeyNameFormData = { name: string };
+
+const PasskeyRenameModal = ({
+  passkey,
+  onDismiss,
+}: PasskeyRenameModalProps) => {
+  const account = useAccount();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const alertBar = useAlertBar();
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  // Submit/server errors surface inside the modal — the alert bar would render
+  // behind the open modal.
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  // Validate only on submit (never while typing), so the error appears only
+  // when the user clicks Save.
+  const { register, handleSubmit, formState, clearErrors } =
+    useForm<PasskeyNameFormData>({
+      mode: 'onSubmit',
+      reValidateMode: 'onSubmit',
+      defaultValues: { name: passkey.name },
+    });
+
+  useEffect(() => {
+    GleanMetrics.accountPref.passkeyRenameView();
+  }, []);
+
+  // Names of the account's other passkeys, used to block obvious duplicates.
+  const otherPasskeyNames = (account.passkeys ?? [])
+    .filter((p) => p.credentialId !== passkey.credentialId)
+    .map((p) => p.name);
+
+  const localizeValidationError = (name: string): string | true => {
+    switch (validatePasskeyName(name, otherPasskeyNames)) {
+      case 'empty':
+        return ftlMsgResolver.getMsg(
+          'passkey-rename-error-empty',
+          'Enter a name for this passkey'
+        );
+      case 'too-long':
+        return ftlMsgResolver.getMsg(
+          'passkey-rename-error-too-long',
+          'The name must contain fewer than 256 characters.'
+        );
+      case 'invalid':
+        return ftlMsgResolver.getMsg(
+          'passkey-rename-error-invalid',
+          'Only letters, numbers, punctuation marks and symbols are allowed.'
+        );
+      case 'duplicate':
+        return ftlMsgResolver.getMsg(
+          'passkey-rename-error-duplicate',
+          'A passkey with this name already exists'
+        );
+      default:
+        return true;
+    }
+  };
+
+  const onSubmit = useCallback(
+    async ({ name }: PasskeyNameFormData) => {
+      setIsSaving(true);
+      setSubmitError(null);
+      try {
+        await account.renamePasskey(passkey.credentialId, name.trim());
+        GleanMetrics.accountPref.passkeyRenameSuccessView();
+        // a hack to avoid alert bar being immediately removed
+        setTimeout(() => {
+          alertBar.success(
+            ftlMsgResolver.getMsg('passkey-rename-success', 'Passkey renamed')
+          );
+        }, 0);
+        onDismiss();
+      } catch (error) {
+        const gleanReason = isAuthUiError(error)
+          ? 'auth_error'
+          : 'server_error';
+        GleanMetrics.accountPref.passkeyRenameSubmitFrontendError({
+          event: { reason: gleanReason },
+        });
+        const localizedError = isAuthUiError(error)
+          ? getLocalizedErrorMessage(ftlMsgResolver, error)
+          : ftlMsgResolver.getMsg(
+              'passkey-rename-error',
+              'There was a problem renaming your passkey. Try again in a few minutes.'
+            );
+        setSubmitError(localizedError);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [account, passkey.credentialId, alertBar, ftlMsgResolver, onDismiss]
+  );
+
+  return (
+    <Modal
+      onDismiss={onDismiss}
+      hasButtons={false}
+      headerId="passkey-rename-header"
+      descId="passkey-rename-desc"
+    >
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FtlMsg id="passkey-rename-modal-heading">
+          <h2
+            id="passkey-rename-header"
+            className="font-bold text-xl mb-4 -mt-2 mx-4"
+          >
+            Rename passkey
+          </h2>
+        </FtlMsg>
+        <FtlMsg id="passkey-rename-modal-description">
+          <p id="passkey-rename-desc" className="sr-only">
+            Enter a new name for this passkey.
+          </p>
+        </FtlMsg>
+        {submitError && (
+          <Banner
+            type="error"
+            content={{ localizedDescription: submitError }}
+            className="mx-4"
+          />
+        )}
+        <div className="mx-4">
+          <InputText
+            name="name"
+            label={ftlMsgResolver.getMsg(
+              'passkey-rename-input-label',
+              'Passkey name'
+            )}
+            defaultValue={passkey.name}
+            autoFocus
+            prefixDataTestId="passkey-rename"
+            hasErrors={!!formState.errors.name}
+            errorText={formState.errors.name?.message}
+            tooltipPosition="bottom"
+            onChange={() => {
+              // Clear validation + submit errors as soon as the user edits.
+              if (formState.errors.name) {
+                clearErrors('name');
+              }
+              setSubmitError(null);
+            }}
+            inputRef={register({ validate: localizeValidationError })}
+          />
+        </div>
+        <div className="flex justify-center mx-2 mt-6">
+          <FtlMsg id="passkey-rename-cancel-button">
+            <button
+              type="button"
+              className="cta-neutral mx-2 flex-1 cta-xl"
+              onClick={onDismiss}
+              disabled={isSaving}
+              data-testid="passkey-rename-cancel-button"
+            >
+              Cancel
+            </button>
+          </FtlMsg>
+          <FtlMsg id="passkey-rename-save-button">
+            <button
+              type="submit"
+              className="cta-primary mx-2 flex-1 cta-xl"
+              disabled={isSaving || !!formState.errors.name}
+              data-testid="passkey-rename-save-button"
+              data-glean-id="account_pref_passkey_rename_submit"
+            >
+              Save
+            </button>
+          </FtlMsg>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
 export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const [renameModalRevealed, revealRenameModal, hideRenameModal] =
+    useBooleanState();
   const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
     useBooleanState();
 
@@ -512,6 +743,30 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
         idPrefix="passkey"
         icon={<PasskeyIcon ariaHidden className="h-8 w-5 text-purple-600" />}
         localizedRowTitle={passkey.name}
+        rowTitleContent={
+          // Single control (name + decorative pencil) that opens the rename
+          // dialog; the accessible name conveys the action.
+          <button
+            type="button"
+            className="group flex items-center gap-2 text-start rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            onClick={revealRenameModal}
+            data-testid="passkey-rename-button"
+          >
+            <span className="font-semibold group-hover:underline">
+              {passkey.name}
+            </span>
+            <EditIcon
+              ariaHidden
+              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900"
+            />
+            <span className="sr-only">
+              {ftlMsgResolver.getMsg(
+                'passkey-sub-row-rename-title',
+                'Rename passkey'
+              )}
+            </span>
+          </button>
+        }
         localizedDescription={localizedDescription}
         // TODO (passkeys phase 2): show upgrade prompt when passkey.prfEnabled
         onDeleteClick={(event) => {
@@ -527,6 +782,9 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
         )}
         deleteGleanId="account_pref_passkey_delete_submit"
       />
+      {renameModalRevealed && (
+        <PasskeyRenameModal passkey={passkey} onDismiss={hideRenameModal} />
+      )}
       {deleteModalRevealed && (
         <MfaGuard
           requiredScope="passkey"

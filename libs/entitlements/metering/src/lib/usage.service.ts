@@ -5,13 +5,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
 
-import {
-  MeteringConfigurationManager,
-  type StrapiMeter,
-} from '@fxa/shared/cms';
+import { MeteringConfigurationManager } from '@fxa/shared/cms';
 
 import { MeteringIngestManager } from './metering-ingest.manager';
-import { MeterNotConfiguredError } from './metering.error';
 import { MeteringQueryManager } from './metering-query.manager';
 import { MeteringThresholdTasksManager } from './metering-threshold-tasks.manager';
 import {
@@ -19,7 +15,9 @@ import {
   type UsageQueryParams,
   type UsageQueryResponse,
 } from './metering.schema';
+import { UsageGrantsManager } from './usage-grants.manager';
 import { computeWindow } from './utils/computeWindow';
+import { requireMeterBySlug } from './utils/requireMeterBySlug';
 
 @Injectable()
 export class UsageService {
@@ -28,11 +26,15 @@ export class UsageService {
     private readonly meteringQueryManager: MeteringQueryManager,
     private readonly meteringIngestManager: MeteringIngestManager,
     private readonly meteringThresholdTasksManager: MeteringThresholdTasksManager,
+    private readonly usageGrantsManager: UsageGrantsManager,
     @Inject(Logger) private readonly logger: LoggerService
   ) {}
 
   async ingestUsage(ingestUsageRequest: IngestUsageRequest): Promise<void> {
-    const meter = await this.requireMeterBySlug(ingestUsageRequest.slug);
+    const meter = await requireMeterBySlug(
+      this.meteringConfigurationManager,
+      ingestUsageRequest.slug
+    );
     this.meteringIngestManager.enqueue({
       id: ingestUsageRequest.id,
       userIdentifier: ingestUsageRequest.userIdentifier,
@@ -57,31 +59,34 @@ export class UsageService {
     params: UsageQueryParams,
     now: Date = new Date()
   ): Promise<UsageQueryResponse> {
-    const meter = await this.requireMeterBySlug(params.slug);
+    const meter = await requireMeterBySlug(
+      this.meteringConfigurationManager,
+      params.slug
+    );
 
     const { windowStart, windowEnd } = computeWindow(meter.window, now);
 
-    const result = await this.meteringQueryManager.queryUsage({
-      userIdentifier: params.userIdentifier,
-      slug: params.slug,
-      from: windowStart,
-      to: windowEnd,
-    });
+    const [result, grantedAmount] = await Promise.all([
+      this.meteringQueryManager.queryUsage({
+        userIdentifier: params.userIdentifier,
+        slug: params.slug,
+        from: windowStart,
+        to: windowEnd,
+      }),
+      this.usageGrantsManager.getActiveGrantedAmount(
+        params.userIdentifier,
+        params.slug,
+        now
+      ),
+    ]);
 
     return {
       usage: result.usage,
-      limit: meter.limit,
+      limit: meter.limit + grantedAmount,
+      grantedAmount,
       unit: meter.unit,
       windowStart: windowStart.toISOString(),
       windowEnd: windowEnd.toISOString(),
     };
-  }
-
-  private async requireMeterBySlug(slug: string): Promise<StrapiMeter> {
-    const meter = await this.meteringConfigurationManager.getMeterBySlug(slug);
-    if (!meter) {
-      throw new MeterNotConfiguredError(slug);
-    }
-    return meter;
   }
 }

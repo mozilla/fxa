@@ -21,6 +21,7 @@ import { MeteringQueryManager } from './metering-query.manager';
 import { MeteringThresholdService } from './metering-threshold.service';
 import { MeteringWebhookManager } from './metering-webhook.manager';
 import { OpenMeterQueryError } from './metering.error';
+import { UsageGrantsManager } from './usage-grants.manager';
 
 describe('MeteringThresholdService', () => {
   let service: MeteringThresholdService;
@@ -32,6 +33,9 @@ describe('MeteringThresholdService', () => {
   >;
   let meteringWebhookManager: jest.Mocked<
     Pick<MeteringWebhookManager, 'dispatch'>
+  >;
+  let usageGrantsManager: jest.Mocked<
+    Pick<UsageGrantsManager, 'getActiveGrantedAmount'>
   >;
   let statsd: jest.Mocked<Pick<StatsD, 'increment'>>;
   let logger: jest.Mocked<Pick<LoggerService, 'error'>>;
@@ -47,6 +51,9 @@ describe('MeteringThresholdService', () => {
     meteringConfigurationManager = { getMeterResultUtil: jest.fn() };
     meteringQueryManager = { queryUsage: jest.fn() };
     meteringWebhookManager = { dispatch: jest.fn() };
+    usageGrantsManager = {
+      getActiveGrantedAmount: jest.fn().mockResolvedValue(0),
+    };
     statsd = { increment: jest.fn() };
     logger = { error: jest.fn() };
 
@@ -59,6 +66,7 @@ describe('MeteringThresholdService', () => {
         },
         { provide: MeteringQueryManager, useValue: meteringQueryManager },
         { provide: MeteringWebhookManager, useValue: meteringWebhookManager },
+        { provide: UsageGrantsManager, useValue: usageGrantsManager },
         { provide: StatsDService, useValue: statsd },
         { provide: Logger, useValue: logger },
       ],
@@ -190,6 +198,7 @@ describe('MeteringThresholdService', () => {
       threshold: 50,
       currentUsage: 90,
       limit: 100,
+      grantedAmount: 0,
       unit: 'tokens',
       windowStart: new Date('2026-05-01T00:00:00.000Z'),
       windowEnd: new Date('2026-06-01T00:00:00.000Z'),
@@ -300,5 +309,97 @@ describe('MeteringThresholdService', () => {
         outcome: 'crossings-dispatched',
       }
     );
+  });
+
+  it('does not cross a threshold that active grants lift usage below', async () => {
+    meteringConfigurationManager.getMeterResultUtil.mockResolvedValue(
+      resultUtilFor(
+        StrapiMeterFactory({
+          slug: 'tokens',
+          limit: 100,
+          window: 'monthly',
+          notificationThresholds: '80',
+          webhooks: [StrapiMeterWebhookFactory()],
+        })
+      )
+    );
+    meteringQueryManager.queryUsage.mockResolvedValue({
+      usage: 90,
+      from: now,
+      to: now,
+    });
+    usageGrantsManager.getActiveGrantedAmount.mockResolvedValue(100);
+
+    await service.handleThresholdCheck(body, now);
+
+    expect(statsd.increment).toHaveBeenCalledWith('metering.tasks.handler', {
+      outcome: 'no-crossings',
+    });
+    expect(meteringWebhookManager.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('dispatches with the grant-adjusted effective limit', async () => {
+    meteringConfigurationManager.getMeterResultUtil.mockResolvedValue(
+      resultUtilFor(
+        StrapiMeterFactory({
+          slug: 'tokens',
+          unit: 'tokens',
+          limit: 100,
+          window: 'monthly',
+          notificationThresholds: '80',
+          webhooks: [StrapiMeterWebhookFactory()],
+        })
+      )
+    );
+    meteringQueryManager.queryUsage.mockResolvedValue({
+      usage: 180,
+      from: now,
+      to: now,
+    });
+    usageGrantsManager.getActiveGrantedAmount.mockResolvedValue(100);
+
+    await service.handleThresholdCheck(body, now);
+
+    expect(usageGrantsManager.getActiveGrantedAmount).toHaveBeenCalledWith(
+      'user-1',
+      'tokens',
+      now
+    );
+    expect(meteringWebhookManager.dispatch).toHaveBeenCalledTimes(1);
+    expect(meteringWebhookManager.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        threshold: 80,
+        currentUsage: 180,
+        limit: 200,
+        grantedAmount: 100,
+      })
+    );
+  });
+
+  it('propagates a failure from the grants manager and dispatches nothing', async () => {
+    meteringConfigurationManager.getMeterResultUtil.mockResolvedValue(
+      resultUtilFor(
+        StrapiMeterFactory({
+          slug: 'tokens',
+          limit: 100,
+          window: 'monthly',
+          notificationThresholds: '80',
+          webhooks: [StrapiMeterWebhookFactory()],
+        })
+      )
+    );
+    meteringQueryManager.queryUsage.mockResolvedValue({
+      usage: 90,
+      from: now,
+      to: now,
+    });
+    usageGrantsManager.getActiveGrantedAmount.mockRejectedValue(
+      new Error('firestore unavailable')
+    );
+
+    await expect(service.handleThresholdCheck(body, now)).rejects.toThrow(
+      'firestore unavailable'
+    );
+    expect(meteringWebhookManager.dispatch).not.toHaveBeenCalled();
   });
 });

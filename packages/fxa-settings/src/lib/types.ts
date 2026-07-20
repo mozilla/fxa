@@ -37,7 +37,6 @@ export enum MfaReason {
   createRecoveryKey = 'create recovery key',
   removeRecoveryKey = 'remove recovery key',
   createPasskey = 'create passkey',
-  renamePasskey = 'rename passkey',
   removePasskey = 'remove passkey',
   test = 'test',
 }

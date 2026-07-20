@@ -1783,6 +1783,15 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyUserVerificationRequired() {
+    return new AppError({
+      code: 422,
+      error: 'Unprocessable Entity',
+      errno: ERRNO.PASSKEY_USER_VERIFICATION_REQUIRED,
+      message: 'Passkey requires user verification (PIN or biometric)',
+    });
+  }
+
   static passkeyChallengeExpired() {
     return new AppError({
       code: 401,

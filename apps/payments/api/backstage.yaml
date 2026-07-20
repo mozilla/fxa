@@ -1,0 +1,32 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-api
+  description: Payments API for Mozilla Accounts
+  tags:
+    - typescript
+    - node
+    - nestjs
+  annotations:
+    circleci.com/project-slug: github/mozilla/fxa
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  providesApis:
+    - api:fxa-payments
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: fxa-payments
+  description: Mozilla Accounts Payments API
+spec:
+  type: openapi
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  definition:
+    $text: https://api.payments.firefox.com/swagger.json

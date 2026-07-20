@@ -4,7 +4,10 @@
 
 import { Container } from 'typedi';
 import { AppError as authErrors } from '@fxa/accounts/errors';
-import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import {
+  RecoveryPhoneService,
+  RecoveryNumberNotExistsError,
+} from '@fxa/accounts/recovery-phone';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { createMock } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
@@ -181,6 +184,12 @@ describe('totp', () => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(BackupCodeManager, mockBackupCodeManager);
 
+    // Two /totp/create tests below make removePhoneNumber reject; reset it each
+    // test so that behavior can't leak (clearMocks does not reset implementations).
+    mockRecoveryPhoneService.removePhoneNumber
+      .mockReset()
+      .mockResolvedValue(true);
+
     glean.twoStepAuthRemove.success.mockClear();
   });
 
@@ -208,6 +217,68 @@ describe('totp', () => {
           expect.objectContaining({ uid: 'uid' })
         );
       });
+    });
+
+    // FXA-14058: a fresh setup starts from a clean recovery-method slate.
+    it('clears pre-existing recovery methods when starting a fresh setup', async () => {
+      await setup(
+        { db: { email: TEST_EMAIL, emailVerified: true } },
+        {},
+        '/totp/create',
+        requestOptions
+      );
+      expect(mockBackupCodeManager.deleteRecoveryCodes).toHaveBeenCalledWith(
+        'uid'
+      );
+      expect(mockRecoveryPhoneService.removePhoneNumber).toHaveBeenCalledWith(
+        'uid'
+      );
+    });
+
+    it('still creates the token when there is no recovery phone to remove', async () => {
+      mockRecoveryPhoneService.removePhoneNumber.mockRejectedValue(
+        new RecoveryNumberNotExistsError('uid')
+      );
+      const response = await setup(
+        { db: { email: TEST_EMAIL, emailVerified: true } },
+        {},
+        '/totp/create',
+        requestOptions
+      );
+      expect(response.secret).toBeTruthy();
+    });
+
+    it('does not create the token if clearing a recovery method fails', async () => {
+      mockRecoveryPhoneService.removePhoneNumber.mockRejectedValue(
+        new Error('db unavailable')
+      );
+      await expect(
+        setup(
+          { db: { email: TEST_EMAIL, emailVerified: true } },
+          {},
+          '/totp/create',
+          requestOptions
+        )
+      ).rejects.toThrow('db unavailable');
+      expect(authServerCacheRedis.set).not.toHaveBeenCalled();
+    });
+
+    it('does not clear recovery methods when re-entering an in-progress setup', async () => {
+      await setup(
+        { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
+        {},
+        '/totp/create',
+        requestOptions
+      );
+      expect(mockBackupCodeManager.deleteRecoveryCodes).not.toHaveBeenCalled();
+      expect(mockRecoveryPhoneService.removePhoneNumber).not.toHaveBeenCalled();
+      // The existing setup secret's TTL is refreshed rather than regenerated.
+      expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+        expect.stringContaining(':secret:'),
+        secret,
+        'EX',
+        3600
+      );
     });
   });
 

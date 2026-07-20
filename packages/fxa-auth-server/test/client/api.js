@@ -363,10 +363,11 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.accountStatusByEmail = function (email) {
+  ClientApi.prototype.accountStatusByEmail = function (email, options) {
     if (email) {
       return this.doRequest('POST', `${this.baseURL}/account/status`, null, {
         email: email,
+        ...options,
       });
     } else {
       return this.doRequest('POST', `${this.baseURL}/account/status`);
@@ -1476,14 +1477,6 @@ module.exports = (config) => {
       'GET',
       `${this.baseURL}/oauth/subscriptions/clients`,
       secret
-    );
-  };
-
-  ClientApi.prototype.getSubscriptionPlans = function (refreshToken) {
-    return this.doRequestWithBearerToken(
-      'GET',
-      `${this.baseURL}/oauth/subscriptions/plans`,
-      refreshToken
     );
   };
 

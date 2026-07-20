@@ -120,14 +120,25 @@ export class TotpPage extends SettingsLayout {
   async setUp2faAppWithQrCode(credentials: Credentials): Promise<string> {
     await expect(this.twoStepAuthenticationHeading).toBeVisible();
     await expect(this.setup2faAppHeading).toBeVisible();
+    await expect(this.step1QRCode).toBeVisible();
 
-    const png = await this.step1QRCode.screenshot();
-    const img = UPNG.decode(png);
-    const { data } = jsQR(
-      new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),
-      img.width,
-      img.height
-    ) || { data: null };
+    // Retry the screenshot+decode: in the change-2FA flow the canvas can repaint
+    // with the new secret a beat after the heading appears, so a single early
+    // screenshot may capture a blank QR.
+    let data: string | null = null;
+    await expect(async () => {
+      const png = await this.step1QRCode.screenshot();
+      const img = UPNG.decode(png);
+      data = (
+        jsQR(
+          new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),
+          img.width,
+          img.height
+        ) || { data: null }
+      ).data;
+      expect(data).not.toBeNull();
+    }).toPass({ timeout: 10000 });
+
     if (data === null) {
       throw new Error('No QR code found');
     }

@@ -910,6 +910,18 @@ describe('RecoveryPhoneService', () => {
       expect(result).toBe(true);
     });
 
+    it('rejects phone number that has been used for too many accounts', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
+        isSetup: true,
+        phoneNumber,
+      });
+      mockRecoveryPhoneManager.getCountByPhoneNumber.mockResolvedValueOnce(5);
+
+      await expect(service.changePhoneNumber(uid, code)).rejects.toThrow(
+        new RecoveryPhoneRegistrationLimitReached(phoneNumber)
+      );
+    });
+
     it('returns false if there is no existing unconfirmed code', async () => {
       mockRecoveryPhoneManager.changePhoneNumber.mockResolvedValue(true);
       mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({});

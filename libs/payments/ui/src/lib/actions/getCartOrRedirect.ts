@@ -10,6 +10,7 @@ import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
 import { sanitizePathname } from '../utils/sanitizePathname';
+import { buildRedirectUrl } from '../utils/buildRedirectUrl';
 import {
   StartCartDTO,
   ProcessingCartDTO,
@@ -66,9 +67,28 @@ async function getCartOrRedirectAction(
     : undefined;
   const urlSearchParams = new URLSearchParams(filteredParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
-  const cart = await getApp().getActionsService().getCart({
-    cartId,
-  });
+  let cart: CartDTO;
+  try {
+    cart = await getApp().getActionsService().getCart({
+      cartId,
+    });
+  } catch (error) {
+    if (error.name === 'CartUidMismatchError') {
+      const [, locale, offeringId, interval] = sanitizePathname(
+        currentPathname
+      ).split('/');
+      const redirectSearchParams = { ...(searchParams ?? {}) };
+      delete redirectSearchParams.cartId;
+      delete redirectSearchParams.cartVersion;
+      redirect(
+        buildRedirectUrl(offeringId, interval, 'new', 'checkout', {
+          locale,
+          searchParams: redirectSearchParams,
+        })
+      );
+    }
+    throw error;
+  }
 
   if (!validateCartState(cart.state, page)) {
     // Sanitize pathname to prevent open redirect vulnerabilities

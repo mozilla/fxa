@@ -6,7 +6,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { FirefoxCommand } from '../../lib/channels';
-import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { OLDSYNC_SCOPE } from '../../lib/scopes';
 import { getTotpCode } from '../../lib/totp';
@@ -50,7 +50,9 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.signOut();
 
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      // Real /pair handshake so Firefox derives real Sync keys.
+      await gotoSyncSession(page, target);
+      await page.waitForURL(/action=email/, { timeout: 15000 });
       await signin.fillOutEmailFirstForm(email);
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
         await signin.passkeySigninButton.click();
@@ -107,7 +109,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.passkey.status).toHaveText('Enabled');
       await settings.signOut();
 
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      // Real /pair handshake so Firefox derives real Sync keys.
+      await gotoSyncSession(page, target);
+      await page.waitForURL(/action=email/, { timeout: 15000 });
       await signin.fillOutEmailFirstForm(email);
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
         await signin.passkeySigninButton.click();

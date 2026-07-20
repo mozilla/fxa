@@ -150,7 +150,7 @@ const mockGetAccountCustomerByUid = jest.fn().mockResolvedValue({
 });
 
 const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
-  Container.set(CapabilityService, options.capabilityService || jest.fn());
+  Container.set(CapabilityService, options.capabilityService || {});
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
@@ -2506,7 +2506,7 @@ describe('/account/login', () => {
     Container.set(AppConfig, config);
     Container.set(AuthLogger, mockLog);
     Container.set(AccountEventsManager, new AccountEventsManager());
-    Container.set(CapabilityService, jest.fn().mockResolvedValue(undefined));
+    Container.set(CapabilityService, {});
     Container.set(OAuthClientInfoServiceName, mockOAuthClientInfo);
     Container.set(FxaMailer, mockFxaMailer);
     Container.set(RelyingPartyConfigurationManager, rpConfigManager);
@@ -4419,7 +4419,7 @@ describe('/account', () => {
     mockStripeHelper.removeFirestoreCustomer = jest
       .fn()
       .mockResolvedValue(undefined);
-    Container.set(CapabilityService, jest.fn());
+    Container.set(CapabilityService, {});
   });
 
   describe('web subscriptions', () => {
@@ -4439,7 +4439,7 @@ describe('/account', () => {
       mockStripeHelper.subscriptionsToResponse = jest.fn(
         async (subscriptions: any) => mockWebSubscriptionsResponse
       );
-      Container.set(CapabilityService, jest.fn());
+      Container.set(CapabilityService, {});
     });
 
     it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
@@ -4560,7 +4560,7 @@ describe('/account', () => {
       );
       Container.set(OAuthClientInfoServiceName, mockOAuthClientInfoLocal);
       Container.set(FxaMailer, mockFxaMailerLocal);
-      Container.set(CapabilityService, jest.fn());
+      Container.set(CapabilityService, {});
       mockPlaySubscriptions = mocks.mockPlaySubscriptions(['getSubscriptions']);
       Container.set(PlaySubscriptions, mockPlaySubscriptions);
       mockPlaySubscriptions.getSubscriptions = jest.fn(async (uid: any) => [
@@ -4712,7 +4712,7 @@ describe('/account', () => {
       mockStripeHelper.subscriptionsToResponse = jest.fn(
         async (subscriptions: any) => mockWebSubscriptionsResponse
       );
-      Container.set(CapabilityService, jest.fn());
+      Container.set(CapabilityService, {});
       mockAppStoreSubscriptions = mocks.mockAppStoreSubscriptions([
         'getSubscriptions',
       ]);
@@ -5153,6 +5153,7 @@ describe('/account/emails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     log = mocks.mockLog();
+    installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     db = {
       account: jest.fn().mockResolvedValue({

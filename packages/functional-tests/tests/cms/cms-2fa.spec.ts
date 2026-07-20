@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { enableTotpOnAccount } from '../../lib/pairing-helpers';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 import { getTotpCode } from '../../lib/totp';
 
 const ENTRYPOINT_123Done = 'purple';
@@ -509,78 +510,31 @@ test.describe('severity-1 #smoke', () => {
 
     test('enable 2FA and signin with TOTP - Sync', async ({
       target,
-      syncOAuthBrowserPages: { page, signin, settings, totp, signinTotpCode },
+      syncOAuthBrowserPages: {
+        page,
+        signin,
+        signinTotpCode,
+        connectAnotherDevice,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      // First, sign in and enable 2FA
-      syncDesktopOAuthQueryParams.set('entrypoint', ENTRYPOINT_SYNC);
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
-
-      await assertCmsCustomization(page, {
-        headline: 'Continue to your Mozilla account',
-        description:
-          'Sync your passwords, tabs, and bookmarks everywhere you use Firefox.',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/firefox-browser-logo.svg',
-        logoAlt: 'Firefox logo',
-        buttonColor: '#FF630B',
-        buttonText: 'Sign up or sign in',
-      });
-
-      await page
-        .getByRole('textbox', { name: 'Email' })
-        .fill(credentials.email);
-      let submitButton = page.getByRole('button', {
-        name: 'Sign up or sign in',
-        exact: true,
-      });
-      await submitButton.click();
-
-      await assertCmsCustomization(page, {
-        headline: 'Enter your password',
-        description: 'for your Mozilla account',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/firefox-browser-logo.svg',
-        logoAlt: 'Firefox logo',
-        buttonColor: '#FF630B',
-        buttonText: 'Sign in',
-      });
-      await page.getByTestId('input-field').fill(credentials.password);
-
-      submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
-      await submitButton.click();
-
-      await page.waitForURL(/pair/);
-
-      await page.getByRole('link', { name: 'Not now' }).click();
-
-      // Verify successful login and go to settings
-      await expect(page).toHaveURL(/settings/);
-      await settings.goto();
-
-      // Enable 2FA
-      await expect(settings.totp.status).toHaveText('Disabled');
-      await settings.totp.addButton.click();
-      await settings.confirmMfaGuard(credentials.email);
-
-      // Set up 2FA with QR code and backup codes
-      const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toContainText(
-        'Two-step authentication has been enabled'
+      // Enroll TOTP out-of-band so one sign-in hits signin_totp_code (a second
+      // /pair can't re-sign-in: the signed-in browser shows pairing).
+      const secret = await enableTotpOnAccount(
+        target.authClient,
+        credentials.sessionToken
       );
-      await expect(settings.totp.status).toHaveText('Enabled');
+      // Record the secret so account cleanup can elevate AAL to delete it.
+      credentials.secret = secret;
 
-      // Sign out
-      await settings.signOut();
-
-      // Sign in again with 2FA
-      syncDesktopOAuthQueryParams.set('entrypoint', ENTRYPOINT_SYNC);
-      await signin.goto('/authorization', syncDesktopOAuthQueryParams);
+      // Real /pair handshake, then re-enter with the Sync CMS entrypoint for branding.
+      await gotoSyncSession(page, target);
+      await page.waitForURL(/action=email/, { timeout: 15000 });
+      const syncSigninUrl = new URL(page.url());
+      syncSigninUrl.searchParams.set('entrypoint', ENTRYPOINT_SYNC);
+      await page.goto(syncSigninUrl.toString());
 
       await assertCmsCustomization(page, {
         headline: 'Continue to your Mozilla account',
@@ -593,14 +547,7 @@ test.describe('severity-1 #smoke', () => {
         buttonText: 'Sign up or sign in',
       });
 
-      await page
-        .getByRole('textbox', { name: 'Email' })
-        .fill(credentials.email);
-      submitButton = page.getByRole('button', {
-        name: 'Sign up or sign in',
-        exact: true,
-      });
-      await submitButton.click();
+      await signin.fillOutEmailFirstForm(credentials.email);
 
       await assertCmsCustomization(page, {
         headline: 'Enter your password',
@@ -611,10 +558,7 @@ test.describe('severity-1 #smoke', () => {
         buttonColor: '#FF630B',
         buttonText: 'Sign in',
       });
-      await page.getByTestId('input-field').fill(credentials.password);
-
-      submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
-      await submitButton.click();
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Should now be on TOTP code page
       await expect(page).toHaveURL(/signin_totp_code/);
@@ -629,13 +573,11 @@ test.describe('severity-1 #smoke', () => {
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
-      await page.waitForURL(/pair/);
-
-      await page.getByRole('link', { name: 'Not now' }).click();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await connectAnotherDevice.clickNotNowPair();
 
       // Verify successful login
-      await expect(page).toHaveURL(/settings/);
-      await expect(settings.settingsHeading).toBeVisible();
+      await page.waitForURL(/settings/);
     });
   });
 });
