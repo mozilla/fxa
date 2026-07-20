@@ -710,7 +710,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
@@ -762,7 +765,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - wait-for-infrastructure
       - run:
           name: Start customs
@@ -817,7 +823,10 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
@@ -849,7 +858,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - check-playwright-test-count:
           project: local
       - run:
@@ -899,7 +911,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - run:
           name: Add localhost
           command: |
@@ -946,7 +961,10 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup
+      - gcp-cli/setup:
+          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+          version: 502.0.0
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
