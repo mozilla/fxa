@@ -1,0 +1,11 @@
+{
+  "commit": "88d6aa5857ed415ca7200515dcf81e693d79f380",
+  "summary": "feat(subplat): add free access program to billing-and-subscriptions API",
+  "description": "Because:\n\n * Relying parties fetch current subscriptions via GET v1/billing-and-subscriptions,\n   but Free Access Program grants were not represented.\n\nThis commit:\n\n * Adds a `free_access` subscription type sourcing product identity from the\n   related offering.\n * Filters grants by the projection's per-client capabilities.\n * Gates the code behind a FreeAccessProgramConfig feature flag (default off).\n * Add webhook handler to payments-api to clear cache\n\nCloses #PAY-3790",
+  "timestamp": 1784574759000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
