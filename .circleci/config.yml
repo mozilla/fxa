@@ -10,18 +10,21 @@ parameters:
   enable_stage_smoke_tests:
     type: boolean
     default: false
+  # fxa-private is validate-only: deploys, CI-image publishing, tag releases, and
+  # nightly all happen from the public mozilla/fxa repo, so they default off here.
+  # (Public fxa keeps these on; this is a deliberate fxa-private-only divergence.)
   enable_deploy_packages:
     type: boolean
-    default: true
+    default: false
   enable_deploy_ci_images:
     type: boolean
-    default: true
+    default: false
   enable_test_and_deploy_tag:
     type: boolean
-    default: true
+    default: false
   enable_nightly:
     type: boolean
-    default: true
+    default: false
   # Set by `yarn pr-debug` (_scripts/pr-debug.sh). Never true on its own.
   run_stack:
     type: boolean
@@ -54,7 +57,6 @@ parameters:
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
-  gcp-cli: circleci/gcp-cli@3.3.0
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -180,6 +182,9 @@ executors:
       FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE: true
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
       GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
+      # Disable admin-server Stripe queries: fxa-private has only a dummy Stripe key,
+      # so account lookups would 401 on Stripe auth. Overrides development.json.
+      FEATURE_STRIPE_SUBS: false
       RECOVERY_PHONE__ENABLED: true
       # Every local test registers the same magic number, so the production anti-abuse
       # cap of 5 would reject them once they run in parallel. 8 nodes x 3 workers puts
@@ -214,32 +219,52 @@ executors:
 
 commands:
   git-clone:
-    # Note: Cloning this way allows us to run a git fetch & checkout later on download the road. This type of
-    # clone operation will result in a .git/config with no user attached that is using
-    # https://github.com/mozilla/fxa for the remote origin.
+    # Note: Cloning this way allows us to run a git fetch & checkout later on download the road.
+    # The remote is chosen by which repo the job runs in (CIRCLE_PROJECT_REPONAME): in fxa-private
+    # the fetch authenticates with the project deploy key (loaded via add_ssh_keys) over SSH, since
+    # anonymous HTTPS against the public repo cannot see private-only commits; in the public fxa repo
+    # it keeps the original anonymous HTTPS clone.
     # The --depth argument is used to drastically cut down the initial download size. The size
     # of the git folder is also much smaller, which ultimately results in smaller docker images.
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'SHA256:RA3MICXx9R6uG2FFg2SIyTT/Q6yhf3EA/lbI561Xkmc'
       - run:
           name: git clone
           command: |
-            git clone https://github.com/mozilla/fxa . --depth=1
-            git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=2
+            mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+            if [[ "$CIRCLE_PROJECT_REPONAME" == "fxa-private" ]]; then
+              REPO_URL="git@github.com:mozilla/fxa-private.git"
+            else
+              REPO_URL="https://github.com/mozilla/fxa"
+            fi
+            git clone "$REPO_URL" . --depth=1
+            git fetch "$REPO_URL" << pipeline.git.revision >> --depth=2
             git checkout << pipeline.git.revision >>
 
   git-checkout:
     # Note: Since we use a pre-populated base image that has a .git folder already present (see
     # comment above), running a fetch and checkout saves a considerable amount of time when compared
     # to a circleci `- checkout` command.
+    # The fetch remote is chosen by which repo the job runs in (CIRCLE_PROJECT_REPONAME): fxa-private
+    # authenticates with the project deploy key (loaded via add_ssh_keys) over SSH; the public fxa repo
+    # keeps the original anonymous HTTPS fetch, since anonymous HTTPS cannot see private-only commits.
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'SHA256:RA3MICXx9R6uG2FFg2SIyTT/Q6yhf3EA/lbI561Xkmc'
       - run:
           name: Checkout Branch
           command: |
             set +x
+            mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
             # If the PR is coming from a fork, add it as a remote, so the commit can be checked out.
             if [[ "$CIRCLE_PR_USERNAME" != "" && "$CIRCLE_PR_REPONAME" != "" ]]; then
               echo "Adding remote https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
               git fetch https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME << pipeline.git.revision >> --depth=1
+            elif [[ "$CIRCLE_PROJECT_REPONAME" == "fxa-private" ]]; then
+              git fetch git@github.com:mozilla/fxa-private.git << pipeline.git.revision >> --depth=1
             else
               git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=1
             fi
@@ -589,51 +614,6 @@ commands:
             docker push mozilla/fxa-circleci:ci-builder-v10
             wait
 
-  upload_to_gcs:
-    # Uploads test artifacts to ETE GCS for test metric reporting and monitoring
-    parameters:
-      source:
-        type: string
-        default: artifacts/tests
-      destination:
-        type: string
-        # The destination can be defaulted since result reporting is the only use case atm
-        # If/When we have coverage metrics this value should be 'gs://ecosystem-test-eng-metrics/fxa/coverage'
-        default: gs://ecosystem-test-eng-metrics/fxa/junit
-      extension:
-        type: enum
-        enum: ['xml', 'json']
-        # The extension can be defaulted since result reporting is the only use case atm
-        # If/When we have coverage metrics this value should be 'json'
-        default: xml
-      workflow:
-        type: string
-      test_suite:
-        type: string
-    steps:
-      - run:
-          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
-          when: always # Ensure the step runs even if previous steps, like test runs, fail
-          command: |
-            ALLOWED_WORKFLOWS=("nightly" "test_and_deploy_tag" "stage_smoke_tests" "production_smoke_tests")
-            if [[ ! " ${ALLOWED_WORKFLOWS[@]} " =~ " << parameters.workflow >> " ]]; then
-              echo "Skipping artifact upload. Uploads not supported on << parameters.workflow >>."
-              exit 0
-            fi
-            FILES=$(find "<< parameters.source >>" -type f -name "*.<< parameters.extension >>")
-            if [ -z "$FILES" ]; then
-              echo "No << parameters.extension >> files found in << parameters.source >>/"
-              exit 1
-            fi
-            # In order to be consumed by the ETE Test Metric Pipeline, files need to follow a strict naming convention:
-            # {job_number}__{utc_epoch_datetime}__{repository}__{workflow}__{test_suite}__results{-index}.xml
-            EPOCH_TIME=$(date +%s)
-            PREFIX="${CIRCLE_BUILD_NUM}__${EPOCH_TIME}__fxa__<< parameters.workflow >>__<< parameters.test_suite >>"
-            for file in $FILES; do
-              basefile=$(basename "$file")
-              gsutil cp "$file" "<< parameters.destination >>/${PREFIX}__$basefile"
-            done
-
 jobs:
   create-fxa-image:
     executor: docker-build-executor
@@ -742,10 +722,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
@@ -756,9 +732,6 @@ jobs:
             NODE_ENV: test
             JEST_AFFECTED_BASE: << parameters.jest_affected_base >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: unit
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
@@ -794,10 +767,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - wait-for-infrastructure
       - run:
           name: Gen keys
@@ -812,9 +781,6 @@ jobs:
             RUN_STRIPE_CLEANUP: << parameters.run_stripe_cleanup >>
           no_output_timeout: 20m
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: << parameters.test_suite >>
 
   # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
@@ -849,10 +815,6 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
@@ -863,9 +825,6 @@ jobs:
           grep_invert: '#phone'
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -884,10 +843,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - check-playwright-test-count:
           project: local
       - run:
@@ -908,9 +863,6 @@ jobs:
           # codes are read from redis by uid and cannot collide across workers.
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e
 
   # Boots the functional-test stack in one self-contained job (install, build,
   # start) so a dev can drive it over "Rerun job with SSH". Runs no tests.
@@ -988,10 +940,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - run:
           name: Add localhost
           command: |
@@ -1013,9 +961,6 @@ jobs:
           test_dir: tests-payments-next
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e-payments
 
   # Runs payments-next smoke tests against remote targets (stage/production).
   payments-smoke-tests:
@@ -1038,19 +983,12 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
           test_dir: tests-payments-next
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e-payments
 
   update-yarn-cache:
     executor: default-executor
