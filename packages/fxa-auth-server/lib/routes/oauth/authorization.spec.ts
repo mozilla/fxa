@@ -443,9 +443,11 @@ describe('/authorization POST consent write', () => {
       clientId: CLIENT_ID,
       now: expect.any(Number),
     });
+    // `recorded` value is the row count (3 scopes) tagged by version.
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.recorded',
-      { service: 'sync', access_type: 'offline' }
+      3,
+      { service: 'sync', access_type: 'offline', version: 'v1' }
     );
   });
 
@@ -669,6 +671,86 @@ describe('/authorization POST consent write', () => {
     // is currently keyed to the URL service='vpn'. FXA-13874 tracks changing
     // this so the apps/oldsync row is keyed to 'sync' instead.
     expect(service).toBe('vpn');
+  });
+
+  // FXA-14169 v2 dual-write observability. `recorded` is reused with a
+  // `version` tag; the value is the per-version row count.
+  describe('v2 dual-write metrics', () => {
+    it('records the v2 row count under recorded with version=v2', async () => {
+      const oauthDB = buildOauthDB({
+        recordSignInConsents: jest.fn().mockResolvedValue({
+          v2Written: 2,
+          v2Failed: false,
+          missingScopes: [],
+        }),
+      });
+      const statsd = { increment: jest.fn() };
+
+      await runHandler({ oauthDB, statsd, payload: { service: 'sync' } });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'accountAuthorization.recorded',
+        2,
+        { service: 'sync', access_type: 'offline', version: 'v2' }
+      );
+    });
+
+    it('reuses write_failed with version=v2 when the dual-write failed', async () => {
+      const oauthDB = buildOauthDB({
+        recordSignInConsents: jest.fn().mockResolvedValue({
+          v2Written: 0,
+          v2Failed: true,
+          missingScopes: [],
+        }),
+      });
+      const statsd = { increment: jest.fn() };
+
+      await runHandler({ oauthDB, statsd, payload: { service: 'sync' } });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'accountAuthorization.write_failed',
+        { service: 'sync', access_type: 'offline', version: 'v2' }
+      );
+    });
+
+    it('emits a bounded missing-scope count and logs the scope names', async () => {
+      const oauthDB = buildOauthDB({
+        recordSignInConsents: jest.fn().mockResolvedValue({
+          v2Written: 1,
+          v2Failed: false,
+          missingScopes: ['openid', 'profile'],
+        }),
+      });
+      const statsd = { increment: jest.fn() };
+      const log = createMock<AuthLogger>();
+
+      await runHandler({ oauthDB, statsd, log, payload: { service: 'sync' } });
+
+      // Count only — scope strings must not be metric tags (cardinality).
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'accountAuthorization.v2.missing_scopes',
+        2,
+        { service: 'sync' }
+      );
+      // The scope names are carried by the log instead, for seeding.
+      expect(log.warn).toHaveBeenCalledWith(
+        'accountAuthorization.v2.missing_scopes',
+        { service: 'sync', scopes: ['openid', 'profile'] }
+      );
+    });
+
+    it('emits only the v1 recorded metric when the collaborator returns nothing', async () => {
+      // buildOauthDB's recordSignInConsents resolves undefined by default.
+      const oauthDB = buildOauthDB();
+      const statsd = { increment: jest.fn() };
+
+      await runHandler({ oauthDB, statsd, payload: { service: 'sync' } });
+
+      const versions = (statsd.increment as jest.Mock).mock.calls
+        .filter(([name]) => name === 'accountAuthorization.recorded')
+        .map(([, , t]) => t.version);
+      expect(versions).toEqual(['v1']);
+    });
   });
 });
 

@@ -1450,6 +1450,22 @@ const convictConf = convict({
         env: 'FXA_ACCOUNT_ACTIVITY_UPDATE_AFTER',
       },
     },
+    accountAuthorizations: {
+      // Shadow-table migration of accountAuthorizations scope -> scopeId FK
+      // (FXA-14169). Both flags default off; nothing changes on deploy.
+      dualWriteV2: {
+        doc: 'Write each consent row to both accountAuthorizations (v1) and accountAuthorizations_v2 (scopeId FK). Enable only after deploy and after the scopes table is seeded/verified (watch accountAuthorization.v2.missing_scope).',
+        format: Boolean,
+        default: false,
+        env: 'OAUTH_ACCOUNT_AUTHORIZATIONS_DUAL_WRITE_V2',
+      },
+      readV2: {
+        doc: 'Read consent from accountAuthorizations_v2 first, falling back to v1. Enable only after the v1 -> v2 backfill is complete and verified (zero unresolved scopes).',
+        format: Boolean,
+        default: false,
+        env: 'OAUTH_ACCOUNT_AUTHORIZATIONS_READ_V2',
+      },
+    },
     tokenExchange: {
       allowedClientIds: {
         doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',

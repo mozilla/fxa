@@ -323,7 +323,10 @@ class OauthDB extends ConnectedServicesDb {
   }
 
   // Upserts a consent row for each scope under (uid, service, clientId) in a
-  // single atomic statement.
+  // single atomic statement. When the dualWriteV2 flag is on, the row is also
+  // written to accountAuthorizations_v2 (FXA-14169); the v2 write is isolated
+  // so it never affects the v1 result. Returns { missingScopes, v2Written,
+  // v2Failed } for the caller's write metrics.
   async recordSignInConsents({ uid, scopes, service, clientId, now }) {
     await this.ready();
     return this.mysql._upsertAccountConsents(
@@ -331,7 +334,8 @@ class OauthDB extends ConnectedServicesDb {
       scopes,
       service,
       clientId,
-      now || Date.now()
+      now || Date.now(),
+      config.get('oauthServer.accountAuthorizations.dualWriteV2')
     );
   }
 
@@ -342,7 +346,8 @@ class OauthDB extends ConnectedServicesDb {
     const row = await this.mysql._findAccountConsentForSignIn(
       uid,
       scope,
-      service
+      service,
+      config.get('oauthServer.accountAuthorizations.readV2')
     );
     return !!row;
   }
@@ -371,7 +376,8 @@ class OauthDB extends ConnectedServicesDb {
     const hasConsent = await this.mysql._hasConsentForScope(
       uid,
       scope,
-      service
+      service,
+      config.get('oauthServer.accountAuthorizations.readV2')
     );
     if (hasConsent) {
       return { result: EXCHANGE_DECISION.ALLOWED, service };
@@ -387,14 +393,22 @@ class OauthDB extends ConnectedServicesDb {
   // Used for the browser-service grain of the first-authorization signal.
   async hasConsentForService(uid, service) {
     await this.ready();
-    return this.mysql._hasConsentForService(uid, service);
+    return this.mysql._hasConsentForService(
+      uid,
+      service,
+      config.get('oauthServer.accountAuthorizations.readV2')
+    );
   }
 
   // True iff the user has any prior consent for this client (any scope/service).
   // Used for the web-RP grain of the first-authorization signal.
   async hasConsentForClient(uid, clientId) {
     await this.ready();
-    return this.mysql._hasConsentForClient(uid, clientId);
+    return this.mysql._hasConsentForClient(
+      uid,
+      clientId,
+      config.get('oauthServer.accountAuthorizations.readV2')
+    );
   }
 
   async deleteAllConsentsForUser(uid) {
