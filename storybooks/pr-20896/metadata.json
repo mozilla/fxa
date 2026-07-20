@@ -1,0 +1,11 @@
+{
+  "commit": "7cae87770f6dbc5aba06fa8116d98259f6a7acfc",
+  "summary": "feat(signin): add \"Forgot password?\" link to the passkey password fallback",
+  "description": "Because:\n - Passkey users entering their password on the fallback screen had no reset\n   path when they can't recall it. Reset risks Sync data loss, so it is offered\n   only as a last resort rather than surfaced up front.\n\nThis commit:\n - Shows a \"Forgot password?\" link on the passkey password-fallback screen only\n   after the user exhausts their password attempts (a throttling error), linking\n   to the password reset flow.\n\nCloses #FXA-14170",
+  "timestamp": 1784586006000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
