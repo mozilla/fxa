@@ -35,6 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Noget gik galt
+app-something-went-wrong-message = Vi er blevet underrettet om problemet. Opdater siden for at prøve igen.
+app-error-id = Fejl-ID: { $errorId }
+app-error-details-summary = Detaljer om fejl
 app-query-parameter-err-heading = Forkert forespørgsel: Ugyldige søgeparametre
 
 

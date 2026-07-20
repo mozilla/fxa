@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Koade
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Bewurkje
 error-icon-aria-label =
     .aria-label = Flater
 # Used as information icon for informative messaging
@@ -1257,6 +1260,18 @@ passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
 passkey-delete-error = Der is in probleem bard by it fuortsmiten fan jo wachtwurdkaai. Probearje it oer in pear minuten opnij.
+passkey-sub-row-rename-title = Wachtwurdkaai omneame
+passkey-rename-modal-heading = Wachtwurdkaai omneame
+passkey-rename-modal-description = Fier in nije namme foar dizze wachtwurdkaai yn.
+passkey-rename-input-label = Wachtwurdkaainamme
+passkey-rename-save-button = Bewarje
+passkey-rename-cancel-button = Annulearje
+passkey-rename-error-empty = Fier in namme foar dizze wachtwurdkaai yn
+passkey-rename-error-too-long = De namme moat minder as 256 tekens befetsje.
+passkey-rename-error-invalid = Allinnich letters, sifers, lêstekens en symboalen binne tastien.
+passkey-rename-error-duplicate = Der bestiet al in wachtwurdkaai mei dizze namme
+passkey-rename-success = Wachtwurdkaai omneamd
+passkey-rename-error = Der is in probleem bard by it omneamen fan jo wachtwurdkaai. Probearje it oer in pear minuten opnij.
 
 ## Switch component
 
@@ -1451,6 +1466,7 @@ auth-error-225 = Wachtwurdkaai al registrearre
 auth-error-226 = Wachtwurdkaailimyt berikt
 auth-error-227 = Wachtwurdkaaiautentikaasje mislearre
 auth-error-228 = Registraasje wachtwurdkaai mislearre
+auth-error-233 = Stel in skermbeskoatteling, pinkoade, fingerôfdruk of gesichtswerkenning op jo apparaat of befeiligingskaai yn om in wachtwurdkaai oan te meitsjen. Probearje it dêrnei opnij.
 auth-error-238 = Wachtwurdkaai-útdaging mislearre
 auth-error-239 = Sorry, wy koene jo account net fuortsmite. Probearje it opnij, of nim kontakt op mei de stipe as it probleem oanhâldt.
 auth-error-999 = Unferwachte flater
@@ -2074,8 +2090,8 @@ signin-passwordless-code-subheading = Oanmelden duorret mar ien stap as jo dizze
 #   expirationMinutes (Number) - the expiration time in minutes
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Fier binnen { $expirationTime } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
-       *[other] Fier binnen { $expirationTime } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+        [one] Fier binnen { $expirationMinutes } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+       *[other] Fier binnen { $expirationMinutes } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
     }
 signin-passwordless-code-input-label-v2 = Fier 6-siferige koade yn
 signin-passwordless-code-confirm-button = Befêstigje

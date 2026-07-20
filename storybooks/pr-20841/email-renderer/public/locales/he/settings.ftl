@@ -247,6 +247,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = קוד
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = עריכה
 error-icon-aria-label =
     .aria-label = שגיאה
 # Used as information icon for informative messaging
@@ -1178,7 +1181,7 @@ tfa-row-backup-phone-sim-swap-risk-link = מידע נוסף על סיכון בה
 # This is a string that shows when the user's passkey was created.
 # Variables:
 #   $createdDate (String) - a localized date string
-passkey-sub-row-created-date = תאריך יצירה:
+passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 # This is a string that shows when the user's passkey was last used.
 # Variables:
 #   $lastUsedDate (String) - a localized date string
@@ -1189,6 +1192,18 @@ passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
 passkey-delete-error = הייתה בעיה במחיקת מפתח הגישה שלך. נא לנסות שוב בעוד מספר דקות.
+passkey-sub-row-rename-title = שינוי שם מפתח גישה
+passkey-rename-modal-heading = שינוי שם מפתח גישה
+passkey-rename-modal-description = נא להכניס שם חדש עבור מפתח גישה זה.
+passkey-rename-input-label = שם מפתח גישה
+passkey-rename-save-button = שמירה
+passkey-rename-cancel-button = ביטול
+passkey-rename-error-empty = נא להכניס שם עבור מפתח גישה זה
+passkey-rename-error-too-long = השם חייב להכיל פחות מ־256 תווים.
+passkey-rename-error-invalid = מותר להשתמש רק באותיות, מספרים, סימני פיסוק וסמלים.
+passkey-rename-error-duplicate = מפתח גישה עם שם זה כבר קיים.
+passkey-rename-success = שונה השם של מפתח גישה
+passkey-rename-error = הייתה בעיה בשינוי השם של מפתח הגישה שלך. נא לנסות שוב בעוד מספר דקות.
 
 ## Switch component
 
@@ -1368,6 +1383,7 @@ auth-error-225 = מפתח הגישה כבר רשום
 auth-error-226 = הגעת למכסת מפתחות הגישה
 auth-error-227 = אימות מפתח הגישה נכשל
 auth-error-228 = רישום מפתח הגישה נכשל
+auth-error-233 = כדי ליצור מפתח גישה, יש להגדיר נעילת מסך, קוד סודי, טביעת אצבע או זיהוי פנים במכשיר או במפתח האבטחה שלך, ולאחר מכן לנסות שוב.
 auth-error-238 = אתגר מפתח הגישה נכשל
 auth-error-239 = לא הצלחנו למחוק את החשבון שלך, עמך הסליחה. נא לנסות שוב, או ליצור קשר עם התמיכה אם הבעיה נמשכת.
 auth-error-999 = שגיאה בלתי צפויה

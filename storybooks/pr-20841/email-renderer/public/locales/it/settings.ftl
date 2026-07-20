@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Codice
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Modifica
 error-icon-aria-label =
     .aria-label = Errore
 # Used as information icon for informative messaging
@@ -1249,6 +1252,18 @@ passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata
 passkey-delete-error = Si è verificato un problema durante l’eliminazione della passkey. Riprova tra qualche minuto.
+passkey-sub-row-rename-title = Rinomina passkey
+passkey-rename-modal-heading = Rinomina passkey
+passkey-rename-modal-description = Inserire un nuovo nome per questa passkey.
+passkey-rename-input-label = Nome passkey
+passkey-rename-save-button = Salva
+passkey-rename-cancel-button = Annulla
+passkey-rename-error-empty = Inserire un nome per questa passkey
+passkey-rename-error-too-long = Il nome deve contenere meno di 256 caratteri.
+passkey-rename-error-invalid = Sono consentiti solo lettere, numeri, segni di punteggiatura e simboli.
+passkey-rename-error-duplicate = Esiste già una passkey con questo nome
+passkey-rename-success = Passkey rinominata
+passkey-rename-error = Si è verificato un errore durante la modifica del nome della passkey. Riprova tra qualche minuto.
 
 ## Switch component
 
@@ -1431,6 +1446,7 @@ auth-error-225 = Passkey già registrata
 auth-error-226 = Raggiunto il limite di passkey
 auth-error-227 = Autenticazione con passkey non riuscita
 auth-error-228 = Registrazione passkey non riuscita
+auth-error-233 = Per creare una passkey, configura un blocco schermo, un PIN, l’impronta digitale, il riconoscimento facciale sul tuo dispositivo, o una chiave di sicurezza. Poi riprova.
 auth-error-238 = Verifica passkey non riuscita
 auth-error-239 = Ci dispiace, non siamo riusciti a eliminare il tuo account. Riprova oppure contatta l’assistenza se il problema persiste.
 auth-error-999 = Errore imprevisto
