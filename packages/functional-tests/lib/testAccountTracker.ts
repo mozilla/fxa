@@ -12,7 +12,10 @@ import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
 import { getTotpCode } from './totp';
-import { SessionStatus } from 'fxa-auth-client/lib/client';
+import {
+  SessionStatus,
+  SignedInAccountData,
+} from 'fxa-auth-client/lib/client';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -315,6 +318,43 @@ export class TestAccountTracker {
       options
     );
     this.accounts.push(credentials);
+    return credentials;
+  }
+
+  /**
+   * Signs into a fixed, shared account if it already exists, otherwise creates
+   * it (pre-verified). Unlike the generated-account helpers, the email/password
+   * are supplied by the caller because the account is fixed across runs.
+   *
+   * Only accounts created by this run are tracked for teardown: destroying a
+   * pre-existing shared account would be a destructive side effect on shared
+   * environments and could break other runs that expect it to persist.
+   * @param email fixed email address of the shared account
+   * @param password fixed password of the shared account
+   * @returns Credentials when created this run, or SignedInAccountData when the
+   *   account already existed and was signed into. Both expose `sessionToken`.
+   */
+  async signInOrCreateSharedAccount(
+    email: string,
+    password: string
+  ): Promise<Credentials | SignedInAccountData> {
+    const { exists } = await this.target.authClient.accountStatusByEmail(
+      email,
+      {},
+      this.target.ciHeader
+    );
+
+    if (exists) {
+      return this.target.authClient.signIn(
+        { primary: email, original: email },
+        password,
+        {},
+        this.target.ciHeader
+      );
+    }
+
+    const credentials = await this.target.createAccount(email, password);
+    this.accounts.push({ email, password });
     return credentials;
   }
 

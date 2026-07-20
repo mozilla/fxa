@@ -6,7 +6,10 @@ export * from './lib/cart.factories';
 export * from './lib/cart.manager';
 export * from './lib/cart.service';
 export * from './lib/cart.utils';
-export { CartInvalidStateForActionError } from './lib/cart.error';
+export {
+  CartInvalidStateForActionError,
+  CartUidMismatchError,
+} from './lib/cart.error';
 export * from './lib/checkout.service';
 export * from './lib/checkout.error';
 export * from './lib/checkout.types';

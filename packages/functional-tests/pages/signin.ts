@@ -149,9 +149,12 @@ export class SigninPage extends PasskeyPage {
   }
 
   async fillOutEmailFirstForm(email: string) {
-    // Ensure the page is ready after a hard navigation.
     await expect(this.emailTextbox).toBeVisible();
-    await this.emailTextbox.fill(email);
+    // l10n re-mount can drop onChange (button stays disabled); retry until it enables.
+    await expect(async () => {
+      await this.emailTextbox.fill(email);
+      await expect(this.emailFirstSubmitButton).toBeEnabled();
+    }).toPass({ timeout: 15000 });
     await this.emailFirstSubmitButton.click();
   }
 

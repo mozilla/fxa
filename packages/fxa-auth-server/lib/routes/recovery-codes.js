@@ -49,6 +49,12 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
 
         const { uid } = request.auth.credentials;
 
+        // Backup codes may only be regenerated once TOTP is enabled. See FXA-14058.
+        const hasTotpToken = await otpUtils.hasTotpToken({ uid });
+        if (!hasTotpToken) {
+          throw errors.totpTokenNotFound();
+        }
+
         const recoveryCodes = await db.replaceRecoveryCodes(
           uid,
           RECOVERY_CODE_COUNT
@@ -195,6 +201,12 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         log.begin('updateRecoveryCodes', request);
 
         const { uid } = request.auth.credentials;
+
+        // Backup codes may only be replaced once TOTP is enabled. See FXA-14058.
+        const hasTotpToken = await otpUtils.hasTotpToken({ uid });
+        if (!hasTotpToken) {
+          throw errors.totpTokenNotFound();
+        }
 
         const { recoveryCodes } = request.payload;
         await db.updateRecoveryCodes(uid, recoveryCodes);

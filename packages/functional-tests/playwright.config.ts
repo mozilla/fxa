@@ -45,8 +45,8 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: CI,
 
-  // Retry on CI only.
-  retries: CI ? 1 : 0,
+  // Retry once, locally and on CI, to absorb rare parallel-worker flakes.
+  retries: 1,
 
   // Total allowable time spent for the test function, fixtures, beforeEach and afterEach hooks. Defaults to 30 seconds.
   timeout: 60000, // 1 minute

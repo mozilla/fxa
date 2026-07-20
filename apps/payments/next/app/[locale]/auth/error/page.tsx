@@ -8,6 +8,7 @@ import mozillaIcon from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import { getSafeRedirectUrl } from '@fxa/payments/ui-auth';
 import { config } from '../../../../config';
 import { getApp } from '@fxa/payments/ui/server';
 
@@ -18,9 +19,16 @@ export default async function AuthErrorPage({
 }) {
   const cookieStore = await cookies();
   const resolvedSearchParams = await searchParams;
-  const redirectUrl =
+  const rawRedirectUrl =
     cookieStore.get('__Secure-authjs.callback-url')?.value ||
     cookieStore.get('authjs.callback-url')?.value;
+
+  const redirectUrl = rawRedirectUrl
+    ? getSafeRedirectUrl(rawRedirectUrl, config.paymentsNextHostedUrl, [
+        config.contentServerUrl,
+        config.paymentsNextHostedUrl,
+      ])
+    : undefined;
   const supportUrl = config.supportUrl;
   const l10n = getApp().getL10n();
   const errorMessage = Array.isArray(resolvedSearchParams?.error)

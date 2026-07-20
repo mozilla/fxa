@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createMock } from '@golevelup/ts-jest';
+import { AuthLogger } from '../../types';
+
 const Joi = require('joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -12,11 +15,9 @@ const PKCE_CODE_CHALLENGE = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
 const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 
-const noop = () => {};
-
 const SERVICES_WITH_EMAIL_VERIFICATION_CLIENT = '32aaeb6f1c21316a';
 
-const mockLog = { info: noop, debug: noop, warn: noop };
+const mockLog = createMock<AuthLogger>();
 
 const baseConfig = {
   oauthServer: {
@@ -43,7 +44,7 @@ const configuredRoute = require('./authorization')({
 })[1];
 
 const sessionTokenRoute = require('./authorization')({
-  log: { ...mockLog, notifyAttachedServices: noop },
+  log: mockLog,
   oauthDB: {},
   config: {
     ...baseConfig,
@@ -356,7 +357,7 @@ describe('/authorization POST consent write', () => {
         s === 'sync' ? SYNC_SCOPE : undefined
       ),
       getServiceForCanonicalScope: jest.fn(() => undefined),
-      recordSignInConsent: jest.fn().mockResolvedValue(undefined),
+      recordSignInConsents: jest.fn().mockResolvedValue(undefined),
       hasConsentForService: jest.fn().mockResolvedValue(false),
       hasConsentForClient: jest.fn().mockResolvedValue(false),
       ...overrides,
@@ -417,7 +418,7 @@ describe('/authorization POST consent write', () => {
     return { app };
   }
 
-  it('writes one row per requested scope plus the service canonical and consults the allowlist', async () => {
+  it('records every requested scope plus the service canonical in a single call and consults the allowlist', async () => {
     const oauthDB = buildOauthDB();
     const statsd = { increment: jest.fn() };
 
@@ -431,18 +432,17 @@ describe('/authorization POST consent write', () => {
       'sync',
       CLIENT_ID
     );
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalledTimes(3);
-    const scopes = (oauthDB.recordSignInConsent as jest.Mock).mock.calls
-      .map(([arg]) => arg.scope)
-      .sort();
-    expect(scopes).toEqual([SYNC_SCOPE, 'openid', 'profile']);
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        uid: UID_HEX,
-        service: 'sync',
-        clientId: CLIENT_ID,
-      })
-    );
+    // One call for all scopes — a single DB statement/connection, not one per scope.
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledTimes(1);
+    const { scopes, ...rest } = (oauthDB.recordSignInConsents as jest.Mock).mock
+      .calls[0][0];
+    expect([...scopes].sort()).toEqual([SYNC_SCOPE, 'openid', 'profile']);
+    expect(rest).toEqual({
+      uid: UID_HEX,
+      service: 'sync',
+      clientId: CLIENT_ID,
+      now: expect.any(Number),
+    });
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.recorded',
       { service: 'sync', access_type: 'offline' }
@@ -459,21 +459,20 @@ describe('/authorization POST consent write', () => {
       payload: { service: 'mystery', scope: 'profile' },
     });
 
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
-      expect.objectContaining({ scope: 'profile', service: '' })
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledWith(
+      expect.objectContaining({ scopes: ['profile'], service: '' })
     );
   });
 
-  it('swallows recordSignInConsent failures and emits write_failed', async () => {
+  it('swallows recordSignInConsents failures and emits write_failed', async () => {
     const oauthDB = buildOauthDB({
-      recordSignInConsent: jest.fn().mockRejectedValue(new Error('db down')),
+      recordSignInConsents: jest.fn().mockRejectedValue(new Error('db down')),
     });
-    const log = { ...mockLog, warn: jest.fn() };
     const statsd = { increment: jest.fn() };
 
-    await runHandler({ oauthDB, log, statsd, payload: { scope: 'profile' } });
+    await runHandler({ oauthDB, statsd, payload: { scope: 'profile' } });
 
-    expect(log.warn).toHaveBeenCalledWith(
+    expect(mockLog.warn).toHaveBeenCalledWith(
       'accountAuthorization.write_failed',
       expect.objectContaining({ err: 'db down' })
     );
@@ -492,7 +491,7 @@ describe('/authorization POST consent write', () => {
       payload: { service: 'sync', prompt: 'none' },
     });
 
-    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).not.toHaveBeenCalled();
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.skipped',
       {
@@ -518,7 +517,7 @@ describe('/authorization POST consent write', () => {
       UID_HEX,
       CLIENT_ID
     );
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalled();
     expect(app.firstAuthorization).toBe(true);
   });
 
@@ -537,12 +536,11 @@ describe('/authorization POST consent write', () => {
 
   it('does not flag firstAuthorization when the consent write fails', async () => {
     const oauthDB = buildOauthDB({
-      recordSignInConsent: jest.fn().mockRejectedValue(new Error('db down')),
+      recordSignInConsents: jest.fn().mockRejectedValue(new Error('db down')),
     });
 
     const { app } = await runHandler({
       oauthDB,
-      log: { ...mockLog, warn: jest.fn() },
       payload: { scope: 'profile' },
     });
 
@@ -553,17 +551,15 @@ describe('/authorization POST consent write', () => {
     const oauthDB = buildOauthDB({
       hasConsentForClient: jest.fn().mockRejectedValue(new Error('read down')),
     });
-    const log = { ...mockLog, warn: jest.fn() };
     const statsd = { increment: jest.fn() };
 
     const { app } = await runHandler({
       oauthDB,
-      log,
       statsd,
       payload: { scope: 'profile' },
     });
 
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalled();
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.first_auth_read_failed'
     );
@@ -582,7 +578,7 @@ describe('/authorization POST consent write', () => {
       payload: { service: 'sync' },
     });
 
-    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).not.toHaveBeenCalled();
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.skipped',
       {
@@ -609,8 +605,8 @@ describe('/authorization POST consent write', () => {
       'vpn',
       CLIENT_ID
     );
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalledWith(
-      expect.objectContaining({ scope: VPN_SCOPE, service: 'vpn' })
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledWith(
+      expect.objectContaining({ scopes: [VPN_SCOPE], service: 'vpn' })
     );
   });
 
@@ -628,7 +624,7 @@ describe('/authorization POST consent write', () => {
 
     await runHandler({ oauthDB, statsd, payload: { scope: VPN_SCOPE } });
 
-    expect(oauthDB.recordSignInConsent).not.toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).not.toHaveBeenCalled();
     expect(statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.skipped',
       { reason: 'client_not_allowed', service: 'vpn' }
@@ -665,20 +661,14 @@ describe('/authorization POST consent write', () => {
       },
     });
 
-    expect(oauthDB.recordSignInConsent).toHaveBeenCalledTimes(3);
-    const calls = (oauthDB.recordSignInConsent as jest.Mock).mock.calls.map(
-      ([arg]) => ({ scope: arg.scope, service: arg.service })
-    );
-    expect(calls).toEqual(
-      expect.arrayContaining([
-        { scope: VPN_SCOPE, service: 'vpn' },
-        { scope: 'profile', service: 'vpn' },
-        // apps/oldsync's canonical owner is 'sync', but the row is
-        // currently keyed to the URL service='vpn'. FXA-13874 tracks
-        // changing this so it's keyed to 'sync' instead.
-        { scope: SYNC_SCOPE, service: 'vpn' },
-      ])
-    );
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledTimes(1);
+    const { scopes, service } = (oauthDB.recordSignInConsents as jest.Mock).mock
+      .calls[0][0];
+    expect([...scopes].sort()).toEqual([SYNC_SCOPE, VPN_SCOPE, 'profile']);
+    // apps/oldsync's canonical owner is 'sync', but every row in this grant
+    // is currently keyed to the URL service='vpn'. FXA-13874 tracks changing
+    // this so the apps/oldsync row is keyed to 'sync' instead.
+    expect(service).toBe('vpn');
   });
 });
 
@@ -696,7 +686,7 @@ describe('/oauth/authorization service-driven scope resolution', () => {
 
   function makeRoute(oauthDB: Record<string, any>) {
     return require('./authorization')({
-      log: { ...mockLog, notifyAttachedServices: noop },
+      log: mockLog,
       oauthDB,
       config: baseConfig,
     })[2];

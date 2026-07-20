@@ -4,6 +4,7 @@
 
 import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings', () => {
@@ -31,9 +32,7 @@ test.describe('severity-2 #smoke', () => {
         },
       };
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.respondToWebChannelMessage(customEventDetail);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -79,7 +78,7 @@ test.describe('severity-2 #smoke', () => {
         settings,
         signin,
         signinTokenCode,
-        page
+        page,
       },
       testAccountTracker,
       storageState,
@@ -96,9 +95,7 @@ test.describe('severity-2 #smoke', () => {
         },
       };
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.respondToWebChannelMessage(customEventDetail);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -158,9 +155,7 @@ test.describe('severity-2 #smoke', () => {
         },
       };
 
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-      );
+      await gotoSyncSession(page, target);
       await signin.respondToWebChannelMessage(customEventDetail);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);

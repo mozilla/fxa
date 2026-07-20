@@ -25,7 +25,7 @@ import { SigninLocationState } from '../interfaces';
 import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { QueryParams } from '../../..';
-import SigninPasskeyFallback from '.';
+import SigninPasskeyFallback, { SigninPasskeyFallbackContinueError } from '.';
 
 // Password step for accounts that signed in with a passkey but still need the
 // account password to unwrap Sync encryption keys.
@@ -51,7 +51,6 @@ const SigninPasskeyFallbackContainer = ({
 
   // Falls back to cached localStorage account so the page survives refresh.
   const signinState = getSigninState(location.state);
-  const [localizedErrorMessage, setLocalizedErrorMessage] = useState('');
 
   const sessionToken = signinState?.sessionToken;
   const email = signinState?.email;
@@ -116,7 +115,9 @@ const SigninPasskeyFallbackContainer = ({
   }, [authClient, config, sessionToken]);
 
   const onContinue = useCallback(
-    async (password: string) => {
+    async (
+      password: string
+    ): Promise<SigninPasskeyFallbackContinueError | undefined> => {
       if (!sessionToken || !email || !uid) {
         navigateWithQuery('/');
         return;
@@ -143,8 +144,10 @@ const SigninPasskeyFallbackContainer = ({
             reason: isIncorrectPassword ? 'incorrect_password' : 'server_error',
           },
         });
-        setLocalizedErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, err));
-        return;
+        return {
+          errno,
+          localizedErrorMessage: getLocalizedErrorMessage(ftlMsgResolver, err),
+        };
       }
 
       const { error: navError } = await handleNavigation({
@@ -172,12 +175,14 @@ const SigninPasskeyFallbackContainer = ({
       });
       if (navError) {
         GleanMetrics.passkeyEnterPassword.submitFrontendError({
-          event: { reason: 'server_error' },
+          event: { reason: 'navigation_error' },
         });
-        setLocalizedErrorMessage(
-          getLocalizedErrorMessage(ftlMsgResolver, navError)
-        );
-        return;
+        return {
+          localizedErrorMessage: getLocalizedErrorMessage(
+            ftlMsgResolver,
+            navError
+          ),
+        };
       }
 
       GleanMetrics.passkeyEnterPassword.success({
@@ -191,6 +196,7 @@ const SigninPasskeyFallbackContainer = ({
           reason: buildPasskeyAuthSuccessReason(passkeySurface, 'withpassword'),
         },
       });
+      return undefined;
     },
     [
       authClient,
@@ -229,7 +235,6 @@ const SigninPasskeyFallbackContainer = ({
       {...{
         email,
         onContinue,
-        localizedErrorMessage,
         avatarData,
         avatarLoading,
         passkeySurface,

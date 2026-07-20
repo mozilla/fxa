@@ -36,6 +36,7 @@ const {
 const authDbModule = require('fxa-shared/db/models/auth');
 const { PurchaseQueryError } = require('./iap/google-play/types');
 const { CapabilityManager } = require('@fxa/payments/capability');
+const { FreeAccessProgramService } = require('@fxa/free-access-program');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   SubscriptionEligibilityResult,
@@ -838,6 +839,100 @@ describe('CapabilityService', () => {
         currentPriceIds: ['plan_876543', 'plan_ABCDEF'],
       });
       expect(log.notifyAttachedServices).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('subscriptionCapabilities — email-list merge', () => {
+    beforeEach(() => {
+      // Mock at the boundary (Stripe / IAP fetchers) so `subscribedPriceIds`
+      // runs for real and returns the single placeholder price its
+      // upstream callers compute. The merge tests rely on the
+      // `priceIdsToClientCapabilities` mock returning subscription caps,
+      // and `planIdsToClientCapabilities` short-circuits on empty input —
+      // so the boundary must yield at least one price for the CapabilityManager
+      // path to be exercised.
+      mockStripeHelper.fetchCustomer = jest.fn(async () => ({
+        subscriptions: {
+          data: [
+            {
+              status: 'active',
+              items: { data: [{ price: { id: 'price_test' } }] },
+            },
+          ],
+        },
+      }));
+      mockStripeHelper.iapPurchasesToPriceIds = jest.fn().mockReturnValue([]);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockResolvedValue([]);
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({});
+    });
+
+    it('returns only subscription caps when no FreeAccessProgramService is registered', async () => {
+      Container.remove(FreeAccessProgramService);
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ c1: ['capSub'] });
+    });
+
+    const buildFapManager = (caps: Record<string, string[]>) => ({
+      findCapabilitiesForEmail: jest.fn().mockResolvedValue(caps),
+    });
+
+    it('merges free-access caps with subscription caps', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(
+        FreeAccessProgramService,
+        buildFapManager({ c1: ['capEmail'], c2: ['capExtra'] })
+      );
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({
+        c1: ['capSub', 'capEmail'],
+        c2: ['capExtra'],
+      });
+    });
+
+    it('honors ALL_RPS_CAPABILITIES_KEY ("*") when merging', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ '*': ['capAll'] });
+      Container.set(
+        FreeAccessProgramService,
+        buildFapManager({ '*': ['capAllFromEmail'] })
+      );
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ '*': ['capAll', 'capAllFromEmail'] });
+    });
+
+    it('returns subscription caps unchanged when email has no free-access grant', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(FreeAccessProgramService, buildFapManager({}));
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ c1: ['capSub'] });
+    });
+
+    it('skips the free-access lookup entirely when no email is passed', async () => {
+      const findCapabilitiesForEmail = jest.fn().mockResolvedValue({});
+      Container.set(FreeAccessProgramService, { findCapabilitiesForEmail });
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID);
+      expect(caps).toEqual({ c1: ['capSub'] });
+      expect(findCapabilitiesForEmail).not.toHaveBeenCalled();
     });
   });
 

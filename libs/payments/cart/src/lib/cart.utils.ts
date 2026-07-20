@@ -66,24 +66,29 @@ export function stripeErrorToErrorReasonId(
   }
 }
 
-export const stripeToSubPlatPaymentType: Partial<Record<
-  Stripe.PaymentMethod.Type,
-  SubPlatPaymentMethodType
->> = {
+export const stripeToSubPlatPaymentType: Partial<
+  Record<Stripe.PaymentMethod.Type, SubPlatPaymentMethodType>
+> = {
   card: SubPlatPaymentMethodType.Card,
   link: SubPlatPaymentMethodType.Link,
 };
 
-export const stripeWalletToSubPlatPaymentType: Partial<Record<
-  Stripe.PaymentMethod.Card.Wallet.Type,
-  SubPlatPaymentMethodType
->> = {
+export const stripeWalletToSubPlatPaymentType: Partial<
+  Record<Stripe.PaymentMethod.Card.Wallet.Type, SubPlatPaymentMethodType>
+> = {
   apple_pay: SubPlatPaymentMethodType.ApplePay,
   google_pay: SubPlatPaymentMethodType.GooglePay,
 };
 
+export const stripePaymentElementTypeToSubPlatPaymentType: Partial<
+  Record<string, SubPlatPaymentMethodType>
+> = {
+  ...stripeToSubPlatPaymentType,
+  ...stripeWalletToSubPlatPaymentType,
+};
+
 export function convertStripePaymentMethodTypeToSubPlat(
-  stripePaymentMethod: Stripe.PaymentMethod,
+  stripePaymentMethod: Stripe.PaymentMethod
 ): SubPlatPaymentMethodType {
   if (stripePaymentMethod.type === 'card') {
     const walletType = stripePaymentMethod.card?.wallet?.type;
@@ -92,5 +97,8 @@ export function convertStripePaymentMethodTypeToSubPlat(
       SubPlatPaymentMethodType.Card
     );
   }
-  return stripeToSubPlatPaymentType[stripePaymentMethod.type] ?? SubPlatPaymentMethodType.Stripe;
+  return (
+    stripeToSubPlatPaymentType[stripePaymentMethod.type] ??
+    SubPlatPaymentMethodType.Stripe
+  );
 }

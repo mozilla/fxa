@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
@@ -34,7 +39,7 @@ export class CmsWebhookService {
     if (!this.strapiClient.verifyWebhookSignature(authorization)) {
       this.statsd.increment('cms.validation.auth.error');
       this.logger.error(new CmsWebhookAuthError());
-      return;
+      throw new UnauthorizedException();
     }
 
     if (!ALLOWED_EVENTS.includes(payload.event)) {

@@ -11,6 +11,7 @@ import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 import { MeteringQueryManager } from './metering-query.manager';
 import { MeteringWebhookManager } from './metering-webhook.manager';
 import type { ThresholdCheckTaskBody } from './metering.schema';
+import { UsageGrantsManager } from './usage-grants.manager';
 import { computeThresholdsMet } from './utils/computeThresholdsMet';
 import { computeWindow } from './utils/computeWindow';
 
@@ -20,6 +21,7 @@ export class MeteringThresholdService {
     private readonly meteringConfigurationManager: MeteringConfigurationManager,
     private readonly meteringQueryManager: MeteringQueryManager,
     private readonly meteringWebhookManager: MeteringWebhookManager,
+    private readonly usageGrantsManager: UsageGrantsManager,
     @Inject(StatsDService) private readonly statsd: StatsD,
     @Inject(Logger) private readonly logger: LoggerService
   ) {}
@@ -49,15 +51,23 @@ export class MeteringThresholdService {
     }
 
     const { windowStart, windowEnd } = computeWindow(meter.window, now);
-    const result = await this.meteringQueryManager.queryUsage({
-      userIdentifier: thresholdCheckTaskBody.userIdentifier,
-      slug: meter.slug,
-      from: windowStart,
-      to: windowEnd,
-    });
+    const [result, grantedAmount] = await Promise.all([
+      this.meteringQueryManager.queryUsage({
+        userIdentifier: thresholdCheckTaskBody.userIdentifier,
+        slug: meter.slug,
+        from: windowStart,
+        to: windowEnd,
+      }),
+      this.usageGrantsManager.getActiveGrantedAmount(
+        thresholdCheckTaskBody.userIdentifier,
+        meter.slug,
+        now
+      ),
+    ]);
+    const effectiveLimit = meter.limit + grantedAmount;
 
     const thresholds = meterResult.getNotificationThresholds();
-    const met = computeThresholdsMet(thresholds, result.usage, meter.limit);
+    const met = computeThresholdsMet(thresholds, result.usage, effectiveLimit);
     if (met.length === 0) {
       this.statsd.increment('metering.tasks.handler', {
         outcome: 'no-crossings',
@@ -74,7 +84,8 @@ export class MeteringThresholdService {
           userIdentifier: thresholdCheckTaskBody.userIdentifier,
           threshold,
           currentUsage: result.usage,
-          limit: meter.limit,
+          limit: effectiveLimit,
+          grantedAmount,
           unit: meter.unit,
           windowStart,
           windowEnd,

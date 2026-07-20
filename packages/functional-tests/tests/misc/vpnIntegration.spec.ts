@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand } from '../../lib/channels';
+import {
+  FirefoxCommand,
+  FF_OAUTH_CLIENT_ID,
+  FxAStatusResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import {
   syncMobileOAuthFenixQueryParams,
@@ -57,10 +61,24 @@ test.describe('vpn integration', () => {
 
   test('passwordless VPN + Sync signin on Android routes to set password when Sync is not decoupled', async ({
     target,
-    syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
+    pages: { page, signin, signinPasswordlessCode },
     testAccountTracker,
   }) => {
     const { email, password } = await testAccountTracker.signUpPasswordless();
+    // Android (Fenix) has no keys_optional (Sync not decoupled), so signin needs
+    // a password and routes to /set_password; fxa_status repeats, so answer all.
+    const syncNotDecoupledStatus: FxAStatusResponse = {
+      id: 'account_updates',
+      message: {
+        command: FirefoxCommand.FxAStatus,
+        data: {
+          signedInUser: null,
+          clientId: FF_OAUTH_CLIENT_ID,
+          capabilities: { engines: [], pairing: false, multiService: false },
+        },
+      },
+    };
+    await signin.respondToWebChannelMessageAlways(syncNotDecoupledStatus);
     await signin.goto('/authorization', vpnSyncMobileOAuthFenixQueryParams);
     await signin.fillOutEmailFirstForm(email);
 

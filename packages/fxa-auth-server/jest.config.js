@@ -24,6 +24,8 @@ const base = {
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
   moduleNameMapper: {
+    '^@fxa/free-access-program$':
+      '<rootDir>/../../libs/free-access-program/src',
     '^@fxa/shared/(.*)$': '<rootDir>/../../libs/shared/$1/src',
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',
     '^@fxa/payments/(.*)$': '<rootDir>/../../libs/payments/$1/src',

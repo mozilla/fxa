@@ -5,6 +5,7 @@
 import NextAuth, { customFetch } from 'next-auth';
 import { authConfig } from './auth.config';
 import { AuthError } from './auth.error';
+import { getSafeRedirectUrl } from './getSafeRedirectUrl';
 import { singleton } from './singleton';
 import { getApp } from '@fxa/payments/ui/server';
 
@@ -107,18 +108,10 @@ export function setupAuth(opts: UiAuthOptions) {
         };
       },
       async redirect({ url, baseUrl }) {
-        if (url.startsWith('/')) return `${baseUrl}${url}`;
-
-        const urlOrigin = new URL(url).origin;
-        if (
-          urlOrigin === baseUrl ||
-          urlOrigin === opts.contentServerUrl ||
-          urlOrigin === opts.paymentsNextHostedUrl
-        ) {
-          return url;
-        }
-
-        return baseUrl;
+        return getSafeRedirectUrl(url, baseUrl, [
+          opts.contentServerUrl,
+          opts.paymentsNextHostedUrl,
+        ]);
       },
     },
     events: {

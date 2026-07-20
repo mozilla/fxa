@@ -21,6 +21,12 @@ import {
   mockFinishOAuthFlowHandler,
 } from '../../../mocks';
 import { MozServices } from '../../../../lib/types';
+import { isWebAuthnSupported } from '../../../../lib/passkeys/webauthn';
+
+jest.mock('../../../../lib/passkeys/webauthn', () => ({
+  ...jest.requireActual('../../../../lib/passkeys/webauthn'),
+  isWebAuthnSupported: jest.fn(),
+}));
 
 jest.mock('../../../../lib/glean', () => ({
   __esModule: true,
@@ -28,6 +34,10 @@ jest.mock('../../../../lib/glean', () => ({
     login: {
       alternativeAuthView: jest.fn(),
       diffAccountLinkClick: jest.fn(),
+    },
+    passkey: {
+      buttonView: jest.fn(),
+      authSuccess: jest.fn(),
     },
   },
 }));
@@ -88,5 +98,74 @@ describe('SigninAlternativeAuthOptions', () => {
   it('emits login.alternativeAuthView on mount', () => {
     renderSigninAlternativeAuthOptions();
     expect(GleanMetrics.login.alternativeAuthView).toHaveBeenCalledTimes(1);
+  });
+
+  describe('passkey signin CTA gating', () => {
+    beforeEach(() => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+    });
+
+    const renderWithPasskeyFlags = (
+      props: Partial<
+        React.ComponentProps<typeof SigninAlternativeAuthOptions>
+      > = {}
+    ) => {
+      const context = mockAppContext();
+      if (context.config) {
+        context.config.featureFlags = {
+          ...context.config.featureFlags,
+          passkeysEnabled: true,
+          passkeyAuthenticationEnabled: true,
+        };
+      }
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AppContext.Provider value={context}>
+            <SigninAlternativeAuthOptions
+              integration={createMockSigninWebIntegration()}
+              email={MOCK_EMAIL}
+              serviceName={MozServices.Default}
+              hasLinkedAccount={true}
+              hasPassword={false}
+              avatarData={{ account: { avatar: MOCK_AVATAR_NON_DEFAULT } }}
+              avatarLoading={false}
+              finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+              {...props}
+            />
+          </AppContext.Provider>
+        </MemoryRouter>
+      );
+    };
+    const passkeyButton = () =>
+      screen.queryByRole('button', { name: 'Sign in with passkey' });
+
+    it('renders the passkey CTA when hasPasskey is true', () => {
+      renderWithPasskeyFlags({ hasPasskey: true });
+      expect(passkeyButton()).toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when hasPasskey is undefined (fails closed)', () => {
+      renderWithPasskeyFlags({ hasPasskey: undefined });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
+
+    it('hides the passkey CTA when WebAuthn is unsupported', () => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
+      renderWithPasskeyFlags({ hasPasskey: true });
+      expect(passkeyButton()).not.toBeInTheDocument();
+    });
+
+    it('emits passkey.buttonView for the alternative_auth surface when the CTA renders', () => {
+      renderWithPasskeyFlags({ hasPasskey: true });
+      expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passkey.buttonView).toHaveBeenCalledWith({
+        event: { reason: 'alternative_auth' },
+      });
+    });
+
+    it('does not emit passkey.buttonView when the CTA is hidden', () => {
+      renderWithPasskeyFlags({ hasPasskey: undefined });
+      expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
+    });
   });
 });

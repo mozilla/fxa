@@ -5,6 +5,7 @@
 import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
@@ -85,7 +86,9 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
 
-      await signup.goto('/authorization', syncDesktopOAuthQueryParams);
+      // Real /pair handshake so Firefox derives real Sync keys.
+      await gotoSyncSession(page, target);
+      await page.waitForURL(/action=email/, { timeout: 15000 });
 
       await signup.fillOutEmailForm(email);
 
@@ -107,7 +110,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth webchannel with Sync desktop and send-tab entrypoint skips signup_confirmed_sync', async ({
       target,
-      syncOAuthBrowserPages: { confirmSignupCode, page, signup },
+      syncOAuthBrowserPages: { confirmSignupCode, page, signup, signin },
       testAccountTracker,
     }) => {
       const { email, password } =
@@ -129,10 +132,11 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/pair/);
-      await expect(
-        page.getByText('Account created. You’re now syncing.')
-      ).toBeVisible();
+      // FF147+: the send-tab signup skips signup_confirmed_sync and chains into
+      // an OAuth re-auth to derive Sync keys, landing on /pair once complete.
+      await signin.fillOutPasswordForm(password);
+      await page.waitForURL(/pair/);
+      await expect(page.getByText('Signed in successfully!')).toBeVisible();
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
   });

@@ -28,8 +28,11 @@ test.describe('severity-2 #smoke', () => {
       page,
       pages: { signin },
     }) => {
+      // waitUntil 'commit' captures the 406 response without waiting for the
+      // WAF error page's load event, which never fires and would hang goto.
       const response = await page.goto(
-        `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`
+        `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`,
+        { waitUntil: 'commit' }
       );
 
       if (response && response.status() === 406) {

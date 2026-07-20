@@ -79,6 +79,18 @@ module.exports = (
     ? `${config.serviceName} - ${environment}`
     : `${config.serviceName}`;
 
+  // Clears recovery methods that predate a fresh TOTP setup. See FXA-14058.
+  async function clearPreexistingRecoveryMethods(uid) {
+    await backupCodeManager.deleteRecoveryCodes(uid);
+    try {
+      await recoveryPhoneService.removePhoneNumber(uid);
+    } catch (err) {
+      if (!(err instanceof RecoveryNumberNotExistsError)) {
+        throw err;
+      }
+    }
+  }
+
   // Handler function for TOTP replace start (used by MFA route)
   async function totpReplaceStartHandler(request) {
     log.begin('totp.replace.create', request);
@@ -454,6 +466,8 @@ module.exports = (
             TOTP_SECRET_REDIS_TTL
           );
         } else {
+          await clearPreexistingRecoveryMethods(uid);
+
           secret = authenticator.generateSecret();
           await authServerCacheRedis.set(
             toRedisTotpSecretKey(uid),

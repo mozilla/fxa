@@ -358,13 +358,18 @@ const ERRORS = {
     errno: ERRNO.PASSKEY_LIMIT_REACHED,
     message: 'Passkey limit reached',
   },
-  PASKEY_AUHENTICATION_FAILED: {
+  PASSKEY_AUHENTICATION_FAILED: {
     errno: ERRNO.PASSKEY_AUTHENTICATION_FAILED,
     message: 'Passkey authentication failed',
   },
   PASSKEY_REGISTRATION_FAILED: {
     errno: ERRNO.PASSKEY_REGISTRATION_FAILED,
     message: 'Passkey registration failed',
+  },
+  PASSKEY_USER_VERIFICATION_REQUIRED: {
+    errno: ERRNO.PASSKEY_USER_VERIFICATION_REQUIRED,
+    message:
+      'To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.',
   },
   PASSKEY_CHALLENGE_EXPIRED: {
     errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,

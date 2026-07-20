@@ -667,6 +667,8 @@ class RecoveryPhoneHandler {
         throw AppError.recoveryPhoneNumberDoesNotExist();
       } else if (error instanceof RecoveryNumberAlreadyExistsError) {
         throw AppError.recoveryPhoneNumberAlreadyExists();
+      } else if (error instanceof RecoveryPhoneRegistrationLimitReached) {
+        throw AppError.recoveryPhoneRegistrationLimitReached();
       } else {
         throw AppError.backendServiceFailure(
           'RecoveryPhoneService',

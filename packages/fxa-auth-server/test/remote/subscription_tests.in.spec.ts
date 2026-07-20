@@ -186,7 +186,25 @@ describe('#integration - remote subscriptions (enabled)', () => {
     config.subscriptions.stripeApiKey = 'sk_test_fake';
     config.subscriptions.paypalNvpSigCredentials = { enabled: false };
     config.subscriptions.productConfigsFirestore = { enabled: true };
-    config.cms = { ...config.cms, enabled: true };
+    // bin/key_server.js throws "Missing required configuration for CMS
+    // Strapi Client" when `cms.enabled` is true but apiKey is empty. The
+    // managers that talk to Strapi are mocked above (CapabilityManager,
+    // ProductConfigurationManager etc.), so no network calls are issued
+    // — we just satisfy the guard with placeholder values.
+    config.cms = {
+      ...config.cms,
+      enabled: true,
+      strapiClient: {
+        ...config.cms.strapiClient,
+        graphqlApiUri:
+          config.cms.strapiClient?.graphqlApiUri ||
+          'http://localhost:1337/graphql',
+        apiKey: config.cms.strapiClient?.apiKey || 'test-fake-strapi-key',
+        firestoreCacheCollectionName:
+          config.cms.strapiClient?.firestoreCacheCollectionName ||
+          'test-cms-cache',
+      },
+    };
     config.customsUrl = 'none';
     config.rateLimit = {
       ...config.rateLimit,

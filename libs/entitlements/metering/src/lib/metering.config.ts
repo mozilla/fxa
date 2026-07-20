@@ -142,6 +142,12 @@ export class MeteringCloudTasksConfig extends CloudTasksBaseConfig {
     new MeteringCloudTasksThresholdConfig();
 }
 
+export class MeteringUsageGrantsConfig {
+  @IsString()
+  @IsNotEmpty()
+  public readonly firestoreCollectionName!: string;
+}
+
 export class MeteringConfig {
   @IsString()
   public readonly openmeterBaseUrl!: string;
@@ -176,6 +182,11 @@ export class MeteringConfig {
   @ValidateNested()
   @IsDefined()
   public readonly cloudTasks!: MeteringCloudTasksConfig;
+
+  @Type(() => MeteringUsageGrantsConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly usageGrants!: MeteringUsageGrantsConfig;
 }
 
 export const MockMeteringConfig = {
@@ -183,6 +194,9 @@ export const MockMeteringConfig = {
   openmeterApiKey: faker.string.uuid(),
   clients: { 'test-rp': faker.string.alphanumeric(48) },
   buffer: new MeteringBufferConfig(),
+  usageGrants: {
+    firestoreCollectionName: 'test-metering-usage-grants',
+  },
   cloudTasks: {
     useLocalEmulator: true,
     projectId: 'test',

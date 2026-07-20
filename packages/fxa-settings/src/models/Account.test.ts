@@ -13,6 +13,7 @@ import {
   updateExtendedAccountState,
 } from '../lib/account-storage';
 import AuthClient from 'fxa-auth-client/browser';
+import { AuthUiErrors } from '../lib/auth-errors/auth-errors';
 
 jest.mock('../lib/config', () => ({
   servers: { profile: { url: 'default-url' } },
@@ -192,6 +193,47 @@ describe('Account', () => {
       expect(updateExtendedAccountState).toHaveBeenCalledWith(
         expect.objectContaining({ hasPassword: true })
       );
+    });
+  });
+
+  describe('renamePasskey', () => {
+    let account: Account;
+    let authClient: jest.Mocked<
+      Pick<AuthClient, 'renamePasskey' | 'listPasskeys'>
+    >;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      authClient = {
+        renamePasskey: jest.fn().mockResolvedValue(undefined),
+        listPasskeys: jest.fn().mockResolvedValue([]),
+      } as unknown as jest.Mocked<
+        Pick<AuthClient, 'renamePasskey' | 'listPasskeys'>
+      >;
+      (sessionToken as jest.Mock).mockReturnValue('test-token');
+      account = new Account(authClient as unknown as AuthClient);
+    });
+
+    it('renames the passkey using the verified session token', async () => {
+      await account.renamePasskey('cred-1', 'Work laptop');
+      expect(authClient.renamePasskey).toHaveBeenCalledWith(
+        'test-token',
+        'cred-1',
+        'Work laptop'
+      );
+    });
+
+    it('refreshes the passkey list after renaming', async () => {
+      await account.renamePasskey('cred-1', 'Work laptop');
+      expect(authClient.listPasskeys).toHaveBeenCalledWith('test-token');
+    });
+
+    it('throws an invalid-token error without calling the client when there is no session token', async () => {
+      (sessionToken as jest.Mock).mockReturnValue(null);
+      await expect(account.renamePasskey('cred-1', 'Work laptop')).rejects.toBe(
+        AuthUiErrors.INVALID_TOKEN
+      );
+      expect(authClient.renamePasskey).not.toHaveBeenCalled();
     });
   });
 

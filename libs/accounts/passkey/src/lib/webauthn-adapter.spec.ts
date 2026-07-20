@@ -9,6 +9,7 @@ import {
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
   extractPrfEnabled,
+  UserVerificationRequiredError,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
 import { VirtualAuthenticator } from './virtual-authenticator';
@@ -387,7 +388,7 @@ describe('verifyWebauthnRegistrationResponse', () => {
     ).rejects.toThrow();
   });
 
-  it('rejects an attestation without user verification', async () => {
+  it('throws UserVerificationRequiredError for an attestation without user verification', async () => {
     const cred = VirtualAuthenticator.createCredential();
     const challenge = randomBytes(32).toString('base64url');
 
@@ -408,7 +409,34 @@ describe('verifyWebauthnRegistrationResponse', () => {
         response: attestation,
         challenge,
       })
-    ).rejects.toThrow(/user could not be verified/i);
+    ).rejects.toBeInstanceOf(UserVerificationRequiredError);
+  });
+
+  it('does not classify a non-UV failure (wrong rpId) as UserVerificationRequiredError', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: 'evil.example.com',
+    });
+
+    const attempt = verifyWebauthnRegistrationResponse(config, {
+      response: attestation,
+      challenge,
+    });
+    // Still rejects (for the rpId mismatch) — just not classified as a UV failure.
+    await expect(attempt).rejects.toThrow();
+    await expect(attempt).rejects.not.toBeInstanceOf(
+      UserVerificationRequiredError
+    );
   });
 });
 
@@ -663,7 +691,7 @@ describe('verifyWebauthnAuthenticationResponse', () => {
     ).rejects.toThrow();
   });
 
-  it('rejects an assertion without user verification', async () => {
+  it('throws UserVerificationRequiredError for an assertion without user verification', async () => {
     const { cred, stored } = await registerCredential(config);
     const challenge = randomBytes(32).toString('base64url');
 
@@ -686,6 +714,6 @@ describe('verifyWebauthnAuthenticationResponse', () => {
         publicKey: stored.publicKey,
         signCount: stored.signCount,
       })
-    ).rejects.toThrow(/user could not be verified/i);
+    ).rejects.toBeInstanceOf(UserVerificationRequiredError);
   });
 });

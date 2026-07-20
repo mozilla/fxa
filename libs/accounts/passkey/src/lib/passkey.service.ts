@@ -26,6 +26,7 @@ import {
   AuthenticationVerificationResult,
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
+  UserVerificationRequiredError,
 } from './webauthn-adapter';
 import { AppError } from '@fxa/accounts/errors';
 
@@ -172,6 +173,14 @@ export class PasskeyService {
         challenge: storedChallenge.challenge,
       });
     } catch (err: unknown) {
+      if (err instanceof UserVerificationRequiredError) {
+        // Expected, user-actionable outcome (e.g. a PIN-less roaming security
+        // key). Not a server fault — surface a specific 4xx and skip Sentry.
+        this.metrics.increment('passkey.registration.failed', {
+          reason: 'userVerificationFailed',
+        });
+        throw AppError.passkeyUserVerificationRequired();
+      }
       Sentry.captureException(err);
       this.metrics.increment('passkey.registration.failed', {
         reason: 'verificationError',
@@ -220,6 +229,16 @@ export class PasskeyService {
   }
 
   /**
+   * Returns whether the user has at least one registered passkey.
+   *
+   * @param uid - User ID as a hex string
+   * @returns true if the user has one or more passkeys
+   */
+  async hasPasskey(uid: string): Promise<boolean> {
+    return (await this.passkeyManager.countPasskeys(uid)) > 0;
+  }
+
+  /**
    * Updates the friendly name for a passkey, ensuring the passkey belongs to the user.
    * The name is trimmed before validation and storage.
    *
@@ -249,7 +268,7 @@ export class PasskeyService {
         credentialId,
         trimmed
       );
-    } catch (err) {
+    } catch (err: unknown) {
       Sentry.captureException(err);
       this.metrics.increment('passkey.rename.failed', {
         reason: 'dbError',
@@ -290,7 +309,7 @@ export class PasskeyService {
     let deleted = false;
     try {
       deleted = await this.passkeyManager.deletePasskey(uid, credentialId);
-    } catch (err) {
+    } catch (err: unknown) {
       Sentry.captureException(err);
       this.metrics.increment('passkey.delete.failed', {
         reason: 'dbError',
@@ -463,7 +482,16 @@ export class PasskeyService {
         publicKey: passkey.publicKey,
         signCount: passkey.signCount,
       });
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof UserVerificationRequiredError) {
+        // Authenticator did not perform UV. Keep the generic 401 (no distinct
+        // errno — avoids leaking credential-capability details on sign-in), but
+        // tag the metric so this cause is separable from other failures.
+        this.metrics.increment('passkey.authentication.failed', {
+          reason: 'userVerificationFailed',
+        });
+        throw AppError.passkeyAuthenticationFailed();
+      }
       // simplewebauthn throws when signCount decrements
       if (err instanceof Error && /^Response counter value/.test(err.message)) {
         this.log?.warn('passkey.signCount.rollback', {

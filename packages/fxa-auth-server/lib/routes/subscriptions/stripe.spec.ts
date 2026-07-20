@@ -13,7 +13,7 @@ const { StripeHelper } = require('../../payments/stripe');
 const { CurrencyHelper } = require('../../payments/currencies');
 const { PromotionCodeManager } = require('@fxa/payments/customer');
 
-const { sanitizePlans, handleAuth } = require('.');
+const { handleAuth } = require('.');
 
 // Import the real buildTaxAddress for direct tests (not through the mock)
 const { buildTaxAddress: realBuildTaxAddress } = jest.requireActual('./utils');
@@ -67,7 +67,6 @@ const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const NOW = Date.now();
-const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const PLANS = mocks.mockPlans;
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const ACTIVE_SUBSCRIPTIONS = [
@@ -93,48 +92,6 @@ const mockCMSClients = mocks.mockCMSClients;
 function deepCopy(object: any) {
   return JSON.parse(JSON.stringify(object));
 }
-
-describe('sanitizePlans', () => {
-  it('removes capabilities from product & plan metadata', () => {
-    const expected = [
-      {
-        plan_id: 'firefox_pro_basic_823',
-        product_id: 'firefox_pro_basic',
-        product_name: 'Firefox Pro Basic',
-        interval: 'week',
-        amount: '123',
-        currency: 'usd',
-        plan_metadata: {},
-        product_metadata: {
-          emailIconURL: 'http://example.com/image.jpg',
-          successActionButtonURL: 'http://getfirefox.com',
-        },
-      },
-      {
-        plan_id: 'firefox_pro_basic_999',
-        product_id: 'firefox_pro_pro',
-        product_name: 'Firefox Pro Pro',
-        interval: 'month',
-        amount: '456',
-        currency: 'usd',
-        plan_metadata: {},
-        product_metadata: {},
-      },
-      {
-        plan_id: PLAN_ID_1,
-        product_id: 'prod_G93l8Yn7XJHYUs',
-        product_name: 'FN Tier 1',
-        interval: 'month',
-        amount: 499,
-        current: 'usd',
-        plan_metadata: {},
-        product_metadata: {},
-      },
-    ];
-
-    expect(sanitizePlans(PLANS)).toEqual(expected);
-  });
-});
 
 /**
  * Stripe integration tests
@@ -223,30 +180,6 @@ describe('subscriptions stripeRoutes', () => {
       'accept-language': 'en',
     },
   };
-
-  describe('Plans', () => {
-    it('should list available subscription plans', async () => {
-      const stripeHelper = mocks.mockStripeHelper(['allAbbrevPlans']);
-
-      stripeHelper.allAbbrevPlans = jest.fn(async () => {
-        return PLANS;
-      });
-
-      const directStripeRoutes = new DirectStripeRoutes(
-        log,
-        db,
-        config,
-        customs,
-        push,
-        mailer,
-        profile,
-        stripeHelper
-      );
-
-      const res = await directStripeRoutes.listPlans(VALID_REQUEST);
-      expect(res).toEqual(sanitizePlans(PLANS));
-    });
-  });
 
   describe('listActive', () => {
     it('should list active subscriptions', async () => {
@@ -460,20 +393,6 @@ describe('DirectStripeRoutes', () => {
       const expected = await mockCapabilityService.getClients();
       const res = await directStripeRoutesInstance.getClients();
       expect(res).toEqual(expected);
-    });
-  });
-
-  describe('listPlans', () => {
-    it('returns the available plans without auth headers present', async () => {
-      const expected = sanitizePlans(PLANS);
-      const request = {};
-
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.mockResolvedValue(
-        PLANS
-      );
-      const actual = await directStripeRoutesInstance.listPlans(request);
-
-      expect(actual).toEqual(expected);
     });
   });
 

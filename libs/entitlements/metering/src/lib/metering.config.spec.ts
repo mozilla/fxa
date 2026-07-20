@@ -41,6 +41,7 @@ describe('MeteringConfig', () => {
     openmeterBaseUrl: 'http://127.0.0.1:48888',
     clients: '{}',
     cloudTasks: validCloudTasks,
+    usageGrants: { firestoreCollectionName: 'metering-usage-grants' },
   };
 
   it('validates a fully-populated env-shaped config with no errors', () => {
@@ -185,5 +186,22 @@ describe('MeteringConfig', () => {
       },
     });
     expect(errors).toHaveLength(0);
+  });
+
+  it('rejects a config without usageGrants', () => {
+    const { errors } = validateAsTypedConfig({
+      openmeterBaseUrl: 'http://127.0.0.1:48888',
+      clients: '{}',
+      cloudTasks: validCloudTasks,
+    });
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
+  it('rejects an empty usageGrants.firestoreCollectionName', () => {
+    const { errors } = validateAsTypedConfig({
+      ...base,
+      usageGrants: { firestoreCollectionName: '' },
+    });
+    expect(errors.length).toBeGreaterThan(0);
   });
 });

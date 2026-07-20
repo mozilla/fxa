@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsDefined, ValidateNested } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsDefined, ValidateNested } from 'class-validator';
 
 import { CurrencyConfig } from '@fxa/payments/currency';
 import { MeteringConfig } from '@fxa/entitlements/metering';
@@ -11,7 +11,7 @@ import { StrapiClientConfig } from '@fxa/shared/cms';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { FxaWebhookConfig, StripeEventConfig } from '@fxa/payments/webhooks';
 import { StatsDConfig } from '@fxa/shared/metrics/statsd';
-import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
+import { FirestoreConfig } from '@fxa/shared/db/firestore';
 import { FxaOAuthConfig } from '@fxa/payments/auth';
 import { SentryConfig } from './sentry.config';
 
@@ -90,4 +90,13 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly meteringConfig!: Partial<MeteringConfig>;
+
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
+  @IsBoolean()
+  @IsDefined()
+  public readonly swaggerUi!: boolean;
 }

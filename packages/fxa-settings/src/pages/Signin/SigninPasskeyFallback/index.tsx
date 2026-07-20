@@ -12,13 +12,21 @@ import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../../lib/interfaces';
 import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
+import { useFtlMsgResolver } from '../../../models';
+
+export type SigninPasskeyFallbackContinueError = {
+  errno?: number;
+  localizedErrorMessage: string;
+};
 
 export type SigninPasskeyFallbackProps = {
   email?: string;
-  onContinue?: (password: string) => Promise<void>;
-  localizedErrorMessage?: string;
+  onContinue?: (
+    password: string
+  ) => Promise<SigninPasskeyFallbackContinueError | void>;
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
   passkeySurface?: PasskeyMetricsSurface;
@@ -33,13 +41,19 @@ export const viewName = 'signin-passkey-fallback';
 const SigninPasskeyFallback = ({
   email,
   onContinue,
-  localizedErrorMessage,
   avatarData,
   avatarLoading,
   passkeySurface = 'emailfirst',
 }: SigninPasskeyFallbackProps) => {
-  const [passwordErrorText, setPasswordErrorText] = useState('');
+  const ftlMsgResolver = useFtlMsgResolver();
+  const [passwordTooltipErrorText, setPasswordTooltipErrorText] = useState('');
+  const [bannerErrorText, setBannerErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const localizedValidPasswordError = ftlMsgResolver.getMsg(
+    'auth-error-1010',
+    'Valid password required'
+  );
 
   const { handleSubmit, register, watch } = useForm<FormData>({
     mode: 'onTouched',
@@ -67,28 +81,38 @@ const SigninPasskeyFallback = ({
   }, [hasEngaged, passwordValue, passkeySurface]);
 
   const handleContinue = useCallback(
-    async (data: FormData) => {
+    async ({ password }: FormData) => {
+      if (password === '') {
+        setPasswordTooltipErrorText(localizedValidPasswordError);
+        return;
+      }
       if (!onContinue) return;
       GleanMetrics.passkeyEnterPassword.submit({
         event: { reason: passkeySurface },
       });
       setIsSubmitting(true);
       try {
-        await onContinue(data.password);
+        const result = await onContinue(password);
+        if (result) {
+          const { errno, localizedErrorMessage: message } = result;
+          if (errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+            setBannerErrorText('');
+            setPasswordTooltipErrorText(message);
+          } else {
+            setBannerErrorText(message);
+          }
+        }
       } finally {
         setIsSubmitting(false);
       }
     },
-    [onContinue, passkeySurface]
+    [onContinue, passkeySurface, localizedValidPasswordError]
   );
 
   return (
     <AppLayout>
-      {localizedErrorMessage && (
-        <Banner
-          type="error"
-          content={{ localizedHeading: localizedErrorMessage }}
-        />
+      {bannerErrorText && (
+        <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
       <FtlMsg id="signin-passkey-fallback-header">
@@ -136,11 +160,12 @@ const SigninPasskeyFallback = ({
             name="password"
             label="Password"
             className="mb-6"
-            errorText={passwordErrorText}
+            errorText={passwordTooltipErrorText}
             anchorPosition="start"
+            tooltipPosition="bottom"
             autoFocus
-            onChange={() => setPasswordErrorText('')}
-            inputRef={register({ required: true })}
+            onChange={() => setPasswordTooltipErrorText('')}
+            inputRef={register()}
             prefixDataTestId="password"
           />
         </FtlMsg>
@@ -150,7 +175,7 @@ const SigninPasskeyFallback = ({
             type="submit"
             className="cta-primary cta-xl w-full"
             data-testid="continue-button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!passwordTooltipErrorText}
           >
             Continue
           </button>

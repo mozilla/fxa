@@ -1535,12 +1535,14 @@ export class Account implements AccountData {
 
   /**
    * Renames the passkey identified by `credentialId`.
-   * Requires a cached MFA JWT with scope `passkey`.
+   * Renaming is non-destructive, so it uses the verified session token rather
+   * than an MFA JWT.
    */
   async renamePasskey(credentialId: string, name: string): Promise<void> {
-    const jwt = this.getCachedJwtByScope('passkey');
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
     await this.withLoadingStatus(
-      this.authClient.renamePasskey(jwt, credentialId, name)
+      this.authClient.renamePasskey(token, credentialId, name)
     );
     await this.refresh('passkeys');
   }

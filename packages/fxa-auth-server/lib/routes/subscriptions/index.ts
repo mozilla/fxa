@@ -3,11 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import zendesk from 'node-zendesk';
+import Container from 'typedi';
+
+import { FreeAccessProgramService } from '@fxa/free-access-program';
+import { StrapiClient } from '@fxa/shared/cms';
 
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger } from '../../types';
 import { appleIapRoutes } from './apple';
+import { freeAccessProgramWebhookRoutes } from './free-access-program-webhook';
 import { googleIapRoutes } from './google';
 import { mozillaSubscriptionRoutes } from './mozilla';
 import { paypalNotificationRoutes } from './paypal-notifications';
@@ -33,6 +38,16 @@ export const createRoutes = (
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return routes;
+  }
+
+  if (Container.has(FreeAccessProgramService)) {
+    routes.push(
+      ...freeAccessProgramWebhookRoutes(
+        log,
+        Container.get(StrapiClient),
+        Container.get(FreeAccessProgramService)
+      )
+    );
   }
 
   if (stripeHelper) {

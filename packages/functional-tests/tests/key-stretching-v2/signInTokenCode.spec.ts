@@ -4,6 +4,7 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
+import { gotoSyncSession } from '../../lib/sync-helpers';
 import { SettingsPage } from '../../pages/settings';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SigninPage } from '../../pages/signin';
@@ -21,9 +22,9 @@ test.describe('severity-2 #smoke', () => {
 
   for (const { signinVersion } of TestCases) {
     test(`signs up as v1, sign in within token code, signs  as v${signinVersion.version}`, async ({
-      page,
       target,
-      pages: {
+      syncOAuthBrowserPages: {
+        page,
         settings,
         signin,
         connectAnotherDevice,
@@ -31,11 +32,10 @@ test.describe('severity-2 #smoke', () => {
         signinTokenCode,
       },
       testAccountTracker,
-    }, {}) => {
+    }) => {
       const { email, password } = await testAccountTracker.signUpSync();
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&${signinVersion.query}`
-      );
+      // The stretch param still selects the key-stretching version on signin.
+      await gotoSyncSession(page, target, signinVersion.query);
       await signin.fillOutEmailFirstForm(email);
       await signin.fillOutPasswordForm(password);
 

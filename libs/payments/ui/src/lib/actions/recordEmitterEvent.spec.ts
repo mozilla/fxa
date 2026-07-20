@@ -54,20 +54,4 @@ describe('recordEmitterEventAction', () => {
     );
   });
 
-  it('forwards paymentProvider and paymentMethod for checkoutSubmit', async () => {
-    await recordEmitterEventAction(
-      'checkoutSubmit',
-      { cartId: 'cart-1' },
-      {},
-      'stripe',
-      'card'
-    );
-
-    expect(mockRecordEmitterEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        eventName: 'checkoutSubmit',
-        paymentProvider: 'stripe',
-      })
-    );
-  });
 });

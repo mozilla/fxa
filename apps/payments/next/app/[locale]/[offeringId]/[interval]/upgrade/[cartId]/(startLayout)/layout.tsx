@@ -38,9 +38,20 @@ export default async function UpgradeLayout({
   const sessionPromise = auth();
   const [cms, cart, session] = await Promise.all([
     cmsDataPromise,
-    cartDataPromise,
+    cartDataPromise.catch((error) => {
+      if (error?.name === 'CartUidMismatchError') {
+        return null;
+      }
+      throw error;
+    }),
     sessionPromise,
   ]);
+
+  // Non-owner cart. Layouts can't redirect without stripping search params, so
+  // render children only and let the page handle the redirect.
+  if (!cart) {
+    return <>{children}</>;
+  }
   const purchaseDetails =
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;

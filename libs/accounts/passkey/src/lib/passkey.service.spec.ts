@@ -15,15 +15,28 @@ import { PasskeyService } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { AppError } from '@fxa/accounts/errors';
+import * as Sentry from '@sentry/nestjs';
 
+// Keep the real UserVerificationRequiredError class (used for instanceof checks
+// in the service) while stubbing the adapter's ceremony functions.
 jest.mock('./webauthn-adapter', () => ({
+  ...jest.requireActual('./webauthn-adapter'),
   generateWebauthnRegistrationOptions: jest.fn(),
   verifyWebauthnRegistrationResponse: jest.fn(),
   generateWebauthnAuthenticationOptions: jest.fn(),
   verifyWebauthnAuthenticationResponse: jest.fn(),
 }));
 
+// Stub only captureException so we can assert what does/doesn't reach Sentry.
+// The service uses no other Sentry export, so the real module is not needed.
+jest.mock('@sentry/nestjs', () => ({
+  captureException: jest.fn(),
+}));
+
 import * as webauthnAdapter from './webauthn-adapter';
+import { UserVerificationRequiredError } from './webauthn-adapter';
+
+const mockCaptureException = Sentry.captureException as jest.Mock;
 
 const mockGenerateWebauthnRegistrationOptions =
   webauthnAdapter.generateWebauthnRegistrationOptions as jest.Mock;
@@ -82,6 +95,7 @@ describe('PasskeyService', () => {
     checkPasskeyCount: jest.fn(),
     registerPasskey: jest.fn(),
     listPasskeysForUser: jest.fn(),
+    countPasskeys: jest.fn(),
     findPasskeyByCredentialId: jest.fn(),
     updatePasskeyAfterAuth: jest.fn(),
     renamePasskey: jest.fn(),
@@ -316,6 +330,80 @@ describe('PasskeyService', () => {
         message: 'Passkey registration failed',
         code: 500,
       });
+    });
+
+    it('captures an unexpected verification error in Sentry', async () => {
+      const err = new Error('Invalid attestation format');
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(err);
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toThrow();
+      expect(mockCaptureException).toHaveBeenCalledWith(err);
+    });
+
+    it('increments a verificationError metric on an unexpected error', async () => {
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
+        new Error('Invalid attestation format')
+      );
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toThrow();
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.registration.failed',
+        { reason: 'verificationError' }
+      );
+    });
+
+    it('throws passkeyUserVerificationRequired AppError when the authenticator does not verify the user', async () => {
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
+        new UserVerificationRequiredError()
+      );
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toMatchObject(AppError.passkeyUserVerificationRequired());
+    });
+
+    it('does not capture a user-verification failure in Sentry', async () => {
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
+        new UserVerificationRequiredError()
+      );
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toThrow();
+      expect(mockCaptureException).not.toHaveBeenCalled();
+    });
+
+    it('increments a userVerificationFailed metric on a user-verification failure', async () => {
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
+        new UserVerificationRequiredError()
+      );
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toThrow();
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.registration.failed',
+        { reason: 'userVerificationFailed' }
+      );
     });
 
     it('calls challengeManager.consumeRegistrationChallenge with challenge and uid', async () => {
@@ -761,6 +849,21 @@ describe('PasskeyService', () => {
       );
     });
 
+    it('increments a userVerificationFailed metric when the authenticator does not verify the user', async () => {
+      (
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
+      ).mockRejectedValue(new UserVerificationRequiredError());
+
+      await expect(
+        service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE)
+      ).rejects.toMatchObject({ errno: 227 });
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.authentication.failed',
+        { reason: 'userVerificationFailed' }
+      );
+    });
+
     it('throws a passkeyAuthenticationFailed AppError and logs when updatePasskeyAfterAuth returns false', async () => {
       mockManager.updatePasskeyAfterAuth.mockResolvedValue(false);
 
@@ -806,6 +909,26 @@ describe('PasskeyService', () => {
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.list.success'
       );
+    });
+  });
+
+  describe('hasPasskey', () => {
+    it('returns true when the manager reports one or more passkeys', async () => {
+      mockManager.countPasskeys.mockResolvedValue(2);
+      const result = await service.hasPasskey(MOCK_UID);
+      expect(result).toBe(true);
+      expect(mockManager.countPasskeys).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('returns false when the manager reports zero passkeys', async () => {
+      mockManager.countPasskeys.mockResolvedValue(0);
+      const result = await service.hasPasskey(MOCK_UID);
+      expect(result).toBe(false);
+    });
+
+    it('propagates manager rejections', async () => {
+      mockManager.countPasskeys.mockRejectedValue(new Error('db down'));
+      await expect(service.hasPasskey(MOCK_UID)).rejects.toThrow('db down');
     });
   });
 

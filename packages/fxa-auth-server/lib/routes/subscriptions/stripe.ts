@@ -40,10 +40,14 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     const isOmittable = (value: string, key: string) =>
       isCapabilityKey(value, key) || isPromotionCodes(value, key);
     plan.plan_metadata = Object.fromEntries(
-      Object.entries(plan.plan_metadata ?? {}).filter(([key, value]) => !isOmittable(value as string, key))
+      Object.entries(plan.plan_metadata ?? {}).filter(
+        ([key, value]) => !isOmittable(value as string, key)
+      )
     );
     plan.product_metadata = Object.fromEntries(
-      Object.entries(plan.product_metadata ?? {}).filter(([key, value]) => !isOmittable(value as string, key))
+      Object.entries(plan.product_metadata ?? {}).filter(
+        ([key, value]) => !isOmittable(value as string, key)
+      )
     );
     return plan;
   });
@@ -77,14 +81,6 @@ export class StripeHandler {
     this.log.begin('subscriptions.getClients', request);
 
     return this.capabilityService.getClients();
-  }
-
-  async listPlans(request: AuthRequest) {
-    this.log.begin('subscriptions.listPlans', request);
-    const plans = await this.stripeHelper.allAbbrevPlans(
-      request?.headers?.['accept-language']
-    );
-    return sanitizePlans(plans);
   }
 
   async listActive(request: AuthRequest) {
@@ -127,7 +123,6 @@ export class StripeHandler {
     }
     return activeSubscriptions;
   }
-
 }
 
 export const stripeRoutes = (
@@ -177,22 +172,6 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/subscriptions/plans',
-      options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PLANS_GET,
-        response: {
-          schema: isA
-            .array()
-            .items(
-              validators.subscriptionsPlanWithProductConfigValidator,
-              validators.subscriptionsPlanWithMetaDataValidator
-            ) as any,
-        },
-      },
-      handler: (request: AuthRequest) => stripeHandler.listPlans(request),
     },
     {
       method: 'GET',
