@@ -1,8 +1,8 @@
 {
-  "commit": "b10e7e8eded7b4b938ab9ee021f4409cfff87140",
-  "summary": "fix(settings): Move navigate() calls from render phase to useEffect for React 19 compatibility",
+  "commit": "d0b56478596f409e9ca5f67de2867d3da4a896cd",
+  "summary": "fix",
   "description": "",
-  "timestamp": 1784561249000,
+  "timestamp": 1784562479000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
