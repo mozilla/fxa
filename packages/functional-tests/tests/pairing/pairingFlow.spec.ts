@@ -91,6 +91,13 @@ test.describe('severity-2 #smoke', () => {
     // server instance only serves one stack.
     // Runs once per worker. Pair-route rollout is env-stable.
     test.beforeAll(async ({ browser, target }) => {
+      // Stage-only: the authority stalls on /pair/auth/wait_for_supp against the
+      // nonprod stage channel server (passes locally and on prod). Fixme here in
+      // beforeAll so no per-test fixtures (e.g. marionetteAuthority) run on stage.
+      test.fixme(
+        target.name === 'stage',
+        'Pairing completion is flaky against the nonprod stage channel server'
+      );
       const isReact = await isPairRoutesReact(browser, target);
       test.skip(
         !isReact,
