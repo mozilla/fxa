@@ -13,6 +13,9 @@ const VALID_SCOPE_VALUE = /^[\x21\x23-\x5B\x5D-\x7E]+$/;
 const VALID_SHORT_NAME_VALUE = /^[a-zA-Z0-9_]+$/;
 const VALID_FRAGMENT_VALUE = /^#[a-zA-Z0-9_]+$/;
 
+// Well above any legitimate scope (e.g. "profile:email:write" has 3).
+const MAX_SHORT_SCOPE_COMPONENTS = 32;
+
 /**
  * A `ScopeSet` object represents a set of validated scope string values,
  * against which we can perform various membership checks and set-like
@@ -488,7 +491,11 @@ function* getImplicantValuesForShortScope(value: string) {
   // Parse it into its colon-separated name components,
   // and handle the special "write" flag if present.
   let hasWrite = false;
-  const names = value.split(':');
+  // Bound the split so oversized input can't build a large array up front.
+  const names = value.split(':', MAX_SHORT_SCOPE_COMPONENTS + 1);
+  if (names.length > MAX_SHORT_SCOPE_COMPONENTS) {
+    throw new Error('Invalid scope value: ' + value);
+  }
   names.forEach((name) => {
     if (!VALID_SHORT_NAME_VALUE.test(name)) {
       throw new Error('Invalid scope value: ' + value);
