@@ -6,6 +6,7 @@ import { CollectionReference } from '@google-cloud/firestore';
 import { GOOGLE_PLAY_FORM_OF_PAYMENT } from '../constants';
 import type { FirestoreGoogleIapPurchaseRecord } from '../types';
 import { SkuType } from './types';
+import { stripUndefined } from '../util';
 
 /**
  * Creates a Google IAP purchase record in the database.
@@ -99,13 +100,34 @@ export async function updatePurchase(
   id: string,
   update: Partial<Omit<FirestoreGoogleIapPurchaseRecord, 'id'>>
 ): Promise<void> {
-  const _update: typeof update = {};
+  const _update = stripUndefined({
+    purchaseToken: update.purchaseToken,
+    startTimeMillis: update.startTimeMillis,
+    orderId: update.orderId,
+    kind: update.kind,
+    formOfPayment: update.formOfPayment,
+    developerPayload: update.developerPayload,
+    skuType: update.skuType,
+    priceCurrencyCode: update.priceCurrencyCode,
+    priceAmountMicros: update.priceAmountMicros,
+    countryCode: update.countryCode,
+    replacedByAnotherPurchase: update.replacedByAnotherPurchase,
+    packageName: update.packageName,
+    paymentState: update.paymentState,
+    sku: update.sku,
+    userId: update.userId,
+    acknowledgementState: update.acknowledgementState,
+    userCancellationTimeMillis: update.userCancellationTimeMillis,
+    cancelReason: update.cancelReason,
+    autoRenewing: update.autoRenewing,
+    cancelSurveyResult: update.cancelSurveyResult,
+    isMutable: update.isMutable,
+    expiryTimeMillis: update.expiryTimeMillis,
+    verifiedAt: update.verifiedAt,
+    latestNotificationType: update.latestNotificationType,
+  });
 
-  if (update.userId !== undefined) _update.userId = update.userId;
-  if (update.formOfPayment !== undefined)
-    _update.formOfPayment = update.formOfPayment;
-
-  if (Object.values(_update).length === 0) {
+  if (Object.keys(_update).length === 0) {
     throw new Error('Must provide at least one update param');
   }
 

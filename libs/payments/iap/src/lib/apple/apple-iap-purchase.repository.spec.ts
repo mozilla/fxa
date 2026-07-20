@@ -17,6 +17,7 @@ import {
   deletePurchasesByUserId,
 } from './apple-iap-purchase.repository';
 import { FirestoreAppleIapPurchaseRecordFactory } from '../factories';
+import { SubscriptionStatus } from 'app-store-server-api';
 
 jest.mock('@google-cloud/firestore');
 
@@ -118,6 +119,38 @@ describe('Apple IAP Purchase Repository', () => {
       await expect(
         updatePurchase(mockDb, mockPurchaseRecord.originalTransactionId, {})
       ).rejects.toThrow('Must provide at least one update param');
+    });
+
+    it('persists the full record including status and expiresDate on a refresh', async () => {
+      const refresh = FirestoreAppleIapPurchaseRecordFactory({
+        status: SubscriptionStatus.Expired,
+        expiresDate: 1_700_000_000_000,
+      });
+      await updatePurchase(
+        mockDb,
+        mockPurchaseRecord.originalTransactionId,
+        refresh
+      );
+      expect(mockDoc.update).toHaveBeenCalledWith(refresh);
+    });
+
+    it('persists status and expiresDate on a partial update', async () => {
+      await updatePurchase(mockDb, mockPurchaseRecord.originalTransactionId, {
+        status: SubscriptionStatus.Expired,
+        expiresDate: 1_700_000_000_000,
+      });
+      expect(mockDoc.update).toHaveBeenCalledWith({
+        status: SubscriptionStatus.Expired,
+        expiresDate: 1_700_000_000_000,
+      });
+    });
+
+    it('drops undefined fields from a partial update', async () => {
+      await updatePurchase(mockDb, mockPurchaseRecord.originalTransactionId, {
+        userId: 'updated-user',
+        verifiedAt: undefined,
+      });
+      expect(mockDoc.update).toHaveBeenCalledWith({ userId: 'updated-user' });
     });
   });
 
