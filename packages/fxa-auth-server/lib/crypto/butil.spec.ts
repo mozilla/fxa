@@ -6,10 +6,22 @@ import * as butil from './butil';
 
 describe('butil', () => {
   describe('.buffersAreEqual', () => {
-    it('returns false if lengths are different', () => {
+    it('returns false without throwing if lengths are different', () => {
+      expect(() =>
+        butil.buffersAreEqual(Buffer.alloc(2), Buffer.alloc(4))
+      ).not.toThrow();
       expect(butil.buffersAreEqual(Buffer.alloc(2), Buffer.alloc(4))).toBe(
         false
       );
+    });
+
+    it('returns false if buffers of equal length have different bytes', () => {
+      expect(
+        butil.buffersAreEqual(
+          Buffer.from('abcd', 'hex'),
+          Buffer.from('abce', 'hex')
+        )
+      ).toBe(false);
     });
 
     it('returns true if buffers have same bytes', () => {

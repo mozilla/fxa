@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import crypto from 'crypto';
+import { bufferEqualsConstantTime } from '@fxa/shared/crypto';
 import { ConfigType } from '../../config';
 import { AuthLogger, AuthRequest } from '../types';
 import { Container } from 'typedi';
@@ -343,10 +343,9 @@ export class CMSHandler {
 
     const authHeader = request.headers.authorization;
     if (
-      !authHeader ||
-      !crypto.timingSafeEqual(
-        Buffer.from(authHeader),
-        Buffer.from(this.config.cmsl10n.strapiWebhook.secret)
+      !bufferEqualsConstantTime(
+        authHeader,
+        this.config.cmsl10n.strapiWebhook.secret
       )
     ) {
       this.log.error('cms.strapiWebhook.invalidAuthorization', {});
@@ -466,23 +465,25 @@ export class CMSHandler {
 
     const authHeader = request.headers.authorization;
     if (
-      !authHeader ||
-      !crypto.timingSafeEqual(
-        Buffer.from(authHeader),
-        Buffer.from(this.config.cms.webhookCacheInvalidation.secret)
+      !bufferEqualsConstantTime(
+        authHeader,
+        this.config.cms.webhookCacheInvalidation.secret
       )
     ) {
+      // Unauthenticated endpoint: guard the attacker-controlled payload so a missing body can't 500.
+      const entry =
+        webhookPayload?.entry ?? ({} as StrapiWebhookPayload['entry']);
       this.log.error(
         'cms.cacheReset.error.auth',
         Object.fromEntries(
-          Object.entries(webhookPayload.entry).filter(([k, _]) =>
+          Object.entries(entry).filter(([k, _]) =>
             ['clientId', 'documentId', 'entrypoint', 'name'].includes(k)
           )
         )
       );
       this.statsd.increment('cms.cacheReset.error.auth', {
-        clientId: webhookPayload.entry.clientId,
-        entrypoint: webhookPayload.entry.entrypoint,
+        clientId: entry.clientId,
+        entrypoint: entry.entrypoint,
       });
       throw new Error('Invalid authorization header');
     }

@@ -1,0 +1,40 @@
+{
+  "name": "shared-crypto",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/crypto/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/shared/crypto/src/index.ts",
+        "outputPath": "dist/libs/shared/crypto",
+        "tsConfig": "libs/shared/crypto/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/shared/crypto/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/crypto/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

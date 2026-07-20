@@ -345,6 +345,23 @@ describe('cms', () => {
         expect(err.message).toBe('Invalid authorization header');
       }
     });
+
+    it('rejects a wrong-length authorization header without crashing', async () => {
+      request = {
+        headers: {
+          authorization: 'Bearer short',
+        },
+        payload: { event: 'entry.publish' },
+        log: log,
+      };
+
+      try {
+        await route.handler(request);
+        throw new Error('Should have thrown authorization error');
+      } catch (err: any) {
+        expect(err.message).toBe('Invalid authorization header');
+      }
+    });
   });
 
   describe('POST /cms/webhook/cache/reset', () => {
@@ -382,6 +399,32 @@ describe('cms', () => {
             entrypoint: webhookPayload.entry.entrypoint,
           }
         );
+        expect(err.message).toBe('Invalid authorization header');
+      }
+    });
+
+    it('rejects a wrong-length authorization header without crashing', async () => {
+      const req = {
+        headers: { authorization: 'Bearer this-header-is-the-wrong-length' },
+        payload: webhookPayload,
+      };
+      try {
+        await route.handler(req);
+        throw new Error('an error should have been thrown');
+      } catch (err: any) {
+        expect(err.message).toBe('Invalid authorization header');
+      }
+    });
+
+    it('rejects an invalid header with an empty body without crashing', async () => {
+      const req = {
+        headers: { authorization: 'Bearer this-header-is-the-wrong-length' },
+        payload: {},
+      };
+      try {
+        await route.handler(req);
+        throw new Error('an error should have been thrown');
+      } catch (err: any) {
         expect(err.message).toBe('Invalid authorization header');
       }
     });
