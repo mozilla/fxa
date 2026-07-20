@@ -607,3 +607,106 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
     expect(after).toHaveLength(before.length);
   });
 });
+
+describe('accountAuthorizations v2 dual-write and read (FXA-14169)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { config } = require('../../config');
+
+  const v2ReadRows = (uid: string) =>
+    db.mysql._read(
+      'SELECT scopeId, service FROM accountAuthorizations_v2 WHERE uid=?',
+      [Buffer.from(uid, 'hex')]
+    );
+
+  const trackedV2: string[] = [];
+  const trackV2 = (id: string) => {
+    trackedV2.push(id);
+    return id;
+  };
+
+  afterEach(async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', false);
+    config.set('oauthServer.accountAuthorizations.readV2', false);
+    for (const id of trackedV2.splice(0)) {
+      await db.mysql._write(
+        'DELETE FROM accountAuthorizations_v2 WHERE uid=?',
+        [Buffer.from(id, 'hex')]
+      );
+      await db.deleteAllConsentsForUser(id);
+    }
+  });
+
+  it('writes a matching v2 row with the resolved scopeId when dualWriteV2 is on', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    // Verify directly against the v2 table: one row, with a resolved scopeId.
+    const rows = await v2ReadRows(id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].scopeId).toEqual(expect.any(Number));
+    expect(rows[0].service).toBe('');
+  });
+
+  it('reads consent from v2 (not v1) when readV2 is on', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+    // Drop the v1 rows only; the v2 row remains, so a v2 read is the only
+    // thing that can still find this consent.
+    await db.deleteAllConsentsForUser(id);
+
+    config.set('oauthServer.accountAuthorizations.readV2', true);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(true);
+
+    config.set('oauthServer.accountAuthorizations.readV2', false);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(false);
+  });
+
+  it('falls back to v1 when readV2 is on but the row exists only in v1', async () => {
+    // dualWriteV2 stays off: the row lands in v1 only.
+    const id = trackV2(newUid());
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    config.set('oauthServer.accountAuthorizations.readV2', true);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(true);
+  });
+
+  it('skips an unseeded scope in v2 but still writes it to v1', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [UNKNOWN_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    // Resolve-only: the unseeded scope can't resolve to a scopeId, so no v2
+    // row is written...
+    expect(await v2ReadRows(id)).toHaveLength(0);
+    // ...but v1 still recorded it, so nothing is dropped.
+    expect(await db.hasConsentForSignIn(id, UNKNOWN_SCOPE, '')).toBe(true);
+  });
+});
