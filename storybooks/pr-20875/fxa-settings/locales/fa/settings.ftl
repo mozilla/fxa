@@ -231,6 +231,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = کد
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = ویرایش
 error-icon-aria-label =
     .aria-label = خطا
 # Used as information icon for informative messaging
@@ -520,6 +523,8 @@ tfa-row-backup-phone-change-cta = تغییر
 tfa-row-backup-phone-add-cta = افزودن
 # Button to remove a recovery phone from the user's account
 tfa-row-backup-phone-delete-button = حذف
+passkey-rename-save-button = ذخیره
+passkey-rename-cancel-button = انصراف
 
 ## Sub-section row Defaults
 

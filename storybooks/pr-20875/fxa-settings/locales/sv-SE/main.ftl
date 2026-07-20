@@ -151,11 +151,11 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adress: { $ipAddress }
 
 
-firefox-promo-banner-mobile-heading = Få { -brand-firefox } var du än är
+firefox-promo-banner-mobile-heading = Hämta { -brand-firefox } var du än är
 firefox-promo-banner-mobile-description = Synkronisera dina flikar, bokmärken och lösenord mellan dina enheter. Dessutom förblir allt säkert krypterat.
 firefox-promo-banner-mobile-cta = Anslut en enhet
-firefox-promo-banner-switch-heading = Snabb att byta. Lätt att bosätta sig i.
-firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa ett steg.
+firefox-promo-banner-switch-heading = Byt snabbt, lätt att komma igång.
+firefox-promo-banner-switch-description = När du byter till { -brand-firefox } kan du ta med dina bokmärken, lösenord, historik och mer så att du kan börja surfa utan att missa något.
 firefox-promo-banner-switch-cta = Byt till { -brand-firefox }
 
 
@@ -233,6 +233,8 @@ close-icon-aria-label =
     .aria-label = Stäng meddelande
 code-icon-aria-label =
     .aria-label = Kod
+edit-icon-aria-label =
+    .aria-label = Redigera
 error-icon-aria-label =
     .aria-label = Fel
 info-icon-aria-label =
@@ -930,6 +932,18 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
 passkey-delete-error = Det gick inte att ta bort din lösenordsnyckel. Försök igen om några minuter.
+passkey-sub-row-rename-title = Byt namn på lösenordsnyckel
+passkey-rename-modal-heading = Byt namn på lösenordsnyckel
+passkey-rename-modal-description = Ange ett nytt namn på lösenordsnyckeln.
+passkey-rename-input-label = Namn på lösenordsnyckel
+passkey-rename-save-button = Spara
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Ange ett namn för lösenordsnyckeln
+passkey-rename-error-too-long = Namnet måste innehålla färre än 256 tecken.
+passkey-rename-error-invalid = Endast bokstäver, siffror, skiljetecken och symboler är tillåtna.
+passkey-rename-error-duplicate = En lösenordsnyckel med det namnet finns redan
+passkey-rename-success = Lösenordsnyckel bytte namn
+passkey-rename-error = Det uppstod ett problem med att byta namn på lösenordsnyckeln. Försök igen om några minuter.
 
 
 switch-turn-off = Stäng av
@@ -1068,6 +1082,7 @@ auth-error-225 = Lösenordet har redan registrerats
 auth-error-226 = Gränsvärdet för lösenordsnycklar har nåtts
 auth-error-227 = Autentisering av lösenordsnyckel misslyckades
 auth-error-228 = Registrering av lösenordsnyckel misslyckades
+auth-error-233 = För att skapa en lösenordsnyckel konfigurerar du ett skärmlås, PIN-kod, fingeravtryck eller ansiktsigenkänning på din enhet eller säkerhetsnyckel. Försök sedan igen.
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
 auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
 auth-error-999 = Oväntat fel
