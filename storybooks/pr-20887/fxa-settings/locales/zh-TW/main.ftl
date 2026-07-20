@@ -1180,7 +1180,7 @@ pair-auth-complete-manage-devices-link = 管理裝置
 
 
 pair-auth-complete-send-tab-heading = 已經準備就緒，可以傳送分頁
-pair-auth-complete-send-tab-device-connected = 已連結 %(deviceOS)s 上的 %(deviceFamily)s。
+pair-auth-complete-send-tab-device-connected = 已連結 { $deviceOS } 上的 { $deviceFamily }。
 pair-auth-complete-send-tab-benefits = 您可在不同裝置間，自由且即時地傳送開啟分頁、密碼與書籤。
 
 

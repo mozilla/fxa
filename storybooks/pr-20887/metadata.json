@@ -1,8 +1,8 @@
 {
-  "commit": "904007b6b86a445e2f50e331a2cda9136a72acf7",
+  "commit": "bb10e9d942c85004e493a4e8ab5219cd82b489c6",
   "summary": "fix(settings): warn (not error) on cancelled/timed-out passkey sign-in",
   "description": "Because:\n* Cancelled and timed-out passkey sign-ins are benign, but showed a red error\n  banner with no way forward.\n\nThis commit:\n* Replaces the red error banner with an amber warning banner for a cancelled\n  ceremony (\"Couldn’t sign in with a passkey\" + a \"How to use passkeys\" link)\n  and, as a separate message, for a timeout (\"Passkey sign-in timed out. Try\n  again.\"); genuine errors keep the error banner.\n* Routes the help link to the how-to article on email-first and the\n  troubleshooting article on other surfaces, and adds a\n  passkey.get_help_link_click Glean event (reason = surface).\n* Moves the passwordless-OTP \"Code expired?\" prompt below the Confirm button.\n\nRefs #FXA-14171",
-  "timestamp": 1784326547000,
+  "timestamp": 1784571688000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

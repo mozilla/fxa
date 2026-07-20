@@ -1419,7 +1419,7 @@ signin-passwordless-code-confirm-button = Потврди
 signin-passwordless-code-required-error = Потребан је код за потврду
 signin-passwordless-code-expired = Код је истекао?
 signin-passwordless-code-resend-countdown =
-    { $count ->
+    { $seconds ->
         [one] Пошаљи нови код е-поштом за { $seconds } секунду
         [few] Пошаљи нови код е-поштом за { $seconds } секунде
        *[other] Пошаљи нови код е-поштом за { $seconds } секунди
@@ -1537,7 +1537,7 @@ confirm-signup-code-sync-button = Покрени усклађивање
 confirm-signup-code-code-expired = Код је истекао?
 confirm-signup-code-resend-code-link = Пошаљи нови е-поштом.
 confirm-signup-code-resend-code-countdown =
-    { $count ->
+    { $seconds ->
         [one] Пошаљи нови код е-поштом за { $seconds } секунду
         [few] Пошаљи нови код е-поштом за { $seconds } секунде
        *[other] Пошаљи нови код е-поштом за { $seconds } секунди

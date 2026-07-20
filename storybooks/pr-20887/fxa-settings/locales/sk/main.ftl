@@ -1364,7 +1364,7 @@ legal-privacy-heading = Vyhlásenie o ochrane osobných údajov
 legal-terms-heading = Podmienky používania služby
 
 
-pair-auth-allow-heading-text = Prihlásili ste sa do { -product-firefox(case: "gen") }?
+pair-auth-allow-heading-text = Prihlásili ste sa do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Áno, schváliť zariadenie
 pair-auth-allow-refuse-device-link = Ak ste to neboli vy, <a>zmeňte si heslo</a>
 

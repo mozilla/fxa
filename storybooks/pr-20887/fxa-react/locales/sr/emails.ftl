@@ -82,7 +82,7 @@ automatedEmailRecoveryKey-notyou-change-pwd-only-plaintext = Ако ово ни�
 # Colon is followed by a URL to the change password section of account settings
 automatedEmailRecoveryKey-notyou-change-pwd-plaintext = и промените лозинку:
 # Colon is followed by a URL to Mozilla Support's "I'm having problems with my account" page
-automatedEmailRecoveryKey-more-info-plaintext = За више информација, посетите Mozilla подршку:
+automatedEmailRecoveryKey-more-info-plaintext = За више информација, посетите { -brand-mozilla } подршку:
 automated-email-reset =
     Ово је аутоматизована е-порука. Ако нисте затражили ову акцију, онда <a data-l10n-name="resetLink">ресетујте лозинку</a>.
     За више информација, посетите <a data-l10n-name="supportLink">{ -brand-mozilla } подршку</a>.

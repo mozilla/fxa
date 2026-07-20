@@ -31,7 +31,7 @@ app-footer-terms-of-service = លក្ខខណ្ឌនៃសេវាកម�
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = បើកក្នុងបង្អួចថ្មី
