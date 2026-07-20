@@ -23,7 +23,7 @@ app-default-title-2 = { -product-mozilla-accounts }
 # Variables:
 #   $title (String) - the name of the current page
 #                      (for example: "Two-step authentication")
-app-page-title-2 = { -product-mozilla-accounts }
+app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 ## FxA React - Strings shared between multiple FxA products for external link
 

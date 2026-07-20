@@ -1978,9 +1978,9 @@ password-reset-recovery-method-code = Coduri de autentificare de rezervă
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $count } cod rămas
-        [few] { $count } coduri rămase
-       *[other] { $count } de coduri rămase
+        [one] { $numBackupCodes } cod rămas
+        [few] { $numBackupCodes } coduri rămase
+       *[other] { $numBackupCodes } de coduri rămase
     }
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare

@@ -1427,9 +1427,9 @@ password-reset-recovery-method-phone = Număr de telefon de recuperare
 password-reset-recovery-method-code = Coduri de autentificare de rezervă
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $count } cod rămas
-        [few] { $count } coduri rămase
-       *[other] { $count } de coduri rămase
+        [one] { $numBackupCodes } cod rămas
+        [few] { $numBackupCodes } coduri rămase
+       *[other] { $numBackupCodes } de coduri rămase
     }
 password-reset-recovery-method-send-code-error-heading = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
 password-reset-recovery-method-send-code-error-description = Te rugăm să încerci din nou mai târziu sau să folosești codurile de autentificare de rezervă.

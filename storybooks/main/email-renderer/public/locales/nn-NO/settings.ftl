@@ -1267,6 +1267,7 @@ passkey-rename-error-too-long = Namnet må innehalde færre enn 256 teikn.
 passkey-rename-error-invalid = Berre bokstavar, tal, teiknsetting og symbol er lov.
 passkey-rename-error-duplicate = Ein passnøkkel med dette namnet finst allereie
 passkey-rename-success = Passnøkkel har fått nytt namn
+passkey-rename-error = Det oppstod eit problem med å endre namn på passnøkkelen din. Prøv igjen om nokre minutt.
 
 ## Switch component
 
@@ -1460,6 +1461,7 @@ auth-error-225 = Passnøkkelen er allereie registrert
 auth-error-226 = Passnøkkelgrensa er nådd
 auth-error-227 = Mislykka passnøkkelautentisering
 auth-error-228 = Mislykka registrering av passnøkkel
+auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
 auth-error-999 = Uventa feil

@@ -2090,8 +2090,8 @@ signin-passwordless-code-subheading = Oanmelden duorret mar ien stap as jo dizze
 #   expirationMinutes (Number) - the expiration time in minutes
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Fier binnen { $expirationTime } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
-       *[other] Fier binnen { $expirationTime } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+        [one] Fier binnen { $expirationMinutes } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+       *[other] Fier binnen { $expirationMinutes } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
     }
 signin-passwordless-code-input-label-v2 = Fier 6-siferige koade yn
 signin-passwordless-code-confirm-button = Befêstigje

@@ -95,7 +95,7 @@ recovery-key-pdf-download-error = ขออภัย เกิดปัญหา
 
 
 button-passkey-signin = ลงชื่อเข้าด้วยพาสคีย์
-button-passkey-signin-loading = กำลังลงชื่อเข้าอย่างปลอดภัย...
+button-passkey-signin-loading = กำลังลงชื่อเข้าอย่างปลอดภัย…
 
 
 choose-newsletters-prompt-2 = รับประโยชน์เพิ่มเติมจาก { -brand-mozilla }:

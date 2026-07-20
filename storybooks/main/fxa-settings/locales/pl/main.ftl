@@ -1244,7 +1244,7 @@ legal-privacy-heading = Zasady ochrony prywatności
 legal-terms-heading = Regulamin usługi
 
 
-pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -product-firefox(case: "gen") }?
+pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Tak, zatwierdź urządzenie
 pair-auth-allow-refuse-device-link = Jeśli to nie Ty, <a>zmień hasło</a>
 
