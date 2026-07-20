@@ -1745,6 +1745,12 @@ const convictConf = convict({
       default: 1,
       env: 'STATSD_SAMPLE_RATE',
     },
+    queryTiming: {
+      doc: 'Enable per-operation DB/query timing metrics (kill switch). Requires statsd.enabled; a process restart to change.',
+      format: Boolean,
+      default: false,
+      env: 'STATSD_QUERY_TIMING',
+    },
     maxBufferSize: {
       doc: 'StatsD message buffer size in number of characters',
       format: Number,

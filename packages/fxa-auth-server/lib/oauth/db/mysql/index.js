@@ -9,9 +9,15 @@ const AccessToken = require('../accessToken');
 
 // Shared base class
 const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
+const { sqlOperation, sqlTable } = require('fxa-shared/db');
 const { Container } = require('typedi');
 const { AuthLogger } = require('../../../types');
 const { StatsD } = require('hot-shots');
+const { performance } = require('perf_hooks');
+const { config } = require('../../../../config');
+
+// Kill switch for per-operation query-timing metrics; requires a restart.
+const QUERY_TIMING_ENABLED = config.get('statsd.queryTiming');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
@@ -937,8 +943,27 @@ class MysqlStore extends MysqlOAuthShared {
 
   async _query(sql, params) {
     const conn = await this._getConnection();
+    const timing = QUERY_TIMING_ENABLED && this.metrics;
+    const start = timing ? performance.now() : 0;
     try {
-      return await this._queryWithConnection(conn, sql, params);
+      const result = await this._queryWithConnection(conn, sql, params);
+      if (timing) {
+        this.metrics.timing('db.oauth.query.duration', performance.now() - start, undefined, {
+          table: sqlTable(sql),
+          operation: sqlOperation(sql),
+          result: 'success',
+        });
+      }
+      return result;
+    } catch (err) {
+      if (timing) {
+        this.metrics.timing('db.oauth.query.duration', performance.now() - start, undefined, {
+          table: sqlTable(sql),
+          operation: sqlOperation(sql),
+          result: 'error',
+        });
+      }
+      throw err;
     } finally {
       conn.release();
     }

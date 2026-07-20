@@ -4,14 +4,55 @@
 
 import { StatsD } from 'hot-shots';
 import { knex, Knex } from 'knex';
+import { performance } from 'perf_hooks';
 import { promisify } from 'util';
 import { ILogger } from '../log';
 
 import { MySQLConfig } from './config';
+import { BaseModel } from './models/base';
 import { BaseAuthModel } from './models/auth';
 import { ProfileBaseModel } from './models/profile';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
+
+const SQL_VERBS = new Set([
+  'select',
+  'insert',
+  'update',
+  'delete',
+  'replace',
+  'call',
+]);
+
+/**
+ * Derive a bounded, low-cardinality operation label from a SQL statement's
+ * leading keyword. Never returns raw SQL, only a known verb or 'other', so it
+ * is safe to use as a metric tag.
+ */
+export function sqlOperation(sql?: string): string {
+  if (typeof sql !== 'string') {
+    return 'other';
+  }
+  const match = /^\s*([a-z]+)/i.exec(sql);
+  const verb = match ? match[1].toLowerCase() : '';
+  return SQL_VERBS.has(verb) ? verb : 'other';
+}
+
+/**
+ * Derive the primary table name from a SQL statement (the identifier after
+ * INTO/FROM/UPDATE). Intended for the raw-SQL stores where queries are static,
+ * non-user-built strings, so the result is a bounded schema identifier safe to
+ * use as a metric tag. Returns 'unknown' when no table can be parsed.
+ */
+export function sqlTable(sql?: string): string {
+  if (typeof sql !== 'string') {
+    return 'unknown';
+  }
+  const match = /\b(?:from|into|update)\s+`?([a-zA-Z_][a-zA-Z0-9_]*)`?/i.exec(
+    sql
+  );
+  return match ? match[1] : 'unknown';
+}
 
 /**
  * Setup a connection after knex establishes it, before its used.
@@ -72,10 +113,50 @@ export function monitorKnexConnectionPool(pool: any, metrics?: StatsD) {
   });
 }
 
+/**
+ * Time every query on a knex connection via its query lifecycle events,
+ * emitting db.query.duration tagged by table, operation, and result. This
+ * covers all direct queries — objection model queries AND raw knex.raw()
+ * calls — from one chokepoint. Stored-procedure calls (Call ...) are skipped
+ * because BaseAuthModel times those with their proc name instead.
+ */
+export function instrumentKnexQueryTiming(db: Knex, metrics: StatsD) {
+  const pending = new Map<string, number>();
+  const isProc = (sql: string) => /^\s*call\s/i.test(sql);
+
+  db.client.on('query', (obj: any) => {
+    const sql = typeof obj?.sql === 'string' ? obj.sql : '';
+    if (!obj?.__knexQueryUid || isProc(sql)) {
+      return;
+    }
+    pending.set(obj.__knexQueryUid, performance.now());
+  });
+
+  const finish = (obj: any, result: 'success' | 'error') => {
+    const uid = obj?.__knexQueryUid;
+    const start = uid ? pending.get(uid) : undefined;
+    if (typeof start !== 'number') {
+      return;
+    }
+    pending.delete(uid);
+    metrics.timing('db.query.duration', performance.now() - start, undefined, {
+      table: sqlTable(obj?.sql),
+      operation: sqlOperation(obj?.sql),
+      result,
+    });
+  };
+
+  db.client.on('query-response', (_response: any, obj: any) =>
+    finish(obj, 'success')
+  );
+  db.client.on('query-error', (_error: any, obj: any) => finish(obj, 'error'));
+}
+
 export function setupDatabase(
   opts: MySQLConfig,
   log?: ILogger,
-  metrics?: StatsD
+  metrics?: StatsD,
+  queryTiming = false
 ): Knex {
   const db = knex({
     connection: {
@@ -94,6 +175,15 @@ export function setupDatabase(
 
   monitorKnexConnectionPool(db.client.pool, metrics);
 
+  // Wire query-timing metrics, gated by the kill switch (and a client). When
+  // disabled, no listener is attached and the proc-timing static stays unset,
+  // so the whole path is a no-op. Pool-monitoring counters above are
+  // unaffected by this switch.
+  if (metrics && queryTiming) {
+    BaseModel.metrics = metrics; // stored-proc timing (BaseAuthModel)
+    instrumentKnexQueryTiming(db, metrics); // direct-query timing (all queries)
+  }
+
   log?.debug('knex', {
     msg: `knex: Creating Knex`,
     connLimit: opts.connectionLimitMax,
@@ -105,9 +195,10 @@ export function setupDatabase(
 export function setupAuthDatabase(
   opts: MySQLConfig,
   log?: ILogger,
-  metrics?: StatsD
+  metrics?: StatsD,
+  queryTiming = false
 ) {
-  const knex = setupDatabase(opts, log, metrics);
+  const knex = setupDatabase(opts, log, metrics, queryTiming);
   BaseAuthModel.knex(knex);
   return knex;
 }

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
+import { performance } from 'perf_hooks';
 import { BaseModel } from '../base';
 import { Knex } from 'knex';
 
@@ -91,6 +92,39 @@ export type QueryStatus = {
 };
 
 export abstract class BaseAuthModel extends BaseModel {
+  /**
+   * Time a stored-procedure execution and emit `db.proc.duration` tagged by
+   * operation and result. Wraps only the proc call, not any follow-up query.
+   */
+  private static async timeProc<T>(
+    name: Proc,
+    execute: () => PromiseLike<T>
+  ): Promise<T> {
+    // Zero-overhead when query timing is disabled (metrics left unset).
+    if (!this.metrics) {
+      return execute();
+    }
+    const start = performance.now();
+    try {
+      const result = await execute();
+      this.metrics?.timing(
+        'db.proc.duration',
+        performance.now() - start,
+        undefined,
+        { operation: name, result: 'success' }
+      );
+      return result;
+    } catch (err) {
+      this.metrics?.timing(
+        'db.proc.duration',
+        performance.now() - start,
+        undefined,
+        { operation: name, result: 'error' }
+      );
+      throw err;
+    }
+  }
+
   static async callProcedure(
     name: Proc,
     txn: Knex.Transaction,
@@ -107,7 +141,7 @@ export abstract class BaseAuthModel extends BaseModel {
       txn && typeof txn.commit === 'function'
         ? knex.raw(callString(name, rest.length), rest).transacting(txn)
         : knex.raw(callString(name, args.length), args);
-    const [result] = await query;
+    const [result] = await this.timeProc(name, () => query);
     if (Array.isArray(result)) {
       return { status: result.pop(), rows: result.shift() };
     }
@@ -120,7 +154,7 @@ export abstract class BaseAuthModel extends BaseModel {
     outputs: string[]
   ) {
     const { query, knex } = this.callProcedureRaw(args, name, outputs);
-    await query;
+    await this.timeProc(name, () => query);
     return await knex.select(knex.raw(outputs.join(','))).first();
   }
 
@@ -130,7 +164,7 @@ export abstract class BaseAuthModel extends BaseModel {
     outputs: string[]
   ) {
     const { query, knex } = this.callProcedureRaw(args, name, outputs);
-    const [result] = await query;
+    const [result] = await this.timeProc(name, () => query);
     return {
       outputs: await knex.select(knex.raw(outputs.join(','))).first(),
       results: { status: result.pop(), rows: result },

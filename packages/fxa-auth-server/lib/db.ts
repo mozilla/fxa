@@ -39,9 +39,75 @@ import {
 } from 'fxa-shared/db/models/auth/session-token';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { performance } from 'perf_hooks';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
+}
+
+/**
+ * Wrap a DB instance so each async facade method emits db.op.duration tagged
+ * by operation (method name). This is logical-op latency (may span MySQL and
+ * Redis), not pure query time. No result tag: a facade throw conflates real DB
+ * failures with business outcomes (e.g. accountExists), and outcome counts are
+ * already covered by the hand-written db.<entity>.<op> counters. Storage-level
+ * metrics (db.proc/query.duration) keep the clean success/error split.
+ * Internal method-to-method calls run on the underlying target, so they are
+ * timed once (at the facade). Non-promise return values are passed through
+ * untimed.
+ */
+export function instrumentDbTiming<T extends { metrics?: StatsD }>(db: T): T {
+  return new Proxy(db, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      if (typeof value !== 'function') {
+        return value;
+      }
+      // Only wrap inherited (prototype) methods. Own properties — instance
+      // fields and any function assigned directly on the instance (e.g. test
+      // spies) — pass through untouched to preserve their identity.
+      if (Object.prototype.hasOwnProperty.call(target, prop)) {
+        return value;
+      }
+      return function (...args: any[]) {
+        const metrics = target.metrics;
+        if (!metrics || typeof metrics.timing !== 'function') {
+          return value.apply(target, args);
+        }
+        const operation = String(prop);
+        const start = performance.now();
+        const emit = () =>
+          metrics.timing(
+            'db.op.duration',
+            performance.now() - start,
+            undefined,
+            {
+              operation,
+            }
+          );
+        let out;
+        try {
+          out = value.apply(target, args);
+        } catch (err) {
+          emit();
+          throw err;
+        }
+        if (out && typeof out.then === 'function') {
+          return out.then(
+            (v: any) => {
+              emit();
+              return v;
+            },
+            (e: any) => {
+              emit();
+              throw e;
+            }
+          );
+        }
+        return out;
+      };
+    },
+  });
 }
 
 // Note that these errno's were defined in the fxa-auth-db-mysql repo
@@ -82,6 +148,9 @@ export const createDB = (
     config.tokenLifetimes.sessionTokenWithoutDevice;
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
+  // Kill switch for per-operation query-timing metrics. When off, the facade
+  // Proxy is never installed (zero overhead) and the model layer stays a no-op.
+  const QUERY_TIMING_ENABLED = !!config.statsd?.queryTiming;
 
   class DB {
     redis: any;
@@ -97,6 +166,9 @@ export const createDB = (
         );
       this.knex = options.knex ?? null;
       this.metrics = options.metrics || resolveMetrics();
+      if (QUERY_TIMING_ENABLED) {
+        return instrumentDbTiming(this);
+      }
     }
 
     static async connect(config: any, redis: any) {
@@ -105,7 +177,8 @@ export const createDB = (
       const knex = setupAuthDatabase(
         config.database?.mysql?.auth,
         log,
-        metrics
+        metrics,
+        QUERY_TIMING_ENABLED
       );
       if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
         knex.on('query', (data) => {
