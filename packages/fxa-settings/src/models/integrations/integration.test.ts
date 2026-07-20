@@ -41,6 +41,38 @@ describe('Integration Model', function () {
     });
   });
 
+  describe('requiresPasswordForLogin', function () {
+    it('is true when keys are required (Sync), regardless of keys-optional support', () => {
+      jest.spyOn(model, 'requiresKeys').mockReturnValue(true);
+      jest.spyOn(model, 'wantsKeysIfPasswordEntered').mockReturnValue(false);
+      expect(model.requiresPasswordForLogin(true)).toBe(true);
+    });
+
+    it('is true for a non-Sync client that wants keys when keys are not optional', () => {
+      jest.spyOn(model, 'requiresKeys').mockReturnValue(false);
+      jest.spyOn(model, 'wantsKeysIfPasswordEntered').mockReturnValue(true);
+      expect(model.requiresPasswordForLogin(false)).toBe(true);
+    });
+
+    it('is false for a non-Sync client that wants keys when the browser supports keys-optional login', () => {
+      jest.spyOn(model, 'requiresKeys').mockReturnValue(false);
+      jest.spyOn(model, 'wantsKeysIfPasswordEntered').mockReturnValue(true);
+      expect(model.requiresPasswordForLogin(true)).toBe(false);
+    });
+
+    it('is false when the client does not want keys', () => {
+      jest.spyOn(model, 'requiresKeys').mockReturnValue(false);
+      jest.spyOn(model, 'wantsKeysIfPasswordEntered').mockReturnValue(false);
+      expect(model.requiresPasswordForLogin(false)).toBe(false);
+    });
+
+    it('treats an omitted keys-optional flag as "not supported"', () => {
+      jest.spyOn(model, 'requiresKeys').mockReturnValue(false);
+      jest.spyOn(model, 'wantsKeysIfPasswordEntered').mockReturnValue(true);
+      expect(model.requiresPasswordForLogin()).toBe(true);
+    });
+  });
+
   describe('isTrusted', function () {
     it('returns `true`', () => {
       expect(model.isTrusted()).toBeTruthy();

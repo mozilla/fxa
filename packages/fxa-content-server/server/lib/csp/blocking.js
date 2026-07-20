@@ -25,7 +25,6 @@ module.exports = function (config) {
   const DATA = 'data:';
   const DEFAULT_ALLOWED_IMG_SOURCES = config.get('csp.allowedImgSources');
   const GLEAN_SERVER = getOrigin(config.get('glean.serverEndpoint'));
-  const GQL_SERVER = getOrigin(config.get('settings_gql_url'));
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
@@ -60,7 +59,6 @@ module.exports = function (config) {
     SELF,
     AUTH_SERVER,
     GLEAN_SERVER,
-    GQL_SERVER,
     OAUTH_SERVER,
     PROFILE_SERVER,
     PAIRING_SERVER_WEBSOCKET,
@@ -127,7 +125,6 @@ module.exports = function (config) {
       CDN_URL,
       DATA,
       GLEAN_SERVER,
-      GQL_SERVER,
       NONE,
       OAUTH_SERVER,
       PAIRING_SERVER_HTTP,

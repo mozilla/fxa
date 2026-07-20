@@ -2,21 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import React, { useCallback } from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { useAwait, PromiseState } from './hooks';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_URL = '//worldtimeapi.org/api/ip';
 
-storiesOf('hooks|useAwait', module)
-  .add('basic', () => (
+const meta: Meta = {
+  title: 'Hooks/useAwait',
+};
+
+export default meta;
+type Story = StoryObj;
+
+export const Basic: Story = {
+  render: () => (
     <>
       <UseAwaitExample />
       <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/Europe/London" />
       <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/America/Detroit" />
     </>
-  ))
-  .add('with initial state', () => (
+  ),
+};
+
+export const WithInitialState: Story = {
+  name: 'with initial state',
+  render: () => (
     <UseAwaitExample
       initialState={{
         result: initialResult(),
@@ -24,16 +35,23 @@ storiesOf('hooks|useAwait', module)
         error: undefined,
       }}
     />
-  ))
-  .add('with immediate execution', () => (
+  ),
+};
+
+export const WithImmediateExecution: Story = {
+  name: 'with immediate execution',
+  render: () => (
     <UseAwaitExample
       executeImmediately={true}
       fetchApiFn={() => fetchApi(API_URL)}
     />
-  ))
-  .add('with error', () => (
-    <UseAwaitExample apiUrl="//worldtimeapi.org/badPage" />
-  ));
+  ),
+};
+
+export const WithError: Story = {
+  name: 'with error',
+  render: () => <UseAwaitExample apiUrl="//worldtimeapi.org/badPage" />,
+};
 
 const UseAwaitExample = ({
   fetchApiFn = fetchApi,

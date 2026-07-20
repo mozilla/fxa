@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import type { CheckoutTypesType } from '../glean.types';
 
-export function determineCheckoutType(accountsUid?: string): CheckoutTypesType {
-  return accountsUid ? 'with-accounts' : 'without-accounts';
+export function determineCheckoutType(accountsUid?: string, isNewAccount?: string): CheckoutTypesType {
+  if (isNewAccount && isNewAccount === 'true') {
+    return 'new_account';
+  }
+
+  return accountsUid ? 'existing_account' : 'logged_out';
 }

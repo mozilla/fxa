@@ -8,3 +8,13 @@ declare module '*.svg' {
   export const ReactComponent: any;
   export default content;
 }
+
+// Must import to make this file a module; otherwise `declare module`
+// replaces next-auth's types instead of augmenting them.
+import 'next-auth';
+
+declare module 'next-auth' {
+  interface User {
+    metricsEnabled?: boolean;
+  }
+}

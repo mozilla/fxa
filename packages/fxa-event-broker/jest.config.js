@@ -15,7 +15,7 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!axios/)",
+    "/node_modules/",
   ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',

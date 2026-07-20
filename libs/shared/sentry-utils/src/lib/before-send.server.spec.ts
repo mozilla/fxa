@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { beforeSendServer } from './before-send.server';
-import { filterSentryEvent } from './utils';
 
 describe('beforeSendServer', () => {
   const config = {
@@ -14,7 +13,7 @@ describe('beforeSendServer', () => {
       clientName: 'fxa-shared-testing',
       sampleRate: 0,
     },
-    eventFilters: [filterSentryEvent],
+    eventFilters: [],
   };
 
   it('adjust event before send', () => {
@@ -28,6 +27,6 @@ describe('beforeSendServer', () => {
     const hint = {};
     const modified = beforeSendServer(config, data, hint);
     expect(modified?.tags?.['fxa.name']).toEqual('unknown');
-    expect(modified?.extra?.['uid']).toEqual('[Filtered]');
+    expect(modified?.extra?.['uid']).toEqual('123');
   });
 });

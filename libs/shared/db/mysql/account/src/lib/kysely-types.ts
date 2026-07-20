@@ -38,6 +38,7 @@ export enum CartErrorReasonId {
   CART_ELIGIBILITY_STATUS_SAME = 'cart_eligibility_status_same',
   CART_ELIGIBILITY_STATUS_DOWNGRADE = 'cart_eligibility_status_downgrade',
   CART_ELIGIBILITY_STATUS_INVALID = 'cart_eligibility_status_invalid',
+  CART_FREE_TRIAL_ELIGIBILITY_MISMATCH = 'cart_free_trial_eligibility_mismatch',
   CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
   CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
   CART_TOTAL_MISMATCH = 'cart_total_mismatch',
@@ -49,6 +50,7 @@ export enum CartErrorReasonId {
   INTENT_FAILED_INSUFFICIENT_FUNDS = 'intent-payment-error-insufficient-funds',
   PAYPAL_ACTIVE_SUBSCRIPTION_NO_BILLING_AGREEMENT = 'paypal-active-subscription-no-billing-agreement-error',
   GENERAL_PAYPAL_ERROR = 'general-paypal-error',
+  NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED = 'new-account-prepaid-card-free-trial-not-allowed',
   UNKNOWN = 'unknown',
 }
 
@@ -122,6 +124,7 @@ export interface Carts {
   amount: number;
   version: number;
   eligibilityStatus: CartEligibilityStatus;
+  isFreeTrial: boolean;
 }
 
 export interface DeviceCommandIdentifiers {
@@ -243,6 +246,21 @@ export interface RecoveryPhones {
   uid: Buffer;
 }
 
+export interface Passkeys {
+  uid: Buffer;
+  credentialId: Buffer;
+  publicKey: Buffer;
+  signCount: number;
+  transports: JSONColumnType<string[]>;
+  aaguid: Buffer;
+  name: string;
+  createdAt: number;
+  lastUsedAt: number | null;
+  backupEligible: Generated<ColumnType<boolean, number, number>>;
+  backupState: Generated<ColumnType<boolean, number, number>>;
+  prfEnabled: Generated<ColumnType<boolean, number, number>>;
+}
+
 export interface SecurityEventNames {
   id: Generated<number>;
   name: string;
@@ -336,6 +354,7 @@ export interface DB {
   emailTypes: EmailTypes;
   keyFetchTokens: KeyFetchTokens;
   linkedAccounts: LinkedAccounts;
+  passkeys: Passkeys;
   passwordChangeTokens: PasswordChangeTokens;
   passwordForgotTokens: PasswordForgotTokens;
   paypalCustomers: PaypalCustomers;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { lazy, Suspense } from 'react';
-import { RouteComponentProps } from '@reach/router';
+
 import { FetchLegalDoc } from '../../../components/LegalWithMarkdown';
 import { LegalDocFile } from '../../../lib/file-utils-legal';
 import AppLayout from '../../../components/AppLayout';
@@ -22,7 +22,7 @@ export type LegalTermsProps = {
 const LegalTerms = ({
   locale,
   fetchLegalDoc,
-}: LegalTermsProps & RouteComponentProps) => (
+}: LegalTermsProps) => (
   <Suspense fallback={<AppLayout loading />}>
     <LegalWithMarkdown
       {...{ locale, fetchLegalDoc, viewName }}

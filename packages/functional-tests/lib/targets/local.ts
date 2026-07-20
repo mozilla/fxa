@@ -13,6 +13,9 @@ export class LocalTarget extends BaseTarget {
   static readonly target = 'local';
   readonly name: TargetName = LocalTarget.target;
   readonly contentServerUrl = 'http://localhost:3030';
+  readonly paymentsNextUrl = 'http://localhost:3035';
+  readonly paymentsTestOfferingId = '123donepro';
+  readonly paymentsTestPriceId = 'price_1NSnz3BVqmGyQTMaIkV5wjEc';
   readonly relierUrl = 'http://localhost:8080';
   readonly relierClientID = RELIER_CLIENT_ID;
   readonly rateLimitClient: RateLimitClient;
@@ -33,7 +36,12 @@ export class LocalTarget extends BaseTarget {
   ) {
     // Quick and dirty way to see if this works...
     await this.rateLimitClient.resetCounts();
-    const result = await this.authClient.signUp(email, password, options);
+    const result = await this.authClient.signUp(
+      email,
+      password,
+      options,
+      this.ciHeader
+    );
     await this.authClient.deviceRegister(
       result.sessionToken,
       'playwright',
@@ -42,6 +50,7 @@ export class LocalTarget extends BaseTarget {
     return {
       email,
       password,
+      verified: options.preVerified === 'true',
       ...result,
     } as Credentials;
   }

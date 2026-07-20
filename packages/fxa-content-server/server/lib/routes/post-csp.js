@@ -7,7 +7,6 @@
  */
 
 'use strict';
-const isString = require('lodash/isString');
 const joi = require('joi');
 const logger = require('../logging/log')();
 const url = require('url');
@@ -84,7 +83,7 @@ module.exports = function (options = {}) {
 };
 
 function stripPIIFromUrl(urlToScrub) {
-  if (!urlToScrub || !isString(urlToScrub)) {
+  if (!urlToScrub || typeof urlToScrub !== 'string') {
     return '';
   }
 

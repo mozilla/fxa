@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, ValidateNested } from 'class-validator';
+import { RequestArgs } from './common/RequestArgs';
+import { Type } from 'class-transformer';
 
 export class RedeemChurnCouponActionArgs {
   @IsString()
@@ -12,10 +14,17 @@ export class RedeemChurnCouponActionArgs {
   subscriptionId!: string;
 
   @IsString()
+  churnType!: 'cancel' | 'stay_subscribed';
+
+  @IsString()
   @IsOptional()
   acceptLanguage?: string;
 
   @IsString()
   @IsOptional()
   selectedLanguage?: string;
+
+  @Type(() => RequestArgs)
+  @ValidateNested()
+  requestArgs!: RequestArgs;
 }

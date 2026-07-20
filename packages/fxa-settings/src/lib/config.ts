@@ -34,9 +34,6 @@ export interface Config {
     version: string;
   };
   servers: {
-    gql: {
-      url: string;
-    };
     auth: {
       url: string;
     };
@@ -49,6 +46,9 @@ export interface Config {
     paymentsNext: {
       url: string;
     };
+    legalDocs: {
+      url: string;
+    };
   };
   oauth: {
     clientId: string;
@@ -57,10 +57,15 @@ export interface Config {
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
     reactClientIdsEnabled: string[];
+    clientInfoTimeout: number,
+    clientInfoRetries: number,
   };
   recoveryCodes: {
     count: number;
     length: number;
+  };
+  passkeys: {
+    maxPerUser: number;
   };
   version: string;
   googleAuthConfig: {
@@ -87,11 +92,19 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
-  sendFxAStatusOnSettings: boolean;
   showReactApp: {
     signUpRoutes: boolean;
     signInRoutes: boolean;
     emailFirstRoutes: boolean;
+    pairRoutes: boolean;
+  };
+  pairing: {
+    clients: string[];
+    serverBaseUri: string;
+  };
+  mobileStoreLinks: {
+    ios: string;
+    android: string;
   };
   rolloutRates?: {
     keyStretchV2?: number;
@@ -102,6 +115,13 @@ export interface Config {
     recoveryCodeSetupOnSyncSignIn?: boolean;
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
+    passkeysEnabled?: boolean;
+    passkeyRegistrationEnabled?: boolean;
+    passkeyAuthenticationEnabled?: boolean;
+    passwordlessEnabled?: boolean;
+  };
+  darkMode?: {
+    enabled?: boolean;
   };
   nimbus: {
     enabled: boolean;
@@ -119,7 +139,7 @@ export function getDefault() {
     env: 'development',
     l10n: {
       strict: false,
-      baseUrl: '/settings/locales',
+      baseUrl: '/settings/static',
     },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
@@ -136,11 +156,10 @@ export function getDefault() {
       serverName: 'fxa-settings-server',
       clientName: 'fxa-settings-client',
       sampleRate: 1.0,
+      tracesSampleRate: 0,
+      version: '',
     },
     servers: {
-      gql: {
-        url: '',
-      },
       auth: {
         url: '',
       },
@@ -153,6 +172,9 @@ export function getDefault() {
       paymentsNext: {
         url: '',
       },
+      legalDocs: {
+        url: '',
+      },
     },
     oauth: {
       clientId: '',
@@ -161,11 +183,17 @@ export function getDefault() {
       isPromptNoneEnabled: false,
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),
+      clientInfoRetries: 4,
+      clientInfoTimeout: 10_000
     },
     recoveryCodes: {
       count: 8,
       length: 10,
     },
+    passkeys: {
+      maxPerUser: 10,
+    },
+    version: '',
     googleAuthConfig: {
       enabled: false,
       clientId: '',
@@ -183,21 +211,35 @@ export function getDefault() {
       enabled: false,
       applicationId: 'accounts_frontend_dev',
       uploadEnabled: true,
+      appDisplayVersion: '',
       appChannel: 'development',
       serverEndpoint: 'https://incoming.telemetry.mozilla.org',
       logPings: false,
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
-    sendFxAStatusOnSettings: false,
     showReactApp: {
       signUpRoutes: false,
       signInRoutes: false,
+      emailFirstRoutes: false,
+      pairRoutes: false,
+    },
+    pairing: {
+      clients: [],
+      serverBaseUri: 'wss://channelserver.services.mozilla.com',
+    },
+    mobileStoreLinks: {
+      ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
+      android: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
+      passwordlessEnabled: false,
+    },
+    darkMode: {
+      enabled: false,
     },
     cms: {
       enabled: false,
@@ -207,7 +249,7 @@ export function getDefault() {
       enabled: true,
       preview: true,
     },
-    servicesWithEmailVerification: ['e6eb0d1e856335fc'],
+    servicesWithEmailVerification: ['32aaeb6f1c21316a'],
   } as Config;
 }
 
@@ -254,17 +296,19 @@ export function decode(content: string | null) {
 export function reset() {
   const initial = getDefault();
 
-  // This resets any existing default
-  // keys back to their original value
-  Object.assign(config, initial);
+  // Reset existing default keys back to their original values
+  const initialRecord = initial as unknown as Record<string, unknown>;
+  const configRecord = config as unknown as Record<string, unknown>;
+  for (const key of Object.keys(initialRecord)) {
+    configRecord[key] = initialRecord[key];
+  }
 
-  // This removes any foreign keys that
-  // may have found there way in
-  Object.keys(config).forEach((key) => {
-    if (!initial.hasOwnProperty(key)) {
-      delete (config as any)[key];
+  // Remove any foreign keys that may have found their way in
+  for (const key of Object.keys(configRecord)) {
+    if (!(key in initialRecord)) {
+      delete configRecord[key];
     }
-  });
+  }
 }
 
 export function update(newData: { [key: string]: any }) {

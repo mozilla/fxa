@@ -4,6 +4,7 @@
 
 'use server';
 
+import { getSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 import { getIpAddress } from '../utils/getIpAddress';
 import { headers } from 'next/headers';
@@ -11,16 +12,17 @@ import { headers } from 'next/headers';
 export const getExperimentsAction = async (args: {
   experimentationPreview: boolean;
   language: string;
-  fxaUid?: string;
 }) => {
-  const ip = getIpAddress();
-  const experimentationId = headers().get('x-experimentation-id') || '';
+  const fxaUid = await getSessionUid();
+  const ip = await getIpAddress();
+  const experimentationId = (await headers()).get('x-experimentation-id') || '';
 
   try {
     const experiments = await getApp()
       .getActionsService()
       .getExperiments({
         ...args,
+        fxaUid,
         ip,
         experimentationId,
       });

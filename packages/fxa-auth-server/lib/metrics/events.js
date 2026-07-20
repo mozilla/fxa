@@ -59,7 +59,6 @@ const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
   '/account/devices',
   '/account/profile',
   '/account/sessions',
-  '/certificate/sign',
   '/password/forgot/status',
   '/recovery_email/status',
   '/jwks',
@@ -141,7 +140,7 @@ module.exports = (log, config, glean) => {
         await amplitude('flow.complete', request, data, metricsContext);
 
         if (metricsContext.flowType === 'login') {
-          glean.login.complete(request, { uid: data?.uid ?? '' });
+          glean.login.complete(request, { uid: data?.uid ?? '', reason: 'email' });
         }
 
         return request.clearMetricsContext();
@@ -202,6 +201,8 @@ module.exports = (log, config, glean) => {
         event,
         region: location && location.state,
         userAgent: request.headers['user-agent'],
+        sigsciRequestId: request.headers['x-sigsci-requestid'],
+        clientJa4: request.headers['client-ja4'],
       },
       data
     );
@@ -225,6 +226,8 @@ module.exports = (log, config, glean) => {
         locale: request.app && request.app.locale,
         region: location && location.state,
         userAgent: request.headers['user-agent'],
+        sigsciRequestId: request.headers['x-sigsci-requestid'],
+        clientJa4: request.headers['client-ja4'],
       })
       .then((data) => {
         if (data.flow_id) {

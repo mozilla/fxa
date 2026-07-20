@@ -2,7 +2,7 @@ const oauthDB = require('../../oauth/db');
 
 module.exports = (log, config, db, mailer, devices, statsd, glean) => {
   const routes = [
-    require('./authorization')({ log, oauthDB, config }),
+    require('./authorization')({ log, oauthDB, config, statsd }),
     require('./authorized-clients/destroy')({ oauthDB }),
     require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),

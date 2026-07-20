@@ -143,7 +143,9 @@ export const createCredentialsLookupFn =
 
       for (const identity of data.identities || []) {
         const cleartextSecretCreds = identity.credentials?.filter(
-          (id) => id.exposed_secret?.type === 'clear'
+          (id) =>
+            id.exposed_secret?.type === 'clear' &&
+            id.exposed_secret?.details?.clear_text_value != null
         );
 
         // the same combination of login and password could show up due to

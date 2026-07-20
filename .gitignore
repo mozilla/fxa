@@ -66,6 +66,7 @@ test-results.xml
 
 # Local configuration
 /_dev/firebase/.config
+/_dev/firebase/.cache
 
 # System files
 *~
@@ -115,6 +116,7 @@ packages/fxa-auth-server/fxa-content-server-l10n
 packages/fxa-auth-server/lib/senders/emails/css
 packages/fxa-auth-server/public/locales
 packages/fxa-auth-server/vendor
+packages/fxa-auth-server/test/support/.tmp
 
 # fxa-content-server
 packages/fxa-content-server/pids
@@ -135,11 +137,6 @@ packages/fxa-content-server/app/settings
 
 # fxa-customs-server
 packages/fxa-customs-server/test/mocks/temp.netset
-
-# fxa-payments-server
-packages/fxa-payments-server/fxa-content-server-l10n/
-packages/fxa-payments-server/public/locales
-packages/fxa-payments-server/test
 
 # fxa-profile-server
 packages/fxa-profile-server/var/public/*
@@ -178,10 +175,6 @@ Library
 process.yml
 .lists
 
-**/config/gql/allowlist
-configs/gql/allowlist
-!configs/gql/allowlist/gql-playground.json
-
 # Next.js
 .next
 
@@ -194,3 +187,9 @@ libs/shared/cms/src/__generated__/graphql.js
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Anthropic's Claude AI — ignore everything except checked-in skills
+.claude/worktrees
+
+# Local CircleCI logs downloaded by tooling
+.ci-logs/

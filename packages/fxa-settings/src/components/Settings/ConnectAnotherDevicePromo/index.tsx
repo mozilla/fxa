@@ -30,7 +30,7 @@ export function ConnectAnotherDevicePromo() {
           <p className="text-sm">Get Firefox on mobile or tablet</p>
         </FtlMsg>
         <FtlMsg id="connect-another-find-fx-mobile-2">
-          <p className="text-grey-400 text-xs">
+          <p className="text-grey-400 dark:text-grey-200 text-xs">
             Find Firefox in the Google Play and App Store.
           </p>
         </FtlMsg>

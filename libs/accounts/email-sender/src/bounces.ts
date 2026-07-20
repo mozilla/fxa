@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppError } from '@fxa/accounts/errors';
+import { EmailNormalization } from './email-normalization';
 
 export type BouncesConfig = {
   enabled: boolean;
+  aliasCheckEnabled?: boolean;
+  emailAliasNormalization?: string;
   hard: Record<number, number>;
   soft: Record<number, number>;
   complaint: Record<number, number>;
@@ -13,6 +16,7 @@ export type BouncesConfig = {
 };
 
 export type Bounce = {
+  email?: string;
   bounceType: number;
   createdAt: number;
 };
@@ -34,6 +38,7 @@ export const BOUNCE_TYPE_COMPLAINT = 3;
 
 export class Bounces {
   private readonly bounceRules: Record<number, any>;
+  private readonly emailNormalization: EmailNormalization;
 
   constructor(
     private readonly config: BouncesConfig,
@@ -44,6 +49,9 @@ export class Bounces {
       [BOUNCE_TYPE_SOFT]: Object.freeze(config.soft || {}),
       [BOUNCE_TYPE_COMPLAINT]: Object.freeze(config.complaint || {}),
     };
+    this.emailNormalization = new EmailNormalization(
+      config.emailAliasNormalization || '[]'
+    );
   }
 
   async check(email: string, template: string) {
@@ -58,8 +66,62 @@ export class Bounces {
       return undefined;
     }
 
-    const bounces = await this.db.emailBounces.findByEmail(email);
+    let bounces: Array<Bounce>;
+
+    if (this.config.aliasCheckEnabled) {
+      bounces = await this.checkBouncesWithAliases(email);
+    } else {
+      bounces = await this.db.emailBounces.findByEmail(email);
+    }
+
     return this.applyRules(bounces);
+  }
+
+  private async checkBouncesWithAliases(email: string): Promise<Array<Bounce>> {
+    // Given an email alias like test+123@domain.com:
+    // We look for bounces to the 'root' email -> `test@domain.com`
+    // And look for bounces to the alias with a wildcard -> `test+%@domain.com`
+    //
+    // This prevents us from picking up false positives when we replace the alias
+    // with a wildcard, and doesn't miss the root email bounces either. We have to
+    // use both because just using the wildcard would miss bounces sent to the root
+    // and just using the root with a wildcard would pickup false positives.
+    //
+    // So, test+123@domain.com would match:
+    //   - test@domain.com            Covered by normalized email
+    //   - test+123@domain.com        Covered by wildcard email
+    //   - test+asdf@domain.com       Covered by wildcard email
+    // but not
+    //   - testing@domain.com         Not picked up by wildcard since we include the '+'
+    const normalizedEmail = this.emailNormalization.normalizeEmailAliases(
+      email,
+      ''
+    );
+    const wildcardEmail = this.emailNormalization.normalizeEmailAliases(
+      email,
+      '+%'
+    );
+
+    const [normalizedBounces, wildcardBounces] = await Promise.all([
+      this.db.emailBounces.findByEmail(normalizedEmail),
+      this.db.emailBounces.findByEmail(wildcardEmail),
+    ]);
+
+    // Merge and deduplicate by email+createdAt
+    // There shouldn't be any overlap, but just in case
+    const seen = new Set<string>();
+    const merged = [...normalizedBounces, ...wildcardBounces].filter(
+      (bounce) => {
+        const key = `${bounce.email || ''}:${bounce.createdAt}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      }
+    );
+
+    return merged.sort((a, b) => b.createdAt - a.createdAt);
   }
 
   private applyRules(bounces: Array<Bounce>) {

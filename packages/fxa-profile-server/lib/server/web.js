@@ -7,7 +7,6 @@ const logger = require('../logging')('server.web');
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const cloneDeep = require('lodash/cloneDeep');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
@@ -59,10 +58,16 @@ exports.create = async function createServer() {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        additionalHeaders: ['sentry-trace', 'baggage'],
+        additionalHeaders: ['sentry-trace', 'baggage', 'fxa-ci'],
         // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
         // which is more forgiving of missing Origin header.
         origin: ['*'],
+      },
+      // Byte-range slicing is meaningless for a JSON API and triggers Hapi's
+      // 206 partial-content path on otherwise-fine responses (FXA-13625).
+      // Static image serving lives on a separate server (server/_static.js).
+      response: {
+        ranges: false,
       },
       security: {
         hsts: {
@@ -112,7 +117,9 @@ exports.create = async function createServer() {
     Sentry.withScope((scope) => {
       if (request && request.sentryScope) {
         scope.addEventProcessor((sentryEvent) => {
-          sentryEvent.request = Sentry.extractRequestData(request.raw.req);
+          // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
+          // Leaving note here for historical context.
+          // sentryEvent.request = Sentry.extractRequestData(request.raw.req);
           sentryEvent.level = 'error';
           return sentryEvent;
         });
@@ -125,7 +132,6 @@ exports.create = async function createServer() {
 
   // configure Sentry
   if (config.sentry && config.sentry.dsn) {
-
     // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
     server.ext({
       type: 'onRequest',
@@ -144,7 +150,9 @@ exports.create = async function createServer() {
           op: 'profile-server',
           name: `${request.method.toUpperCase()} ${request.path}`,
           forceTransaction: true,
-          request: Sentry.extractRequestData(request.raw.req),
+          // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
+          // Leaving note here for historical context.
+          // request: Sentry.extractRequestData(request.raw.req),
         });
 
         request.app.sentry = {
@@ -154,7 +162,6 @@ exports.create = async function createServer() {
         return h.continue;
       },
     });
-
   }
 
   server.auth.scheme('oauth', function () {
@@ -256,7 +263,17 @@ exports.create = async function createServer() {
     .map(function (routeDefinition) {
       // create a copy of the route definition to avoid cross-unit test
       // contamination since we make local changes to the definition object.
-      const route = cloneDeep(routeDefinition);
+      // Only route.config.auth.scope is mutated, so shallow-spread those
+      // three levels rather than deep-cloning the whole object (which would
+      // fail on handler functions).
+      const auth = routeDefinition.config.auth;
+      const route = {
+        ...routeDefinition,
+        config: {
+          ...routeDefinition.config,
+          auth: auth ? { ...auth } : auth,
+        },
+      };
       var scope = route.config.auth && route.config.auth.scope;
       if (scope) {
         route.config.auth.scope =
@@ -307,7 +324,6 @@ exports.create = async function createServer() {
   server.ext('onPreResponse', (request) => {
     var response = request.response;
     if (response.isBoom) {
-
       reportSentryError(response, request);
 
       response = AppError.translate(response);
@@ -328,7 +344,6 @@ exports.create = async function createServer() {
         extra: {
           host: config.server.host,
           port: config.server.port,
-          uri: `http://${config.server.host}:${config.server.port}`,
         },
       });
     });

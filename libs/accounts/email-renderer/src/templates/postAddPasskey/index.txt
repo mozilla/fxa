@@ -1,0 +1,17 @@
+postAddPasskey-title = "You created a passkey"
+
+postAddPasskey-description = "You can now use it to sign in to all your Mozilla account services."
+
+<% if (showSyncPasswordNote) { %>
+postAddPasskey-sync-note = "Please note, your password will continue to be required to access your Firefox sync data."
+
+<% } %>
+postAddPasskey-learn-more = "Learn more:"
+<%- passkeySupportUrl %>
+
+postAddPasskey-requested-from = "You requested this from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailSignIn/index.txt') %>

@@ -36,6 +36,21 @@ export class PriceForCurrencyNotFoundError extends CustomerError {
   }
 }
 
+export class SubscriptionCustomerMismatchError extends CustomerError {
+  constructor(
+    customerId: string,
+    subscriptionCustomerId: string,
+    subscriptionId: string,
+  ) {
+    super('Subscription customer does not match provided customer', {
+      customerId,
+      subscriptionCustomerId,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionCustomerMismatchError';
+  }
+}
+
 export class PromotionCodeError extends CustomerError {
   constructor(message: string, info: Record<string, any>) {
     super(message, info);

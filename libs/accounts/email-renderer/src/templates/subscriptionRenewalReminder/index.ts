@@ -8,16 +8,20 @@ import { TemplateData as SubscriptionUpdateBillingEnsureTemplateData } from '../
 export type TemplateData = SubscriptionSupportContactTemplateData &
   SubscriptionUpdateBillingEnsureTemplateData & {
     productName: string;
+    showTax: boolean;
+    invoiceTotalExcludingTax?: string;
+    invoiceTax?: string;
     invoiceTotal: string;
     planInterval: string;
-    planIntervalCount: string;
     reminderLength: string;
     subscriptionSupportUrl: string;
     updateBillingUrl: string;
+    discountEnding?: boolean;
+    hasDifferentDiscount?: boolean;
   };
 
 export const template = 'subscriptionRenewalReminder';
-export const version = 2;
+export const version = 4;
 export const layout = 'subscription';
 export const includes = {
   subject: {

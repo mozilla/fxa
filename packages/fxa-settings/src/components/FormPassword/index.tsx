@@ -13,7 +13,7 @@ import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
-import { useNavigate } from '@reach/router';
+import { useNavigate } from 'react-router';
 
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];
@@ -88,7 +88,7 @@ export const FormPassword = ({
         <h2>Password requirements</h2>
       </Localized>
       <ul
-        className="text-grey-400 text-xs m-3 list-inside"
+        className="text-grey-400 dark:text-grey-200 text-xs m-3 list-inside"
         data-testid="change-password-requirements"
       >
         <li data-testid="change-password-length">
@@ -195,11 +195,12 @@ export const FormPassword = ({
                   return !passwordValidator.isSameAsEmail(value.toLowerCase());
                 },
                 uncommon: async (value: string) => {
-                  // @ts-ignore
-                  const list = await import('fxa-common-password-list');
+                  const { test: isCommon } = await import(
+                    '@fxa/vendored/common-password-list'
+                  );
                   const input = value.toLowerCase();
                   return (
-                    !list.test(input) && !passwordValidator.isBanned(input)
+                    !isCommon(input) && !passwordValidator.isBanned(input)
                   );
                 },
               },

@@ -31,14 +31,12 @@ const paypalInitialOptions: ReactPayPalScriptOptions = {
 interface PaypalManagementProps {
   nonce?: string;
   paypalClientId: string;
-  sessionUid: string;
   currency: string;
 }
 
 export function PaypalManagement({
   nonce,
   paypalClientId,
-  sessionUid,
   currency,
 }: PaypalManagementProps) {
   const { locale } = useParams();
@@ -57,8 +55,7 @@ export function PaypalManagement({
       <div className="flex justify-center items-center max-w-md w-full h-12">
         <ManagementPayPalButton
           currency={currency}
-          locale={Array.isArray(locale) ? locale[0] : locale}
-          sessionUid={sessionUid}
+          locale={Array.isArray(locale) ? locale[0] : locale || ''}
           searchParams={searchParams}
         />
       </div>
@@ -69,14 +66,12 @@ export function PaypalManagement({
 interface ManagementPayPalButtonProps {
   currency: string;
   locale: string;
-  sessionUid: string;
   searchParams: ReadonlyURLSearchParams;
 }
 
 function ManagementPayPalButton({
   currency,
   locale,
-  sessionUid,
   searchParams,
 }: ManagementPayPalButtonProps) {
   const router = useRouter();
@@ -121,7 +116,7 @@ function ManagementPayPalButton({
         getPayPalCheckoutToken(currency.toLowerCase())
       }
       onApprove={async (data: { orderID: string }) => {
-        await createPayPalBillingAgreementId(sessionUid, data.orderID);
+        await createPayPalBillingAgreementId(data.orderID);
         router.push(`/${locale}/subscriptions/manage` + queryParamString);
       }}
       onError={(error) => {

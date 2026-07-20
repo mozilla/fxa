@@ -15,7 +15,7 @@ import {
 import { AppleIapClientConfig } from './apple-iap.client.config';
 import {
   AppStoreSubscriptionPurchase,
-  mergePurchaseWithFirestorePurchaseRecord,
+  mergeApplePurchaseWithFirestorePurchaseRecord,
 } from './subscription-purchase';
 import {
   decodeRenewalInfo,
@@ -209,7 +209,7 @@ export class AppleIapPurchaseManager {
         });
 
         // STEP 4a. Merge other fields of our purchase record in Firestore (such as userId) with our SubscriptionPurchase object and return to caller.
-        mergePurchaseWithFirestorePurchaseRecord(
+        mergeApplePurchaseWithFirestorePurchaseRecord(
           subscriptionPurchase,
           firestorePurchaseRecord
         );

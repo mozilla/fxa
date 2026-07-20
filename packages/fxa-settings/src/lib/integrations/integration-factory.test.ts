@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sinon, { createSandbox } from 'sinon';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import {
   Integration,
   IntegrationType,
   OAuthIntegration,
-  OAuthNativeClients,
   OAuthNativeIntegration,
   OAuthWebIntegration,
   PairingAuthorityIntegration,
@@ -217,6 +217,80 @@ describe('lib/integrations/integration-factory', () => {
         expect(integration.wantsKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
+
+      it('does not flag clientInfoLoadFailed when clientInfo is provided', () => {
+        expect(integration.clientInfoLoadFailed).toBe(false);
+      });
+    });
+
+    describe('when /v1/oauth/client/:id fetch failed', () => {
+      beforeEach(() => {
+        sandbox.restore();
+        sandbox.stub(flags, 'isOAuth').returns(true);
+        sandbox.stub(flags, 'isDevicePairingAsAuthority').returns(false);
+        sandbox.stub(flags, 'isDevicePairingAsSupplicant').returns(false);
+        sandbox.stub(flags, 'isServiceSync').returns(false);
+        sandbox.stub(flags, 'isV3DesktopContext').returns(false);
+        sandbox.stub(flags, 'isOAuthWebChannelContext').returns(false);
+
+        urlQueryData.set('scope', 'profile');
+        urlQueryData.set('client_id', '720bc80adfa6988d');
+        urlQueryData.set('redirect_uri', 'https://redirect.to');
+
+        const factory = new IntegrationFactory({
+          window,
+          data: urlQueryData,
+          channelData: urlHashData,
+          storageData,
+          flags,
+          clientInfo: undefined,
+          clientInfoLoadFailed: true,
+          productInfo,
+        });
+        integration = factory.getIntegration() as OAuthIntegration;
+      });
+
+      it('flags clientInfoLoadFailed so downstream code surfaces the error', () => {
+        expect(integration.clientInfoLoadFailed).toBe(true);
+      });
+    });
+
+    describe('when clientInfo is missing but the fetch did not fail', () => {
+      // Some flows populate `data.clientId` from non-URL-query sources
+      // (e.g. the `/oauth/success/:clientId` pathname via
+      // `initOAuthIntegration`). In those flows `useClientInfoState` never
+      // ran a fetch, so the factory should not flag clientInfoLoadFailed
+      // even though `clientInfo` is undefined and `data.clientId` is set.
+      beforeEach(() => {
+        sandbox.restore();
+        sandbox.stub(flags, 'isOAuth').returns(true);
+        sandbox.stub(flags, 'isDevicePairingAsAuthority').returns(false);
+        sandbox.stub(flags, 'isDevicePairingAsSupplicant').returns(false);
+        sandbox.stub(flags, 'isServiceSync').returns(false);
+        sandbox.stub(flags, 'isV3DesktopContext').returns(false);
+        sandbox.stub(flags, 'isOAuthWebChannelContext').returns(false);
+        sandbox.stub(flags, 'isOAuthSuccessFlow').returns({
+          status: true,
+          clientId: '720bc80adfa6988d',
+        });
+
+        const factory = new IntegrationFactory({
+          window,
+          data: urlQueryData,
+          channelData: urlHashData,
+          storageData,
+          flags,
+          clientInfo: undefined,
+          clientInfoLoadFailed: false,
+          productInfo,
+        });
+        integration = factory.getIntegration() as OAuthIntegration;
+      });
+
+      it('does not flag clientInfoLoadFailed', () => {
+        expect(integration.data.clientId).toEqual('720bc80adfa6988d');
+        expect(integration.clientInfoLoadFailed).toBe(false);
+      });
     });
 
     // TODO: Port remaining tests from content-server
@@ -238,6 +312,7 @@ describe('lib/integrations/integration-factory', () => {
         expect(integration.type).toEqual(IntegrationType.OAuthWeb);
         expect(integration.isSync()).toBeFalsy();
         expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.requiresKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
     });
@@ -263,8 +338,29 @@ describe('lib/integrations/integration-factory', () => {
       it('has correct state', async () => {
         expect(integration.type).toEqual(IntegrationType.OAuthNative);
         expect(integration.isSync()).toBeTruthy();
-        expect(integration.wantsKeys()).toBeTruthy();
         expect(integration.isTrusted()).toBeTruthy();
+        expect(integration.isFirefoxClient()).toBeTruthy();
+      });
+
+      it('wantsKeys is false when keysJwk is not provided', () => {
+        // Without keysJwk in the data, _scopeRequestsKeys returns false
+        expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.requiresKeys()).toBeFalsy();
+      });
+
+      it('wantsKeys is true when keysJwk and scoped key validation are configured', () => {
+        integration.data.keysJwk = 'fakeKeysJwk';
+        sandbox.stub(integration, 'opts').value({
+          ...integration.opts,
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {
+            [Constants.OAUTH_OLDSYNC_SCOPE]: {
+              redirectUris: [clientInfo.redirectUri],
+            },
+          },
+        });
+        expect(integration.requiresKeys()).toBeTruthy();
+        expect(integration.wantsKeys()).toBeTruthy();
       });
     });
   });

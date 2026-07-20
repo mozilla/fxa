@@ -6,32 +6,43 @@
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import { PaymentProvidersType } from '@fxa/payments/cart';
+import {
+  PaymentProvidersType,
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
+
+const paymentMethodTypeMap: Record<string, SubPlatPaymentMethodType> = {
+  card: SubPlatPaymentMethodType.Card,
+  link: SubPlatPaymentMethodType.Link,
+  apple_pay: SubPlatPaymentMethodType.ApplePay,
+  google_pay: SubPlatPaymentMethodType.GooglePay,
+  external_paypal: SubPlatPaymentMethodType.PayPal,
+};
 
 async function recordEmitterEventAction(
   eventName: 'checkoutSubmit',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
-  paymentProvider: PaymentProvidersType
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
+  paymentProvider: PaymentProvidersType,
+  paymentMethod: string
 ): Promise<void>;
 async function recordEmitterEventAction(
-  eventName:
-    | 'checkoutView'
-    | 'checkoutEngage'
-    | 'checkoutSuccess'
-    | 'checkoutFail',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>
+  eventName: 'checkoutView' | 'checkoutEngage',
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
-  paymentProvider?: PaymentProvidersType
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
+  paymentProvider?: PaymentProvidersType,
+  paymentMethod?: string
 ) {
+  // isFreeTrial is resolved cart-side in populateCommonMetrics, so the FE
+  // no longer needs to thread it through.
   const requestArgs = {
-    ...getAdditionalRequestArgs(),
+    ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };
@@ -39,7 +50,10 @@ async function recordEmitterEventAction(
   return getApp().getActionsService().recordEmitterEvent({
     eventName,
     requestArgs,
-    paymentProvider: paymentProvider,
+    paymentProvider,
+    paymentMethod: paymentMethod
+      ? paymentMethodTypeMap[paymentMethod]
+      : undefined,
   });
 }
 

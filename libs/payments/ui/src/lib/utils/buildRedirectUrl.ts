@@ -4,12 +4,13 @@
 
 import type { Page, PageType } from './types';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from './flatParam';
 
 interface Optional {
   baseUrl?: string;
   locale?: string;
   cartId?: string;
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export function buildRedirectUrl(
@@ -22,15 +23,15 @@ export function buildRedirectUrl(
   const baseUrl = optional?.baseUrl ? optional?.baseUrl : '';
 
   const startUrl = baseUrl === '/' ? baseUrl : `${baseUrl}/`;
-  const pageTypeUrl = ['landing', 'new', 'location', 'page-not-found'].includes(
-    page
-  )
-    ? ''
-    : `${pageType}/`;
+  const pageTypeUrl =
+    ['landing', 'new', 'location', 'page-not-found'].includes(page) ||
+    (page === 'error' && !optional?.cartId)
+      ? ''
+      : `${pageType}/`;
   const endUrl = optional?.cartId ? `${optional?.cartId}/${page}` : page;
 
   const searchParamsString = optional?.searchParams
-    ? `?${new URLSearchParams(optional?.searchParams).toString()}`
+    ? `?${new URLSearchParams(flattenRouteParams(optional.searchParams)).toString()}`
     : '';
   const localeString = optional?.locale ? `${optional.locale}/` : '';
 

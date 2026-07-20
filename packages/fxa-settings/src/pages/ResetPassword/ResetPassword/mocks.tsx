@@ -5,7 +5,7 @@
 import { MozServices } from '../../../lib/types';
 import React, { useState } from 'react';
 import ResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { ResetPasswordProps } from './interfaces';
 
 const defaultServiceName = MozServices.Default;
@@ -17,15 +17,16 @@ export const Subject = ({
 }: Partial<ResetPasswordProps>) => {
   const [errorMessage, setErrorMessage] = useState('');
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ResetPassword
         {...{
           errorMessage,
           serviceName,
           requestResetPasswordCode,
           setErrorMessage,
+          setCurrentSplitLayout: () => {},
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

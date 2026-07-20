@@ -104,6 +104,24 @@ type SmtpTransportOptions = nodemailer.TransportOptions & {
   };
 };
 
+export type EmailHeaderContext = {
+  language: string;
+  serverName: string;
+  cmsRpClientId?: string;
+  deviceId?: string;
+  entrypoint?: string;
+  flowBeginTime?: number;
+  flowId?: string;
+  service?: string;
+  uid?: string;
+};
+
+export type EmailTemplateInfo = {
+  name: string;
+  version: number;
+  metricsName?: string;
+};
+
 /**
  * Sends an email to end end user.
  */
@@ -152,28 +170,14 @@ export class EmailSender {
   /**
    * Builds standard email headers
    */
-  async buildHeaders({
-    template,
+  buildHeaders({
     context,
     headers,
+    template,
   }: {
-    template: {
-      name: string;
-      version: number;
-      metricsName?: string;
-    };
-    context: {
-      serverName: string;
-      language: string;
-      deviceId?: string;
-      flowId?: string;
-      flowBeginTime?: number;
-      service?: string;
-      uid?: string;
-      entrypoint?: string;
-      cmsRpClientId?: string;
-    };
+    context: EmailHeaderContext;
     headers: Record<string, string>;
+    template: EmailTemplateInfo;
   }) {
     const optionalHeader = (key: string, value?: string | number) => {
       if (value) {
@@ -218,9 +222,10 @@ export class EmailSender {
   /**
    * Send out an email.
    * @param email Email to send
+   * @param
    * @returns
    */
-  async send(email: Email) {
+  async send(email: Email, throwOnFailure = false) {
     // Always check for email bounces. Don't send if there bounce errors
     if (await this.hasBounceErrors(email)) {
       return {
@@ -228,7 +233,7 @@ export class EmailSender {
         message: 'Has bounce errors!',
       };
     }
-    return await this.sendMail(email);
+    return await this.sendMail(email, throwOnFailure);
   }
 
   /**
@@ -270,6 +275,7 @@ export class EmailSender {
 
   private async sendMail(
     email: Email,
+    throwOnFailure: boolean,
     attempt = 0
   ): Promise<{
     sent: boolean;
@@ -345,40 +351,61 @@ export class EmailSender {
 
         const backoffDelay = this.calculateBackoffDelay(attempt);
 
-        this.log.warn('mailer.send.retry', {
+        const retryLogDetails: Record<string, unknown> = {
           err: err.message,
           to: email.to,
           template: email.template,
           retryAttempt: attempt,
           nextAttempt: attempt + 1,
           backoffMs: Math.round(backoffDelay),
-        });
+        };
+
+        if (err.response) {
+          retryLogDetails['smtpResponse'] = err.response;
+        }
+        if (err.responseCode) {
+          retryLogDetails['smtpResponseCode'] = err.responseCode;
+        }
+        if (err.rejected?.length) {
+          retryLogDetails['rejectedRecipients'] = err.rejected;
+        }
+
+        this.log.warn('mailer.send.retry', retryLogDetails);
 
         // Wait for backoff period, then retry
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-        return this.sendMail(email, ++attempt);
+        return this.sendMail(email, throwOnFailure, ++attempt);
       }
 
-      // This is the final failure - log and capture to Sentry
-      if (isAppError(err)) {
-        this.log.error('mailer.send.error', {
-          err: err.message,
-          code: err.code,
-          errno: err.errno,
-          to: email.to,
-          template: email.template,
-          isRetry,
-          retryAttempt: attempt,
-        });
-      } else {
-        this.log.error('mailer.send.error', {
-          err: err.message,
-          to: email.to,
-          template: email.template,
-          isRetry,
-          retryAttempt: attempt,
-        });
+      const smtpErrorDetails: Record<string, unknown> = {
+        err: err.message,
+        to: email.to,
+        template: email.template,
+        isRetry,
+        retryAttempt: attempt,
+      };
+
+      if (email.cc?.length) {
+        smtpErrorDetails['cc'] = email.cc;
       }
+      if (err.response) {
+        smtpErrorDetails['smtpResponse'] = err.response;
+      }
+      if (err.responseCode) {
+        smtpErrorDetails['smtpResponseCode'] = err.responseCode;
+      }
+      if (err.rejected?.length) {
+        smtpErrorDetails['rejectedRecipients'] = err.rejected;
+      }
+      if (err.accepted?.length) {
+        smtpErrorDetails['acceptedRecipients'] = err.accepted;
+      }
+      if (isAppError(err)) {
+        smtpErrorDetails['code'] = err.code;
+        smtpErrorDetails['errno'] = err.errno;
+      }
+
+      this.log.error('mailer.send.error', smtpErrorDetails);
 
       // Only capture to Sentry on final failure
       Sentry.captureException(err);
@@ -390,7 +417,11 @@ export class EmailSender {
       }
 
       // Throw error back to calling code.
-      throw err;
+      if (throwOnFailure) {
+        throw err;
+      }
+
+      return { sent: false };
     }
   }
 }

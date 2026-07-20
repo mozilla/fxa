@@ -8,7 +8,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const {
   supportedLanguages,
   rtlLocales,
-} = require('../../../../dist/libs/shared/l10n/main.js');
+} = require('../../../../dist/libs/shared/l10n');
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
@@ -61,9 +61,6 @@ const settingsConfig = {
     serverName: config.get('sentry.serverName'),
   },
   servers: {
-    gql: {
-      url: config.get('settings_gql_url'),
-    },
     oauth: {
       url: config.get('fxaccount_url'),
     },
@@ -75,6 +72,9 @@ const settingsConfig = {
     },
     paymentsNext: {
       url: config.get('payments_next_hosted_url'),
+    },
+    legalDocs: {
+      url: config.get('legal_docs_url'),
     },
   },
   oauth: {
@@ -88,10 +88,15 @@ const settingsConfig = {
     reactClientIdsEnabled: config.get(
       'oauth.react_feature_flags.enabled_client_ids'
     ),
+    clientInfoTimeout: config.get('oauth.client_info.timeout'),
+    clientInfoRetries: config.get('oauth.client_info.retries'),
   },
   recoveryCodes: {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
+  },
+  passkeys: {
+    maxPerUser: config.get('passkeys.maxPerUser'),
   },
   mfa: {
     otp: {
@@ -103,11 +108,19 @@ const settingsConfig = {
   brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
-  sendFxAStatusOnSettings: config.get('featureFlags.sendFxAStatusOnSettings'),
   showReactApp: {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     signInRoutes: config.get('showReactApp.signInRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
+    pairRoutes: config.get('showReactApp.pairRoutes'),
+  },
+  pairing: {
+    clients: config.get('pairing.clients'),
+    serverBaseUri: config.get('pairing.server_base_uri'),
+  },
+  mobileStoreLinks: {
+    ios: config.get('mobileStoreLinks.ios'),
+    android: config.get('mobileStoreLinks.android'),
   },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),
@@ -122,6 +135,17 @@ const settingsConfig = {
     paymentsNextSubscriptionManagement: config.get(
       'featureFlags.paymentsNextSubscriptionManagement'
     ),
+    passkeysEnabled: config.get('featureFlags.passkeysEnabled'),
+    passkeyRegistrationEnabled: config.get(
+      'featureFlags.passkeyRegistrationEnabled'
+    ),
+    passkeyAuthenticationEnabled: config.get(
+      'featureFlags.passkeyAuthenticationEnabled'
+    ),
+    passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
+  },
+  darkMode: {
+    enabled: config.get('darkMode.enabled'),
   },
   nimbus: {
     enabled: config.get('nimbus.enabled'),
@@ -173,10 +197,7 @@ function preconnect(val) {
 
 function resolvePreConnectDirectives(settingsConfig) {
   // Using '?' will breaks l10n extraction :9
-  let gqlUrl, authUrl, oauthUrl, sentryUrl;
-  try {
-    gqlUrl = settingsConfig.servers.gql.url;
-  } catch (e) {}
+  let authUrl, oauthUrl, sentryUrl;
   try {
     authUrl = settingsConfig.servers.auth.url;
   } catch (e) {}
@@ -188,7 +209,6 @@ function resolvePreConnectDirectives(settingsConfig) {
   } catch (e) {}
 
   return {
-    __GQL_URL_PRECONNECT__: preconnect(gqlUrl),
     __AUTH_URL_PRECONNECT__: preconnect(authUrl),
     __OAUTH_URL_PRECONNECT__: preconnect(oauthUrl),
     __SENTRY_URL_PRECONNECT__: preconnect(sentryUrl),
@@ -249,9 +269,9 @@ const createSettingsProxy = createProxyMiddleware({
 // Modify the static settings page by replacing __SERVER_CONFIG__ with the config object
 const modifySettingsStatic = function (req, res) {
   if (
-    process.env.NODE_ENV === 'development' &&
+    ['development', 'test'].includes(process.env.NODE_ENV) &&
     req.path.startsWith('/settings/') &&
-    ['.js', '.css', '.ftl', '.json', '.svg'].includes(extname(req.path))
+    ['.js', '.css', '.ftl', '.json', '.svg', '.md'].includes(extname(req.path))
   ) {
     const filePath = join(
       settingsStaticPath,

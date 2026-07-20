@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigate, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   isWebIntegration,
+  useAuthClient,
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
@@ -25,10 +26,12 @@ import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'signin-token-code';
 
 const SIX_DIGIT_NUMBER_REGEX = /^\d{6}$/;
+const RESEND_CODE_COUNTDOWN = 30;
 
 const SigninTokenCode = ({
   finishOAuthFlowHandler,
@@ -38,10 +41,11 @@ const SigninTokenCode = ({
   unwrapBKey,
   onSessionVerified,
   setCurrentSplitLayout,
-}: SigninTokenCodeProps & RouteComponentProps) => {
+}: SigninTokenCodeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const {
     email,
@@ -57,7 +61,10 @@ const SigninTokenCode = ({
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
+  const [resendCountdown, setResendCountdown] = useState<number>(0);
+  const { isThrottled, startThrottle } = useThrottle();
 
+  const authClient = useAuthClient();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
     isWebIntegration(integration) && webRedirectCheck?.isValid
@@ -87,6 +94,17 @@ const SigninTokenCode = ({
     GleanMetrics.loginConfirmation.view();
   }, []);
 
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [resendCountdown]);
+
   const handleAnimationEnd = () => {
     // We add the "shake" animation to bring attention to the success banner
     // when the success banner was already displayed. We have to remove the
@@ -98,6 +116,7 @@ const SigninTokenCode = ({
     setResendCodeLoading(true);
     try {
       await session.sendVerificationCode();
+
       if (showResendSuccessBanner) {
         // shake the banner if it is already displayed
         setAnimateBanner(true);
@@ -106,17 +125,23 @@ const SigninTokenCode = ({
       }
     } catch (error) {
       setShowResendSuccessBanner(false);
-      // TODO in FXA-9714 - verify if we only want to display a specific message for throttled errors
-      setLocalizedErrorBannerMessage(
-        error.errno === AuthUiErrors.THROTTLED.errno
-          ? getLocalizedErrorMessage(ftlMsgResolver, error)
-          : ftlMsgResolver.getMsg(
-              'signin-token-code-resend-error',
-              'Something went wrong. A new code could not be sent.'
-            )
-      );
+      if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        startThrottle(error);
+        setLocalizedErrorBannerMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, error)
+        );
+      } else {
+        setLocalizedErrorBannerMessage(
+          ftlMsgResolver.getMsg(
+            'signin-token-code-resend-error',
+            'Something went wrong. A new code could not be sent.'
+          )
+        );
+      }
     } finally {
       setResendCodeLoading(false);
+      // Start countdown
+      setResendCountdown(RESEND_CODE_COUNTDOWN);
     }
   };
 
@@ -146,6 +171,7 @@ const SigninTokenCode = ({
         GleanMetrics.loginConfirmation.success();
 
         const navigationOptions = {
+          navigate,
           email,
           signinData: {
             uid,
@@ -164,6 +190,7 @@ const SigninTokenCode = ({
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
           performNavigation: !integration.isFirefoxMobileClient(),
+          authClient,
         };
 
         await GleanMetrics.isDone();
@@ -181,6 +208,7 @@ const SigninTokenCode = ({
         );
         if (error.errno === AuthUiErrors.THROTTLED.errno) {
           setShowResendSuccessBanner(false);
+          startThrottle(error);
           setLocalizedErrorBannerMessage(localizedErrorMessage);
         } else {
           // TODO in FXA-9714 - show in tooltip or banner? we might end up with unexpected errors shown in tooltip with current pattern
@@ -196,6 +224,7 @@ const SigninTokenCode = ({
       keyFetchToken,
       localizedInvalidCode,
       location.search,
+      navigate,
       redirectTo,
       session,
       sessionToken,
@@ -204,12 +233,16 @@ const SigninTokenCode = ({
       verificationReason,
       showInlineRecoveryKeySetup,
       onSessionVerified,
+      startThrottle,
+      authClient,
     ]
   );
 
   const cmsInfo = integration?.getCmsInfo();
   const title = cmsInfo?.SigninTokenCodePage?.pageTitle;
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -221,6 +254,8 @@ const SigninTokenCode = ({
           cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninTokenCodePage?.headline,
           cmsDescription: cmsInfo?.SigninTokenCodePage?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
         }}
       />
       {showResendSuccessBanner && !localizedErrorBannerMessage && (
@@ -239,7 +274,9 @@ const SigninTokenCode = ({
         />
       )}
 
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <FtlMsg
         id="signin-token-code-instruction-v2"
@@ -252,13 +289,8 @@ const SigninTokenCode = ({
         </p>
       </FtlMsg>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-token-code-instruction-desktop-relay">
-          <p className="mt-2 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode
@@ -272,6 +304,7 @@ const SigninTokenCode = ({
           cmsButton: {
             color: cmsInfo?.shared.buttonColor,
           },
+          isThrottled,
         }}
       />
 
@@ -279,15 +312,29 @@ const SigninTokenCode = ({
         <FtlMsg id="signin-token-code-code-expired">
           <p>Code expired?</p>
         </FtlMsg>
-        <FtlMsg id="signin-token-code-resend-code-link">
-          <button
-            className="link-blue"
-            onClick={handleResendCode}
-            disabled={resendCodeLoading}
+        {resendCountdown > 0 ? (
+          <FtlMsg
+            id="signin-token-code-resend-code-countdown"
+            vars={{ seconds: resendCountdown }}
           >
-            Email new code.
-          </button>
-        </FtlMsg>
+            <button
+              className="link-blue cursor-not-allowed opacity-50"
+              disabled
+            >
+              Email new code in {resendCountdown} seconds
+            </button>
+          </FtlMsg>
+        ) : (
+          <FtlMsg id="signin-token-code-resend-code-link">
+            <button
+              className="link-blue"
+              onClick={handleResendCode}
+              disabled={resendCodeLoading || isThrottled}
+            >
+              Email new code.
+            </button>
+          </FtlMsg>
+        )}
       </div>
     </AppLayout>
   );

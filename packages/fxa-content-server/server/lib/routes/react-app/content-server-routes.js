@@ -36,6 +36,7 @@ const FRONTEND_ROUTES = [
   'pair/failure',
   'pair/success',
   'pair/supp',
+  'pair/supp/complete',
   'pair/unsupported',
   'post_verify/cad_qr/get_started',
   'post_verify/cad_qr/ready_to_scan',
@@ -47,13 +48,12 @@ const FRONTEND_ROUTES = [
   'post_verify/secondary_email/add_secondary_email',
   'post_verify/secondary_email/confirm_secondary_email',
   'post_verify/secondary_email/verified_secondary_email',
+  'post_verify/service_welcome',
+  'post_verify/set_password',
   'post_verify/third_party_auth/callback',
   'post_verify/third_party_auth/set_password',
   'primary_email_verified',
   'signup_confirmed_sync', // React app only
-  'push/completed',
-  'push/confirm_login',
-  'push/send_login',
   'report_signin',
   'reset_password',
   'reset_password_confirmed',
@@ -67,13 +67,14 @@ const FRONTEND_ROUTES = [
   'signin',
   'signin_bounced',
   'signin_token_code',
-  'signin_push_code',
-  'signin_push_code_confirm',
   'signin_totp_code',
   'signin_recovery_code',
   'signin_recovery_choice',
   'signin_recovery_phone',
+  'signin_passwordless_code',
+  'oauth/signin_passwordless_code',
   'signin_confirmed',
+  'signin_passkey_fallback',
   'signin_permissions',
   'signin_reported',
   'signin_unblock',
@@ -85,12 +86,14 @@ const FRONTEND_ROUTES = [
   'secondary_email_verified',
   'subscriptions',
   'subscriptions/products/[\\w_]+',
-  'support',
   'verify_email',
   'verify_primary_email',
   'verify_secondary_email',
   'would_you_like_to_sync',
   'web_channel_example',
+  'poc_deep_link', // FXA-13863 throwaway deep-link POC test page
+  'poc_pair_init', // FXA-13863 throwaway open-or-store interstitial
+  'poc_pair_start', // FXA-13863 throwaway pairing-start placeholder
 ];
 
 // The array is converted into a RegExp

@@ -11,6 +11,8 @@ export type AuthError = {
   response_error_code?: string;
   interpolate?: boolean;
   version?: number;
+  /** Sentry event ID when the error was already captured at its throw site. */
+  sentryEventId?: string;
 };
 
 export const UNEXPECTED_ERROR = 'Unexpected error';
@@ -141,6 +143,7 @@ export const OAUTH_ERRORS: Record<string, AuthError> = {
 export class OAuthError extends Error {
   public errno: number;
   public response_error_code?: string;
+  public sentryEventId?: string;
 
   constructor(
     public readonly error: string | number,

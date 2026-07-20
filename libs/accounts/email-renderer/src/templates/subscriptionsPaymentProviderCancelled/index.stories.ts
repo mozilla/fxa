@@ -13,7 +13,7 @@ export default {
 const data = {
   subscriptions: [
     {
-      productName: 'Firefox Fortress',
+      productName: '123Done Pro',
     },
     {
       productName: 'Mozilla VPN',
@@ -23,7 +23,7 @@ const data = {
   updateBillingUrl: 'http://localhost:3030/subscriptions',
 
   // Had to add this in. Double check!
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

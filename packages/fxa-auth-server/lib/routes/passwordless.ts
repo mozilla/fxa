@@ -1,0 +1,719 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { Redis } from 'ioredis';
+import * as isA from 'joi';
+import { StatsD } from 'hot-shots';
+import * as uuid from 'uuid';
+import Container from 'typedi';
+
+import { OtpManager, OtpStorage } from '@fxa/shared/otp';
+import { AppError as error } from '@fxa/accounts/errors';
+import { constructLocalTimeAndDateStrings } from '@fxa/accounts/email-renderer';
+
+import { ConfigType } from '../../config';
+import PASSWORDLESS_DOCS from '../../docs/swagger/passwordless-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+import * as random from '../crypto/random';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import { gleanMetrics } from '../metrics/glean';
+import { AuthLogger, AuthRequest } from '../types';
+import { recordSecurityEvent } from './utils/security-event';
+import * as validators from './validators';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
+import { formatGeoData } from 'fxa-shared/lib/geo-data';
+import type { DB } from '../db';
+import {
+  isClientAllowedForPasswordless,
+  isPasswordlessEligible,
+} from './utils/passwordless';
+import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import {
+  getOptionalCmsEmailConfig,
+  notifyAttachedServicesForAccountSession,
+} from './utils/account';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
+
+/**
+ * Redis adapter for OTP storage
+ */
+class OtpRedisAdapter implements OtpStorage {
+  constructor(
+    private redis: Redis,
+    private ttl: number
+  ) {}
+
+  async set(key: string, value: string) {
+    await this.redis.set(key, value, 'EX', this.ttl);
+  }
+
+  async get(key: string) {
+    return this.redis.get(key);
+  }
+
+  async del(key: string) {
+    await this.redis.del(key);
+  }
+}
+
+/**
+ * Handler class for passwordless authentication endpoints
+ */
+class PasswordlessHandler {
+  private otpManager: OtpManager;
+  private fxaMailer: FxaMailer;
+  private cmsManager?: RelyingPartyConfigurationManager;
+  private otpUtils: any;
+
+  constructor(
+    private log: AuthLogger,
+    private db: DB,
+    private config: ConfigType,
+    private customs: any,
+    private glean: ReturnType<typeof gleanMetrics>,
+    private statsd: StatsD,
+    authServerCacheRedis: Redis
+  ) {
+    const otpRedisAdapter = new OtpRedisAdapter(
+      authServerCacheRedis,
+      config.passwordlessOtp.ttl
+    );
+    this.otpManager = new OtpManager(
+      { kind: 'passwordless', digits: config.passwordlessOtp.digits },
+      otpRedisAdapter
+    );
+    this.fxaMailer = Container.get(FxaMailer);
+    this.cmsManager = Container.has(RelyingPartyConfigurationManager)
+      ? Container.get(RelyingPartyConfigurationManager)
+      : undefined;
+    // For checking if account has TOTP enabled
+    this.otpUtils = require('./utils/otp').default(db, statsd);
+  }
+
+  /**
+   * Look up an account by email. Returns null if the account doesn't exist.
+   */
+  private async lookupAccount(
+    email: string
+  ): Promise<{ account: any; isNewAccount: boolean }> {
+    try {
+      const account = await this.db.accountRecord(email, {
+        linkedAccounts: true,
+      });
+      return { account, isNewAccount: false };
+    } catch (err: any) {
+      if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+        throw err;
+      }
+      return { account: null, isNewAccount: true };
+    }
+  }
+
+  /**
+   * Validate that the caller is allowed to use passwordless for this account.
+   * Existing passwordless accounts bypass the client allowlist and feature flag.
+   * Third-party auth accounts (with linked accounts) are not passwordless.
+   */
+  private validatePasswordlessAccess(
+    account: any,
+    email: string,
+    clientId: string | undefined,
+    service: string | undefined,
+    logTag: string,
+    request: AuthRequest
+  ) {
+    const hasLinkedAccount =
+      account && (account.linkedAccounts?.length || 0) > 0;
+    const isExistingPasswordless =
+      account && account.verifierSetAt === 0 && !hasLinkedAccount;
+    if (!isExistingPasswordless) {
+      if (
+        !isClientAllowedForPasswordless(
+          this.config.passwordlessOtp.allowedClientServices,
+          clientId,
+          service
+        )
+      ) {
+        this.log.error(`passwordless.${logTag}.clientIdOrServiceNotAllowed`, {
+          clientId,
+          service,
+        });
+        this.statsd.increment('passwordless.blocked', {
+          reason: 'clientNotAllowed',
+          ...getClientServiceTags(request),
+        });
+        throw error.featureNotEnabled();
+      }
+    }
+    if (
+      !isPasswordlessEligible(
+        account,
+        email,
+        this.config.passwordlessOtp.enabled
+      )
+    ) {
+      this.statsd.increment('passwordless.blocked', {
+        reason: 'notEligible',
+        ...getClientServiceTags(request),
+      });
+      throw error.cannotCreatePassword();
+    }
+  }
+
+  async sendCode(request: AuthRequest) {
+    this.log.begin('Passwordless.sendCode', request);
+
+    const { email, clientId, service } = request.payload as {
+      email: string;
+      clientId?: string;
+      service?: string;
+    };
+
+    await this.customs.check(request, email, 'passwordlessSendOtp');
+
+    const { account, isNewAccount } = await this.lookupAccount(email);
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'sendCode',
+      request
+    );
+
+    if (isNewAccount) {
+      const normalized = normalizeEmail(email);
+      const blockedRegex = await EmailBlocklist.findMatchingRegex(normalized);
+      if (blockedRegex !== null) {
+        this.log.info('account.create.blocked', {
+          domain: normalized.split('@')[1],
+          blockedRegex,
+          blocker: 'regex',
+        });
+        this.statsd.increment('account.create.blocked', { blocker: 'regex' });
+        throw error.requestBlocked(false);
+      }
+      const blockedDomain =
+        await DomainBlocklist.findMatchingDomain(normalized);
+      if (blockedDomain !== null) {
+        this.log.info('account.create.blocked', {
+          domain: blockedDomain,
+          blocker: 'domain',
+        });
+        this.statsd.increment('account.create.blocked', { blocker: 'domain' });
+        throw error.requestBlocked(false);
+      }
+    }
+
+    return this.generateAndSendOtp(
+      request,
+      email,
+      account,
+      isNewAccount,
+      false
+    );
+  }
+
+  async confirmCode(request: AuthRequest) {
+    this.log.begin('Passwordless.confirmCode', request);
+
+    const { email, code, clientId, service } = request.payload as {
+      email: string;
+      code: string;
+      clientId?: string;
+      service?: string;
+    };
+
+    await this.customs.check(request, email, 'passwordlessVerifyOtp');
+    if (this.customs.v2Enabled()) {
+      await this.customs.check(request, email, 'passwordlessVerifyOtpPerDay');
+    }
+
+    const lookupResult = await this.lookupAccount(email);
+    let account = lookupResult.account;
+    const { isNewAccount } = lookupResult;
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'confirmCode',
+      request
+    );
+
+    // Verify OTP
+    const otpKey = account ? account.uid : email;
+    const isValidCode = await this.otpManager.isValid(otpKey, code);
+
+    if (!isValidCode) {
+      this.statsd.increment(
+        'passwordless.confirmCode.invalid',
+        getClientServiceTags(request)
+      );
+      await recordSecurityEvent('account.passwordless_login_otp_failed', {
+        db: this.db,
+        request,
+        account: account ? { uid: account.uid } : undefined,
+      });
+      throw error.invalidVerificationCode();
+    }
+
+    // Delete OTP (single use)
+    await this.otpManager.delete(otpKey);
+
+    // Check if account has 2FA (TOTP) enabled
+    // If so, create an unverified session that requires TOTP verification
+    let hasTotpToken = false;
+    if (account) {
+      hasTotpToken = await this.otpUtils.hasTotpToken(account);
+      if (hasTotpToken) {
+        this.log.info('passwordless.confirmCode.totpRequired', {
+          uid: account.uid,
+        });
+        this.statsd.increment(
+          'passwordless.confirmCode.totpRequired',
+          getClientServiceTags(request)
+        );
+      }
+    }
+
+    // Create account if new
+    if (isNewAccount) {
+      account = await this.createPasswordlessAccount(email, request);
+      this.statsd.increment(
+        'passwordless.registration.success',
+        getClientServiceTags(request)
+      );
+
+      this.glean.registration.complete(request, {
+        uid: account.uid,
+        reason: 'otp',
+      });
+
+      // This path bypasses the createAccount handler which normally records
+      // the event. We still need the event, so we also call it here for passwordless.
+      await recordSecurityEvent('account.create', {
+        db: this.db,
+        request,
+        account: { uid: account.uid },
+      });
+
+      await recordSecurityEvent('account.passwordless_registration_complete', {
+        db: this.db,
+        request,
+        account: { uid: account.uid },
+      });
+    }
+
+    // Create session token.
+    // Always set mustVerify=true as defense-in-depth: if a tokenVerificationId
+    // is present (TOTP accounts), the session is gated until TOTP is verified.
+    // For non-TOTP accounts tokenVerificationId is null, so tokenVerified=true
+    // and the mustVerify flag has no practical effect — but it ensures that any
+    // future bug that accidentally introduces a tokenVerificationId won't
+    // silently create an ungated unverified session.
+    const tokenVerificationId = hasTotpToken ? await random.hex(16) : null;
+    const sessionToken = await this.createSessionToken(
+      account,
+      request,
+      true,
+      tokenVerificationId
+    );
+
+    this.statsd.increment('passwordless.confirmCode.success', {
+      ...getClientServiceTags(request),
+      isNewAccount: String(isNewAccount),
+    });
+
+    if (!isNewAccount) {
+      this.glean.login.complete(request, {
+        uid: account.uid,
+        reason: 'otp',
+      });
+    }
+
+    await recordSecurityEvent('account.passwordless_login_otp_verified', {
+      db: this.db,
+      request,
+      account: { uid: account.uid },
+    });
+
+    // Mirror the SNS notifications that AccountHandler.createAccount
+    // fires, since passwordless bypasses that path. This runs after
+    // createSessionToken so db.sessions already includes the new session.
+    const deviceCount = isNewAccount
+      ? 1
+      : (await this.db.sessions(account.uid)).length;
+    await notifyAttachedServicesForAccountSession({
+      log: this.log,
+      request,
+      account: {
+        uid: account.uid,
+        primaryEmail: account.primaryEmail,
+        locale: account.locale,
+      },
+      service,
+      deviceCount,
+      isNewAccount,
+      emailVerified: true,
+      profileChanged: false,
+    });
+
+    const response: {
+      uid: string;
+      sessionToken: string;
+      verified: boolean;
+      authAt: number;
+      isNewAccount: boolean;
+      verificationMethod?: 'totp-2fa';
+      verificationReason?: 'login';
+    } = {
+      uid: account.uid,
+      sessionToken: sessionToken.data,
+      verified: sessionToken.emailVerified && sessionToken.tokenVerified,
+      authAt: sessionToken.lastAuthAt(),
+      isNewAccount,
+    };
+
+    if (hasTotpToken) {
+      response.verificationMethod = 'totp-2fa';
+      response.verificationReason = 'login';
+    }
+
+    return response;
+  }
+
+  async resendCode(request: AuthRequest) {
+    this.log.begin('Passwordless.resendCode', request);
+
+    const { email, clientId, service } = request.payload as {
+      email: string;
+      clientId?: string;
+      service?: string;
+    };
+
+    await this.customs.check(request, email, 'passwordlessSendOtp');
+
+    const { account, isNewAccount } = await this.lookupAccount(email);
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'resendCode',
+      request
+    );
+
+    // Delete existing code before sending a new one
+    const otpKey = account ? account.uid : email;
+    await this.otpManager.delete(otpKey);
+
+    return this.generateAndSendOtp(request, email, account, isNewAccount, true);
+  }
+
+  /**
+   * Generate OTP code and send email
+   * NOTE: This method does NOT perform rate limiting or eligibility checks.
+   * Callers must do those checks before calling this method.
+   */
+  private async generateAndSendOtp(
+    request: AuthRequest,
+    email: string,
+    account: any,
+    isNewAccount: boolean,
+    isResend: boolean
+  ) {
+    const otpKey = account ? account.uid : email;
+    const code = await this.otpManager.create(otpKey);
+
+    const geoData = request.app.geo;
+    const { browser, os, osVersion } = request.app.ua;
+    const { deviceId, flowId, flowBeginTime } =
+      await request.app.metricsContext;
+
+    const { time, date, acceptLanguage, timeZone } =
+      constructLocalTimeAndDateStrings(
+        request.app.acceptLanguage,
+        geoData.timeZone
+      );
+
+    const options = {
+      code,
+      deviceId,
+      flowId,
+      flowBeginTime,
+      time,
+      date,
+      acceptLanguage,
+      timeZone,
+      sync: false,
+      device: formatUserAgentInfo({ browser, os, osVersion }),
+      location: formatGeoData(geoData.location),
+      codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
+    };
+
+    const cmsConfig = await getOptionalCmsEmailConfig(options, {
+      request,
+      cmsManager: this.cmsManager,
+      log: this.log,
+      emailTemplate: isNewAccount
+        ? 'PasswordlessSignupOtpEmail'
+        : 'PasswordlessSigninOtpEmail',
+    });
+
+    const cmsEmailSubject = FxaMailerFormat.cmsEmailSubject(cmsConfig);
+    const target =
+      cmsEmailSubject.subject && cmsEmailSubject.description
+        ? 'strapi'
+        : 'index';
+
+    if (isNewAccount) {
+      const metricsEnabled =
+        this.config.gleanMetrics.enabled &&
+        (await request.app.isMetricsEnabled);
+
+      await this.fxaMailer.sendPasswordlessSignupOtpEmail({
+        to: email,
+        cc: [],
+        metricsEnabled,
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        ...FxaMailerFormat.cmsLogo(cmsConfig),
+        ...cmsEmailSubject,
+        target,
+        code,
+        codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
+      });
+    } else {
+      await this.fxaMailer.sendPasswordlessSigninOtpEmail({
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        ...FxaMailerFormat.cmsLogo(cmsConfig),
+        ...cmsEmailSubject,
+        target,
+        code,
+        codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
+      });
+    }
+
+    this.statsd.increment('passwordless.sendCode.success', {
+      ...getClientServiceTags(request),
+      isResend: String(isResend),
+      isNewAccount: String(isNewAccount),
+    });
+
+    // Record security event
+    await recordSecurityEvent('account.passwordless_login_otp_sent', {
+      db: this.db,
+      request,
+      account: account ? { uid: account.uid } : undefined,
+    });
+
+    return {};
+  }
+
+  /**
+   * Create a new passwordless account
+   */
+  private async createPasswordlessAccount(
+    email: string,
+    request: AuthRequest
+  ): Promise<any> {
+    const emailCode = await random.hex(16);
+    const authSalt = await random.hex(32);
+    const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(32, 32, 32);
+
+    const account = await this.db.createAccount({
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      createdAt: Date.now(),
+      email,
+      emailCode,
+      emailVerified: true, // Verified via OTP
+      kA,
+      wrapWrapKb,
+      wrapWrapKbVersion2,
+      authSalt,
+      clientSalt: undefined,
+      verifierVersion: this.config.verifierVersion,
+      verifyHash: Buffer.alloc(32).toString('hex'),
+      verifyHashVersion2: Buffer.alloc(32).toString('hex'),
+      verifierSetAt: 0, // No password set
+      locale: request.app.acceptLanguage,
+    });
+
+    return account;
+  }
+
+  /**
+   * Create a session token for the account
+   */
+  private async createSessionToken(
+    account: any,
+    request: AuthRequest,
+    mustVerify = false,
+    tokenVerificationId: string | null = null
+  ): Promise<any> {
+    const sessionTokenOptions = {
+      uid: account.uid,
+      email: account.email,
+      emailCode: account.emailCode,
+      emailVerified: true,
+      verifierSetAt: account.verifierSetAt,
+      mustVerify,
+      tokenVerificationId,
+      uaBrowser: request.app.ua.browser,
+      uaBrowserVersion: request.app.ua.browserVersion,
+      uaOS: request.app.ua.os,
+      uaOSVersion: request.app.ua.osVersion,
+      uaDeviceType: request.app.ua.deviceType,
+      uaFormFactor: request.app.ua.formFactor,
+    };
+
+    return this.db.createSessionToken(sessionTokenOptions);
+  }
+}
+
+/**
+ * Export routes factory function
+ */
+export function passwordlessRoutes(
+  log: AuthLogger,
+  db: any,
+  config: ConfigType,
+  customs: any,
+  glean: ReturnType<typeof gleanMetrics>,
+  statsd: StatsD,
+  authServerCacheRedis: Redis
+) {
+  // Routes are always registered so existing passwordless users can sign in
+  // regardless of the feature flag state. Eligibility checks inside each
+  // handler gate new signups when the flag is off.
+  const handler = new PasswordlessHandler(
+    log,
+    db,
+    config,
+    customs,
+    glean,
+    statsd,
+    authServerCacheRedis
+  );
+
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
+
+  return [
+    {
+      method: 'POST',
+      path: '/account/passwordless/send_code',
+      options: {
+        ...PASSWORDLESS_DOCS.PASSWORDLESS_SEND_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
+        auth: false,
+        validate: {
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            clientId: validators.clientId
+              .optional()
+              .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({}),
+        },
+      },
+      handler: (request: AuthRequest) => handler.sendCode(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/passwordless/confirm_code',
+      options: {
+        ...PASSWORDLESS_DOCS.PASSWORDLESS_CONFIRM_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
+        auth: false,
+        validate: {
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            code: isA
+              .string()
+              .length(config.passwordlessOtp.digits)
+              .regex(validators.DIGITS)
+              .required()
+              .description('The OTP code sent to the user email'),
+            clientId: validators.clientId
+              .optional()
+              .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().required(),
+            sessionToken: isA.string().required(),
+            verified: isA.boolean().required(),
+            authAt: isA.number().required(),
+            isNewAccount: isA.boolean().required(),
+            verificationMethod: isA.string().valid('totp-2fa').optional(),
+            verificationReason: isA.string().valid('login').optional(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) => handler.confirmCode(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/passwordless/resend_code',
+      options: {
+        ...PASSWORDLESS_DOCS.PASSWORDLESS_RESEND_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
+        auth: false,
+        validate: {
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            clientId: validators.clientId
+              .optional()
+              .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({}),
+        },
+      },
+      handler: (request: AuthRequest) => handler.resendCode(request),
+    },
+  ];
+}

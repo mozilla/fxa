@@ -6,6 +6,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 
 - Operate strictly under `<FXA_REPO_ROOT>`; normalize paths; do not follow symlinks outside the repo.
 - **Writes allowed** to working tree; always present a diff for review **before** any staging/commit.
+- Do not modify files adjacent to the requested change; mention issues found but do not fix them.
 - **Ask first** for any command (build/test/install, DB ops, git, services). Do **not** run `git add/commit/push/rebase` unless explicitly told to.
 
 ## 2) Non-Negotiables
@@ -14,6 +15,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 - **External network:** only with explicit approval to a trusted/documented endpoint.
 - **Pipelines & contracts:** flag breaking API/contract changes; do not alter CI/CD or git hooks without explicit, reviewed justification.
 - **Published DB migrations:** **NEVER edit** existing published migration files. Always add a new forward migration and a separate rollback.
+- **Workspace recommendations:** the repo deliberately ships no `.vscode/extensions.json`. Do not re-add one. Useful extensions are listed in `.vscode/README.md` so contributors install at their own discretion.
 
 ## 3) Do-not-touch paths (no read, no write)
 
@@ -24,7 +26,6 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 - **Generated / Artifacts / Runtime / Cache:**
   `**/(build|dist|.next|storybook-static)/**`, `**/.nx/cache/**`, `**/.eslintcache`, `**/*.map`,
   `**/schema.gql`, `**/public/locales/**`, `**/__generated__/**`,
-  `**/config/gql/allowlist/**` (except `gql-playground.json`),
   `**/(coverage|.nyc_output|artifacts/tests|logs)/**`, `**/*.log*`,
   `**/.pm2/**`, `pm2/`, `process.yml`, `**/(temp|tmp)/**`,
   `**/tsconfig.tsbuildinfo`, `**/version.json`, `dump.rdb`
@@ -36,9 +37,7 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 
 - **Apps/Services (`packages/*`):**
   - `fxa-auth-server` — Core auth API (SRP/OAuth/sessions); talks to MySQL/Redis.
-  - `fxa-settings` — React UI for sign-in/settings; uses `fxa-auth-client` and GraphQL.
-  - `fxa-graphql-api` — NestJS BFF/gateway; aggregates server data for the UI.
-  - `fxa-payments-server` — Subscriptions UI; integrates with Stripe/PayPal (webhooks handled server-side).
+  - `fxa-settings` — React UI for sign-in/settings; uses `fxa-auth-client` (REST).
   - `fxa-profile-server` — User profile API.
 
 - **Shared libraries (`libs/*`):**
@@ -55,7 +54,6 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 
 - **Prefer `libs/*` over app-local code** for reusable logic. If a refactor touches multiple apps, extract to a library instead of duplicating.
 - **Prefer `fxa-settings` over `fxa-content-server`** for UI work (content-server is legacy). Do not add new features to content-server unless explicitly directed.
-- **Prefer SubPlat 3.0 (sp3)** over `fxa-payments-server` for subscriptions flows. Treat `fxa-payments-server` as legacy; avoid new investments there.
 - **Avoid partial refactors:** when moving logic, complete the path (call sites, tests, docs). If full migration is not feasible, provide a thin adapter and TODO with owner and date.
 - **No duplication:** before adding code, search the monorepo for existing helpers/types; reuse or consolidate.
 
@@ -70,9 +68,45 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 - **Ports:** `yarn ports`
 - **Nx:** `nx build <pkg>`, `nx lint <pkg>`, `nx test-unit <pkg>`, `nx test-integration <pkg>`, `nx start <pkg>`
 - **Pkg scripts:** `cd packages/<name> && yarn <script>`
-- **GraphQL allowlist:** `yarn gql:allowlist`
 - **L10N:** `yarn l10n:prime`
 - **DB migrations:** add new SQL under `packages/db-migrations/databases/fxa/patches/` → `nx run db-migrations:migrate`
   **Never edit existing published migration files.**
 
 > When asked, show the exact minimal command block you intend to run; wait for approval.
+
+## 6) Git Commit Messages
+
+Follow the commit message format defined in [CONTRIBUTING.md — Git Commit Guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines) and the `~/.gitmessage` template configured globally.
+
+Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Fixes #N` footer for issues.
+
+## 7) Available Skills
+
+Suggest these proactively when the task matches — do not wait to be asked.
+
+| Skill                           | Use when                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `/fxa-review`                   | Before merging — thorough parallel review covering security, TS, logic, tests, architecture |
+| `/fxa-review-quick`             | Quick pre-merge check, single pass, no subagents                                            |
+| `/fxa-security-review`          | Landing auth, session, crypto, or payment changes                                           |
+| `/fxa-jira-feature-description` | Writing a Jira description for a new feature or enhancement                                 |
+| `/fxa-jira-bug-description`     | Filing a bug report                                                                         |
+| `/fxa-check-smells`             | Suspecting code quality issues in changed files                                             |
+| `/fxa-check-react`              | Reviewing React/TSX component changes                                                       |
+| `/fxa-check-docs`               | Improving docs, JSDoc, or README in changed files                                           |
+| `/fxa-explain-code`             | Understanding what changed and why                                                          |
+| `/fxa-simplify`                 | Cleaning up recently written code                                                           |
+| `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
+| `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
+| `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
+| `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
+| `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
+| `/fxa-pr-status`                | Listing open PRs with file/line counts, draft state, review activity, and approval status   |
+
+## 8) Testing Guidelines
+
+> Detailed test rules auto-load from `.claude/rules/testing/` when editing test files: `base.md` for all tests, `react.md` layers on for `*.test.tsx`.
+
+**Shift-left is a golden goal.** Prefer testing business logic at the lowest layer that exercises it. FXA has three layers, cheapest to costliest: unit (`nx test-unit`), integration (`nx test-integration`), functional/E2E (Playwright in `packages/functional-tests`). Route handlers and React components should be thin shells; their tests cover wiring (auth, request/response shape, error propagation, rendering), not business branches. When a route or component has more than ~3 tests differing only in input shape, that's the signal to extract the rule into a pure function or hook and unit-test it directly. Shifting left is not required for every change — but always strive for it, and flag the opportunities to improve.
+
+Skills: `/fxa-test-draft` (draft tests for changes), `/fxa-test-repair` (audit a test file), `/fxa-test-independence` (verify isolation).

@@ -4,7 +4,9 @@
 
 import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
-import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
+import type { NavigateFunction, NavigateOptions } from 'react-router';
+import { SEND_TAB_ENTRYPOINTS } from '../constants';
+import { Constants } from './constants';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -109,6 +111,18 @@ export function isMobileDevice(
   return /mobi/i.test(navigator.userAgent);
 }
 
+// User-agent based check for a phone OR tablet, for promos that target the
+// mobile app on both. Phones carry "Mobi"/"Mobile"; Android tablets omit
+// "Mobile" but keep "Android"/"Tablet"; iPadOS 13+ Safari reports a desktop
+// macOS UA, so it is detected via the MacIntel + touch-points combination.
+export function isMobileOrTabletDevice() {
+  const ua = navigator.userAgent;
+  if (/mobi|android|tablet|ipad/i.test(ua)) {
+    return true;
+  }
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {
@@ -141,12 +155,12 @@ export function resetOnce() {
 /**
  * Constructs a URL with UTM parameters appended to the query string.
  *
- * @param {string} pathname - The base URL path.
- * @param {'mozilla-websites' | 'product-partnership' | 'referral'} utmMedium - The medium through which the link is being shared.
- * @param {'moz-account'} utmSource - The source of the traffic.
- * @param {'bento' | 'sidebar' | 'settings' } utmTerm - The search term or keyword associated with the campaign.
- * @param {'fx-desktop' | 'fx-mobile' | 'monitor' | 'monitor-free' | 'relay' | 'vpn' | 'get-free-scan-global' | 'get-year-round-protection-us' } utmContent - The specific content or product that the link is associated with.
- * @param {'permanent' | 'settings-promo' | 'connect-device'} utmCampaign - The name of the marketing campaign.
+ * @param pathname - The base URL path.
+ * @param utmMedium - The medium through which the link is being shared.
+ * @param utmSource - The source of the traffic.
+ * @param utmTerm - The search term or keyword associated with the campaign.
+ * @param utmContent - The specific content or product that the link is associated with.
+ * @param utmCampaign - The name of the marketing campaign.
  * @returns {string} - The constructed URL with UTM parameters.
  */
 export const constructHrefWithUtm = (
@@ -197,43 +211,140 @@ export const formatSecret = (secret: string) => {
  * useNavigateWithQuery hook and the navigateWithQuery function
  */
 export function navigateWithQueryHelper(
-  location: Location,
-  navigate: NavigateFn,
+  location: Location | { search: string; hash: string },
+  navigate: NavigateFunction,
   to: string,
-  options?: NavigateOptions<{}>,
+  options?: NavigateOptions,
   includeHash: boolean = true
-): Promise<void> {
-  let path = to;
+): void {
+  const [destinationPath, destinationHash = ''] = to.split('#');
+  let path = destinationPath;
 
-  if (to.includes('?')) {
-    path = to;
-  } else if (location.search && location.search !== '?') {
-    path = `${to}${location.search}`;
+  if (
+    !destinationPath.includes('?') &&
+    location.search &&
+    location.search !== '?'
+  ) {
+    path = `${path}${location.search}`;
   }
 
-  if (includeHash && location.hash) {
+  if (to.includes('#')) {
+    path = `${path}#${destinationHash}`;
+  } else if (includeHash && location.hash) {
     path = `${path}${location.hash}`;
   }
 
-  return options ? navigate(path, options) : navigate(path);
+  options ? navigate(path, options) : navigate(path);
+}
+
+/**
+ * Register a React Router navigate function for use outside of components.
+ * Called once from App on mount so that `navigateWithQuery` can perform
+ * client-side navigations (with state) instead of full page reloads.
+ */
+let _registeredNavigate: NavigateFunction | null = null;
+export function registerNavigate(fn: NavigateFunction) {
+  _registeredNavigate = fn;
 }
 
 /**
  * **NOTE:** This should only be used outside of a router context.
  * Prefer using useNavigateWithQuery when possible.
  *
- * The non-hook version of useNavigateWithQuery
+ * Uses the registered React Router navigate function when available
+ * (supports location state). Falls back to window.location for
+ * navigations before React mounts.
  */
 export function navigateWithQuery(
   to: string,
-  options?: NavigateOptions<{}>,
+  options?: { replace?: boolean; state?: any },
   includeHash: boolean = true
-): Promise<void> {
-  return navigateWithQueryHelper(
-    window.location,
-    navigate,
-    to,
-    options,
-    includeHash
-  );
+): void {
+  const [destinationPath, destinationHash = ''] = to.split('#');
+  let path = destinationPath;
+
+  if (
+    !destinationPath.includes('?') &&
+    window.location.search &&
+    window.location.search !== '?'
+  ) {
+    path = `${path}${window.location.search}`;
+  }
+
+  if (to.includes('#')) {
+    path = `${path}#${destinationHash}`;
+  } else if (includeHash && window.location.hash) {
+    path = `${path}${window.location.hash}`;
+  }
+
+  if (_registeredNavigate) {
+    options ? _registeredNavigate(path, options) : _registeredNavigate(path);
+    return;
+  }
+
+  if (options?.replace) {
+    window.location.replace(path);
+  } else {
+    window.location.assign(path);
+  }
+}
+
+/**
+ * Simplifies user agent OS names to generic popular names.
+ * Ported from fxa-content-server/app/scripts/lib/user-agent.js:toGenericOSName
+ */
+export function toGenericOSName(os: string): string {
+  if (/^Windows/.test(os)) {
+    return 'Windows';
+  }
+  if (/^Android/.test(os)) {
+    return 'Android';
+  }
+  if (/^Mac OS/.test(os)) {
+    return 'macOS';
+  }
+  if (/^iOS/.test(os)) {
+    return 'iOS';
+  }
+  if (/^(Ubuntu|Linux|Fedora|Red Hat|Debian)/.test(os)) {
+    return 'Linux';
+  }
+  return os || 'Unknown';
+}
+
+/**
+ * Intended as a loose guard for CMS-provided URLs before they're assigned to
+ * `<img src>`/`href` or similar sinks. Rejects `javascript:`, `data:`, `http:`,
+ * and malformed input.
+ */
+export function isValidCmsUrl(value: string | null | undefined) {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/** Default fallback message used across pairing pages when the error is not an Error instance. */
+export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
+
+/** Extract a human-readable error message from an unknown thrown value. */
+export function getPairingErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : DEFAULT_PAIRING_ERROR;
+}
+
+/** Whether the given entrypoint originated from a Firefox "Send Tab" UI. */
+export function isSendTabEntrypoint(
+  entrypoint: string | null | undefined
+): entrypoint is string {
+  return !!entrypoint && SEND_TAB_ENTRYPOINTS.has(entrypoint);
+}
+
+/** URL for the pairing QR: the send-tab Mozilla shortlink for send-tab entrypoints, else the generic Mozilla shortlink. */
+export function buildPairingDownloadUrl(entrypoint?: string | null): string {
+  return isSendTabEntrypoint(entrypoint)
+    ? Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB
+    : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
 }

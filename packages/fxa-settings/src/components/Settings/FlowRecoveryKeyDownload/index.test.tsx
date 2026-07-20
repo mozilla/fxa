@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
@@ -24,7 +23,7 @@ jest.mock('../../../lib/metrics', () => ({
 jest.mock('@react-pdf/renderer', () => {
   return {
     pdf: jest.fn().mockResolvedValue({
-      toBlob: jest.fn().mockResolvedValue(new Blob()),
+      toBlob: jest.fn().mockResolvedValue(new globalThis.Blob()),
       updateContainer: jest.fn(),
     }),
   };

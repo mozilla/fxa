@@ -118,7 +118,7 @@ describe('#integration - scripts/audit-tokens', () => {
     async function testScript(args: string) {
       // Note that logger output, directs to standard err.
       const { stderr, stdout } = await exec(
-        `NODE_ENV=development node -r esbuild-register scripts/audit-tokens.ts ${args}`,
+        `NODE_ENV=development node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/audit-tokens.ts ${args}`,
         {
           cwd,
           shell: '/bin/bash',

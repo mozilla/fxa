@@ -8,5 +8,3 @@ postSigninRecoveryPhone-device = "You signed in from:"
 <%- include('/partials/manageAccount/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>

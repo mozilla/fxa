@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { RootConfig } from '../config';
 
 @Injectable()
 export class AppService {
-  constructor(private config: RootConfig) {}
+  constructor() {}
 
-  getData(): {
-    message: string;
-    config: RootConfig;
-  } {
-    console.log('All config', this.config);
+  __heartbeat__() {
+    return {};
+  }
+
+  __lbheartbeat__() {
+    return {};
+  }
+
+  __version__() {
     return {
-      message: 'Hello API',
-      config: this.config,
+      version: '0.0.0',
     };
   }
 }

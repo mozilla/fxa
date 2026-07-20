@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, ValidateNested, IsOptional } from 'class-validator';
+import {
+  IsNumber,
+  IsString,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
+import { RequestArgs } from './common/RequestArgs';
 
 export class CheckoutCartWithStripeActionUtmAttributionData {
   @IsString()
@@ -45,12 +51,6 @@ export class CheckoutCartWithStripeActionAttributionData {
   session!: CheckoutCartWithStripeActionSessionAttributionData;
 }
 
-
-export class CheckoutCartWithStripeActionCustomerData {
-  @IsString()
-  locale!: string;
-}
-
 export class CheckoutCartWithStripeActionArgs {
   @IsString()
   cartId!: string;
@@ -61,10 +61,6 @@ export class CheckoutCartWithStripeActionArgs {
   @IsString()
   confirmationTokenId!: string;
 
-  @Type(() => CheckoutCartWithStripeActionCustomerData)
-  @ValidateNested()
-  customerData!: CheckoutCartWithStripeActionCustomerData;
-
   @IsString()
   @IsOptional()
   sessionUid?: string;
@@ -72,4 +68,8 @@ export class CheckoutCartWithStripeActionArgs {
   @Type(() => CheckoutCartWithStripeActionAttributionData)
   @ValidateNested()
   attributionData!: CheckoutCartWithStripeActionAttributionData;
+
+  @Type(() => RequestArgs)
+  @ValidateNested()
+  requestArgs!: RequestArgs;
 }

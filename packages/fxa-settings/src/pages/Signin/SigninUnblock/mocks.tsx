@@ -16,8 +16,6 @@ import {
   mockGetWebChannelServices,
 } from '../../mocks';
 
-export { CREDENTIAL_STATUS_MUTATION, BEGIN_SIGNIN_MUTATION } from '../gql';
-
 export const MOCK_SIGNIN_UNBLOCK_LOCATION_STATE = {
   email: MOCK_EMAIL,
   hasLinkedAccount: false,
@@ -75,15 +73,22 @@ export function createMockSigninWebSyncIntegration() {
     isSync: () => true,
     getService: () => MozServices.FirefoxSync,
     getClientId: () => undefined,
+    requiresKeys: () => true,
+    wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     wantsTwoStepAuthentication: () => false,
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,
+    isFirefoxClient: () => true,
+    isFirefoxDesktopClient: () => true,
+    getLegalTerms: () => undefined,
   };
 }

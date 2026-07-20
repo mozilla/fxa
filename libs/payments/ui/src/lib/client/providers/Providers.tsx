@@ -26,8 +26,11 @@ export function Providers({
     initSentryForNextjsClient({
       release: process.env.version,
       sentry: {
-        ...config.sentry,
         dsn: config.sentry.clientDsn,
+        env: config.sentry.env,
+        clientName: config.sentry.clientName,
+        sampleRate: config.sentry.sampleRate,
+        tracesSampleRate: config.sentry.tracesSampleRate,
         ignoreErrors: [new RegExp(`^${GENERIC_ERROR_MESSAGE}$`)],
       },
     });

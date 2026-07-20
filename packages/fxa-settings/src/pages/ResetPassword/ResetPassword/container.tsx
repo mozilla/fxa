@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 
@@ -15,7 +14,8 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 const ResetPasswordContainer = ({
   flowQueryParams = {},
   serviceName,
-}: ResetPasswordContainerProps & RouteComponentProps) => {
+  setCurrentSplitLayout,
+}: ResetPasswordContainerProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
@@ -49,6 +49,7 @@ const ResetPasswordContainer = ({
         requestResetPasswordCode,
         serviceName,
         setErrorMessage,
+        setCurrentSplitLayout,
       }}
     />
   );

@@ -9,11 +9,8 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import type { FreeTrial } from '@fxa/shared/cms';
 import Stripe from 'stripe';
-
-export type CheckoutCustomerData = {
-  locale: string;
-};
 
 export type FinishCart = {
   uid?: string;
@@ -44,6 +41,7 @@ export interface Invoice {
   remainingAmountTotal?: number;
   startingBalance: number;
   unusedAmountTotal?: number;
+  subsequentTax?: TaxAmount[];
 }
 
 export type PaymentProvidersType =
@@ -82,6 +80,11 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   fromPrice?: FromPrice;
   taxAddress: TaxAddress;
   currency: string;
+  freeTrialOffer?: FreeTrial | null;
+  freeTrialUserEligible?: boolean;
+  trialStartDate?: number;
+  trialEndDate?: number;
+  isUpgradeFromTrial?: boolean;
 };
 
 export type StartCartDTO = BaseCartDTO & {
@@ -126,6 +129,7 @@ export type SetupCart = {
   stripeCustomerId?: string;
   amount: number;
   eligibilityStatus: CartEligibilityStatus;
+  isFreeTrial: boolean;
 };
 
 export interface TaxAmount {
@@ -143,7 +147,19 @@ export type UpdateCart = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripeIntentId?: string;
+  isFreeTrial?: boolean;
 };
+
+/*
+ * This is intentionally narrow: a cart in PROCESSING is otherwise immutable, and
+ * widening this type re-opens the possibility of bugs which change the amount a customer
+ * will be charged during the process of billing the customer.
+ * Please consider carefully before adding fields here.
+ */
+export type UpdateProcessingCart = Pick<
+  UpdateCart,
+  'uid' | 'stripeCustomerId' | 'stripeSubscriptionId' | 'stripeIntentId'
+>;
 
 export type UpdateCartInput = Pick<
   UpdateCart,

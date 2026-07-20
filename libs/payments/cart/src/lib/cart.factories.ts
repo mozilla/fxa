@@ -10,19 +10,17 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import { InvoiceFactory, PaymentInfoFactory } from '../testing';
 import {
-  CheckoutCustomerData,
   FinishCart,
   FinishErrorCart,
-  PaymentInfo,
   ResultCart,
   SetupCart,
-  TaxAmount,
   UpdateCart,
   UpdateCartInput,
+  UpdateProcessingCart,
   type BaseCartDTO,
   type FailCartDTO,
-  type Invoice,
   type NeedsInputCartDTO,
   type ProcessingCartDTO,
   type StartCartDTO,
@@ -40,27 +38,7 @@ const OFFERING_CONFIG_IDS = [
 
 const INTERVALS = ['daily', 'weekly', 'monthly', 'halfyearly', 'yearly'];
 
-export const CheckoutCustomerDataFactory = (
-  override?: Partial<CheckoutCustomerData>
-): CheckoutCustomerData => ({
-  locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
-  ...override,
-});
-
-export const InvoiceFactory = (override?: Partial<Invoice>): Invoice => ({
-  currency: faker.finance.currencyCode().toLowerCase(),
-  totalAmount: faker.number.int({ min: 1, max: 10000 }),
-  taxAmounts: [TaxAmountFactory()],
-  discountAmount: null,
-  subtotal: faker.number.int({ min: 1, max: 10000 }),
-  number: null,
-  invoiceDate: faker.date.past().getTime(),
-  nextInvoiceDate: faker.date.past().getTime(),
-  amountDue: faker.number.int({ min: 1, max: 10000 }),
-  creditApplied: null,
-  startingBalance: faker.number.int({ min: 1, max: 10000 }),
-  ...override,
-});
+export { InvoiceFactory } from '../testing';
 
 export const SubscriptionAttributionFactory = (
   override?: Partial<SubscriptionAttributionParams>
@@ -89,28 +67,13 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
     postalCode: faker.location.zipCode(),
   },
   currency: faker.finance.currencyCode().toLowerCase(),
+  isFreeTrial: false,
   ...override,
 });
 
-export const TaxAmountFactory = (override?: Partial<TaxAmount>): TaxAmount => ({
-  inclusive: false,
-  title: faker.location.state({ abbreviated: true }),
-  amount: faker.number.int(10000),
-  ...override,
-});
+export { TaxAmountFactory } from '../testing';
 
-export const PaymentInfoFactory = (
-  override?: Partial<PaymentInfo>
-): PaymentInfo => ({
-  type: faker.helpers.arrayElement([
-    'card',
-    'google_iap',
-    'apple_iap',
-    'external_paypal',
-    'link',
-  ]),
-  ...override,
-});
+export { PaymentInfoFactory } from '../testing';
 
 export const UpdateCartInputFactory = (
   override?: Partial<UpdateCartInput>
@@ -121,6 +84,12 @@ export const UpdateCartInputFactory = (
 export const UpdateCartFactory = (
   override?: Partial<UpdateCart>
 ): UpdateCart => ({
+  ...override,
+});
+
+export const UpdateProcessingCartFactory = (
+  override?: Partial<UpdateProcessingCart>
+): UpdateProcessingCart => ({
   ...override,
 });
 
@@ -158,6 +127,7 @@ export const ResultCartFactory = (
   amount: faker.number.int(),
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  isFreeTrial: false,
   ...override,
 });
 

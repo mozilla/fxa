@@ -28,4 +28,8 @@ export class UpdateTaxAddressActionArgs {
   @IsOptional()
   @IsString()
   uid?: string;
+
+  @IsOptional()
+  @IsString()
+  interval?: string;
 }

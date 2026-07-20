@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Subject } from './mocks';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { fetchLegalMd } from '../../lib/file-utils-legal';
-import { navigate } from '@reach/router';
 
 jest.mock('../../lib/file-utils-legal');
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
-jest.mock('@reach/router', () => ({
-  navigate: jest.fn(),
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
 }));
 
 // There's not a good way to use react-markdown in tests until we use jest ESM. Using the jest
@@ -41,7 +41,7 @@ describe('LegalWithMarkdown', () => {
     renderWithLocalizationProvider(<Subject />);
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(-1);
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
     });
   });
 

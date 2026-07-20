@@ -28,16 +28,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'start',
     pageType: 'upgrade',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -45,26 +47,34 @@ export default async function Upgrade({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
-  const nonce = headers().get('x-nonce') || undefined;
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language');
+  const nonce = headersList.get('x-nonce') || undefined;
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
 
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/start`;
   const cartDataPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.START,
-    searchParams
+    currentPathname,
+    resolvedSearchParams
   );
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
   const [cart, cms] = await Promise.all([cartDataPromise, cmsDataPromise]);
+
+  const isCancelInterstitialOffer =
+    resolvedSearchParams?.['entrypoint'] === 'subscription-management';
 
   return (
     <>
@@ -142,20 +152,26 @@ export default async function Upgrade({
           className="leading-5 text-sm"
           data-testid="sub-update-acknowledgment"
         >
-          {l10n.getString(
-            'upgrade-page-acknowledgment',
-            {
-              nextInvoiceDate: l10n.getLocalizedDate(
-                cart.upcomingInvoicePreview.nextInvoiceDate
-              ),
-            },
-            `Your plan will change immediately, and you’ll be charged a prorated
+          {cart.isUpgradeFromTrial
+            ? l10n.getString(
+                'upgrade-page-acknowledgment-from-trial',
+                {},
+                `By upgrading, your active free trial will end immediately and you will be charged for your new plan today.`
+              )
+            : l10n.getString(
+                'upgrade-page-acknowledgment',
+                {
+                  nextInvoiceDate: l10n.getLocalizedDate(
+                    cart.upcomingInvoicePreview.nextInvoiceDate
+                  ),
+                },
+                `Your plan will change immediately, and you’ll be charged a prorated
           amount today for the rest of this billing cycle. Starting
           ${l10n.getLocalizedDateString(
             cart.upcomingInvoicePreview.nextInvoiceDate
           )}
           you’ll be charged the full amount.`
-          )}
+              )}
         </p>
 
         <div
@@ -185,6 +201,8 @@ export default async function Upgrade({
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
               sessionEmail={session?.user?.email ?? undefined}
+              metricsEnabled={session?.user?.metricsEnabled ?? true}
+              isCancelInterstitialOffer={isCancelInterstitialOffer}
             />
           )}
       </section>

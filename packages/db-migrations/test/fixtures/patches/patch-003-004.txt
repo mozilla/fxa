@@ -1,0 +1,1 @@
+This file is also ignored since it has the wrong extension (even though the basename look okay).

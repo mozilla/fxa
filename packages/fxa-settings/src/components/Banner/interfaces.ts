@@ -15,6 +15,7 @@ import { NotificationType } from '../../models';
  * @property {Animation} [animation] - Optional animation settings for the banner.
  * @property {DismissButtonProps} [dismissButton] - Optional properties for a dismiss button.
  * @property {BannerLinkProps} [link] - Optional properties for a link within the banner.
+ * @property {string} [className] - Optional CSS class overrides, e.g. to adjust the default vertical margin.
  */
 export type BannerProps = {
   type: NotificationType;
@@ -25,6 +26,7 @@ export type BannerProps = {
   link?: BannerLinkProps;
   isFancy?: boolean;
   bannerId?: string;
+  className?: string;
   iconAlignClassName?: 'self-start' | 'self-center';
   textAlignClassName?: 'text-start' | 'text-center';
 };

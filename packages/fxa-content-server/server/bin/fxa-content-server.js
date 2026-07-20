@@ -6,7 +6,9 @@
 
 'use strict';
 
-const sentry = require('../lib/sentry');
+// Initializes sentry
+require('../lib/sentry');
+const Sentry = require('@sentry/node');
 
 // setup version first for the rest of the modules
 const loggerFactory = require('../lib/logging/log');
@@ -65,7 +67,6 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
-const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const coop = require('../lib/coop');
@@ -239,17 +240,6 @@ function makeApp() {
     }
   });
 
-  // The sentry error handler must be before any other error middleware
-  sentry.sentryModule.setupExpressErrorHandler(app, {
-    shouldHandleError(error) {
-      const success = tryCaptureValidationError(error);
-
-      // If the validation was explicitly captured, we return false. Otherwise the
-      // error is reported twice.
-      return !success;
-    },
-  });
-
   // log and capture any errors
   app.use((err, req, res, next) => {
     // in order to track down the culprit of sentry issue, https://sentry.prod.mozaws.net/operations/fxa-content-server-prod/issues/6602579/events/latest/
@@ -307,6 +297,13 @@ function listen(theApp) {
         config.get('scopedKeys.validation')
       )}`
     );
+    Sentry.captureMessage('Content server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-content-server',
+        env: config.get('env'),
+      },
+    });
   }
   return true;
 }

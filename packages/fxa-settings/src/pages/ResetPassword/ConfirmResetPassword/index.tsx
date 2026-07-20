@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -26,13 +26,15 @@ const ConfirmResetPassword = ({
   resendStatus,
   resendErrorMessage,
   verifyCode,
-}: ConfirmResetPasswordProps & RouteComponentProps) => {
+  integration,
+}: ConfirmResetPasswordProps) => {
   useEffect(() => {
     GleanMetrics.passwordReset.emailConfirmationView();
   }, []);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const cmsInfo = integration?.getCmsInfo();
 
   const spanElement = <span className="font-bold">{email}</span>;
 
@@ -61,7 +63,9 @@ const ConfirmResetPassword = ({
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header my-4">Check your email</h2>
       </FtlMsg>

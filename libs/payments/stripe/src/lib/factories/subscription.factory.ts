@@ -114,3 +114,11 @@ export const StripeSubscriptionItemFactory = (
   tax_rates: [],
   ...override,
 });
+
+export async function* StripeSubscriptionAsyncGeneratorFactory(
+  subscriptions: StripeSubscription[]
+): AsyncGenerator<StripeSubscription, void, unknown> {
+  for (const sub of subscriptions) {
+    yield sub;
+  }
+}

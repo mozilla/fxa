@@ -1,9 +1,0 @@
-{
-  "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"],
-  "ignorePatterns": [
-    "static",
-    "node_modules"
-  ],
-  "root": true
-}

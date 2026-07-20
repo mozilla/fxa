@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ApolloError } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import groupBy from 'lodash.groupby';
-import { forwardRef, useCallback, useState } from 'react';
-import { clearSignedInAccountUid } from '../../../lib/cache';
+import React, { forwardRef, useCallback, useState } from 'react';
+import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../../models';
@@ -29,7 +26,14 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = groupBy(attachedClients, 'name');
+  const groupedByName = attachedClients.reduce<Record<string, AttachedClient[]>>(
+    (acc, client) => {
+      const key = String(client.name);
+      acc[key] = acc[key] ? [...acc[key], client] : [client];
+      return acc;
+    },
+    {}
+  );
 
   // get a unique (by name) list and sort by time last accessed
   const sortedAndUniqueClients = Object.keys(groupedByName)
@@ -84,7 +88,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const [isRefreshingClients, setIsRefreshingClients] = useState(false);
 
   const clearDisconnectingState = useCallback(
-    (errorMessage?: string, error?: ApolloError) => {
+    (errorMessage?: string, error?: Error) => {
       hideConfirmDisconnectModal();
       setSelectedClient(null);
       setReason('');
@@ -127,6 +131,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           (hasMultipleSessions &&
             clientsWithMatchingName.find((c) => c.isCurrentSession))
         ) {
+          setSigningOut(true);
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
@@ -212,7 +217,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         <span id="connected-services" className="nav-anchor"></span>
         <Localized id="cs-heading">Connected Services</Localized>
       </h2>
-      <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between mb-4">
           <Localized id="cs-description">
             <p>Everything you are using and signed into.</p>
@@ -229,7 +234,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         </div>
 
         {!!sortedAndUniqueClients.length &&
-          sortedAndUniqueClients.map((client, i) => (
+          sortedAndUniqueClients.map((client) => (
             <Service
               key={`${client.lastAccessTime}:${client.name || 'unknown'}`}
               {...{
@@ -239,6 +244,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
                 lastAccessTimeFormatted: client.lastAccessTimeFormatted,
                 isCurrentSession: client.isCurrentSession,
                 clientId: client.clientId,
+                scope: client.scope,
                 handleSignOut: () => {
                   onSignOutClick(client);
                 },

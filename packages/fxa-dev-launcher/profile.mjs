@@ -46,6 +46,7 @@ const CONFIGS = {
   },
 };
 
+const isNightly = /Nightly/gi.test(process.env.FIREFOX_BIN || '');
 const env = process.env.FXA_ENV || 'local';
 const FXA_DESKTOP_CONTEXT =
   process.env.FXA_DESKTOP_CONTEXT || 'oauth_webchannel_v1';
@@ -65,7 +66,14 @@ if (!fxaEnv) {
   };
 }
 
+const nightlyProfile = isNightly
+  ? {
+      'browser.smartwindow.enabled': true,
+    }
+  : {};
+
 const fxaProfile = {
+  ...nightlyProfile,
   // enable debugger and toolbox
   'devtools.chrome.enabled': true,
   'devtools.debugger.remote-enabled': true,

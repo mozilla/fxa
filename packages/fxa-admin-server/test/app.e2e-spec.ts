@@ -6,7 +6,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import bodyParser from 'body-parser';
 import { AppModule } from '../src/app.module';
-import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import Config from '../src/config';
 
 describe('#integration - AppController (e2e)', () => {
@@ -20,7 +19,6 @@ describe('#integration - AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     const appConfig = Config.getProperties();
     app.use(bodyParser.json());
-    app.use(allowlistGqlQueries(appConfig.gql));
     await app.init();
   });
 

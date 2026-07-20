@@ -11,5 +11,3 @@ postAddRecoveryPhone-enabled-device = "You enabled it from:"
 <%- include('/partials/manageAccount/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>

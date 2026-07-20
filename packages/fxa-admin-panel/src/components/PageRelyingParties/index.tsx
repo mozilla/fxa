@@ -2,32 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
+import React, { useState, useEffect, useCallback } from 'react';
+import { NavLink } from 'react-router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import {
   RelyingPartyCreatedDto,
   RelyingPartyDto,
   RelyingPartyUpdateDto,
   RotateSecretDto,
-} from 'fxa-admin-server/src/graphql';
+  WafBypassTokenDto,
+} from 'fxa-admin-server/src/types';
 import ErrorAlert from '../ErrorAlert';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
-import { getFormattedDate } from '../../lib/utils';
+import { useGuardContext } from '../../hooks/GuardContext';
+import { useUserContext } from '../../hooks/UserContext';
+import { getFormattedDate, getWafTfPath } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
-import {
-  CREATE_RELYING_PARTY,
-  GET_RELYING_PARTIES,
-  UPDATE_RELYING_PARTY,
-  DELETE_RELYING_PARTY,
-  ROTATE_RELYING_PARTY_SECRET,
-  DELETE_RELYING_PARTY_PREVIOUS_SECRET,
-} from './index.gql';
-
-interface RelyingPartiesData {
-  relyingParties: RelyingPartyDto[];
-}
+import { adminApi } from '../../lib/api';
 
 /** Parses and formats a relying party's list of scopes. */
 const AllowedScopes = ({
@@ -222,30 +214,20 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
     setStatus('');
   };
 
-  const [createRelyingParty] = useMutation<{
-    createRelyingParty: RelyingPartyCreatedDto;
-  }>(CREATE_RELYING_PARTY, {
-    onCompleted: (data) => {
-      if (data.createRelyingParty?.id && data.createRelyingParty?.secret) {
-        setStatus('Success!');
-        setRpId(data.createRelyingParty.id);
-        setRpSecret(data.createRelyingParty.secret);
-      }
-    },
-    onError: (err) => {
-      setStatus(`Error Encountered: ${err.message}`);
-      setRpId('');
-    },
-  });
-
   const handleSubmit = async (data: RelyingPartyUpdateDto) => {
     setStatus('Pending');
-    const payload = {
-      variables: {
-        relyingParty: data,
-      },
-    };
-    await createRelyingParty(payload);
+    try {
+      const result: RelyingPartyCreatedDto =
+        await adminApi.createRelyingParty(data);
+      if (result?.id && result?.secret) {
+        setStatus('Success!');
+        setRpId(result.id);
+        setRpSecret(result.secret);
+      }
+    } catch (err) {
+      setStatus(`Error Encountered: ${(err as Error).message}`);
+      setRpId('');
+    }
   };
 
   return (
@@ -341,32 +323,21 @@ const UpdateRelyingParty = ({
     setStatus('');
   };
 
-  const [updateRelyingParty] = useMutation<{ updateRelyingParty: boolean }>(
-    UPDATE_RELYING_PARTY,
-    {
-      onCompleted: (data) => {
-        if (data.updateRelyingParty === true) {
+  const handleSubmit = (formData: RelyingPartyUpdateDto) => {
+    setStatus('pending');
+    adminApi
+      .updateRelyingParty(data.id, formData)
+      .then((success) => {
+        if (success === true) {
           setStatus('Success!');
           setTimeout(onExit, 500);
         } else {
           setStatus(`Could not update relying party! Try again.`);
         }
-      },
-      onError: (err) => {
-        setStatus(`Error Encountered: ${err.message}`);
-      },
-    }
-  );
-
-  const handleSubmit = (formData: RelyingPartyUpdateDto) => {
-    setStatus('pending');
-    const payload = {
-      variables: {
-        id: data.id,
-        relyingParty: formData,
-      },
-    };
-    updateRelyingParty(payload);
+      })
+      .catch((err) => {
+        setStatus(`Error Encountered: ${(err as Error).message}`);
+      });
   };
 
   return (
@@ -396,33 +367,27 @@ const DeletePreviousRelyingPartySecret = ({
 }) => {
   const [status, setStatus] = useState('');
 
-  const [deletePreviousRelyingPartySecret] = useMutation<{
-    deletePreviousRelyingPartySecret: boolean;
-  }>(DELETE_RELYING_PARTY_PREVIOUS_SECRET, {
-    onCompleted: (data) => {
-      if (data.deletePreviousRelyingPartySecret) {
-        setStatus('Success!');
-        setTimeout(onExit, 2000);
-      } else {
-        setStatus('Failed to revoke secret!');
-        setTimeout(onExit, 2000);
-      }
-    },
-    onError: (err) => {
-      setStatus(`Error Encountered Deleting Previous Secret: ${err.message}`);
-    },
-  });
-
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('confirmName')?.toString()?.trim();
     if (name === data.name) {
-      await deletePreviousRelyingPartySecret({
-        variables: {
-          id: data.id,
-        },
-      });
+      try {
+        const success = await adminApi.deletePreviousRelyingPartySecret(
+          data.id
+        );
+        if (success) {
+          setStatus('Success!');
+          setTimeout(onExit, 2000);
+        } else {
+          setStatus('Failed to revoke secret!');
+          setTimeout(onExit, 2000);
+        }
+      } catch (err) {
+        setStatus(
+          `Error Encountered Deleting Previous Secret: ${(err as Error).message}`
+        );
+      }
     } else {
       setStatus(`You must confirm the relying party's name!`);
     }
@@ -488,34 +453,28 @@ const RotateRelyingPartySecret = ({
   const [secret, setSecret] = useState('');
   const { hasPreviousSecret } = data;
 
-  const [rotateRelyingPartySecret] = useMutation<{
-    rotateRelyingPartySecret?: RotateSecretDto;
-  }>(ROTATE_RELYING_PARTY_SECRET, {
-    onCompleted: (data) => {
-      if (data.rotateRelyingPartySecret?.secret) {
-        setStatus('Success!');
-        setSecret(data.rotateRelyingPartySecret.secret);
-      } else {
-        setStatus('Could not rotate secret!');
-        setSecret('');
-      }
-    },
-    onError: (err) => {
-      setStatus(`Error Encountered Rotating Secret: ${err.message}`);
-      setSecret('');
-    },
-  });
-
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('confirmName')?.toString()?.trim();
     if (name === data.name) {
-      await rotateRelyingPartySecret({
-        variables: {
-          id: data.id,
-        },
-      });
+      try {
+        const result: RotateSecretDto = await adminApi.rotateRelyingPartySecret(
+          data.id
+        );
+        if (result?.secret) {
+          setStatus('Success!');
+          setSecret(result.secret);
+        } else {
+          setStatus('Could not rotate secret!');
+          setSecret('');
+        }
+      } catch (err) {
+        setStatus(
+          `Error Encountered Rotating Secret: ${(err as Error).message}`
+        );
+        setSecret('');
+      }
     } else {
       setStatus(`You must confirm the relying party's name!`);
     }
@@ -601,40 +560,31 @@ const RotateRelyingPartySecret = ({
 /** UI for deleting an existing relying party. */
 const DeleteRelyingParty = ({
   data,
+  wafToken,
   onExit,
 }: {
   data: RelyingPartyDto;
+  wafToken: WafBypassTokenDto | null;
   onExit: () => void;
 }) => {
   const [status, setStatus] = useState('');
-
-  const [deleteRelyingParty] = useMutation<{ deleteRelyingParty: boolean }>(
-    DELETE_RELYING_PARTY,
-    {
-      onCompleted: (data) => {
-        if (data.deleteRelyingParty === true) {
-          setStatus('Success!');
-          setTimeout(onExit, 500);
-        } else {
-          setStatus('Could not delete RP. Try again!');
-        }
-      },
-      onError: (err) => {
-        setStatus(`Error Encountered Deleting RP: ${err.message}`);
-      },
-    }
-  );
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('confirmName')?.toString()?.trim();
     if (name === data.name) {
-      await deleteRelyingParty({
-        variables: {
-          id: data.id,
-        },
-      });
+      try {
+        const success = await adminApi.deleteRelyingParty(data.id);
+        if (success === true) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus('Could not delete RP. Try again!');
+        }
+      } catch (err) {
+        setStatus(`Error Encountered Deleting RP: ${(err as Error).message}`);
+      }
     } else {
       setStatus(`You must confirm the relying party's name!`);
     }
@@ -645,6 +595,14 @@ const DeleteRelyingParty = ({
       <h3 className="header-lg font-bold">
         Deleting Relying Party: {data.name}
       </h3>
+      {wafToken && (
+        <p className="p-4 m-2 rounded bg-yellow-50">
+          <b>⚠️ This RP has a linked WAF bypass token.</b> It will be removed
+          from the database automatically, but you must also remove it from the{' '}
+          <code>fxa_ci_bypass_tokens</code> list in{' '}
+          <code>{getWafTfPath()}</code> (webservices-infra).
+        </p>
+      )}
       <form onSubmit={handleSubmit}>
         <label>
           Are you sure you want to proceed? This cannot be undone! To continue
@@ -688,10 +646,13 @@ const DeleteRelyingParty = ({
 /** UI for viewing relying party's current state. */
 const RelyingPartyRow = ({
   data,
+  wafToken,
+  canManageWafTokens,
   onExit,
 }: {
   data: RelyingPartyDto;
-  onDelete: (id: string) => Promise<void>;
+  wafToken: WafBypassTokenDto | null;
+  canManageWafTokens: boolean;
   onExit: () => void;
 }) => {
   const [mode, setMode] = useState<
@@ -793,6 +754,28 @@ const RelyingPartyRow = ({
             children={<span>{(!!hasPreviousSecret).toString()}</span>}
           />
           <TableRowYHeader header="Notes" children={<span>{notes}</span>} />
+          <TableRowYHeader
+            header="WAF Bypass Token"
+            children={
+              wafToken ? (
+                <span className="font-mono">{wafToken.token}</span>
+              ) : canManageWafTokens ? (
+                <span className="result-grey">
+                  None —{' '}
+                  <NavLink
+                    to={`/waf-tokens?createForClientId=${encodeURIComponent(
+                      id
+                    )}&name=${encodeURIComponent(name)}`}
+                    className="underline text-blue-700"
+                  >
+                    Add one via WAF Bypass Tokens panel
+                  </NavLink>
+                </span>
+              ) : (
+                <span className="result-grey">None</span>
+              )
+            }
+          />
         </TableYHeaders>
       </div>
     );
@@ -814,6 +797,7 @@ const RelyingPartyRow = ({
       <DeleteRelyingParty
         {...{
           data,
+          wafToken,
           onExit: () => {
             setMode('view');
             onExit();
@@ -851,25 +835,56 @@ const RelyingPartyRow = ({
 
 /** Page displaying all relying parties and allows for basic CRUD type operations. */
 export const PageRelyingParties = () => {
-  const [showAddRp, setShowAddRp] = useState(false);
-
-  const { loading, error, data, refetch } = useQuery<RelyingPartiesData>(
-    GET_RELYING_PARTIES,
-    {
-      fetchPolicy: 'network-only',
-    }
+  const { guard } = useGuardContext();
+  const { user } = useUserContext();
+  const canManageWafTokens = guard.allow(
+    AdminPanelFeature.ManageWafTokens,
+    user.group
   );
-  const [deleteRelyingParty] = useMutation<boolean>(DELETE_RELYING_PARTY);
 
-  const handleDelete = async (id: string) => {
+  const [showAddRp, setShowAddRp] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | undefined>();
+  const [relyingParties, setRelyingParties] = useState<RelyingPartyDto[]>([]);
+  const [wafTokenByClientId, setWafTokenByClientId] = useState<
+    Record<string, WafBypassTokenDto>
+  >({});
+
+  const loadRelyingParties = useCallback(async () => {
+    setLoading(true);
+    setError(undefined);
     try {
-      await deleteRelyingParty({
-        variables: {
-          id: id,
-        },
-      });
-    } catch (error) {}
-  };
+      const fetches: [
+        Promise<RelyingPartyDto[]>,
+        Promise<WafBypassTokenDto[]>,
+      ] = [
+        adminApi.getRelyingParties(),
+        canManageWafTokens
+          ? adminApi.getWafTokens()
+          : Promise.resolve([] as WafBypassTokenDto[]),
+      ];
+      const [rps, wafTokens] = await Promise.all(fetches);
+      setRelyingParties(rps);
+      setWafTokenByClientId(
+        Object.fromEntries(
+          wafTokens
+            .filter(
+              (t): t is WafBypassTokenDto & { clientId: string } =>
+                t.clientId !== null
+            )
+            .map((t) => [t.clientId, t])
+        )
+      );
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [canManageWafTokens]);
+
+  useEffect(() => {
+    loadRelyingParties();
+  }, [loadRelyingParties]);
 
   // Let's us find a specific RP quickly.
   const [filter, setFilter] = useState('');
@@ -885,12 +900,12 @@ export const PageRelyingParties = () => {
   };
 
   const getFilteredRps = () => {
-    if (!error && !loading && data) {
+    if (!error && !loading) {
       if (!filter.trim()) {
-        return data.relyingParties;
+        return relyingParties;
       }
 
-      return data.relyingParties.filter(
+      return relyingParties.filter(
         (x) => x.name.indexOf(filter) >= 0 || x.id.indexOf(filter) >= 0
       );
     }
@@ -932,7 +947,7 @@ export const PageRelyingParties = () => {
             <CreateRelyingParty
               {...{
                 onExit: () => {
-                  refetch();
+                  loadRelyingParties();
                   setShowAddRp(false);
                 },
               }}
@@ -980,16 +995,18 @@ export const PageRelyingParties = () => {
             <section>
               {getFilteredRps().map((data) => (
                 <RelyingPartyRow
+                  key={data.id}
                   data={data}
+                  wafToken={wafTokenByClientId[data.id] ?? null}
+                  canManageWafTokens={canManageWafTokens}
                   onExit={() => {
-                    refetch();
+                    loadRelyingParties();
                   }}
-                  onDelete={handleDelete}
                 />
               ))}
             </section>
           )}
-          {!loading && !error && !(data && data.relyingParties.length > 0) && (
+          {!loading && !error && !(relyingParties.length > 0) && (
             <p>
               No relying parties were found. Check double check your filter.{' '}
               <i>

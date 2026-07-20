@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
-
 import FlowContainer from '../FlowContainer';
 import { useAccount, useFtlMsgResolver } from '../../../models';
-import { SecurityEvent as SecurityEventSection } from './SecurityEvent';
+import {
+  HIDDEN_SECURITY_EVENT_NAMES,
+  SecurityEvent as SecurityEventSection,
+} from './SecurityEvent';
 import React, { useState, useEffect } from 'react';
 
-export const PageRecentActivity = (_: RouteComponentProps) => {
+export const PageRecentActivity = () => {
   const account = useAccount();
   const [securityEvents, setSecurityEvents] = useState(account.securityEvents);
 
@@ -31,15 +32,20 @@ export const PageRecentActivity = (_: RouteComponentProps) => {
     >
       <ol className="mt-5 relative border-s border-gray-100">
         {!!securityEvents &&
-          securityEvents.map((securityEvent) => (
-            <SecurityEventSection
-              {...{
-                key: securityEvent.name + securityEvent.createdAt,
-                name: securityEvent.name,
-                createdAt: securityEvent.createdAt,
-              }}
-            />
-          ))}
+          securityEvents
+            .filter(
+              (securityEvent) =>
+                !HIDDEN_SECURITY_EVENT_NAMES.has(securityEvent.name)
+            )
+            .map((securityEvent) => (
+              <SecurityEventSection
+                key={securityEvent.name + securityEvent.createdAt}
+                {...{
+                  name: securityEvent.name,
+                  createdAt: securityEvent.createdAt,
+                }}
+              />
+            ))}
       </ol>
     </FlowContainer>
   );

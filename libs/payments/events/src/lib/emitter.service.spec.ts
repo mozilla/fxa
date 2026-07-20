@@ -15,10 +15,8 @@ import {
 import {
   MockStripeConfigProvider,
   StripeClient,
-  StripeCustomerFactory,
   StripePriceFactory,
   StripeResponseFactory,
-  StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import {
   MockStatsDProvider,
@@ -30,18 +28,19 @@ import {
   CustomerManager,
   SubscriptionManager,
   PaymentMethodManager,
+  PaymentProvider,
   SubPlatPaymentMethodType,
-  StripePaymentMethodTypeResponseFactory,
 } from '@fxa/payments/customer';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CheckoutParamsFactory,
   CommonMetricsFactory,
+  GenericGleanSubManageEventFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
-  PaymentProvidersType,
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
 import {
@@ -49,13 +48,13 @@ import {
   AuthEventsFactory,
   SP3RolloutEventFactory,
   SubscriptionEndedFactory,
+  TrialConvertedFactory,
 } from './emitter.factories';
 import {
   AccountFactory,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import { Logger } from '@nestjs/common';
 import { EmitterServiceHandleAuthError } from './emitter.error';
 import {
@@ -76,6 +75,7 @@ import {
 } from '@fxa/payments/experiments';
 import * as Sentry from '@sentry/nestjs';
 import { faker } from '@faker-js/faker/.';
+import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
@@ -89,15 +89,13 @@ jest.mock('@sentry/nestjs', () => ({
 describe('PaymentsEmitterService', () => {
   let accountManager: AccountManager;
   let cartManager: CartManager;
-  let customerManager: CustomerManager;
   let paymentsEmitterService: PaymentsEmitterService;
   let paymentsGleanManager: PaymentsGleanManager;
-  let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
   let nimbusManager: NimbusManager;
   let statsd: StatsD;
   let logger: Logger;
-  let subscriptionManager: SubscriptionManager;
+  let paymentsGleanService: PaymentsMetricsAggregatorService;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
   const mockCommonMetricsData = CommonMetricsFactory({
@@ -105,7 +103,8 @@ describe('PaymentsEmitterService', () => {
   });
   const mockCheckoutPaymentEvents = {
     ...mockCommonMetricsData,
-    paymentProvider: 'stripe' as PaymentProvidersType,
+    paymentProvider: PaymentProvider.Stripe,
+    paymentMethod: SubPlatPaymentMethodType.Card,
   };
   let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
   const mockLogger = {
@@ -134,6 +133,7 @@ describe('PaymentsEmitterService', () => {
         StripeClient,
         PriceManager,
         PaymentsGleanManager,
+        PaymentsMetricsAggregatorService,
         ProductConfigurationManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -150,16 +150,14 @@ describe('PaymentsEmitterService', () => {
     }).compile();
 
     accountManager = moduleRef.get(AccountManager);
-    customerManager = moduleRef.get(CustomerManager);
     paymentsEmitterService = moduleRef.get(PaymentsEmitterService);
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
-    paymentMethodManager = moduleRef.get(PaymentMethodManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     nimbusManager = moduleRef.get(NimbusManager);
     cartManager = moduleRef.get(CartManager);
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
-    subscriptionManager = moduleRef.get(SubscriptionManager);
+    paymentsGleanService = moduleRef.get(PaymentsMetricsAggregatorService);
   });
 
   it('should be defined', () => {
@@ -378,7 +376,8 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockCheckoutPaymentEvents.paymentProvider
+        mockCheckoutPaymentEvents.paymentProvider,
+        mockCheckoutPaymentEvents.paymentMethod
       );
     });
 
@@ -401,32 +400,17 @@ describe('PaymentsEmitterService', () => {
   });
 
   describe('handleCheckoutSuccess', () => {
-    const mockCustomer = StripeCustomerFactory();
-    const mockSubscription = StripeSubscriptionFactory();
-    const mockPaymentMethodType = StripePaymentMethodTypeResponseFactory();
     beforeEach(() => {
-      jest
-        .spyOn(customerManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(mockCustomer));
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue(StripeResponseFactory([mockSubscription]));
-      jest
-        .spyOn(paymentMethodManager, 'determineType')
-        .mockResolvedValue(mockPaymentMethodType);
       jest
         .spyOn(paymentsGleanManager, 'recordFxaPaySetupSuccess')
         .mockReturnValue();
     });
 
-    it('should call manager record method', async () => {
+    it('enriches via retrieveAdditionalMetricsData and calls recordFxaPaySetupSuccess', async () => {
       await paymentsEmitterService.handleCheckoutSuccess(
         mockCheckoutPaymentEvents
       );
 
-      expect(customerManager.retrieve).toHaveBeenCalled();
-      expect(subscriptionManager.listForCustomer).toHaveBeenCalled();
-      expect(paymentMethodManager.determineType).toHaveBeenCalled();
       expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
         productConfigurationManager,
         cartManager,
@@ -440,25 +424,32 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockPaymentMethodType.type
+        mockCheckoutPaymentEvents.paymentProvider,
+        mockCheckoutPaymentEvents.paymentMethod
       );
     });
 
-    it('should not record glean event if user opts out', async () => {
-      jest
-        .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
-        .mockResolvedValue(true);
+    it('skips emission when the account has opted out', async () => {
+      retrieveOptOutMock.mockResolvedValue(true);
+
       await paymentsEmitterService.handleCheckoutSuccess(
         mockCheckoutPaymentEvents
       );
-      expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
-        productConfigurationManager,
-        cartManager,
-        mockCommonMetricsData.params
-      );
+
       expect(
         paymentsGleanManager.recordFxaPaySetupSuccess
       ).not.toHaveBeenCalled();
+    });
+
+    it('swallows errors so telemetry failures cannot break checkout', async () => {
+      mockedRetrieveAdditionalMetricsData.mockRejectedValue(
+        new Error('db down')
+      );
+
+      await expect(
+        paymentsEmitterService.handleCheckoutSuccess(mockCheckoutPaymentEvents)
+      ).resolves.toBeUndefined();
+      expect(Sentry.captureException).toHaveBeenCalled();
     });
   });
 
@@ -469,10 +460,8 @@ describe('PaymentsEmitterService', () => {
         .mockReturnValue();
     });
 
-    it('should call manager record method', async () => {
-      await paymentsEmitterService.handleCheckoutFail(
-        mockCheckoutPaymentEvents
-      );
+    it('enriches via retrieveAdditionalMetricsData and calls recordFxaPaySetupFail', async () => {
+      await paymentsEmitterService.handleCheckoutFail(mockCommonMetricsData);
 
       expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
         productConfigurationManager,
@@ -480,25 +469,40 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupFail).toHaveBeenCalledWith({
-        commonMetricsData: mockCheckoutPaymentEvents,
+        commonMetricsData: mockCommonMetricsData,
         experimentationData: { nimbusUserId },
         ...additionalMetricsData,
       });
     });
 
-    it('should not record glean event if user opts out', async () => {
+    it('skips emission when the account has opted out', async () => {
+      retrieveOptOutMock.mockResolvedValue(true);
+
+      await paymentsEmitterService.handleCheckoutFail(mockCommonMetricsData);
+
+      expect(
+        paymentsGleanManager.recordFxaPaySetupFail
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleGenericSubManageGleanEvent', () => {
+    const mockEventData = GenericGleanSubManageEventFactory();
+
+    beforeEach(() => {
       jest
-        .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
-        .mockResolvedValue(true);
-      await paymentsEmitterService.handleCheckoutFail(
-        mockCheckoutPaymentEvents
+        .spyOn(paymentsGleanService, 'recordGenericSubManageEvent')
+        .mockResolvedValue();
+    });
+
+    it('calls glean service', async () => {
+      await paymentsEmitterService.handleGenericSubManageGleanEvent(
+        mockEventData
       );
-      expect(mockedRetrieveAdditionalMetricsData).toHaveBeenCalledWith(
-        productConfigurationManager,
-        cartManager,
-        mockCommonMetricsData.params
-      );
-      expect(paymentsGleanManager.recordFxaPaySetupFail).not.toHaveBeenCalled();
+
+      expect(
+        paymentsGleanService.recordGenericSubManageEvent
+      ).toHaveBeenCalledWith(mockEventData);
     });
   });
 
@@ -511,7 +515,7 @@ describe('PaymentsEmitterService', () => {
       priceId: additionalMetricsData.cmsMetricsData.priceId,
       priceInterval: mockInterval,
       priceIntervalCount: 1,
-      paymentProvider: SubPlatPaymentMethodType.Card,
+      paymentProvider: PaymentProvider.Stripe,
     });
 
     const mockPrice = StripeResponseFactory(
@@ -658,6 +662,59 @@ describe('PaymentsEmitterService', () => {
         },
         cancellationEventData.paymentProvider
       );
+    });
+  });
+
+  describe('handleTrialConverted', () => {
+    const trialConvertedEventData = TrialConvertedFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanManager, 'recordFxaSubscriptionTrialConverted')
+        .mockReturnValue();
+    });
+
+    it('should call manager record method', async () => {
+      await paymentsEmitterService.handleTrialConverted(
+        trialConvertedEventData
+      );
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionTrialConverted
+      ).toHaveBeenCalledWith({
+        cmsMetricsData: {
+          priceId: trialConvertedEventData.priceId,
+          productId: trialConvertedEventData.productId,
+        },
+        trialConversionData: {
+          conversionStatus: trialConvertedEventData.conversionStatus,
+          providerEventId: trialConvertedEventData.providerEventId,
+          productId: trialConvertedEventData.productId,
+          billingCountry: trialConvertedEventData.billingCountry,
+        },
+      });
+    });
+
+    it('should not call manager record method if user has opted out', async () => {
+      retrieveOptOutMock.mockRestore();
+
+      const mockUid = 'f440f251e8af9b0cf4bb3037529eda40';
+      const mockOptOutAccount = AccountFactory({
+        metricsOptOutAt: 1,
+        uid: Buffer.from(mockUid, 'hex'),
+      });
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockOptOutAccount]);
+
+      const eventData = {
+        ...trialConvertedEventData,
+        uid: mockUid,
+      };
+      await paymentsEmitterService.handleTrialConverted(eventData);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionTrialConverted
+      ).not.toHaveBeenCalled();
     });
   });
 

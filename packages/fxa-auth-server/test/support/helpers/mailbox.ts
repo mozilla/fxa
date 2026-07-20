@@ -1,0 +1,202 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { EventEmitter } from 'events';
+
+export interface EmailData {
+  headers: {
+    'x-verify-code'?: string;
+    'x-recovery-code'?: string;
+    'x-verify-short-code'?: string;
+    'x-signin-verify-code'?: string;
+    'x-password-forgot-otp'?: string;
+    'x-account-change-verify-code'?: string;
+    'x-unblock-code'?: string;
+    'x-template-name'?: string;
+    'x-link'?: string;
+    'x-service-id'?: string;
+    to?: string;
+    cc?: string;
+    [key: string]: string | undefined;
+  };
+  text?: string;
+  html?: string;
+  subject?: string;
+  // mailparser exposes parsed recipients as a top-level array, distinct from
+  // the `cc` string header above.
+  cc?: { address: string; name?: string }[];
+}
+
+export interface Mailbox {
+  waitForEmail: (email: string) => Promise<EmailData>;
+  waitForEmails: (email: string, count: number) => Promise<EmailData[]>;
+  waitForCode: (email: string) => Promise<string>;
+  waitForMfaCode: (email: string) => Promise<string>;
+  waitForEmailByHeader: (email: string, headerName: string) => Promise<string>;
+  clear: (email: string) => Promise<void>;
+  eventEmitter: EventEmitter;
+}
+
+const MAX_RETRIES = 20;
+const RETRY_DELAY_MS = 200;
+
+export function createMailbox(
+  host = 'localhost',
+  port = 9001,
+  printLogs = false
+): Mailbox {
+  const eventEmitter = new EventEmitter();
+
+  function log(...args: unknown[]): void {
+    if (printLogs) {
+      console.log(...args);
+    }
+  }
+
+  async function fetchMail(email: string): Promise<EmailData[] | null> {
+    const url = `http://${host}:${port}/mail/${encodeURIComponent(email)}`;
+    log('checking mail', url);
+
+    const response = await fetch(url, { method: 'GET' });
+
+    if (!response.ok) {
+      throw new Error(`Mail fetch failed: ${response.status}`);
+    }
+
+    const body = await response.text();
+
+    try {
+      const json = JSON.parse(body);
+      return json && json.length > 0 ? json : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function deleteMail(email: string): Promise<void> {
+    const url = `http://${host}:${port}/mail/${encodeURIComponent(email)}`;
+    log('deleting mail', url);
+    await fetch(url, { method: 'DELETE' });
+  }
+
+  async function waitForEmail(email: string): Promise<EmailData> {
+    const username = email.split('@')[0];
+
+    for (let tries = MAX_RETRIES; tries > 0; tries--) {
+      log('mail status tries', tries);
+
+      const mail = await fetchMail(username);
+
+      if (mail && mail.length > 0) {
+        await deleteMail(username);
+        // Newer emails are appended last in mail_helper; prefer the latest
+        // message so stale OTPs don't win when multiple messages are present.
+        const result = mail[mail.length - 1];
+        eventEmitter.emit('email:message', email, result);
+        return result;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+
+    const error = new Error(`Timeout waiting for email: ${email}`);
+    eventEmitter.emit('email:error', email, error);
+    throw error;
+  }
+
+  async function waitForEmails(
+    email: string,
+    count: number
+  ): Promise<EmailData[]> {
+    const username = email.split('@')[0];
+
+    for (let tries = MAX_RETRIES; tries > 0; tries--) {
+      log('mail status tries', tries, 'waiting for', count, 'emails');
+
+      const mail = await fetchMail(username);
+
+      if (mail && mail.length >= count) {
+        await deleteMail(username);
+        return mail;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+
+    const error = new Error(`Timeout waiting for ${count} emails: ${email}`);
+    eventEmitter.emit('email:error', email, error);
+    throw error;
+  }
+
+  async function waitForCode(email: string): Promise<string> {
+    const emailData = await waitForEmail(email);
+    const code =
+      emailData.headers['x-verify-code'] ||
+      emailData.headers['x-recovery-code'] ||
+      emailData.headers['x-verify-short-code'] ||
+      emailData.headers['x-password-forgot-otp'];
+
+    if (!code) {
+      throw new Error('Email did not contain a verification code');
+    }
+
+    return code;
+  }
+
+  async function waitForMfaCode(email: string): Promise<string> {
+    const emailData = await waitForEmail(email);
+    const code = emailData.headers['x-account-change-verify-code'];
+
+    if (!code) {
+      throw new Error('Email did not contain an MFA verification code');
+    }
+
+    return code;
+  }
+
+  async function waitForEmailByHeader(
+    email: string,
+    headerName: string
+  ): Promise<string> {
+    const username = email.split('@')[0];
+
+    for (let tries = MAX_RETRIES; tries > 0; tries--) {
+      log('waiting for header', headerName, 'tries', tries);
+
+      const mail = await fetchMail(username);
+
+      if (mail && mail.length > 0) {
+        for (let i = mail.length - 1; i >= 0; i--) {
+          const m = mail[i];
+          const headerValue = m.headers[headerName];
+          if (headerValue) {
+            await deleteMail(username);
+            return headerValue;
+          }
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+
+    throw new Error(
+      `Timeout waiting for email with header ${headerName}: ${email}`
+    );
+  }
+
+  async function clear(email: string): Promise<void> {
+    const username = email.split('@')[0];
+    await deleteMail(username);
+  }
+
+  return {
+    waitForEmail,
+    waitForEmails,
+    waitForCode,
+    waitForMfaCode,
+    waitForEmailByHeader,
+    clear,
+    eventEmitter,
+  };
+}

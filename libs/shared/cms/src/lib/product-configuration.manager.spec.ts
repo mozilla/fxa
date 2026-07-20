@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
@@ -61,6 +62,11 @@ import {
   PageContentByPriceIdsResultUtil,
 } from './queries/page-content-by-price-ids';
 import { faker } from '@faker-js/faker/.';
+import {
+    freeTrialQuery,
+    FreeTrialResultFactory,
+    FreeTrialUtil,
+} from './queries/free-trial';
 
 jest.mock('@type-cacheable/core', () => {
   const noopDecorator =
@@ -115,6 +121,16 @@ describe('productConfigurationManager', () => {
         StrapiClient,
         StripeClient,
         StripeConfig,
+        {
+          provide: Logger,
+          useValue: {
+            error: jest.fn(),
+            log: jest.fn(),
+            warn: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -748,6 +764,26 @@ describe('productConfigurationManager', () => {
       expect(
         result.cancelInterstitialOffer.cancelInterstitialOffers
       ).toHaveLength(1);
+    });
+  });
+
+  describe('getFreeTrial', () => {
+    it('returns free trials based on offering api identifier', async () => {
+      const queryData = FreeTrialResultFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const apiIdentifier = faker.string.sample();
+
+      const result =
+        await productConfigurationManager.getFreeTrial(apiIdentifier);
+
+      expect(strapiClient.query).toHaveBeenCalledWith(
+        freeTrialQuery,
+        { apiIdentifier }
+      );
+
+      expect(result).toBeInstanceOf(FreeTrialUtil);
+      expect(result.freeTrial.freeTrials).toHaveLength(1);
     });
   });
 });

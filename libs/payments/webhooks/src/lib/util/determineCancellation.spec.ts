@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { PaymentProvider } from '@fxa/payments/customer';
 import {
   StripeInvoiceFactory,
   StripeSubscriptionFactory,
@@ -15,7 +16,7 @@ describe('determineCancellation', () => {
   const mockSubscription = StripeSubscriptionFactory();
 
   describe('external_paypal', () => {
-    const paymentProvider = 'external_paypal';
+    const paymentProvider = PaymentProvider.PayPal;
     it('returns customer initiated if status is not uncollectible', () => {
       const mockLatestInvoice = StripeInvoiceFactory({ status: 'paid' });
       expect(
@@ -48,7 +49,7 @@ describe('determineCancellation', () => {
   });
 
   describe('card', () => {
-    const paymentProvider = 'card';
+    const paymentProvider = PaymentProvider.Stripe;
     it('returns customer initiated if reason is cancellation_requested', () => {
       const mockSubscription = StripeSubscriptionFactory({
         cancellation_details: {
@@ -86,7 +87,7 @@ describe('determineCancellation', () => {
   });
 
   describe('redundantCancellation', () => {
-    const paymentProvider = 'card';
+    const paymentProvider = PaymentProvider.Stripe;
     it('returns redundant if metadata contains redundantCancellation', () => {
       const mockSubscription = StripeSubscriptionFactory({
         metadata: {
@@ -100,7 +101,7 @@ describe('determineCancellation', () => {
   });
 
   describe('other', () => {
-    const paymentProvider = 'google_iap';
+    const paymentProvider = PaymentProvider.GoogleIap;
     it('returns undefined if payment provider is not supported', () => {
       expect(determineCancellation(paymentProvider, mockSubscription)).toBe(
         undefined

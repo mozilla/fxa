@@ -26,6 +26,7 @@ loadAccountFailed                     : ip                : 50          : 24 hou
 #
 accountCreate                         : ip                : 100         : 24 hours        : 24 hours    : block
 accountStatusCheck                    : ip                : 100         : 15 minute       : 15 minute   : block
+emailBounceStatusCheck                : ip                : 100         : 15 minute       : 15 minute   : block
 recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
 getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
 
@@ -33,7 +34,10 @@ getCredentialsStatus                  : ip                : 100         : 15 min
 # Password Reset Email Send Limits
 # Controls the number of emails that can be sent
 #
-passwordForgotSendOtp                 : ip_email          : 5           : 10 minutes      : 15 minutes  : block
+passwordForgotSendOtp                 : email             : 2           : 15 minutes      : 15 minutes  : block
+passwordForgotSendOtp                 : email             : 5           : 24 hours        : 12 hours    : block
+passwordForgotSendOtp                 : ip                : 50          : 24 hours        : 12 hours    : block
+passwordForgotSendOtp                 : ip                : 20          : 15 minutes      : 30 minutes  : block
 passwordForgotSendOtp                 : ip                : 100         : 24 hours        : 15 minutes  : ban
 
 #
@@ -152,3 +156,47 @@ mfaOtpCodeVerifyForEmail               : uid              : 5           : 5 minu
 mfaOtpCodeVerifyFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
+
+#
+# Passkey Authentication
+# More lenient than passwords - passkeys cannot be credential-stuffed or brute-forced.
+# Rate limits are primarily for DoS prevention and to ban clearly malicious IPs when high failure rate is encountered.
+#
+# The passkeyAuthFinishFailed rule is a clear signal of bogus requests. In this case, ban the IP, and block the UID,
+# which will prevent further passkey auth attempts from that account.
+#
+passkeyAuthStart                       : ip                : 100         : 15 minutes      : 15 minutes  : block
+passkeyAuthFinish                      : ip                : 100         : 15 minutes      : 15 minutes  : block
+passkeyAuthFinishFailed                : ip                : 1000        : 24 hours        : 15 minutes  : ban
+#
+# Passkey Registration
+# MFA-protected endpoints for registering new passkeys. Moderate limits since these require existing auth.
+#
+passkeyRegisterStart                   : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
+passkeyRegisterFinish                  : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
+
+#
+# Passkey Management
+# Relaxed limits for normal usage. All endpoints require verifiedSessionToken or MFA JWT.
+#
+passkeysList                           : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+passkeysRename                         : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+passkeyDelete                          : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+
+#
+# Passwordless Authentication OTP Limits
+# Controls the rate at which passwordless OTP codes can be sent and verified
+#
+passwordlessSendOtp                    : email            : 5           : 15 minutes      : 15 minutes   : block
+passwordlessSendOtp                    : email            : 15          : 24 hours        : 15 minutes   : block
+passwordlessSendOtp                    : ip               : 50          : 24 hours        : 12 hours     : block
+passwordlessSendOtp                    : ip               : 20          : 15 minutes      : 30 minutes   : block
+passwordlessSendOtp                    : ip               : 100         : 24 hours        : 15 minutes   : ban
+
+# Passwordless OTP Verification Limits
+passwordlessVerifyOtp                  : ip_email         : 5           : 10 minutes      : 15 minutes   : block
+passwordlessVerifyOtp                  : email            : 10          : 10 minutes      : 30 minutes   : block
+passwordlessVerifyOtp                  : ip               : 100         : 24 hours        : 15 minutes   : ban
+passwordlessVerifyOtpPerDay            : ip_email         : 10          : 24 hours        : 24 hours     : block
+passwordlessVerifyOtpPerDay            : email            : 20          : 24 hours        : 24 hours     : block
+passwordlessVerifyOtpPerDay            : ip               : 100         : 24 hours        : 15 minutes   : ban

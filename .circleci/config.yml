@@ -10,21 +10,21 @@ parameters:
   enable_stage_smoke_tests:
     type: boolean
     default: false
+  # fxa-private is validate-only: deploys, CI-image publishing, tag releases, and
+  # nightly all happen from the public mozilla/fxa repo, so they default off here.
+  # (Public fxa keeps these on; this is a deliberate fxa-private-only divergence.)
   enable_deploy_packages:
     type: boolean
-    default: true
+    default: false
   enable_deploy_ci_images:
     type: boolean
-    default: true
-  enable_deploy_story_book:
-    type: boolean
-    default: true
+    default: false
   enable_test_and_deploy_tag:
     type: boolean
-    default: true
+    default: false
   enable_nightly:
     type: boolean
-    default: true
+    default: false
   force-deploy-fxa-ci-images:
     type: boolean
     default: false
@@ -43,17 +43,19 @@ parameters:
   untrusted-relier-domain:
     type: string
     default: ''
+  payments-next-domain:
+    type: string
+    default: ''
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
-  gcp-cli: circleci/gcp-cli@3.3.0
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
   tiny-executor:
     resource_class: small
     docker:
-      - image: cimg/node:22.15.1
+      - image: cimg/node:24.15.0
     environment:
       HUSKY_SKIP_INSTALL: 1
 
@@ -65,7 +67,7 @@ executors:
         default: medium+
       image:
         type: string
-        default: cimg/node:22.15.1
+        default: cimg/node:24.15.0
     resource_class: << parameters.resource_class >>
     docker:
       - image: << parameters.image >>
@@ -83,7 +85,7 @@ executors:
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder-v5
+      - image: mozilla/fxa-circleci:ci-builder-v9
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -99,7 +101,7 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v5
+      - image: mozilla/fxa-circleci:ci-test-runner-v9
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -115,7 +117,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v5
+      - image: mozilla/fxa-circleci:ci-test-runner-v9
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -138,7 +140,7 @@ executors:
         default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v5
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v9
       - image: redis
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
@@ -171,12 +173,19 @@ executors:
       FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE: true
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
       GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
+      # Disable admin-server Stripe queries: fxa-private has only a dummy Stripe key,
+      # so account lookups would 401 on Stripe auth. Overrides development.json.
+      FEATURE_STRIPE_SUBS: false
       RECOVERY_PHONE__ENABLED: true
       # use test mode except for smoke tests
       RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'test'
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
+      # passwordless otp feature
+      PASSWORDLESS_ENABLED: true
+      PASSWORDLESS_ALLOWED_CLIENT_SERVICES: '{"98e6508e88680e1a":{"allowedServices":["*"]},"5882386c6d801776":{"allowedServices":["relay"]},"dcdb5ae7add825d2":{"allowedServices":["*"]}}'
+      PASSWORDLESS_SIGNUP_ENABLED: true
       # Seeing if clear customs approach works! RATE_LIMIT__RULES: ""
       # RATE_LIMIT__IGNORE_EMAILS: .*@restmail.net$
 
@@ -189,7 +198,7 @@ executors:
         default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v5
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v9
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
@@ -199,32 +208,52 @@ executors:
 
 commands:
   git-clone:
-    # Note: Cloning this way allows us to run a git fetch & checkout later on download the road. This type of
-    # clone operation will result in a .git/config with no user attached that is using
-    # https://github.com/mozilla/fxa for the remote origin.
+    # Note: Cloning this way allows us to run a git fetch & checkout later on download the road.
+    # The remote is chosen by which repo the job runs in (CIRCLE_PROJECT_REPONAME): in fxa-private
+    # the fetch authenticates with the project deploy key (loaded via add_ssh_keys) over SSH, since
+    # anonymous HTTPS against the public repo cannot see private-only commits; in the public fxa repo
+    # it keeps the original anonymous HTTPS clone.
     # The --depth argument is used to drastically cut down the initial download size. The size
     # of the git folder is also much smaller, which ultimately results in smaller docker images.
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'SHA256:RA3MICXx9R6uG2FFg2SIyTT/Q6yhf3EA/lbI561Xkmc'
       - run:
           name: git clone
           command: |
-            git clone https://github.com/mozilla/fxa . --depth=1
-            git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=2
+            mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+            if [[ "$CIRCLE_PROJECT_REPONAME" == "fxa-private" ]]; then
+              REPO_URL="git@github.com:mozilla/fxa-private.git"
+            else
+              REPO_URL="https://github.com/mozilla/fxa"
+            fi
+            git clone "$REPO_URL" . --depth=1
+            git fetch "$REPO_URL" << pipeline.git.revision >> --depth=2
             git checkout << pipeline.git.revision >>
 
   git-checkout:
     # Note: Since we use a pre-populated base image that has a .git folder already present (see
     # comment above), running a fetch and checkout saves a considerable amount of time when compared
     # to a circleci `- checkout` command.
+    # The fetch remote is chosen by which repo the job runs in (CIRCLE_PROJECT_REPONAME): fxa-private
+    # authenticates with the project deploy key (loaded via add_ssh_keys) over SSH; the public fxa repo
+    # keeps the original anonymous HTTPS fetch, since anonymous HTTPS cannot see private-only commits.
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'SHA256:RA3MICXx9R6uG2FFg2SIyTT/Q6yhf3EA/lbI561Xkmc'
       - run:
           name: Checkout Branch
           command: |
             set +x
+            mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
             # If the PR is coming from a fork, add it as a remote, so the commit can be checked out.
             if [[ "$CIRCLE_PR_USERNAME" != "" && "$CIRCLE_PR_REPONAME" != "" ]]; then
               echo "Adding remote https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
               git fetch https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME << pipeline.git.revision >> --depth=1
+            elif [[ "$CIRCLE_PROJECT_REPONAME" == "fxa-private" ]]; then
+              git fetch git@github.com:mozilla/fxa-private.git << pipeline.git.revision >> --depth=1
             else
               git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=1
             fi
@@ -252,6 +281,16 @@ commands:
     # from the packages used in main, which is generally the case, we shouldn't see large install
     # times, since the base image will have pre cached.
     steps:
+      - run:
+          name: Recreate venv with glean_parser 19
+          command: |
+            # Img doesn't ship with venv; only install if missing.
+            if ! python3 -c "import ensurepip" 2>/dev/null; then
+              sudo apt-get update && sudo apt-get install -y python3-venv
+            fi
+            rm -rf .venv
+            python3 -m venv .venv
+            .venv/bin/pip install 'glean_parser~=19.0'
       - run:
           name: Base Install
           command: |
@@ -309,23 +348,6 @@ commands:
           name: Linting
           command: npx nx << parameters.nx_run >> --parallel=1 -t lint
 
-  compile:
-    parameters:
-      nx_run:
-        type: string
-        default: run-many
-    steps:
-      - run:
-          name: Pre building shared libraries
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2 --verbose
-          environment:
-            NODE_ENV: test
-      - run:
-          name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
-          environment:
-            NODE_ENV: test
-
   check-playwright-test-count:
     parameters:
       project:
@@ -344,9 +366,12 @@ commands:
     parameters:
       project:
         type: string
+      test_dir:
+        type: string
+        default: tests
       grep_invert:
         type: string
-        default: ""
+        default: ''
       fail_fast:
         type: boolean
         default: true
@@ -369,12 +394,12 @@ commands:
             fi
             echo "targeting project << parameters.project >> $GREP $GREP_INVERT"
             npx nx build fxa-auth-client
-            cd packages/functional-tests/tests
+            cd packages/functional-tests/<< parameters.test_dir >>
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
 
             echo $TEST_FILES | circleci tests run \
-              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT" \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT --pass-with-no-tests" \
               --verbose \
               --split-by=timings \
               --timings-type=classname
@@ -382,6 +407,7 @@ commands:
             NODE_OPTIONS: --dns-result-order=ipv4first
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
+            PAYMENTS_NEXT_DOMAIN: << pipeline.parameters.payments-next-domain >>
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
@@ -443,6 +469,7 @@ commands:
             - node_modules
             - packages/**/node_modules
             - packages/version.json
+            - .venv
 
   save-build-workspace:
     steps:
@@ -460,6 +487,9 @@ commands:
             - packages/**/locales
             - packages/**/emails/css
             - configs/gql/allowlist
+            - apps/**/public/locales
+            - apps/**/.next
+            - libs/**/glean/__generated__
 
   restore-workspace:
     steps:
@@ -517,7 +547,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v5
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v9
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -546,56 +576,11 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v5
-            docker push mozilla/fxa-circleci:ci-test-runner-v5
-            docker push mozilla/fxa-circleci:ci-functional-test-runner-v5
-            docker push mozilla/fxa-circleci:ci-builder-v5
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v9
+            docker push mozilla/fxa-circleci:ci-test-runner-v9
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-v9
+            docker push mozilla/fxa-circleci:ci-builder-v9
             wait
-
-  upload_to_gcs:
-    # Uploads test artifacts to ETE GCS for test metric reporting and monitoring
-    parameters:
-      source:
-        type: string
-        default: artifacts/tests
-      destination:
-        type: string
-        # The destination can be defaulted since result reporting is the only use case atm
-        # If/When we have coverage metrics this value should be 'gs://ecosystem-test-eng-metrics/fxa/coverage'
-        default: gs://ecosystem-test-eng-metrics/fxa/junit
-      extension:
-        type: enum
-        enum: ['xml', 'json']
-        # The extension can be defaulted since result reporting is the only use case atm
-        # If/When we have coverage metrics this value should be 'json'
-        default: xml
-      workflow:
-        type: string
-      test_suite:
-        type: string
-    steps:
-      - run:
-          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
-          when: always # Ensure the step runs even if previous steps, like test runs, fail
-          command: |
-            ALLOWED_WORKFLOWS=("nightly" "test_and_deploy_tag" "stage_smoke_tests" "production_smoke_tests")
-            if [[ ! " ${ALLOWED_WORKFLOWS[@]} " =~ " << parameters.workflow >> " ]]; then
-              echo "Skipping artifact upload. Uploads not supported on << parameters.workflow >>."
-              exit 0
-            fi
-            FILES=$(find "<< parameters.source >>" -type f -name "*.<< parameters.extension >>")
-            if [ -z "$FILES" ]; then
-              echo "No << parameters.extension >> files found in << parameters.source >>/"
-              exit 1
-            fi
-            # In order to be consumed by the ETE Test Metric Pipeline, files need to follow a strict naming convention:
-            # {job_number}__{utc_epoch_datetime}__{repository}__{workflow}__{test_suite}__results{-index}.xml
-            EPOCH_TIME=$(date +%s)
-            PREFIX="${CIRCLE_BUILD_NUM}__${EPOCH_TIME}__fxa__<< parameters.workflow >>__<< parameters.test_suite >>"
-            for file in $FILES; do
-              basefile=$(basename "$file")
-              gsutil cp "$file" "<< parameters.destination >>/${PREFIX}__$basefile"
-            done
 
 jobs:
   create-fxa-image:
@@ -682,19 +667,6 @@ jobs:
       - lint:
           nx_run: << parameters.nx_run >>
 
-  compile:
-    parameters:
-      nx_run:
-        type: string
-        default: run-many
-    executor: default-executor
-    resource_class: large
-    steps:
-      - git-checkout
-      - restore-workspace
-      - compile:
-          nx_run: << parameters.nx_run >>
-
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     parameters:
@@ -704,6 +676,13 @@ jobs:
       resource_class:
         type: string
         default: large
+      # Git ref the affected-spec narrowing diffs against (see fxa-auth-server's
+      # test-ci.sh, which feeds the changed files to Jest's --findRelatedTests).
+      # Set on PR workflows only so honoring suites run just the related specs;
+      # left empty on tag/nightly so they run the full suite as a regression guard.
+      jest_affected_base:
+        type: string
+        default: ''
       workflow:
         type: string
     executor: default-executor
@@ -711,7 +690,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
@@ -720,10 +698,8 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
+            JEST_AFFECTED_BASE: << parameters.jest_affected_base >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: unit
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
@@ -747,6 +723,12 @@ jobs:
       start_customs:
         type: boolean
         default: false
+      # Run the (slow, rate-limited) Stripe test-customer sweep. Housekeeping that
+      # only needs to happen periodically, so it's enabled on nightly only; PR and
+      # tag workflows leave it false so they don't pay the cost on every run.
+      run_stripe_cleanup:
+        type: boolean
+        default: false
       test_suite:
         type: string
       workflow:
@@ -756,7 +738,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
       - wait-for-infrastructure
       - run:
           name: Start customs
@@ -774,11 +755,9 @@ jobs:
             NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
+            RUN_STRIPE_CLEANUP: << parameters.run_stripe_cleanup >>
           no_output_timeout: 20m
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: << parameters.test_suite >>
 
   # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
@@ -810,7 +789,6 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
@@ -818,12 +796,9 @@ jobs:
           project: << parameters.project >>
       - run-playwright-tests:
           project: << parameters.project >>
-          grep_invert: "#phone"
+          grep_invert: '#phone'
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -842,7 +817,6 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup
       - check-playwright-test-count:
           project: local
       - run:
@@ -861,27 +835,83 @@ jobs:
           project: local
       - run-playwright-tests:
           project: local
-          grep_invert: "#phone"
+          grep_invert: '#phone'
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
-      - upload_to_gcs:
-          workflow: << parameters.workflow >>
-          test_suite: e2e
 
-  build-and-deploy-storybooks:
-    executor: default-executor
-    resource_class: xlarge
+  # Runs payments-next functional tests using playwright.
+  # For local: uses functional-test-executor with full infra.
+  # For stage/production: uses smoke-test-executor.
+  playwright-payments-tests:
+    parameters:
+      parallelism:
+        type: integer
+        default: 1
+      project:
+        type: string
+        default: local-payments-next
+      grep:
+        type: string
+        default: ''
+      workflow:
+        type: string
+      fail_fast:
+        type: boolean
+        default: true
+    executor: functional-test-executor
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - restore-workspace
       - run:
-          name: Build Storybooks
+          name: Add localhost
           command: |
-            npx nx run-many -t build-storybook
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
       - run:
-          name: Publish Storybooks
-          command: |
-            STORYBOOKS_PACKAGES_ROOT="." STORYBOOKS_PACKAGES_DEPTH=4 STORYBOOKS_USE_YARN_WORKSPACES=false STORYBOOKS_SKIP_BUILD=true LOG_LEVEL=TRACE npx github:mozilla-fxa/storybook-gcp-publisher
+          name: Start services for payments playwright tests
+          command: ./packages/functional-tests/scripts/start-payments-services.sh
+          environment:
+            NODE_ENV: test
+            MYSQL_CONFIG__HOST: 127.0.0.1
+            STRAPI_CLIENT_CONFIG__GRAPHQL_API_URI: ${STRAPI_CLIENT_GRAPHQL_API_URI}
+            STRAPI_CLIENT_CONFIG__API_KEY: ${STRAPI_CLIENT_API_KEY_PAYMENTS}
+            STRIPE_CONFIG__API_KEY: ${SUBHUB_STRIPE_APIKEY}
+          no_output_timeout: 10m
+      - run-playwright-tests:
+          project: << parameters.project >>
+          test_dir: tests-payments-next
+          fail_fast: << parameters.fail_fast >>
+      - store-artifacts
+
+  # Runs payments-next smoke tests against remote targets (stage/production).
+  payments-smoke-tests:
+    parameters:
+      parallelism:
+        type: integer
+        default: 3
+      project:
+        type: string
+        default: stage-payments-next
+      grep:
+        type: string
+        default: '#smoke'
+      workflow:
+        type: string
+      fail_fast:
+        type: boolean
+        default: true
+    executor: smoke-test-executor
+    parallelism: << parameters.parallelism >>
+    steps:
+      - git-checkout
+      - provision
+      - run-playwright-tests:
+          project: << parameters.project >>
+          test_dir: tests-payments-next
+          fail_fast: << parameters.fail_fast >>
+      - store-artifacts
 
   update-yarn-cache:
     executor: default-executor
@@ -930,16 +960,11 @@ workflows:
             - Init (PR)
           post-steps:
             - fail-fast
-      - compile:
-          name: Compile (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          requires:
-            - Init (PR)
-          post-steps:
-            - fail-fast
       - unit-test:
           name: Unit Test (PR)
+          resource_class: xlarge
           nx_run: affected --base=main --head=$CIRCLE_SHA1
+          jest_affected_base: main
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -967,17 +992,19 @@ workflows:
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          resource_class: xlarge
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
-          name: Integration Test - Servers - Auth V2 (PR)
+          name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
+          resource_class: xlarge
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -989,30 +1016,31 @@ workflows:
           workflow: test_pull_request
           requires:
             - Build (PR)
+      # Approval step is to reduce how often we run the functional tests
+      # but still allow them to be run on demand.
+      # No `requires` on this job so it can be approved as soon as a PR
+      # is opened.
+      - approve-functional-tests:
+          name: Approve Functional Tests (PR)
+          type: approval
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
           requires:
             - Build (PR)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (PR)
-          requires:
-            - Build (PR)
+            - Approve Functional Tests (PR)
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
           job_type: build
           requires:
             - Lint (PR)
-            - Compile (PR)
             - Unit Test (PR)
             - Integration Test - Frontends (PR)
             - Integration Test - Servers (PR)
             - Integration Test - Servers - Auth (PR)
-            - Integration Test - Servers - Auth V2 (PR)
+            - Integration Test - Servers - Auth Scripts (PR)
             - Integration Test - Libraries (PR)
-            - Firefox Functional Tests - Playwright (PR)
-            - Deploy Storybooks (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
@@ -1028,6 +1056,16 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - payments-smoke-tests:
+          name: Payments Smoke Tests (production)
+          workflow: production_smoke_tests
+          project: production-payments-next
+          grep: '#smoke'
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -1037,6 +1075,17 @@ workflows:
           name: Smoke Test Stage - Playwright
           workflow: stage_smoke_tests
           project: stage
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+          fail_fast: false
+      - payments-smoke-tests:
+          name: Payments Smoke Tests (stage)
+          workflow: stage_smoke_tests
+          project: stage-payments-next
+          grep: '#smoke'
           filters:
             branches:
               only: /.*/
@@ -1080,7 +1129,7 @@ workflows:
           name: Deploy CI Images
           executor:
             name: docker-build-executor
-            image: cimg/node:22.15.1-browsers
+            image: cimg/node:24.15.0-browsers
           filters:
             branches:
               only:
@@ -1089,24 +1138,6 @@ workflows:
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
-
-  deploy_story_book:
-    # This workflow is triggered after a PR lands on main. It requires approval.
-    # The same operation will eventually run nightly.
-    when: << pipeline.parameters.enable_deploy_story_book >>
-    jobs:
-      - request-build-and-deploy-storybooks:
-          name: Request Deploy Storybooks
-          type: approval
-          filters:
-            branches:
-              only: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks
-          requires:
-            - Request Deploy Storybooks
 
   test_and_deploy_tag:
     # This workflow is used for building docker containers that are then deployed to
@@ -1138,15 +1169,6 @@ workflows:
               only: /.*/
           requires:
             - Init
-      - compile:
-          name: Compile
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          requires:
-            - Init
       - unit-test:
           name: Unit Test
           resource_class: xlarge
@@ -1155,7 +1177,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1169,7 +1191,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1182,7 +1204,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1190,28 +1212,30 @@ workflows:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          resource_class: xlarge
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
-          name: Integration Test - Servers - Auth V2
+          name: Integration Test - Servers - Auth Scripts
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
+          resource_class: xlarge
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1224,7 +1248,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           nx_run: run-many --no-cloud
           requires:
             - Build
@@ -1235,16 +1259,17 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
           requires:
             - Build
-      - create-fxa-image:
-          name: Create FxA Image
+      - playwright-payments-tests:
+          name: Payments Functional Tests - Playwright
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^subplat-v\d+\.\d+\.\d+(-rc\d+)?$/
           requires:
             - Build
 
@@ -1280,11 +1305,6 @@ workflows:
           nx_run: run-many --skipRemoteCache
           requires:
             - Init (nightly)
-      - compile:
-          name: Compile (nightly)
-          nx_run: run-many --skipRemoteCache
-          requires:
-            - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
           resource_class: xlarge
@@ -1313,17 +1333,20 @@ workflows:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          resource_class: xlarge
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: nightly
           nx_run: run-many --skipRemoteCache
+          run_stripe_cleanup: true
           requires:
             - Build (nightly)
       - integration-test:
-          name: Integration Test - Servers - Auth V2 (nightly)
+          name: Integration Test - Servers - Auth Scripts (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
+          resource_class: xlarge
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: nightly
           nx_run: run-many --skipRemoteCache
           requires:
@@ -1342,24 +1365,26 @@ workflows:
           requires:
             - Build (nightly)
           fail_fast: false
+      - playwright-payments-tests:
+          name: Payments Functional Tests - Playwright (nightly)
+          workflow: nightly
+          requires:
+            - Build (nightly)
+          fail_fast: false
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
           job_type: build
           requires:
             - Lint (nightly)
-            - Compile (nightly)
             - Unit Test (nightly)
             - Integration Test - Frontends (nightly)
             - Integration Test - Servers (nightly)
             - Integration Test - Servers - Auth (nightly)
-            - Integration Test - Servers - Auth V2 (nightly)
+            - Integration Test - Servers - Auth Scripts (nightly)
             - Integration Test - Libraries (nightly)
             - Firefox Functional Tests - Playwright (nightly)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (nightly)
-          requires:
-            - Tests Complete (nightly)
+            - Payments Functional Tests - Playwright (nightly)
       - create-fxa-image:
           name: Create FxA Image (nightly)
           requires:
@@ -1372,7 +1397,7 @@ workflows:
           name: Deploy CI Images (nightly)
           executor:
             name: docker-build-executor
-            image: cimg/node:22.15.1-browsers
+            image: cimg/node:24.15.0-browsers
           # Note, setting force-deploy as true will result in rebuilding the images regardless
           # of whether or not there are package modifications.
           force-deploy: true

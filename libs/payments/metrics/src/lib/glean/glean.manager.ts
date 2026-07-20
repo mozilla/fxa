@@ -10,7 +10,13 @@ import {
   PaymentProvidersType,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
+  TrialConversionData,
+  type AccountsMetricsData,
   type ExperimentationData,
+  type SessionMetricsData,
+  type StripeMetricsData,
+  type SubPlatCmsMetricsData,
+  type SubPlatPaymentMethodType,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
@@ -20,8 +26,25 @@ import { mapSubscription } from './utils/mapSubscription';
 import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
 import { PaymentsGleanConfig } from './glean.config';
-import { mapSubscriptionCancellation } from './utils/mapSubscriptionCancellation';
-import type { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import { determineCheckoutType } from './utils/determineCheckoutType';
+
+type MethodNames<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+function isMethodName<T extends object>(
+  obj: T,
+  key: PropertyKey
+): key is MethodNames<T> {
+  return key in obj && typeof (obj as any)[key] === 'function';
+}
+
+/**
+ * When necessary, properties populated by PLACEHOLDER_VALUE should
+ * be provided by the event emitter, and populated by the appropriate
+ * event handler.
+ */
+const PLACEHOLDER_FUTURE_USE = '';
 
 @Injectable()
 export class PaymentsGleanManager {
@@ -64,13 +87,15 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
   ) {
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
-        ...this.populateCommonMetrics(metrics),
+        ...this.populateCommonMetrics(metrics, paymentProvider, paymentMethod),
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
+        subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -82,15 +107,21 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: SubPlatPaymentMethodType
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
   ) {
-    const commonMetrics = this.populateCommonMetrics(metrics);
+    const commonMetrics = this.populateCommonMetrics(
+      metrics,
+      paymentProvider,
+      paymentMethod
+    );
 
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
         ...commonMetrics,
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
+        subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -122,7 +153,7 @@ export class PaymentsGleanManager {
     },
     paymentProvider?: PaymentProvidersType
   ) {
-    const commonMetrics = this.populateCommonMetrics(metrics);
+    const commonMetrics = this.populateCommonMetrics(metrics, paymentProvider);
 
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordSubscriptionEnded({
@@ -133,18 +164,132 @@ export class PaymentsGleanManager {
     }
   }
 
-  private populateCommonMetrics(metrics: {
-    commonMetricsData?: CommonMetrics;
-    cartMetricsData?: CartMetrics;
-    cmsMetricsData?: CmsMetricsData;
-    experimentationData?: ExperimentationData;
+  recordFxaSubscriptionTrialConverted(
+    metrics: {
+      cmsMetricsData: CmsMetricsData;
+      trialConversionData: TrialConversionData;
+    },
+    paymentProvider?: PaymentProvidersType
+  ) {
+    const commonMetrics = this.populateCommonMetrics(metrics);
+
+    if (this.isEnabled) {
+      this.paymentsGleanServerEventsLogger.recordSubscriptionTrialConverted({
+        ...commonMetrics,
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+        subscription_product_id: normalizeGleanFalsyValues(
+          metrics.trialConversionData.productId
+        ),
+        subscription_provider_event_id: normalizeGleanFalsyValues(
+          metrics.trialConversionData.providerEventId
+        ),
+        trial_conversion_status: metrics.trialConversionData.conversionStatus,
+        subscription_billing_country: normalizeGleanFalsyValues(
+          metrics.trialConversionData.billingCountry
+        ),
+      });
+    }
+  }
+
+  recordGenericEvent(
+    eventName: string,
+    metrics: {
+      commonMetricsData: CommonMetrics;
+      stripe: StripeMetricsData;
+      accounts: AccountsMetricsData;
+      cms: SubPlatCmsMetricsData;
+      session: SessionMetricsData;
+      experimentation: ExperimentationData;
+      subscriptionCancellationData?: SubscriptionCancellationData;
+    }
+  ) {
+    if (
+      this.isEnabled &&
+      isMethodName(this.paymentsGleanServerEventsLogger, eventName)
+    ) {
+      this.paymentsGleanServerEventsLogger[eventName](
+        this.mapMetricsToGleanFormat(metrics)
+      );
+    }
+  }
+
+  private mapMetricsToGleanFormat({
+    commonMetricsData,
+    stripe,
+    accounts,
+    cms,
+    session,
+    experimentation,
+    subscriptionCancellationData,
+  }: {
+    commonMetricsData: CommonMetrics;
+    stripe: StripeMetricsData;
+    accounts: AccountsMetricsData;
+    cms: SubPlatCmsMetricsData;
+    session: SessionMetricsData;
+    experimentation: ExperimentationData;
     subscriptionCancellationData?: SubscriptionCancellationData;
   }) {
+    const { searchParams } = commonMetricsData;
+    return {
+      user_agent: session.userAgent,
+      ip_address: session.ipAddress,
+      relying_party_oauth_client_id: '',
+      relying_party_service: searchParams['service'] ?? '',
+      session_device_type: session.deviceType,
+      session_entrypoint_experiment: PLACEHOLDER_FUTURE_USE,
+      session_entrypoint_variation: PLACEHOLDER_FUTURE_USE,
+      session_entrypoint: searchParams['entrypoint'] ?? '',
+      session_flow_id: searchParams['flow_id'] ?? '',
+      subscription_checkout_type: determineCheckoutType(
+        accounts.uid,
+        commonMetricsData.searchParams['newAccount']
+      ),
+      subscription_currency: stripe.currency ?? '',
+      subscription_error_id: PLACEHOLDER_FUTURE_USE,
+      subscription_interval: cms.interval ?? '',
+      subscription_offering_id: cms.offeringId ?? '',
+      subscription_payment_provider: PLACEHOLDER_FUTURE_USE,
+      subscription_payment_method: PLACEHOLDER_FUTURE_USE,
+      subscription_plan_id: stripe.priceId ?? '',
+      subscription_product_id: stripe.productId ?? '',
+      subscription_promotion_code: stripe.couponCode ?? '',
+      subscription_subscribed_plan_ids: PLACEHOLDER_FUTURE_USE,
+      subscription_cancellation_reason:
+        subscriptionCancellationData?.cancellationReason ?? '',
+      subscription_provider_event_id:
+        subscriptionCancellationData?.providerEventId ?? '',
+      subscription_is_free_trial: commonMetricsData.isFreeTrial ? 'true' : '',
+      trial_conversion_status: '',
+      subscription_billing_country: '',
+      utm_campaign: searchParams['utm_campaign'] ?? '',
+      utm_content: searchParams['utm_content'] ?? '',
+      utm_medium: searchParams['utm_medium'] ?? '',
+      utm_source: searchParams['utm_source'] ?? '',
+      utm_term: searchParams['utm_term'] ?? '',
+      nimbus_user_id: experimentation.nimbusUserId,
+      error_reason: '',
+    };
+  }
+
+  private populateCommonMetrics(
+    metrics: {
+      commonMetricsData?: CommonMetrics;
+      cartMetricsData?: CartMetrics;
+      cmsMetricsData?: CmsMetricsData;
+      experimentationData?: ExperimentationData;
+      subscriptionCancellationData?: SubscriptionCancellationData;
+    },
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
+  ) {
     const emptyCommonMetricsData: CommonMetrics = {
       ipAddress: '',
       deviceType: '',
       userAgent: '',
       experimentationId: '',
+      isFreeTrial: false,
       params: {},
       searchParams: {},
     };
@@ -155,6 +300,7 @@ export class PaymentsGleanManager {
       couponCode: '',
       currency: '',
       taxAddress: { countryCode: '', postalCode: '' },
+      isFreeTrial: false,
     };
     const emptyCmsMetricsData: CmsMetricsData = {
       priceId: '',
@@ -177,6 +323,7 @@ export class PaymentsGleanManager {
       metrics.subscriptionCancellationData || emptySubscriptionCancellationData;
     const experimentationData =
       metrics.experimentationData || emptyExperimentationData;
+
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,
@@ -189,9 +336,11 @@ export class PaymentsGleanManager {
         commonMetricsData,
         cartMetricsData,
         cmsMetricsData,
+        subscriptionCancellationData,
+        paymentProvider,
+        paymentMethod,
       }),
       ...mapUtm(commonMetricsData.searchParams),
-      ...mapSubscriptionCancellation(subscriptionCancellationData),
       nimbus_user_id: experimentationData.nimbusUserId,
     };
   }

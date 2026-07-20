@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { useMutation } from '@apollo/client';
 import {
   Account as AccountType,
   SecurityEvents as SecurityEventsType,
@@ -11,11 +10,13 @@ import {
   AccountEvent as AccountEventType,
   BackupCodes as BackupCodesType,
   RecoveryPhone as RecoveryPhoneType,
-} from 'fxa-admin-server/src/graphql';
+  Passkey as PasskeyType,
+} from 'fxa-admin-server/src/types';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import Subscription from '../Subscription';
 import { ConnectedServices } from '../ConnectedServices';
+import { AccountAuthorizations } from '../AccountAuthorizations';
 import { TableRowYHeader, TableYHeaders } from '../../TableYHeaders';
 import { TableRowXHeader, TableXHeaders } from '../../TableXHeaders';
 import EmailBounces from '../EmailBounces';
@@ -23,7 +24,7 @@ import { getFormattedDate } from '../../../lib/utils';
 import DangerZone from '../DangerZone';
 import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
-import { EDIT_LOCALE, UNLINK_ACCOUNT } from './index.gql';
+import { adminApi } from '../../../lib/api';
 import { Carts } from '../Cart';
 
 export type AccountProps = AccountType & {
@@ -39,25 +40,20 @@ export const LinkedAccount = ({
 }: {
   uid: string;
   authAt: number;
-  providerId: string;
+  providerId: number;
   onCleared: () => void;
 }) => {
-  const [unlinkAccount] = useMutation(UNLINK_ACCOUNT, {
-    onCompleted: () => {
-      window.alert('The linked account has been removed.');
-    },
-    onError: () => {
-      window.alert('Error unlinking account');
-    },
-  });
-
   const handleUnlinkAccount = async () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    await unlinkAccount({ variables: { uid } });
-
-    onCleared();
+    try {
+      await adminApi.unlinkAccount(uid);
+      window.alert('The linked account has been removed.');
+      onCleared();
+    } catch {
+      window.alert('Error unlinking account');
+    }
   };
 
   return (
@@ -98,6 +94,8 @@ export const Account = ({
   clientSalt,
   backupCodes,
   recoveryPhone,
+  passkeys,
+  accountAuthorizations,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -105,7 +103,6 @@ export const Account = ({
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
 
-  const [editLocale] = useMutation(EDIT_LOCALE, {});
   const handleEditLocale = async () => {
     try {
       const newLocale = window.prompt('Enter a new locale.');
@@ -113,14 +110,9 @@ export const Account = ({
         return;
       }
 
-      const res = await editLocale({
-        variables: {
-          uid,
-          locale: newLocale,
-        },
-      });
+      const success = await adminApi.editLocale(uid, newLocale);
 
-      if (res.data?.editLocale) {
+      if (success) {
         onCleared();
       } else {
         window.alert(`Edit unsuccessful.`);
@@ -325,11 +317,52 @@ export const Account = ({
           </p>
         )}
 
+        <h3 className="header-lg">Passkeys</h3>
+        {passkeys && passkeys.length > 0 ? (
+          <TableXHeaders
+            rowHeaders={[
+              'Name',
+              'Created',
+              'Last Used',
+              'Backup State',
+              'PRF Enabled',
+              'Authenticator',
+            ]}
+          >
+            {passkeys.map((passkey: PasskeyType) => (
+              <TableRowXHeader key={`${passkey.name}-${passkey.createdAt}`}>
+                <td data-testid="passkey-name">{passkey.name}</td>
+                <td data-testid="passkey-created-at">
+                  {getFormattedDate(passkey.createdAt)}
+                </td>
+                <td data-testid="passkey-last-used-at">
+                  {passkey.lastUsedAt == null
+                    ? 'Never'
+                    : getFormattedDate(passkey.lastUsedAt)}
+                </td>
+                <td data-testid="passkey-backup-state">
+                  <ResultBoolean isTruthy={passkey.backupState} />
+                </td>
+                <td data-testid="passkey-prf-enabled">
+                  <ResultBoolean isTruthy={passkey.prfEnabled} />
+                </td>
+                <td data-testid="passkey-authenticator-name">
+                  {passkey.authenticatorName || 'Unknown'}
+                </td>
+              </TableRowXHeader>
+            ))}
+          </TableXHeaders>
+        ) : (
+          <p className="result-none" data-testid="passkeys-none">
+            This account doesn't have any passkeys.
+          </p>
+        )}
+
         <h3 className="header-lg">Account Recovery Key</h3>
         {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
             {recoveryKeys.map((recoveryKey: RecoveryKeysType) => (
-              <TableYHeaders key={createdAt}>
+              <TableYHeaders key={recoveryKey.createdAt}>
                 <TableRowYHeader
                   header="Created At"
                   children={getFormattedDate(recoveryKey.createdAt)}
@@ -386,6 +419,17 @@ export const Account = ({
         <Guard features={[AdminPanelFeature.ConnectedServices]}>
           <h3 className="header-lg">Connected Services</h3>
           <ConnectedServices services={attachedClients} />
+
+          <h3 className="header-lg">Authorized Browser Services</h3>
+          <p className="mb-2">
+            OAuth consent records, not a record of active usage. A row means the
+            account has authorized the service through a Firefox flow at some
+            point. Note: a Sync row can appear for any browser-service sign-in
+            (Smart Window, Relay, VPN), because Firefox Desktop currently mints
+            a Sync-scoped refresh token on every flow even when the user did not
+            sign in to Sync.
+          </p>
+          <AccountAuthorizations authorizations={accountAuthorizations} />
         </Guard>
 
         <h3 className="header-lg">Account History</h3>
@@ -435,8 +479,8 @@ export const Account = ({
                 key={linkedAccount.uid}
                 {...{
                   uid,
-                  providerId: linkedAccount.providerId,
-                  authAt: linkedAccount.authAt,
+                  providerId: linkedAccount.providerId!,
+                  authAt: linkedAccount.authAt!,
                   onCleared: onCleared,
                 }}
               />
@@ -455,7 +499,6 @@ export const Account = ({
           disabledAt: disabledAt!,
           email: primaryEmail, // only the primary for now
           onCleared: onCleared,
-          unsubscribeToken: '<USER_TOKEN>',
           has2FA: totps && totps.some((x) => x.enabled),
           hasRecoveryPhone:
             recoveryPhone && recoveryPhone.some((x) => x.exists),

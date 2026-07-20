@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "yarn l10n-prime && yarn copy-local-config && yarn check-local-config ",
     "build": "yarn build-l10n && yarn build-css && yarn build-js",
+    "build-fast": "yarn build-l10n && yarn build-css",
     "build-css": "NODE_ENV=production tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
     "build-js": "NODE_ENV=production grunt build",
     "build-l10n": "yarn l10n-create-json",
@@ -18,7 +19,7 @@
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
     "lint": "yarn lint-glean && eslint app server --cache",
     "lint-glean": "npx glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
-    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js 200 fxa-content-server",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js ",
     "delete": "pm2 delete pm2.config.js",
@@ -45,7 +46,7 @@
     "cache-loader": "^4.1.0",
     "chosen-js": "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0",
     "consolidate": "1.0.3",
-    "convict": "^6.2.4",
+    "convict": "^6.2.5",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "cookie-parser": "1.4.6",
@@ -57,7 +58,6 @@
     "fast-text-encoding": "^1.0.4",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
-    "fxa-common-password-list": "0.0.4",
     "fxa-geodb": "workspace:*",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.2",
@@ -79,10 +79,10 @@
     "grunt-text-replace": "0.4.0",
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
-    "handlebars": "^4.7.7",
+    "handlebars": "^4.7.9",
     "helmet": "^8.0.0",
     "hot-shots": "^10.2.1",
-    "http-proxy-middleware": "^2.0.7",
+    "http-proxy-middleware": "^2.0.10",
     "i18n-abide": "0.0.26",
     "joi": "^17.13.3",
     "jquery": "3.7.0",
@@ -94,7 +94,6 @@
     "jsxgettext-recursive-next": "1.1.0",
     "legal-docs": "https://github.com/mozilla/legal-docs.git#68a02d3a95f22fb10db68893bb54e49bc0604f69",
     "load-grunt-tasks": "^5.1.0",
-    "lodash": "^4.17.21",
     "mkdirp": "3.0.1",
     "mocha": "^10.4.0",
     "morgan": "^1.10.0",
@@ -114,9 +113,9 @@
     "thread-loader": "^4.0.2",
     "time-grunt": "2.0.0",
     "ua-parser-js": "1.0.35",
-    "underscore": "^1.13.1",
+    "underscore": "^1.13.8",
     "verror": "1.10.1",
-    "webpack": "^5.97.0"
+    "webpack": "^5.104.1"
   },
   "devDependencies": {
     "@babel/cli": "7.23.0",
@@ -133,8 +132,7 @@
     "copy-webpack-plugin": "12.0.2",
     "core-js": "^3.41.0",
     "css": "3.0.0",
-    "esbuild": "^0.17.15",
-    "esbuild-register": "^3.5.0",
+    "esbuild": "^0.28.1",
     "eslint": "^7.32.0",
     "firefox-profile": "4.7.0",
     "got": "11.8.5",
@@ -149,7 +147,7 @@
     "jsqr": "1.4.0",
     "mini-css-extract-plugin": "^2.9.2",
     "otplib": "^11.0.1",
-    "pm2": "^6.0.9",
+    "pm2": "^7.0.0",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
@@ -170,6 +168,9 @@
   },
   "readmeFilename": "README.md",
   "nx": {
+    "implicitDependencies": [
+      "crypto-relier"
+    ],
     "tags": [
       "scope:frontend",
       "type:core"

@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { ACCOUNT_RESET_MUTATION, AccountResetResult } from './index.gql';
+import { adminApi } from '../../lib/api';
+import { AccountResetResponse } from 'fxa-admin-server/src/types';
+
+export type AccountResetResult = {
+  locator: string;
+  status: string;
+};
 
 export const AccountResetResults = ({
   list,
@@ -35,7 +40,6 @@ export const AccountResetResults = ({
 export const PageAccountReset = () => {
   const [inProgress, setInProgress] = useState(false);
   const [results, setResults] = useState<Array<AccountResetResult>>([]);
-  const [resetAccountMutation] = useMutation(ACCOUNT_RESET_MUTATION);
 
   const saveButtonClass = () => {
     const base =
@@ -68,14 +72,16 @@ export const PageAccountReset = () => {
         return;
       }
 
-      const result = await resetAccountMutation({
-        variables: {
-          locators: list,
-          notificationEmail,
-        },
-      });
-
-      setResults(result.data?.resetAccounts || []);
+      const apiResults: AccountResetResponse[] = await adminApi.resetAccounts(
+        list,
+        notificationEmail
+      );
+      setResults(
+        apiResults.map((r) => ({
+          locator: r.locator,
+          status: r.status,
+        }))
+      );
     } finally {
       setInProgress(false);
     }
@@ -94,8 +100,8 @@ export const PageAccountReset = () => {
       <br />
       <p>
         Provide a list of up to 1000 emails or UIDs separated by either a comma
-        or newline in the textarea below. Then press 'Delete Accounts'. This
-        will kick off the delete process and the status of each entry will be
+        or newline in the textarea below. Then press 'Reset Accounts'. This
+        will kick off the reset process and the status of each entry will be
         displayed in the table below.
       </p>
 

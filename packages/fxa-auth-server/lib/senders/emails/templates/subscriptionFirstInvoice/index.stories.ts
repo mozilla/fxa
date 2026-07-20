@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionFirstInvoice',
   'Sent to inform a user that their first payment is currently being processed.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     invoiceAmountDue: '$10.00',
     icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
     invoiceDateOnly: '10/13/2021',

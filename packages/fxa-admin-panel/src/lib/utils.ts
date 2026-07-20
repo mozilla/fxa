@@ -17,3 +17,8 @@ export const getFormattedDuration = (seconds: number) => {
   const secs = seconds % 60;
   return `${hours}h ${minutes}m ${secs}s`;
 };
+
+export const getWafTfPath = () =>
+  window.location.host.startsWith('fxa-admin-panel.prod.')
+    ? 'fxa/tf/prod/waf.tf'
+    : 'fxa/tf/stage/waf.tf';

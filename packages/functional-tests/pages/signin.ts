@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect } from '@playwright/test';
-import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { Credentials } from '../lib/targets';
+import { PasskeyPage } from './passkey';
 
-export class SigninPage extends BaseLayout {
+export class SigninPage extends PasskeyPage {
   readonly path = 'signin';
+
   get authenticationFormHeading() {
     return this.page.getByRole('heading', {
       name: /^Enter (?:authentication|security) code/,
@@ -77,13 +78,23 @@ export class SigninPage extends BaseLayout {
   }
 
   get signInButton() {
-    return this.page.getByRole('button', { name: 'Sign in' });
+    return this.page.getByRole('button', { name: 'Sign in', exact: true });
+  }
+
+  get passkeySigninButton() {
+    return this.page.getByRole('button', { name: 'Sign in with passkey' });
   }
 
   get signinBouncedHeading() {
     return this.page.getByRole('heading', {
       name: 'Sorry. We’ve locked your account.',
     });
+  }
+
+  get emailReturnedWarning() {
+    return this.page.getByText(
+      'Your confirmation email was just returned. Mistyped email?'
+    );
   }
 
   // for backwards compatibility with Backbone
@@ -122,6 +133,9 @@ export class SigninPage extends BaseLayout {
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');
+    if (!params.get('force_passwordless')) {
+      params.set('force_passwordless', 'false');
+    }
     return this.page.goto(
       getReactFeatureFlagUrl(this.target, route, params.toString())
     );
@@ -135,6 +149,8 @@ export class SigninPage extends BaseLayout {
   }
 
   async fillOutEmailFirstForm(email: string) {
+    // Ensure the page is ready after a hard navigation.
+    await expect(this.emailTextbox).toBeVisible();
     await this.emailTextbox.fill(email);
     await this.emailFirstSubmitButton.click();
   }
@@ -152,10 +168,7 @@ export class SigninPage extends BaseLayout {
    * assertions up to the caller.
    * @param Credentials
    */
-  async emailFirstSignin({
-    email,
-    password,
-  }: Credentials) {
+  async emailFirstSignin({ email, password }: Credentials) {
     if (this.page.url() !== this.url) {
       // avoid navigating if we don't need to.
       // Checking url is faster than an extra navigation

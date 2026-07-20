@@ -8,6 +8,11 @@ import cacheManager, {
 } from '@type-cacheable/core';
 import { AsyncLocalStorage } from 'async_hooks';
 
+export interface TypeCacheableLogger {
+  error: (msg: unknown) => void;
+  warn: (msg: string) => void;
+}
+
 export class TypeCacheableAsyncLocalStorageNotAvailableError extends Error {
   constructor() {
     super(
@@ -32,7 +37,7 @@ export const withTypeCacheableAsyncLocalStorage = <T>(fn: () => T): T => {
 };
 
 export class AsyncLocalStorageAdapter implements CacheClient {
-  constructor(private throwWhenContextUnavailable = false) {
+  constructor(private throwWhenContextUnavailable = false, private logger: TypeCacheableLogger = console) {
     this.get = this.get.bind(this);
     this.del = this.del.bind(this);
     this.delHash = this.delHash.bind(this);
@@ -47,7 +52,7 @@ export class AsyncLocalStorageAdapter implements CacheClient {
       throw new TypeCacheableAsyncLocalStorageNotAvailableError();
     }
     if (!cacheStore) {
-      console.warn(
+      this.logger.warn(
         'AsyncLocalStorageAdapter was used outside of a typeCacheableAsyncLocalStorage context'
       );
     }
@@ -104,9 +109,10 @@ export class AsyncLocalStorageAdapter implements CacheClient {
 
 export const useAsyncLocalStorageAdapter = (
   asFallback?: boolean,
-  options?: CacheManagerOptions
+  options?: CacheManagerOptions,
+  logger?: TypeCacheableLogger
 ): AsyncLocalStorageAdapter => {
-  const asyncLocalStorageAdapter = new AsyncLocalStorageAdapter();
+  const asyncLocalStorageAdapter = new AsyncLocalStorageAdapter(false, logger);
 
   if (asFallback) {
     cacheManager.setFallbackClient(asyncLocalStorageAdapter);

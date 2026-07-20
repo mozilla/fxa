@@ -2,3 +2,4 @@
 
 pair-success-header-2 = Device connected
 pair-success-message-2 = Pairing was successful.
+pair-success-tab-close-message = This tab will be closed automatically by { -brand-firefox }.

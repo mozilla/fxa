@@ -3,97 +3,528 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-// import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { REACT_ENTRYPOINT, ENTRYPOINTS } from '../../../constants';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import firefox from '../../../lib/channels/firefox';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 import Pair, { viewName } from '.';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+let mockLocationState: unknown = null;
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({
+    pathname: '/pair',
+    search: '',
+    state: mockLocationState,
+  }),
+  useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../../lib/channels/firefox', () => ({
+  __esModule: true,
+  default: {
+    send: jest.fn(),
+    requestSignedInUser: jest.fn().mockResolvedValue({
+      uid: 'sync-uid',
+      email: 'sync@example.com',
+      sessionToken: 'token',
+      verified: true,
+    }),
+    fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
+  },
+  buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
+    .buildSyncOAuthSearch,
+  FirefoxCommand: {
+    PairPreferences: 'fxaccounts:pair_preferences',
+  },
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    cadFireFox: {
+      choiceView: jest.fn(),
+      view: jest.fn(),
+      choiceEngage: jest.fn(),
+      choiceSubmit: jest.fn(),
+      choiceNotnowSubmit: jest.fn(),
+      notnowSubmit: jest.fn(),
+      syncDeviceSubmit: jest.fn(),
+    },
+  },
+}));
+
+// Stub QRCode so the test can read the encoded URL without decoding an SVG; covered in its own test.
+jest.mock('../../../components/QRCode', () => ({
+  __esModule: true,
+  default: ({
+    value,
+    localizedLabel,
+  }: {
+    value: string;
+    localizedLabel: string;
+  }) => <img alt={localizedLabel} data-testid="pair-qr" data-value={value} />,
+}));
+
+const sendTabIntegration = {
+  data: { entrypoint: 'send-tab-toolbar-icon' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+const webIntegration = {
+  data: { entrypoint: 'fxa_app_menu' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
 describe('Pair', () => {
-  // let bundle: FluentBundle;
-  let mockCallback: Function;
-  //   beforeAll(async () => {
-  //      bundle = await getFtlBundle('settings');
-  //   });
-  beforeEach(() => {
-    mockCallback = jest.fn();
+  // jsdom's default UA lacks "Firefox", which would trip the mount-effect UA check and redirect to /pair/unsupported.
+  const realUserAgent = navigator.userAgent;
+  beforeAll(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) ' +
+        'Gecko/20100101 Firefox/124.0',
+      configurable: true,
+    });
   });
+  afterAll(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: realUserAgent,
+      configurable: true,
+    });
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+    mockLocationState = null;
   });
 
-  it('renders the default view as expected, with no entrypoint submitted', () => {
-    renderWithRouter(<Pair onSubmit={mockCallback} />);
-    // testAllL10n(screen, bundle);
+  // Render Pair and wait for the bootstrap spinner to clear before asserting.
+  async function renderPair(
+    props: React.ComponentProps<typeof Pair> = {}
+  ): Promise<void> {
+    renderWithRouter(<Pair {...props} />);
+    await screen.findByLabelText(/I already have Firefox for mobile/);
+  }
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Sync Firefox on your phone or tablet');
-    expect(
-      screen.getByRole('img', {
-        name: 'A computer and a mobile phone and a tablet with a pulsing heart on each',
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Get started' })
-    ).toBeInTheDocument();
-  });
-
-  it('renders the page with a QR code with a valid entrypoint submitted', () => {
-    renderWithRouter(
-      <Pair
-        entryPoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
-        onSubmit={mockCallback}
-      />
-    );
-    // testAllL10n(screen, bundle);
-
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Connect Firefox on another device');
-    expect(
-      screen.getByText('Already have Firefox on a phone or tablet?')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Sync your device' })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Or download' })
-    ).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'QR code' })).toBeInTheDocument();
-  });
-
-  it('accepts a broker-specific onSubmit action', () => {
-    renderWithRouter(
-      <Pair
-        entryPoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
-        onSubmit={mockCallback}
-      />
-    );
-    // testAllL10n(screen, bundle);
-    const submitButton = screen.getByRole('button', {
-      name: 'Sync your device',
+  describe('choice screen', () => {
+    it('renders the choice screen by default', async () => {
+      await renderPair();
+      expect(
+        screen.getByText('Sync your Firefox experience')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Select an option to continue:')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+      expect(
+        screen.getByTestId('pair-choice-icon-has-mobile')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('pair-choice-icon-needs-mobile')
+      ).toBeInTheDocument();
     });
-    fireEvent.click(submitButton);
-    expect(mockCallback).toHaveBeenCalled();
+
+    it('fires choiceView Glean event on render', async () => {
+      await renderPair();
+      expect(GleanMetrics.cadFireFox.choiceView).toHaveBeenCalled();
+    });
+
+    it('enables Continue button after selecting a radio', async () => {
+      await renderPair();
+      fireEvent.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      expect(
+        screen.getByRole('button', { name: 'Continue' })
+      ).not.toBeDisabled();
+    });
+
+    it('fires choiceEngage with "has mobile" reason', async () => {
+      await renderPair();
+      fireEvent.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      expect(GleanMetrics.cadFireFox.choiceEngage).toHaveBeenCalledWith({
+        event: { reason: 'has mobile' },
+      });
+    });
+
+    it('fires choiceEngage with "does not have mobile" reason', async () => {
+      await renderPair();
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      expect(GleanMetrics.cadFireFox.choiceEngage).toHaveBeenCalledWith({
+        event: { reason: 'does not have mobile' },
+      });
+    });
+
+    it('sends pair_preferences when "has mobile" is selected and Continue is clicked', async () => {
+      await renderPair();
+      fireEvent.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(GleanMetrics.cadFireFox.choiceSubmit).toHaveBeenCalledWith({
+        event: { reason: 'has mobile' },
+      });
+      expect(firefox.send).toHaveBeenCalledWith(
+        'fxaccounts:pair_preferences',
+        {}
+      );
+    });
+
+    it('transitions to download screen when "needs mobile" is selected and Continue is clicked', async () => {
+      await renderPair();
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(GleanMetrics.cadFireFox.choiceSubmit).toHaveBeenCalledWith({
+        event: { reason: 'does not have mobile' },
+      });
+      expect(
+        screen.getByText('Download Firefox for mobile')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      ).toBeInTheDocument();
+    });
+
+    it('fires choiceNotnowSubmit when "Not now" is clicked on choice screen', async () => {
+      await renderPair();
+      fireEvent.click(screen.getByText('Not now'));
+      expect(GleanMetrics.cadFireFox.choiceNotnowSubmit).toHaveBeenCalled();
+    });
   });
 
-  it('renders any arising errors', () => {
-    renderWithRouter(<Pair error={MOCK_ERROR} onSubmit={mockCallback} />);
-    // testAllL10n(screen, bundle);
+  describe('download screen', () => {
+    async function renderAndNavigateToDownload(
+      props: React.ComponentProps<typeof Pair> = {}
+    ): Promise<void> {
+      await renderPair(props);
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Sync Firefox on your phone or tablet');
-    expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
+    it('renders download screen with QR code and instructions', async () => {
+      await renderAndNavigateToDownload();
+      expect(
+        screen.getByText('Download Firefox for mobile')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/To sync Firefox on your phone or tablet/)
+      ).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: 'QR code' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      ).toBeInTheDocument();
+    });
+
+    it('encodes the send-tab Mozilla download link in the QR for a send-tab entrypoint', async () => {
+      await renderAndNavigateToDownload({ integration: sendTabIntegration });
+      expect(screen.getByTestId('pair-qr').getAttribute('data-value')).toBe(
+        'https://mzl.la/4vr1mWU'
+      );
+    });
+
+    it('encodes the generic Mozilla download link for a non-send-tab entrypoint', async () => {
+      await renderAndNavigateToDownload({ integration: webIntegration });
+      expect(screen.getByTestId('pair-qr').getAttribute('data-value')).toBe(
+        'https://mzl.la/4vbFJda'
+      );
+    });
+
+    it('fires view Glean event when download screen renders', async () => {
+      await renderAndNavigateToDownload();
+      expect(GleanMetrics.cadFireFox.view).toHaveBeenCalled();
+    });
+
+    it('sends pair_preferences on "Continue to sync"', async () => {
+      await renderAndNavigateToDownload();
+      fireEvent.click(screen.getByRole('button', { name: 'Continue to sync' }));
+      expect(GleanMetrics.cadFireFox.syncDeviceSubmit).toHaveBeenCalled();
+      expect(firefox.send).toHaveBeenCalledWith(
+        'fxaccounts:pair_preferences',
+        {}
+      );
+    });
+
+    it('fires notnowSubmit when "Not now" is clicked on download screen', async () => {
+      await renderAndNavigateToDownload();
+      fireEvent.click(screen.getByText('Not now'));
+      expect(GleanMetrics.cadFireFox.notnowSubmit).toHaveBeenCalled();
+    });
+
+    it('navigates back to choice screen on back button', async () => {
+      await renderAndNavigateToDownload();
+      const backButton = screen.getByTitle('Back');
+      fireEvent.click(backButton);
+      await waitFor(() => {
+        expect(
+          screen.getByText('Select an option to continue:')
+        ).toBeInTheDocument();
+      });
+    });
   });
 
-  it('emits expected metrics event on render', () => {
-    renderWithRouter(<Pair onSubmit={mockCallback} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  describe('general', () => {
+    it('renders any arising errors on choice screen', async () => {
+      await renderPair({ error: MOCK_ERROR });
+      expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
+    });
+
+    it('emits expected page view metric on render', async () => {
+      await renderPair();
+      expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    });
+  });
+
+  describe('sync bootstrap on mount', () => {
+    const requestSignedInUserMock = jest.mocked(firefox.requestSignedInUser);
+    const fxaOAuthFlowBeginMock = jest.mocked(firefox.fxaOAuthFlowBegin);
+
+    it('renders the choice screen when Firefox has a verified Sync user', async () => {
+      await renderPair();
+      expect(requestSignedInUserMock).toHaveBeenCalledWith(
+        'oauth',
+        true,
+        'sync'
+      );
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['no SignedInUser', undefined],
+      [
+        'SignedInUser missing sessionToken',
+        {
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: undefined,
+          verified: true,
+        },
+      ],
+      [
+        'SignedInUser is unverified',
+        {
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'token',
+          verified: false,
+        },
+      ],
+    ])(
+      'starts an OAuth flow when fxa_status returns %s on every attempt',
+      async (_, response) => {
+        requestSignedInUserMock.mockResolvedValue(response);
+        renderWithRouter(<Pair />);
+        await waitFor(() =>
+          expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
+            'profile',
+            'https://identity.mozilla.com/apps/oldsync',
+          ])
+        );
+      }
+    );
+
+    it('retries fxa_status once when the first reply is empty, then reveals on success', async () => {
+      requestSignedInUserMock
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'token',
+          verified: true,
+        });
+      await renderPair();
+      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it('caps fxa_status at two asks before falling through to OAuth', async () => {
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      renderWithRouter(<Pair />);
+      await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
+      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('hard-navigates to / with the OAuth params Firefox returned', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+          action: 'signin',
+          response_type: 'code',
+          access_type: 'offline',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          client_id: 'cid-abc',
+          state: 'state-xyz',
+          code_challenge: 'cc',
+          code_challenge_method: 'S256',
+        });
+        renderWithRouter(<Pair />);
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        const [target] = hardNavigateSpy.mock.calls[0];
+        const url = new URL(target, 'http://localhost');
+        expect(url.pathname).toBe('/');
+        expect(Object.fromEntries(url.searchParams)).toEqual({
+          context: 'oauth_webchannel_v1',
+          service: 'sync',
+          client_id: 'cid-abc',
+          state: 'state-xyz',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          access_type: 'offline',
+          response_type: 'code',
+          action: 'signin',
+          code_challenge: 'cc',
+          code_challenge_method: 'S256',
+        });
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('reveals the choice screen when WebChannel never replies', async () => {
+      requestSignedInUserMock.mockResolvedValueOnce(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      await renderPair();
+      expect(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      ).toBeInTheDocument();
+    });
+
+    it('reveals the choice screen when fxa_status throws and OAuth never replies', async () => {
+      requestSignedInUserMock.mockRejectedValueOnce(new Error('boom'));
+      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      await renderPair();
+      expect(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('success banner from location state', () => {
+    it('renders the signed-in banner for origin=signin', async () => {
+      mockLocationState = { origin: 'signin' };
+      await renderPair();
+      expect(screen.getByText('Signed in successfully!')).toBeInTheDocument();
+    });
+
+    it('renders the signup banner for origin=signup', async () => {
+      mockLocationState = { origin: 'signup' };
+      await renderPair();
+      expect(
+        screen.getByText('Account created. You’re now syncing.')
+      ).toBeInTheDocument();
+    });
+
+    it('renders the password-created banner for origin=post-verify-set-password', async () => {
+      mockLocationState = { origin: 'post-verify-set-password' };
+      await renderPair();
+      expect(
+        screen.getByText('Password created. You’re now syncing.')
+      ).toBeInTheDocument();
+    });
+
+    it('does not render a banner when origin is absent', async () => {
+      mockLocationState = null;
+      await renderPair();
+      expect(
+        screen.queryByText('Signed in successfully!')
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render the banner on the download screen', async () => {
+      mockLocationState = { origin: 'signin' };
+      await renderPair();
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(
+        screen.queryByText('Signed in successfully!')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Send Tab variant', () => {
+    const sendTabIntegration = {
+      data: { entrypoint: 'send-tab-toolbar-icon' },
+    } as unknown as import('../../../models').Integration;
+
+    it('renders the send-tab heading without the grey "Connect another device" text', async () => {
+      await renderPair({ integration: sendTabIntegration });
+      expect(
+        screen.getByRole('heading', {
+          level: 1,
+          name: /Download or open Firefox on the device where you want to send tabs/,
+        })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Connect another device')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Sync your Firefox experience')
+      ).not.toBeInTheDocument();
+    });
+
+    it('omits the "View your saved passwords…" description', async () => {
+      await renderPair({ integration: sendTabIntegration });
+      expect(
+        screen.queryByText(/View your saved passwords/)
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('CMS theming', () => {
+    it('renders the choice screen Continue button with CMS button color', async () => {
+      await renderPair({ cmsInfo: MOCK_CMS_INFO });
+      const continueBtn = screen.getByRole('button', { name: 'Continue' });
+      expect(continueBtn).toHaveClass('cta-primary-cms');
+      // CmsButtonWithFallback sets --cta-bg as an inline CSS variable.
+      expect(continueBtn.style.getPropertyValue('--cta-bg')).toBe(
+        MOCK_CMS_INFO.shared.buttonColor
+      );
+    });
+
+    it('renders the download screen Continue to sync button with CMS button color', async () => {
+      await renderPair({ cmsInfo: MOCK_CMS_INFO });
+      // Navigate from choice → download by selecting "needs mobile" + Continue
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      const continueToSyncBtn = screen.getByRole('button', {
+        name: 'Continue to sync',
+      });
+      expect(continueToSyncBtn).toHaveClass('cta-primary-cms');
+      expect(continueToSyncBtn.style.getPropertyValue('--cta-bg')).toBe(
+        MOCK_CMS_INFO.shared.buttonColor
+      );
+    });
+
+    it('renders the CMS header logo from cmsInfo.shared.headerLogoUrl', async () => {
+      await renderPair({ cmsInfo: MOCK_CMS_INFO });
+      const logo = screen.getByAltText(MOCK_CMS_INFO.shared.headerLogoAltText);
+      expect(logo).toHaveAttribute('src', MOCK_CMS_INFO.shared.headerLogoUrl);
+    });
+
+    it('falls back to the default Continue button when no cmsInfo is provided', async () => {
+      await renderPair();
+      const continueBtn = screen.getByRole('button', { name: 'Continue' });
+      expect(continueBtn).toHaveClass('cta-primary');
+      expect(continueBtn).not.toHaveClass('cta-primary-cms');
+      expect(continueBtn.style.getPropertyValue('--cta-bg')).toBe('');
+    });
   });
 });

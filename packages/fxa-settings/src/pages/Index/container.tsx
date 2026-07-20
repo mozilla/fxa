@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/browser';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { isEmail } from 'class-validator';
 
 import { isEmailMask } from 'fxa-shared/email/helpers';
@@ -22,12 +22,15 @@ import { AuthError } from '../../lib/oauth';
 
 import {
   isOAuthNativeIntegration,
+  isProbablyFirefox,
   useAuthClient,
+  useConfig,
   useFtlMsgResolver,
 } from '../../models';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import { isUnsupportedContext } from '../../models/integrations/utils';
 import { IndexQueryParams } from '../../models/pages/index';
+import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 
 import Index from '.';
 import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
@@ -36,6 +39,8 @@ import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';
+import { IntegrationType } from '../../models/integrations/integration';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 
 const IndexContainer = ({
   integration,
@@ -43,13 +48,18 @@ const IndexContainer = ({
   flowQueryParams,
   useFxAStatusResult,
   setCurrentSplitLayout,
-}: IndexContainerProps & RouteComponentProps) => {
+}: IndexContainerProps) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+  const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
 
   const [errorBannerMessage, setErrorBannerMessage] = useState(
     location.state?.localizedErrorFromLocationState || ''
@@ -57,8 +67,13 @@ const IndexContainer = ({
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
 
-  // This must be a 'ref' because we don't want to trigger a re-render when the state changes
-  const attemptedEmailAutoSubmit = useRef(false);
+  // Cancelled on first user interaction so an in-flight auto-submit can't
+  // override the navigation the user chose. Ref (not state) — flipping
+  // shouldn't trigger a re-render.
+  const shouldAttemptAutoSubmit = useRef(true);
+  const disableAutoSubmit = useCallback(() => {
+    shouldAttemptAutoSubmit.current = false;
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -97,40 +112,138 @@ const IndexContainer = ({
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
 
+  // sessionToken is dropped unless verified===true; the browser's flag can be
+  // stale (no follow-up fxaLogin after SyncOAuth token-code), so we re-prompt.
+  const [browserUserChecked, setBrowserUserChecked] = useState(false);
+  useEffect(() => {
+    if (browserUserChecked) {
+      return;
+    }
+    if (currentAccount() || lastStoredAccount() || !isProbablyFirefox()) {
+      setBrowserUserChecked(true);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const userFromBrowser = await firefox.requestSignedInUser(
+        integration.data?.context || '',
+        false,
+        integration.data?.service || ''
+      );
+      if (cancelled) {
+        return;
+      }
+      if (userFromBrowser?.uid && userFromBrowser.email) {
+        const { uid, email, sessionToken, verified } = userFromBrowser;
+        persistAccount({
+          uid,
+          email,
+          lastLogin: Date.now(),
+          ...(verified === true ? { sessionToken } : {}),
+        });
+        setCurrentAccount(uid);
+      }
+      setBrowserUserChecked(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [browserUserChecked, integration]);
+
+  // Only used for suggestedEmail; handleSuccessNavigation reads fresh from
+  // localStorage to avoid stale closures when checking session state.
+  const cachedAccount = currentAccount() || lastStoredAccount();
+
   const handleSuccessNavigation = useCallback(
     (
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
       email: string,
-      canLinkAccountOk: boolean | undefined = undefined
+      canLinkAccountOk: boolean | undefined = undefined,
+      passwordlessSupported: boolean | undefined = undefined
     ) => {
+      const isOAuth = isOAuthWebIntegration(integration);
+
+      // Passwordless eligibility (enabled via config or query param for testing):
+      // - For EXISTING accounts: use passwordless if passwordlessSupported && !hasPassword
+      //   (Sync users with existing passwordless accounts will verify via OTP, then set password)
+      // - For NEW accounts: use passwordless if passwordlessSupported && integration.isFirefoxNonSync()
+      //   (Firefox non-Sync flows can use passwordless OTP; Sync users should go through traditional password-first signup)
+      const passwordlessEnabled =
+        (config.featureFlags?.passwordlessEnabled === true &&
+          queryParamModel.forcePasswordless !== false) ||
+        queryParamModel.forcePasswordless === true;
+      // Skip passwordless redirect if the user has a cached session
+      const storedAccount = currentAccount() || lastStoredAccount();
+      const hasCachedSession = !!storedAccount?.sessionToken;
+      const canUsePasswordlessExisting =
+        passwordlessSupported &&
+        !hasPassword &&
+        !hasLinkedAccount &&
+        !hasCachedSession;
+      const canUsePasswordlessNew =
+        passwordlessEnabled && passwordlessSupported && !integration.isSync();
+
       if (exists) {
-        const signinRoute = isOAuthWebIntegration(integration)
-          ? '/oauth/signin'
-          : '/signin';
-        navigateWithQuery(signinRoute, {
-          state: {
-            email,
-            hasLinkedAccount,
-            hasPassword,
-            canLinkAccountOk,
-          },
-        });
+        if (canUsePasswordlessExisting) {
+          // Existing passwordless account - go to passwordless code page
+          // For Sync, SigninPasswordlessCode will redirect to SetPassword after OTP
+          const passwordlessRoute = isOAuth
+            ? '/oauth/signin_passwordless_code'
+            : '/signin_passwordless_code';
+          navigateWithQuery(passwordlessRoute, {
+            state: {
+              email,
+              service: integration.getService(),
+            },
+          });
+        } else {
+          const signinRoute = isOAuthWebIntegration(integration)
+            ? '/oauth/signin'
+            : '/signin';
+          navigateWithQuery(signinRoute, {
+            state: {
+              email,
+              hasLinkedAccount,
+              hasPassword,
+              canLinkAccountOk,
+            },
+          });
+        }
       } else {
-        const signupRoute = isOAuthWebIntegration(integration)
-          ? '/oauth/signup'
-          : '/signup';
-        navigateWithQuery(signupRoute, {
-          state: {
-            email,
-            emailStatusChecked: true,
-            canLinkAccountOk,
-          },
-        });
+        if (canUsePasswordlessNew) {
+          // New account with passwordless support (non-Sync only)
+          const passwordlessRoute = isOAuth
+            ? '/oauth/signin_passwordless_code'
+            : '/signin_passwordless_code';
+          navigateWithQuery(passwordlessRoute, {
+            state: {
+              email,
+              service: integration.getService(),
+              isSignup: true,
+            },
+          });
+        } else {
+          const signupRoute = isOAuthWebIntegration(integration)
+            ? '/oauth/signup'
+            : '/signup';
+          navigateWithQuery(signupRoute, {
+            state: {
+              email,
+              emailStatusChecked: true,
+              canLinkAccountOk,
+            },
+          });
+        }
       }
     },
-    [integration, navigateWithQuery]
+    [
+      integration,
+      navigateWithQuery,
+      queryParamModel,
+      config.featureFlags?.passwordlessEnabled,
+    ]
   );
 
   const handleEmailSubmissionError = useCallback(
@@ -164,9 +277,11 @@ const IndexContainer = ({
           throw AuthUiErrors.EMAIL_REQUIRED;
         }
 
-        const { exists, hasLinkedAccount, hasPassword } =
+        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(email, {
             thirdPartyAuthStatus: true,
+            clientId: integration.getClientId(),
+            service: integration.getService(),
           });
 
         accountExists = exists;
@@ -223,22 +338,34 @@ const IndexContainer = ({
           canLinkAccountOk = true;
         }
 
-        isManualSubmission &&
-          GleanMetrics.emailFirst.submitSuccess({
-            event: { reason: accountExists ? 'login' : 'registration' },
-          });
+        GleanMetrics.emailFirst.submitSuccess({
+          event: {
+            reason: `${accountExists ? 'login' : 'registration'}${
+              isManualSubmission ? '' : '-auto'
+            }`,
+          },
+        });
 
         handleSuccessNavigation(
           exists,
           hasLinkedAccount,
           hasPassword,
           email,
-          canLinkAccountOk
+          canLinkAccountOk,
+          passwordlessSupported
         );
       } catch (error) {
-        if (isManualSubmission && isEmail(email)) {
+        // If we reach the catch before accountStatusByEmail resolved (e.g. a
+        // network error), accountExists is undefined and we can't attribute
+        // the failure to login vs registration. Skip the event in that case
+        // rather than recording a misleading reason.
+        if (isEmail(email) && typeof accountExists === 'boolean') {
           GleanMetrics.emailFirst.submitFail({
-            event: { reason: accountExists ? 'login' : 'registration' },
+            event: {
+              reason: `${accountExists ? 'login' : 'registration'}${
+                isManualSubmission ? '' : '-auto'
+              }`,
+            },
           });
         }
         // if email verification fails, clear from params to avoid re-use
@@ -258,25 +385,42 @@ const IndexContainer = ({
   );
 
   const suggestedEmail =
-    queryParamModel.email ||
-    queryParamModel.loginHint ||
-    currentAccount()?.email ||
-    lastStoredAccount()?.email;
+    queryParamModel.email || queryParamModel.loginHint || cachedAccount?.email;
 
   // If we just came from another Mozilla accounts page with a prefill email in location state,
   // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".
   const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
 
   useEffect(() => {
+    // Pairing authority flow: redirect to /pair/auth/allow
+    // (Backbone equivalent: app-start.js isDevicePairingAsAuthority() → 'pair/auth/allow')
+    if (integration.type === IntegrationType.PairingAuthority) {
+      navigateWithQuery('/pair/auth/allow');
+      return;
+    }
+
+    // Wait for the WebChannel check; otherwise the email-first form flashes briefly.
+    if (!browserUserChecked) {
+      return;
+    }
+
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
-    } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
-      // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
-      // causing multiple sync warnings to be displayed. This ensures it is called once.
-      attemptedEmailAutoSubmit.current = true;
+    } else if (shouldTrySuggestedEmail && shouldAttemptAutoSubmit.current) {
       // Must be in an async function or else `setIsLoading(false)` can be called prematurely with
       // the next render, before async actions in `processEmailSubmission` have finished
       (async () => {
+        if (integration.isSync() || integration.isFirefoxNonSync()) {
+          // Wait for this to resolve before calling 'processEmailSubmission'.
+          // Otherwise, a merge warning may show on email-first for newer Fx versions
+          // that support "can link account" by UID.
+          if (useFxAStatusResult.supportsCanLinkAccountUid === undefined) {
+            return;
+          }
+        }
+        // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
+        // causing multiple sync warnings to be displayed. This ensures it is called once.
+        shouldAttemptAutoSubmit.current = false;
         await processEmailSubmission(suggestedEmail, false);
       })();
     } else {
@@ -284,12 +428,15 @@ const IndexContainer = ({
     }
   }, [
     ftlMsgResolver,
-    attemptedEmailAutoSubmit,
+    shouldAttemptAutoSubmit,
+    browserUserChecked,
+    navigateWithQuery,
     processEmailSubmission,
     suggestedEmail,
     shouldTrySuggestedEmail,
     integration.data.context,
     integration,
+    useFxAStatusResult.supportsCanLinkAccountUid,
   ]);
 
   useEffect(() => {
@@ -315,13 +462,10 @@ const IndexContainer = ({
   }, [ftlMsgResolver, deleteAccountSuccess]);
 
   const initialPrefill = prefillEmail || suggestedEmail;
-  const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
-
-  // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
 
   return isLoading ? (
     <AppLayout
@@ -339,11 +483,13 @@ const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
-        deeplink,
         flowQueryParams,
         isMobile,
         useFxAStatusResult,
         setCurrentSplitLayout,
+        authClient,
+        finishOAuthFlowHandler,
+        disableAutoSubmit,
       }}
       prefillEmail={initialPrefill}
     />

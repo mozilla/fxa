@@ -23,6 +23,7 @@ export interface ChurnInterventionByProductIdChurnInterventionsResult {
 }
 
 export interface ChurnInterventionByProductIdOfferingResult {
+  apiIdentifier: string;
   defaultPurchase: {
     purchaseDetails: {
       productName: string;
@@ -31,6 +32,7 @@ export interface ChurnInterventionByProductIdOfferingResult {
     };
   };
   commonContent: {
+    successActionButtonUrl: string;
     supportUrl: string;
   };
   churnInterventions: (ChurnInterventionByProductIdChurnInterventionsResult & {
@@ -43,6 +45,7 @@ export interface ChurnInterventionByProductIdRawResult {
 }
 
 export interface ChurnInterventionByProductIdResult {
+  apiIdentifier: string;
   productName: string;
   webIcon: string;
   churnInterventionId: string;
@@ -58,4 +61,11 @@ export interface ChurnInterventionByProductIdResult {
   termsHeading: string;
   termsDetails: string[];
   supportUrl: string;
+}
+
+export interface CmsOfferingContent {
+  productName: string;
+  successActionButtonUrl: string;
+  supportUrl: string;
+  webIcon: string;
 }

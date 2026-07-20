@@ -7,6 +7,7 @@ import { AvatarPage } from './settings/avatar';
 import { BaseTarget } from '../lib/targets/base';
 import { ConfigPage } from './config';
 import { ConfirmSignupCodePage } from './confirmSignupCode';
+import { ConfirmTotpResetPassword } from './confirmTotpResetPassword';
 import { ConnectAnotherDevicePage } from './connectAnotherDevice';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { ChangePasswordPage } from './settings/changePassword';
@@ -24,6 +25,7 @@ import { RelierPage } from './relier';
 import { ResetPasswordPage } from './resetPassword';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
+import { SettingsPasskeyAddPage } from './settings/passkey';
 import { SigninPage } from './signin';
 import { SigninRecoveryChoicePage } from './signinRecoveryChoice';
 import { SigninRecoveryPhonePage } from './signinRecoveryPhone';
@@ -31,12 +33,16 @@ import { SigninRecoveryCodePage } from './signinRecoveryCode';
 import { SigninTokenCodePage } from './signinTokenCode';
 import { SigninTotpCodePage } from './signinTotpCode';
 import { SigninUnblockPage } from './signinUnblock';
+import { SigninPasswordlessCodePage } from './signinPasswordlessCode';
 import { SignupPage } from './signup';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
 import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 import { InlineTotpSetupPage } from './inlineTotpSetup';
+import { PasskeyExamplePage } from './passkey';
+
+export { PasskeyPage } from './passkey';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -44,6 +50,7 @@ export function create(page: Page, target: BaseTarget) {
     changePassword: new ChangePasswordPage(page, target),
     configPage: new ConfigPage(page, target),
     confirmSignupCode: new ConfirmSignupCodePage(page, target),
+    confirmTotpResetPassword: new ConfirmTotpResetPassword(page, target),
     connectAnotherDevice: new ConnectAnotherDevicePage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     deleteAccount: new DeleteAccountPage(page, target),
@@ -63,6 +70,7 @@ export function create(page: Page, target: BaseTarget) {
     resetPassword: new ResetPasswordPage(page, target),
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),
+    settingsPasskeyAdd: new SettingsPasskeyAddPage(page, target),
     signin: new SigninPage(page, target),
     signinRecoveryChoice: new SigninRecoveryChoicePage(page, target),
     signinRecoveryPhone: new SigninRecoveryPhonePage(page, target),
@@ -70,9 +78,11 @@ export function create(page: Page, target: BaseTarget) {
     signinTokenCode: new SigninTokenCodePage(page, target),
     signinTotpCode: new SigninTotpCodePage(page, target),
     signinUnblock: new SigninUnblockPage(page, target),
+    signinPasswordlessCode: new SigninPasswordlessCodePage(page, target),
     signup: new SignupPage(page, target),
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
+    passkeysExample: new PasskeyExamplePage(page, target),
   };
 }

@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import SigninRecoveryCode from '.';
 import {
   Integration,
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import { useMutation } from '@apollo/client';
-import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback, useState } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
@@ -18,7 +16,7 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
+import { SubmitRecoveryCode, SubmitRecoveryCodeResult } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
@@ -33,11 +31,15 @@ type SigninRecoveryCodeLocationState = {
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
+  setCurrentSplitLayout?: (value: boolean) => void;
+  supportsKeysOptionalLogin?: boolean;
 };
 
 export const SigninRecoveryCodeContainer = ({
   integration,
-}: SigninRecoveryCodeContainerProps & RouteComponentProps) => {
+  setCurrentSplitLayout,
+  supportsKeysOptionalLogin,
+}: SigninRecoveryCodeContainerProps) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -57,29 +59,42 @@ export const SigninRecoveryCodeContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
-  );
-
-  const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(
-    CONSUME_RECOVERY_CODE_MUTATION
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth ||
+      signinState?.isPasswordlessOtpSignin
   );
 
   const submitRecoveryCode: SubmitRecoveryCode = useCallback(
     async (recoveryCode: string) => {
+      if (!signinState?.sessionToken) {
+        return {
+          error: {
+            errno: AuthUiErrors.INVALID_TOKEN.errno!,
+            message: AuthUiErrors.INVALID_TOKEN.message,
+          },
+        } as SubmitRecoveryCodeResult;
+      }
+
       try {
-        // this mutation returns the number of remaining codes,
+        // this call returns the number of remaining codes,
         // if remaining codes is 0, we may want to redirect to the new code set up
         // or show a message that the user has no more codes
-        const { data } = await consumeRecoveryCode({
-          variables: { input: { code: recoveryCode } },
-        });
+        const result = await authClient.consumeRecoveryCode(
+          signinState.sessionToken,
+          recoveryCode
+        );
 
-        return { data };
+        // Format response to match expected interface
+        return {
+          data: {
+            consumeRecoveryCode: { remaining: result.remaining },
+          },
+        };
       } catch (error) {
-        return getHandledError(error);
+        return getHandledError(error) as SubmitRecoveryCodeResult;
       }
     },
-    [consumeRecoveryCode]
+    [authClient, signinState?.sessionToken]
   );
 
   const [sendingPhoneCode, setSendingPhoneCode] = useState(false);
@@ -114,9 +129,16 @@ export const SigninRecoveryCodeContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninRecoveryCodePage?.splitLayout;
+
   if (!signinState) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   return (
@@ -131,6 +153,8 @@ export const SigninRecoveryCodeContainer = ({
         submitRecoveryCode,
         unwrapBKey,
         loading: sendingPhoneCode,
+        setCurrentSplitLayout,
+        supportsKeysOptionalLogin,
       }}
     />
   );

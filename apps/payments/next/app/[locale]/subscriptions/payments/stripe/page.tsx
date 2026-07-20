@@ -17,22 +17,23 @@ import { getStripeClientSession } from '@fxa/payments/ui/actions';
 
 export default async function StripePaymentManagementPage({
   params,
-  searchParams,
 }: {
-  params: ManageParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<ManageParams>;
 }) {
   const session = await auth();
-  const { locale } = params;
+  const { locale } = await params;
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }
 
   let stripeClientSession;
   try {
-    stripeClientSession = await getStripeClientSession(session.user.id);
+    stripeClientSession = await getStripeClientSession();
   } catch (error) {
-    if (error.name === 'AccountCustomerNotFoundError') {
+    if (
+      error.name === 'AccountCustomerNotFoundError' ||
+      error.name === 'CurrencyForCustomerNotFoundError'
+    ) {
       // TODO: replace with redirect to collect tax location data and create customer / accountCustomer
       redirect(
         `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
@@ -41,8 +42,11 @@ export default async function StripePaymentManagementPage({
       throw error;
     }
   }
-  const { clientSecret, defaultPaymentMethodId, currency } =
+  const { clientSecret, defaultPaymentMethod, currency } =
     stripeClientSession;
+
+  // Only change the instanceKey, thereby remounting the StripeManagementWrapper, when the defaultPaymentMethod changes.
+  const instanceKey = defaultPaymentMethod ? `${defaultPaymentMethod.type}-${defaultPaymentMethod.id}` : uuidv4();
 
   return (
     <section
@@ -54,12 +58,12 @@ export default async function StripePaymentManagementPage({
         locale={locale}
         currency={currency}
         sessionSecret={clientSecret}
-        instanceKey={uuidv4()}
+        instanceKey={instanceKey}
       >
         <PaymentMethodManagement
-          uid={session?.user?.id}
-          defaultPaymentMethodId={defaultPaymentMethodId}
+          defaultPaymentMethod={defaultPaymentMethod}
           sessionEmail={session?.user?.email ?? undefined}
+          locale={locale}
         />
       </StripeManagementWrapper>
     </section>

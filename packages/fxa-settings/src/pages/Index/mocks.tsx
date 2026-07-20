@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationData,
@@ -12,6 +12,7 @@ import {
   OAuthWebIntegration,
   RelierCmsInfo,
 } from '../../models';
+import type AuthClient from 'fxa-auth-client/browser';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
@@ -53,23 +54,41 @@ export function createMockIndexOAuthIntegration({
 export function createMockIndexOAuthNativeIntegration({
   isSync = true,
   isFirefoxClientServiceRelay = false,
-  isFirefoxClientServiceAiWindow = false,
+  isFirefoxClientServiceSmartWindow = false,
+  isFirefoxClientServiceVpn = false,
   cmsInfo,
 }: {
   isSync?: boolean;
   isFirefoxClientServiceRelay?: boolean;
-  isFirefoxClientServiceAiWindow?: boolean;
+  isFirefoxClientServiceSmartWindow?: boolean;
+  isFirefoxClientServiceVpn?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
     type: IntegrationType.OAuthNative,
     isSync: () => isSync,
+    isDesktopSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
+    getService: () => MOCK_CLIENT_ID,
+    isFirefoxClient: () => true,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
-    isFirefoxClientServiceAiWindow: () => isFirefoxClientServiceAiWindow,
+    isFirefoxClientServiceSmartWindow: () => isFirefoxClientServiceSmartWindow,
+    isFirefoxClientServiceVpn: () => isFirefoxClientServiceVpn,
+    isFirefoxDesktopClient: () => false,
+    isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () =>
-      isFirefoxClientServiceRelay || isFirefoxClientServiceAiWindow,
+      isFirefoxClientServiceRelay ||
+      isFirefoxClientServiceSmartWindow ||
+      isFirefoxClientServiceVpn,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
+    getWebChannelServices: () => undefined,
+    requiresKeys: () => false,
+    wantsKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
+    requiresPasswordForLogin: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
     data: new OAuthIntegrationData(
       new GenericData({
         context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
@@ -82,11 +101,25 @@ export function createMockIndexWebIntegration(): IndexIntegration {
   return {
     type: IntegrationType.Web,
     isSync: () => false,
+    isDesktopSync: () => false,
     getClientId: () => undefined,
+    getService: () => undefined,
+    isFirefoxClient: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
+    isFirefoxDesktopClient: () => false,
+    isFirefoxMobileClient: () => false,
     isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
+    getWebChannelServices: () => undefined,
+    requiresKeys: () => false,
+    wantsKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
+    requiresPasswordForLogin: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
     data: new IntegrationData(
       new GenericData({
         context: '',
@@ -102,7 +135,6 @@ export const Subject = ({
   initialErrorBanner = '',
   initialSuccessBanner = '',
   initialTooltipMessage = '',
-  deeplink,
   isMobile = false,
   supportsKeysOptionalLogin = false,
 }: {
@@ -112,7 +144,6 @@ export const Subject = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
-  deeplink?: string;
   isMobile?: boolean;
   supportsKeysOptionalLogin?: boolean;
 }) => {
@@ -127,9 +158,24 @@ export const Subject = ({
     supportsKeysOptionalLogin,
   });
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <Index
         processEmailSubmission={async () => {}}
+        disableAutoSubmit={() => {}}
+        authClient={
+          {
+            beginPasskeyAuthentication: async () => {},
+            completePasskeyAuthentication: async () => {},
+            accountProfile: async () => {},
+          } as unknown as AuthClient
+        }
+        finishOAuthFlowHandler={async () => ({
+          redirect: 'http://example.com',
+          code: 'mock-code',
+          state: 'mock-state',
+          scope: 'profile',
+          error: undefined,
+        })}
         {...{
           prefillEmail,
           integration,
@@ -140,11 +186,10 @@ export const Subject = ({
           setErrorBannerMessage,
           setSuccessBannerMessage,
           setTooltipErrorMessage,
-          deeplink,
           isMobile,
           useFxAStatusResult: mockUseFxAStatusResult,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

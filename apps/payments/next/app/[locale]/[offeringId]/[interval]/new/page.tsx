@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { auth } from 'apps/payments/next/auth';
 import { notFound, redirect } from 'next/navigation';
 import {
   validateLocationAction,
@@ -51,55 +50,55 @@ export default async function New({
   params,
   searchParams,
 }: {
-  params: BaseParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<BaseParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const { offeringId, interval } = params;
-  const ipAddress = getIpAddress();
-  const session = await auth();
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { offeringId, interval } = resolvedParams;
+  const ipAddress = await getIpAddress();
 
-  const fxaUid = session?.user?.id;
-  const searchParamsCoupon = Array.isArray(searchParams.coupon)
-    ? searchParams.coupon[0]
-    : searchParams.coupon || undefined;
-  const countryCode = Array.isArray(searchParams.countryCode)
-    ? searchParams.countryCode[0]
-    : searchParams.countryCode || undefined;
-  const postalCode = Array.isArray(searchParams.postalCode)
-    ? searchParams.postalCode[0]
-    : searchParams.postalCode || undefined;
+  const searchParamsCoupon = Array.isArray(resolvedSearchParams.coupon)
+    ? resolvedSearchParams.coupon[0]
+    : resolvedSearchParams.coupon || undefined;
+  const countryCode = Array.isArray(resolvedSearchParams.countryCode)
+    ? resolvedSearchParams.countryCode[0]
+    : resolvedSearchParams.countryCode || undefined;
+  const postalCode = Array.isArray(resolvedSearchParams.postalCode)
+    ? resolvedSearchParams.postalCode[0]
+    : resolvedSearchParams.postalCode || undefined;
 
   const taxAddress =
     countryCode && postalCode
       ? { countryCode, postalCode }
-      : await getTaxAddressAction(ipAddress, fxaUid);
+      : await getTaxAddressAction(ipAddress);
 
   // Check if the customer is in a location not supported by Subscription Platform
   // or whether the product is not available in the customer's location
   const { isValid: locationIsValid } = await validateLocationAction(
     offeringId,
     taxAddress,
-    fxaUid
+    interval
   );
 
   if (!taxAddress || !locationIsValid) {
     if (taxAddress?.countryCode) {
-      searchParams.countryCode = taxAddress.countryCode;
+      resolvedSearchParams.countryCode = taxAddress.countryCode;
     }
     if (taxAddress?.postalCode) {
-      searchParams.postalCode = taxAddress.postalCode;
+      resolvedSearchParams.postalCode = taxAddress.postalCode;
     }
 
     const locationPageUrl = new URL(
       buildRedirectUrl(
-        params.offeringId,
-        params.interval,
+        resolvedParams.offeringId,
+        resolvedParams.interval,
         'location',
         'checkout',
         {
-          locale: params.locale,
+          locale: resolvedParams.locale,
           baseUrl: config.paymentsNextHostedUrl,
-          searchParams,
+          searchParams: resolvedSearchParams,
         }
       )
     );
@@ -110,12 +109,12 @@ export default async function New({
   let cart: ResultCart;
   let cartCoupon: string | null | undefined;
 
-  if (searchParams.cartId && searchParams.cartVersion) {
+  if (resolvedSearchParams.cartId && resolvedSearchParams.cartVersion) {
     const { couponCode: fetchedCoupon } = await getCouponAction(
-      Array.isArray(searchParams.cartId)
-        ? searchParams.cartId[0]
-        : searchParams.cartId,
-      Number(searchParams.cartVersion)
+      Array.isArray(resolvedSearchParams.cartId)
+        ? resolvedSearchParams.cartId[0]
+        : resolvedSearchParams.cartId,
+      Number(resolvedSearchParams.cartVersion)
     );
     cartCoupon = fetchedCoupon;
   }
@@ -125,11 +124,10 @@ export default async function New({
       offeringId,
       taxAddress,
       undefined,
-      cartCoupon || searchParamsCoupon,
-      fxaUid
+      cartCoupon || searchParamsCoupon
     );
 
-    redirectToUrl = getRedirectToUrl(cart, params, searchParams);
+    redirectToUrl = getRedirectToUrl(cart, resolvedParams, resolvedSearchParams);
   } catch (error) {
     if (
       error.name === 'CartSetupInvalidPromoCodeError' ||
@@ -140,15 +138,31 @@ export default async function New({
         offeringId,
         taxAddress,
         undefined,
-        undefined,
-        fxaUid
+        undefined
       );
-      redirectToUrl = getRedirectToUrl(cart, params, searchParams);
+      redirectToUrl = getRedirectToUrl(cart, resolvedParams, resolvedSearchParams);
     } else if (
       error.name === 'RetrieveStripePriceInvalidOfferingError' ||
       error.name === 'RetrieveStripePriceNotFoundError'
     ) {
       notFound();
+    } else if (error.name === 'SetupCartAccountNotFoundError') {
+      const searchParams = { ...resolvedSearchParams };
+      delete searchParams.cartId;
+      delete searchParams.cartVersion;
+      searchParams.reason = 'account-not-found';
+      redirect(
+        buildRedirectUrl(
+          resolvedParams.offeringId,
+          resolvedParams.interval,
+          'error',
+          'checkout',
+          {
+            locale: resolvedParams.locale,
+            searchParams,
+          }
+        )
+      );
     } else {
       throw error;
     }

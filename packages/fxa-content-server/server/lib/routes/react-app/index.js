@@ -59,6 +59,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'reset_password',
         'complete_reset_password',
         'confirm_reset_password',
+        'confirm_totp_reset_password',
+        'confirm_backup_code_reset_password',
+        'reset_password_recovery_phone',
+        'reset_password_totp_recovery_choice',
         'reset_password_verified',
         'reset_password_with_recovery_key_verified',
         'account_recovery_confirm_key',
@@ -79,6 +83,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin',
         'oauth/signin',
         'oauth/force_auth',
+        'signin_passkey_fallback',
         'signin_token_code',
         'signin_totp_code',
         'signin_reported',
@@ -95,8 +100,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_totp_setup',
         'inline_recovery_setup',
         'inline_recovery_key_setup',
-        'signin_push_code',
-        'signin_push_code_confirm',
+        'signin_passwordless_code',
+        'oauth/signin_passwordless_code',
       ]),
       fullProdRollout: true,
     },
@@ -117,15 +122,24 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     pairRoutes: {
       featureFlagOn: showReactApp.pairRoutes,
-      // TODO: see comment above about the '/oauth' route in `emailFirstRoutes`. We cannot
-      // check React experiment status at the Express level, so adding pair routes here
-      // without accounting for the 'oauth' conditional would mean Backbone
-      // `/oauth?channel_id=...` would get 100% of traffic while all other pairing gets 15%.
-      // Are we OK with that and then rolling Fx Desktop pairing out at 100%, or, relying on
-      // a feature flag only for the '/pair' flow, meaning at the Express level we could add
-      // a check for this flag to conditionally show '/oauth' React/Backbone?
-      routes: [],
-      fullProdRollout: false,
+      // Note: The '/oauth?channel_id=...' route for Fx Desktop authority entry is handled
+      // separately in add-routes.js — it bypasses to Backbone unless pairRoutes is enabled.
+      routes: reactRoute.getRoutes([
+        'pair',
+        'pair/supp',
+        'pair/supp/allow',
+        'pair/supp/wait_for_auth',
+        'pair/supp/complete',
+        'pair/success',
+        'pair/auth/allow',
+        'pair/auth/wait_for_supp',
+        'pair/auth/complete',
+        'pair/auth/totp',
+        'pair/failure',
+        'pair/unsupported',
+        'connect_another_device',
+      ]),
+      fullProdRollout: true,
     },
 
     postVerifyOtherRoutes: {
@@ -144,7 +158,17 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
+        // Canonical SetPassword URL going forward (FXA-13475). The legacy
+        // `post_verify/third_party_auth/set_password` URL below is kept
+        // registered so in-flight bookmarks and redirects continue to
+        // resolve through Express to the React app.
+        'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
+        // Both set-password routes plus service-welcome ride the
+        // third-party-auth feature flag because they share the post-verify
+        // React app surface, even though they are not strictly third-party
+        // auth flows.
+        'post_verify/service_welcome',
       ]),
       fullProdRollout: true,
     },
@@ -153,6 +177,20 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.webChannelExampleRoutes,
       routes: reactRoute.getRoutes(['web_channel_example']),
       fullProdRollout: false,
+    },
+
+    // FXA-13863 throwaway deep-link pairing POC pages. Gated behind
+    // `showReactApp.pocPairingRoutes`; served only when that flag is on
+    // (fullProdRollout: true means flag-on serves React for everyone, no
+    // `?showReactApp=true` needed).
+    pocPairingRoutes: {
+      featureFlagOn: showReactApp.pocPairingRoutes,
+      routes: reactRoute.getRoutes([
+        'poc_deep_link',
+        'poc_pair_init',
+        'poc_pair_start',
+      ]),
+      fullProdRollout: true,
     },
   };
 };

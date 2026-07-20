@@ -2,29 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { useMutation } from '@apollo/client';
-import {
-  BeginSignUpOptions,
-  BeginSignupHandler,
-  BeginSignupResponse,
-  SignupIntegration,
-} from './interfaces';
-import { BEGIN_SIGNUP_MUTATION } from './gql';
-import { useCallback, useEffect } from 'react';
+import { BeginSignupHandler, SignupIntegration } from './interfaces';
+import { useCallback, useEffect, useRef } from 'react';
+import { handleAuthClientError } from './utils';
 import {
   getCredentials,
   getCredentialsV2,
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { SignUpOptions } from 'fxa-auth-client/lib/client';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
-import { handleGQLError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
@@ -70,7 +64,7 @@ const SignupContainer = ({
   flowQueryParams: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
   setCurrentSplitLayout?: (value: boolean) => void;
-} & RouteComponentProps) => {
+}) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
   const navigateWithQuery = useNavigateWithQuery();
@@ -91,14 +85,24 @@ const SignupContainer = ({
     queryParamModel.emailStatusChecked || location.state?.emailStatusChecked;
   const email = queryParamModel.email || location.state?.email;
 
+  const requiresKeys = integration.requiresKeys();
   const wantsKeys = integration.wantsKeys();
+
+  const attemptedEmailStatusCheck = useRef(false);
 
   useEffect(() => {
     (async () => {
-      if (!validationError && !emailStatusChecked) {
-        const { exists, hasLinkedAccount, hasPassword } =
+      if (
+        !validationError &&
+        !emailStatusChecked &&
+        !attemptedEmailStatusCheck.current
+      ) {
+        attemptedEmailStatusCheck.current = true;
+        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(queryParamModel.email, {
             thirdPartyAuthStatus: true,
+            clientId: integration.getClientId(),
+            service: integration.getService(),
           });
         if (exists) {
           const signInPath = location.pathname.startsWith('/oauth')
@@ -112,19 +116,28 @@ const SignupContainer = ({
               hasPassword,
             },
           });
+        } else if (passwordlessSupported && !requiresKeys) {
+          // New account can use passwordless signup (non-Sync RPs only)
+          navigateWithQuery('/signin_passwordless_code', {
+            replace: true,
+            state: {
+              email,
+              clientId: integration.getClientId(),
+              isSignup: true,
+            },
+          });
         }
       }
     })();
-  });
-
-  const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const beginSignupHandler: BeginSignupHandler = useCallback(
     async (email, password) => {
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const options: BeginSignUpOptions = {
+      const options: SignUpOptions = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
         // See oauth_client_info in the auth-server for details on service/clientId
@@ -135,23 +148,31 @@ const SignupContainer = ({
           flowQueryParams as unknown as Record<string, string>
         ),
       };
+
       try {
         const credentialsV1 = await getCredentials(email, password);
 
-        // If enabled, add in V2 key stretching support
         let credentialsV2 = undefined;
-        let passwordV2 = undefined;
+        let v2Payload:
+          | {
+              wrapKb: string;
+              authPWVersion2: string;
+              wrapKbVersion2: string;
+              clientSalt: string;
+            }
+          | {} = {};
+
         if (keyStretchExp.queryParamModel.isV2(config)) {
           credentialsV2 = await getCredentialsV2({
             password,
-            clientSalt: await createSaltV2(),
+            clientSalt: createSaltV2(),
           });
           const { wrapKb, wrapKbVersion2 } = await getKeysV2({
             v1: credentialsV1,
             v2: credentialsV2,
           });
 
-          passwordV2 = {
+          v2Payload = {
             wrapKb,
             wrapKbVersion2,
             authPWVersion2: credentialsV2.authPW,
@@ -159,51 +180,39 @@ const SignupContainer = ({
           };
         }
 
-        const authPW = credentialsV1.authPW;
-        const input =
-          passwordV2 != null
-            ? {
-                email,
-                authPW,
-                passwordV2,
-                options,
-              }
-            : {
-                email,
-                authPW,
-                options,
-              };
-        const { data } = await beginSignup({
-          variables: {
-            input,
-          },
-        });
+        const result = await authClient.signUpWithAuthPW(
+          email,
+          credentialsV1.authPW,
+          v2Payload,
+          options
+        );
 
-        if (data) {
-          return {
-            data: {
-              ...data,
-              ...(wantsKeys && {
-                unwrapBKey: credentialsV2
-                  ? credentialsV2.unwrapBKey
-                  : credentialsV1.unwrapBKey,
-              }),
+        return {
+          data: {
+            signUp: {
+              uid: result.uid,
+              sessionToken: result.sessionToken,
+              authAt: result.authAt,
+              keyFetchToken: result.keyFetchToken,
             },
-          };
-        } else return { data: undefined };
+            ...(wantsKeys && {
+              unwrapBKey: credentialsV2
+                ? credentialsV2.unwrapBKey
+                : credentialsV1.unwrapBKey,
+            }),
+          },
+        };
       } catch (error) {
-        // TODO tweak this if we ever use auth-client here, any
-        // non-gql errors will return an unexpected error
-        return handleGQLError(error);
+        return handleAuthClientError(error);
       }
     },
     [
+      authClient,
       integration,
       wantsKeys,
       flowQueryParams,
       keyStretchExp.queryParamModel,
       config,
-      beginSignup,
     ]
   );
 
@@ -219,7 +228,6 @@ const SignupContainer = ({
     );
   }
 
-  const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
   return (
@@ -229,7 +237,6 @@ const SignupContainer = ({
         email,
         beginSignupHandler,
         useFxAStatusResult,
-        deeplink,
         flowQueryParams,
         isMobile,
         setCurrentSplitLayout,

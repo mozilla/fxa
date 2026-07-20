@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
@@ -35,7 +34,7 @@ describe('Security', () => {
     expect(await screen.findByText('Account recovery key')).toBeTruthy();
     expect(await screen.findByText('Two-step authentication')).toBeTruthy();
 
-    expect(await screen.findAllByText('Not Set')).toHaveLength(1);
+    expect(await screen.findAllByText('Not set')).toHaveLength(1);
     expect(await screen.findAllByText('Disabled')).toHaveLength(1);
   });
 
@@ -113,7 +112,7 @@ describe('Security', () => {
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
       await screen.findByText('Set a password', { exact: false });
-      expect(await screen.findAllByText('Not Set')).toHaveLength(2);
+      expect(await screen.findAllByText('Not set')).toHaveLength(2);
       expect(await screen.findAllByText('Disabled')).toHaveLength(1);
 
       expect(passwordRouteLink).toHaveTextContent('Create');

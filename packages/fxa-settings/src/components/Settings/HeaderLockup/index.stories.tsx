@@ -2,17 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { HeaderLockup } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-} from '@reach/router';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Components/Settings/HeaderLockup',
@@ -35,15 +30,13 @@ const storyWithContext = (
   route: string = '/settings/emails'
 ) => {
   const context = { account: account as Account };
-  const source = createMemorySource(route);
-  const history = createHistory(source);
-
+    
   const story = () => (
-    <LocationProvider {...{ history }}>
+    <MemoryRouter initialEntries={[route]}>
       <AppContext.Provider value={mockAppContext(context)}>
         <HeaderLockup />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   return story;
 };

@@ -16,6 +16,8 @@ export type TemplateData = IconTemplateData &
     productPaymentCycleNew: string;
     productPaymentCycleOld: string;
     paymentProrated: string;
+    previousRate?: { message: string; l10nId?: string; l10nArgs?: string };
+    newRate?: { message: string; l10nId?: string; l10nArgs?: string };
     subscriptionSupportUrl: string;
   };
 

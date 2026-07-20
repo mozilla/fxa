@@ -5,4 +5,3 @@ passwordChanged-description-2 = "Your Mozilla account password was successfully 
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.txt') %>
-<%- include('/partials/support/index.txt') %>

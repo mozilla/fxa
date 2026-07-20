@@ -10,7 +10,6 @@ import { AuthLogger } from '../../types';
 import { appleIapRoutes } from './apple';
 import { googleIapRoutes } from './google';
 import { mozillaSubscriptionRoutes } from './mozilla';
-import { paypalRoutes } from './paypal';
 import { paypalNotificationRoutes } from './paypal-notifications';
 import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
@@ -67,18 +66,6 @@ export const createRoutes = (
     );
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
-    routes.push(
-      ...paypalRoutes(
-        log,
-        db,
-        config,
-        customs,
-        push,
-        mailer,
-        profile,
-        stripeHelper
-      )
-    );
     routes.push(
       ...paypalNotificationRoutes(
         log,

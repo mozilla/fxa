@@ -932,6 +932,16 @@ export class AppError extends Error {
     });
   }
 
+  static accountDeletionFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.ACCOUNT_DELETION_FAILED,
+      message:
+        'Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.',
+    });
+  }
+
   static unverifiedSession() {
     return new AppError({
       code: 400,
@@ -1720,6 +1730,101 @@ export class AppError extends Error {
       error: 'Bad Request',
       errno: ERRNO.INVALID_CLOUDTASK_EMAILTYPE,
       message: 'Invalid email type',
+    });
+  }
+
+  static passkeyNotFound() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_NOT_FOUND,
+      message: 'Passkey not found',
+    });
+  }
+
+  static passkeyAlreadyRegistered() {
+    return new AppError({
+      code: 409,
+      error: 'Conflict',
+      errno: ERRNO.PASSKEY_ALREADY_REGISTERED,
+      message: 'Passkey already registered',
+    });
+  }
+
+  static passkeyLimitReached(limit: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.PASSKEY_LIMIT_REACHED,
+        message: 'Maximum number of passkeys reached',
+      },
+      {
+        limit,
+      }
+    );
+  }
+
+  static passkeyAuthenticationFailed() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.PASSKEY_AUTHENTICATION_FAILED,
+      message: 'Passkey authentication failed',
+    });
+  }
+
+  static passkeyRegistrationFailed(message?: string) {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_REGISTRATION_FAILED,
+      message: message || 'Passkey registration failed',
+    });
+  }
+
+  static passkeyChallengeExpired() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,
+      message: 'Passkey challenge expired',
+    });
+  }
+
+  static passkeyChallengeNotFound() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_CHALLENGE_NOT_FOUND,
+      message: 'Passkey challenge not found',
+    });
+  }
+
+  static passkeyInvalidName() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.PASSKEY_INVALID_NAME,
+      message: 'Invalid passkey name',
+    });
+  }
+
+  static passkeyDeleteFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_DELETE_FAILED,
+      message: 'Failed to delete passkey',
+    });
+  }
+
+  static passkeyRenameFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_RENAME_FAILED,
+      message: 'Failed to rename passkey',
     });
   }
 

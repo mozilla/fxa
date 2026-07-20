@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { UserContext } from './hooks/UserContext';
 import { GuardContext } from './hooks/GuardContext';
-import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/PageAccountSearch';
 import { PagePermissions } from './components/PagePermissions';
@@ -15,6 +15,10 @@ import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
 import PageRateLimiting from './components/PageRateLimiting';
 import PageAccountReset from './components/PageAccountReset';
+import PageEmailBlocklist from './components/PageEmailBlocklist';
+import PageWafTokens from './components/PageWafTokens';
+import PageDomainBlocklist from './components/PageDomainBlocklist';
+import PageOAuthScopes from './components/PageOAuthScopes';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -45,6 +49,24 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.AccountReset, user.group) && (
                 <Route path="/account-reset" element={<PageAccountReset />} />
+              )}
+              {guard.allow(AdminPanelFeature.EmailBlocklist, user.group) && (
+                <Route
+                  path="/email-blocklist"
+                  element={<PageEmailBlocklist />}
+                />
+              )}
+              {guard.allow(AdminPanelFeature.ManageWafTokens, user.group) && (
+                <Route path="/waf-tokens" element={<PageWafTokens />} />
+              )}
+              {guard.allow(AdminPanelFeature.DomainBlocklist, user.group) && (
+                <Route
+                  path="/domain-blocklist"
+                  element={<PageDomainBlocklist />}
+                />
+              )}
+              {guard.allow(AdminPanelFeature.OAuthScopes, user.group) && (
+                <Route path="/oauth-scopes" element={<PageOAuthScopes />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

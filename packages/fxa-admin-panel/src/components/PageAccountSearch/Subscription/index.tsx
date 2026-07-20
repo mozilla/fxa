@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozSubscription } from 'fxa-admin-server/src/graphql';
+import { MozSubscription } from 'fxa-admin-server/src/dto';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { HIDE_ROW } from '../../../../constants';
 import { ReactComponent as IconExternalLink } from '../../../images/icon-external-link.svg';

@@ -30,7 +30,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await settings.recoveryKey.createButton.click();
 
@@ -61,7 +61,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await settings.recoveryKey.createButton.click();
 
@@ -121,7 +121,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await settings.recoveryKey.createButton.click();
 
@@ -147,7 +147,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText(
         'Account recovery key removed'
       );
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
     });
   });
 });

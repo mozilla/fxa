@@ -99,7 +99,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA
@@ -206,7 +206,7 @@ module.exports = (
           }),
         },
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         response: {
           schema: isA
@@ -271,11 +271,18 @@ module.exports = (
         // command, which should match to an "invoked" event emitted when it was invoked.
         for (const msg of response.messages) {
           const data = msg.data || {}; // should always be present, but you never know...
+
+          // Response validation allows an optional sender, but empty or null values are
+          // not allowed. Delete empty/null/undefined data to adhere to validation schema.
+          if (!data.sender) {
+            delete data.sender;
+          }
+
           log.info('device.command.retrieved', {
             uid,
             target: deviceId,
             index: msg.index,
-            sender: data.sender,
+            sender: data.sender || null,
             command: data.command,
           });
         }
@@ -289,7 +296,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_INVOKE_COMMAND_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.object({
@@ -325,6 +332,27 @@ module.exports = (
         const email = credentials.email;
         const sender = credentials.deviceId;
 
+        // Log diagnostic info when sender deviceId is missing to help identify the cause
+        if (!sender) {
+          log.warn('device.command.senderDeviceIdMissing', {
+            uid,
+            command,
+            target,
+            hasSessionToken: !!credentials.tokenId,
+            hasRefreshToken: !!credentials.refreshTokenId,
+            clientId: credentials.client?.id
+              ? hex(credentials.client.id)
+              : null,
+            clientName: credentials.client?.name || null,
+            deviceType: credentials.deviceType || null,
+            uaBrowser: credentials.uaBrowser || null,
+            uaBrowserVersion: credentials.uaBrowserVersion || null,
+            uaOS: credentials.uaOS || null,
+            uaOSVersion: credentials.uaOSVersion || null,
+            uaDeviceType: credentials.uaDeviceType || null,
+          });
+        }
+
         if (
           config.oauth.deviceCommandsEnabled === false &&
           credentials.refreshTokenId
@@ -351,7 +379,12 @@ module.exports = (
           ttl = DEFAULT_COMMAND_TTL.get(command);
         }
 
-        const data = { command, payload, sender };
+        // Only include sender if it exists, since the validation schema expects
+        // it to be optional (missing) or a valid device ID string, not null
+        const data = { command, payload };
+        if (sender) {
+          data.sender = sender;
+        }
         const { index } = await pushbox.store(uid, targetDevice.id, data, ttl);
 
         // To measure command delivery, we emit an initial "invoked" event for each invoked
@@ -360,7 +393,7 @@ module.exports = (
           uid,
           target,
           index,
-          sender,
+          sender: sender || null,
           command,
           targetOS: targetDevice.uaOS,
           targetType: targetDevice.type,
@@ -412,7 +445,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_NOTIFY_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.alternatives().try(
@@ -555,7 +588,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_GET,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           query: isA.object({
@@ -691,8 +724,8 @@ module.exports = (
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_GET,
         auth: {
           strategies: [
+            'sessionTokenBearer',
             'sessionToken',
-            // this endpoint is only used by the content server
             // no refreshToken access here
           ],
         },
@@ -798,7 +831,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_DESTROY_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.object({

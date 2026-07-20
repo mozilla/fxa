@@ -18,10 +18,17 @@ export const stringEventPropertyNames = [
   'reason',
   'nimbusUserId',
   'choice',
+  'outcome',
 ] as const;
 
+// String event extras passed to specific events but not backed by a global
+// `event`-module metric, so they are not set globally in populateMetrics.
+export const stringEventExtraPropertyNames = ['mobile_device_count'] as const;
+
 export type PropertyNameStringT = typeof stringEventPropertyNames;
-export type PropertyNameString = PropertyNameStringT[number];
+export type PropertyNameString =
+  | PropertyNameStringT[number]
+  | (typeof stringEventExtraPropertyNames)[number];
 
 export type PropertyNameBooleanT = typeof booleanEventPropertyNames;
 export type PropertyNameBoolean = PropertyNameBooleanT[number];
@@ -41,8 +48,6 @@ export type EventMapKeys = keyof EventsMap;
 // Type for optional values
 export type GleanPingMetrics = {
   event?: EventProperties;
-  sync?: { cwts: Record<string, boolean> };
-  standard?: { marketing: Record<string, boolean> };
 };
 
 export const eventsMap = {
@@ -53,6 +58,9 @@ export const eventsMap = {
     engage: 'email_first_engage',
     submitSuccess: 'email_first_submit_success',
     submitFail: 'email_first_submit_fail',
+    passkeySubmit: 'email_first_passkey_submit',
+    passkeySubmitFrontendError: 'email_first_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'email_first_passkey_submit_success',
   },
 
   registration: {
@@ -61,9 +69,7 @@ export const eventsMap = {
     submit: 'reg_submit',
     submitSuccess: 'reg_submit_success',
     successView: 'reg_success_view',
-    cwts: 'reg_cwts_engage',
     ageInvalid: 'reg_age_invalid',
-    marketing: 'reg_marketing_engage',
     changeEmail: 'reg_change_email_link_click',
   },
 
@@ -85,6 +91,17 @@ export const eventsMap = {
     backupChoiceSubmit: 'login_backup_choice_submit',
     recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
     lockedAccountBannerView: 'login_locked_account_banner_view',
+    alternativeAuthView: 'login_alternative_auth_view',
+    alternativeAuthGoogleStart: 'login_alternative_auth_google_start',
+    alternativeAuthAppleStart: 'login_alternative_auth_apple_start',
+    passkeySubmit: 'login_passkey_submit',
+    passkeySubmitFrontendError: 'login_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'login_passkey_submit_success',
+    alternativeAuthPasskeySubmit: 'login_alternative_auth_passkey_submit',
+    alternativeAuthPasskeySubmitFrontendError:
+      'login_alternative_auth_passkey_submit_frontend_error',
+    alternativeAuthPasskeySubmitSuccess:
+      'login_alternative_auth_passkey_submit_success',
   },
 
   cachedLogin: {
@@ -151,16 +168,25 @@ export const eventsMap = {
     startAppleAuthFromReg: 'third_party_auth_apple_reg_start',
     startGoogleAuthFromLogin: 'third_party_auth_google_login_start',
     startAppleAuthFromLogin: 'third_party_auth_apple_login_start',
-    loginNoPwView: 'third_party_auth_login_no_pw_view',
-    googleDeeplink: 'third_party_auth_google_deeplink',
-    appleDeeplink: 'third_party_auth_apple_deeplink',
   },
 
-  thirdPartyAuthSetPassword: {
-    view: 'third_party_auth_set_password_view',
-    engage: 'third_party_auth_set_password_engage',
-    submit: 'third_party_auth_set_password_submit',
-    success: 'third_party_auth_set_password_success',
+  postVerifySetPassword: {
+    view: 'post_verify_set_password_view',
+    engage: 'post_verify_set_password_engage',
+    submit: 'post_verify_set_password_submit',
+    submitFrontendError: 'post_verify_set_password_submit_frontend_error',
+    success: 'post_verify_set_password_success',
+  },
+
+  passkey: {
+    buttonView: 'passkey_button_view',
+    authSuccess: 'passkey_auth_success',
+  },
+
+  cad: {
+    view: 'cad_view',
+    submit: 'cad_submit',
+    startbrowsingSubmit: 'cad_startbrowsing_submit',
   },
 
   cadMobilePair: {
@@ -173,10 +199,27 @@ export const eventsMap = {
   },
 
   cadApproveDevice: {
+    view: 'cad_approve_device_view',
     submit: 'cad_approve_device_submit',
   },
 
+  cadRedirectDesktop: {
+    view: 'cad_redirect_desktop_view',
+    defaultView: 'cad_redirect_desktop_default_view',
+    download: 'cad_redirect_desktop_download',
+  },
+
+  cadRedirectMobile: {
+    view: 'cad_redirect_mobile_view',
+  },
+
   cadFireFox: {
+    view: 'cad_firefox_view',
+    choiceView: 'cad_firefox_choice_view',
+    choiceEngage: 'cad_firefox_choice_engage',
+    choiceSubmit: 'cad_firefox_choice_submit',
+    choiceNotnowSubmit: 'cad_firefox_choice_notnow_submit',
+    syncDeviceSubmit: 'cad_firefox_sync_device_submit',
     notnowSubmit: 'cad_firefox_notnow_submit',
   },
 
@@ -218,6 +261,8 @@ export const eventsMap = {
     help: 'account_pref_help',
     promoMonitorView: 'account_pref_promo_monitor_view',
     promoMonitorSubmit: 'account_pref_promo_monitor_submit',
+    promoVpnView: 'account_pref_promo_vpn_view',
+    promoVpnSubmit: 'account_pref_promo_vpn_submit',
     bentoView: 'account_pref_bento_view',
     bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
     bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',
@@ -226,6 +271,16 @@ export const eventsMap = {
     bentoVpn: 'account_pref_bento_vpn',
     mfaGuardView: 'account_pref_mfa_guard_view',
     mfaGuardSubmitSuccess: 'account_pref_mfa_guard_submit_success',
+    passkeyCreateView: 'account_pref_passkey_create_view',
+    passkeyCreateSubmitFrontendError:
+      'account_pref_passkey_create_submit_frontend_error',
+    passkeyCreateSuccessView: 'account_pref_passkey_create_success_view',
+    passkeyCreateRetryWithoutPrfRequest:
+      'account_pref_passkey_create_retry_without_prf_request',
+    passkeyDeleteView: 'account_pref_passkey_delete_view',
+    passkeyDeleteSubmitFrontendError:
+      'account_pref_passkey_delete_submit_frontend_error',
+    passkeyDeleteSuccessView: 'account_pref_passkey_delete_success_view',
   },
 
   accountBanner: {
@@ -234,8 +289,13 @@ export const eventsMap = {
     reactivationSuccessView: 'account_banner_reactivation_success_view',
   },
 
-  webauthn: {
-    capabilities: 'webauthn_capabilities',
+  firefoxPromo: {
+    connectMobileView: 'firefox_promo_connect_mobile_view',
+    connectMobileSubmit: 'firefox_promo_connect_mobile_submit',
+    connectMobileDismiss: 'firefox_promo_connect_mobile_dismiss',
+    switchToFirefoxView: 'firefox_promo_switch_to_firefox_view',
+    switchToFirefoxSubmit: 'firefox_promo_switch_to_firefox_submit',
+    switchToFirefoxDismiss: 'firefox_promo_switch_to_firefox_dismiss',
   },
 
   deleteAccount: {
@@ -247,7 +307,42 @@ export const eventsMap = {
     passwordSubmit: 'delete_account_password_submit',
   },
 
+  passwordlessReg: {
+    view: 'reg_otp_view',
+    engage: 'reg_otp_engage',
+    submit: 'reg_otp_submit',
+    submitSuccess: 'reg_otp_submit_success',
+    error: 'reg_otp_submit_frontend_error',
+    resendCode: 'reg_otp_email_confirmation_resend_code',
+    changeEmail: 'reg_otp_change_email',
+  },
+
+  passwordlessLogin: {
+    view: 'login_otp_view',
+    engage: 'login_otp_engage',
+    submit: 'login_otp_submit',
+    submitSuccess: 'login_otp_submit_success',
+    error: 'login_otp_submit_frontend_error',
+    resendCode: 'login_otp_email_confirmation_resend_code',
+    changeEmail: 'login_otp_change_email',
+    passkeySubmit: 'login_otp_passkey_submit',
+    passkeySubmitFrontendError: 'login_otp_passkey_submit_frontend_error',
+    passkeySubmitSuccess: 'login_otp_passkey_submit_success',
+  },
+
+  passkeyEnterPassword: {
+    view: 'passkey_enter_password_view',
+    engage: 'passkey_enter_password_engage',
+    submit: 'passkey_enter_password_submit',
+    submitFrontendError: 'passkey_enter_password_submit_frontend_error',
+    success: 'passkey_enter_password_success',
+  },
+
   error: {
     view: 'error_view',
+  },
+
+  promoQrMobile: {
+    view: 'promo_qr_mobile_view',
   },
 } as const;

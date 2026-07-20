@@ -7,9 +7,8 @@ import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
-import React from 'react';
-import { waitFor } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { act, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
 import IndexContainer from './container';
@@ -25,11 +24,12 @@ import { IndexQueryParams } from '../../models/pages/index';
 import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { firefox } from '../../lib/channels/firefox';
+import * as storageUtils from '../../lib/storage-utils';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
-jest.mock('@reach/router', () => {
-  const actual = jest.requireActual('@reach/router');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useLocation: () => {
@@ -59,8 +59,18 @@ jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
   firefox: {
     fxaCanLinkAccount: jest.fn(),
+    requestSignedInUser: jest.fn().mockResolvedValue(undefined),
   },
 }));
+
+jest.mock('../../lib/storage-utils', () => {
+  const actual = jest.requireActual('../../lib/storage-utils');
+  return {
+    ...actual,
+    persistAccount: jest.fn(),
+    setCurrentAccount: jest.fn(),
+  };
+});
 
 jest.mock('../../lib/email-domain-validator', () => ({
   checkEmailDomain: jest.fn(),
@@ -142,7 +152,8 @@ describe('IndexContainer', () => {
       getClientId: () => 'abc123',
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
-      isFirefoxClientServiceAiWindow: () => false,
+      isFirefoxClientServiceSmartWindow: () => false,
+      isFirefoxClientServiceVpn: () => false,
       wantsKeys: () => true,
       getCmsInfo: () => undefined,
       data: { clientId: 'abc123' },
@@ -205,9 +216,9 @@ describe('IndexContainer', () => {
     jest.resetAllMocks();
   });
 
-  it('should check query parameters', () => {
+  it('should check query parameters', async () => {
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -215,18 +226,20 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
-    expect(mockUseValidatedQueryParams).toHaveBeenCalledWith(
-      IndexQueryParams,
-      false
-    );
+    await waitFor(() => {
+      expect(mockUseValidatedQueryParams).toHaveBeenCalledWith(
+        IndexQueryParams,
+        false
+      );
+    });
   });
 
   it('should render the Index component when no redirection is required', async () => {
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -234,7 +247,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -246,7 +259,7 @@ describe('IndexContainer', () => {
   it('should pass the prefill email as prop to index when provided by location state', async () => {
     mockLocationState = { prefillEmail: MOCK_EMAIL };
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -254,7 +267,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -267,7 +280,7 @@ describe('IndexContainer', () => {
     const errorMessage = 'Login cancelled';
     mockLocationState = { localizedErrorFromLocationState: errorMessage };
     const { container } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -275,7 +288,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
     expect(container).toBeDefined();
     expect(IndexModule.default).toHaveBeenCalled();
@@ -305,7 +318,7 @@ describe('IndexContainer', () => {
     });
 
     const { getByText, queryByText } = renderWithLocalizationProvider(
-      <LocationProvider>
+      <MemoryRouter>
         <IndexContainer
           {...{
             integration,
@@ -313,7 +326,7 @@ describe('IndexContainer', () => {
             useFxAStatusResult: mockUseFxAStatusResult,
           }}
         />
-      </LocationProvider>
+      </MemoryRouter>
     );
 
     // Assert that the LoadingSpinner is rendered initially
@@ -338,7 +351,7 @@ describe('IndexContainer', () => {
       });
 
       const { container } = renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -346,7 +359,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
       expect(container).toBeDefined();
       expect(IndexModule.default).toHaveBeenCalled();
@@ -365,6 +378,10 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
       renderWithLocalizationProvider(
         <IndexContainer
           {...{
@@ -378,12 +395,11 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
-      // Glean event not emitted on automatic redirect, only on successful manual submission
-      const gleanSubmitSuccessSpy = jest.spyOn(
-        GleanMetrics.emailFirst,
-        'submitSuccess'
-      );
-      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+      // Auto-submit emits with the '-auto' reason suffix,
+      // so we can differentiate from manual submission
+      expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+        event: { reason: 'login-auto' },
+      });
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signin$/);
       expect(options).toEqual({
@@ -410,6 +426,10 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
       renderWithLocalizationProvider(
         <IndexContainer
           {...{
@@ -423,12 +443,10 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
-      // Glean event not emitted on automatic redirect, only on successful manual submission
-      const gleanSubmitSuccessSpy = jest.spyOn(
-        GleanMetrics.emailFirst,
-        'submitSuccess'
-      );
-      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+
+      expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+        event: { reason: 'registration-auto' },
+      });
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signup$/);
       expect(options).toEqual({
@@ -451,7 +469,7 @@ describe('IndexContainer', () => {
       });
 
       renderWithLocalizationProvider(
-        <LocationProvider>
+        <MemoryRouter>
           <IndexContainer
             {...{
               integration,
@@ -459,7 +477,7 @@ describe('IndexContainer', () => {
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
-        </LocationProvider>
+        </MemoryRouter>
       );
 
       await waitFor(() => {
@@ -601,6 +619,172 @@ describe('IndexContainer', () => {
           true
         );
       });
+    });
+  });
+
+  describe('WebChannel browser-user fallback', () => {
+    let isProbablyFirefoxSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      isProbablyFirefoxSpy = jest
+        .spyOn(ModelsModule, 'isProbablyFirefox')
+        .mockReturnValue(true);
+      (firefox.requestSignedInUser as jest.Mock).mockReset();
+      (storageUtils.persistAccount as jest.Mock).mockReset();
+      (storageUtils.setCurrentAccount as jest.Mock).mockReset();
+    });
+
+    afterEach(() => {
+      isProbablyFirefoxSpy.mockRestore();
+    });
+
+    it('persists browser user (without sessionToken) when verified is false', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue({
+        uid: 'browseruid123',
+        email: 'browser@example.com',
+        sessionToken: 'untrusted-token',
+        verified: false,
+      });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(firefox.requestSignedInUser).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(storageUtils.persistAccount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: 'browseruid123',
+            email: 'browser@example.com',
+          })
+        );
+      });
+      const persisted = (storageUtils.persistAccount as jest.Mock).mock
+        .calls[0][0];
+      expect(persisted.sessionToken).toBeUndefined();
+      expect(storageUtils.setCurrentAccount).toHaveBeenCalledWith(
+        'browseruid123'
+      );
+    });
+
+    it('persists browser sessionToken when verified is true', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue({
+        uid: 'browseruid123',
+        email: 'browser@example.com',
+        sessionToken: 'trusted-token',
+        verified: true,
+      });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(storageUtils.persistAccount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: 'browseruid123',
+            email: 'browser@example.com',
+            sessionToken: 'trusted-token',
+          })
+        );
+      });
+    });
+
+    it('does not query the browser when localStorage already has an account', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+        uid: 'cacheduid',
+        email: 'cached@example.com',
+        lastLogin: Date.now(),
+      });
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      // Cached account triggers auto-submit; navigation proves we skipped the WebChannel call.
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalled();
+      });
+      expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+      expect(storageUtils.persistAccount).not.toHaveBeenCalled();
+    });
+
+    it('does not query the browser when not running in Firefox', async () => {
+      isProbablyFirefoxSpy.mockReturnValue(false);
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(IndexModule.default).toHaveBeenCalled();
+      });
+      expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+    });
+
+    it('does not persist when the browser returns no signed-in user', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(undefined);
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(firefox.requestSignedInUser).toHaveBeenCalled();
+      });
+      expect(storageUtils.persistAccount).not.toHaveBeenCalled();
+      expect(storageUtils.setCurrentAccount).not.toHaveBeenCalled();
     });
   });
 
@@ -864,6 +1048,269 @@ describe('IndexContainer', () => {
           event: { reason: 'registration' },
         });
       });
+
+      it('emits submitFail with reason "login" when the user cancels account linking', async () => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+
+      it('emits submitFail with reason "registration-auto" when auto-submit fails domain validation', async () => {
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { email: 'test@example.com' },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+          }),
+        });
+        (checkEmailDomain as jest.Mock).mockRejectedValueOnce(
+          AuthUiErrors.INVALID_EMAIL_DOMAIN
+        );
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+            event: { reason: 'registration-auto' },
+          });
+        });
+      });
+
+      it('does not emit submitFail when accountStatusByEmail rejects before accountExists is known', async () => {
+        // If we reach the catch before accountStatusByEmail resolves we can't
+        // attribute the failure to login vs registration, so the event should
+        // be skipped rather than recording a misleading reason.
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest
+            .fn()
+            .mockRejectedValue(new Error('network error')),
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
+      });
+
+      it('emits submitFail with reason "login-auto" when auto-submit hits a canceled can_link_account', async () => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { email: MOCK_EMAIL },
+          validationError: null,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+            event: { reason: 'login-auto' },
+          });
+        });
+      });
+    });
+
+    it('should redirect cached passwordless account to signin (not OTP) when sessionToken exists', async () => {
+      // When a logged-in passwordless user navigates to `/`, currentAccount()
+      // returns their account with a sessionToken. The IndexContainer skips
+      // the passwordless OTP redirect and sends to /signin for cached login.
+      mockLocationState = {};
+
+      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+        uid: 'abc123',
+        email: 'passwordless@example.com',
+        sessionToken: 'abc123def456',
+        lastLogin: Date.now(),
+      });
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: {},
+        validationError: null,
+      });
+
+      mockUseAuthClient.mockReturnValue({
+        accountStatusByEmail: jest.fn().mockResolvedValue({
+          exists: true,
+          hasLinkedAccount: false,
+          hasPassword: false,
+          passwordlessSupported: true,
+        }),
+      });
+
+      renderWithLocalizationProvider(
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+      });
+
+      const [calledUrl, options] = mockNavigate.mock.calls[0];
+      expect(calledUrl).toMatch(/\/signin$/);
+      expect(options.state.email).toBe('passwordless@example.com');
+    });
+
+    describe('passwordless redirect', () => {
+      it('redirects existing passwordless account to passwordless code without feature flag', async () => {
+        // When passwordlessSupported=true and hasPassword=false, canUsePasswordlessExisting
+        // should be true WITHOUT requiring the passwordlessEnabled flag
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+      });
+
+      it('does not redirect password account to passwordless even when passwordlessSupported is false', async () => {
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: true,
+            passwordlessSupported: false,
+          }),
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/\/signin$/);
+      });
     });
 
     describe('fxaCanLinkAccount with OAuthNative integration', () => {
@@ -896,7 +1343,9 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
@@ -929,7 +1378,9 @@ describe('IndexContainer', () => {
         await waitFor(() => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
@@ -962,13 +1413,84 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
         });
         await waitFor(() => {
           expect(currentIndexProps?.errorBannerMessage).toBeDefined();
+        });
+      });
+
+      describe('useFxAStatusResult.supportsCanLinkAccountUid and processEmailSubmission', () => {
+        beforeEach(() => {
+          jest.spyOn(cache, 'currentAccount').mockReturnValue({
+            uid: 'abc123',
+            email: MOCK_EMAIL,
+            lastLogin: Date.now(),
+          });
+        });
+
+        it('shows loading spinner and does not call fxaCanLinkAccount when supportsCanLinkAccountUid is undefined', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: undefined,
+          });
+
+          const { getByText } = renderWithLocalizationProvider(
+            <MemoryRouter>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </MemoryRouter>
+          );
+
+          expect(getByText('LoadingSpinner')).toBeInTheDocument();
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+
+        it('does not call fxaCanLinkAccount when supportsCanLinkAccountUid is true', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          renderWithLocalizationProvider(
+            <MemoryRouter>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </MemoryRouter>
+          );
+
+          await waitFor(() => {
+            expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+          });
+        });
+
+        it('calls fxaCanLinkAccount when supportsCanLinkAccountUid is false', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: false,
+          });
+
+          renderWithLocalizationProvider(
+            <MemoryRouter>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </MemoryRouter>
+          );
+
+          await waitFor(() => {
+            expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
+          });
         });
       });
     });

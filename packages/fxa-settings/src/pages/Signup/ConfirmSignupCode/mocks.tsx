@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import ConfirmSignupCode from '.';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
   IntegrationType,
-  OAuthNativeClients,
   OAuthNativeIntegration,
-  OAuthNativeServices,
   OAuthWebIntegration,
   RelierClientInfo,
   RelierCmsInfo,
@@ -151,7 +149,8 @@ export function createMockOAuthWebIntegration(
 }
 
 export function createMockOAuthNativeIntegration(
-  isSync = true
+  isSync = true,
+  service?: OAuthNativeServices
 ): ConfirmSignupCodeOAuthIntegration {
   // Keeping previous mock for reference... Now we mock the data and use an actual integration.
   // return {
@@ -168,10 +167,12 @@ export function createMockOAuthNativeIntegration(
   //   isFirefoxClientServiceRelay: () => !isSync,
   // };
 
+  const resolvedService =
+    service ?? (isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay);
   const integration = new OAuthNativeIntegration(
     new GenericData({
       scope: 'profile:email',
-      service: isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay,
+      service: resolvedService,
       uid: MOCK_UID,
       redirect_uri: MOCK_REDIRECT_URI,
       client_id: MOCK_CLIENT_ID,
@@ -200,14 +201,14 @@ export function createMockOAuthNativeIntegration(
   if (typeof expect !== 'undefined') {
     expect(integration.type).toEqual(IntegrationType.OAuthNative);
     expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
-    expect(integration.getService()).toEqual(
-      isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay
-    );
+    expect(integration.getService()).toEqual(resolvedService);
     expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
     expect(integration.wantsTwoStepAuthentication()).toEqual(false);
     expect(integration.isSync()).toEqual(isSync);
     expect(integration.getPermissions()).toEqual(['profile:email']);
-    expect(integration.isFirefoxClientServiceRelay()).toEqual(!isSync);
+    expect(integration.isFirefoxClientServiceRelay()).toEqual(
+      resolvedService === OAuthNativeServices.Relay
+    );
   }
 
   return integration;
@@ -229,7 +230,7 @@ export const Subject = ({
   origin?: string;
 }) => {
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <ConfirmSignupCode
         {...{
           integration,
@@ -246,6 +247,6 @@ export const Subject = ({
         uid={MOCK_UID}
         unwrapBKey={MOCK_UNWRAP_BKEY}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

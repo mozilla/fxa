@@ -4,12 +4,11 @@
 
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
-export const createPayPalBillingAgreementId = async (
-  uid: string,
-  token: string
-) => {
+export const createPayPalBillingAgreementId = async (token: string) => {
+  const uid = await requireSessionUid();
   return await getApp()
     .getActionsService()
     .createPayPalBillingAgreementId({ uid, token });

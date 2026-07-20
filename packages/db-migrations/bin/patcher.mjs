@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import mysql from 'mysql';
-import patcher from 'mysql-patcher';
+import Patcher from '../lib/mysql-patcher.js';
 import convict from 'convict';
 import { makeMySQLConfig } from 'fxa-shared/db/config';
-const patch = promisify(patcher.patch);
 
 const conf = convict({
   fxa: makeMySQLConfig('AUTH', 'fxa'),
@@ -43,7 +41,7 @@ for (const db of databases) {
   try {
     const cfg = conf.get(db);
     console.log(`Patching ${db} to ${level}`);
-    let results = await patch({
+    await Patcher.patch({
       user: cfg.user,
       password: cfg.password,
       host: cfg.host,
@@ -57,7 +55,6 @@ for (const db of databases) {
       reversePatchAllowed: false,
       database: cfg.database,
     });
-    console.log(`Results: ${results}`);
     console.log(`Successfully patched ${db} to ${level}`);
   } catch (error) {
     // fyi these logs show up in `pm2 logs mysql`

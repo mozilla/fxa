@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { EmailType } from '.';
-import { convertError } from '../../mysql';
+import { convertError, MysqlErrors } from '../../mysql';
 import { BaseAuthModel, Proc } from './base-auth';
 import * as Sentry from '@sentry/node';
 
@@ -62,14 +62,18 @@ export class EmailBounce extends BaseAuthModel {
     try {
       await EmailBounce.callProcedure(
         Proc.CreateEmailBounce,
-        email,
-        templateName,
-        BOUNCE_TYPES[bounceType],
-        BOUNCE_SUB_TYPES[bounceSubType],
+        email || '',
+        templateName || 'unknown',
+        BOUNCE_TYPES[bounceType] || BOUNCE_TYPES['__fxa__unmapped'],
+        BOUNCE_SUB_TYPES[bounceSubType] || BOUNCE_TYPES['__fxa__unmapped'],
         Date.now(),
         (diagnosticCode ?? '').substring(0, 255)
       );
     } catch (e: any) {
+      // SQS delivered the same bounce twice; the row exists, so this is a no-op.
+      if (e?.errno === MysqlErrors.ER_DUP_ENTRY) {
+        return;
+      }
       Sentry.captureException(e);
       throw convertError(e);
     }

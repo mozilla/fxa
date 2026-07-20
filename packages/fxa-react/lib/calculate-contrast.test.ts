@@ -13,7 +13,7 @@ import {
 
 describe('calculate-contrast', () => {
   describe('getTextColorClassName', () => {
-    describe('default color (text-grey-400)', () => {
+    describe('minimum contrast preference (default)', () => {
       it('should return text-grey-400 for light solid colors', () => {
         expect(getTextColorClassName('#ffffff')).toBe('text-grey-400');
         expect(getTextColorClassName('#FAFAFD')).toBe('text-grey-400');
@@ -24,6 +24,7 @@ describe('calculate-contrast', () => {
           'text-grey-400'
         );
       });
+
       it('should return text-grey-400 for light gradients', () => {
         expect(
           getTextColorClassName(
@@ -35,6 +36,19 @@ describe('calculate-contrast', () => {
             'linear-gradient(135deg, rgba(250, 240, 250, 0.7) 0%, rgba(255, 245, 248, 0.5) 100%)'
           )
         ).toBe('text-grey-400');
+      });
+
+      it('should return text-white for dark solid colors', () => {
+        expect(getTextColorClassName('#8B4000')).toBe('text-white');
+        expect(getTextColorClassName('#000080')).toBe('text-white');
+        expect(getTextColorClassName('#000000')).toBe('text-white');
+        expect(getTextColorClassName('#240005')).toBe('text-white');
+        expect(getTextColorClassName('#4B0082')).toBe('text-white');
+      });
+
+      it('should return text-grey-400 for bright colors where grey-400 passes', () => {
+        // Very light yellow #FFFF99: grey-400 has sufficient contrast (~6.7:1)
+        expect(getTextColorClassName('#FFFF99')).toBe('text-grey-400');
       });
 
       it('should handle semi-transparent colors with alpha blending', () => {
@@ -51,69 +65,61 @@ describe('calculate-contrast', () => {
       });
     });
 
-    describe('white text (text-white)', () => {
-      it('should return text-white for dark solid colors that have poor contrast with grey', () => {
-        expect(getTextColorClassName('#8B4000')).toBe('text-white');
-        expect(getTextColorClassName('#000080')).toBe('text-white');
-        expect(getTextColorClassName('#000000')).toBe('text-white');
-        expect(getTextColorClassName('#240005')).toBe('text-white');
-        expect(getTextColorClassName('#4B0082')).toBe('text-white');
-        expect(getTextColorClassName('rgb(0, 0, 0)')).toBe('text-white');
-        expect(getTextColorClassName('rgba(0, 0, 0, 1)')).toBe('text-white');
+    describe('maximum contrast preference', () => {
+      it('should return text-grey-900 for white background (maximum contrast)', () => {
+        expect(getTextColorClassName('#ffffff', 'maximum')).toBe(
+          'text-grey-900'
+        );
+        expect(getTextColorClassName('#FAFAFD', 'maximum')).toBe(
+          'text-grey-900'
+        );
       });
 
-      it('should return text-white when all 3 fail contrast', () => {
-        expect(getTextColorClassName('#808000')).toBe('text-white');
+      it('should return text-white for dark backgrounds (maximum contrast)', () => {
+        expect(getTextColorClassName('#000000', 'maximum')).toBe('text-white');
+        expect(getTextColorClassName('#0060DF', 'maximum')).toBe('text-white');
+        expect(getTextColorClassName('#4B0082', 'maximum')).toBe('text-white');
       });
 
-      it('should return text-white for medium colors that have poor contrast with grey', () => {
-        expect(getTextColorClassName('#7037d4')).toBe('text-white');
-        // Using a test background color instead of MOCK_CMS_INFO
-        expect(getTextColorClassName('#6D37D1')).toBe('text-white');
+      it('should return text-grey-900 for very light backgrounds (maximum contrast)', () => {
+        // For very light backgrounds, black should have the most contrast
+        expect(getTextColorClassName('#F0F0F0', 'maximum')).toBe(
+          'text-grey-900'
+        );
       });
 
-      it('should return text-white for dark gradients', () => {
+      it('should return text-white for dark gradients (maximum contrast)', () => {
         expect(
           getTextColorClassName(
-            'linear-gradient(135deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)'
+            'linear-gradient(135deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)',
+            'maximum'
           )
         ).toBe('text-white');
+      });
+
+      it('should return text-grey-900 for light gradients (maximum contrast)', () => {
         expect(
           getTextColorClassName(
-            'radial-gradient(circle at center, rgba(139, 64, 0, 1) 0%, rgba(101, 67, 33, 1) 100%)'
+            'radial-gradient(circle, rgba(255, 245, 235, 0.8) 0%, rgba(255, 250, 240, 0.6) 100%)',
+            'maximum'
           )
-        ).toBe('text-white');
-        expect(
-          getTextColorClassName(
-            'linear-gradient(135deg, rgba(75, 0, 130, 1) 0%, rgba(72, 61, 139, 1) 100%)'
-          )
-        ).toBe('text-white');
-        expect(
-          getTextColorClassName(
-            'radial-gradient(circle, rgba(0, 0, 128, 1) 0%, rgba(25, 25, 112, 1) 100%)'
-          )
-        ).toBe('text-white');
-        expect(
-          getTextColorClassName(
-            'linear-gradient(135deg, rgba(128, 128, 0, 1) 0%, rgba(85, 107, 47, 1) 100%)'
-          )
-        ).toBe('text-white');
+        ).toBe('text-grey-900');
       });
     });
 
-    describe('dark grey text (text-grey-600)', () => {
-      it('should return text-grey-600 when grey-400 and white fail but grey-600 passes', () => {
-        expect(getTextColorClassName('#37d44c')).toBe('text-grey-600');
-        expect(
-          getTextColorClassName(
-            'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)'
-          )
-        ).toBe('text-grey-600');
-        expect(
-          getTextColorClassName(
-            'radial-gradient(ellipse at top, rgba(250, 100, 210, 1) 0%, rgba(220, 200, 240, 1) 100%)'
-          )
-        ).toBe('text-grey-600');
+    describe('preference comparison', () => {
+      it('minimum preference prefers grey-400 on white, maximum prefers black', () => {
+        expect(getTextColorClassName('#ffffff', 'minimum')).toBe(
+          'text-grey-400'
+        );
+        expect(getTextColorClassName('#ffffff', 'maximum')).toBe(
+          'text-grey-900'
+        );
+      });
+
+      it('both preferences return white for dark backgrounds', () => {
+        expect(getTextColorClassName('#000000', 'minimum')).toBe('text-white');
+        expect(getTextColorClassName('#000000', 'maximum')).toBe('text-white');
       });
     });
   });
@@ -294,8 +300,13 @@ describe('calculate-contrast', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle empty string', () => {
+    it('should handle empty string with minimum preference', () => {
       expect(getTextColorClassName('')).toBe('text-grey-400');
+    });
+
+    it('should handle empty string with maximum preference', () => {
+      // Empty string is parsed as white, so maximum contrast should be black
+      expect(getTextColorClassName('', 'maximum')).toBe('text-grey-900');
     });
 
     it('should handle malformed gradient', () => {

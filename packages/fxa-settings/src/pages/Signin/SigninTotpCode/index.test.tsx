@@ -4,10 +4,10 @@
 
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../../lib/types';
 import {
   AuthUiError,
@@ -18,7 +18,11 @@ import {
   Subject,
   MOCK_TOTP_LOCATION_STATE,
 } from './mocks';
-import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE, MOCK_UID } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+  MOCK_UID,
+} from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -30,10 +34,11 @@ import {
 } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import * as utils from 'fxa-react/lib/utils';
-import { navigate } from '@reach/router';
+
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import userEvent from '@testing-library/user-event';
 import * as SigninUtils from '../utils';
+import * as StorageUtils from '../../../lib/storage-utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -70,14 +75,12 @@ const mockLocation = () => {
   };
 };
 
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  navigate: jest.fn(),
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
   useLocation: () => mockLocation(),
 }));
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('Sign in with TOTP code page', () => {
   beforeEach(() => {
@@ -92,7 +95,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
@@ -102,38 +105,61 @@ describe('Sign in with TOTP code page', () => {
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
     screen.getByRole('link', { name: 'Use a different account' });
     screen.getByRole('link', { name: 'Trouble entering code?' });
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
   it('enables submit button when code entered', async () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
 
     const inputEl = screen.getByLabelText('Enter 6-digit code');
     await waitFor(() => userEvent.type(inputEl, '123456'));
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
   });
 
-  it('renders expected service=relay text', () => {
+  it('renders additional accessibility info from CMS', () => {
     renderWithLocalizationProvider(
-      <Subject integration={mockOAuthNativeSigninIntegration(false)} />
+      <MemoryRouter>
+        <Subject
+          integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+        />
+      </MemoryRouter>
     );
-    screen.getByText(serviceRelayText);
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
+  });
+
+  it('renders CMS headline and description when provided', () => {
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject
+          integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+        />
+      </MemoryRouter>
+    );
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.headline!)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.description!)
+    ).toBeInTheDocument();
   });
 
   it('shows the relying party in the header when a service name is provided', () => {
     renderWithLocalizationProvider(
-      <Subject
-        {...{
-          serviceName: MozServices.MozillaVPN,
-        }}
-      />
+      <MemoryRouter>
+        <Subject
+          {...{
+            serviceName: MozServices.MozillaVPN,
+          }}
+        />
+      </MemoryRouter>
     );
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
     expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
     expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
     expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
@@ -151,13 +177,15 @@ describe('Sign in with TOTP code page', () => {
         return response;
       });
       renderWithLocalizationProvider(
-        <Subject
-          {...{
-            finishOAuthFlowHandler,
-            integration,
-            submitTotpCode,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            {...{
+              finishOAuthFlowHandler,
+              integration,
+              submitTotpCode,
+            }}
+          />
+        </MemoryRouter>
       );
 
       fireEvent.input(screen.getByLabelText('Enter 6-digit code'), {
@@ -177,7 +205,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
     });
 
     describe('fxaLogin webchannel message', () => {
@@ -218,7 +246,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(navigate).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows general error on unexpected error', async () => {
@@ -230,7 +258,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(navigate).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     describe('with OAuth integration', () => {
@@ -291,12 +319,14 @@ describe('Sign in with TOTP code page', () => {
   describe('AAL upgrade', () => {
     it('renders as expected', () => {
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       expect(
@@ -322,13 +352,15 @@ describe('Sign in with TOTP code page', () => {
         .mockResolvedValue({ error: undefined });
       const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
       renderWithLocalizationProvider(
-        <Subject
-          submitTotpCode={submitTotpCode}
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
       await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
       await user.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -347,12 +379,14 @@ describe('Sign in with TOTP code page', () => {
       const fxaLogoutSpy = jest.spyOn(firefox, 'fxaLogout');
 
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       const signOutButton = screen.getByRole('button', {
@@ -375,12 +409,14 @@ describe('Sign in with TOTP code page', () => {
       mockSessionDestroy.mockRejectedValueOnce(new Error('Sign out failed'));
 
       renderWithLocalizationProvider(
-        <Subject
-          signinState={{
-            ...MOCK_TOTP_LOCATION_STATE,
-            isSessionAALUpgrade: true,
-          }}
-        />
+        <MemoryRouter>
+          <Subject
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSessionAALUpgrade: true,
+            }}
+          />
+        </MemoryRouter>
       );
 
       const signOutButton = screen.getByRole('button', {
@@ -395,6 +431,186 @@ describe('Sign in with TOTP code page', () => {
         ).toBeInTheDocument();
         expect(mockNavigateWithQuery).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('recording password state for set-password', () => {
+    it('records hasPassword: false on a passwordless OTP sign-in', async () => {
+      const user = userEvent.setup();
+      jest.spyOn(SigninUtils, 'handleNavigation').mockResolvedValue({
+        error: undefined,
+      });
+      const storeAccountDataSpy = jest
+        .spyOn(StorageUtils, 'storeAccountData')
+        .mockImplementation(() => {});
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(storeAccountDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ hasPassword: false })
+        );
+      });
+    });
+
+    it('does not record hasPassword on a third-party-auth sign-in', async () => {
+      // A third-party account may have a password, so the flow must not assert
+      // hasPassword: false here — SetPassword verifies it via accountStatus.
+      const user = userEvent.setup();
+      jest.spyOn(SigninUtils, 'handleNavigation').mockResolvedValue({
+        error: undefined,
+      });
+      const storeAccountDataSpy = jest
+        .spyOn(StorageUtils, 'storeAccountData')
+        .mockImplementation(() => {});
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            submitTotpCode={submitTotpCode}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSignInWithThirdPartyAuth: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(storeAccountDataSpy).toHaveBeenCalled();
+      });
+      expect(storeAccountDataSpy.mock.calls[0][0]).not.toHaveProperty(
+        'hasPassword'
+      );
+    });
+  });
+
+  // "keys not optional" = Firefox where Sync isn't decoupled: desktop before
+  // 147, and Mobile as of Firefox 153.
+  describe('passwordless OTP redirect to set_password for non-Sync clients that need keys', () => {
+    // A non-Sync Firefox client (VPN) whose scope requests keys.
+    const vpnIntegration = () => {
+      const integration = mockOAuthNativeSigninIntegration(false);
+      integration.isFirefoxClientServiceVpn = () => true;
+      integration.wantsKeysIfPasswordEntered = () => true;
+      return integration;
+    };
+
+    it('redirects to set_password when keys are not optional', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={false}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/post_verify/set_password',
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: 'otp' },
+          })
+        );
+      });
+      // Web channel messages must be deferred until after the password is set.
+      expect(handleNavigationSpy).not.toHaveBeenCalled();
+    });
+
+    it('continues through handleNavigation when the browser supports keys-optional login', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalled();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
+        '/post_verify/set_password',
+        expect.anything()
+      );
+    });
+
+    it('redirects a third-party-auth sign-in to set_password when keys are not optional', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={false}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isSignInWithThirdPartyAuth: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/post_verify/set_password',
+          expect.objectContaining({
+            replace: true,
+            state: { passwordCreationReason: 'third_party_auth' },
+          })
+        );
+      });
+      expect(handleNavigationSpy).not.toHaveBeenCalled();
     });
   });
 });

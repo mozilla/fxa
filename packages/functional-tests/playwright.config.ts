@@ -70,12 +70,43 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
       (name) =>
         ({
           name,
+          grepInvert: /#chromium/,
           use: {
             browserName: 'firefox',
             targetName: name,
             launchOptions: {
               args: DEBUG ? ['-start-debugger-server'] : undefined,
               firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+              headless: !DEBUG,
+              slowMo: SLOWMO,
+            },
+            trace: 'retain-on-failure',
+          },
+        }) as Project
+    ),
+    ...(TargetNames.map((name) => ({
+      name: `${name}-chromium`,
+      grep: /#chromium/,
+      use: {
+        browserName: 'chromium',
+        targetName: name,
+        launchOptions: {
+          headless: !DEBUG,
+          slowMo: SLOWMO,
+        },
+        trace: 'retain-on-failure',
+      },
+    })) as Project[]),
+    ...TargetNames.map(
+      (name) =>
+        ({
+          name: `${name}-payments-next`,
+          testDir: 'tests-payments-next',
+          fullyParallel: true,
+          use: {
+            browserName: 'chromium',
+            targetName: name,
+            launchOptions: {
               headless: !DEBUG,
               slowMo: SLOWMO,
             },

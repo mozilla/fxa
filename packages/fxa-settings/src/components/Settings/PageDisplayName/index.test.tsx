@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import PageDisplayName from '.';
 import {
@@ -15,16 +14,6 @@ import { SETTINGS_PATH } from '../../../constants';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
-let mockLocationState = {};
-const mockLocation = () => {
-  return {
-    state: mockLocationState,
-  };
-};
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useLocation: () => mockLocation(),
-}));
 
 jest.mock('../../../models/AlertBarInfo');
 const inputDisplayName = async (newName: string) => {
@@ -82,7 +71,7 @@ it('navigates back to settings home and shows a success message on a successful 
     success: jest.fn(),
   } as any;
   const settingsContext = mockSettingsContext({ alertBarInfo });
-  const { history } = renderWithRouter(
+  const { router } = renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <SettingsContext.Provider value={settingsContext}>
         <PageDisplayName />
@@ -90,16 +79,16 @@ it('navigates back to settings home and shows a success message on a successful 
     </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
-  expect(history.location.pathname).toBe(SETTINGS_PATH);
+  expect(router.state.location.pathname).toBe(SETTINGS_PATH);
   expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
   expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated');
 });
 
 it('displays a general error in the alert bar', async () => {
-  const gqlError: any = new Error('test error');
+  const testError: any = new Error('test error');
   const account = {
     displayName: 'jrgm',
-    setDisplayName: jest.fn().mockRejectedValue(gqlError),
+    setDisplayName: jest.fn().mockRejectedValue(testError),
   } as unknown as Account;
   const context = mockAppContext({ account });
   const settingsContext = mockSettingsContext();

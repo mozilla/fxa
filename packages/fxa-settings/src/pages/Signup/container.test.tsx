@@ -23,17 +23,12 @@
  *  5. Assert on mocked functions and spies.
  */
 
-import React from 'react';
-
 // TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
 import * as SignupModule from './index';
 import * as ModelsModule from '../../models';
-import * as ApolloModule from '@apollo/client';
 import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as FirefoxModule from '../../lib/channels/firefox';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
-import * as ReachRouterModule from '@reach/router';
-
 // Typical imports
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
@@ -42,11 +37,9 @@ import { IntegrationType } from '../../models';
 import { MozServices } from '../../lib/types';
 import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { GraphQLError } from 'graphql';
-import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
-import AuthClient from 'fxa-auth-client/browser';
-import { LocationProvider } from '@reach/router';
+import { AuthServerError } from 'fxa-auth-client/browser';
+import { MemoryRouter } from 'react-router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
@@ -61,12 +54,16 @@ function mockIntegration() {
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     isSync: () => true,
+    requiresKeys: () => true,
     wantsKeys: () => true,
+    requiresPasswordForLogin: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 let serviceName: MozServices;
@@ -119,39 +116,10 @@ function mockCryptoModule() {
 }
 
 const mockNavigate = jest.fn();
-function mockReachRouterModule() {
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-}
-
-// TIP - Sometimes it's useful to have inner mocks. In this case, we hold a reference to
-// mockBeginSignupMutation, so it can be asserted against and redefined as needed.
-let mockBeginSignupMutation = jest.fn();
-function mockApolloClientModule() {
-  mockBeginSignupMutation.mockImplementation(async () => {
-    return {
-      data: {
-        unwrapBKey: 'foo',
-        signUp: {
-          uid: 'uid123',
-          keyFetchToken: 'kft123',
-          sessionToken: 'st123',
-        },
-      },
-    };
-  });
-
-  jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockBeginSignupMutation(...args);
-    },
-    {
-      loading: false,
-      called: true,
-      client: {} as ApolloClient<any>,
-      reset: () => {},
-    },
-  ]);
-}
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+}));
 
 // TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
 // In this case, use the following pattern. The jest.mock approach generally works,
@@ -162,13 +130,21 @@ jest.mock('../../models', () => {
     useAuthClient: jest.fn(),
   };
 });
+
+// Mock auth client with signUpWithAuthPW method
+const mockAuthClient = {
+  accountStatusByEmail: jest.fn(),
+  signUpWithAuthPW: jest.fn(),
+};
+
 function mockModelsModule() {
-  let mockAuthClient = new AuthClient('localhost:9000', {
-    keyStretchVersion: 1,
+  mockAuthClient.accountStatusByEmail.mockResolvedValue({ exists: true });
+  mockAuthClient.signUpWithAuthPW.mockResolvedValue({
+    uid: 'uid123',
+    keyFetchToken: 'kft123',
+    sessionToken: 'st123',
+    authAt: Date.now(),
   });
-  mockAuthClient.accountStatusByEmail = jest
-    .fn()
-    .mockResolvedValue({ exists: true });
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -192,12 +168,10 @@ function applyMocks() {
   mockIntegration();
   mockServiceName();
   mockSignupModule();
-  mockApolloClientModule();
   mockModelsModule();
   mockUseValidateModule();
   mockFirefoxModule();
   mockCryptoModule();
-  mockReachRouterModule();
 }
 
 // TIP - Since render looks more or less the same each time, we can tease this out
@@ -207,7 +181,7 @@ async function render(text?: string) {
   // state/context driven by react or l10n that's required. Therefore we will invoke the
   // container component as follows.
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SignupContainer
         {...{
           integration,
@@ -223,7 +197,7 @@ async function render(text?: string) {
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 
   // TIP - Wait for the expected mocked test to show up.
@@ -302,7 +276,7 @@ describe('sign-up-container', () => {
       integration.type = IntegrationType.SyncDesktopV3;
     });
 
-    it('runs handler and invokes sign up mutation', async () => {
+    it('runs handler and invokes signUpWithAuthPW directly', async () => {
       await render();
       expect(currentSignupProps).toBeDefined();
       const handlerResult = await currentSignupProps?.beginSignupHandler(
@@ -310,22 +284,19 @@ describe('sign-up-container', () => {
         'test123'
       );
 
-      expect(mockBeginSignupMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            email: 'foo@mozilla.com',
-            authPW: 'apw123',
-            options: {
-              verificationMethod: 'email-otp',
-              keys: true,
-              service: 'sync',
-              metricsContext: {
-                flowId: MOCK_FLOW_ID,
-              },
-            },
+      expect(mockAuthClient.signUpWithAuthPW).toHaveBeenCalledWith(
+        'foo@mozilla.com',
+        'apw123',
+        {},
+        {
+          verificationMethod: 'email-otp',
+          keys: true,
+          service: 'sync',
+          metricsContext: {
+            flowId: MOCK_FLOW_ID,
           },
-        },
-      });
+        }
+      );
       expect(handlerResult?.data?.unwrapBKey).toBeDefined();
       expect(handlerResult?.data?.signUp?.uid).toEqual('uid123');
       expect(handlerResult?.data?.signUp?.keyFetchToken).toEqual('kft123');
@@ -351,21 +322,34 @@ describe('sign-up-container', () => {
       );
     });
 
-    it('handles error on gql mutation', async () => {
-      mockBeginSignupMutation.mockImplementation(async () => {
-        const gqlError = new GraphQLError(
-          AuthUiErrors.UNEXPECTED_ERROR.message
+    it('handles auth-client error on signUpWithAuthPW', async () => {
+      const authError: AuthServerError = Object.assign(
+        new Error(AuthUiErrors.ACCOUNT_ALREADY_EXISTS.message),
+        {
+          errno: AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno,
+          code: 400,
+        }
+      );
+      mockAuthClient.signUpWithAuthPW.mockRejectedValue(authError);
+
+      await render();
+      await waitFor(async () => {
+        const result = await currentSignupProps?.beginSignupHandler(
+          'foo@mozilla.com',
+          'test123'
         );
-        const error: GraphQLError = Object.assign(gqlError, {
-          extensions: {
-            ...(gqlError.extensions || {}),
-            errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
-          },
-        });
-        throw new ApolloModule.ApolloError({
-          graphQLErrors: [error],
-        });
+
+        expect(result?.data).toBeUndefined();
+        expect(result?.error?.errno).toEqual(
+          AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno
+        );
       });
+    });
+
+    it('handles unexpected error on signUpWithAuthPW', async () => {
+      mockAuthClient.signUpWithAuthPW.mockRejectedValue(
+        new Error('Network error')
+      );
 
       await render();
       await waitFor(async () => {

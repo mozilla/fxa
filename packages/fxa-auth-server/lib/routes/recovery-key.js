@@ -14,6 +14,9 @@ const validators = require('./validators');
 const isA = require('joi');
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const { list } = require('../oauth/authorized_clients');
+const { Container } = require('typedi');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 
 module.exports = (
   log,
@@ -24,6 +27,8 @@ module.exports = (
   mailer,
   glean
 ) => {
+  const fxaMailer = Container.get(FxaMailer);
+
   const routes = [
     {
       method: 'POST',
@@ -31,7 +36,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -58,44 +63,67 @@ module.exports = (
 
         async function sendKeyCreationEmail() {
           const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: geo, ua } = request.app;
-          const emailOptions = {
-            acceptLanguage,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          };
-          await mailer.sendPostAddAccountRecoveryEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+
+          if (fxaMailer.canSend('postAddAccountRecovery')) {
+            await fxaMailer.sendPostAddAccountRecoveryEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            });
+          } else {
+            const { acceptLanguage, clientAddress: geo, ua } = request.app;
+            const emailOptions = {
+              acceptLanguage,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            };
+            await mailer.sendPostAddAccountRecoveryEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         }
 
         async function sendKeyChangeEmail() {
           const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: geo, ua } = request.app;
-          const emailOptions = {
-            acceptLanguage,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          };
-          await mailer.sendPostChangeAccountRecoveryEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+          if (fxaMailer.canSend('postChangeAccountRecovery')) {
+            await fxaMailer.sendPostChangeAccountRecoveryEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            });
+          } else {
+            const { acceptLanguage, clientAddress: geo, ua } = request.app;
+            const emailOptions = {
+              acceptLanguage,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            };
+            await mailer.sendPostChangeAccountRecoveryEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         }
 
         async function postKeyCreation() {
@@ -219,8 +247,8 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_VERIFY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
         },
         validate: {
           payload: {
@@ -235,10 +263,6 @@ module.exports = (
         const { uid, email } = sessionToken;
 
         try {
-          if (!sessionToken.tokenVerified) {
-            throw errors.unverifiedSession();
-          }
-
           // This route can let you check if a key is valid therefore we
           // rate limit it.
           await customs.checkAuthenticated(
@@ -272,11 +296,22 @@ module.exports = (
               uid,
             };
 
-            await mailer.sendPostAddAccountRecoveryEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
+            if (fxaMailer.canSend('postAddAccountRecovery')) {
+              await fxaMailer.sendPostAddAccountRecoveryEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPostAddAccountRecoveryEmail(
+                account.emails,
+                account,
+                emailOptions
+              );
+            }
           }
           await recordSecurityEvent('account.recovery_key_challenge_success', {
             db,
@@ -301,7 +336,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_RECOVERYKEYID_GET,
         auth: {
-          strategy: 'accountResetToken',
+          strategies: ['accountResetTokenBearer', 'accountResetToken'],
         },
         validate: {
           params: isA.object({
@@ -331,6 +366,8 @@ module.exports = (
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_EXISTS_POST,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
@@ -338,7 +375,7 @@ module.exports = (
         validate: {
           payload: isA
             .object({
-              email: validators.email().optional(),
+              email: validators.email().optional(), // ? Not used ?
             })
             .optional()
             .allow(null),
@@ -384,7 +421,7 @@ module.exports = (
         auth: {
           // hint update is only possible when authenticated
           // from /settings or (eventually) after signup, signin or successful password reset
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -397,13 +434,11 @@ module.exports = (
       handler: async function (request) {
         log.begin('updateRecoveryKeyHint', request);
 
-        const { uid, tokenVerified } = request.auth.credentials;
+        const { uid } = request.auth.credentials;
 
         const { hint } = request.payload;
 
-        if (!tokenVerified) {
-          throw errors.unverifiedSession();
-        }
+        // Note: Session verification is handled by the auth strategy
 
         const keyForUid = await db.recoveryKeyExists(uid);
 
@@ -422,7 +457,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_DELETE,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
       },
@@ -439,24 +474,34 @@ module.exports = (
 
         const account = await db.account(uid);
 
-        const { acceptLanguage, clientAddress: geo, ua } = request.app;
-        const emailOptions = {
-          acceptLanguage,
-          location: geo.location,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        };
-
-        await mailer.sendPostRemoveAccountRecoveryEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+        if (fxaMailer.canSend('postRemoveAccountRecovery')) {
+          await fxaMailer.sendPostRemoveAccountRecoveryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
+        } else {
+          const { acceptLanguage, clientAddress: geo, ua } = request.app;
+          const emailOptions = {
+            acceptLanguage,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          };
+          await mailer.sendPostRemoveAccountRecoveryEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
 
         return {};
       },

@@ -6,7 +6,7 @@
 
 import { getApp } from '../nestapp/app';
 
-export const fetchCMSData = (
+export const fetchCMSData = async (
   offeringId: string,
   acceptLanguage?: string | null,
   selectedLanguage?: string

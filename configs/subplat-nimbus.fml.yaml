@@ -19,6 +19,20 @@ features:
         value: { "enabled": false }
       - channel: production
         value: { "enabled": false }
+  free-trial-feature:
+    description: Control whether free trials are enabled for payments-next
+    variables:
+      enabled:
+        description: If the feature is enabled.
+        type: Boolean
+        default: false
+    defaults:
+      - channel: developer
+        value: { "enabled": true }
+      - channel: staging
+        value: { "enabled": false }
+      - channel: production
+        value: { "enabled": false }
 types:
   objects: {}
   enums: {}

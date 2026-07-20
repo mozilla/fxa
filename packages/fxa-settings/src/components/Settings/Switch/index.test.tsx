@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized } from '@fluent/react';
-import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import Switch from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';

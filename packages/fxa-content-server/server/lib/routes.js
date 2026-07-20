@@ -21,6 +21,7 @@ module.exports = function (config, i18n, statsd, glean) {
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
     require('./routes/get-apple-app-site-association')(),
+    require('./routes/get-assetlinks-json')(),
     require('./routes/get-frontend-pairing').default(reactRouteGroups),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),

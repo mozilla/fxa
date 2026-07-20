@@ -89,7 +89,7 @@ module.exports = function (config, log) {
     get: alwaysFalse,
   };
   if (config.reputationService.enable) {
-    var IPReputationClient = require('ip-reputation-js-client');
+    var IPReputationClient = require('./ipReputationClient');
     var ipClient = new IPReputationClient({
       serviceUrl: config.reputationService.baseUrl,
       id: config.reputationService.hawkId,

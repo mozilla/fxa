@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { ComponentProps } from 'react';
 import CardHeader from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
@@ -23,7 +23,7 @@ export default {
 } as Meta;
 
 const storyWithProps = (
-  props: React.ComponentProps<typeof CardHeader>,
+  props: ComponentProps<typeof CardHeader>,
   storyName?: string
 ) => {
   const story = () => (
@@ -85,4 +85,77 @@ export const WithSeparateSubheadingCustomServiceName = storyWithProps(
     subheadingWithCustomServiceFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
   },
   'Separate l10n for subheading, with custom service name'
+);
+
+export const CmsHeaderComparison = () => (
+  <AppLayout>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+      <div>
+        <h2
+          style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}
+        >
+          Font Size Comparison
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Default Size"
+            cmsDescription="text-xl (22px)"
+            cmsHeadlineFontSize="default"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Medium Size"
+            cmsDescription="text-xxl (28px)"
+            cmsHeadlineFontSize="medium"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Large Size"
+            cmsDescription="text-xxxl (32px)"
+            cmsHeadlineFontSize="large"
+          />
+        </div>
+      </div>
+
+      <div>
+        <h2
+          style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}
+        >
+          Text Color Examples
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Default Color"
+            cmsDescription="No custom color applied"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Purple Headline"
+            cmsDescription="#592ACB (Mozilla Purple)"
+            cmsHeadlineTextColor="#592ACB"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Red Headline"
+            cmsDescription="#C50042 (Mozilla Red)"
+            cmsHeadlineTextColor="#C50042"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Green Headline"
+            cmsDescription="#00736C (Mozilla Green)"
+            cmsHeadlineTextColor="#00736C"
+          />
+          <CardHeader
+            headingText={MOCK_HEADING}
+            cmsHeadline="Blue Headline"
+            cmsDescription="#0060DF (Mozilla Blue)"
+            cmsHeadlineTextColor="#0060DF"
+          />
+        </div>
+      </div>
+    </div>
+  </AppLayout>
 );

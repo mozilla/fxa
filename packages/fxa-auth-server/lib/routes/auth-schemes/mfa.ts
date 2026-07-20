@@ -131,15 +131,22 @@ export const strategy = (
         decoded.scope == null ||
         decoded.stid == null
       ) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_state');
         throw AppError.invalidMfaToken();
       }
 
-      const sessionToken = await getCredentialsFunc(decoded.stid);
-      if (!sessionToken) {
+      let sessionToken;
+      try {
+        sessionToken = await getCredentialsFunc(decoded.stid);
+      } catch (err) { }
+
+       if (!sessionToken) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_stid');
         throw AppError.invalidMfaToken();
       }
 
       if (sessionToken.uid == null || sessionToken.uid !== decoded.sub) {
+        statsd?.increment('mfa.invalid_mfa_token.bad_sub');
         throw AppError.invalidMfaToken();
       }
 
@@ -178,15 +185,14 @@ export const strategy = (
         }
       }
 
-      // 3) account AAL and session AAL match
-      const accountAmr = await authMethods.availableAuthenticationMethods(
+      // 3) session AAL satisfies account requirements
+      const accountRequiresAal2 = await authMethods.accountRequiresAAL2(
         db,
         account
       );
-      const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
       const sessionAal = sessionToken.authenticatorAssuranceLevel;
 
-      if (sessionAal < accountAal) {
+      if (accountRequiresAal2 && sessionAal < 2) {
         if (skipAalCheckForRoutes?.test(req.route.path)) {
           statsd?.increment('verified_session_token.aal.skipped', [
             `path:${req.route.path}`,

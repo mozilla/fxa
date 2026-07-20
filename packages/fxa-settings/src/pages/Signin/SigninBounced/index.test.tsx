@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
 import SigninBounced, { viewName } from '.';
@@ -16,9 +15,9 @@ jest.mock('../../../lib/metrics', () => ({
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook,
   };

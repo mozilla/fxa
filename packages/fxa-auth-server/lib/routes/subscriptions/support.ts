@@ -37,7 +37,7 @@ export const supportRoutes = (
 
     try {
       const account = await db.accountRecord(email);
-      return { uid: account.uid, email: account.email };
+      return { uid: account.uid, email: account.primaryEmail.email };
     } catch (err: any) {
       if (err.errno === AppError.ERRNO.ACCOUNT_UNKNOWN) {
         return { uid: null, email };
@@ -73,6 +73,7 @@ export const supportRoutes = (
             message: isA.string().required(),
             product: isA.string().allow('').optional(),
             category: isA.string().allow('').optional(),
+            brand_id: isA.number().integer().optional(),
           }) as any,
         },
         response: {
@@ -111,6 +112,7 @@ export const supportRoutes = (
           app,
           subject: payloadSubject,
           message,
+          brand_id,
         } = request.payload;
         let subject = productName;
         if (payloadSubject) {
@@ -138,6 +140,7 @@ export const supportRoutes = (
               email,
               name: email,
             },
+            ...(brand_id !== undefined && { brand_id }),
             custom_fields: [
               { id: productNameFieldId, value: productName },
               { id: productFieldId, value: product },

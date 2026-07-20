@@ -5,6 +5,7 @@
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { CheckoutParams } from './types';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from './flatParam';
 
 export function getErrorFtlInfo(
   reason: CartErrorReasonId | string | null,
@@ -13,10 +14,10 @@ export function getErrorFtlInfo(
     contentServerUrl: string;
     supportUrl: string;
   },
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ) {
 
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const queryParamString = searchParams ? `?${urlSearchParams.toString()}` : '';
 
   switch (reason) {
@@ -79,6 +80,15 @@ export function getErrorFtlInfo(
         buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message: 'The invoice amount has changed. Please try again.',
         messageFtl: 'cart-total-mismatch-error',
+      };
+    case CartErrorReasonId.CART_FREE_TRIAL_ELIGIBILITY_MISMATCH:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
+        message:
+          'Your free trial eligibility has changed. Please try again.',
+        messageFtl: 'cart-free-trial-mismatch-error',
       };
     case CartErrorReasonId.INTENT_FAILED_CARD_DECLINED:
       return {
@@ -151,6 +161,15 @@ export function getErrorFtlInfo(
         message:
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'general-paypal-error',
+      };
+    case CartErrorReasonId.NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
+        message:
+          'Prepaid cards cannot be used to start a free trial on new accounts. Please try a different payment method.',
+        messageFtl: 'new-account-prepaid-card-free-trial-not-allowed',
       };
     case CartErrorReasonId.BASIC_ERROR:
     default:

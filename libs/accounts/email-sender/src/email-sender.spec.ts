@@ -226,7 +226,7 @@ describe('EmailSender', () => {
         new Error('Temporary error')
       );
 
-      await expect(emailSender.send(defaultMockEmail)).rejects.toThrow(
+      await expect(emailSender.send(defaultMockEmail, true)).rejects.toThrow(
         'Temporary error'
       );
 
@@ -260,7 +260,7 @@ describe('EmailSender', () => {
         new Error('Temporary error')
       );
 
-      await expect(emailSender.send(defaultMockEmail)).rejects.toThrow(
+      await expect(emailSender.send(defaultMockEmail, true)).rejects.toThrow(
         'Temporary error'
       );
 
@@ -294,7 +294,7 @@ describe('EmailSender', () => {
       const error = new Error('SMTP connection failed');
       mockTransport.sendMail.mockRejectedValueOnce(error);
 
-      await expect(emailSender.send(defaultMockEmail)).rejects.toThrow(
+      await expect(emailSender.send(defaultMockEmail, true)).rejects.toThrow(
         'SMTP connection failed'
       );
 
@@ -331,7 +331,7 @@ describe('EmailSender', () => {
       const appError = AppError.emailBouncedHard(100_000_000_000);
       mockTransport.sendMail.mockRejectedValueOnce(appError);
 
-      await expect(emailSender.send(defaultMockEmail)).rejects.toThrow();
+      await expect(emailSender.send(defaultMockEmail, true)).rejects.toThrow();
 
       expect(mockTransport.sendMail).toHaveBeenCalledTimes(1);
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -345,10 +345,56 @@ describe('EmailSender', () => {
       );
       expect(mockSentryCaptureException).toHaveBeenCalledWith(appError);
     });
+
+    it('logs SMTP error details including rejected recipients', async () => {
+      config = {
+        ...config,
+        retry: {
+          maxAttempts: 0,
+          backOffMs: 100,
+          jitter: 0,
+          maxDelayMs: 10_000,
+        },
+      };
+
+      emailSender = new EmailSender(
+        config,
+        mockBounces,
+        mockStatsd,
+        mockLogger
+      );
+
+      const smtpError = Object.assign(new Error('Invalid RCPT TO'), {
+        response: '501 Invalid RCPT TO address provided',
+        responseCode: 501,
+        rejected: ['bad@example.com'],
+        accepted: ['good@example.com'],
+      });
+
+      const emailWithCc = {
+        ...defaultMockEmail,
+        cc: ['cc@example.com'],
+      };
+
+      mockTransport.sendMail.mockRejectedValueOnce(smtpError);
+
+      await expect(emailSender.send(emailWithCc, true)).rejects.toThrow();
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'mailer.send.error',
+        expect.objectContaining({
+          smtpResponse: '501 Invalid RCPT TO address provided',
+          smtpResponseCode: 501,
+          rejectedRecipients: ['bad@example.com'],
+          acceptedRecipients: ['good@example.com'],
+          cc: ['cc@example.com'],
+        })
+      );
+    });
   });
   describe('buildHeaders', () => {
     it('builds basic headers without SES configuration', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 1,
@@ -371,7 +417,7 @@ describe('EmailSender', () => {
     });
 
     it('builds headers with optional context fields', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 2,
@@ -575,7 +621,7 @@ describe('EmailSender', () => {
         mockLogger
       );
 
-      await expect(emailSender.send(defaultMockEmail)).rejects.toThrow(
+      await expect(emailSender.send(defaultMockEmail, true)).rejects.toThrow(
         'Temporary SMTP error'
       );
 
@@ -594,6 +640,28 @@ describe('EmailSender', () => {
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(4);
+
+      // Make sure issue is still sent to sentry
+      expect(mockSentryCaptureException).toHaveBeenCalledWith(error);
+    });
+
+    it('suppresses error with directive', async () => {
+      const error = new Error('Temporary SMTP error');
+
+      mockTransport.sendMail.mockRejectedValue(error);
+
+      emailSender = new EmailSender(
+        configWithRetry,
+        mockBounces,
+        mockStatsd,
+        mockLogger
+      );
+
+      // Shouldn't error...
+      await emailSender.send(defaultMockEmail, false);
+
+      // But should capture
+      expect(mockSentryCaptureException).toHaveBeenCalledWith(error);
     });
   });
   describe('calculateBackoffDelay', () => {

@@ -5,16 +5,15 @@
 'use client';
 
 import { SupportedPages } from '@fxa/payments/ui';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { validateCartStateAndRedirectAction } from '../../../actions/validateCartStateAndRedirect';
-import { recordEmitterEventAction } from '../../../actions';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export function PaymentStateObserver({ cartId }: { cartId: string }) {
   const searchParams = useSearchParams();
-  const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
@@ -30,27 +29,12 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
       const redirectResponse = await validateCartStateAndRedirectAction(
         cartId,
         SupportedPages.PROCESSING,
+        pathname,
         searchParamsRecord,
         false,
       );
 
       if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
-        if (redirectResponse.state === 'success') {
-          await recordEmitterEventAction(
-            'checkoutSuccess',
-            { ...params },
-            searchParamsRecord
-          );
-        }
-
-        if (redirectResponse.state === 'fail') {
-          await recordEmitterEventAction(
-            'checkoutFail',
-            { ...params },
-            searchParamsRecord
-          );
-        }
-
         isPolling = false;
         router.push(redirectResponse.redirectToUrl);
 

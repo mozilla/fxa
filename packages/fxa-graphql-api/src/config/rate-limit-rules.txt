@@ -1,7 +1,0 @@
-#  action                               | blockOn       | maxAttempts   | windowDuration    | banDuration | Block Policy
-# ------------------------------------------------------------------------------------------------------------------------
-  default                               : ip            : 600           : 10 minutes        : 15 minutes  : report
-  attachedClientDisconnect              : ip            : 600           : 10 minutes        : 15 minutes  : report
-  unblockEmail                          : email         : 10            : 24 hours          : 24 hours    : block
-  updateDisplayName                     : uid           : 10            : 10 minutes        : 15 minutes  : block
-  metricsOpt                            : uid           : 10            : 10 minutes        : 15 minutes  : block

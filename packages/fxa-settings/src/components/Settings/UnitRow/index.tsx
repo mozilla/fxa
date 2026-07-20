@@ -7,10 +7,11 @@ import Avatar from '../Avatar';
 import { Account } from '../../../models/Account';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { Link, useLocation } from 'react-router';
 import { useLocalization } from '@fluent/react';
 import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 type ModalButtonProps = {
   ctaText: string;
@@ -58,6 +59,11 @@ export const ModalButton = ({
         // Prevent the click that opens the modal from immediately
         // bubbling to the overlay “outside click” handler and closing it.
         e.stopPropagation();
+        // stopPropagation also keeps this click from reaching Glean's
+        // document-level auto-element-click listener, so record it explicitly.
+        if (gleanDataAttrs) {
+          GleanMetrics.handleClickEvent(e.nativeEvent);
+        }
         revealModal();
       }}
       {...(gleanDataAttrs && {
@@ -133,7 +139,7 @@ export const UnitRow = ({
   ctaOnClickAction,
   statusIcon,
   subRows,
-}: UnitRowProps & RouteComponentProps) => {
+}: UnitRowProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
     'row-defaults-action-add',
@@ -207,9 +213,10 @@ export const UnitRow = ({
             route ||
             revealModal ||
             secondaryCtaRoute ||
-            revealSecondaryModal) && (
+            revealSecondaryModal ||
+            disabled) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
-              <div className="flex items-center h-8 gap-2 mt-2 @mobileLandscape/unitRow:mt-0 ">
+              <div className="flex items-center h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
                 {/* Primary Action */}
                 {!hideCtaText &&
                   ctaText &&
@@ -255,6 +262,7 @@ export const UnitRow = ({
                             alertBarRevealed,
                             prefixDataTestId,
                           }}
+                          gleanDataAttrs={ctaGleanDataAttrs}
                         />
                       )}
                     </>

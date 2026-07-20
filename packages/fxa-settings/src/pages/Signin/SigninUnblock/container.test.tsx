@@ -5,11 +5,10 @@
 // Mocked Module Imports
 import * as ModelsModule from '../../../models';
 import * as SigninUnblockModule from './index';
-import * as ReachRouterModule from '@reach/router';
 
 // Regular imports
 import { act, screen } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninUnblockContainer from './container';
@@ -24,27 +23,29 @@ import {
   MOCK_UNBLOCK_CODE,
   MOCK_UNWRAP_BKEY,
   MOCK_UNWRAP_BKEY_V2,
+  MOCK_CLIENT_ID,
+  MOCK_REDIRECT_URI,
   mockLoadingSpinnerModule,
+  MOCK_SERVICE,
 } from '../../mocks';
-import {
-  mockGqlBeginSigninMutation,
-  mockGqlCredentialStatusMutation,
-  mockGqlError,
-} from '../mocks';
 
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import { SigninUnblockLocationState, SigninUnblockProps } from './interfaces';
 
 import { QueryParams } from '../../..';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 import {
   createMockSigninWebSyncIntegration,
   MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import { ensureCanLinkAcountOrRedirect } from '../utils';
+import { IntegrationType, OAuthIntegrationData } from '../../../models';
+import { GenericData } from '../../../lib/model-data';
+import { Constants } from '../../../lib/constants';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {
@@ -53,6 +54,28 @@ function mockWebIntegration() {
     clientInfo: undefined,
     isFirefoxMobileClient: () => false,
   };
+}
+
+function mockOAuthNativeIntegration() {
+  integration = {
+    ...createMockSigninWebSyncIntegration(),
+    type: IntegrationType.OAuthNative,
+    data: new OAuthIntegrationData(
+      new GenericData({
+        context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+        client_id: MOCK_CLIENT_ID,
+        state: 'mock_state',
+      })
+    ),
+    clientInfo: {
+      clientId: MOCK_CLIENT_ID,
+      redirectUri: MOCK_REDIRECT_URI,
+      imageUri: undefined,
+      serviceName: MOCK_SERVICE,
+      trusted: true,
+    },
+    isFirefoxMobileClient: () => false,
+  } as SigninUnblockIntegration;
 }
 
 let flowQueryParams: QueryParams;
@@ -72,11 +95,16 @@ function mockSigninUnblockModule() {
   });
 }
 
-jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
+jest.mock('../../../lib/auth-key-stretch-upgrade', () => {
   return {
     tryFinalizeUpgrade: jest.fn(),
   };
 });
+
+jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
+  ensureCanLinkAcountOrRedirect: jest.fn(),
+}));
 
 jest.mock('../../../models', () => {
   return {
@@ -100,26 +128,64 @@ jest.mock('fxa-auth-client/lib/crypto', () => {
 });
 
 let mockNavigate = jest.fn();
-function mockReachRouter(mockLocationState?: SigninUnblockLocationState) {
+let mockLocationStateValue: SigninUnblockLocationState | undefined;
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/signin_unblock',
+    search: '',
+    hash: '',
+    state: mockLocationStateValue,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(locationState?: SigninUnblockLocationState) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      ...global.window.location,
-      pathname: '/signin_unblock',
-      state: mockLocationState,
-    };
-  });
+  mockLocationStateValue = locationState;
 }
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+
+// Mock auth client
+const mockAuthClient = {
+  getCredentialStatusV2: jest.fn(),
+  signInWithAuthPW: jest.fn(),
+  sendUnblockCode: jest.fn(),
+};
+
 function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
+  );
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
   );
   mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     plainTextPassword: MOCK_PASSWORD,
   });
+
+  // Default auth client mock responses
+  mockAuthClient.getCredentialStatusV2.mockResolvedValue({
+    upgradeNeeded: true,
+    currentVersion: 'v2',
+    clientSalt: MOCK_CLIENT_SALT,
+  });
+  mockAuthClient.signInWithAuthPW.mockResolvedValue({
+    uid: 'abc123',
+    sessionToken: 'token123',
+    authAt: Date.now(),
+    metricsEnabled: true,
+    emailVerified: true,
+    sessionVerified: false,
+    verificationMethod: 'email-otp',
+    verificationReason: 'login',
+    keyFetchToken: 'kft123',
+  });
+  mockAuthClient.sendUnblockCode.mockResolvedValue({});
 }
 
 function applyDefaultMocks() {
@@ -139,19 +205,21 @@ describe('signin unblock container', () => {
   });
 
   /** Renders the container with a fake page component */
-  async function render(mocks: Array<MockedResponse>) {
+  async function render(options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }) {
+    const useFxAStatusResult =
+      options?.useFxAStatusResult || mockUseFxAStatus();
+
     renderWithLocalizationProvider(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <LocationProvider>
-          <SigninUnblockContainer
-            {...{
-              integration,
-              serviceName: MozServices.Default,
-              flowQueryParams,
-            }}
-          />
-        </LocationProvider>
-      </MockedProvider>
+      <MemoryRouter>
+        <SigninUnblockContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            flowQueryParams,
+            useFxAStatusResult,
+          }}
+        />
+      </MemoryRouter>
     );
 
     await screen.findByText('signin unblock mock');
@@ -159,18 +227,7 @@ describe('signin unblock container', () => {
   }
 
   it('handles signin with correct code', async () => {
-    await render([
-      mockGqlCredentialStatusMutation(),
-      mockGqlBeginSigninMutation(
-        {
-          unblockCode: MOCK_UNBLOCK_CODE,
-          keys: true,
-        },
-        {
-          authPW: MOCK_AUTH_PW_V2,
-        }
-      ),
-    ]);
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -185,6 +242,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.emailVerified).toBeDefined();
     expect(result?.data?.signIn?.sessionVerified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
+    // Should NOT call ensureCanLinkAcountOrRedirect for non-OAuthNative integration
+    expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
   });
 
   it('handles signin with with key stretching upgrade', async () => {
@@ -201,18 +260,20 @@ describe('signin unblock container', () => {
       },
     };
 
-    await render([
-      mockGqlCredentialStatusMutation(),
-      mockGqlBeginSigninMutation(
-        {
-          unblockCode: MOCK_UNBLOCK_CODE,
-          keys: true,
-        },
-        {
-          authPW: MOCK_AUTH_PW_V2,
-        }
-      ),
-    ]);
+    // Override to have sessionVerified: true so tryFinalizeUpgrade is called
+    mockAuthClient.signInWithAuthPW.mockResolvedValue({
+      uid: 'abc123',
+      sessionToken: 'token123',
+      authAt: Date.now(),
+      metricsEnabled: true,
+      emailVerified: true,
+      sessionVerified: true,
+      verificationMethod: 'email-otp',
+      verificationReason: 'login',
+      keyFetchToken: 'kft123',
+    });
+
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -233,17 +294,10 @@ describe('signin unblock container', () => {
 
   it('handles signin with correct code and failure when looking up credential status', async () => {
     jest.spyOn(global.console, 'warn');
+    // Mock credential status to fail
+    mockAuthClient.getCredentialStatusV2.mockRejectedValue(new Error('Failed'));
 
-    await render([
-      {
-        ...mockGqlCredentialStatusMutation(),
-        error: mockGqlError(),
-      },
-      mockGqlBeginSigninMutation({
-        unblockCode: MOCK_UNBLOCK_CODE,
-        keys: true,
-      }),
-    ]);
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -266,24 +320,13 @@ describe('signin unblock container', () => {
 
   it('handles incorrect unblock code', async () => {
     const wrongCode = '000000';
-    await render([
-      mockGqlCredentialStatusMutation(),
-      {
-        ...(() => {
-          const result = mockGqlBeginSigninMutation(
-            {
-              unblockCode: wrongCode,
-              keys: true,
-            },
-            {
-              authPW: MOCK_AUTH_PW_V2,
-            }
-          );
-          return result;
-        })(),
-        error: mockGqlError(AuthUiErrors.INCORRECT_UNBLOCK_CODE),
-      },
-    ]);
+    // Mock signin to fail with incorrect unblock code error
+    mockAuthClient.signInWithAuthPW.mockRejectedValue({
+      errno: AuthUiErrors.INCORRECT_UNBLOCK_CODE.errno,
+      message: AuthUiErrors.INCORRECT_UNBLOCK_CODE.message,
+    });
+
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -294,5 +337,40 @@ describe('signin unblock container', () => {
     expect(result?.data).toBeUndefined();
     expect(result?.error).toBeDefined();
     expect(result?.error?.errno).toEqual(127);
+  });
+
+  describe('with supportsCanLinkAccountUid capability and OAuthNative integration', () => {
+    beforeEach(() => {
+      mockOAuthNativeIntegration();
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+    });
+
+    afterEach(() => {
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockRestore();
+    });
+
+    it('calls ensureCanLinkAcountOrRedirect with UID after successful signin', async () => {
+      const useFxAStatusResult = mockUseFxAStatus({
+        supportsCanLinkAccountUid: true,
+      });
+
+      await render({ useFxAStatusResult });
+
+      let result: BeginSigninResult | undefined;
+      await act(async () => {
+        result =
+          await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.data).toBeDefined();
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: MOCK_EMAIL,
+          uid: expect.any(String),
+        })
+      );
+    });
   });
 });

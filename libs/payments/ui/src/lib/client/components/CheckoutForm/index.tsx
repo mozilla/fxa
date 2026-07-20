@@ -21,14 +21,23 @@ import Image from 'next/image';
 import {
   ReadonlyURLSearchParams,
   useParams,
+  usePathname,
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+} from 'react';
 
+import type { Interval } from '@fxa/payments/metrics/client';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
+import { CartMutationContext } from '../../providers/CartMutationProvider';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 import {
   handleStripeErrorAction,
   recordEmitterEventAction,
@@ -38,7 +47,6 @@ import {
   checkoutCartWithPaypal,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
-import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
@@ -88,26 +96,43 @@ interface CheckoutFormProps {
     };
   };
   locale: string;
-  sessionUid?: string;
   sessionEmail?: string;
+  isFreeTrial?: boolean;
+  trialLengthDays?: number;
+  showTrialIneligibleNotice?: boolean;
+  metricsEnabled?: boolean;
+  isCancelInterstitialOffer?: boolean;
 }
 
 export function CheckoutForm({
   cmsCommonContent,
   cart,
   locale,
-  sessionUid,
   sessionEmail,
+  isFreeTrial,
+  trialLengthDays,
+  showTrialIneligibleNotice,
+  metricsEnabled,
+  isCancelInterstitialOffer,
 }: CheckoutFormProps) {
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
-  const params = useParams();
+  const pathname = usePathname();
+  const rawParams = useParams();
+  const params: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(rawParams)) {
+    if (value !== undefined) {
+      params[key] = value;
+    }
+  }
   const searchParams = useSearchParams();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
     searchParamsRecord[key] = value;
   }
+
+  const { isPending: cartMutationPending } = useContext(CartMutationContext);
 
   const [formEnabled, setFormEnabled] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
@@ -123,12 +148,45 @@ export function CheckoutForm({
     ? { defaultValues: { email: sessionEmail } }
     : {};
 
+  const glean = useGleanMetrics(metricsEnabled ?? true);
+
+  const interstitialOfferBase = useMemo(
+    () =>
+      isCancelInterstitialOffer
+        ? {
+          offeringId: (params.offeringId as string) ?? undefined,
+          interval: (params.interval as Interval) ?? undefined,
+          utmSource: searchParams.get('utm_source') ?? undefined,
+          utmMedium: searchParams.get('utm_medium') ?? undefined,
+          utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+          nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+        }
+        : null,
+    [isCancelInterstitialOffer, params.interval, searchParams]
+  );
+
+  useEffect(() => {
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferView({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
+  }, []);
+
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
       'checkoutEngage',
       { ...params },
       Object.fromEntries(searchParams)
     );
+
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferEngage({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -172,8 +230,8 @@ export function CheckoutForm({
   ) => {
     event.preventDefault();
 
-    if (!stripe || !elements || loading) {
-      // Stripe.js hasn't yet loaded.
+    if (!stripe || !elements || loading || cartMutationPending) {
+      // Stripe.js hasn't yet loaded, or a cart mutation is in progress.
       // Make sure to disable form submission until Stripe.js has loaded.
       return;
     }
@@ -185,18 +243,22 @@ export function CheckoutForm({
         'checkoutSubmit',
         { ...params },
         Object.fromEntries(searchParams),
+        'paypal',
         'external_paypal'
       );
+      if (interstitialOfferBase) {
+        glean.recordInterstitialOfferSubmit({
+          ...interstitialOfferBase,
+          action: 'upgrade',
+        });
+      }
 
       await checkoutCartWithPaypal(
         cart.id,
         cart.version,
-        {
-          locale,
-          displayName: '',
-        },
         getAttributionParams(searchParams),
-        sessionUid
+        params,
+        Object.fromEntries(searchParams)
       );
 
       const queryParamString = searchParams.toString()
@@ -247,6 +309,7 @@ export function CheckoutForm({
         await handleStripeErrorAction(
           cart.id,
           confirmationTokenError,
+          pathname,
           searchParamsRecord
         );
         setLoading(false);
@@ -254,22 +317,30 @@ export function CheckoutForm({
       }
     }
 
+    const paymentProvider =
+      selectedPaymentMethod === 'external_paypal' ? 'paypal' : 'stripe';
+
     recordEmitterEventAction(
       'checkoutSubmit',
       { ...params },
       Object.fromEntries(searchParams),
-      selectedPaymentMethod as PaymentProvidersType
+      paymentProvider,
+      selectedPaymentMethod
     );
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferSubmit({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
 
     await checkoutCartWithStripe(
       cart.id,
       cart.version,
       confirmationToken.id,
-      {
-        locale,
-      },
       getAttributionParams(searchParams),
-      sessionUid
+      params,
+      Object.fromEntries(searchParams)
     );
 
     const queryParamString = searchParams.toString()
@@ -286,6 +357,26 @@ export function CheckoutForm({
         engageGlean();
       }}
     >
+      {showTrialIneligibleNotice && (
+        <>
+          <div
+            className="border-b border-grey-200 my-6"
+            role="separator"
+            aria-hidden="true"
+          ></div>
+          <Localized id="free-trial-ineligible-notice">
+            <p className="leading-5 text-sm">
+              Your account is not eligible for a free trial. You may continue
+              with a paid subscription.
+            </p>
+          </Localized>
+          <div
+            className="border-b border-grey-200 my-6"
+            role="separator"
+            aria-hidden="true"
+          ></div>
+        </>
+      )}
       <CheckoutCheckbox
         isRequired={showConsentError}
         disabled={!cart.uid}
@@ -295,6 +386,9 @@ export function CheckoutForm({
           setFormEnabled(consentCheckbox);
           setShowConsentError(true);
         }}
+        isFreeTrial={isFreeTrial}
+        trialLengthDays={trialLengthDays}
+        locale={locale}
       />
       <div
         className={
@@ -351,10 +445,8 @@ export function CheckoutForm({
                 cartId={cart.id}
                 cartVersion={cart.version}
                 cartCurrency={cart.currency}
-                locale={locale}
-                sessionUid={sessionUid}
                 searchParams={searchParams}
-                disabled={loading || !formEnabled}
+                disabled={loading || cartMutationPending || !formEnabled}
               />
             ) : (
               <BaseButton
@@ -364,7 +456,8 @@ export function CheckoutForm({
                 aria-disabled={
                   !formEnabled ||
                   (isStripe && !stripeFieldsComplete) ||
-                  loading
+                  loading ||
+                  cartMutationPending
                 }
               >
                 {loading ? (
@@ -392,7 +485,7 @@ export function CheckoutForm({
           </Form.Submit>
         )}
       </div>
-    </Form.Root >
+    </Form.Root>
   );
 }
 
@@ -400,8 +493,6 @@ interface CheckoutPayPalButtonProps {
   cartId: string;
   cartVersion: number;
   cartCurrency: string;
-  locale: string;
-  sessionUid?: string;
   searchParams: ReadonlyURLSearchParams;
   disabled: boolean;
 }
@@ -410,12 +501,17 @@ function CheckoutPayPalButton({
   cartId,
   cartVersion,
   cartCurrency,
-  locale,
-  sessionUid,
   searchParams,
   disabled,
 }: CheckoutPayPalButtonProps) {
   const router = useRouter();
+  const rawParams = useParams();
+  const params: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(rawParams)) {
+    if (value !== undefined) {
+      params[key] = value;
+    }
+  }
   const [{ isPending, isRejected }] = usePayPalScriptReducer();
 
   if (isPending) {
@@ -425,16 +521,19 @@ function CheckoutPayPalButton({
         alt=""
         className="absolute animate-spin h-8 w-8"
       />
-    )
+    );
   }
 
   if (isRejected) {
     Sentry.captureMessage('PayPal script failed to load');
     return (
       <Localized id="paypal-unavailable-error">
-        <div className="mt-6 flex justify-center w-full text-center text-sm">PayPal is currently unavailable. Please use another payment option or try again later.</div>
+        <div className="mt-6 flex justify-center w-full text-center text-sm">
+          PayPal is currently unavailable. Please use another payment option or
+          try again later.
+        </div>
       </Localized>
-    )
+    );
   }
 
   return (
@@ -454,12 +553,9 @@ function CheckoutPayPalButton({
         await checkoutCartWithPaypal(
           cartId,
           cartVersion,
-          {
-            locale,
-            displayName: '',
-          },
           getAttributionParams(searchParams),
-          sessionUid,
+          params,
+          Object.fromEntries(searchParams),
           data.orderID
         );
         const queryParamString = searchParams.toString()
@@ -468,10 +564,7 @@ function CheckoutPayPalButton({
         router.push('./processing' + queryParamString);
       }}
       onError={async () => {
-        await finalizeCartWithError(
-          cartId,
-          CartErrorReasonId.BASIC_ERROR
-        );
+        await finalizeCartWithError(cartId, CartErrorReasonId.BASIC_ERROR);
         const queryParamString = searchParams.toString()
           ? `?${searchParams.toString()}`
           : '';
@@ -480,6 +573,5 @@ function CheckoutPayPalButton({
       }}
       disabled={disabled}
     />
-  )
+  );
 }
-

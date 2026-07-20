@@ -10,6 +10,7 @@ import {
   OAuthIntegrationOptions,
   OAuthWebIntegration,
 } from './oauth-web-integration';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 
 export function isOAuthNativeIntegration(integration: {
   type: IntegrationType;
@@ -22,33 +23,18 @@ export function isOAuthNativeIntegration(integration: {
 export type OAuthIntegration = OAuthWebIntegration | OAuthNativeIntegration;
 
 /**
- * Check if the integration is OAuthWeb or OAuthNative
+ * Check if the integration is OAuth-based (OAuthWeb, OAuthNative, or Pairing)
  */
 export function isOAuthIntegration(integration: {
   type: IntegrationType;
 }): integration is OAuthIntegration {
   return (
     (integration as OAuthWebIntegration).type === IntegrationType.OAuthWeb ||
-    (integration as OAuthNativeIntegration).type === IntegrationType.OAuthNative
+    (integration as OAuthNativeIntegration).type ===
+      IntegrationType.OAuthNative ||
+    integration.type === IntegrationType.PairingAuthority ||
+    integration.type === IntegrationType.PairingSupplicant
   );
-}
-
-export enum OAuthNativeClients {
-  FirefoxIOS = '1b1a3e44c54fbb58',
-  FirefoxDesktop = '5882386c6d801776',
-  Fenix = 'a2270f727f45f648',
-  Fennec = '3332a18d142636cb',
-  // TODO: handle Thunderbird case better, FXA-10848
-  Thunderbird = '8269bacd7bbc7f80',
-}
-
-/**
- * These come through via data.service (a query parameter).
- */
-export enum OAuthNativeServices {
-  Sync = 'sync',
-  Relay = 'relay',
-  AiWindow = 'aiwindow',
 }
 
 /**
@@ -82,10 +68,6 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return this.isFirefoxDesktopClient() && this.isDefaultSyncService();
   }
 
-  private isFirefoxClient() {
-    return this.isFirefoxDesktopClient() || this.isFirefoxMobileClient();
-  }
-
   // Sync should always provide a `service=sync` parameter for all Fx Desktop versions
   // and newer mobile versions. We'll default to Sync if it's missing.
   private isDefaultSyncService() {
@@ -101,17 +83,24 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  isFirefoxClientServiceAiWindow() {
+  isFirefoxClientServiceSmartWindow() {
     return (
       this.isFirefoxClient() &&
-      this.data.service === OAuthNativeServices.AiWindow
+      this.data.service === OAuthNativeServices.SmartWindow
+    );
+  }
+
+  isFirefoxClientServiceVpn() {
+    return (
+      this.isFirefoxClient() && this.data.service === OAuthNativeServices.Vpn
     );
   }
 
   isFirefoxNonSync() {
     return (
       this.isFirefoxClientServiceRelay() ||
-      this.isFirefoxClientServiceAiWindow()
+      this.isFirefoxClientServiceSmartWindow() ||
+      this.isFirefoxClientServiceVpn()
     );
   }
 
@@ -119,7 +108,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return (
       this.clientInfo?.clientId === OAuthNativeClients.FirefoxIOS ||
       this.clientInfo?.clientId === OAuthNativeClients.Fenix ||
-      this.clientInfo?.clientId === OAuthNativeClients.Fennec
+      this.clientInfo?.clientId === OAuthNativeClients.Fennec ||
+      this.clientInfo?.clientId === OAuthNativeClients.ReferenceBrowser
     );
   }
 
@@ -132,17 +122,71 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  wantsKeys() {
-    // TODO: this will not always be true when working on FXA-12374
-    return true;
+  // Sync requires keys, which forces password entry.
+  requiresKeys(): boolean {
+    return this.isSync() && this._scopeRequestsKeys();
+  }
+
+  // Non-Sync browser services (Relay, VPN, SmartWindow) want keys
+  // opportunistically if the user enters a password for another reason,
+  // so they can turn Sync on without being bounced back to FxA.
+  wantsKeysIfPasswordEntered(): boolean {
+    return this.isFirefoxNonSync() && this._scopeRequestsKeys();
+  }
+
+  // When the URL omits `scope=`, there's no client-side permission set
+  // to enumerate — the server resolves the granted scope from `service=`
+  // at /oauth/authorization. Return [] instead of letting super throw
+  // INVALID_PARAMETER(scope) on empty scope. Explicit URL scope still
+  // wins (parent path).
+  override getPermissions(): string[] {
+    if (!this.data.scope) {
+      return [];
+    }
+    return super.getPermissions();
+  }
+
+  // When the URL omits `scope=`, send empty so the server's
+  // /oauth/authorization gate resolves it from `service=`. Bypasses
+  // super.getPermissions() which would otherwise throw on empty scope.
+  // Explicit URL scope still wins (parent path).
+  override getNormalizedScope(): string {
+    if (!this.data.scope) {
+      return '';
+    }
+    return super.getNormalizedScope();
+  }
+
+  // When the URL omits `scope=`, decide based on the service. Sync
+  // flows force password (requiresKeys); non-Sync Firefox flows offer
+  // keys opportunistically (wantsKeysIfPasswordEntered). When the user
+  // enters a password, the client wraps keysJwe and sends it; the
+  // server then adds apps/oldsync to the resolved scope set.
+  //
+  // The redirectUri-vs-scope check that super._scopeRequestsKeys does
+  // is skipped here — there is no URL scope to validate, and
+  // OAuthNative clientIds are already gated by the
+  // OAUTH_NATIVE_CLIENT_IDS allowlist on the auth-server side.
+  protected override _scopeRequestsKeys(): boolean {
+    if (this.data.scope) {
+      return super._scopeRequestsKeys();
+    }
+    return (
+      this.opts.scopedKeysEnabled &&
+      this.data.keysJwk != null &&
+      this.isFirefoxClient()
+    );
   }
 
   getWebChannelServices(syncEngines?: SyncEngines) {
     if (this.isFirefoxClientServiceRelay()) {
       return { relay: {} };
     }
-    if (this.isFirefoxClientServiceAiWindow()) {
-      return { aiwindow: {} };
+    if (this.isFirefoxClientServiceSmartWindow()) {
+      return { smartwindow: {} };
+    }
+    if (this.isFirefoxClientServiceVpn()) {
+      return { vpn: {} };
     }
     if (this.isDefaultSyncService()) {
       return { sync: syncEngines || {} };
@@ -157,8 +201,11 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceRelay()) {
       return Constants.RELIER_FF_CLIENT_RELAY_SERVICE_NAME;
     }
-    if (this.isFirefoxClientServiceAiWindow()) {
-      return Constants.RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME;
+    if (this.isFirefoxClientServiceSmartWindow()) {
+      return Constants.RELIER_FF_CLIENT_SMART_WINDOW_SERVICE_NAME;
+    }
+    if (this.isFirefoxClientServiceVpn()) {
+      return Constants.RELIER_FF_CLIENT_VPN_SERVICE_NAME;
     }
     // TODO: handle Thunderbird case better? FXA-10848
     return 'Firefox';

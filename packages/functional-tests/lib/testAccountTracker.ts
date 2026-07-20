@@ -17,15 +17,26 @@ import { SessionStatus } from 'fxa-auth-client/lib/client';
 enum EmailPrefix {
   BLOCKED = 'blocked',
   BOUNCED = 'bounced',
+  BOUNCED_ALIAS = 'bounced+',
   FORCED_PWD_CHANGE = 'forcepwdchange',
+  PASSWORDLESS = 'passwordless',
   SIGNIN = 'signin',
   SIGNUP = 'signup',
   SYNC = 'sync',
 }
 
+const SUPPORTED_SERVICE = 'smoketests';
+
 type AccountDetails = {
   email: string;
+  originalEmail?: string;
   password: string;
+  /** For passwordless accounts that don't have a password yet */
+  isPasswordless?: boolean;
+  /** Preserved session token for cleanup (used for passwordless+TOTP accounts) */
+  sessionToken?: string;
+  /** TOTP secret for accounts with 2FA enabled */
+  secret?: string;
 };
 
 /**
@@ -85,9 +96,12 @@ export class TestAccountTracker {
    * @param prefix email prefix to use when generating email
    * @returns email
    */
-  generateEmail(prefix: EmailPrefix = EmailPrefix.SIGNIN): string {
+  generateEmail(
+    prefix: EmailPrefix = EmailPrefix.SIGNIN,
+    domain = 'restmail.net'
+  ): string {
     const id = crypto.randomBytes(8).toString('hex');
-    return `${prefix}${id}@restmail.net`;
+    return `${prefix}${id}@${domain}`;
   }
 
   /**
@@ -105,6 +119,15 @@ export class TestAccountTracker {
    */
   generateBouncedAccountDetails(): AccountDetails {
     return this.generateAccountDetails(EmailPrefix.BOUNCED);
+  }
+
+  /**
+   * Creates a new email address with the 'bounced' prefix and a new randomized
+   * password
+   * @returns AccountDetails
+   */
+  generateBouncedAliasAccountDetails(domain: string): AccountDetails {
+    return this.generateAccountDetails(EmailPrefix.BOUNCED_ALIAS, domain);
   }
 
   /**
@@ -135,16 +158,42 @@ export class TestAccountTracker {
   }
 
   /**
+   * Creates a new email address with the 'passwordless' prefix and a new
+   * randomized password. The 'passwordless' prefix triggers the passwordless
+   * flow due to server-side email regex matching.
+   * Note: The account is marked as passwordless for special cleanup handling.
+   * @returns AccountDetails
+   */
+  generatePasswordlessAccountDetails(): AccountDetails {
+    const account = {
+      email: this.generateEmail(EmailPrefix.PASSWORDLESS),
+      password: this.generatePassword(),
+      isPasswordless: true,
+    };
+    this.accounts.push(account);
+    return account;
+  }
+
+  /**
+   * Creates a new email with the 'passwordless' prefix
+   * @returns email
+   */
+  generatePasswordlessEmail(): string {
+    return this.generateEmail(EmailPrefix.PASSWORDLESS);
+  }
+
+  /**
    * Creates a new email address with a given prefix and a new randomized
    * password
    * @param prefix email prefix to use when generating email
    * @returns AccountDetails
    */
   generateAccountDetails(
-    prefix: EmailPrefix = EmailPrefix.SIGNIN
+    prefix: EmailPrefix = EmailPrefix.SIGNIN,
+    domain = 'restmail.net'
   ): AccountDetails {
     const account = {
-      email: this.generateEmail(prefix),
+      email: this.generateEmail(prefix, domain),
       password: this.generatePassword(),
     };
     this.accounts.push(account);
@@ -195,6 +244,56 @@ export class TestAccountTracker {
    */
   async signUpSync(options?: any): Promise<Credentials> {
     return await this.signUp(options, EmailPrefix.SYNC);
+  }
+
+  /**
+   * Creates a passwordless account via API (verifierSetAt: 0, no password).
+   * The returned `password` is generated for tests that subsequently drive
+   * the set-password flow, and is also used by cleanup to plant a password
+   * before destroying the account.
+   */
+  async signUpPasswordless(): Promise<{
+    email: string;
+    uid: string;
+    sessionToken: string;
+    password: string;
+  }> {
+    const email = this.generateEmail(EmailPrefix.PASSWORDLESS);
+    const password = this.generatePassword();
+
+    // Send passwordless code
+    await this.target.authClient.passwordlessSendCode(
+      email,
+      {
+        clientId: this.target.relierClientID,
+        service: SUPPORTED_SERVICE,
+      },
+      this.target.ciHeader
+    );
+
+    // Get OTP from email
+    const code = await this.target.emailClient.getPasswordlessSignupCode(email);
+
+    // Confirm code - creates account (NO password is set - remains passwordless)
+    const result = await this.target.authClient.passwordlessConfirmCode(
+      email,
+      code,
+      {
+        clientId: this.target.relierClientID,
+        service: SUPPORTED_SERVICE,
+      },
+      this.target.ciHeader
+    );
+
+    // Track for cleanup - mark as passwordless so cleanup knows to handle specially
+    this.accounts.push({ email, password, isPasswordless: true });
+
+    return {
+      email,
+      uid: result.uid,
+      sessionToken: result.sessionToken,
+      password,
+    };
   }
 
   /**
@@ -288,9 +387,25 @@ export class TestAccountTracker {
    * Once we have a valid sessionToken, we disconnect 2FA then destroy the account.
    */
   private async destroyAccount(account: AccountDetails | Credentials) {
+    // Clear any stale OTP/verify emails left behind by the test's UI flow,
+    // so the codes we issue below aren't shadowed by older inbox entries.
+    await this.target.emailClient.clear(account.email);
+
+    // Handle passwordless accounts - they need a password set before we can destroy them
+    const isPasswordless =
+      'isPasswordless' in account && account.isPasswordless;
+    if (isPasswordless) {
+      await this.setupPasswordForPasswordlessAccount(account);
+    }
+
     const { sessionToken } = await this.target.authClient.signIn(
-      account.email,
-      account.password
+      {
+        primary: account.email,
+        original: account.originalEmail || account.email
+      },
+      account.password,
+      {},
+      this.target.ciHeader
     );
 
     const [status, has2FA] = await Promise.all([
@@ -326,17 +441,108 @@ export class TestAccountTracker {
     }
 
     if (has2FA) {
-      // TODO: `deleteTotpToken` is deprecated, use `deleteTotpTokenWithJwt` instead
-      // https://mozilla-hub.atlassian.net/browse/FXA-12629
-      await this.target.authClient.deleteTotpToken(sessionToken);
+      // Get MFA JWT for 2FA scope to delete TOTP
+      const mfaJwt = await this.getMfaJwtForScope(
+        '2fa',
+        sessionToken,
+        account.email
+      );
+      await this.target.authClient.deleteTotpTokenWithJwt(mfaJwt);
     }
 
     await this.target.authClient.accountDestroy(
-      account.email,
+      {
+        primary: account.email,
+        original: account.originalEmail || account.email
+      },
       account.password,
       {},
       sessionToken
     );
+  }
+
+  /**
+   * Sets up a password for a passwordless account so it can be destroyed.
+   * Uses the passwordless API to get a session token, then creates a password.
+   * If the password is already set (e.g., user set it during test via UI), this is a no-op.
+   *
+   * For accounts with TOTP enabled, the passwordless API returns an unverified
+   * session (verificationMethod: 'totp-2fa'). In that case, we verify TOTP
+   * to elevate to AAL2 before creating the password, or fall back to
+   * the preserved session token if available.
+   */
+  private async setupPasswordForPasswordlessAccount(
+    account: AccountDetails
+  ): Promise<void> {
+    try {
+      // Send passwordless code
+      await this.target.authClient.passwordlessSendCode(
+        account.email,
+        {
+          clientId: this.target.relierClientID,
+          service: SUPPORTED_SERVICE,
+        },
+        this.target.ciHeader
+      );
+
+      // Get OTP from email
+      const code = await this.target.emailClient.getPasswordlessSigninCode(
+        account.email
+      );
+
+      // Confirm code to get session token
+      const result = await this.target.authClient.passwordlessConfirmCode(
+        account.email,
+        code,
+        {
+          clientId: this.target.relierClientID,
+          service: SUPPORTED_SERVICE,
+        },
+        this.target.ciHeader
+      );
+
+      let sessionToken = result.sessionToken;
+
+      // If account has TOTP, session is unverified - need to verify TOTP first
+      if (result.verificationMethod === 'totp-2fa' && account.secret) {
+        const { getTotpCode } = require('./totp');
+        const totpCode = await getTotpCode(account.secret);
+        await this.target.authClient.verifyTotpCode(sessionToken, totpCode);
+        console.log(`Verified TOTP for ${account.email} during cleanup`);
+      } else if (
+        result.verificationMethod === 'totp-2fa' &&
+        account.sessionToken
+      ) {
+        // Fall back to preserved session token if no TOTP secret available
+        console.log(
+          `Using preserved session token for ${account.email} (no TOTP secret)`
+        );
+        sessionToken = account.sessionToken;
+      }
+
+      // Create password using the session token
+      await this.target.authClient.createPassword(
+        sessionToken,
+        account.email,
+        account.password
+      );
+    } catch (error: any) {
+      // If password is already set (e.g., user set it during test via SetPassword page),
+      // that's fine - we can proceed with normal cleanup
+      if (
+        error.message?.includes('password already set') ||
+        error.errno === 148 // ERRNO.CAN_NOT_CREATE_PASSWORD
+      ) {
+        console.log(
+          `Password already set for ${account.email}, proceeding with cleanup`
+        );
+      } else {
+        throw error;
+      }
+    }
+
+    // Mark as no longer passwordless for this session
+    account.isPasswordless = false;
   }
 
   /**
@@ -371,6 +577,40 @@ export class TestAccountTracker {
 
     const code = await getTotpCode(secret);
     await this.target.authClient.verifyTotpCode(sessionToken, code);
+  }
+
+  /**
+   * Gets an MFA JWT for a specific scope by requesting and verifying an OTP.
+   * This is used for operations that require MFA authentication.
+   */
+  private async getMfaJwtForScope(
+    scope: MfaScope,
+    sessionToken: string,
+    email: string
+  ): Promise<string> {
+    const { status } = await this.target.authClient.mfaRequestOtp(
+      sessionToken,
+      scope
+    );
+    if (status !== 'success') {
+      throw new Error(`Failed to request MFA OTP for scope: ${scope}`);
+    }
+
+    const code =
+      await this.target.emailClient.getVerifyAccountChangeCode(email);
+
+    const { accessToken } = await this.target.authClient.mfaOtpVerify(
+      sessionToken,
+      code,
+      scope
+    );
+    if (!accessToken) {
+      throw new Error(
+        `Failed to get MFA JWT for scope: ${scope}. No accessToken returned`
+      );
+    }
+
+    return accessToken;
   }
 
   /**

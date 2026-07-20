@@ -11,8 +11,11 @@ import {
 import {
   StripeClient,
   StripeConfig,
+  StripeApiListFactory,
   StripeCustomerFactory,
   StripePriceFactory,
+  StripeSubscriptionFactory,
+  StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
   EligibilityContentByOfferingResultFactory,
@@ -26,7 +29,7 @@ import {
   IapOfferingSubGroupResultFactory,
   IapWithOfferingResultFactory,
   MockStrapiClientConfigProvider,
-  OfferingNotFoundError,
+  EligibilityContentOfferingNotFoundError,
   PageContentOfferingTransformedFactory,
   ProductConfigurationManager,
   StrapiClient,
@@ -136,7 +139,7 @@ describe('EligibilityService', () => {
           faker.string.uuid(),
           mockCustomer.id
         )
-      ).rejects.toThrowError(OfferingNotFoundError);
+      ).rejects.toThrow(EligibilityContentOfferingNotFoundError);
     });
 
     it('returns IAP overlap when user has IAP subscriptions in the same subgroup', async () => {
@@ -186,7 +189,243 @@ describe('EligibilityService', () => {
           faker.string.uuid(),
           mockCustomer.id
         )
-      ).rejects.toThrowError(OfferingNotFoundError);
+      ).rejects.toThrow(EligibilityContentOfferingNotFoundError);
+    });
+
+    it('returns BLOCKED_IAP when Google IAP subscription overlaps target offering', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(googleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([{ sku: 'google_sku_1' } as any]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    apiIdentifier: offeringApiIdentifier,
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: offeringApiIdentifier,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        offeringApiIdentifier,
+        faker.string.uuid(),
+        mockCustomer.id
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+      });
+    });
+
+    it('returns BLOCKED_IAP when Apple IAP subscription overlaps target offering', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([{ productId: 'apple_product_1' } as any]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    apiIdentifier: offeringApiIdentifier,
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: offeringApiIdentifier,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        offeringApiIdentifier,
+        faker.string.uuid(),
+        mockCustomer.id
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+      });
+    });
+
+    it('returns CREATE when Google IAP subscription is for a different product', async () => {
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+      const differentOfferingId = faker.string.uuid();
+
+      jest
+        .spyOn(googleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([{ sku: 'google_sku_1' } as any]);
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    apiIdentifier: differentOfferingId,
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: differentOfferingId,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        offeringApiIdentifier,
+        faker.string.uuid(),
+        undefined
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+    });
+
+    it('returns CREATE when Apple IAP subscription is for a different product', async () => {
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+      const differentOfferingId = faker.string.uuid();
+
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([{ productId: 'apple_product_1' } as any]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    apiIdentifier: differentOfferingId,
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: differentOfferingId,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        offeringApiIdentifier,
+        faker.string.uuid(),
+        undefined
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
     it('returns eligibility status successfully', async () => {
@@ -249,6 +488,64 @@ describe('EligibilityService', () => {
         mockOffering,
         interval,
         []
+      );
+    });
+
+    it('returns CREATE when user has active subscription for a different product with no offering overlap', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const mockOffering = EligibilityContentOfferingResultFactory();
+      const vpnPriceId = 'price_vpn_monthly';
+      const vpnPrice = StripePriceFactory({ id: vpnPriceId });
+      const mockSubscription = StripeSubscriptionFactory({
+        items: StripeApiListFactory([
+          StripeSubscriptionItemFactory({ price: vpnPrice }),
+        ]),
+      });
+
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [mockOffering],
+            })
+          )
+        );
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(eligibilityManager, 'getOfferingOverlap')
+        .mockResolvedValue([]);
+      jest.spyOn(eligibilityManager, 'compareOverlaps').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        mockOffering.apiIdentifier,
+        faker.string.uuid(),
+        mockCustomer.id
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
+        mockCustomer.id
+      );
+      expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
+        priceIds: [vpnPriceId],
+        targetOffering: mockOffering,
+      });
+      expect(eligibilityManager.compareOverlaps).toHaveBeenCalledWith(
+        [],
+        mockOffering,
+        interval,
+        [vpnPrice]
       );
     });
   });

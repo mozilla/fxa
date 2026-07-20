@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
 import { SETTINGS_PATH } from '../../../constants';
@@ -10,7 +9,7 @@ import SettingsLayout from '.';
 
 it('renders the app with children', async () => {
   const {
-    history: { navigate },
+    router,
   } = renderWithRouter(
     <SettingsLayout>
       <p data-testid="test-child">Hello, world!</p>
@@ -18,7 +17,7 @@ it('renders the app with children', async () => {
   );
 
   await waitFor(() => {
-    navigate(SETTINGS_PATH);
+    router.navigate(SETTINGS_PATH);
   });
 
   expect(screen.getByTestId('app')).toBeInTheDocument();

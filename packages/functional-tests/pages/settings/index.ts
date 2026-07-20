@@ -8,6 +8,7 @@ import {
   ConnectedServicesRow,
   DataCollectionRow,
   DisplayNameRow,
+  PasskeyRow,
   PasswordRow,
   PrimaryEmailRow,
   RecoveryKeyRow,
@@ -57,6 +58,10 @@ export class SettingsPage extends SettingsLayout {
 
   get totp() {
     return this.lazyRow('two-step', TotpRow);
+  }
+
+  get passkey() {
+    return this.lazyRow('passkey', PasskeyRow);
   }
 
   get connectedServiceName() {
@@ -126,13 +131,34 @@ export class SettingsPage extends SettingsLayout {
   }
 
   /**
+   * Drives the passkey-deletion flow: clicks the delete icon, satisfies the
+   * MFA guard if it is presented (the JWT cache may already cover the
+   * `passkey` scope from a prior add/delete in the same session), and
+   * confirms the deletion modal. Callers are responsible for asserting the
+   * resulting state (alert bar, row status, etc.) in their test steps.
+   */
+  async deletePasskey(email: string) {
+    await this.passkey.deleteButton.click();
+    await this.confirmMfaGuardIfVisible(email);
+
+    await expect(this.passkey.deleteModalHeading).toBeVisible();
+    await this.passkey.confirmDeleteButton.click();
+  }
+
+  /**
+   * The MFA guard modal's heading. Use to assert the protected modal is (or is
+   * not) displayed; the locator auto-waits when passed to `expect`.
+   */
+  get mfaGuardHeading() {
+    return this.page.getByRole('heading', { name: 'Enter confirmation code' });
+  }
+
+  /**
    * Indicates that the MFA guard's modal dialog is currently displayed.
    * @returns true if the MFA modal is open
    */
   async isMfaGuardVisible() {
-    return await this.page
-      .getByRole('heading', { name: 'Enter confirmation code' })
-      .isVisible();
+    return await this.mfaGuardHeading.isVisible();
   }
 
   /**
@@ -144,12 +170,20 @@ export class SettingsPage extends SettingsLayout {
   async confirmMfaGuard(email: string) {
     const code =
       await this.target.emailClient.getVerifyAccountChangeCode(email);
-    await this.page
-      .getByRole('heading', { name: 'Enter confirmation code' })
-      .waitFor();
+    await this.mfaGuardHeading.waitFor();
     await this.page
       .getByRole('textbox', { name: 'Enter 6-digit code' })
       .fill(code);
     await this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
+
+  /**
+   * Confirms the MFA guard only if the modal is currently displayed. Safe to
+   * call when the cached JWT already satisfies the guard and no modal appears.
+   */
+  async confirmMfaGuardIfVisible(email: string) {
+    if (await this.isMfaGuardVisible()) {
+      await this.confirmMfaGuard(email);
+    }
   }
 }

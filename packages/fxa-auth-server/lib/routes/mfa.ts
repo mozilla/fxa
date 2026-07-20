@@ -14,6 +14,9 @@ import { recordSecurityEvent } from './utils/security-event';
 import { ConfigType } from '../../config';
 import { OtpUtils } from './utils/otp';
 import { AppError } from '@fxa/accounts/errors';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 /** Customs interface for mfa specific operations. */
 interface Customs {
@@ -49,6 +52,7 @@ const toPascal = (str) =>
   str.replace(/(^|_)(\w)/g, (_, __, c) => c.toUpperCase());
 
 class MfaHandler {
+  private fxaMailer: FxaMailer;
   constructor(
     private readonly config: ConfigType,
     private readonly db: DB,
@@ -56,7 +60,9 @@ class MfaHandler {
     private readonly customs: Customs,
     private readonly mailer: Mailer,
     private readonly statsd: StatsD
-  ) {}
+  ) {
+    this.fxaMailer = Container.get(FxaMailer);
+  }
 
   async requestOtpCode(request: AuthRequest) {
     const { uid, id: sessionTokenId } = request.auth
@@ -84,12 +90,28 @@ class MfaHandler {
       // is valid for 30s.
       // For specifics see: https://www.npmjs.com/package/otplib
       const expirationTime = (options.step * options.window) / 60;
-
-      await this.mailer.sendVerifyAccountChangeEmail(account.emails, account, {
-        code,
-        uid,
-        expirationTime,
-      });
+      if (this.fxaMailer.canSend('verifyAccountChange')) {
+        await this.fxaMailer.sendVerifyAccountChangeEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          code,
+          expirationTime,
+        });
+      } else {
+        await this.mailer.sendVerifyAccountChangeEmail(
+          account.emails,
+          account,
+          {
+            code,
+            uid,
+            expirationTime,
+          }
+        );
+      }
 
       success = true;
     } catch (error) {
@@ -102,7 +124,10 @@ class MfaHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.mfa.otp.sendCode.success');
+      this.statsd.increment(
+        'account.mfa.otp.sendCode.success',
+        getClientServiceTags(request)
+      );
 
       // TODO Create equivalent glean event
       // await this.glean.mfaOtpCode.sent(request);
@@ -177,7 +202,10 @@ class MfaHandler {
 
       const account = await this.db.account(uid);
 
-      this.statsd.increment('account.otp.verifyOtp.success');
+      this.statsd.increment(
+        'account.otp.verifyOtp.success',
+        getClientServiceTags(request)
+      );
 
       // TODO: At some point we might want to create a mapping between actions and scopes.
       // this would allow us to let multiple actions to all be sanctioned by a single jwt.
@@ -257,7 +285,7 @@ export const mfaRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -279,7 +307,7 @@ export const mfaRoutes = (
       path: '/mfa/otp/verify',
       options: {
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {

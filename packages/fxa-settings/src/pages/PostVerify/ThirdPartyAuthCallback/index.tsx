@@ -4,8 +4,8 @@
 
 import React, { useEffect, useRef, useCallback } from 'react';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { RouteComponentProps, useLocation } from '@reach/router';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useNavigate, useLocation } from 'react-router';
+import { AppLayout } from '../../../components/AppLayout';
 import {
   useAccount,
   useAuthClient,
@@ -17,6 +17,7 @@ import {
   handleNavigation,
   ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
@@ -43,14 +44,17 @@ type LinkedAccountData = {
 const ThirdPartyAuthCallback = ({
   integration,
   flowQueryParams,
+  useFxAStatusResult,
 }: {
   integration: Integration;
   flowQueryParams?: QueryParams;
-} & RouteComponentProps) => {
+  useFxAStatusResult: UseFxAStatusResult;
+}) => {
   const account = useAccount();
   const authClient = useAuthClient();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
+  const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -67,6 +71,7 @@ const ThirdPartyAuthCallback = ({
         lastLogin: Date.now(),
         sessionToken: linkedAccount.sessionToken,
         verified: !needsVerification,
+        sessionVerified: !needsVerification,
         metricsEnabled: true,
       };
       return storeAccountData(accountData);
@@ -85,6 +90,12 @@ const ThirdPartyAuthCallback = ({
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
       const isFirefoxNonSync = integration.isFirefoxNonSync();
+      // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
+      // when Sync is not decoupled) need to defer the browser login/OAuth messages
+      // and let handleNavigation route to set_password.
+      const deferKeysUntilPasswordSet = integration.requiresPasswordForLogin(
+        useFxAStatusResult.supportsKeysOptionalLogin
+      );
 
       if (integration.isFirefoxNonSync() || integration.isSync()) {
         const ok = await ensureCanLinkAcountOrRedirect({
@@ -99,6 +110,7 @@ const ThirdPartyAuthCallback = ({
       }
 
       const navigationOptions = {
+        navigate,
         email: linkedAccount.email,
         signinData: {
           uid: linkedAccount.uid,
@@ -120,13 +132,15 @@ const ThirdPartyAuthCallback = ({
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
-        // For non‑Sync integrations we can sign in to the browser immediately because
-        // those integrations do not require keys to be available.
-        // For Sync, third‑party auth is only offered if the account is passwordless.
-        // In that case, we must defer browser login/OAuth messages until after the
-        // user sets a password and keys are available (see SetPassword/container.tsx).
-        handleFxaLogin: isFirefoxNonSync,
-        handleFxaOAuthLogin: isFirefoxNonSync,
+        supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
+        // For non‑Sync browser services where Sync has been decoupled, we can
+        // sign in to the browser immediately because those integrations do not require keys
+        // (e.g. a password entered). For passwordless accounts, we must
+        // defer browser login/OAuth messages until after the user sets a
+        // password and keys are available.
+        handleFxaLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
+        handleFxaOAuthLogin: isFirefoxNonSync && !deferKeysUntilPasswordSet,
+        authClient,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -140,9 +154,12 @@ const ThirdPartyAuthCallback = ({
       finishOAuthFlowHandler,
       integration,
       location.search,
+      navigate,
       navigateWithQuery,
       webRedirectCheck,
       ftlMsgResolver,
+      useFxAStatusResult.supportsKeysOptionalLogin,
+      authClient,
     ]
   );
 
@@ -258,7 +275,7 @@ const ThirdPartyAuthCallback = ({
     }
   }, [integration, navigateNext]);
 
-  return <LoadingSpinner fullScreen />;
+  return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
 };
 
 export default ThirdPartyAuthCallback;

@@ -16,12 +16,14 @@ export const PrePayStepsResultFactory = (
   return {
     version: cart.version,
     uid: faker.string.uuid(),
+    accountCreatedAt: faker.date.past().getTime(),
     customer: StripeCustomerFactory(),
     enableAutomaticTax: true,
     price: StripePriceFactory(),
     eligibility: SubscriptionEligibilityResultFactory({
       subscriptionEligibilityResult: EligibilityStatus.CREATE,
     }),
+    freeTrial: null,
     ...override,
   };
 };

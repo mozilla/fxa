@@ -13,7 +13,7 @@ import { headers } from 'next/headers';
  * This page should not be confused with the Next.js not-found.tsx file
  */
 export default async function NotFoundPage() {
-  const acceptLanguage = headers().get('accept-language');
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
 
   return (

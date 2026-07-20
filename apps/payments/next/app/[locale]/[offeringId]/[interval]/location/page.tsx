@@ -4,7 +4,7 @@
 
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
@@ -19,7 +19,6 @@ import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
 import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 import { config } from 'apps/payments/next/config';
-import { auth } from 'apps/payments/next/auth';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
 
 export const dynamic = 'force-dynamic';
@@ -28,15 +27,16 @@ export default async function Location({
   params,
   searchParams,
 }: {
-  params: BaseParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<BaseParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const acceptLanguage = headers().get('accept-language');
-  const l10n = getApp().getL10n(acceptLanguage, params.locale);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const acceptLanguage = (await headers()).get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage, resolvedParams.locale);
   const emitterService = getApp().getEmitterService();
-  const session = await auth();
-  const providedCountryCode = searchParams['countryCode'];
-  const providedPostalCode = searchParams['postalCode'];
+  const providedCountryCode = resolvedSearchParams['countryCode'];
+  const providedPostalCode = resolvedSearchParams['postalCode'];
   const taxAddress =
     providedCountryCode && providedPostalCode
       ? {
@@ -49,15 +49,13 @@ export default async function Location({
         }
       : undefined;
 
-  const fxaUid = session?.user?.id;
-
   let cms: PageContentOfferingTransformed | undefined;
   let locationStatus: LocationStatus | TaxChangeAllowedStatus | undefined;
   let customerCurrency: string | undefined;
   try {
     const [cmsData, validateLocationResults] = await Promise.all([
-      fetchCMSData(params.offeringId, acceptLanguage, params.locale),
-      validateLocationAction(params.offeringId, taxAddress, fxaUid),
+      fetchCMSData(resolvedParams.offeringId, acceptLanguage, resolvedParams.locale),
+      validateLocationAction(resolvedParams.offeringId, taxAddress, resolvedParams.interval),
     ]);
     cms = cmsData;
     locationStatus = validateLocationResults.status;
@@ -117,7 +115,8 @@ export default async function Location({
             )}
           </Banner>
         ) : locationStatus === LocationStatus.ProductNotAvailable ||
-          locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ? (
+          locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ||
+          locationStatus === TaxChangeAllowedStatus.PriceCurrencyNotAvailable ? (
           <Banner variant={BannerVariant.Error} showCloseButton={true}>
             {l10n.getString(
               'select-tax-location-product-not-available',
@@ -150,7 +149,7 @@ export default async function Location({
           />
           <IsolatedSelectTaxLocation
             cmsCountries={cms.countries}
-            locale={params.locale.substring(0, 2)}
+            locale={resolvedParams.locale.substring(0, 2)}
             productName={purchaseDetails.productName}
             showNewTaxRateInfoMessage={false}
             unsupportedLocations={
@@ -160,39 +159,39 @@ export default async function Location({
             saveAction={async (countryCode: string, postalCode: string) => {
               'use server';
 
-              if (fxaUid) {
-                // call server Action here to validate if tax location change is allowed
-                const result = await validateLocationAction(
-                  params.offeringId,
-                  { countryCode, postalCode },
-                  fxaUid
-                );
+              const result = await validateLocationAction(
+                resolvedParams.offeringId,
+                { countryCode, postalCode },
+                resolvedParams.interval
+              );
 
-                if (!result.isValid) {
-                  return {
-                    ok: false,
-                    error: result.status,
-                  };
-                }
+              if (!result.isValid) {
+                return {
+                  ok: false,
+                  error: result.status,
+                };
               }
 
-              searchParams['countryCode'] = countryCode;
-              searchParams['postalCode'] = postalCode;
+              resolvedSearchParams['countryCode'] = countryCode;
+              resolvedSearchParams['postalCode'] = postalCode;
               const redirectUrl = new URL(
                 buildRedirectUrl(
-                  params.offeringId,
-                  params.interval,
+                  resolvedParams.offeringId,
+                  resolvedParams.interval,
                   'new',
                   'checkout',
                   {
-                    locale: params.locale,
+                    locale: resolvedParams.locale,
                     baseUrl: config.paymentsNextHostedUrl,
-                    searchParams,
+                    searchParams: resolvedSearchParams,
                   }
                 )
               );
 
-              redirect(redirectUrl.href);
+              return {
+                ok: true,
+                data: { redirectToUrl: redirectUrl.href },
+              };
             }}
           />
           <p id="form-information" className="pt-5 text-center">

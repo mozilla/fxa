@@ -10,13 +10,6 @@ import {
   SP2RedirectConfig,
   RedirectParams,
 } from './sp2map.config';
-import { StripeMetadataWithCMS } from './types';
-
-export const StripeMetadataWithCMSFactory = (
-  override?: Partial<StripeMetadataWithCMS>
-): StripeMetadataWithCMS => ({
-  ...override,
-});
 
 export const SP2MapConfigFactory = (
   override?: Partial<SP2MapConfig>

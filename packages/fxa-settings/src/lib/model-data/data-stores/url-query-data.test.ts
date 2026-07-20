@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NavigateFn, WindowLocation } from '@reach/router';
+import { NavigateFunction } from 'react-router';
 import { ReachRouterWindow } from '../../window';
 import { UrlQueryData } from './url-query-data';
 
@@ -13,7 +13,7 @@ describe('url-search-data', () => {
   // full implementation!
   class MockReachRouterWindow extends ReachRouterWindow {
     private _location = new URL('http://localhost');
-    public get navigate(): NavigateFn {
+    public get navigate(): NavigateFunction {
       return async (url) => {
         if (typeof url === 'string') {
           this._location = new URL(url);
@@ -21,7 +21,20 @@ describe('url-search-data', () => {
       };
     }
     public get location() {
-      return this._location as unknown as WindowLocation<any>;
+      return this._location as unknown as Location;
+    }
+    public get history() {
+      const self = this;
+      return {
+        get state() {
+          return null;
+        },
+        replaceState(_data: any, _unused: string, url?: string | URL | null) {
+          if (url) {
+            self._location = new URL(String(url));
+          }
+        },
+      } as unknown as History;
     }
   }
   const window = new MockReachRouterWindow();

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../../lib/constants';
 import GleanMetrics from '../../lib/glean';
 import UserAgentMixin from '../../lib/user-agent-mixin';
@@ -187,12 +188,19 @@ class PairIndexView extends FormView {
       }
     }
 
+    const entrypoint = this.getSearchParam('entrypoint');
+    const isSendTab =
+      !!entrypoint && Constants.SEND_TAB_ENTRYPOINTS.indexOf(entrypoint) !== -1;
+
     context.set({
       graphicId,
       needsMobileConfirmed,
       showSuccessMessage: this.showSuccessMessage(),
+      showSignupSuccessMessage: this.showSignupSuccessMessage(),
+      showPasswordCreatedMessage: this.showPasswordCreatedMessage(),
       buttonTextShadowClass,
       tabletBackArrowColor,
+      isSendTab,
     });
   }
 
@@ -274,6 +282,14 @@ class PairIndexView extends FormView {
       (!!this.model.get('showSuccessMessage') ||
         !!this.getSearchParam('showSuccessMessage'))
     );
+  }
+
+  showSignupSuccessMessage() {
+    return !!this.getSearchParam('signupSuccess');
+  }
+
+  showPasswordCreatedMessage() {
+    return !!this.getSearchParam('passwordCreated');
   }
 }
 

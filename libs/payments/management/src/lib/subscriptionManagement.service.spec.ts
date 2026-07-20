@@ -7,6 +7,16 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
+  ChurnInterventionManager,
+  MockChurnInterventionConfigProvider,
+  TaxService,
+} from '@fxa/payments/cart';
+import {
+  GeoDBManager,
+  GeoDBManagerConfig,
+  MockGeoDBNestFactory,
+} from '@fxa/shared/geodb';
+import {
   CurrencyManager,
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
@@ -21,8 +31,15 @@ import {
   SubscriptionManager,
   SetupIntentManager,
   CustomerSessionManager,
+  BannerVariant,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
+import {
+  EligibilityManager,
+  EligibilityService,
+  LocationConfig,
+  MockLocationConfigProvider,
+} from '@fxa/payments/eligibility';
 import {
   AppleIapClient,
   AppleIapPurchaseManager,
@@ -38,9 +55,9 @@ import {
   GoogleIapPurchaseResultFactory,
   SubscriptionContentFactory,
   SubscriptionManagementService,
+  TrialSubscriptionContentFactory,
 } from '@fxa/payments/management';
 import {
-  BillingAgreementFactory,
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
   PayPalClient,
@@ -72,7 +89,10 @@ import {
   PageContentByPriceIdsResultUtil,
   PageContentByPriceIdsPurchaseResultFactory,
   StrapiClient,
+  ChurnInterventionByProductIdResultFactory,
 } from '@fxa/shared/cms';
+import { ChurnInterventionService } from './churn-intervention.service';
+import { ManagePaymentMethodTaxAddressRequiredError } from './manage-payment-method.error';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -96,19 +116,16 @@ import {
   CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
-  SubscriptionManagementNoStripeCustomerFoundError,
 } from './subscriptionManagement.error';
 import {
   MockNotifierSnsConfigProvider,
   NotifierService,
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
-
 import {
   MockProfileClientConfigProvider,
   ProfileClient,
 } from '@fxa/profile/client';
-
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('@fxa/shared/error', () => ({
@@ -123,6 +140,7 @@ jest.mock('@fxa/shared/error', () => ({
 describe('SubscriptionManagementService', () => {
   let accountCustomerManager: AccountCustomerManager;
   let customerManager: CustomerManager;
+  let churnInterventionService: ChurnInterventionService;
   let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
@@ -134,6 +152,7 @@ describe('SubscriptionManagementService', () => {
   let privateCustomerChanged: any;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
+  let taxService: TaxService;
 
   const mockLogger = {
     error: jest.fn(),
@@ -147,11 +166,16 @@ describe('SubscriptionManagementService', () => {
         AccountCustomerManager,
         AppleIapClient,
         AppleIapPurchaseManager,
+        ChurnInterventionManager,
+        ChurnInterventionService,
         CurrencyManager,
         CustomerManager,
+        EligibilityManager,
+        EligibilityService,
         GoogleIapClient,
         GoogleIapPurchaseManager,
         InvoiceManager,
+        LocationConfig,
         MockAccountDatabaseNestFactory,
         MockAppleIapClientConfigProvider,
         MockCurrencyConfigProvider,
@@ -181,6 +205,12 @@ describe('SubscriptionManagementService', () => {
         CustomerSessionManager,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        MockChurnInterventionConfigProvider,
+        MockLocationConfigProvider,
+        TaxService,
+        GeoDBManager,
+        GeoDBManagerConfig,
+        MockGeoDBNestFactory,
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
@@ -189,6 +219,7 @@ describe('SubscriptionManagementService', () => {
     }).compile();
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    churnInterventionService = moduleRef.get(ChurnInterventionService);
     customerManager = moduleRef.get(CustomerManager);
     invoiceManager = moduleRef.get(InvoiceManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
@@ -204,6 +235,7 @@ describe('SubscriptionManagementService', () => {
       PaypalBillingAgreementManager
     );
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
+    taxService = moduleRef.get(TaxService);
 
     privateCustomerChanged = jest
       .spyOn(subscriptionManagementService as any, 'customerChanged')
@@ -273,6 +305,63 @@ describe('SubscriptionManagementService', () => {
     });
   });
 
+  describe('cancelSubscriptionImmediately', () => {
+    const mockStripeCustomer = StripeCustomerFactory();
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockStripeCustomer.id,
+    });
+    const mockSubscription = StripeResponseFactory(
+      StripeSubscriptionFactory({
+        customer: mockStripeCustomer.id,
+      })
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+    });
+
+    it('successfully cancels the subscription immediately', async () => {
+      await subscriptionManagementService.cancelSubscriptionImmediately(
+        mockAccountCustomer.uid,
+        mockSubscription.id
+      );
+
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+      expect(privateCustomerChanged).toHaveBeenCalledWith(
+        mockAccountCustomer.uid
+      );
+    });
+
+    it('fails with error on mismatching customer id between subscription and account', async () => {
+      jest.spyOn(subscriptionManager, 'retrieve').mockResolvedValueOnce(
+        StripeResponseFactory(
+          StripeSubscriptionFactory({
+            customer: 'differentCustomerId',
+          })
+        )
+      );
+
+      await expect(
+        subscriptionManagementService.cancelSubscriptionImmediately(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(CancelSubscriptionCustomerMismatch);
+      expect(subscriptionManager.cancel).not.toHaveBeenCalled();
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getPageContent', () => {
     const mockProductNameByPriceIdsResultUtil = {
       purchaseForPriceId: jest.fn(),
@@ -303,6 +392,8 @@ describe('SubscriptionManagementService', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory({})
       );
+      const mockStaySubscribedCmsChurnEntry =
+        ChurnInterventionByProductIdResultFactory();
       const mockSubscriptionContent = SubscriptionContentFactory();
       const mockPaymentMethodInformation = {
         type: SubPlatPaymentMethodType.Card,
@@ -387,6 +478,14 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
         .mockResolvedValue(mockGoogleIapPurchaseResult);
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockStaySubscribedCmsChurnEntry,
+          cmsOfferingContent: null,
+        });
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -399,6 +498,7 @@ describe('SubscriptionManagementService', () => {
         defaultPaymentMethod: mockPaymentMethodInformation,
         isStripeCustomer: mockAccountCustomer.stripeCustomerId !== null,
         subscriptions: [mockSubscriptionContent],
+        trialSubscriptions: [],
         appleIapSubscriptions: [mockAppleIapSubscriptionContent],
         googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
       });
@@ -439,6 +539,7 @@ describe('SubscriptionManagementService', () => {
         defaultPaymentMethod: undefined,
         isStripeCustomer: mockAccountCustomer.stripeCustomerId !== null,
         subscriptions: [],
+        trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
       });
@@ -489,9 +590,86 @@ describe('SubscriptionManagementService', () => {
         defaultPaymentMethod: undefined,
         isStripeCustomer: mockAccountCustomer.stripeCustomerId !== null,
         subscriptions: [],
+        trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
       });
+    });
+
+    it('surfaces PayPal missing-agreement error through real PaymentMethodManager', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      // PayPal subscription — collection_method: 'send_invoice' triggers
+      // PaymentMethodManager.determineType to identify PayPal provider
+      const paypalSub = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+      });
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([paypalSub]);
+      // Do NOT mock paymentMethodManager.getDefaultPaymentMethod —
+      // let the real implementation run so we exercise the full chain.
+      // Mock only the low-level PayPal dependency: no active agreement.
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
+        .mockResolvedValue(SubscriptionContentFactory());
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'not_eligible',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
+        });
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.defaultPaymentMethod).toBeDefined();
+      expect(result.defaultPaymentMethod?.type).toBe(
+        SubPlatPaymentMethodType.PayPal
+      );
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError
+      ).toBeDefined();
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.bannerType
+      ).toBe(BannerVariant.Error);
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.paymentMethodType
+      ).toBe(SubPlatPaymentMethodType.PayPal);
+      expect(
+        result.defaultPaymentMethod?.hasPaymentMethodError?.bannerTitle
+      ).toBe('Invalid payment information');
     });
 
     it('returns if there are only IAP subscriptions', async () => {
@@ -581,6 +759,7 @@ describe('SubscriptionManagementService', () => {
         defaultPaymentMethod: undefined,
         isStripeCustomer: Boolean(mockAccountCustomer.stripeCustomerId),
         subscriptions: [],
+        trialSubscriptions: [],
         appleIapSubscriptions: [mockAppleIapSubscriptionContent],
         googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
       });
@@ -938,6 +1117,518 @@ describe('SubscriptionManagementService', () => {
         SubscriptionManagementCouldNotRetrieveIapContentFromCMSError
       );
     });
+
+    it('routes trialing subscription to trialSubscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockTrialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+      });
+      const mockTrialContent = TrialSubscriptionContentFactory();
+      const mockEmptyIapResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockEmptyGoogleIapResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockTrialingSubscription]);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'getTrialSubscriptionContent'
+        )
+        .mockResolvedValue(mockTrialContent);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockEmptyIapResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockEmptyGoogleIapResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.subscriptions).toEqual([]);
+      expect(result.trialSubscriptions).toEqual([mockTrialContent]);
+    });
+
+    it('routes past_due subscription with trial_end to trialSubscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const trialEnd = Math.floor(Date.now() / 1000) - 3600;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockPastDueTrialSubscription = StripeSubscriptionFactory({
+        status: 'past_due',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+        current_period_start: trialEnd,
+      });
+      const mockTrialContent = TrialSubscriptionContentFactory({
+        conversionStatus: 'past_due',
+      });
+      const mockEmptyIapResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockEmptyGoogleIapResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPastDueTrialSubscription]);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'getTrialSubscriptionContent'
+        )
+        .mockResolvedValue(mockTrialContent);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockEmptyIapResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockEmptyGoogleIapResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.subscriptions).toEqual([]);
+      expect(result.trialSubscriptions).toEqual([mockTrialContent]);
+    });
+
+    it('routes past_due subscription without trial_end to regular subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockPastDueSubscription = StripeSubscriptionFactory({
+        status: 'past_due',
+        trial_end: null,
+        trial_start: null,
+      });
+      const mockSubscriptionContent = SubscriptionContentFactory();
+      const mockEmptyIapResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockEmptyGoogleIapResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPastDueSubscription]);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
+        .mockResolvedValue(mockSubscriptionContent);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockEmptyIapResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockEmptyGoogleIapResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.subscriptions).toEqual([mockSubscriptionContent]);
+      expect(result.trialSubscriptions).toEqual([]);
+    });
+
+    it('routes active subscription to regular subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockActiveSubscription = StripeSubscriptionFactory({
+        status: 'active',
+      });
+      const mockSubscriptionContent = SubscriptionContentFactory();
+      const mockEmptyIapResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockEmptyGoogleIapResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockActiveSubscription]);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
+        .mockResolvedValue(mockSubscriptionContent);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockEmptyIapResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockEmptyGoogleIapResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result.subscriptions).toEqual([mockSubscriptionContent]);
+      expect(result.trialSubscriptions).toEqual([]);
+    });
+  });
+
+  describe('getTrialSubscriptionContent', () => {
+    const mockProductName = faker.string.sample();
+    const mockWebIcon = faker.internet.url();
+    const mockSupportUrl = faker.internet.url();
+    const mockApiIdentifier = faker.string.sample();
+
+    it('returns null when trial_end and trial_start are both null', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeSubscriptionFactory({
+        trial_end: null,
+        trial_start: null,
+      });
+      const mockPrice = StripePriceFactory();
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it('throws when price is missing interval information', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockSubscription = StripeSubscriptionFactory({
+        trial_end: trialEnd,
+        trial_start: trialStart,
+      });
+      const mockPrice = StripePriceFactory({ recurring: null });
+
+      await expect(
+        (
+          subscriptionManagementService as any
+        ).getTrialSubscriptionContent(
+          mockSubscription,
+          mockCustomer,
+          mockPrice,
+          mockProductName,
+          mockWebIcon,
+          mockSupportUrl,
+          mockApiIdentifier
+        )
+      ).rejects.toThrow(SubscriptionContentMissingIntervalInformationError);
+    });
+
+    it('skips upcoming invoice when it is missing', async () => {
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+        default_payment_method: null,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel',
+          },
+        },
+      });
+      const mockPrice = StripePriceFactory();
+
+      const previewSpy = jest.spyOn(
+        invoiceManager,
+        'previewUpcomingSubscription'
+      );
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(previewSpy).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: mockSubscription.id,
+          conversionStatus: 'active',
+          nextInvoiceTotal: undefined,
+          nextInvoiceTax: undefined,
+        })
+      );
+    });
+
+    it('returns trial content with active conversion status for trialing subscription', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+        cancel_at_period_end: false,
+        currency: 'usd',
+      });
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = InvoicePreviewFactory({
+        subsequentAmount: 999,
+        subsequentAmountExcludingTax: 900,
+        subsequentTax: [{ amount: 99, inclusive: false, title: 'Tax' }],
+      });
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: mockSubscription.id,
+          productName: mockProductName,
+          offeringApiIdentifier: mockApiIdentifier,
+          supportUrl: mockSupportUrl,
+          webIcon: mockWebIcon,
+          currency: mockSubscription.currency,
+          cancelAtPeriodEnd: false,
+          trialEnd,
+          trialStart,
+          conversionStatus: 'active',
+          nextInvoiceTax: 99,
+          nextInvoiceTotal: 900,
+          failedInvoiceDate: undefined,
+          failedInvoiceTotal: undefined,
+          failedInvoiceTax: undefined,
+          failedInvoiceUrl: undefined,
+        })
+      );
+    });
+
+    it('returns trial content with past_due conversion status and failed invoice details', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const trialEnd = Math.floor(Date.now() / 1000) - 3600;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const latestInvoiceId = `in_${faker.string.alphanumeric({ length: 24 })}`;
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'past_due',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+        current_period_start: trialEnd,
+        latest_invoice: latestInvoiceId,
+        currency: 'usd',
+      });
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = InvoicePreviewFactory({
+        subsequentAmount: 999,
+        subsequentAmountExcludingTax: 900,
+        subsequentTax: [{ amount: 99, inclusive: false, title: 'Tax' }],
+      });
+      const mockLatestInvoice = InvoicePreviewFactory({
+        invoiceDate: trialEnd,
+        invoiceUrl: 'https://invoice.stripe.com/failed',
+        totalAmount: 999,
+        totalExcludingTax: 900,
+        taxAmounts: [{ amount: 99, inclusive: false, title: 'Tax' }],
+      });
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoice);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockLatestInvoice);
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          conversionStatus: 'past_due',
+          failedInvoiceDate: trialEnd,
+          failedInvoiceTax: 99,
+          failedInvoiceTotal: 900,
+          failedInvoiceUrl: 'https://invoice.stripe.com/failed',
+        })
+      );
+      expect(invoiceManager.preview).toHaveBeenCalledWith(latestInvoiceId);
+    });
+
+    it('uses subsequentAmount when no exclusive tax', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+      });
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = InvoicePreviewFactory({
+        subsequentAmount: 999,
+        subsequentTax: [],
+      });
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(result.nextInvoiceTax).toEqual(0);
+      expect(result.nextInvoiceTotal).toEqual(999);
+    });
+
+    it('does not fetch latest invoice for trialing status', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const trialEnd = Math.floor(Date.now() / 1000) + 86400;
+      const trialStart = Math.floor(Date.now() / 1000) - 86400;
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+        trial_end: trialEnd,
+        trial_start: trialStart,
+      });
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = InvoicePreviewFactory({
+        subsequentAmount: 999,
+        subsequentTax: [],
+      });
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoice);
+      const previewSpy = jest.spyOn(invoiceManager, 'preview');
+
+      await (
+        subscriptionManagementService as any
+      ).getTrialSubscriptionContent(
+        mockSubscription,
+        mockCustomer,
+        mockPrice,
+        mockProductName,
+        mockWebIcon,
+        mockSupportUrl,
+        mockApiIdentifier
+      );
+
+      expect(previewSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('getStripePaymentManagementDetails', () => {
@@ -982,7 +1673,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCustomer.currency,
       });
     });
@@ -1052,7 +1746,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCurrency,
       });
     });
@@ -1112,7 +1809,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCurrency,
       });
     });
@@ -1223,6 +1923,27 @@ describe('SubscriptionManagementService', () => {
   });
 
   describe('updateStripePaymentDetails', () => {
+    const mockIp = '127.0.0.1';
+    const customerWithShipping = () =>
+      StripeResponseFactory(
+        StripeCustomerFactory({
+          shipping: {
+            name: 'test',
+            address: StripeAddressFactory({
+              country: 'US',
+              postal_code: '10001',
+            }),
+            phone: null,
+          },
+        })
+      );
+
+    beforeEach(() => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(customerWithShipping());
+    });
+
     it('updates the stripe customer payment method details', async () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
@@ -1263,7 +1984,8 @@ describe('SubscriptionManagementService', () => {
       const result =
         await subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         );
 
       expect(result).toEqual({
@@ -1284,7 +2006,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(UpdateAccountCustomerMissingStripeId);
     });
@@ -1324,7 +2047,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentInvalidStatusError);
     });
@@ -1364,7 +2088,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentMissingPaymentMethodError);
     });
@@ -1403,7 +2128,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentMissingCustomerError);
     });
@@ -1455,7 +2181,8 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.updateStripePaymentDetails(
         mockAccountCustomer.uid,
-        '123'
+        '123',
+        mockIp
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -1468,9 +2195,126 @@ describe('SubscriptionManagementService', () => {
         }
       );
     });
+
+    it('puts a geoip-resolved shipping address when the customer has none', async () => {
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+      const mockSetupIntent = StripeResponseFactory(
+        StripeSetupIntentFactory({
+          customer: mockCustomerWithoutShipping.id,
+          payment_method: mockPaymentMethod.id,
+          status: 'succeeded',
+        })
+      );
+      const resolvedTaxAddress = {
+        countryCode: 'US',
+        postalCode: '10001',
+      };
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(taxService, 'getTaxAddress')
+        .mockResolvedValue(resolvedTaxAddress);
+      jest
+        .spyOn(setupIntentManager, 'createAndConfirm')
+        .mockResolvedValue(mockSetupIntent);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+
+      await subscriptionManagementService.updateStripePaymentDetails(
+        mockAccountCustomer.uid,
+        '123',
+        mockIp
+      );
+
+      expect(taxService.getTaxAddress).toHaveBeenCalledWith(
+        mockIp,
+        mockAccountCustomer.uid
+      );
+      expect(customerManager.update).toHaveBeenCalledWith(
+        mockCustomerWithoutShipping.id,
+        {
+          shipping: {
+            name: mockCustomerWithoutShipping.email || '',
+            address: {
+              country: resolvedTaxAddress.countryCode,
+              postal_code: resolvedTaxAddress.postalCode,
+            },
+          },
+        }
+      );
+    });
+
+    it('throws ManagePaymentMethodTaxAddressRequiredError when tax address is unresolvable', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(taxService, 'getTaxAddress').mockResolvedValue(undefined);
+      const createAndConfirmSpy = jest.spyOn(
+        setupIntentManager,
+        'createAndConfirm'
+      );
+
+      await expect(
+        subscriptionManagementService.updateStripePaymentDetails(
+          mockAccountCustomer.uid,
+          '123',
+          mockIp
+        )
+      ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
+      expect(createAndConfirmSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('setDefaultStripePaymentDetails', () => {
+    const mockIp = '127.0.0.1';
+
+    const customerWithShipping = () =>
+      StripeResponseFactory(
+        StripeCustomerFactory({
+          shipping: {
+            name: 'test',
+            address: StripeAddressFactory({
+              country: 'US',
+              postal_code: '10001',
+            }),
+            phone: null,
+          },
+        })
+      );
+
+    beforeEach(() => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(customerWithShipping());
+    });
+
     it("updates the customer's payment details", async () => {
       const mockAccountCustomer = ResultAccountCustomerFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -1485,7 +2329,8 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.setDefaultStripePaymentDetails(
         mockCustomer.id,
-        mockPaymentMethod.id
+        mockPaymentMethod.id,
+        mockIp
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -1510,8 +2355,93 @@ describe('SubscriptionManagementService', () => {
         subscriptionManagementService.setDefaultStripePaymentDetails(
           mockAccountCustomer.uid,
           'pm_12345',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
+    });
+
+    it('stamps a geoip-resolved shipping address when the customer has none', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+      const resolvedTaxAddress = {
+        countryCode: 'US',
+        postalCode: '10001',
+      };
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(taxService, 'getTaxAddress')
+        .mockResolvedValue(resolvedTaxAddress);
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+
+      await subscriptionManagementService.setDefaultStripePaymentDetails(
+        mockAccountCustomer.uid,
+        'pm_12345',
+        mockIp
+      );
+
+      expect(taxService.getTaxAddress).toHaveBeenCalledWith(
+        mockIp,
+        mockAccountCustomer.uid
+      );
+      expect(customerManager.update).toHaveBeenNthCalledWith(
+        1,
+        mockCustomerWithoutShipping.id,
+        {
+          shipping: {
+            name: mockCustomerWithoutShipping.email || '',
+            address: {
+              country: resolvedTaxAddress.countryCode,
+              postal_code: resolvedTaxAddress.postalCode,
+            },
+          },
+        }
+      );
+      expect(customerManager.update).toHaveBeenNthCalledWith(
+        2,
+        mockCustomerWithoutShipping.id,
+        {
+          invoice_settings: { default_payment_method: 'pm_12345' },
+        }
+      );
+    });
+
+    it('throws ManagePaymentMethodTaxAddressRequiredError when tax address is unresolvable', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(taxService, 'getTaxAddress').mockResolvedValue(undefined);
+      jest.spyOn(customerManager, 'update');
+
+      await expect(
+        subscriptionManagementService.setDefaultStripePaymentDetails(
+          mockAccountCustomer.uid,
+          'pm_12345',
+          mockIp
+        )
+      ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
+      expect(customerManager.update).not.toHaveBeenCalled();
     });
   });
 
@@ -1688,7 +2618,6 @@ describe('SubscriptionManagementService', () => {
           collection_method: 'send_invoice',
         })
       );
-      const mockBillingAgreement = BillingAgreementFactory();
       const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
 
       jest
@@ -1712,12 +2641,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paypalBillingAgreementManager, 'create')
         .mockResolvedValue(faker.string.uuid());
-      jest
-        .spyOn(paypalBillingAgreementManager, 'retrieve')
-        .mockResolvedValue(mockBillingAgreement);
-      jest
-        .spyOn(currencyManager, 'assertCurrencyCompatibleWithCountry')
-        .mockReturnValue();
       jest
         .spyOn(customerManager, 'update')
         .mockResolvedValue(mockStripeCustomer);
@@ -1837,12 +2760,35 @@ describe('SubscriptionManagementService', () => {
   describe('getCancelFlowContent', () => {
     it('returns content (flowType - cancel)', async () => {
       const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'usd',
+        })
+      );
       const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+        })
       );
       const mockProductNameByPriceIdsResultUtil = {
         purchaseForPriceId: jest.fn(),
       };
+
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
 
       jest
         .spyOn(
@@ -1850,6 +2796,12 @@ describe('SubscriptionManagementService', () => {
           'validateAndRetrieveSubscription'
         )
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(
@@ -1859,6 +2811,10 @@ describe('SubscriptionManagementService', () => {
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
         PageContentByPriceIdsPurchaseResultFactory()
       );
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
 
       const result = await subscriptionManagementService.getCancelFlowContent(
         mockUid,
@@ -1889,11 +2845,29 @@ describe('SubscriptionManagementService', () => {
       expect(result.flowType).toEqual('not_found');
     });
 
-    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+    it('returns not_found when product names cannot be retrieved from CMS', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
       );
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'usd',
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
       const mockProductNameByPriceIdsResultUtil = {
         purchaseForPriceId: jest.fn(),
       };
@@ -1905,6 +2879,12 @@ describe('SubscriptionManagementService', () => {
         )
         .mockResolvedValue(mockSubscription);
       jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(
           undefined as unknown as PageContentByPriceIdsResultUtil
@@ -1914,14 +2894,12 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getCancelFlowContent(
-          mockUid,
-          mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
       );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
     it('returns not_found when subscription customer does not match', async () => {
@@ -1976,6 +2954,65 @@ describe('SubscriptionManagementService', () => {
       );
 
       expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('does not return not_found for trialing subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'trialing',
+        })
+      );
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({ customer: mockStripeCustomer.id })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
+      );
+
+      expect(result.flowType).toEqual('cancel');
     });
   });
 
@@ -2114,7 +3151,62 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionManagementNoStripeCustomerFoundError', async () => {
+    it('does not return not_found for trialing subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({ status: 'trialing' })
+      );
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        );
+
+      expect(result.flowType).toEqual('stay_subscribed');
+    });
+
+    it('returns not_found when stripe customer is not found', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2130,17 +3222,16 @@ describe('SubscriptionManagementService', () => {
         .spyOn(customerManager, 'retrieve')
         .mockRejectedValue(new CustomerDeletedError(mockUid));
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementNoStripeCustomerFoundError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+    it('returns not_found when product names cannot be retrieved from CMS', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2183,17 +3274,16 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionContentMissingUpcomingInvoicePreviewError', async () => {
+    it('returns not_found when upcoming invoice preview is missing', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2239,14 +3329,13 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionContentMissingUpcomingInvoicePreviewError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
   });
 });

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Profile } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
@@ -12,7 +11,7 @@ import {
   MOCK_PROFILE_ALL,
 } from './mocks';
 import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -23,11 +22,11 @@ export default {
 
 const storyWithContext = (account: Account, storyName?: string) => {
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext({ account })}>
         <Profile />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   if (storyName) story.storyName = storyName;
   return story;

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 
 import { SetupIntentManager } from './setupIntent.manager';
 import {
@@ -25,6 +26,7 @@ describe('SetupIntentManager', () => {
         SetupIntentManager,
         StripeClient,
         MockStatsDProvider,
+        MockLoggerProvider,
       ],
     }).compile();
 
@@ -55,7 +57,84 @@ describe('SetupIntentManager', () => {
           enabled: true,
           allow_redirects: 'never',
         },
+        use_stripe_sdk: true,
       });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should pass metadata through to setupIntentCreate when provided', async () => {
+      const mockConfirmationToken = 'confirmToken';
+      const mockCustomerId = 'cus_12345';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+
+      jest
+        .spyOn(stripeClient, 'setupIntentCreate')
+        .mockResolvedValue(mockResponse);
+
+      await setupIntentManager.createAndConfirm(
+        mockCustomerId,
+        mockConfirmationToken,
+        { subscription_id: 'sub_abc' }
+      );
+
+      expect(stripeClient.setupIntentCreate).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+        confirm: true,
+        confirmation_token: mockConfirmationToken,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'never',
+        },
+        use_stripe_sdk: true,
+        metadata: { subscription_id: 'sub_abc' },
+      });
+    });
+  });
+
+  describe('update', () => {
+    it('should update a setup intent', async () => {
+      const mockSetupIntentId = 'seti_12345';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+      const params = { metadata: { subscription_id: 'sub_abc' } };
+
+      jest
+        .spyOn(stripeClient, 'setupIntentUpdate')
+        .mockResolvedValue(mockResponse);
+
+      const result = await setupIntentManager.update(
+        mockSetupIntentId,
+        params
+      );
+
+      expect(stripeClient.setupIntentUpdate).toHaveBeenCalledWith(
+        mockSetupIntentId,
+        params
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('confirm', () => {
+    it('should confirm an existing setup intent', async () => {
+      const mockSetupIntentId = 'seti_12345';
+      const mockConfirmationToken = 'confirmToken';
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
+
+      jest
+        .spyOn(stripeClient, 'setupIntentConfirm')
+        .mockResolvedValue(mockResponse);
+
+      const result = await setupIntentManager.confirm(
+        mockSetupIntentId,
+        mockConfirmationToken
+      );
+
+      expect(stripeClient.setupIntentConfirm).toHaveBeenCalledWith(
+        mockSetupIntentId,
+        {
+          confirmation_token: mockConfirmationToken,
+        }
+      );
       expect(result).toEqual(mockResponse);
     });
   });

@@ -3,10 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockSession, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAuthClient,
+  mockSession,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { Account, AppContext, Session } from '../../../models';
 import { ModalVerifySession } from '.';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
@@ -18,6 +21,15 @@ const account = {
 } as unknown as Account;
 
 const session = mockSession(false);
+const authClient = mockAuthClient();
+
+// jest.mock('../../../models', () => ({
+//   ...jest.requireActual('../../../models'),
+//   useAuthClient: () => {
+//     const authClient = mockAuthClient();
+//     return authClient;
+//   },
+// }));
 
 window.console.error = jest.fn();
 
@@ -30,7 +42,13 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider
+        value={{
+          authClient,
+          account,
+          session,
+        }}
+      >
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );
@@ -51,8 +69,19 @@ describe('ModalVerifySession', () => {
   it('sends verification code on mount', async () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
+    authClient.sessionStatus = jest.fn().mockReturnValue({
+      state: 'unverified',
+      details: {
+        verified: false,
+        accountEmailVerified: true,
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: false,
+        sessionVerificationMethod: 'email',
+      },
+    });
+
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={{ account, session, authClient }}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );
@@ -67,7 +96,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={{ account, session, authClient }}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );
@@ -88,7 +117,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={{ account, session, authClient }}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );
@@ -122,7 +151,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={{ account, session, authClient }}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );

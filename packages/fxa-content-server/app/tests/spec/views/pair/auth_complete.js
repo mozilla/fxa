@@ -62,6 +62,7 @@ describe('views/pair/auth_complete', () => {
     view = new View({
       broker,
       notifier,
+      relier,
       user,
       viewName: 'pairAuthComplete',
       window: windowMock,
@@ -91,6 +92,33 @@ describe('views/pair/auth_complete', () => {
         );
 
         assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
+      });
+    });
+
+    it('renders the Send Tab variant when the entrypoint is a send-tab value', () => {
+      relier.set('entrypoint', 'send-tab-toolbar-icon');
+      return view.render().then(() => {
+        assert.equal(
+          view.$el.find('#pair-auth-complete-header').text(),
+          'You’re ready to send some tabs'
+        );
+        assert.include(view.$el.text(), 'Firefox for Windows');
+        assert.include(view.$el.text(), 'is connected.');
+        // No CTA buttons in the Send Tab variant
+        assert.lengthOf(view.$el.find('#open-firefox-view'), 0);
+        assert.lengthOf(view.$el.find('#open-connected-services'), 0);
+        // The "syncing with" heading is suppressed
+        assert.lengthOf(view.$el.find('#device-os'), 0);
+      });
+    });
+
+    it('renders the default variant when entrypoint is not a send-tab value', () => {
+      relier.set('entrypoint', 'preferences');
+      return view.render().then(() => {
+        assert.equal(
+          view.$el.find('#pair-auth-complete-header').text(),
+          'Device connected'
+        );
       });
     });
   });

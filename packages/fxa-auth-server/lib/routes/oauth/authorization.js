@@ -7,10 +7,15 @@ const Joi = require('joi');
 
 const { OauthError } = require('@fxa/accounts/errors');
 const { AppError: AuthError } = require('@fxa/accounts/errors');
+const { OAUTH_NATIVE_CLIENT_IDS } = require('@fxa/accounts/oauth');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const {
+  isFirstAuthorization,
+} = require('../../oauth/first-authorization');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -31,7 +36,7 @@ function isLocalHost(url) {
   return host === 'localhost' || host === 'localhost';
 }
 
-module.exports = ({ log, oauthDB, config }) => {
+module.exports = ({ log, oauthDB, config, statsd }) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
@@ -90,6 +95,13 @@ module.exports = ({ log, oauthDB, config }) => {
       code,
       state,
       redirect: redirect.href,
+      // RFC 6749 §5.1: response should include `scope` when the granted
+      // scope differs from requested. We always include it so the caller
+      // has a single source of truth — especially important when scope
+      // was resolved server-side from `service=`. Today only Firefox (via
+      // fxaOAuthLogin) consumes this field downstream; other RPs may
+      // ignore it. Always non-empty after grant validation.
+      scope: grant.scope.toString(),
     };
   }
 
@@ -162,23 +174,136 @@ module.exports = ({ log, oauthDB, config }) => {
     }
   }
 
-  async function authorizationHandler(req) {
+  // Record consent here, not at /oauth/token, so the URL service= is
+  // available. Silent (prompt=none) re-auths and off-allowlist clients
+  // are skipped; the latter guards privileged services like VPN from
+  // a non-Mozilla RP forging consent on the user behalf. Errors are
+  // swallowed; bookkeeping cannot break sign-in.
+  async function recordAuthorizationRows(req, grant) {
+    if (req.payload.prompt === 'none') {
+      statsd?.increment('accountAuthorization.skipped', {
+        reason: 'prompt_none',
+      });
+      return;
+    }
+    const requestedScopes = grant.scope.getScopeValues();
+    if (requestedScopes.length === 0) {
+      return;
+    }
+    const clientIdHex = hex(grant.clientId);
+    // Lowercase the service so a casing variant (service=VPN) does not
+    // silently land as service='' and bypass the allowlist gate.
+    const serviceParam = (req.payload.service || '').toLowerCase();
+    let serviceValue = oauthDB.isKnownService(serviceParam) ? serviceParam : '';
+    // When the URL omits service= (e.g. VPN cached sign-in only sends
+    // client_id + scope=apps/vpn), recover the service from a canonical
+    // scope in the request so the row lands at service=<vpn> rather
+    // than service=''. Only fires when exactly one canonical scope is
+    // present; ambiguous multi-canonical requests fall back to ''.
+    if (!serviceValue) {
+      const inferred = requestedScopes
+        .map((s) => oauthDB.getServiceForCanonicalScope(s))
+        .filter(Boolean);
+      if (inferred.length === 1) {
+        serviceValue = inferred[0];
+      }
+    }
+    // Expose the resolved service for native clients so the `login` event can
+    // report the browser service (matching the grain of `firstAuthorization`,
+    // incl. scope-only flows like VPN cached sign-in) instead of the shared
+    // client id. Only set for native clients — `service` is meaningless and
+    // spoofable for web RPs, which fall back to the client id on the event.
+    if (OAUTH_NATIVE_CLIENT_IDS.has(clientIdHex) && serviceValue) {
+      req.app.oauthService = serviceValue;
+    }
+    if (!oauthDB.isClientAllowedForService(serviceValue, clientIdHex)) {
+      statsd?.increment('accountAuthorization.skipped', {
+        reason: 'client_not_allowed',
+        service: serviceValue,
+      });
+      return;
+    }
+    const scopesToConsent = new Set(requestedScopes);
+    if (serviceValue) {
+      const canonical = oauthDB.getCanonicalScopeForService(serviceValue);
+      if (canonical) {
+        scopesToConsent.add(canonical);
+      }
+    }
+    const now = Date.now();
+    const uidHex = hex(grant.userId);
+    // Detect the user's first use of this service / RP, to drive
+    // `firstAuthorization` on the `login` event. Best-effort: its own try/catch
+    // keeps a read failure from suppressing the load-bearing consent writes
+    // below, and the targeted existence query short-circuits (no DB call) when
+    // the result is knowably false.
+    let firstAuthorization = false;
+    try {
+      firstAuthorization = await isFirstAuthorization(oauthDB, {
+        uid: uidHex,
+        serviceValue,
+        clientIdHex,
+        isNativeClient: OAUTH_NATIVE_CLIENT_IDS.has(clientIdHex),
+      });
+    } catch (err) {
+      statsd?.increment('accountAuthorization.first_auth_read_failed');
+      log.warn('accountAuthorization.first_auth_read_failed', {
+        err: err.message,
+      });
+    }
+    // allSettled so a second sibling rejection does not become an
+    // unhandled rejection after the first failure has been caught upstream.
+    const results = await Promise.allSettled(
+      Array.from(scopesToConsent).map((scope) =>
+        oauthDB.recordSignInConsent({
+          uid: uidHex,
+          scope,
+          service: serviceValue,
+          clientId: clientIdHex,
+          now,
+        })
+      )
+    );
+    const failure = results.find((r) => r.status === 'rejected');
+    if (failure) {
+      throw failure.reason;
+    }
+    // Only flag once the write succeeded, so the signal matches what landed.
+    if (firstAuthorization) {
+      req.app.firstAuthorization = true;
+    }
+    statsd?.increment('accountAuthorization.recorded', {
+      service: serviceValue || 'unset',
+      access_type: grant.offline ? 'offline' : 'online',
+    });
+  }
+
+  async function authorizationHandler(req, payloadOverride) {
+    // payloadOverride lets the /oauth/authorization route inject a
+    // server-resolved `scope` without mutating req.payload.
+    const payload = payloadOverride ?? req.payload;
     const claims = await verifyAssertion(req.payload.assertion);
 
     const client = await oauthDB.getClient(
-      Buffer.from(req.payload.client_id, 'hex')
+      Buffer.from(payload.client_id, 'hex')
     );
     if (!client) {
-      log.debug('notFound', { id: req.payload.client_id });
-      throw OauthError.unknownClient(req.payload.client_id);
+      log.debug('notFound', { id: payload.client_id });
+      throw OauthError.unknownClient(payload.client_id);
     }
-    validateClientDetails(client, req.payload);
-    const grant = await validateRequestedGrant(claims, client, req.payload);
-    switch (req.payload.response_type) {
+    validateClientDetails(client, payload);
+    const grant = await validateRequestedGrant(claims, client, payload);
+    try {
+      await recordAuthorizationRows(req, grant);
+    } catch (err) {
+      statsd?.increment('accountAuthorization.write_failed');
+      log.warn('accountAuthorization.write_failed', { err: err.message });
+    }
+    switch (payload.response_type) {
       case RESPONSE_TYPE_CODE:
-        return await generateAuthorizationCode(client, req.payload, grant);
+        return await generateAuthorizationCode(client, payload, grant);
       case RESPONSE_TYPE_TOKEN: {
-        const tokens = await generateImplicitGrant(client, req.payload, grant);
+        const tokens = await generateImplicitGrant(client, payload, grant);
         req.emitMetricsEvent('token.created', {
           service: hex(grant.clientId),
           uid: hex(grant.userId),
@@ -188,7 +313,7 @@ module.exports = ({ log, oauthDB, config }) => {
       default:
         // Joi validation means this should never happen.
         log.fatal('joi.response_type', {
-          response_type: req.payload.response_type,
+          response_type: payload.response_type,
         });
         throw OauthError.invalidResponseType();
     }
@@ -303,6 +428,10 @@ module.exports = ({ log, oauthDB, config }) => {
                 otherwise: Joi.forbidden(),
               })
               .description(DESCRIPTION.resource + DESCRIPTION.resourceOauth),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            prompt: Joi.string().valid('none', 'login', 'consent').optional(),
           }),
         },
         response: {
@@ -327,7 +456,7 @@ module.exports = ({ log, oauthDB, config }) => {
               'auth_at',
               'expires_in',
             ])
-            .with('code', ['state', 'redirect'])
+            .with('code', ['state', 'redirect', 'scope'])
             .without('code', ['access_token']),
         },
         handler: function (req) {
@@ -345,7 +474,7 @@ module.exports = ({ log, oauthDB, config }) => {
       config: {
         ...OAUTH_DOCS.OAUTH_AUTHORIZATION_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -389,6 +518,10 @@ module.exports = ({ log, oauthDB, config }) => {
               .description(DESCRIPTION.acrValues),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
+            prompt: Joi.string().valid('none', 'login', 'consent').optional(),
           }).and('code_challenge', 'code_challenge_method'),
         },
         response: {
@@ -396,14 +529,73 @@ module.exports = ({ log, oauthDB, config }) => {
             redirect: Joi.string(),
             code: Joi.string(),
             state: Joi.string().max(512),
+            scope: Joi.string().description(DESCRIPTION.scope),
           }),
         },
       },
       handler: async function (req) {
         checkDisabledClientId(req.payload);
         const sessionToken = req.auth.credentials;
+
+        // For services that require email verification for non-2FA non-Sync
+        // flows, reject sessions in this state. This is accounted for in the
+        // front-end as well, but this guards in our BE. This purposefully
+        // does NOT check session.mustVerify because users in this kind of
+        // unverified session don't have that flag set.
+        const clientId = req.payload.client_id;
+        if (
+          config.servicesWithEmailVerification.includes(clientId) &&
+          !sessionToken.tokenVerified
+        ) {
+          throw AuthError.unverifiedSession();
+        }
+
+        // Server-side scope resolution from `service=` for OAuthNative
+        // (Firefox) clients. Only applies when service= is present and
+        // the client did not specify scope=. If scope is given, it takes
+        // precedence. `validators.scope` transforms the wire string into
+        // a ScopeSet, so a present `req.payload.scope` is a ScopeSet here.
+        // Compute lazily so requests without a service= param skip the
+        // work entirely.
+        let payloadOverride;
+        if (req.payload.service) {
+          const wireScope = req.payload.scope;
+          const wireScopeIsEmpty = !wireScope || wireScope.isEmpty();
+          if (wireScopeIsEmpty) {
+            if (!OAUTH_NATIVE_CLIENT_IDS.has(clientId.toLowerCase())) {
+              throw OauthError.invalidRequestParameter({ keys: ['scope'] });
+            }
+            const serviceParam = req.payload.service.toLowerCase();
+            const clientIdHex = clientId.toLowerCase();
+            // keys_jwe in the payload means the user entered a password
+            // and the client wrapped scoped keys, so the resolver
+            // appends apps/oldsync. `resolveScopesForService` returning
+            // undefined IS the "unknown service" signal — single source
+            // of truth via oauthServer.authorization.serviceScopes.
+            const withKeys = req.payload.keys_jwe != null;
+            const resolvedScopes = oauthDB.resolveScopesForService(
+              serviceParam,
+              withKeys
+            );
+            if (
+              !resolvedScopes ||
+              !oauthDB.isClientAllowedForService(serviceParam, clientIdHex)
+            ) {
+              throw OauthError.invalidRequestParameter({ keys: ['service'] });
+            }
+            payloadOverride = {
+              ...req.payload,
+              scope: ScopeSet.fromArray(resolvedScopes),
+            };
+          }
+        } else if (!req.payload.scope || req.payload.scope.isEmpty()) {
+          // Defense-in-depth against missing both query parameters.
+          // Unreachable from fxa-settings today.
+          throw OauthError.invalidRequestParameter({ keys: ['scope'] });
+        }
+
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
-        const result = await authorizationHandler(req);
+        const result = await authorizationHandler(req, payloadOverride);
 
         const geoData = req.app.geo;
         const country = geoData.location && geoData.location.country;
@@ -415,10 +607,15 @@ module.exports = ({ log, oauthDB, config }) => {
           countryCode,
           deviceCount: devices.length,
           email,
-          service: req.payload.client_id,
-          clientId: req.payload.client_id,
+          // Resolved browser service (an OAuthNative service) when there is
+          // one, so consumers can distinguish services that share a clientId
+          // (Smart Window vs Sync on Desktop); else serviceTag, else the clientId
+          // (mapped by log.js) for web RPs.
+          service: req.app.oauthService || req.app.serviceTag || clientId,
+          clientId,
           uid,
           userAgent: req.headers['user-agent'],
+          firstAuthorization: !!req.app.firstAuthorization,
         });
         return result;
       },

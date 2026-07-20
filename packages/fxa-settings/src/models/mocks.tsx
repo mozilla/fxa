@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import AuthClient from 'fxa-auth-client/browser';
 import { AccountData, ProfileInfo, Session } from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
@@ -13,13 +13,15 @@ import {
 } from './contexts/AppContext';
 
 import {
-  createHistory,
-  createMemorySource,
-  LocationProvider,
-} from '@reach/router';
+  createMemoryRouter,
+  MemoryRouter,
+  RouterProvider,
+} from 'react-router';
+import type { MemoryRouterProps } from 'react-router';
+import { act } from '@testing-library/react';
 import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
-import { ReachRouterWindow } from '../lib/window';
+import { RouterWindow } from '../lib/window';
 import { UrlQueryData } from '../lib/model-data';
 import { SensitiveDataClient } from '../lib/sensitive-data-client';
 
@@ -30,12 +32,25 @@ export const MOCK_ACCOUNT: AccountData =
 export const MOCK_SESSION: Session =
   DEFAULT_APP_CONTEXT.session as unknown as Session;
 
-export function createHistoryWithQuery(path: string, queryParams?: string) {
-  const history = createHistory(createMemorySource(path));
-  if (queryParams != null) {
-    history.location.search = queryParams;
+type RouteEntry = NonNullable<MemoryRouterProps['initialEntries']>[number];
+
+function normalizeEntry(entry: RouteEntry): RouteEntry {
+  if (typeof entry === 'string' && !entry.startsWith('/')) {
+    return `/${entry}`;
   }
-  return history;
+  return entry;
+}
+
+export function createHistoryWithQuery(
+  path: string,
+  queryParams?: string,
+  state?: object
+): RouteEntry {
+  return {
+    pathname: path,
+    search: queryParams || '',
+    ...(state !== undefined && { state }),
+  };
 }
 
 export function createAppContext() {
@@ -46,44 +61,70 @@ export function createAppContext() {
   return appCtx;
 }
 
+function createTestRouter(ui: any, route: RouteEntry = '/') {
+  return createMemoryRouter(
+    [{ path: '*', element: ui }],
+    { initialEntries: [normalizeEntry(route)] }
+  );
+}
+
 export function produceComponent(
   ui: any,
-  { route = '/', history = createHistory(createMemorySource(route)) } = {},
+  { route = '/' as RouteEntry } = {},
   appCtx?: AppContextValue
 ) {
-  // Note that integrations are application instances. Reset them
-  // to ensure a clean slate between storybook renders.
+  const content = (
+    <MemoryRouter initialEntries={[normalizeEntry(route)]}>
+      {ui}
+    </MemoryRouter>
+  );
 
   if (appCtx) {
     return (
       <AppContext.Provider value={appCtx}>
-        <LocationProvider {...{ history }}>{ui}</LocationProvider>
+        {content}
       </AppContext.Provider>
     );
   }
 
-  return <LocationProvider {...{ history }}>{ui}</LocationProvider>;
+  return content;
 }
 
 export function renderWithRouter(
   ui: any,
-  { route = '/', history = createHistory(createMemorySource('/')) } = {},
+  { route = '/' as RouteEntry } = {},
   appCtx?: AppContextValue
 ) {
-  if (!appCtx) {
-    return {
-      ...renderWithLocalizationProvider(
-        <LocationProvider {...{ history }}>{ui}</LocationProvider>
-      ),
-      history,
-    };
-  }
+  const router = createTestRouter(ui, route);
+
+  const content = <RouterProvider router={router} />;
+
+  const wrapped = appCtx ? (
+    <AppContext.Provider value={appCtx}>
+      {content}
+    </AppContext.Provider>
+  ) : (
+    content
+  );
+
+  // Wrap the router's navigate in act() so React processes state updates
+  const wrappedRouter = {
+    get state() {
+      return router.state;
+    },
+    async navigate(
+      to: string | number,
+      options?: { replace?: boolean; state?: any }
+    ) {
+      await act(async () => {
+        await router.navigate(to as any, options);
+      });
+    },
+  };
 
   return {
-    ...renderWithLocalizationProvider(
-      produceComponent(ui, { route, history }, appCtx)
-    ),
-    history,
+    ...renderWithLocalizationProvider(wrapped),
+    router: wrappedRouter,
   };
 }
 
@@ -122,6 +163,32 @@ export function mockSession(
   return session;
 }
 
+export function mockAuthClient() {
+  const mockSessionStatus = {
+    state: 'verified',
+    details: {
+      verified: true,
+      accountEmailVerified: true,
+      sessionVerified: true,
+      sessionVerificationMeetsMinimumAAL: true,
+      sessionVerificationMethod: 'email',
+    },
+  };
+  // There are plenty more methods to mock here, but this is these are the ones
+  // that get commonly used.
+  if (typeof jest !== 'undefined') {
+    return {
+      sessionStatus: jest.fn().mockResolvedValue(mockSessionStatus),
+      sessionResendVerifyCode: jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthClient;
+  } else {
+    return {
+      sessionStatus: () => Promise.resolve(mockSessionStatus),
+      sessionResendVerifyCode: () => Promise.resolve(undefined),
+    } as unknown as AuthClient;
+  }
+}
+
 export function mockSensitiveDataClient() {
   return new SensitiveDataClient();
 }
@@ -136,7 +203,7 @@ export function mockStorage() {
 }
 
 export function mockUrlQueryData(params: Record<string, string | undefined>) {
-  const window = new ReachRouterWindow();
+  const window = new RouterWindow();
   const data = new UrlQueryData(window);
   for (const param of Object.keys(params)) {
     data.set(param, params[param]);
@@ -184,6 +251,7 @@ function mockExperiment() {
 export function mockAppContext(context?: AppContextValue) {
   const base = Object.assign(
     {
+      authClient: mockAuthClient(),
       account: MOCK_ACCOUNT,
       session: mockSession(),
       config: getDefault(),

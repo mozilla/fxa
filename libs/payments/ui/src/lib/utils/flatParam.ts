@@ -8,14 +8,16 @@
  * the original param object marged into a comma-separated value string
  */
 export const flattenRouteParams = (
-  params: Record<string, string | string[]>
+  params: Record<string, string | string[] | undefined>
 ): Record<string, string> => {
   const flatParams: Record<string, string> = {};
   for (const key in params) {
-    if (Array.isArray(params[key])) {
-      flatParams[key] = params[key].join(',');
+    const value = params[key];
+    if (value == null) continue;
+    if (Array.isArray(value)) {
+      flatParams[key] = value.join(',');
     } else {
-      flatParams[key] = params[key];
+      flatParams[key] = value;
     }
   }
   return flatParams;

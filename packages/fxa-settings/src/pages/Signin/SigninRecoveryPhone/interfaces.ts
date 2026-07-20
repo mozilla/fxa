@@ -9,6 +9,8 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 
 export interface SigninRecoveryPhoneContainerProps {
   integration: Integration;
+  setCurrentSplitLayout?: (value: boolean) => void;
+  supportsKeysOptionalLogin?: boolean;
 }
 
 export interface SigninRecoveryPhoneLocationState extends SigninLocationState {
@@ -25,4 +27,6 @@ export type SigninRecoveryPhoneProps = {
   integration?: SigninIntegration;
   sendError?: AuthUiError;
   numBackupCodes?: number;
+  signinState: SigninLocationState | null;
+  setCurrentSplitLayout?: (value: boolean) => void;
 };

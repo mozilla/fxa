@@ -4,7 +4,6 @@
 import { AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
-import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import * as jose from 'jose';
@@ -19,6 +18,7 @@ import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import { notifyAttachedServicesForAccountSession } from './utils/account';
 import {
   getGooglePublicKey,
   getApplePublicKey,
@@ -40,6 +40,9 @@ import {
   ProfileClientServiceFailureError,
 } from '@fxa/profile/client';
 import { StatsD } from 'hot-shots';
+import { Container } from 'typedi';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -56,6 +59,7 @@ export class LinkedAccountHandler {
     private db: any,
     private config: ConfigType,
     private mailer: any,
+    private fxaMailer: FxaMailer,
     private profile: ProfileClient,
     private statsd: StatsD,
     private glean: ReturnType<typeof gleanMetrics>
@@ -274,16 +278,26 @@ export class LinkedAccountHandler {
           };
 
           try {
-            const res = await axios.post(
+            const res = await fetch(
               this.config.googleAuthConfig.tokenEndpoint,
-              data
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              }
             );
+            if (!res.ok) {
+              throw new Error(
+                `Google token endpoint responded with ${res.status}`
+              );
+            }
+            const tokenResponse = await res.json();
             // We currently only use the `id_token` after completing the
             // authorization code exchange. In the future we could store a
             // refresh token to do other things like revoking sessions.
             //
             // See https://developers.google.com/identity/protocols/oauth2/openid-connect#exchangecode
-            rawIdToken = res.data['id_token'];
+            rawIdToken = tokenResponse['id_token'];
 
             const verifiedToken = await this.googleAuthClient.verifyIdToken({
               idToken: rawIdToken,
@@ -323,11 +337,20 @@ export class LinkedAccountHandler {
           };
 
           try {
-            const res = await axios.post(
-              this.config.appleAuthConfig.tokenEndpoint,
-              new URLSearchParams(data).toString()
-            );
-            rawIdToken = res.data['id_token'];
+            const res = await fetch(this.config.appleAuthConfig.tokenEndpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams(data).toString(),
+            });
+            if (!res.ok) {
+              throw new Error(
+                `Apple token endpoint responded with ${res.status}`
+              );
+            }
+            const tokenResponse = await res.json();
+            rawIdToken = tokenResponse['id_token'];
             idToken = jose.decodeJwt(rawIdToken);
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
@@ -347,6 +370,13 @@ export class LinkedAccountHandler {
     const name = idToken.name;
 
     let accountRecord;
+    // Tracks which of the three third-party auth paths we took so the
+    // SNS notification block after the if/else can emit the right events.
+    let linkedAccountFlow:
+      | 'new-link-existing-account'
+      | 'new-account'
+      | 'existing-linked-account'
+      | undefined;
     const linkedAccountRecord = await this.db.getLinkedAccount(
       userid,
       provider
@@ -375,27 +405,40 @@ export class LinkedAccountHandler {
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
-        const emailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          ip,
-          location: geoData.location,
-          providerName: PROVIDER_NAME[provider],
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: accountRecord.uid,
-        };
-        await this.mailer.sendPostAddLinkedAccountEmail(
-          accountRecord.emails,
-          accountRecord,
-          emailOptions
-        );
+
+        if (this.fxaMailer.canSend('postAddLinkedAccount')) {
+          await this.fxaMailer.sendPostAddLinkedAccountEmail({
+            ...FxaMailerFormat.account(accountRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            providerName: PROVIDER_NAME[provider],
+          });
+        } else {
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            ip,
+            location: geoData.location,
+            providerName: PROVIDER_NAME[provider],
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: accountRecord.uid,
+          };
+          await this.mailer.sendPostAddLinkedAccountEmail(
+            accountRecord.emails,
+            accountRecord,
+            emailOptions
+          );
+        }
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         switch (provider) {
           case 'google':
@@ -416,6 +459,7 @@ export class LinkedAccountHandler {
           flowBeginTime,
           service,
         });
+        linkedAccountFlow = 'new-link-existing-account';
       } catch (err) {
         this.log.trace(
           'Account.login.sendPostAddLinkedAccountNotification.error',
@@ -482,7 +526,11 @@ export class LinkedAccountHandler {
           flowBeginTime,
           service,
         });
-        this.glean.registration.complete(request, { uid: accountRecord.uid });
+        this.glean.registration.complete(request, {
+          uid: accountRecord.uid,
+          reason: provider === 'google' ? 'google' : 'apple',
+        });
+        linkedAccountFlow = 'new-account';
       }
     } else {
       // This is an existing user and existing FxA user
@@ -507,6 +555,11 @@ export class LinkedAccountHandler {
           await this.glean.thirdPartyAuth.appleLoginComplete(request);
           break;
       }
+      this.glean.login.complete(request, {
+        uid: accountRecord.uid,
+        reason: provider === 'google' ? 'google' : 'apple',
+      });
+      linkedAccountFlow = 'existing-linked-account';
     }
 
     let verificationMethod,
@@ -537,6 +590,29 @@ export class LinkedAccountHandler {
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+
+    // Mirror the SNS notifications that AccountHandler.createAccount
+    // fires. Placed after createSessionToken so db.sessions already
+    // includes the new session. A new third-party link on an existing
+    // account counts as a profile change (the link was added).
+    const isNewAccount = linkedAccountFlow === 'new-account';
+    const deviceCount = isNewAccount
+      ? 1
+      : (await this.db.sessions(accountRecord.uid)).length;
+    await notifyAttachedServicesForAccountSession({
+      log: this.log,
+      request,
+      account: {
+        uid: accountRecord.uid,
+        primaryEmail: accountRecord.primaryEmail,
+        locale: accountRecord.locale,
+      },
+      service,
+      deviceCount,
+      isNewAccount,
+      emailVerified: true,
+      profileChanged: linkedAccountFlow === 'new-link-existing-account',
+    });
 
     return {
       uid: sessionToken.uid,
@@ -606,11 +682,14 @@ export const linkedAccountRoutes = (
   statsd: any,
   glean: ReturnType<typeof gleanMetrics>
 ) => {
+  const fxaMailer = Container.get(FxaMailer);
+
   const handler = new LinkedAccountHandler(
     log,
     db,
     config,
     mailer,
+    fxaMailer,
     profile,
     statsd,
     glean
@@ -656,7 +735,7 @@ export const linkedAccountRoutes = (
       options: {
         ...THIRD_PARTY_AUTH_DOCS.LINKED_ACCOUNT_UNLINK_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({

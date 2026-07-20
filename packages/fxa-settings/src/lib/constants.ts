@@ -80,7 +80,8 @@ export const Constants = {
   // flows that use the Firefox `client_id`. These may be placeholders/defaults
   // we move some of these into the CMS in FXA-12378, based on entrypoint.
   RELIER_FF_CLIENT_RELAY_SERVICE_NAME: 'Firefox Relay',
-  RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME: 'Firefox AI Window',
+  RELIER_FF_CLIENT_SMART_WINDOW_SERVICE_NAME: 'Firefox Smart Window',
+  RELIER_FF_CLIENT_VPN_SERVICE_NAME: 'Mozilla VPN',
 
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
@@ -130,6 +131,12 @@ export const Constants = {
     'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
   DOWNLOAD_LINK_PAIRING_APP:
     'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android&fallback=https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+
+  // Generic pairing download QR target (Mozilla shortlink).
+  DOWNLOAD_LINK_PAIRING_QR_DEFAULT: 'https://mzl.la/4vbFJda',
+
+  // Send-tab QR target (Mozilla shortlink).
+  DOWNLOAD_LINK_PAIRING_QR_SEND_TAB: 'https://mzl.la/4vr1mWU',
 
   MOZ_ORG_SYNC_GET_STARTED_LINK:
     'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
@@ -203,6 +210,14 @@ export const Constants = {
 
   DISABLE_PROMO_RECOVERY_PHONE_BANNER:
     '__fxa_storage.fxa_disable_notification_banner.recovery-phone-dismissed',
+
+  DISABLE_PROMO_FIREFOX_BANNER:
+    '__fxa_storage.fxa_disable_notification_banner.firefox-promo-dismissed',
+
+  FIREFOX_DESKTOP_DOWNLOAD_URL: 'https://www.firefox.com/en-US/',
+  // Placeholder mobile download target; confirm final attribution link with Product.
+  FIREFOX_MOBILE_DOWNLOAD_URL:
+    'https://www.mozilla.org/firefox/browsers/mobile/',
 
   STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
 };

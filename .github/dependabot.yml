@@ -4,7 +4,11 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    open-pull-requests-limit: 6
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    open-pull-requests-limit: 2
     labels:
       - 'maintenance'
       - 'dependencies'
@@ -12,14 +16,10 @@ updates:
       - '@mozilla/fxa-devs'
     ignore:
       - dependency-name: 'jest-watch-typeahead' # To be removed after react-scripts update
-      - dependency-name: 'esbuild' # See FXA-5948
       - dependency-name: 'mailparser' # Used as a test helper only, see #FXA-5351
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
     groups:
-      one-package-per-pr: # prevent grouping of unrelated PRs
-        patterns:
-          - '*'
       opentelemetry-packages:
         patterns:
           - '@opentelemetry/*'
@@ -27,7 +27,7 @@ updates:
     directory: '/'
     schedule:
       interval: daily
-    open-pull-requests-limit: 6
+    open-pull-requests-limit: 2
     reviewers:
       - '@mozilla/fxa-devs'
     labels:

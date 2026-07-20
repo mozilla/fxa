@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { Session, AppContext } from '../../../models';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import {
@@ -22,6 +22,7 @@ import {
   MOCK_AUTH_ERROR_RATE_LIMIT,
 } from './mocks';
 import {
+  MOCK_CMS_INFO,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_STORED_ACCOUNT,
   mockFinishOAuthFlowHandler,
@@ -52,8 +53,8 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -118,9 +119,6 @@ function renderWithSession({
     </AppContext.Provider>
   );
 }
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('ConfirmSignupCode page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -249,6 +247,7 @@ describe('ConfirmSignupCode page', () => {
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('button', { name: 'Email new code.' });
     screen.getByTestId('cms-logo');
+    screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo);
   });
 
   describe('OAuth web integration', () => {
@@ -290,7 +289,6 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: jest.fn(),
       });
-      expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
     });
 
     it('submits when a valid code is pasted', async () => {
@@ -372,7 +370,10 @@ describe('ConfirmSignupCode page', () => {
           declinedSyncEngines,
           offeredSyncEngines,
           action: 'signup',
-          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
       });
     });
@@ -384,15 +385,62 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
       });
-      screen.getByText(serviceRelayText);
       submit();
 
       await waitFor(() => {
         expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
           action: 'signup',
-          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
         });
       });
+    });
+
+    it('navigates to service_welcome with origin=signup when service=vpn', async () => {
+      const integration = createMockOAuthNativeIntegration(
+        false,
+        OAuthNativeServices.Vpn
+      );
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          { state: { origin: 'signup' } }
+        );
+      });
+    });
+
+    it('does not navigate to service_welcome when service=vpn on mobile (page automatically closes on fxaOAuthLogin)', async () => {
+      const integration = createMockOAuthNativeIntegration(
+        false,
+        OAuthNativeServices.Vpn
+      );
+      jest.spyOn(integration, 'isFirefoxMobileClient').mockReturnValue(true);
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signup',
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+        });
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('does not submit on paste when service=sync', async () => {
@@ -579,5 +627,58 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     await waitFor(() => {
       expect(screen.getByText('Unexpected error')).toBeInTheDocument();
     });
+  });
+
+  it('shows countdown timer after successful resend', async () => {
+    jest.useFakeTimers();
+    session = mockSession(true, false);
+
+    renderWithSession({
+      session,
+      integration: mockWebIntegration,
+    });
+
+    const resendButton = screen.getByRole('button', {
+      name: 'Email new code.',
+    });
+    fireEvent.click(resendButton);
+
+    await waitFor(() => {
+      expect(session.sendVerificationCode).toHaveBeenCalled();
+    });
+
+    // Countdown button should appear and be disabled
+    const resendButtonAfter = await waitFor(() => {
+      const button = screen.getByRole('button', { name: /Email new code in/ });
+      expect(button).toBeDisabled();
+      return button;
+    });
+
+    expect(resendButtonAfter.textContent).toMatch(/\d+/);
+
+    jest.useRealTimers();
+  });
+
+  it('disables submit and resend when resend hits THROTTLED', async () => {
+    session = {
+      sendVerificationCode: jest.fn().mockRejectedValue({
+        ...AuthUiErrors.THROTTLED,
+        retryAfter: 60_000,
+      }),
+    } as unknown as Session;
+
+    renderWithSession({ session, integration: mockWebIntegration });
+
+    const resendButton = screen.getByRole('button', {
+      name: 'Email new code.',
+    });
+    fireEvent.click(resendButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
+    });
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
   });
 });

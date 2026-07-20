@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use server';
 
+import { requireSessionUid } from '@fxa/payments/ui-auth';
 import { getApp } from '../nestapp/app';
 
-export const getStripeClientSession = async (uid: string) => {
+export const getStripeClientSession = async () => {
+  const uid = await requireSessionUid();
   return getApp().getActionsService().getStripePaymentManagementDetails({
     uid,
   });

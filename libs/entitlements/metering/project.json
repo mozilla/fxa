@@ -1,0 +1,50 @@
+{
+  "name": "entitlements-metering",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/entitlements/metering/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib:entitlements"],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/entitlements/metering/src/index.ts",
+        "outputPath": "dist/libs/entitlements/metering",
+        "tsConfig": "libs/entitlements/metering/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/entitlements/metering/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/entitlements/metering/**/*.ts",
+          "libs/entitlements/metering/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/entitlements/metering/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

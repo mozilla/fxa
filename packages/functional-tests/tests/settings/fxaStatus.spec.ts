@@ -8,12 +8,6 @@ import { SigninPage } from '../../pages/signin';
 import { Credentials } from '../../lib/targets';
 
 test.describe('fxa_status web channel message in Settings', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    // Ensure that the feature flag is enabled
-    const config = await configPage.getConfig();
-    test.skip(config.featureFlags.sendFxAStatusOnSettings !== true);
-  });
-
   test('message is sent when loading with context = oauth_webchannel_v1', async ({
     target,
     syncBrowserPages: { connectAnotherDevice, page, settings, signin },
@@ -63,7 +57,10 @@ test.describe('fxa_status web channel message in Settings', () => {
   });
 });
 
-async function signInAccount(signin: SigninPage, credentials: Credentials):Promise<void> {
+async function signInAccount(
+  signin: SigninPage,
+  credentials: Credentials
+): Promise<void> {
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.page.waitForURL(/signin/);
   await signin.fillOutPasswordForm(credentials.password);

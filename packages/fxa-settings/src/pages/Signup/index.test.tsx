@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import {
   act,
   cleanup,
@@ -31,7 +30,8 @@ import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { OAuthNativeServices, useSensitiveDataClient } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { useSensitiveDataClient } from '../../models';
 import { userEvent } from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({
@@ -46,8 +46,8 @@ jest.mock('../../lib/metrics', () => ({
 }));
 
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -60,8 +60,6 @@ jest.mock('../../lib/glean', () => ({
       submit: jest.fn(),
       submitSuccess: jest.fn(),
       successView: jest.fn(),
-      cwts: jest.fn(),
-      marketing: jest.fn(),
       changeEmail: jest.fn(),
     },
     isDone: jest.fn(),
@@ -112,9 +110,10 @@ async function submit() {
 
 const user = userEvent.setup();
 
-// Note: we are removing the password confirmation requirement for signup
-// except for Sync (in in FXA-10467). All tests by default will assume that
-// password confirmation is not present or required except for Sync/Desktop Relay.
+// Password confirmation is required only when the password derives encryption
+// keys: Sync (keys mandatory), and non-Sync Firefox services (Relay/VPN/
+// SmartWindow) when the browser lacks the keys-optional capability
+// (`supportsKeysOptionalLogin` false). Plain web/OAuth-web signups omit it.
 
 describe('Signup page', () => {
   beforeEach(() => {
@@ -189,7 +188,7 @@ describe('Signup page', () => {
       );
     });
 
-    expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Repeat password')).toBeVisible();
 
     // newsletters and third party auth should not be displayed
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
@@ -227,12 +226,12 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', async () => {
+  it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', async () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
           integration={createMockSignupOAuthNativeIntegration(
-            OAuthNativeServices.AiWindow,
+            OAuthNativeServices.SmartWindow,
             false
           )}
           supportsKeysOptionalLogin={true}
@@ -248,6 +247,42 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
   });
 
+  it('requires password confirmation for a service when keys-optional login is unsupported', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Vpn,
+            false
+          )}
+          supportsKeysOptionalLogin={false}
+        />
+      );
+    });
+
+    expect(screen.getByLabelText('Repeat password')).toBeVisible();
+  });
+
+  it('does not require password confirmation for a service when keys-optional login is supported', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Relay,
+            false,
+            undefined,
+            // keys-optional login supported → the service doesn't require a
+            // password, so the confirmation field is dropped.
+            /* requiresPasswordForLogin */ false
+          )}
+          supportsKeysOptionalLogin={true}
+        />
+      );
+    });
+
+    expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
+  });
+
   it('renders as expected when cms enabled', async () => {
     renderWithLocalizationProvider(
       <Subject
@@ -259,8 +294,11 @@ describe('Signup page', () => {
       />
     );
 
+    // Await to let react-hook-form's internal state updates settle.
     expect(
-      screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
+      await screen.findByAltText(
+        MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText
+      )
     ).toBeInTheDocument();
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
@@ -288,6 +326,9 @@ describe('Signup page', () => {
         isMobile={true}
       />
     );
+
+    // Await to let react-hook-form's internal state updates settle.
+    await screen.findByRole('heading', { name: 'Create a password' });
 
     expect(
       screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
@@ -320,8 +361,9 @@ describe('Signup page', () => {
         )}
       />
     );
+    // Await to let react-hook-form's internal state updates settle.
     expect(
-      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+      await screen.findByAltText(MOCK_CMS_INFO.shared.logoAltText)
     ).toBeInTheDocument();
     expect(
       screen
@@ -511,22 +553,6 @@ describe('Signup page', () => {
           expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
             1
           );
-          await waitFor(() => {
-            expect(GleanMetrics.registration.marketing).toHaveBeenCalledTimes(
-              0
-            );
-          });
-          expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
-            sync: {
-              cwts: offeredEngines.reduce(
-                (acc, engine) => {
-                  acc[engine] = true;
-                  return acc;
-                },
-                {} as Record<string, boolean>
-              ),
-            },
-          });
         });
       });
 
@@ -622,17 +648,7 @@ describe('Signup page', () => {
           MOCK_PASSWORD
         );
       });
-      expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
       expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.marketing).toHaveBeenCalledWith({
-        standard: {
-          marketing: {
-            news: false,
-            take_action: false,
-            testing: false,
-          },
-        },
-      });
     });
 
     it('on success with OAuth Native integration, service=relay', async () => {
@@ -646,7 +662,7 @@ describe('Signup page', () => {
           beginSignupHandler={mockBeginSignupHandler}
         />
       );
-      await fillOutForm(false);
+      await fillOutForm(true);
       await submit();
 
       await waitFor(() => {
@@ -662,11 +678,9 @@ describe('Signup page', () => {
           MOCK_EMAIL,
           MOCK_PASSWORD
         );
-        expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
         expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
           1
         );
-        expect(GleanMetrics.registration.marketing).not.toHaveBeenCalled();
       });
     });
 

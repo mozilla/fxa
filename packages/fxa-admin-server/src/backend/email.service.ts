@@ -37,10 +37,10 @@ export class EmailService {
     notifyEmail: string,
     status: Array<{ locator: string; status: string }>
   ) {
-    const emailContent = await this.renderer.renderAdminResetAccounts(
-      { status },
-      this.getLayoutData()
-    );
+    const emailContent = await this.renderer.renderAdminResetAccounts({
+      status,
+      ...this.getLayoutData(),
+    });
 
     const headers = await this.mailer.buildHeaders({
       template: {
@@ -69,19 +69,20 @@ export class EmailService {
 
   public async sendPasswordChangeRequired(account: Account) {
     const smtpConfig = this.smtpConfig;
-    const linksConfig = this.linksConfig;
 
     // Render the email
-    const link = this.linkBuilder.buildPasswordChangeRequiredLink({
-      url: linksConfig.initiatePasswordResetUrl,
-      email: account.primaryEmail?.email || account.email,
-      emailToHashWith: account.email,
-    });
-
-    const emailContent = await this.renderer.renderPasswordChangeRequired(
-      { link },
-      this.getLayoutData()
+    const link = this.linkBuilder.buildPasswordChangeRequiredLink(
+      'passwordChangeRequired',
+      !account.metricsOptOutAt,
+      {
+        email: account.primaryEmail?.email || account.email,
+      }
     );
+
+    const emailContent = await this.renderer.renderPasswordChangeRequired({
+      link,
+      ...this.getLayoutData(),
+    });
 
     // Send the emails
     const headers = await this.mailer.buildHeaders({
@@ -134,9 +135,19 @@ export class EmailService {
 
 export const EmailLinkBuilderFactory: Provider = {
   provide: EmailLinkBuilder,
-  useFactory: async () => {
-    return new EmailLinkBuilder();
+  useFactory: async (config: ConfigService<AppConfig>) => {
+    const contentServerConfig = config.get(
+      'contentServer'
+    ) as AppConfig['contentServer'];
+    const smtpConfig = config.get('smtp') as AppConfig['smtp'];
+    const linksConfig = config.get('links') as AppConfig['links'];
+    return new EmailLinkBuilder({
+      baseUri: contentServerConfig.url,
+      ...smtpConfig,
+      ...linksConfig,
+    });
   },
+  inject: [ConfigService],
 };
 
 export const FxaEmailRendererFactory: Provider = {

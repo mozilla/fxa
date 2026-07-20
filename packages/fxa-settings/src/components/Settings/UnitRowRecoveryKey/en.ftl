@@ -2,7 +2,7 @@
 
 rk-header-1 = Account recovery key
 rk-enabled = Enabled
-rk-not-set = Not Set
+rk-not-set = Not set
 rk-action-create = Create
 # Button to delete the existing account recovery key and create a new one
 rk-action-change-button = Change

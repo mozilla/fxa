@@ -48,7 +48,12 @@ export type CancelFlowResult =
       flowType: 'cancel';
       active: boolean;
       cancelAtPeriodEnd: boolean;
+      currency: string;
       currentPeriodEnd: number;
+      defaultPaymentMethodType?: SubPlatPaymentMethodType;
+      last4?: string;
+      nextInvoiceTax?: number;
+      nextInvoiceTotal?: number;
       productName: string;
       supportUrl: string;
       webIcon: string;
@@ -74,6 +79,7 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  offeringApiIdentifier: string;
   supportUrl: string;
   webIcon: string;
   canResubscribe: boolean;
@@ -90,6 +96,30 @@ export interface SubscriptionContent {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  isEligibleForChurnStaySubscribed: boolean;
+  churnStaySubscribedCtaMessage?: string | null;
+  isEligibleForChurnCancel: boolean;
+  isEligibleForOffer: boolean;
+}
+
+export interface TrialSubscriptionContent {
+  id: string;
+  productName: string;
+  offeringApiIdentifier: string;
+  supportUrl: string;
+  webIcon: string;
+  currency: string;
+  interval?: SubplatInterval;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: number | null;
+  trialStart: number | null;
+  nextInvoiceTotal?: number;
+  nextInvoiceTax?: number;
+  conversionStatus: 'active' | 'past_due';
+  failedInvoiceDate?: number;
+  failedInvoiceTotal?: number;
+  failedInvoiceTax?: number;
+  failedInvoiceUrl?: string | null;
 }
 
 export enum ChurnErrorReason {
@@ -98,4 +128,6 @@ export enum ChurnErrorReason {
   SubscriptionNotActive = 'subscription_not_active',
   SubscriptionStillActive = 'subscription_still_active',
   GeneralError = 'general_error',
+  RedemptionLimitExceeded = 'redemption_limit_exceeded',
+  CustomerMismatch = 'customer_mismatch',
 }

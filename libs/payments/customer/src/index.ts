@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export * from './lib/confirmationToken.manager';
 export * from './lib/customer.manager';
 export * from './lib/customerSession.manager';
 export * from './lib/invoice.manager';
@@ -19,5 +20,9 @@ export * from './lib/factories/pricing-for-currency.factory';
 export * from './lib/factories/tax-address.factory';
 export * from './lib/customer.error';
 export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+export * from './lib/util/getCustomerPaypalAgreement';
+export * from './lib/util/getPriceFromSubscription';
 export * from './lib/util/getSubplatInterval';
+export * from './lib/util/getSubplatIntervalFromSubscription';
+export * from './lib/util/hasOpenInvoiceWithPaymentAttempts';
 export * from './lib/util/retrieveSubscriptionItem';

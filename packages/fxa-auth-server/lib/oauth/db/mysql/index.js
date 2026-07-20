@@ -39,6 +39,7 @@ const QUERY_DEVELOPER_OWNS_CLIENT =
 const QUERY_DEVELOPER_INSERT =
   'INSERT INTO developers ' + '(developerId, email) ' + 'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
+const QUERY_CLIENT_IDS = 'SELECT id FROM clients';
 const QUERY_CLIENT_LIST =
   'SELECT id, name, redirectUri, imageUri, ' +
   'canGrant, publicClient, trusted ' +
@@ -115,6 +116,29 @@ const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS =
 const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
+// SQL-side throttle: ON DUPLICATE KEY UPDATE skips the lastSeenAt write
+// when the existing row was touched within the throttle window. `> lastSeenAt + ?`
+// (instead of subtraction) avoids BIGINT UNSIGNED underflow on stale `now`.
+// firstSeenAt is set on INSERT only.
+// Bulk upsert for accountActivity. The VALUES list is built at call time so
+// every resolved scope for a grant lands in one round-trip. firstSeenAt is set
+// on INSERT only. `> lastSeenAt + ?` (instead of subtraction) avoids BIGINT
+// UNSIGNED underflow on a stale `now`.
+const QUERY_ACCOUNT_ACTIVITY_UPSERT_PREFIX =
+  'INSERT INTO accountActivity ' +
+  '  (userId, clientId, scopeId, firstSeenAt, lastSeenAt) VALUES ';
+const QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX =
+  ' ON DUPLICATE KEY UPDATE ' +
+  '  lastSeenAt = IF(VALUES(lastSeenAt) > lastSeenAt + ?, VALUES(lastSeenAt), lastSeenAt)';
+const QUERY_ACCOUNT_ACTIVITY_DELETE_USER =
+  'DELETE FROM accountActivity WHERE userId=?';
+// Read back a (userId, clientId)'s activity with the scope string resolved from
+// the scopes table. Used by support tooling and tests.
+const QUERY_ACCOUNT_ACTIVITY_LIST =
+  'SELECT s.scope AS scope, a.scopeId, a.firstSeenAt, a.lastSeenAt ' +
+  'FROM accountActivity a JOIN scopes s ON s.id = a.scopeId ' +
+  'WHERE a.userId=? AND a.clientId=? ' +
+  'ORDER BY s.scope';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE =
   'DELETE developers, clientDevelopers ' +
@@ -138,6 +162,30 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
+
+/**
+ * Gets a unique list of refresh tokens for a given user.
+ * Groups by clientId, returning only the most recently used token for each client.
+ */
+const QUERY_LIST_UNIQUE_REFRESH_TOKENS_BY_UID =
+  'SELECT ' +
+  '  rt.clientId, ' +
+  '  rt.token AS tokenId, ' +
+  '  rt.createdAt, ' +
+  '  rt.lastUsedAt, ' +
+  '  rt.scope, ' +
+  '  clients.name AS clientName, ' +
+  '  clients.canGrant AS clientCanGrant ' +
+  'FROM refreshTokens rt ' +
+  'INNER JOIN ( ' +
+  '  SELECT clientId, MAX(lastUsedAt) AS maxLastUsedAt ' +
+  '  FROM refreshTokens ' +
+  '  WHERE userId=? ' +
+  '  GROUP BY clientId ' +
+  ') latest ON rt.clientId = latest.clientId AND rt.lastUsedAt = latest.maxLastUsedAt ' +
+  'LEFT OUTER JOIN clients ON clients.id = rt.clientId ' +
+  'WHERE rt.userId=?';
+
 const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
   'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
@@ -150,6 +198,40 @@ const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE token=? AND clientId=? AND userId=?';
 const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
+
+// First insert sets both timestamps to now. Subsequent /authorization
+// completions for the same PK preserve firstAuthorizedTosAt and bump
+// lastAuthorizedTosAt only, using GREATEST to guard against clock skew
+// or reordered writes producing a backwards-moving lastAuthorizedTosAt.
+const QUERY_ACCOUNT_CONSENT_UPSERT =
+  'INSERT INTO accountAuthorizations ' +
+  '(uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
+  'VALUES (?, ?, ?, ?, ?, ?) ' +
+  'ON DUPLICATE KEY UPDATE ' +
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+// Direct lookup for the token-exchange gate after the caller has
+// resolved scope -> service via config. PK left-prefix on
+// (uid, scope, service); no secondary index required. The scope is
+// part of the WHERE so a consent recorded for one scope under a
+// service cannot silently authorize a different scope under the
+// same service.
+const QUERY_HAS_CONSENT_FOR_SCOPE =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+// Existence checks for the first-authorization signal (FXA-13784). Bounded by
+// the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
+// fetching all of a user's consents and filtering in JS.
+const QUERY_HAS_CONSENT_FOR_SERVICE =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_CLIENT =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND clientId=? LIMIT 1';
+const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
+  'DELETE FROM accountAuthorizations WHERE uid=?';
+const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'FROM accountAuthorizations WHERE uid=?';
 
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
@@ -318,6 +400,9 @@ class MysqlStore extends MysqlOAuthShared {
   getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
   }
+  getAllClientIds() {
+    return this._read(QUERY_CLIENT_IDS);
+  }
   getClients(email) {
     return this._read(QUERY_CLIENT_LIST, [email]);
   }
@@ -420,6 +505,24 @@ class MysqlStore extends MysqlOAuthShared {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
+    refreshTokens.forEach((t) => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return refreshTokens;
+  }
+
+  /**
+   * Get a unique list of refresh tokens for a given user.
+   * @param {String} uid
+   * @returns {Promise}
+   */
+  async _getUniqueRefreshTokensByUid(uid) {
+    const uidBuf = buf(uid);
+    const refreshTokens = await this._read(
+      QUERY_LIST_UNIQUE_REFRESH_TOKENS_BY_UID,
+      // we need to pass uid twice because it's used two times in the query
+      [uidBuf, uidBuf]
+    );
     refreshTokens.forEach((t) => {
       t.scope = ScopeSet.fromString(t.scope);
     });
@@ -561,6 +664,66 @@ class MysqlStore extends MysqlOAuthShared {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
   }
 
+  _upsertAccountConsent(uid, scope, service, clientId, now) {
+    return this._write(QUERY_ACCOUNT_CONSENT_UPSERT, [
+      buf(uid),
+      scope,
+      service,
+      buf(clientId),
+      now,
+      now,
+    ]);
+  }
+
+  async _findAccountConsentForSignIn(uid, scope, service) {
+    const rows = await this._read(QUERY_ACCOUNT_CONSENT_FIND_SIGNIN, [
+      buf(uid),
+      scope,
+      service,
+    ]);
+    return firstRow(rows) || null;
+  }
+
+  // True iff a consent row exists for the exact (uid, scope, service).
+  // Used by the exchange gate after the caller has resolved the
+  // requested scope to a service via config.
+  async _hasConsentForScope(uid, scope, service) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE, [
+      buf(uid),
+      scope,
+      service,
+    ]);
+    return rows.length > 0;
+  }
+
+  // True iff the user has any consent row for this service (any scope/client).
+  // Drives the browser-service grain of the first-authorization signal.
+  async _hasConsentForService(uid, service) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE, [
+      buf(uid),
+      service,
+    ]);
+    return rows.length > 0;
+  }
+
+  // True iff the user has any consent row for this client (any scope/service).
+  // Drives the web-RP grain of the first-authorization signal.
+  async _hasConsentForClient(uid, clientId) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT, [
+      buf(uid),
+      buf(clientId),
+    ]);
+    return rows.length > 0;
+  }
+
+  _deleteAllAccountConsentsForUser(uid) {
+    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [buf(uid)]);
+  }
+
+  _listAccountConsentsByUid(uid) {
+    return this._read(QUERY_ACCOUNT_CONSENT_LIST_BY_UID, [buf(uid)]);
+  }
+
   getEncodingInfo() {
     var info = {};
 
@@ -587,7 +750,81 @@ class MysqlStore extends MysqlOAuthShared {
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
-      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
+      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]))
+      .then(this._write.bind(this, QUERY_ACCOUNT_ACTIVITY_DELETE_USER, [id]));
+  }
+
+  /**
+   * Record per-(userId, clientId, scopeId) liveness for the OAuth grant path.
+   *
+   * scopeId is resolved from the scopes table by scope string. A
+   * token-exchange grant can carry no scopes; since the empty-string scope is a
+   * valid scopes row, an empty `scopes` is normalised to [''] so we still
+   * record one row. Scopes absent from the scopes table cannot be written (the
+   * scopeId FK) and are returned in `missingScopes` for the caller to report;
+   * the scopes that do resolve are still written in a single bulk upsert.
+   *
+   * One read (resolve scope ids) plus one write (bulk upsert). The write uses
+   * the SQL throttle in QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX so each scope's
+   * `lastSeenAt` advances independently.
+   *
+   * Caller is responsible for fire-and-forget semantics.
+   *
+   * @param {Buffer | string} userId
+   * @param {Buffer | string} clientId
+   * @param {string[]}        scopes      raw scope strings requested/granted on this activity
+   * @param {number}          now         current timestamp in ms; used for both firstSeenAt and lastSeenAt
+   * @param {number}          throttleMs  skip the lastSeenAt update if the existing row was touched within this window
+   * @returns {Promise<{ missingScopes: string[] }>} scopes not present in the scopes table (no row written for them)
+   */
+  async _recordAccountActivity(userId, clientId, scopes, now, throttleMs) {
+    const userIdBuf = buf(userId);
+    const clientIdBuf = buf(clientId);
+    const requested = scopes && scopes.length > 0 ? scopes : [''];
+
+    const inPlaceholders = requested.map(() => '?').join(', ');
+    const scopeRows = await this._read(
+      `SELECT id, scope FROM scopes WHERE scope IN (${inPlaceholders})`,
+      requested
+    );
+    const scopeById = new Map(scopeRows.map((r) => [r.scope, r.id]));
+    const missingScopes = requested.filter((scope) => !scopeById.has(scope));
+    const resolvedScopes = requested.filter((scope) => scopeById.has(scope));
+
+    if (resolvedScopes.length > 0) {
+      const placeholders = resolvedScopes
+        .map(() => '(?, ?, ?, ?, ?)')
+        .join(', ');
+      const params = [];
+      for (const scope of resolvedScopes) {
+        params.push(userIdBuf, clientIdBuf, scopeById.get(scope), now, now);
+      }
+      params.push(throttleMs);
+      await this._write(
+        QUERY_ACCOUNT_ACTIVITY_UPSERT_PREFIX +
+          placeholders +
+          QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX,
+        params
+      );
+    }
+
+    return { missingScopes };
+  }
+
+  /**
+   * List the accountActivity rows for a (userId, clientId), with the scope
+   * string resolved from the scopes table, ordered by scope. Used by support
+   * tooling and tests.
+   *
+   * @param {Buffer | string} userId
+   * @param {Buffer | string} clientId
+   * @returns {Promise<object[]>}
+   */
+  _listAccountActivity(userId, clientId) {
+    return this._read(QUERY_ACCOUNT_ACTIVITY_LIST, [
+      buf(userId),
+      buf(clientId),
+    ]);
   }
 
   /**

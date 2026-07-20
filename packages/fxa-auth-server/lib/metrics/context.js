@@ -46,6 +46,7 @@ const SCHEMA = isA
     productId: isA.string().max(128).optional(),
     planId: isA.string().max(128).optional(),
     clientId: isA.string().length(16).regex(HEX_STRING).optional(),
+    service: isA.string().max(128).optional(),
   })
   .unknown(false)
   .and('flowId', 'flowBeginTime');

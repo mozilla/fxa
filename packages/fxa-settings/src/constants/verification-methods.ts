@@ -10,6 +10,7 @@ enum VerificationMethods {
   EMAIL_CAPTCHA = 'email-captcha',
   EMAIL_OTP = 'email-otp',
   TOTP_2FA = 'totp-2fa',
+  PASSKEY = 'passkey',
 }
 
 export default VerificationMethods;

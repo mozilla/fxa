@@ -102,4 +102,96 @@ describe('getPaymentMethodErrorContent', () => {
       paymentMethodType: SubPlatPaymentMethodType.PayPal,
     });
   });
+
+  it('returns card expiring error for expiring card', () => {
+    expect(
+      getPaymentMethodErrorContent(
+        PaymentMethodErrorType.CardExpiringInOneMonth,
+        SubPlatPaymentMethodType.Card
+      )
+    ).toEqual({
+      bannerType: BannerVariant.Error,
+      bannerLinkLabel: 'Manage payment method',
+      bannerLinkLabelFtl:
+        'subscription-management-button-manage-payment-method-1',
+      bannerMessage: 'There is an issue with your account.',
+      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
+      bannerTitle: 'Invalid payment information',
+      bannerTitleFtl:
+        'error-payment-method-banner-title-invalid-payment-information',
+      message:
+        'There is an issue with your payment method. Please resolve the issue to maintain your active subscriptions.',
+      messageFtl: 'subscription-management-error-payment-method',
+      paymentMethodType: SubPlatPaymentMethodType.Card,
+    });
+  });
+
+  it('returns generic card error for GenericIssue with Card payment method', () => {
+    expect(
+      getPaymentMethodErrorContent(
+        PaymentMethodErrorType.GenericIssue,
+        SubPlatPaymentMethodType.Card
+      )
+    ).toEqual({
+      bannerType: BannerVariant.Error,
+      bannerLinkLabel: 'Manage payment method',
+      bannerLinkLabelFtl:
+        'subscription-management-button-manage-payment-method-1',
+      bannerMessage: 'There is an issue with your account.',
+      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
+      bannerTitle: 'Invalid payment information',
+      bannerTitleFtl:
+        'error-payment-method-banner-title-invalid-payment-information',
+      message:
+        'There is an issue with your payment method. Please resolve the issue to maintain your active subscriptions.',
+      messageFtl: 'subscription-management-error-payment-method',
+      paymentMethodType: SubPlatPaymentMethodType.Card,
+    });
+  });
+
+  it('returns Link-specific error for GenericIssue with Link payment method', () => {
+    expect(
+      getPaymentMethodErrorContent(
+        PaymentMethodErrorType.GenericIssue,
+        SubPlatPaymentMethodType.Link
+      )
+    ).toEqual({
+      bannerType: BannerVariant.Error,
+      bannerLinkLabel: 'Manage payment method',
+      bannerLinkLabelFtl:
+        'subscription-management-button-manage-payment-method-1',
+      bannerMessage: 'There is an issue with your account.',
+      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
+      bannerTitle: 'Invalid payment information',
+      bannerTitleFtl:
+        'error-payment-method-banner-title-invalid-payment-information',
+      message:
+        'There is an issue with your Link account. Please resolve the issue to maintain your active subscriptions.',
+      messageFtl: 'subscription-management-error-link',
+      paymentMethodType: SubPlatPaymentMethodType.Link,
+    });
+  });
+
+  it('returns Stripe-specific error for GenericIssue with Stripe payment method', () => {
+    expect(
+      getPaymentMethodErrorContent(
+        PaymentMethodErrorType.GenericIssue,
+        SubPlatPaymentMethodType.Stripe
+      )
+    ).toEqual({
+      bannerType: BannerVariant.Error,
+      bannerLinkLabel: 'Manage payment method',
+      bannerLinkLabelFtl:
+        'subscription-management-button-manage-payment-method-1',
+      bannerMessage: 'There is an issue with your account.',
+      bannerMessageFtl: 'error-payment-method-banner-message-account-issue',
+      bannerTitle: 'Invalid payment information',
+      bannerTitleFtl:
+        'error-payment-method-banner-title-invalid-payment-information',
+      message:
+        'There is an issue with your payment method. Please resolve the issue to maintain your active subscriptions.',
+      messageFtl: 'subscription-management-error-payment-method',
+      paymentMethodType: SubPlatPaymentMethodType.Stripe,
+    });
+  });
 });

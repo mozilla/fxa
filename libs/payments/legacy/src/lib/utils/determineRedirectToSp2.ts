@@ -33,10 +33,10 @@ export function determineRedirectToSp2(
 
   let validPercentage;
   if (randomPercentage < 1) {
-    console.log('Random percentage is too low');
+    reportError('Random percentage is too low', { randomPercentage });
     validPercentage = 1;
   } else if (randomPercentage > 100) {
-    console.log('Random percentage is too high');
+    reportError('Random percentage is too high', { randomPercentage });
     validPercentage = 100;
   } else {
     validPercentage = randomPercentage;

@@ -27,6 +27,7 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
+        force_passwordless: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
@@ -99,7 +100,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await page.goto(target.contentServerUrl);
+      await page.goto(`${target.contentServerUrl}?force_passwordless=false`);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -114,6 +115,7 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         login_hint: credentials.email,
         return_on_error: 'false',
+        force_passwordless: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();

@@ -21,9 +21,26 @@
       "cache": true
     },
     "build-storybook": {
-      "dependsOn": ["build"],
-      "inputs": ["production", "^production"],
+      "dependsOn": ["prebuild", "^build"],
+      "inputs": ["production", "^production", "{projectRoot}/.storybook/**/*"],
       "outputs": ["{projectRoot}/storybook-static"],
+      "cache": true
+    },
+    "build-fast": {
+      "dependsOn": ["prebuild", "^build-fast"],
+      "inputs": ["production", "^production"],
+      "outputs": [
+        "{projectRoot}/*.tsbuildinfo",
+        "{projectRoot}/*/.tmp",
+        "{projectRoot}/**/*.d.ts",
+        "{projectRoot}/build",
+        "{projectRoot}/dist",
+        "{projectRoot}/locale",
+        "{projectRoot}/public",
+        "{projectRoot}/src/styles/*.css",
+        "{projectRoot}/test/**/*.ftl",
+        "{projectRoot}/test/**/client.json"
+      ],
       "cache": true
     },
     "compile": {
@@ -32,30 +49,13 @@
       "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
       "cache": true
     },
-    "gql-copy": {
-      "dependsOn": [
-        {
-          "projects": ["fxa-settings", "fxa-admin-panel"],
-          "target": "gql-extract"
-        }
-      ],
-      "inputs": ["typescript", "^typescript"],
-      "outputs": ["{projectRoot}/src/config/gql/allowlist"],
-      "cache": true
-    },
-    "gql-extract": {
-      "dependsOn": [],
-      "inputs": ["typescript"],
-      "outputs": ["{workspaceRoot}/configs/gql/allowlist"],
-      "cache": true
-    },
     "lint": {
       "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
       "outputs": ["{projectRoot}/.eslintcache"],
       "cache": true
     },
     "prebuild": {
-      "dependsOn": ["gql-copy"],
+      "dependsOn": [],
       "inputs": [],
       "outputs": [
         "{projectRoot}/public/locales",
@@ -69,12 +69,12 @@
       "cache": true
     },
     "restart": {
-      "dependsOn": ["build", "^restart"],
+      "dependsOn": ["^restart"],
       "inputs": ["production", "^production"],
       "outputs": []
     },
     "start": {
-      "dependsOn": ["build", "gen-keys", "^start"],
+      "dependsOn": ["gen-keys", "^start"],
       "inputs": ["production", "^production"],
       "outputs": []
     },
@@ -104,23 +104,20 @@
         "{projectRoot}/test-results.xml"
       ]
     },
-    "test-integration": {
+    "test-scripts": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
-        "{workspaceRoot}/artifacts/tests",
-        "{projectRoot}/coverage",
-        "{projectRoot}/.nyc_output",
-        "{projectRoot}/test-results.xml",
+        "{workspaceRoot}/artifacts/tests/{projectName}-scripts",
         "{projectRoot}/test/scripts/test_output"
       ],
       "cache": true
     },
-    "test-integration-v2": {
+    "test-integration": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
-        "{workspaceRoot}/artifacts/tests",
+        "{workspaceRoot}/artifacts/tests/{projectName}",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml",
@@ -132,7 +129,7 @@
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
-        "{workspaceRoot}/artifacts/tests",
+        "{workspaceRoot}/artifacts/tests/{projectName}",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
@@ -141,9 +138,7 @@
     },
     "l10n-prime": {
       "inputs": ["{workspaceRoot}/external/l10n/**/*.@(ftl)"],
-      "outputs": [
-        "{projectRoot}/public"
-      ],
+      "outputs": ["{projectRoot}/public"],
       "cache": true
     },
     "@nx/jest:jest": {
@@ -166,11 +161,6 @@
       "inputs": ["production", "^production"]
     },
     "@nx/js:swc": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "@nx/esbuild:esbuild": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
@@ -257,9 +247,7 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       },
-      "exclude": [
-        "packages/**/*"
-      ]
+      "exclude": ["packages/**/*"]
     }
   ],
   "tui": {

@@ -6,12 +6,13 @@
 // hook into node BEFORE any frameworks are initialized/imported.
 import './monitoring';
 
+import * as Sentry from '@sentry/nestjs';
+
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import mozLog from 'mozlog';
 
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import { initTracing } from 'fxa-shared/tracing/node-tracing';
 
 import { AppModule } from './app.module';
@@ -32,11 +33,16 @@ async function bootstrap() {
   const config: ConfigService<AppConfig> = app.get(ConfigService);
   const proxyConfig = config.get('proxy') as AppConfig['proxy'];
 
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
-
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
+
+  Sentry.captureMessage('Event broker server started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-event-broker',
+      environment: config.get('env'),
+    },
+  });
 
   await app.listen(proxyConfig.port);
 }

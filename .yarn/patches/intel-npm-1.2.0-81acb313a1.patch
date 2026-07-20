@@ -1,0 +1,13 @@
+diff --git a/lib/record.js b/lib/record.js
+index 188d696dcb395a6673b8785cfe54704c43a7b93e..9668c421c0aa55b73f1ede74ad454b18e5fbc7f5 100644
+--- a/lib/record.js
++++ b/lib/record.js
+@@ -53,7 +53,7 @@ function Record(name, level, args) {
+   var i = args.length;
+   while (i--) {
+     var a = args[i];
+-    if (a && ((isErr = util.isError(a)) || a instanceof Trace)) {
++    if (a && ((isErr = a instanceof Error) || a instanceof Trace)) {
+       trace = a;
+       break;
+     }

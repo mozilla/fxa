@@ -5,7 +5,6 @@
 import { HandledError } from '../../lib/error-utils';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { Integration, OAuthIntegration } from '../../models';
-import { MetricsContext } from '@fxa/shared/glean';
 import { QueryParams } from '../..';
 
 export interface BeginSignupResponse {
@@ -17,14 +16,6 @@ export interface BeginSignupResponse {
     keyFetchToken?: hexstring;
   };
   unwrapBKey?: hexstring;
-}
-
-// full list @ fxa-auth-client/lib/client.ts, probably port over?
-export interface BeginSignUpOptions {
-  service?: string;
-  verificationMethod?: string;
-  keys?: boolean;
-  metricsContext: MetricsContext;
 }
 
 export type BeginSignupHandler = (
@@ -42,7 +33,6 @@ export interface SignupProps {
   email: string;
   beginSignupHandler: BeginSignupHandler;
   useFxAStatusResult: UseFxAStatusResult;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
   isMobile: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
@@ -58,12 +48,16 @@ export type SignupOAuthIntegration = Pick<
   | 'saveOAuthState'
   | 'getService'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
+  | 'requiresKeys'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'getClientId'
   | 'getCmsInfo'
+  | 'getLegalTerms'
 >;
 
 export type SignupBaseIntegration = Pick<
@@ -72,12 +66,16 @@ export type SignupBaseIntegration = Pick<
   | 'isSync'
   | 'getService'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
+  | 'requiresKeys'
   | 'wantsKeys'
+  | 'requiresPasswordForLogin'
   | 'getClientId'
   | 'getCmsInfo'
+  | 'getLegalTerms'
 >;
 
 export interface SignupFormData {

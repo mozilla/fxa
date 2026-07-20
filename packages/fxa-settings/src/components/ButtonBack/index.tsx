@@ -37,13 +37,18 @@ const ButtonBack = ({
       return defaultClasses;
     }
 
-    const textColorClass = getTextColorClassName(cmsBackground.trim());
+    const textColorClass = getTextColorClassName(
+      cmsBackground.trim(),
+      'minimum'
+    );
     // Map to hardcoded class names for Tailwind tree shaking
     switch (textColorClass) {
       case 'text-white':
         return 'tablet:text-white tablet:hover:bg-white/10';
       case 'text-grey-600':
         return 'tablet:text-grey-600 tablet:hover:bg-grey-900/10';
+      case 'text-black':
+        return 'tablet:text-black tablet:hover:bg-black/10';
       case 'text-grey-400':
       default:
         return defaultClasses;
@@ -56,7 +61,7 @@ const ButtonBack = ({
       data-testid={dataTestId}
       title={localizedButtonTitle}
       aria-label={localizedButtonAriaLabel}
-      className={`me-4 tablet:me-0 p-2 tablet:absolute tablet:-start-24 rounded focus-visible-default text-grey-400 ${getTabletArrowColor()}`}
+      className={`me-4 tablet:me-0 p-2 tablet:absolute tablet:-start-24 rounded focus-visible-default text-grey-400 dark:text-grey-200 ${getTabletArrowColor()}`}
     >
       <BackArrow className="w-6 h-auto rtl:transform rtl:-scale-x-100" />
     </button>

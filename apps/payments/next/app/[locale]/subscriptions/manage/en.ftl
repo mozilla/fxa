@@ -3,8 +3,12 @@
 subscription-management-page-banner-warning-title-no-payment-method = No payment method added
 subscription-management-page-banner-warning-link-no-payment-method = Add a payment method
 subscription-management-subscriptions-heading = Subscriptions
+subscription-management-free-trial-heading = Free trials
+subscription-management-your-free-trials-aria = Your free trials
+
 # Heading for mobile only quick links menu
 subscription-management-jump-to-heading = Jump to
+subscription-management-nav-free-trials = Free trials
 subscription-management-nav-payment-details = Payment details
 subscription-management-nav-active-subscriptions = Active subscriptions
 subscription-management-payment-details-heading = Payment details

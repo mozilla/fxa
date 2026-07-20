@@ -49,6 +49,12 @@ export enum AdminPanelFeature {
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
   RateLimiting = 'RateLimiting',
   DeleteRecoveryPhone = 'DeleteRecoveryPhone',
+  EmailBlocklist = 'EmailBlocklist',
+  ManageWafTokens = 'ManageWafTokens',
+  DomainBlocklist = 'DomainBlocklist',
+  OAuthScopes = 'OAuthScopes',
+  CreateOAuthScope = 'CreateOAuthScope',
+  DeleteOAuthScope = 'DeleteOAuthScope',
 }
 
 /** Enum of known user groups */
@@ -207,6 +213,30 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DeleteRecoveryPhone]: {
     name: 'Delete Recovery Phone',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.EmailBlocklist]: {
+    name: 'Manage Email Blocklist',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.ManageWafTokens]: {
+    name: 'Manage WAF Bypass Tokens',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DomainBlocklist]: {
+    name: 'Manage Domain Blocklist',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.OAuthScopes]: {
+    name: 'View OAuth Scopes',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.CreateOAuthScope]: {
+    name: 'Create OAuth Scopes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DeleteOAuthScope]: {
+    name: 'Delete OAuth Scopes',
     level: PermissionLevel.Admin,
   },
 };

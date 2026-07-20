@@ -6,6 +6,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { useCallback } from 'react';
 import {
   OAuthIntegration,
+  isOAuthNativeIntegration,
   isOAuthNativeIntegrationSync,
   isOAuthIntegration,
   isSyncDesktopV3Integration,
@@ -20,18 +21,24 @@ export type OAuthData = {
   code: string;
   state: string;
   redirect: string; // you probably don't want this, see comment below
+  // Granted scope from the auth-server. Single source of truth for what
+  // was actually authorized; pass to fxaOAuthLogin so Firefox knows
+  // which scopes the refresh token will carry.
+  scope: string;
 };
 
 interface FinishOAuthFlowHandlerError {
   redirect: undefined;
   code: undefined;
   state: undefined;
+  scope: undefined;
   error: AuthError;
 }
 interface FinishOAuthFlowHandlerSuccess {
   redirect: string;
   code: string;
   state: string;
+  scope: string;
   error: undefined;
 }
 
@@ -76,8 +83,18 @@ async function constructKeysJwe(
   keyFetchToken: string,
   kB: string
 ) {
+  // The URL may omit scope= for OAuthNative flows. When that happens,
+  // the keys-bearing scope is apps/oldsync (the server appends it as
+  // keysConditionalScope when keys_jwe is in the payload). Use the URL
+  // scope when present, else fall back to apps/oldsync for native flows.
+  const scopeForKeyFetch = integration.data.scope
+    ? integration.getNormalizedScope()
+    : isOAuthNativeIntegration(integration)
+      ? Constants.OAUTH_OLDSYNC_SCOPE
+      : '';
+
   if (
-    integration.data.scope &&
+    scopeForKeyFetch &&
     integration.data.keysJwk &&
     integration.data.clientId &&
     sessionToken &&
@@ -87,7 +104,7 @@ async function constructKeysJwe(
     const clientKeyData = await authClient.getOAuthScopedKeyData(
       sessionToken,
       integration.data.clientId,
-      integration.getNormalizedScope()
+      scopeForKeyFetch
     );
 
     if (clientKeyData && Object.keys(clientKeyData).length > 0) {
@@ -113,18 +130,34 @@ async function getOAuthData(
   integration: OAuthIntegration,
   sessionToken: string,
   keysJwe?: string
-) {
+): Promise<OAuthData | null> {
   const opts: any = {
     acr_values: integration.data.acrValues,
     code_challenge: integration.data.codeChallenge,
     code_challenge_method: integration.data.codeChallengeMethod,
-    scope: integration.getNormalizedScope(),
   };
+  // Only forward scope when present; an empty scope from
+  // OAuthNativeIntegration signals "let the server resolve from
+  // service=". Sending an empty string would skip the gate (no
+  // resolution) and hit grant validation with no scope.
+  const normalizedScope = integration.getNormalizedScope();
+  if (normalizedScope) {
+    opts.scope = normalizedScope;
+  }
   if (keysJwe) {
     opts.keys_jwe = keysJwe;
   }
   if (integration.data.accessType === 'offline') {
     opts.access_type = integration.data.accessType;
+  }
+  // Drives the per-service accountAuthorizations row on the auth-server,
+  // and drives scope resolution when scope is absent and the client is Firefox.
+  if (integration.data.service) {
+    opts.service = integration.data.service;
+  }
+  // prompt=none must reach the server so silent re-auths skip the row write.
+  if (integration.data.prompt) {
+    opts.prompt = integration.data.prompt;
   }
 
   const result: OAuthData | null = await authClient.createOAuthCode(
@@ -231,7 +264,11 @@ export function useFinishOAuthFlowHandler(
       } catch (error) {
         // We only care about these errors, else just tell the user to try again.
         if (
+          // Signals that session requires verification, ie a mustVerify state
+          error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno ||
+          // Signals that session requires totp verification
           error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
+          // Signals that we are dealing with an RP that requires a second factor
           error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
         ) {
           return { error };
@@ -259,6 +296,7 @@ export function useFinishOAuthFlowHandler(
         redirect,
         code: oAuthData.code,
         state,
+        scope: oAuthData.scope,
       };
     },
     [authClient, oAuthIntegration, isSyncOAuth]
@@ -301,7 +339,7 @@ export function useFinishOAuthFlowHandler(
  * to /signin instead of showing an error component? FXA-10889
  */
 export function useOAuthKeysCheck(
-  integration: Pick<OAuthIntegration, 'type' | 'wantsKeys'>,
+  integration: Pick<OAuthIntegration, 'type' | 'requiresKeys'>,
   keyFetchToken?: hexstring,
   unwrapBKey?: hexstring,
   isSignInWithThirdPartyAuth?: boolean
@@ -309,7 +347,7 @@ export function useOAuthKeysCheck(
   if (
     (isOAuthIntegration(integration) ||
       isSyncDesktopV3Integration(integration)) &&
-    integration.wantsKeys() &&
+    integration.requiresKeys() &&
     // If the user has 2FA enabled but chose to login to the browser via third party
     // auth, keys are not fetched because the user didn't enter a password.
     // For this case, skip the keys check, the browser expects them to be undefined.

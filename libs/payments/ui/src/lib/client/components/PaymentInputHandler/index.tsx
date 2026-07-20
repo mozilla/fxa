@@ -6,17 +6,17 @@
 
 import {
   getNeedsInputAction,
-  recordEmitterEventAction,
   submitNeedsInputAndRedirectAction,
   validateCartStateAndRedirectAction,
 } from '@fxa/payments/ui/actions';
 import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 export function PaymentInputHandler({ cartId }: { cartId: string }) {
   const stripe = useStripe();
   const params = useParams();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
@@ -35,32 +35,17 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId, params, searchParamsRecord);
+            await submitNeedsInputAndRedirectAction(cartId, params, pathname, searchParamsRecord);
             break;
           case 'notRequired':
             const redirectResponse = await validateCartStateAndRedirectAction(
               cartId,
               SupportedPages.NEEDS_INPUT,
+              pathname,
               searchParamsRecord
             );
 
             if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
-              if (redirectResponse.state === 'success') {
-                await recordEmitterEventAction(
-                  'checkoutSuccess',
-                  { ...params },
-                  searchParamsRecord
-                );
-              }
-
-              if (redirectResponse.state === 'fail') {
-                await recordEmitterEventAction(
-                  'checkoutFail',
-                  { ...params },
-                  searchParamsRecord
-                );
-              }
-
               router.push(redirectResponse.redirectToUrl);
             }
             break;

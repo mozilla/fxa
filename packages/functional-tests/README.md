@@ -14,6 +14,14 @@ The environments that this suite may run against are:
 
 Each has its own named script in [package.json](./package.json) or you can use `--project` when running `playwright test` manually. They are implemented in `lib/targets`.
 
+There is also a very small subset of tests that can _only_ run against Chromium browsers (e.g. passkey specs that drive Chrome's real WebAuthn stack via a CDP virtual authenticator). These run under the Chromium-only project variants below:
+
+- local-chromium
+- stage-chromium
+- production-chromium
+
+These specs are tagged `#chromium`, which is the separation mechanism: the Firefox projects set `grepInvert: /#chromium/` (so they skip them) and the `-chromium` projects set `grep: /#chromium/` (so they run _only_ them). Tag any new Chromium-only test's `describe`/`test` title with `#chromium`. **These projects are local/manual only — CI does not run them**, so treat `#chromium` specs as a manual QA aid rather than a CI gate.
+
 ### Running the tests
 
 If this is your first time running the tests, run `npx playwright install --with-deps` to install the browsers. Then:
@@ -27,6 +35,10 @@ For example, to run a specific test against stage:
 ```
 yarn test --project=stage --grep="errors on xss redirect_to parameter"
 ```
+
+### Running against Stage or Production
+
+In order to run local tests against stage or production, you'll need to set a `CI_WAF_TOKEN` environment variable. We use a bypass header for the WAF to allow the traffic through and not be stopped by CAPTCHA or similar. Check 1Password for the token and make sure it's available in your environment `export CI_WAF_TOKEN=<mytoken>`.
 
 ### Specifying a target in tests
 
@@ -112,6 +124,95 @@ test('totp test with proper cleanup', async ({
   // Test TOTP functionality...
 });
 // `testAccountTracker` cleanup will use secret attached to Credentials to destroy the account
+```
+
+### Passkey Virtual Authenticator
+
+Testing passkeys requires simulating physical authenticator devices. The `PasskeyVirtualAuthenticator` uses Chrome DevTools Protocol (CDP) to create virtual authenticators in Chromium browsers, allowing automated testing of WebAuthn flows without real hardware.
+
+**Important**: Passkey tests only run in Chromium projects due to CDP dependency.
+
+#### Why the wrapper is necessary
+
+WebAuthn operations are asynchronous and require precise timing coordination. The browser must have a virtual authenticator registered and listening _before_ triggering passkey prompts, and to help with possible race conditions, _before_ the page loads and checks if the browser supports passkeys. The `success()` and `fail()` wrappers handle this coordination by:
+
+1. Setting up user verification state
+2. Enabling presence simulation
+3. Listening for CDP events (credential added/asserted)
+4. Executing your trigger function
+5. Waiting for operation completion or failure
+
+#### Basic Setup
+
+Whichever page you're on that should support passkeys can extend from `PasskeyPage` instead of the `BaseLayout` page. This provides the framework for setting up and using the faked authentication.
+
+```ts
+// change BaseLayout
+export class SigninPage extends BaseLayout {
+  /** */
+}
+// to PasskeyPage
+export class SigninPage extends PasskeyPage {
+  /** */
+}
+```
+
+Initialize once per test via the `initPasskeys` function now available on the page. Call this as soon as possible, before navigating to the page if possible.
+
+```ts
+test('passkey registration', async ({ pages: { page, signin } }) => {
+  // Skip non-Chromium browsers
+  test.skip(
+    page.context().browser()?.browserType().name() !== 'chromium',
+    'Passkeys tests run on chromium only'
+  );
+
+  await signin.initPasskeys(page);
+  // Now ready to test passkey operations
+});
+```
+
+#### Testing successful passkey operations
+
+Use `success()` to simulate a user approving the passkey prompt:
+
+```ts
+// Do setup as describe above.
+// Wrap the action that triggers the passkey prompt
+await signin.passkeyAuth.success(async () => {
+  return page.getByRole('button', { name: 'Sign in with passkey' }).click();
+});
+
+// Verify success (e.g., check we're signed in)
+await expect(page.getByText('Welcome back')).toBeVisible();
+
+// Optional: verify a credential was created
+const creds = await signin.passkeyAuth.getCredentials();
+expect(creds.length).toBeGreaterThan(0);
+```
+
+#### Testing cancelled/failed passkey operations
+
+Use `fail()` to simulate a user cancelling or failing verification. Since CDP doesn't emit failure events, you must provide a `postCheck` callback that waits for the failure to be processed:
+
+```ts
+await signin.passkeyAuth.fail(
+  async () => {
+    // Trigger action that would show passkey prompt
+    return page.getByRole('button', { name: 'Sign in with passkey' }).click();
+  },
+  async () => {
+    // Wait for error message or use small timeout
+    return expect(page.getByText('Authentication failed')).toBeVisible();
+  }
+);
+
+// Verify failure state (e.g., Error message)
+await expect(page.getByText('Failed to create Passkey')).toBeVisible();
+
+// Optional: verify no credential was created
+const creds = await signin.passkeyAuth.getCredentials();
+expect(creds.length).toBe(0);
 ```
 
 ### MFA Guard
@@ -246,6 +347,38 @@ There's a `Functional Tests` launch target in the root `.vscode/launch.json`. Se
 ### Traces
 
 We record traces for failed tests locally and in CI. On CircleCI they are in the test artifacts. For more read the [Trace Viewer docs](https://playwright.dev/docs/trace-viewer).
+
+#### Trace URLs in CI
+
+When tests fail in CircleCI, the CI reporter automatically generates clickable trace URLs using [fxtrace](https://fxtrace.vercel.app). These URLs appear:
+
+1. **Inline** - Immediately after each test failure
+2. **Summary** - At the end of the test run with all failed test traces grouped together
+
+Example output:
+
+```
+[26/35] ❌ tests/settings/avatar.spec.ts: open and close avatar drop-down menu (19s)
+Error: Timed out 10000ms waiting for expect(locator).toBeVisible()
+...
+📊 View trace: https://fxtrace.vercel.app/?url=https://output.circle-artifacts.com/output/job/.../trace.zip
+```
+
+The summary at the end groups traces by test (including retries):
+
+```
+📊 Failed test traces:
+  tests/settings/avatar.spec.ts: open and close avatar drop-down menu
+    https://fxtrace.vercel.app/?url=.../trace.zip
+    https://fxtrace.vercel.app/?url=.../retry1/trace.zip
+```
+
+The reporter also tracks:
+
+- **Progress**: `[5/35]` shows completed tests out of total
+- **Retries**: Total retry count and which attempt `(retry #1)`
+- **Flaky tests**: Tests that failed initially but passed on retry
+- **Duration**: Total test suite run time
 
 Sync signin tests start a new browser instance and this causes problems with the recorded trace being blank; the second browsers trace is overwritten.
 

@@ -8,7 +8,11 @@ import {
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js';
-import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import {
+  BaseButton,
+  ButtonVariant,
+  getManagePaymentMethodErrorFtlInfo,
+} from '@fxa/payments/ui';
 import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
@@ -23,13 +27,16 @@ import {
 } from '@fxa/payments/ui/actions';
 
 export function PaymentMethodManagement({
-  uid,
-  defaultPaymentMethodId,
+  defaultPaymentMethod,
   sessionEmail,
+  locale,
 }: {
-  uid?: string;
-  defaultPaymentMethodId?: string;
+  defaultPaymentMethod?: {
+    id: string;
+    type?: string;
+  };
   sessionEmail?: string;
+  locale: string;
 }) {
   const { l10n } = useLocalization();
   const stripe = useStripe();
@@ -47,6 +54,7 @@ export function PaymentMethodManagement({
   const [isNonCardSelected, setIsNonCardSelected] = useState(false);
   const [hideOverflow, setHideOverflow] = useState(true);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
+  const [linkInterruptedCard, setLinkInterruptedCard] = useState(false);
 
   const handleReady = () => {
     setIsReady(true);
@@ -61,29 +69,56 @@ export function PaymentMethodManagement({
   ) => {
     setIsComplete(event.complete);
     setError(null);
-    setHasPaymentMethod(!!event.value.payment_method);
+    setHasPaymentMethod(
+      !!event.value.payment_method ||
+      (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
+    );
 
     if (event.value.type !== 'card') {
       setIsNonCardSelected(true);
+      if (isInputNewCardDetails && !event.value.payment_method) {
+        setLinkInterruptedCard(true);
+      }
       setIsInputNewCardDetails(false);
-      if (!!event.value.payment_method) {
-        if (event.value.payment_method.id !== defaultPaymentMethodId) {
+      if (
+        event.value.payment_method?.type === 'link' &&
+        defaultPaymentMethod?.type === 'link'
+      ) {
+        /**
+         * Users can add Link to their account twice if a Link account was not associated with their Stripe
+         * account email when starting the checkout flow (i.e. this was the customers first time using Link).
+         * The Payment Element does not currently handle accounts with multiple Link payment methods,
+         * but the user can still modify their Link payment method settings in-component.
+         */
+        setIsNonDefaultCardSelected(false);
+      } else if (
+        !!event.value.payment_method &&
+        event.value.payment_method.id
+      ) {
+        if (event.value.payment_method.id !== defaultPaymentMethod?.id) {
           setIsNonDefaultCardSelected(true);
         } else {
           setIsNonDefaultCardSelected(false);
         }
+      } else {
+        setIsNonDefaultCardSelected(false);
       }
       return;
     }
     setIsNonCardSelected(false);
+    setLinkInterruptedCard(false);
 
     if (event.value.type === 'card' && !event.value.payment_method) {
       setIsInputNewCardDetails(true);
     } else if (event.value.type === 'card' && !!event.value.payment_method) {
       setIsInputNewCardDetails(false);
 
-      if (event.value.payment_method.id !== defaultPaymentMethodId) {
-        setIsNonDefaultCardSelected(true);
+      if (event.value.payment_method.id) {
+        if (event.value.payment_method.id !== defaultPaymentMethod?.id) {
+          setIsNonDefaultCardSelected(true);
+        } else {
+          setIsNonDefaultCardSelected(false);
+        }
       } else {
         setIsNonDefaultCardSelected(false);
       }
@@ -107,7 +142,6 @@ export function PaymentMethodManagement({
       return await handleNextAction(response.setupIntent.client_secret);
     } else if (response.setupIntent?.status === 'succeeded') {
       await setDefaultStripePaymentDetails(
-        uid ?? '',
         typeof response.setupIntent.payment_method === 'string'
           ? response.setupIntent.payment_method
           : (response.setupIntent.payment_method?.id ?? '')
@@ -151,16 +185,20 @@ export function PaymentMethodManagement({
         throw confirmationTokenError;
       }
 
-      const response = await updateStripePaymentDetails(
-        uid ?? '',
+      const { ok, result, errorMessage } = await updateStripePaymentDetails(
         confirmationToken.id
       );
-
-      if (response.status === 'requires_action' && response.clientSecret) {
-        await handleNextAction(response.clientSecret);
+      if (!ok || !result) {
+        const errorReason = getManagePaymentMethodErrorFtlInfo(errorMessage);
+        setError(
+          l10n.getString(errorReason.messageFtl, {}, errorReason.message)
+        );
+      } else {
+        if (result.status === 'requires_action' && result.clientSecret) {
+          await handleNextAction(result.clientSecret);
+        }
+        router.push(`/${locale}/subscriptions/manage`);
       }
-
-      router.refresh();
     } catch (error) {
       console.error(error);
       setError(error.message || 'An unexpected error occurred.');
@@ -208,11 +246,6 @@ export function PaymentMethodManagement({
                       radios: false,
                       spacedAccordionItems: true,
                     },
-                    defaultValues: {
-                      billingDetails: {
-                        email: sessionEmail || undefined,
-                      },
-                    },
                   }}
                 />
               </div>
@@ -225,35 +258,32 @@ export function PaymentMethodManagement({
             )}
           </Form.Field>
           {(isInputNewCardDetails ||
-            (isNonCardSelected && !hasPaymentMethod)) && (
-            <div className="flex flex-row justify-center pt-4">
-              <Form.Submit asChild>
-                <BaseButton
-                  className="h-10 mt-10 w-full"
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  aria-disabled={
-                    !stripe || !isComplete || isLoading
-                  }
-                  disabled={
-                    !stripe || !isComplete || isLoading
-                  }
-                >
-                  {isLoading ? (
-                    <Image
-                      src={spinnerWhiteImage}
-                      alt=""
-                      className="absolute animate-spin h-8 w-8"
-                    />
-                  ) : (
-                    <Localized id="payment-method-management-save-method">
-                      Save payment method
-                    </Localized>
-                  )}
-                </BaseButton>
-              </Form.Submit>
-            </div>
-          )}
+            (isNonCardSelected && !hasPaymentMethod) ||
+             linkInterruptedCard) && (
+              <div className="flex flex-row justify-center pt-4">
+                <Form.Submit asChild>
+                  <BaseButton
+                    className="h-10 mt-10 w-full"
+                    type="submit"
+                    variant={ButtonVariant.Primary}
+                    aria-disabled={!stripe || !isComplete || isLoading}
+                    disabled={!stripe || !isComplete || isLoading}
+                  >
+                    {isLoading ? (
+                      <Image
+                        src={spinnerWhiteImage}
+                        alt=""
+                        className="absolute animate-spin h-8 w-8"
+                      />
+                    ) : (
+                      <Localized id="payment-method-management-save-method">
+                        Save payment method
+                      </Localized>
+                    )}
+                  </BaseButton>
+                </Form.Submit>
+              </div>
+            )}
           {isNonDefaultCardSelected && !isInputNewCardDetails && (
             <div className="flex flex-row justify-center pt-4">
               <Form.Submit asChild>

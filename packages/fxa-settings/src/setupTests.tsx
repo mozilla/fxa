@@ -9,6 +9,32 @@ import { FtlMsgProps } from 'fxa-react/lib/utils';
 import { TextEncoder, TextDecoder } from 'util';
 import crypto from 'crypto';
 
+// Suppress console output during tests to reduce noise
+// Comment out specific lines below if you need to debug test failures
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
+// jsdom does not implement IntersectionObserver; provide a no-op stub
+// so components that rely on it (e.g. Settings/Nav) can mount in tests.
+global.IntersectionObserver = class IntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+} as any;
+
 // react-pdf required TextEncoder for EncodeStream
 // See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392
 global.TextEncoder = TextEncoder;
@@ -21,6 +47,38 @@ Object.defineProperty(global, 'crypto', {
     subtle: crypto.webcrypto.subtle,
   },
 });
+
+// Suppress noisy console output during tests.
+// - Glean SDK telemetry pings and init warnings
+// - Model validation warnings from tests with intentionally invalid data
+//
+// Set SHOW_CONSOLE_NOISE=1 to disable filtering for debugging:
+//   SHOW_CONSOLE_NOISE=1 yarn test --watchAll=false
+if (!process.env.SHOW_CONSOLE_NOISE) {
+  const wrap = <T extends (...args: any[]) => void>(
+    fn: T,
+    filter: (msg: string) => boolean
+  ): T =>
+    ((...args: any[]) => {
+      if (filter(String(args[0]))) return;
+      fn(...args);
+    }) as unknown as T;
+
+  const isGlean = (m: string) => m.includes('(Glean');
+  const isModelValidation = (m: string) =>
+    m.includes('Model Validation Errors');
+  const isMissingField = (m: string) => m.includes('Missing field');
+  // jsdom does not implement requestSubmit; this is a known limitation
+  // that produces noisy errors when clicking submit buttons in tests.
+  const isJsdomNotImplemented = (m: string) =>
+    m.includes('Not implemented: HTMLFormElement.prototype.requestSubmit');
+
+  console.info = wrap(console.info, isGlean);
+  console.warn = wrap(console.warn, (m) => isGlean(m) || isModelValidation(m));
+  console.error = wrap(console.error, (m) =>
+    isMissingField(m) || isJsdomNotImplemented(m)
+  );
+}
 
 jest.mock('fxa-react/lib/utils', () => {
   const originalModule = jest.requireActual('fxa-react/lib/utils');

@@ -7,13 +7,18 @@
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const { AppError: error } = require('@fxa/accounts/errors');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
+const { Container } = require('typedi');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const validators = require('./validators');
 const { reportSentryError } = require('../sentry');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
@@ -135,6 +140,9 @@ module.exports = (
   authServerCacheRedis,
   statsd
 ) => {
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
+
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
@@ -148,14 +156,6 @@ module.exports = (
       log.begin('Account.RecoveryEmailCreate', request);
 
       const sessionToken = request.auth.credentials;
-
-      // error early if the account or session are not verified
-      if (!sessionToken.emailVerified) {
-        throw error.unverifiedAccount();
-      }
-      if (!sessionToken.tokenVerified) {
-        throw error.unverifiedSession();
-      }
 
       const uid = sessionToken.uid;
       const primaryEmail = sessionToken.email;
@@ -239,32 +239,45 @@ module.exports = (
 
       const geoData = request.app.geo;
       try {
-        await mailer.sendVerifySecondaryCodeEmail(
-          [
-            {
-              email,
-              normalizedEmail,
-              isVerified: false,
-              isPrimary: false,
-              uid,
-            },
-          ],
-          sessionToken,
-          {
+        if (fxaMailer.canSend('verifySecondaryCode')) {
+          await fxaMailer.sendVerifySecondaryCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
             code: otpUtils.generateOtpCode(secret, otpOptions),
-            deviceId: sessionToken.deviceId,
-            acceptLanguage: request.app.acceptLanguage,
             email,
-            primaryEmail,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uid,
-          }
-        );
+          });
+        } else {
+          await mailer.sendVerifySecondaryCodeEmail(
+            [
+              {
+                email,
+                normalizedEmail,
+                isVerified: false,
+                isPrimary: false,
+                uid,
+              },
+            ],
+            sessionToken,
+            {
+              code: otpUtils.generateOtpCode(secret, otpOptions),
+              deviceId: sessionToken.deviceId,
+              acceptLanguage: request.app.acceptLanguage,
+              email,
+              primaryEmail,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uid,
+            }
+          );
+        }
       } catch (err) {
         log.error('secondary_email.sendVerifySecondaryCodeEmail.error', {
           err: err,
@@ -314,7 +327,10 @@ module.exports = (
                 secondaryEmailRecord.uid
               ))
             ) {
-              await db.deleteAccount(secondaryEmailRecord);
+              await db.deleteAccount(
+                secondaryEmailRecord,
+                ReasonForDeletion.AccountRecreated
+              );
               log.info('accountDeleted.unverifiedSecondaryEmail', {
                 ...secondaryEmailRecord,
               });
@@ -514,11 +530,20 @@ module.exports = (
       }
 
       try {
-        await mailer.sendPostVerifySecondaryEmail([], account, {
-          acceptLanguage: request.app.acceptLanguage,
-          secondaryEmail: email,
-          uid,
-        });
+        if (fxaMailer.canSend('postVerifySecondary')) {
+          await fxaMailer.sendPostVerifySecondaryEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.sync(false),
+            secondaryEmail: email,
+          });
+        } else {
+          await mailer.sendPostVerifySecondaryEmail([], account, {
+            acceptLanguage: request.app.acceptLanguage,
+            secondaryEmail: email,
+            uid,
+          });
+        }
       } catch (e) {
         log.error('secondary_email.sendPostVerifySecondaryEmail.error', {
           uid,
@@ -611,7 +636,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_STATUS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           query: {
@@ -666,7 +691,10 @@ module.exports = (
               !validators.isValidEmailAddress(sessionToken.email) &&
               !(await stripeHelper.hasActiveSubscription(sessionToken.uid))
             ) {
-              await db.deleteAccount(sessionToken);
+              await db.deleteAccount(
+                sessionToken,
+                ReasonForDeletion.InvalidEmail
+              );
               log.info('accountDeleted.invalidEmailAddress', {
                 ...sessionToken,
               });
@@ -710,7 +738,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_RESEND_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -758,8 +786,6 @@ module.exports = (
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
         let code;
-        let verifyFunction;
-        let event;
         let emails = [];
 
         // Return immediately if this session or token is already verified. Only exception
@@ -784,9 +810,8 @@ module.exports = (
           return {};
         }
 
-        setVerifyFunction();
-
         const { flowId, flowBeginTime } = await request.app.metricsContext;
+        const account = await db.account(sessionToken.uid);
 
         const mailerOpts = {
           code,
@@ -810,8 +835,70 @@ module.exports = (
           style,
         };
 
-        await verifyFunction(emails, sessionToken, mailerOpts);
-        await request.emitMetricsEvent(`email.${event}.resent`);
+        if (type && type === 'upgradeSession') {
+          if (fxaMailer.canSend('verifyPrimary')) {
+            await fxaMailer.sendVerifyPrimaryEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
+              code,
+              service,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyPrimaryEmail(
+              emails,
+              sessionToken,
+              mailerOpts
+            );
+          }
+          await request.emitMetricsEvent(
+            `email.verification_email_primary.resent`
+          );
+        } else if (!sessionToken.emailVerified) {
+          if (fxaMailer.canSend('verify')) {
+            await fxaMailer.sendVerifyEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              code,
+              service,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyEmail(emails, sessionToken, mailerOpts);
+          }
+          await request.emitMetricsEvent(`email.verification.resent`);
+        } else {
+          if (fxaMailer.canSend('verifyLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            await fxaMailer.sendVerifyLoginEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
+              code,
+              service,
+              clientName: clientInfo.name,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyLoginEmail(emails, sessionToken, mailerOpts);
+          }
+          await request.emitMetricsEvent(`email.confirmation.resent`);
+        }
+
         return {};
 
         // Returns a boolean to indicate whether to send email.
@@ -855,19 +942,6 @@ module.exports = (
           } else {
             code = sessionToken.emailCode;
             return true;
-          }
-        }
-
-        function setVerifyFunction() {
-          if (type && type === 'upgradeSession') {
-            verifyFunction = mailer.sendVerifyPrimaryEmail;
-            event = 'verification_email_primary';
-          } else if (!sessionToken.emailVerified) {
-            verifyFunction = mailer.sendVerifyEmail;
-            event = 'verification';
-          } else {
-            verifyFunction = mailer.sendVerifyLoginEmail;
-            event = 'confirmation';
           }
         }
       },
@@ -1031,7 +1105,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAILS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA.array().items(
@@ -1081,33 +1155,13 @@ module.exports = (
     },
     {
       method: 'POST',
-      path: '/recovery_email',
+      path: '/mfa/recovery_email/destroy',
       options: {
-        ...EMAILS_DOCS.RECOVERY_EMAIL_POST,
+        ...EMAILS_DOCS.MFA_RECOVERY_EMAIL_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailAdd),
-          }),
-        },
-        response: {},
-      },
-      handler: handlers.recoveryEmailPost,
-    },
-    {
-      method: 'POST',
-      path: '/recovery_email/destroy',
-      options: {
-        ...EMAILS_DOCS.RECOVERY_EMAIL_DESTROY_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -1135,10 +1189,6 @@ module.exports = (
         );
         const account = await db.account(uid);
 
-        if (!sessionToken.tokenVerified) {
-          throw error.unverifiedSession();
-        }
-
         await db.deleteEmail(uid, normalizeEmail(email));
 
         await recordSecurityEvent('account.secondary_email_removed', {
@@ -1164,157 +1214,22 @@ module.exports = (
             return item;
           }
         });
-        await mailer.sendPostRemoveSecondaryEmail(emails, account, {
-          deviceId: sessionToken.deviceId,
-          secondaryEmail: email,
-          uid,
-        });
 
-        return {};
-      },
-    },
-    {
-      method: 'POST',
-      path: '/mfa/recovery_email/destroy',
-      options: {
-        ...EMAILS_DOCS.MFA_RECOVERY_EMAIL_DESTROY_POST,
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:email'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailDelete),
-          }),
-        },
-        response: {},
-      },
-      handler: async function (request) {
-        return routes
-          .find(
-            (r) =>
-              r.path === '/v1/recovery_email/destroy' && r.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/recovery_email/set_primary',
-      options: {
-        ...EMAILS_DOCS.RECOVERY_EMAIL_SET_PRIMARY_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailNewPrimary),
-          }),
-        },
-        response: {},
-      },
-      handler: async function (request) {
-        const sessionToken = request.auth.credentials;
-        const { uid, verifierSetAt } = sessionToken;
-        const currentEmail = sessionToken.email;
-        const newEmail = request.payload.email;
-
-        log.begin('Account.RecoveryEmailSetPrimary', request);
-
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          currentEmail,
-          'setPrimaryEmail'
-        );
-
-        if (!sessionToken.tokenVerified) {
-          throw error.unverifiedSession();
-        }
-
-        if (verifierSetAt <= 0) {
-          throw error.unverifiedAccount();
-        }
-
-        const newEmailRecord = await db.getSecondaryEmail(newEmail);
-        if (newEmailRecord.uid !== uid) {
-          throw error.cannotChangeEmailToUnownedEmail();
-        }
-
-        if (!newEmailRecord.isVerified) {
-          throw error.cannotChangeEmailToUnverifiedEmail();
-        }
-
-        if (!newEmailRecord.isPrimary) {
-          await db.setPrimaryEmail(uid, newEmailRecord.normalizedEmail);
-
-          const devices = await request.app.devices;
-          push.notifyProfileUpdated(uid, devices);
-
-          log.notifyAttachedServices('primaryEmailChanged', request, {
-            uid,
-            email: newEmail,
+        if (fxaMailer.canSend('postRemoveSecondary')) {
+          const accountData = FxaMailerFormat.account(account);
+          accountData.cc = accountData.cc.filter((e) => e !== email);
+          await fxaMailer.sendPostRemoveSecondaryEmail({
+            ...accountData,
+            ...FxaMailerFormat.localTime(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(false),
+            secondaryEmail: email,
           });
-
-          // While we typically do not want to capture PII in Sentry, in this
-          // case we must record enough data for us to file a bug with Support
-          // to update Zendesk so that this users' email matches their new primary.
-          const handleCriticalError = (err, source) => {
-            Sentry.withScope((scope) => {
-              scope.setContext('primaryEmailChange', {
-                originalEmail: currentEmail,
-                newEmail: newEmailRecord.email,
-                system: source,
-              });
-              reportSentryError(err);
-            });
-          };
-
-          // Fire off intentionally without waiting for all the network requests
-          // required to update Zendesk/Stripe. Capture enough to manually update
-          // Zendesk/Stripe if needed.
-          updateZendeskPrimaryEmail(
-            zendeskClient,
+        } else {
+          await mailer.sendPostRemoveSecondaryEmail(emails, account, {
+            deviceId: sessionToken.deviceId,
+            secondaryEmail: email,
             uid,
-            currentEmail,
-            newEmailRecord.email
-          ).catch((err) => handleCriticalError(err, 'zendesk'));
-
-          if (stripeHelper) {
-            // Wait here to update stripe and our local cache to avoid loss of
-            // valid subscription status.
-            try {
-              await updateStripeEmail(
-                stripeHelper,
-                uid,
-                currentEmail,
-                newEmailRecord.email
-              );
-            } catch (err) {
-              // Due to the work involved by this point, we cannot abort the
-              // request. We instead report it for manual fixing with sufficient
-              // context to locate the user and update Stripe and our cache.
-              handleCriticalError(err, 'stripe');
-            }
-          }
-
-          const account = await db.account(uid);
-          await mailer.sendPostChangePrimaryEmail(account.emails, account, {
-            acceptLanguage: request.app.acceptLanguage,
-            uid,
-          });
-
-          await recordSecurityEvent('account.primary_secondary_swapped', {
-            db,
-            request,
           });
         }
 
@@ -1342,114 +1257,92 @@ module.exports = (
         response: {},
       },
       handler: async function (request) {
-        return routes
-          .find(
-            (r) =>
-              r.path === '/v1/recovery_email/set_primary' && r.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/recovery_email/secondary/resend_code',
-      options: {
-        ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            email: validators
-              .email()
-              .description(DESCRIPTION.emailSecondaryVerify)
-              .required(),
-          }),
-        },
-        response: {},
-      },
-      handler: async function (request) {
-        // Note that this "resend" flow is a legacy flow
-        // for secondary emails stored as unconfirmed records in the db
-        // This route only uses the legacy records, not the redis reservations
-        // TODO: Remove this flow once we have cleaned out the old unconfirmed records
-        // See FXA-10083 for more details
-        log.begin('Account.RecoveryEmailSecondaryResend', request);
-
         const sessionToken = request.auth.credentials;
-        const { email } = request.payload;
+        const { uid } = sessionToken;
+        const currentEmail = sessionToken.email;
+        const newEmail = request.payload.email;
+
+        log.begin('Account.RecoveryEmailSetPrimary', request);
 
         await customs.checkAuthenticated(
           request,
-          sessionToken.uid,
-          sessionToken.email,
-          'recoveryEmailSecondaryResendCode'
-        );
-
-        const {
-          deviceId,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
           uid,
-        } = sessionToken;
-
-        const account = await db.account(uid);
-        const normalized = normalizeEmail(email);
-
-        // check if there is an unconfirmed record for this email
-        let existingRecord;
-        try {
-          existingRecord = await db.getSecondaryEmail(normalized);
-        } catch (e) {
-          if (e && e.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-            // maintain legacy errno for resend-to-unowned
-            throw error.cannotResendEmailCodeToUnownedEmail();
-          }
-          throw e;
-        }
-        if (!existingRecord) {
-          throw error.cannotResendEmailCodeToUnownedEmail();
-        }
-        if (existingRecord?.isVerified) {
-          throw error.alreadyOwnsEmail();
-        }
-
-        const code = otpUtils.generateOtpCode(
-          existingRecord.emailCode,
-          otpOptions
+          currentEmail,
+          'setPrimaryEmail'
         );
 
-        const geoData = request.app.geo;
-        await mailer.sendVerifySecondaryCodeEmail(
-          [
-            {
-              email,
-              normalizedEmail: normalized,
-              isVerified: false,
-              isPrimary: false,
-              uid,
-            },
-          ],
-          account,
-          {
-            code,
-            deviceId,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            timestamp: Date.now(),
-            acceptLanguage: request.app.acceptLanguage,
-            uaBrowser,
-            uaBrowserVersion,
-            uaOS,
-            uaOSVersion,
-            uaDeviceType,
+        const newEmailRecord = await db.getSecondaryEmail(newEmail);
+        if (newEmailRecord.uid !== uid) {
+          throw error.cannotChangeEmailToUnownedEmail();
+        }
+
+        if (!newEmailRecord.isVerified) {
+          throw error.cannotChangeEmailToUnverifiedEmail();
+        }
+
+        if (!newEmailRecord.isPrimary) {
+          await db.setPrimaryEmail(uid, newEmailRecord.normalizedEmail);
+
+          const devices = await request.app.devices;
+          push.notifyProfileUpdated(uid, devices);
+
+          log.notifyAttachedServices('primaryEmailChanged', request, {
             uid,
+            email: newEmail,
+          });
+
+          const handleCriticalError = (err, source) => {
+            Sentry.withScope((scope) => {
+              scope.setContext('primaryEmailChange', {
+                originalEmail: currentEmail,
+                newEmail: newEmailRecord.email,
+                system: source,
+              });
+              reportSentryError(err);
+            });
+          };
+
+          updateZendeskPrimaryEmail(
+            zendeskClient,
+            uid,
+            currentEmail,
+            newEmailRecord.email
+          ).catch((err) => handleCriticalError(err, 'zendesk'));
+
+          if (stripeHelper) {
+            try {
+              await updateStripeEmail(
+                stripeHelper,
+                uid,
+                currentEmail,
+                newEmailRecord.email
+              );
+            } catch (err) {
+              handleCriticalError(err, 'stripe');
+            }
           }
-        );
+
+          const account = await db.account(uid);
+          if (fxaMailer.canSend('postVerifySecondary')) {
+            await fxaMailer.sendPostChangePrimaryEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.localTime(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              email: FxaMailerFormat.account(account).to,
+            });
+          } else {
+            await mailer.sendPostChangePrimaryEmail(account.emails, account, {
+              acceptLanguage: request.app.acceptLanguage,
+              uid,
+            });
+          }
+
+          await recordSecurityEvent('account.primary_secondary_swapped', {
+            db,
+            request,
+          });
+        }
 
         return {};
       },
@@ -1509,6 +1402,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { email } = request.payload;
         const normalizedEmail = normalizeEmail(email);
+        const account = await db.account(sessionToken.uid);
 
         await customs.checkAuthenticated(
           request,
@@ -1599,33 +1493,46 @@ module.exports = (
 
         const geoData = request.app.geo;
         try {
-          await mailer.sendVerifySecondaryCodeEmail(
-            [
-              {
-                email,
-                normalizedEmail,
-                isVerified: false,
-                isPrimary: false,
-                uid,
-              },
-            ],
-            sessionToken,
-            {
+          if (fxaMailer.canSend('verifySecondaryCode')) {
+            await fxaMailer.sendVerifySecondaryCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
               code,
-              deviceId,
-              acceptLanguage: request.app.acceptLanguage,
               email,
-              primaryEmail: sessionToken.email,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid,
-            }
-          );
+            });
+          } else {
+            await mailer.sendVerifySecondaryCodeEmail(
+              [
+                {
+                  email,
+                  normalizedEmail,
+                  isVerified: false,
+                  isPrimary: false,
+                  uid,
+                },
+              ],
+              sessionToken,
+              {
+                code,
+                deviceId,
+                acceptLanguage: request.app.acceptLanguage,
+                email,
+                primaryEmail: sessionToken.email,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid,
+              }
+            );
+          }
         } catch (err) {
           log.error('secondary_email.resendVerifySecondaryCodeEmail.error', {
             err: err,
@@ -1653,37 +1560,11 @@ module.exports = (
     },
     {
       method: 'POST',
-      path: '/recovery_email/secondary/verify_code',
-      options: {
-        ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
-        },
-        validate: {
-          payload: isA.object({
-            email: validators
-              .email()
-              .required()
-              .description(DESCRIPTION.emailSecondaryVerify),
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .description(DESCRIPTION.code)
-              .required(),
-          }),
-        },
-      },
-      handler: handlers.recoveryEmailSecondaryVerifyCodePost,
-    },
-    {
-      method: 'POST',
       path: '/emails/reminders/cad',
       options: {
         ...EMAILS_DOCS.EMAILS_REMINDERS_CAD_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
       },

@@ -6,39 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/sentry/src/index.ts",
         "outputPath": "dist/libs/shared/sentry",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/sentry/tsconfig.lib.json",
-        "declaration": true,
-        "external": [
-          "@apollo/gateway",
-          "@apollo/subgraph",
-          "@as-integrations/fastify",
-          "@nestjs/websockets/socket-module",
-          "@nestjs/microservices/microservices-module",
-          "@nestjs/microservices"
-        ],
         "assets": [
           {
             "glob": "libs/shared/sentry/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

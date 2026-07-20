@@ -2,32 +2,77 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import { Link } from '@reach/router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';
-import CardHeader from '../../../components/CardHeader';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
-import { HeartsVerifiedImage } from '../../../components/images';
+import { useCmsInfoState } from '../../../models/hooks';
+import { RelierCmsInfo } from '../../../models/integrations';
+import AppLayout from '../../../components/AppLayout';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
+import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
+import ButtonBack from '../../../components/ButtonBack';
+import { Constants } from '../../../lib/constants';
+import firefox, {
+  buildSyncOAuthSearch,
+  FirefoxCommand,
+} from '../../../lib/channels/firefox';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import QRCode from '../../../components/QRCode';
+import firefoxLogo from './firefox-logo-browser.svg';
+import mobileFirefoxIcon from './mobile-ff.svg';
+import mobileDownloadIcon from './mobile-download.svg';
+import {
+  buildPairingDownloadUrl,
+  isSendTabEntrypoint,
+} from '../../../lib/utilities';
+import type { PairOrigin } from '../../Signin/utils';
+import type { SigninLocationState } from '../../Signin/interfaces';
+import type { Integration } from '../../../models';
+
+// Maps the reach-router location.state `origin` set by getSyncNavigate to the
+// banner copy shown at the top of the choice screen.
+const PAIR_BANNER_FTL: Record<PairOrigin, { id: string; fallback: string }> = {
+  signin: {
+    id: 'pair-signed-in-successfully',
+    fallback: 'Signed in successfully!',
+  },
+  signup: {
+    id: 'pair-account-created-now-syncing',
+    fallback: 'Account created. You’re now syncing.',
+  },
+  'post-verify-set-password': {
+    id: 'pair-password-created-now-syncing',
+    fallback: 'Password created. You’re now syncing.',
+  },
+};
+
+type MobileChoice = 'has-mobile' | 'needs-mobile';
+
+const GLEAN_REASON_BY_CHOICE: Record<MobileChoice, string> = {
+  'has-mobile': 'has mobile',
+  'needs-mobile': 'does not have mobile',
+};
+
+type PairView = 'choice' | 'download';
 
 type PairProps = {
   error?: string;
-  entryPoint?: ENTRYPOINTS;
-  onSubmit: Function; // navigates to `about:preferences` whatever the given broker does that.
+  cmsInfo?: RelierCmsInfo;
+  integration?: Integration;
 };
 export const viewName = 'pair';
 
 const Pair = ({
   error,
-  entryPoint,
-  onSubmit,
-}: PairProps & RouteComponentProps) => {
+  cmsInfo: cmsInfoProp,
+  integration,
+}: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
@@ -35,149 +80,412 @@ const Pair = ({
     'QR code'
   );
   const navigateWithQuery = useNavigateWithQuery();
-  // TODO: Recreate the QR code logic which previously existed in the content-server.
-  // Probably after that we can remove the fallback styles for the QR code div.
+  const location = useLocation();
 
-  // TODO: check if we are either using Firefox Desktop ,or if the UA has the `supportPairing` capability
-  const isSupported = () => true;
+  // CMS theming — mirrors the Backbone pair/index.js fetchCmsConfig() flow.
+  // Strict parity with Backbone: only Pair/Index is themed; the rest of
+  // the React pair flow remains untouched.
+  const cmsInfoState = useCmsInfoState();
+  const cmsInfo = cmsInfoProp ?? cmsInfoState.data?.cmsInfo;
+  const cmsButtonColor = cmsInfo?.shared?.buttonColor;
 
-  // TODO: get the account and check if it is the default account.
-  const isDefaultAccount = () => false;
+  const [currentView, setCurrentView] = useState<PairView>('choice');
+  const [selectedRadio, setSelectedRadio] = useState<MobileChoice | null>(null);
+  // Hide the choice screen until the WebChannel decision resolves.
+  const [bootstrapping, setBootstrapping] = useState(true);
 
-  // TODO: check if the account is either not verified, or has a falsy value for session token.
-  const accountIsNotVerifiedOrHasNoSessionToken = () => false;
+  const choiceHeaderRef = useRef<HTMLHeadingElement>(null);
+  const downloadHeaderRef = useRef<HTMLHeadingElement>(null);
+
+  // Focus management after view transitions
+  useEffect(() => {
+    if (currentView === 'download') {
+      downloadHeaderRef.current?.focus();
+    }
+  }, [currentView]);
 
   useEffect(() => {
-    // This will just run at page load.
-    if (!isSupported()) {
-      navigateWithQuery('/pair/unsupported');
-    }
-    if (isDefaultAccount()) {
-      // we have historically needed the "forceView" option to prevent a loop of redirects.
-      navigateWithQuery('/connect_another_device', {
-        state: { forceView: true },
-      });
-    }
-    if (accountIsNotVerifiedOrHasNoSessionToken()) {
-      navigateWithQuery('/signin');
-    }
-  }, [navigateWithQuery]);
+    const ua = navigator.userAgent;
+    const isFirefoxDesktop =
+      /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
 
-  const showQRCode =
-    entryPoint === ENTRYPOINTS.FIREFOX_MENU_ENTRYPOINT ||
-    entryPoint === ENTRYPOINTS.FIREFOX_PREFERENCES_ENTRYPOINT ||
-    entryPoint === ENTRYPOINTS.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
-    entryPoint === ENTRYPOINTS.FIREFOX_TABS_SIDEBAR_ENTRYPOINT ||
-    entryPoint === ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT ||
-    entryPoint === ENTRYPOINTS.FIREFOX_TOOLBAR_ENTRYPOINT;
+    if (!isFirefoxDesktop) {
+      navigateWithQuery('/pair/unsupported');
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      const askFirefox = () =>
+        firefox
+          .requestSignedInUser(
+            Constants.OAUTH_CONTEXT,
+            true,
+            Constants.SYNC_SERVICE
+          )
+          .catch(() => undefined);
+
+      // Retry on empty replies so a slow fxaLogin handoff doesn't bail to /signin.
+      const MAX_RETRIES = 1;
+      let signedInUser = await askFirefox();
+      for (
+        let attempt = 0;
+        !cancelled &&
+        attempt < MAX_RETRIES &&
+        (!signedInUser?.sessionToken || !signedInUser?.verified);
+        attempt++
+      ) {
+        signedInUser = await askFirefox();
+      }
+      if (cancelled) return;
+
+      if (signedInUser?.sessionToken && signedInUser.verified) {
+        setBootstrapping(false);
+        return;
+      }
+      const oauthParams = await firefox
+        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+        .catch(() => null);
+      if (cancelled) return;
+      if (oauthParams) {
+        hardNavigate(`/?${buildSyncOAuthSearch(oauthParams)}`);
+        return;
+      }
+      // WebChannel didn't reply; reveal the page so the user isn't stuck.
+      setBootstrapping(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fire Glean view events only after the bootstrap reveals the page;
+  // otherwise users redirected during bootstrap would skew the metric.
+  useEffect(() => {
+    if (bootstrapping) return;
+    if (currentView === 'choice') {
+      GleanMetrics.cadFireFox.choiceView();
+      return;
+    }
+    GleanMetrics.cadFireFox.view();
+  }, [bootstrapping, currentView]);
+
+  // Banner variant is driven by reach-router state from getSyncNavigate.
+  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+    SigninLocationState,
+    'origin'
+  >;
+  const bannerCopy =
+    currentView === 'choice' && pairOrigin ? PAIR_BANNER_FTL[pairOrigin] : null;
+
+  const isSendTab = isSendTabEntrypoint(integration?.data.entrypoint);
+
+  // Tells Firefox to open about:preferences#sync and start pairing.
+  const openPairPreferences = useCallback(() => {
+    firefox.send(FirefoxCommand.PairPreferences, {});
+  }, []);
+
+  const handleRadioChange = useCallback((value: MobileChoice) => {
+    setSelectedRadio(value);
+    GleanMetrics.cadFireFox.choiceEngage({
+      event: { reason: GLEAN_REASON_BY_CHOICE[value] },
+    });
+  }, []);
+
+  const handleChoiceSubmit = useCallback(() => {
+    if (!selectedRadio) {
+      return;
+    }
+    GleanMetrics.cadFireFox.choiceSubmit({
+      event: { reason: GLEAN_REASON_BY_CHOICE[selectedRadio] },
+    });
+
+    if (selectedRadio === 'needs-mobile') {
+      setCurrentView('download');
+      return;
+    }
+    openPairPreferences();
+  }, [selectedRadio, openPairPreferences]);
+
+  const handleBackButton = useCallback(() => {
+    setCurrentView('choice');
+    requestAnimationFrame(() => {
+      choiceHeaderRef.current?.focus();
+    });
+  }, []);
+
+  const handleSyncDeviceSubmit = useCallback(() => {
+    GleanMetrics.cadFireFox.syncDeviceSubmit();
+    openPairPreferences();
+  }, [openPairPreferences]);
+
+  if (bootstrapping) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  if (currentView === 'download') {
+    return (
+      <AppLayout cmsInfo={cmsInfo}>
+        <header className="relative flex items-center">
+          <ButtonBack onClick={handleBackButton} />
+          <h1
+            id="cad-header"
+            className="text-grey-400 mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0"
+          >
+            <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
+          </h1>
+        </header>
+        <FtlMsg id="pair-download-subheader">
+          <h2
+            ref={downloadHeaderRef}
+            id="pair-header-mobile"
+            className="card-header focus:outline-none"
+            tabIndex={-1}
+          >
+            Download Firefox for mobile
+          </h2>
+        </FtlMsg>
+
+        <section>
+          {error && (
+            <Banner type="error" content={{ localizedHeading: error }} />
+          )}
+          <FtlMsg id="pair-download-description">
+            <p className="text-base mt-2">
+              To sync Firefox on your phone or tablet, you first need to
+              download Firefox for mobile. Here’s how:
+            </p>
+          </FtlMsg>
+          <ol>
+            <li>
+              <FtlMsg
+                id="pair-download-step-scan-qr"
+                vars={{ stepNumber: 1 }}
+                elems={{ b: <b /> }}
+              >
+                <p className="text-base mt-5">
+                  <b>Step 1</b>: Download Firefox by scanning this QR code with
+                  the camera on your mobile device:
+                </p>
+              </FtlMsg>
+              <QRCode
+                value={buildPairingDownloadUrl(integration?.data.entrypoint)}
+                localizedLabel={localizedQRCodeLabel}
+                logoSrc={firefoxLogo}
+                size={224}
+                loadingDelayMs={200}
+                className="my-10 mx-auto"
+              />
+            </li>
+            <li>
+              <FtlMsg
+                id="pair-download-step-continue-sync"
+                vars={{ stepNumber: 2 }}
+                elems={{ b: <b /> }}
+              >
+                <p className="text-base mb-5">
+                  <b>Step 2</b>: Select “Continue to sync” to sync your Firefox
+                  experience on your mobile device.
+                </p>
+              </FtlMsg>
+            </li>
+          </ol>
+
+          <div className="flex">
+            <FtlMsg id="pair-continue-to-sync-button">
+              <CmsButtonWithFallback
+                id="start-pairing"
+                type="button"
+                onClick={handleSyncDeviceSubmit}
+                buttonColor={cmsButtonColor}
+              >
+                Continue to sync
+              </CmsButtonWithFallback>
+            </FtlMsg>
+          </div>
+          <p className="mt-5 text-sm text-center">
+            <FtlMsg id="pair-not-now-button">
+              <Link
+                id="pair-not-now"
+                className="link-blue"
+                to="/settings"
+                onClick={() => {
+                  GleanMetrics.cadFireFox.notnowSubmit();
+                }}
+              >
+                Not now
+              </Link>
+            </FtlMsg>
+          </p>
+        </section>
+      </AppLayout>
+    );
+  }
 
   return (
-    <>
-      {showQRCode ? (
-        <CardHeader
-          headingTextFtlId="pair-cad-header"
-          headingText="Connect Firefox on another device"
+    <AppLayout cmsInfo={cmsInfo}>
+      {bannerCopy && (
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              bannerCopy.id,
+              bannerCopy.fallback
+            ),
+          }}
         />
+      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
+      {isSendTab ? (
+        <FtlMsg id="pair-choice-header-send-tab">
+          <h1
+            ref={choiceHeaderRef}
+            id="pair-header"
+            data-testid="pair-header"
+            className="card-header focus:outline-none"
+            tabIndex={-1}
+          >
+            Download or open Firefox on the device where you want to send tabs
+          </h1>
+        </FtlMsg>
       ) : (
-        <CardHeader
-          headingTextFtlId="pair-sync-header"
-          headingText="Sync Firefox on your phone or tablet"
-        />
+        <div id="cad-header">
+          <h1 className="mb-5 text-grey-400 text-base">
+            <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
+          </h1>
+          <FtlMsg id="pair-choice-subheader">
+            <h2
+              ref={choiceHeaderRef}
+              id="pair-header"
+              data-testid="pair-header"
+              className="card-header focus:outline-none"
+              tabIndex={-1}
+            >
+              Sync your Firefox experience
+            </h2>
+          </FtlMsg>
+        </div>
       )}
 
       <section>
-        {error && <Banner type="error" content={{ localizedHeading: error }} />}
-        {showQRCode ? (
-          <>
-            <div className="mt-9 mb-5">
-              <FtlMsg id="pair-already-have-firefox-paragraph">
-                <p className="text-sm">
-                  Already have Firefox on a phone or tablet?
-                </p>
-              </FtlMsg>
-            </div>
-            <div className="flex">
-              <FtlMsg id="pair-sync-your-device-button">
-                <button
-                  className="cta-primary cta-xl"
-                  type="button"
-                  onClick={() => {
-                    onSubmit();
-                  }}
-                >
-                  Sync your device
-                </button>
-              </FtlMsg>
-            </div>
-            <FtlMsg id="pair-or-download-subheader">
-              <h2 className="text-lg font-bold mt-10">Or download</h2>
+        {!isSendTab && (
+          <FtlMsg id="pair-choice-description">
+            <p className="my-3 text-base">
+              View your saved passwords, tabs, browsing history and more —
+              across all your devices.
+            </p>
+          </FtlMsg>
+        )}
+
+        <form noValidate id="form-ask-mobile-status">
+          <fieldset>
+            <FtlMsg id="pair-choice-legend">
+              <legend className="mb-4 mt-3 text-base font-semibold">
+                Select an option to continue:
+              </legend>
             </FtlMsg>
-            <FtlMsg
-              id="pair-scan-to-download-message"
-              elems={{
-                linkExternal: (
-                  <LinkExternal
-                    href="https://www.mozilla.org/firefox/mobile/get-app/"
-                    className="link-blue"
-                  >
-                    download link.
-                  </LinkExternal>
-                ),
+            <div className="input-radio-wrapper">
+              <input
+                className="input-radio"
+                type="radio"
+                id="has-mobile"
+                data-testid="has-mobile"
+                name="mobile-download"
+                checked={selectedRadio === 'has-mobile'}
+                onChange={() => handleRadioChange('has-mobile')}
+              />
+              <label className="input-radio-label" htmlFor="has-mobile">
+                <div className="pe-3">
+                  <FtlMsg id="pair-choice-has-mobile-title">
+                    <strong className="block mb-2 text-base">
+                      I already have Firefox for mobile
+                    </strong>
+                  </FtlMsg>
+                  <FtlMsg id="pair-choice-has-mobile-description">
+                    <span>
+                      Start your sync now if you already have Firefox on your
+                      mobile device.
+                    </span>
+                  </FtlMsg>
+                </div>
+                <img
+                  src={mobileFirefoxIcon}
+                  alt=""
+                  aria-hidden="true"
+                  data-testid="pair-choice-icon-has-mobile"
+                  className="w-14 h-14 shrink-0 self-center"
+                />
+              </label>
+            </div>
+            <div className="input-radio-wrapper">
+              <input
+                className="input-radio"
+                type="radio"
+                id="needs-mobile"
+                data-testid="needs-mobile"
+                name="mobile-download"
+                checked={selectedRadio === 'needs-mobile'}
+                onChange={() => handleRadioChange('needs-mobile')}
+              />
+              <label className="input-radio-label" htmlFor="needs-mobile">
+                <div className="pe-3">
+                  <FtlMsg id="pair-choice-needs-mobile-title">
+                    <strong className="block mb-2 text-base">
+                      I don’t have Firefox for mobile
+                    </strong>
+                  </FtlMsg>
+                  <FtlMsg id="pair-choice-needs-mobile-description">
+                    <span>
+                      Download Firefox on your mobile device, then start your
+                      sync.
+                    </span>
+                  </FtlMsg>
+                </div>
+                <img
+                  src={mobileDownloadIcon}
+                  alt=""
+                  aria-hidden="true"
+                  data-testid="pair-choice-icon-needs-mobile"
+                  className="w-14 h-14 shrink-0 self-center"
+                />
+              </label>
+            </div>
+          </fieldset>
+
+          <div className="flex mt-6">
+            <FtlMsg id="pair-choice-continue-button">
+              <CmsButtonWithFallback
+                id="set-needs-mobile"
+                data-testid="pair-continue-btn"
+                type="button"
+                disabled={!selectedRadio}
+                onClick={handleChoiceSubmit}
+                buttonColor={cmsButtonColor}
+              >
+                Continue
+              </CmsButtonWithFallback>
+            </FtlMsg>
+          </div>
+        </form>
+
+        <p className="mt-5 text-sm text-center">
+          <FtlMsg id="pair-not-now-button">
+            <Link
+              id="choice-pair-not-now"
+              className="link-blue"
+              to="/settings"
+              onClick={() => {
+                GleanMetrics.cadFireFox.choiceNotnowSubmit();
               }}
             >
-              <p className="my-5 px-16 text-sm">
-                Scan to download Firefox for mobile, or send yourself a{' '}
-                <LinkExternal
-                  href="https://www.mozilla.org/firefox/mobile/get-app/"
-                  className="link-blue"
-                >
-                  download link.
-                </LinkExternal>
-              </p>
-            </FtlMsg>
-            <div
-              className="mx-auto w-48 h-48"
-              role="img"
-              aria-label={localizedQRCodeLabel}
-            ></div>
-            <p className="mt-5 text-sm">
-              <FtlMsg id="pair-not-now-button">
-                <Link
-                  className="link-blue"
-                  to="/settings"
-                  onClick={() => {
-                    GleanMetrics.cadFireFox.notnowSubmit();
-                  }}
-                >
-                  Not now
-                </Link>
-              </FtlMsg>
-            </p>
-          </>
-        ) : (
-          <>
-            <HeartsVerifiedImage />
-            <FtlMsg id="pair-take-your-message">
-              <p className="mt-5 mb-5 px-16 text-sm">
-                Take your tabs, bookmarks, and passwords anywhere you use
-                Firefox.
-              </p>
-            </FtlMsg>
-            <div className="flex">
-              <FtlMsg id="pair-get-started-button">
-                <button
-                  className="cta-primary cta-xl"
-                  onClick={() => onSubmit()}
-                  type="button"
-                >
-                  Get started
-                </button>
-              </FtlMsg>
-            </div>
-          </>
-        )}
+              Not now
+            </Link>
+          </FtlMsg>
+        </p>
       </section>
-    </>
+    </AppLayout>
   );
 };
 

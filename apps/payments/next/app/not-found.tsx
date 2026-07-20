@@ -6,8 +6,8 @@ import { getApp } from '@fxa/payments/ui/server';
 import { PageNotFound } from '@fxa/payments/ui';
 import { headers } from 'next/headers';
 
-export default function NotFoundPage() {
-  const acceptLanguage = headers().get('accept-language');
+export default async function NotFoundPage() {
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
 
   return (

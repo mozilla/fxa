@@ -38,6 +38,7 @@ export type UAScalarProperties = {
 
 // @ts-ignore
 import * as ua from 'node-uap';
+import { Account } from '../db/models';
 
 // We know this won't match "Symbian^3", "UI/WKWebView" or "Mail.ru" but
 // it's simpler and safer to limit to alphanumerics, underscore and space.
@@ -217,10 +218,75 @@ function marshallDeviceType(formFactor: string) {
   return 'mobile';
 }
 
+/**
+ * Format user agent info safely for email templates.
+ * Returns undefined if no valid browser or OS info is available.
+ *
+ * @param uaBrowser - Browser name from user agent
+ * @param uaOS - OS name from user agent
+ * @param uaOSVersion - OS version from user agent
+ */
+export const formatUserAgentInfo = ({
+  browser,
+  os,
+  osVersion,
+}: {
+  browser?: string;
+  os?: string;
+  osVersion?: string;
+}): {
+  uaBrowser: string;
+  uaOS: string;
+  uaOSVersion: string;
+} => {
+  const safeBrowser = safeReturnName(browser || '');
+  const safeOS = safeReturnName(os || '');
+  const safeOSVersion = safeReturnVersion(osVersion || '');
+
+  return !safeBrowser && !safeOS
+    ? {
+        uaBrowser: '',
+        uaOS: '',
+        uaOSVersion: '',
+      }
+    : {
+        uaBrowser: safeBrowser || '',
+        uaOS: safeOS || '',
+        uaOSVersion: safeOSVersion || '',
+      };
+};
+
+export type SignoutPlatform = 'desktop' | 'ios' | 'android' | 'unknown';
+
+/** Maps a parsed user-agent OS to a coarse platform label for sign-out telemetry. */
+export const platformFromOS = (os?: string | null): SignoutPlatform => {
+  if (!os) {
+    return 'unknown';
+  }
+  if (/ios|iphone|ipad/i.test(os)) {
+    return 'ios';
+  }
+  if (/android/i.test(os)) {
+    return 'android';
+  }
+  // Explicitly match known desktop OS families; anything unrecognized is
+  // classified as unknown rather than assumed to be desktop.
+  if (
+    /windows(?! ?(phone|mobile))|mac ?os|linux|chrome ?os|ubuntu|debian|fedora|red hat|gentoo|slackware|suse|solaris|bsd/i.test(
+      os
+    )
+  ) {
+    return 'desktop';
+  }
+  return 'unknown';
+};
+
 export default {
   parse,
   parseToScalars,
   isToVersionStringSupported,
+  formatUserAgentInfo,
+  platformFromOS,
   safeName: safeReturnName,
   safeVersion: safeReturnVersion,
 };

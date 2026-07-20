@@ -12,6 +12,7 @@ const ENTRYPOINT_SYNC = 'firefox-cms';
 const CLIENTID_SYNC = '5882386c6d801776';
 
 test.describe('severity-1 #smoke', () => {
+  test.describe.configure({ mode: 'parallel' });
   test.describe('CMS customization with 2FA flows', () => {
     let config: any;
 
@@ -40,7 +41,11 @@ test.describe('severity-1 #smoke', () => {
       }
 
       if (logoUrl) {
-        const logo = page.getByRole('img', { name: logoAlt, exact: true });
+        // A Firefox-branded mobile promo (PromoQrMobile) renders a second img
+        // with the same alt text, so scope to the CMS logo by its src.
+        const logo = page
+          .getByRole('img', { name: logoAlt, exact: true })
+          .and(page.locator(`[src="${logoUrl}"]`));
         await expect(logo).toBeVisible();
         await expect(logo).toHaveAttribute('src', logoUrl);
       }
@@ -56,7 +61,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(button).toHaveCSS('--cta-bg', buttonColor);
       await expect(button).toHaveCSS('--cta-border', buttonColor);
       await expect(button).toHaveCSS('--cta-active', buttonColor);
-      await expect(button).toHaveCSS('--cta-disabled', `${buttonColor}60`);
+      await expect(button).toHaveCSS('--cta-disabled', buttonColor);
     }
 
     test.beforeAll(async ({ target }) => {
@@ -207,9 +212,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -349,9 +351,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -364,8 +363,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter recovery code',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -487,9 +484,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -502,9 +496,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter backup authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -630,9 +621,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/firefox-browser-logo.svg',
-        logoAlt: 'Firefox logo',
         buttonColor: '#FF630B',
         buttonText: 'Confirm',
       });

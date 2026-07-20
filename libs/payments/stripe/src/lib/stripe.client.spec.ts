@@ -4,10 +4,12 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 import { Stripe } from 'stripe';
 
 import {
   StripeApiListFactory,
+  StripeApiListPromiseFactory,
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
@@ -16,6 +18,7 @@ import { StripePaymentMethodFactory } from './factories/payment-method.factory';
 import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
+import { StripeSetupIntentFactory } from './factories/setup-intent.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
@@ -57,6 +60,14 @@ const mockStripeSubscriptionsRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.retrieve>();
 const mockStripeSubscriptionsUpdate =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.update>();
+const mockStripeSetupIntentsCancel =
+  mockJestFnGenerator<typeof Stripe.prototype.setupIntents.cancel>();
+const mockStripeSetupIntentsConfirm =
+  mockJestFnGenerator<typeof Stripe.prototype.setupIntents.confirm>();
+const mockStripeSetupIntentsCreate =
+  mockJestFnGenerator<typeof Stripe.prototype.setupIntents.create>();
+const mockStripeSetupIntentsRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.setupIntents.retrieve>();
 
 jest.mock('stripe', () => ({
   Stripe: function () {
@@ -92,6 +103,12 @@ jest.mock('stripe', () => ({
         retrieve: mockStripeSubscriptionsRetrieve,
         update: mockStripeSubscriptionsUpdate,
       },
+      setupIntents: {
+        cancel: mockStripeSetupIntentsCancel,
+        confirm: mockStripeSetupIntentsConfirm,
+        create: mockStripeSetupIntentsCreate,
+        retrieve: mockStripeSetupIntentsRetrieve,
+      },
     };
   },
 }));
@@ -101,7 +118,12 @@ describe('StripeClient', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, MockStatsDProvider],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        MockStatsDProvider,
+        MockLoggerProvider,
+      ],
     }).compile();
 
     stripeClient = module.get(StripeClient);
@@ -164,6 +186,20 @@ describe('StripeClient', () => {
         customer: mockCustomer.id,
       });
       expect(result).toEqual(mockSubscriptionList);
+    });
+  });
+
+  describe('subscriptionsListGenerator', () => {
+    it('returns generator that yields subscriptions from Stripe', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+
+      mockStripeSubscriptionsList.mockResolvedValue(
+        StripeApiListPromiseFactory([mockSubscription])
+      );
+
+      const generator = stripeClient.subscriptionsListGenerator();
+      const result = (await generator.next()).value;
+      expect(result).toEqual(mockSubscription);
     });
   });
 
@@ -348,6 +384,65 @@ describe('StripeClient', () => {
       const result = await stripeClient.promotionCodesRetrieve(
         mockPromoCode.id
       );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('setupIntentCancel', () => {
+    it('cancels a setup intent within Stripe', async () => {
+      const mockSetupIntent = StripeSetupIntentFactory();
+      const mockResponse = StripeResponseFactory(mockSetupIntent);
+
+      mockStripeSetupIntentsCancel.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.setupIntentCancel(mockSetupIntent.id);
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('setupIntentCreate', () => {
+    it('creates a setup intent within Stripe', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSetupIntent = StripeSetupIntentFactory();
+      const mockResponse = StripeResponseFactory(mockSetupIntent);
+
+      mockStripeSetupIntentsCreate.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.setupIntentCreate({
+        customer: mockCustomer.id,
+        confirm: true,
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('setupIntentRetrieve', () => {
+    it('retrieves a setup intent within Stripe', async () => {
+      const mockSetupIntent = StripeSetupIntentFactory();
+      const mockResponse = StripeResponseFactory(mockSetupIntent);
+
+      mockStripeSetupIntentsRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.setupIntentRetrieve(mockSetupIntent.id);
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('setupIntentConfirm', () => {
+    it('confirms a setup intent within Stripe', async () => {
+      const mockSetupIntent = StripeSetupIntentFactory();
+      const mockResponse = StripeResponseFactory(mockSetupIntent);
+      const mockConfirmationToken = 'ctoken_12345';
+
+      mockStripeSetupIntentsConfirm.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.setupIntentConfirm(mockSetupIntent.id, {
+        confirmation_token: mockConfirmationToken,
+      });
+
       expect(result).toEqual(mockResponse);
     });
   });

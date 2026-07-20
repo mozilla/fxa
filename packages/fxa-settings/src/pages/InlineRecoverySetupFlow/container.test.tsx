@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ApolloClientModule from '@apollo/client';
 import * as InlineRecoverySetupModule from '.';
 import * as utils from 'fxa-react/lib/utils';
 
-import { ApolloClient } from '@apollo/client';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
@@ -27,9 +25,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { waitFor } from '@testing-library/react';
 import {
   MOCK_CLIENT_ID,
-  MOCK_NO_TOTP,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-  MOCK_TOTP_STATUS_VERIFIED,
 } from '../Signin/mocks';
 import {
   useFinishOAuthFlowHandler,
@@ -55,10 +51,10 @@ const mockLocationHook = () => {
 };
 
 const mockNavigateHook = jest.fn();
-jest.mock('@reach/router', () => {
+jest.mock('react-router', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('@reach/router'),
+    ...jest.requireActual('react-router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook(),
   };
@@ -136,36 +132,22 @@ jest.mock('./index', () => {
 });
 
 let mockCompleteTotpSetup = jest.fn().mockResolvedValue({ success: true });
+let mockCheckTotpTokenExists = jest.fn();
 
-let mockTotpStatusQuery = jest.fn();
 function setMocks() {
   mockLocationState = {};
   mockSessionHook = () => ({ token: 'ABBA' });
   // Reset generated codes mock between tests to avoid cross-test contamination
   mockGenerateCodes = jest.fn((...args: any[]) => ['wibble', 'quux']);
 
-  jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
-    (async () => ({})) as any,
-    {
-      loading: false,
-      called: false,
-      client: {} as ApolloClient<any>,
-      reset: () => {},
-    },
-  ]);
-  mockTotpStatusQuery.mockImplementation(() => {
-    return {
-      data: MOCK_NO_TOTP,
-      loading: false,
-    };
-  });
-  jest
-    .spyOn(ApolloClientModule, 'useQuery')
-    .mockReturnValue(mockTotpStatusQuery());
+  // Default: TOTP doesn't exist
+  mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
   (InlineRecoverySetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
   mockCompleteTotpSetup.mockClear();
+  mockCheckTotpTokenExists.mockClear();
   (mockAuthClient as any).completeTotpSetup = mockCompleteTotpSetup;
+  (mockAuthClient as any).checkTotpTokenExists = mockCheckTotpTokenExists;
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
       .fn()
@@ -197,9 +179,9 @@ const defaultProps = {
 
 function render(props = {}) {
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <InlineRecoverySetupContainer {...{ ...defaultProps, ...props }} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 
@@ -217,37 +199,35 @@ describe('InlineRecoverySetupContainer', () => {
       });
     });
 
-    it('redirects when there is no signin state', () => {
+    it('redirects when there is no signin state', async () => {
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      });
     });
 
-    it('redirects when there is no totp token', () => {
+    it('redirects when there is no totp token', async () => {
       mockLocationState = MOCK_SIGNIN_LOCATION_STATE;
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      });
     });
 
     it('redirects when totp is already active', async () => {
       mockSessionHook = () => ({ isSessionVerified: async () => true });
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: MOCK_TOTP_STATUS_VERIFIED,
-          loading: false,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
       mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
 
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signin_totp_code${search}`,
-        {
-          state: MOCK_SIGNIN_LOCATION_STATE,
-        }
-      );
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signin_totp_code${search}`,
+          {
+            state: MOCK_SIGNIN_LOCATION_STATE,
+          }
+        );
+      });
     });
   });
 
@@ -266,9 +246,10 @@ describe('InlineRecoverySetupContainer', () => {
       render();
       await waitFor(() => {
         expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
-        const args = (InlineRecoverySetupModule.default as jest.Mock).mock
-          .calls[0][0];
-        expect(args.backupCodes).toEqual([]);
+        // Get the most recent call since codes may be generated
+        const calls = (InlineRecoverySetupModule.default as jest.Mock).mock.calls;
+        const args = calls[calls.length - 1][0];
+        // Codes are auto-generated now, so they may already be populated
         expect(args.serviceName).toBe(defaultProps.serviceName);
         expect(args.email).toBe(MOCK_SIGNIN_RECOVERY_LOCATION_STATE.email);
         expect(args.currentStep).toBe(1);
@@ -295,28 +276,19 @@ describe('InlineRecoverySetupContainer', () => {
       });
     });
 
-    it('shows code-download flow first and toggles generatingCodes during auto-generation when phone is unavailable', async () => {
+    it('shows code-download flow first and generates codes when phone is unavailable', async () => {
       recoveryPhoneFn = jest.fn().mockReturnValue({ available: false });
 
       render();
 
-      // Initial render after effect starts generation
+      // After codes finish generating, props should reflect the new codes
       await waitFor(() => {
+        expect(mockGenerateCodes).toHaveBeenCalled();
         expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
         const args = (
           InlineRecoverySetupModule.default as jest.Mock
         ).mock.calls.slice(-1)[0][0];
         expect(args.flowHasPhoneChoice).toBe(false);
-        expect(args.generatingCodes).toBe(true);
-        expect(args.backupCodes).toEqual([]);
-      });
-
-      // After codes finish generating, props should reflect the new codes and loading false
-      await waitFor(() => {
-        expect(mockGenerateCodes).toHaveBeenCalled();
-        const args = (
-          InlineRecoverySetupModule.default as jest.Mock
-        ).mock.calls.slice(-1)[0][0];
         expect(args.generatingCodes).toBe(false);
         expect(args.backupCodes).toEqual(['wibble', 'quux']);
       });
@@ -324,9 +296,11 @@ describe('InlineRecoverySetupContainer', () => {
 
     it('reads data from sensitive data client', async () => {
       render();
-      expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
-        SensitiveData.Key.Auth
-      );
+      await waitFor(() => {
+        expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
+          SensitiveData.Key.Auth
+        );
+      });
     });
 
     describe('callbacks', () => {

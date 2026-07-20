@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import AuthorizationContainer from './container';
+import { Config } from '../../lib/config';
 import { OAUTH_ERRORS } from '../../lib/oauth/oauth-errors';
 import { Integration } from '../../models';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import { MemoryRouter } from 'react-router';
 
 // Mocked Modules
 import * as CacheModule from '../../lib/cache';
@@ -19,9 +20,21 @@ import * as ModelsModule from '../../models';
 import * as ReactUtilsModule from 'fxa-react/lib/utils';
 import * as OAuthHooksModule from '../../lib/oauth/hooks';
 import * as HooksModule from '../../lib/hooks/useNavigateWithQuery';
-import * as ReachRouterModule from '@reach/router';
 import * as ModelsHooksModule from '../../models/hooks';
 import * as OAuthWebIntegrationModule from '../../models/integrations/oauth-web-integration';
+
+let mockLocationSearch = '';
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({
+    search: mockLocationSearch,
+    pathname: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  }),
+}));
 
 describe('AuthorizationContainer', () => {
   const mockAccount = {
@@ -32,7 +45,9 @@ describe('AuthorizationContainer', () => {
 
   function render(integration: unknown) {
     return renderWithLocalizationProvider(
-      <AuthorizationContainer integration={integration as Integration} />
+      <MemoryRouter>
+        <AuthorizationContainer integration={integration as Integration} />
+      </MemoryRouter>
     );
   }
 
@@ -45,13 +60,9 @@ describe('AuthorizationContainer', () => {
     validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
   } as unknown as ModelsModule.Session;
 
-  const mockLocation = {
-    search: '',
-  } as unknown as ReachRouterModule.WindowLocation<unknown>;
-
-  const mockUseLocation = jest.spyOn(ReachRouterModule, 'useLocation');
   const mockUseSession = jest.spyOn(ModelsHooksModule, 'useSession');
   const mockUseAuthClient = jest.spyOn(ModelsHooksModule, 'useAuthClient');
+  const mockUseConfig = jest.spyOn(ModelsHooksModule, 'useConfig');
   const mockIsOauthWebIntegration = jest.spyOn(
     OAuthWebIntegrationModule,
     'isOAuthWebIntegration'
@@ -75,9 +86,11 @@ describe('AuthorizationContainer', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    mockLocation.search = '';
-    mockUseLocation.mockReturnValue(mockLocation);
+    mockLocationSearch = '';
     mockUseAuthClient.mockReturnValue(mockAuthClient);
+    mockUseConfig.mockReturnValue({
+      servicesWithEmailVerification: ['test-service-id'],
+    } as Config);
     mockUseSession.mockReturnValue(mockSession);
     mockIsOauthWebIntegration.mockReturnValue(true);
     mockCurrentAccount.mockReturnValue(mockAccount);
@@ -92,6 +105,7 @@ describe('AuthorizationContainer', () => {
         uid: mockAccount.uid,
         sessionVerified: true,
         emailVerified: true,
+        totpIsActive: false,
       },
       error: undefined,
     });
@@ -126,6 +140,7 @@ describe('AuthorizationContainer', () => {
       },
       wantsPromptNone: jest.fn().mockReturnValue(true),
       returnOnError: jest.fn().mockReturnValue(false),
+      getClientId: jest.fn().mockReturnValue('some-other-client'),
       validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -196,7 +211,7 @@ describe('AuthorizationContainer', () => {
   });
 
   it('navigates to /oauth when action=email', async () => {
-    mockLocation.search = '?foo=1&showReactApp=1';
+    mockLocationSearch = '?foo=1&showReactApp=1';
     const mockIntegration = {
       data: {
         redirectTo: '/settings',
@@ -214,7 +229,7 @@ describe('AuthorizationContainer', () => {
   });
 
   it('navigates to /signin when action is signin', async () => {
-    mockLocation.search = '?x=1&showReactApp=1';
+    mockLocationSearch = '?x=1&showReactApp=1';
     const mockIntegration = {
       data: {
         action: 'signin',
@@ -227,6 +242,73 @@ describe('AuthorizationContainer', () => {
     await waitFor(() => {
       expect(ReactUtilsModule.hardNavigate).toHaveBeenCalledWith('/signin?x=1');
     });
+  });
+
+  it('does not hardNavigate to an external origin for a non-allowlisted action', async () => {
+    mockLocationSearch = '?x=1&showReactApp=1';
+    const mockIntegration = {
+      data: {
+        action: '/evil.example',
+      },
+      wantsPromptNone: jest.fn().mockReturnValue(false),
+    };
+
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/oauth');
+    });
+    expect(ReactUtilsModule.hardNavigate).not.toHaveBeenCalled();
+  });
+
+  it('rejects prompt=none and shows error when session is unverified and returnOnError=false for servicesWithEmailVerification client', async () => {
+    mockCachedSignIn.mockResolvedValue({
+      data: {
+        verificationMethod: VerificationMethods.EMAIL_OTP,
+        verificationReason: VerificationReasons.SIGN_IN,
+        uid: mockAccount.uid,
+        sessionVerified: false,
+        emailVerified: true,
+        totpIsActive: false,
+      },
+      error: undefined,
+    });
+
+    const mockIntegration = {
+      data: {
+        redirectTo: '/settings',
+      },
+      wantsPromptNone: jest.fn().mockReturnValue(true),
+      returnOnError: jest.fn().mockReturnValue(false),
+      getClientId: jest.fn().mockReturnValue('test-service-id'),
+      validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
+    };
+
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Unverified user or session')).toBeInTheDocument();
+    expect(SigninUtilsModule.handleNavigation).not.toHaveBeenCalled();
+  });
+
+  it('allows prompt=none with verified session for servicesWithEmailVerification client', async () => {
+    const mockIntegration = {
+      data: {
+        redirectTo: '/settings',
+      },
+      wantsPromptNone: jest.fn().mockReturnValue(true),
+      returnOnError: jest.fn().mockReturnValue(false),
+      getClientId: jest.fn().mockReturnValue('test-service-id'),
+      validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
+    };
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(SigninUtilsModule.handleNavigation).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryByText('Bad Request')).not.toBeInTheDocument();
   });
 
   it("navigates to '/oauth' when no action is provided and not prompt=none", async () => {

@@ -73,13 +73,36 @@ const DEFAULTS = _.extend(
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
+    recoveryKey: undefined,
   },
   PERSISTENT
 );
 
 const ALLOWED_KEYS = Object.keys(DEFAULTS);
 const ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
-const DEPRECATED_KEYS = ['ecosystemAnonId', 'needsOptedInToMarketingEmail'];
+const DEPRECATED_KEYS = [
+  'ecosystemAnonId',
+  'needsOptedInToMarketingEmail',
+  // The following are transient UI state from fxa-settings (should not be persisted)
+  'sessionVerified',
+  'loadingFields',
+  'isLoading',
+  'error',
+  // The following are fxa-settings extended account data (ignored by content-server)
+  'avatar',
+  'accountCreated',
+  'passwordCreated',
+  'emails',
+  'totp',
+  'backupCodes',
+  'passkeys',
+  // Note: 'recoveryKey' is NOT deprecated - it contains estimatedSyncDeviceCount needed by fxa-settings
+  'recoveryPhone',
+  'attachedClients',
+  'linkedAccounts',
+  'subscriptions',
+  'securityEvents',
+];
 
 const CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
@@ -1159,29 +1182,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Create a support ticket on Zendesk.
-     *
-     * @param {Object} [supportTicket={}]
-     *   @param {String} [supportTicket.plan]
-     *   @param {String} [supportTicket.topic]
-     *   @param {String} [supportTicket.subject] Optional subject
-     *   @param {String} [supportTicket.message]
-     * @returns {Promise} - resolves with:
-     *   - `success`
-     *   - `ticket` OR `error`
-     */
-    createSupportTicket(supportTicket) {
-      return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        (accessToken) => {
-          return this._fxaClient.createSupportTicket(
-            accessToken.get('token'),
-            supportTicket
-          );
-        }
-      );
-    },
-
-    /**
      * Update a user newsletters subscription.
      *
      * @param {String[]} [newsletters]
@@ -1703,15 +1703,6 @@ const Account = Backbone.Model.extend(
      */
     createCadReminder() {
       return this._fxaClient.createCadReminder(this.get('sessionToken'));
-    },
-
-    /**
-     * Sends a push notification to verify a login request.
-     *
-     * @returns {Promise} resolves with response when complete.
-     */
-    sendPushLoginRequest() {
-      return this._fxaClient.sendPushLoginRequest(this.get('sessionToken'));
     },
   },
   {

@@ -116,7 +116,8 @@ export class RelyingPartyConfigurationManager {
               locale: args[0],
             });
           }
-        }
+        },
+        context.log
       ),
     ttlSeconds: (args: any) => {
       // Get TTL from config, fallback to 5 minutes if not specified
@@ -147,7 +148,8 @@ export class RelyingPartyConfigurationManager {
             cacheType: result,
             locale: args[0],
           });
-        }
+        },
+        context.log
       );
     },
     ttlSeconds: (args: any) => {

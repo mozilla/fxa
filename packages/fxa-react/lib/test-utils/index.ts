@@ -40,32 +40,6 @@ function getFtlPath(packageName: string | null, locale: string) {
         );
       }
       break;
-    case 'payments':
-      if (locale === 'en') {
-        ftlPath = path.join(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          'fxa-payments-server',
-          'test',
-          'payments.ftl'
-        );
-      } else {
-        // TODO: Not currently used, but probably want to add one translation test
-        ftlPath = path.join(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          'fxa-payments-server',
-          'public',
-          'locales',
-          locale,
-          'payments.ftl'
-        );
-      }
-      break;
     case 'react':
       if (locale === 'en') {
         ftlPath = path.join(

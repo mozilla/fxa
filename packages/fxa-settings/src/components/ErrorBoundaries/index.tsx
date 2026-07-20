@@ -13,11 +13,12 @@ import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 export class AppErrorBoundary extends React.Component<{ children: ReactNode }> {
   state: {
     error?: Error;
+    sentryEventId?: string;
   };
 
   constructor(props: { children: React.ReactNode }) {
     super(props);
-    this.state = { error: undefined };
+    this.state = { error: undefined, sentryEventId: undefined };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -25,32 +26,51 @@ export class AppErrorBoundary extends React.Component<{ children: ReactNode }> {
   }
 
   componentDidCatch(error: Error) {
+    let sentryEventId: string;
     if (error instanceof ModelValidationErrors) {
       console.error('Model Validation errors encountered', error);
-      Sentry.captureException(error, {
+      sentryEventId = Sentry.captureException(error, {
         tags: { source: 'AppErrorBoundary', condition: error.condition },
       });
     } else {
       console.error('AppError', error);
-      Sentry.captureException(error, { tags: { source: 'AppErrorBoundary' } });
+      sentryEventId = Sentry.captureException(error, {
+        tags: { source: 'AppErrorBoundary' },
+      });
     }
-    this.setState({ error });
+    this.setState({ error, sentryEventId });
   }
 
   render() {
     if (this.state.error) {
-      return <AppError error={this.state.error} />;
+      return (
+        <AppError
+          error={this.state.error}
+          sentryEventId={this.state.sentryEventId}
+        />
+      );
     }
 
     return this.props.children;
   }
 }
 
-export const AppError = ({ error }: { error?: Error }) => {
+export const AppError = ({
+  error,
+  sentryEventId,
+}: {
+  error?: Error;
+  sentryEventId?: string;
+}) => {
   // Special handling for validation errors
   if (error instanceof ModelValidationErrors) {
-    return <AppErrorDialog errorType="query-parameter-violation" />;
+    return (
+      <AppErrorDialog
+        errorType="query-parameter-violation"
+        {...{ error, sentryEventId }}
+      />
+    );
   }
 
-  return <AppErrorDialog />;
+  return <AppErrorDialog {...{ error, sentryEventId }} />;
 };

@@ -159,6 +159,15 @@ export class OAuthWebIntegration extends GenericIntegration<
     return this.clientInfo;
   }
 
+  checkClientInfo() {
+    if (this.clientInfoLoadFailed) {
+      throw new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    }
+    if (!this.clientInfo?.clientId) {
+      throw new OAuthError(OAUTH_ERRORS.UNKNOWN_CLIENT.errno);
+    }
+  }
+
   isTrusted() {
     return this.clientInfo?.trusted === true;
   }
@@ -188,39 +197,18 @@ export class OAuthWebIntegration extends GenericIntegration<
     return tokens.includes(Constants.TWO_STEP_AUTHENTICATION_ACR);
   }
 
-  wantsKeys(): boolean {
-    if (!this.opts.scopedKeysEnabled) {
-      return false;
-    }
-    if (this.data.keysJwk == null) {
-      return false;
-    }
-    if (!this.data.scope) {
-      return false;
-    }
-
-    const validation = this.opts.scopedKeysValidation;
-    const individualScopes = scopeStrToArray(this.data.scope || '');
-
-    let wantsScopeThatHasKeys = false;
-    individualScopes.forEach((scope) => {
-      // eslint-disable-next-line no-prototype-builtins
-      if (validation.hasOwnProperty(scope)) {
-        if (
-          validation[scope].redirectUris.includes(this.clientInfo?.redirectUri)
-        ) {
-          wantsScopeThatHasKeys = true;
-        } else {
-          // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
-          throw new Error('Invalid redirect parameter');
-        }
-      }
-    });
-
-    return wantsScopeThatHasKeys;
-  }
-
   getPermissions() {
+    // If the /v1/oauth/client/:id fetch failed during factory initialisation,
+    // `isTrusted()` returns false and scope sanitisation would strip every
+    // scope a real RP typically asks for, throwing an errno-109 that looks
+    // like an RP misconfiguration. Surface the real cause (service
+    // unavailable) so the App-level catch renders OAuthDataError without a
+    // misleading Sentry capture here — the fetch failure is already logged
+    // from useClientInfoState.
+    if (this.clientInfoLoadFailed) {
+      throw new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    }
+
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
 
@@ -245,15 +233,22 @@ export class OAuthWebIntegration extends GenericIntegration<
       // capture error to Sentry, but throw so it can be handled
       // in app/index. We check the integration type and present
       // an OAuthDataError component.
-      Sentry.captureException(err, {
-        tags: { area: 'OAuthWebIntegration.getPermissions' },
-        extra: {
-          scope: this.data.scope,
+      const extra = {
+        scope: this.data.scope || 'undefined',
+        wantsConsent: this.data.prompt || 'undefined',
+        clientId: this.data.clientId || 'undeifned',
+        service: this.data.service || 'undefined',
+        clientInfo: this.clientInfo || 'undefined',
+      };
+      err.sentryEventId = Sentry.captureException(err, {
+        tags: {
+          area: 'OAuthWebIntegration.getPermissions',
           clientId: this.data.clientId,
-          trusted: this.isTrusted(),
-          wantsConsent: this.wantsConsent(),
-          clientInfo: this.clientInfo,
           service: this.data.service,
+        },
+        extra: {
+          ...extra,
+          raw: btoa(JSON.stringify(extra)),
         },
       });
       throw err;
@@ -288,7 +283,7 @@ export class OAuthWebIntegration extends GenericIntegration<
       throw new OAuthError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
     }
 
-    if (this.wantsKeys()) {
+    if (this._scopeRequestsKeys()) {
       throw new OAuthError('PROMPT_NONE_WITH_KEYS');
     }
 
@@ -319,12 +314,68 @@ export class OAuthWebIntegration extends GenericIntegration<
     }
   }
 
+  // Currently only Firefox Sync requires scoped keys, but historically other
+  // redirect-based RPs have used them (e.g. Notes). Our functional tests verify
+  // this case. When keys are requested, `keys: true` must be sent to the auth
+  // server to trigger email verification.
+  wantsKeys(): boolean {
+    return this._scopeRequestsKeys();
+  }
+
+  /**
+   * Checks whether any requested scope has scoped keys configured,
+   * validating the redirect URI matches. Used by OAuthNativeIntegration's
+   * requiresKeys() and wantsKeysIfPasswordEntered(), and by
+   * validatePromptNoneRequest() to reject prompt=none with keys.
+   */
+  protected _scopeRequestsKeys(): boolean {
+    if (!this.opts.scopedKeysEnabled) {
+      return false;
+    }
+    if (this.data.keysJwk == null) {
+      return false;
+    }
+    if (!this.data.scope) {
+      return false;
+    }
+
+    const validation = this.opts.scopedKeysValidation;
+    const individualScopes = scopeStrToArray(this.data.scope || '');
+
+    let wantsScopeThatHasKeys = false;
+    individualScopes.forEach((scope) => {
+      // eslint-disable-next-line no-prototype-builtins
+      if (validation.hasOwnProperty(scope)) {
+        if (
+          validation[scope].redirectUris.includes(this.clientInfo?.redirectUri)
+        ) {
+          wantsScopeThatHasKeys = true;
+        } else {
+          const extra = {
+            scope,
+            redirectUris: validation[scope]?.redirectUris || 'undefined',
+            clientInfo: this.clientInfo || 'undefined',
+          };
+          Sentry.captureMessage(`Invalid redirect parameter`, {
+            extra: {
+              ...extra,
+              raw: btoa(JSON.stringify(extra)),
+            },
+          });
+          throw new Error('Invalid redirect parameter');
+        }
+      }
+    });
+
+    return wantsScopeThatHasKeys;
+  }
+
   getRedirectTo(): string {
     return this.data.redirectTo || '';
   }
 }
 
-function scopeStrToArray(scopes: string) {
+export function scopeStrToArray(scopes: string) {
   const arrScopes = scopes
     .trim()
     .split(/\s+|\++/g)

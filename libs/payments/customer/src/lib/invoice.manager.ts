@@ -131,10 +131,12 @@ export class InvoiceManager {
     priceId,
     customer,
     fromSubscriptionItem,
+    trialEnd,
   }: {
     priceId: string;
     customer: StripeCustomer;
     fromSubscriptionItem: StripeSubscriptionItem;
+    trialEnd?: number;
   }): Promise<InvoicePreview> {
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
       customer: customer.id,
@@ -147,6 +149,7 @@ export class InvoiceManager {
         ],
         proration_behavior: 'always_invoice',
         proration_date: Math.floor(Date.now() / 1000),
+        ...(trialEnd && { trial_end: trialEnd }),
       },
       subscription: fromSubscriptionItem.subscription,
     };
@@ -161,10 +164,12 @@ export class InvoiceManager {
     priceId,
     customer,
     fromSubscriptionItem,
+    trialEnd,
   }: {
     priceId: string;
     customer: StripeCustomer;
     fromSubscriptionItem: StripeSubscriptionItem;
+    trialEnd?: number;
   }): Promise<InvoicePreview> {
     if (!customer.currency) {
       throw new UpgradeCustomerMissingCurrencyInvoiceError(customer.id);
@@ -175,15 +180,18 @@ export class InvoiceManager {
       priceId,
       customer,
       fromSubscriptionItem,
+      trialEnd,
     });
   }
 
   async previewUpcomingSubscription({
     customer,
     subscription,
+    excludeDiscounts,
   }: {
     customer: StripeCustomer;
     subscription: StripeSubscription;
+    excludeDiscounts?: boolean;
   }): Promise<InvoicePreview> {
     const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming({
       customer: customer.id,
@@ -191,6 +199,7 @@ export class InvoiceManager {
       subscription_details: {
         cancel_at_period_end: false,
       },
+      ...(excludeDiscounts ? { discounts: '' } : {}),
     });
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);

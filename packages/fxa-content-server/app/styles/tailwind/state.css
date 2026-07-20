@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .info {
-  @apply flex gap-2 items-center mb-5 p-3 rounded bg-grey-50 text-black;
+  @apply flex gap-2 items-center mb-5 p-3 rounded bg-grey-50 dark:bg-grey-700 text-black dark:text-grey-100;
 }
 
 .info-text {
@@ -16,7 +16,7 @@
 }
 
 .success {
-  @apply text-xs text-grey-900 bg-green-500 font-bold p-3 my-3 hidden rounded;
+  @apply text-xs text-grey-900 dark:text-grey-900 bg-green-500 font-bold p-3 my-3 hidden rounded;
 
   /* REACT NOTE: probably don't need this nesting, add class in JSX instead */
   a {

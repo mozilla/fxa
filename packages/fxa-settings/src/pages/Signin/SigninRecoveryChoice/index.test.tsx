@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ReachRouterModule from '@reach/router';
-
-import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -13,7 +10,11 @@ import SigninRecoveryChoice from '.';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
-import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../mocks';
+import {
+  createMockSigninWebIntegration,
+  MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+} from '../mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 function renderSigninRecoveryChoice(overrides = {}) {
   const defaultProps = {
@@ -26,9 +27,9 @@ function renderSigninRecoveryChoice(overrides = {}) {
   };
 
   renderWithLocalizationProvider(
-    <LocationProvider>
+    <MemoryRouter>
       <SigninRecoveryChoice {...defaultProps} />
-    </LocationProvider>
+    </MemoryRouter>
   );
 }
 
@@ -42,21 +43,26 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-const mockLocation = (pathname: string, mockLocationState: Object) => {
-  return {
-    ...global.window.location,
-    pathname,
-    state: mockLocationState,
-  };
-};
+let mockLocationPathname = '';
+let mockLocationState: any = {};
 
 const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: mockLocationPathname,
+    search: '',
+    hash: '',
+    state: mockLocationState,
+    key: 'default',
+  }),
+}));
+
+function mockReachRouter(pathname = '', locationState = {}) {
   mockNavigate.mockReset();
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
-  jest
-    .spyOn(ReachRouterModule, 'useLocation')
-    .mockImplementation(() => mockLocation(pathname, mockLocationState));
+  mockLocationPathname = pathname;
+  mockLocationState = locationState;
 }
 
 describe('SigninRecoveryChoice', () => {
@@ -91,6 +97,19 @@ describe('SigninRecoveryChoice', () => {
       screen.getByLabelText(/Backup authentication codes/i)
     ).toBeInTheDocument();
     expect(screen.getByText('4 codes remaining')).toBeInTheDocument();
+  });
+
+  it('renders CMS headline and description when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderSigninRecoveryChoice({ integration: mockIntegrationWithCms });
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.headline!)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.description!)
+    ).toBeInTheDocument();
   });
 
   it('renders as expected with one backup authentication code', () => {

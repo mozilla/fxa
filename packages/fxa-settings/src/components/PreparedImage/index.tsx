@@ -38,7 +38,7 @@ export const PreparedImage = (props: PreparedImageProps) => {
   return (
     <>
       {showAriaLabel ? (
-        <FtlMsg id={props.ariaLabelFtlId} attrs={{ "aria-label": true }}>
+        <FtlMsg id={props.ariaLabelFtlId} attrs={{ 'aria-label': true }}>
           <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
         </FtlMsg>
       ) : (
@@ -53,7 +53,19 @@ export const PreparedImage = (props: PreparedImageProps) => {
   );
 };
 
+export interface IllustrationsTheme {
+  primary?: string;
+  primaryAlt?: string;
+  secondary?: string;
+  accentBg?: string;
+  accentFg?: string;
+  cloudPrimary?: string;
+  cloudShadow?: string;
+  hideClouds?: boolean;
+}
+
 export type ImageProps = {
   className?: string;
   ariaHidden?: boolean;
+  illustrationsTheme?: IllustrationsTheme;
 };

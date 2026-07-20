@@ -22,6 +22,7 @@ const VERIFICATION_METHOD = {
   'totp-2fa': 2,
   'recovery-code': 3,
   'sms-2fa': 4,
+  passkey: 5,
 } as const;
 
 export type VerificationMethod = keyof typeof VERIFICATION_METHOD;
@@ -168,6 +169,58 @@ export class SessionToken extends BaseToken {
       uuidTransformer.to(tokenVerificationId),
       !!mustVerify,
       providerId ?? null
+    );
+  }
+
+  static async createVerified({
+    id,
+    data,
+    uid,
+    createdAt,
+    uaBrowser,
+    uaBrowserVersion,
+    uaOS,
+    uaOSVersion,
+    uaDeviceType,
+    uaFormFactor,
+    mustVerify,
+    providerId,
+    verificationMethod,
+    verifiedAt,
+  }: Pick<
+    SessionToken,
+    | 'uid'
+    | 'createdAt'
+    | 'uaBrowser'
+    | 'uaBrowserVersion'
+    | 'uaOS'
+    | 'uaOSVersion'
+    | 'uaDeviceType'
+    | 'uaFormFactor'
+    | 'mustVerify'
+    | 'providerId'
+  > & {
+    id: string;
+    data: string;
+    verificationMethod: VerificationMethod | number;
+    verifiedAt: number;
+  }) {
+    return this.callProcedure(
+      Proc.CreateVerifiedSessionToken,
+      uuidTransformer.to(id),
+      uuidTransformer.to(data),
+      uuidTransformer.to(uid),
+      createdAt,
+      uaBrowser ?? null,
+      uaBrowserVersion ?? null,
+      uaOS ?? null,
+      uaOSVersion ?? null,
+      uaDeviceType ?? null,
+      uaFormFactor ?? null,
+      !!mustVerify,
+      providerId ?? null,
+      verificationMethodToNumber(verificationMethod),
+      verifiedAt
     );
   }
 

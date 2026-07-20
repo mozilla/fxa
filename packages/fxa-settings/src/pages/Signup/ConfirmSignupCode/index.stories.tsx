@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import ConfirmSignupCode from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -46,12 +45,6 @@ export const WithSuccessSync = () => (
 export const WithErrors = () => (
   <AppContext.Provider value={mockAppContext({ account: accountWithErrors })}>
     <Subject />
-  </AppContext.Provider>
-);
-
-export const OAuthDesktopServiceRelay = () => (
-  <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
-    <Subject integration={createMockOAuthNativeIntegration(false)} />
   </AppContext.Provider>
 );
 

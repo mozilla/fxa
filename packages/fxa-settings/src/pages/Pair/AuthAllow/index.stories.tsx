@@ -2,21 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import AuthAllow from '.';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_METADATA_WITH_DEVICE_NAME,
   MOCK_METADATA_WITH_LOCATION,
 } from '../../../components/DeviceInfoBlock/mocks';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { AppContext } from '../../../models/contexts/AppContext';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/AuthAllow',
   component: AuthAllow,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <AppContext.Provider value={mockAppContext()}>
+        <MemoryRouter>
+          <Story />
+        </MemoryRouter>
+      </AppContext.Provider>
+    ),
+  ],
 } as Meta;
 
 export const WithLocation = () => (
@@ -40,11 +50,14 @@ export const WithDeviceName = () => (
   />
 );
 
-export const WithErrorMessage = () => (
+export const WithoutDeviceInfo = () => (
+  <AuthAllow email={MOCK_ACCOUNT.primaryEmail.email} />
+);
+
+export const WithError = () => (
   <AuthAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
     suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerType="error"
-    localizedBannerMessage="This is an error message"
+    error="An error occurred during pairing"
   />
 );

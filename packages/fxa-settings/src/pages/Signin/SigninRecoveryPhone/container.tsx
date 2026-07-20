@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router';
 import SigninRecoveryPhone from '.';
 import { getSigninState, handleNavigation } from '../utils';
 import {
-  AppContext,
   isWebIntegration,
   useAlertBar,
   useAuthClient,
@@ -29,16 +28,17 @@ import {
   SigninRecoveryPhoneContainerProps,
   SigninRecoveryPhoneLocationState,
 } from './interfaces';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { setStoredSignedInStatus } from '../../../models/Session';
 import GleanMetrics from '../../../lib/glean';
 import { SigninLocationState } from '../interfaces';
 
 const SigninRecoveryPhoneContainer = ({
   integration,
-}: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
+  setCurrentSplitLayout,
+  supportsKeysOptionalLogin,
+}: SigninRecoveryPhoneContainerProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
-  const { apolloClient } = useContext(AppContext);
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninRecoveryPhoneLocationState;
@@ -49,6 +49,7 @@ const SigninRecoveryPhoneContainer = ({
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const numBackupCodes = location.state?.numBackupCodes;
   const navigateWithQuery = useNavigateWithQuery();
+  const navigate = useNavigate();
   const sendError = location.state?.sendError;
 
   useEffect(() => {
@@ -70,7 +71,9 @@ const SigninRecoveryPhoneContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth ||
+      signinState?.isPasswordlessOtpSignin
   );
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -85,6 +88,10 @@ const SigninRecoveryPhoneContainer = ({
       return;
     }
 
+    const isPasswordlessSignin =
+      signinState.isPasswordlessOtpSignin ||
+      signinState.isSignInWithThirdPartyAuth;
+
     try {
       storeAccountData({
         sessionToken: signinState.sessionToken,
@@ -92,30 +99,45 @@ const SigninRecoveryPhoneContainer = ({
         uid: signinState.uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
+        // OTP sign-in is the only genuinely passwordless case; a third-party
+        // account may have a password, so leave it unset and let SetPassword verify.
+        ...(signinState.isPasswordlessOtpSignin && { hasPassword: false }),
       });
 
-      // There seems to be a race condition with updating the cache and state,
-      // so we need to wait a bit before navigating to the next page. This is
-      // a temporary fix until we find a better solution, most likely with refactoring
-      // how we handle state in the app.
-      apolloClient?.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
+      setStoredSignedInStatus(true);
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const recoveryPhoneSigninSuccessGleanMetric =
-        GleanMetrics.login.recoveryPhoneSuccessView;
+      // Recovery-phone verification succeeded; record it before any redirect so
+      // the success funnel matches the TOTP and backup-code flows.
+      GleanMetrics.login.recoveryPhoneSuccessView();
+
+      // Passwordless sign-in needing keys must set a password first;
+      // defer the success alert and browser login messages.
+      if (
+        isPasswordlessSignin &&
+        integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
+      ) {
+        navigateWithQuery('/post_verify/set_password', {
+          replace: true,
+          state: {
+            passwordCreationReason: signinState.isSignInWithThirdPartyAuth
+              ? 'third_party_auth'
+              : 'otp',
+          },
+        });
+        return;
+      }
 
       alertBar.success(
         ftlMsgResolver.getMsg(
           'signin-recovery-phone-success-message',
           'Signed in successfully. Limits may apply if you use your recovery phone again.'
-        ),
-        recoveryPhoneSigninSuccessGleanMetric
+        )
       );
 
       const navigationOptions = {
+        navigate,
         email: signinState.email,
         signinData: {
           uid: signinState.uid,
@@ -135,6 +157,7 @@ const SigninRecoveryPhoneContainer = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        authClient,
       };
 
       await handleNavigation(navigationOptions);
@@ -198,6 +221,8 @@ const SigninRecoveryPhoneContainer = ({
         sendError,
         numBackupCodes,
         integration,
+        signinState,
+        setCurrentSplitLayout,
       }}
     />
   );

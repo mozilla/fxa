@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const assign = require('lodash/assign');
-const mapValues = require('lodash/mapValues');
-const pick = require('lodash/pick');
-const pickBy = require('lodash/pickBy');
+const pick = (obj, keys) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
 const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
@@ -147,7 +144,7 @@ function estimateTime(times) {
 
 function logFlowEvent(event, data, request) {
   const { location } = data;
-  const eventData = assign(
+  const eventData = Object.assign(
     {
       country: location && location.country,
       event: event.type,
@@ -161,7 +158,7 @@ function logFlowEvent(event, data, request) {
       userAgent: request.headers['user-agent'],
       v: VERSION,
     },
-    mapValues(pickFlowData(data, request), sanitiseData)
+    Object.fromEntries(Object.entries(pickFlowData(data, request)).map(([k, v]) => [k, sanitiseData(v)]))
   );
 
   optionallySetFallbackData(eventData, 'service', data.client_id);
@@ -195,14 +192,14 @@ function pickFlowData(data, request) {
 
   const pickedData = pick(data, NO_DNT_ALLOWED_DATA);
 
-  return pickBy(pickedData, (value, key) => {
+  return Object.fromEntries(Object.entries(pickedData).filter(([key, value]) => {
     if (key.indexOf('utm_') === 0) {
       // Silently drop utm_ properties that contain unexpected characters.
       return UTM_PATTERN.test(value);
     }
 
     return true;
-  });
+  }));
 }
 
 function isDNT(request) {

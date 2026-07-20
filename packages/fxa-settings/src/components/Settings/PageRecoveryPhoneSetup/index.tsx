@@ -9,21 +9,21 @@ import { useAccount, useFtlMsgResolver } from '../../../models';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
 const numberOfSteps = 2;
 
-export const MfaGuardPageRecoveryPhoneSetup = (props: RouteComponentProps) => {
+export const MfaGuardPageRecoveryPhoneSetup = () => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.createRecoveryPhone}>
-      <PageRecoveryPhoneSetup {...props} />
+      <PageRecoveryPhoneSetup />
     </MfaGuard>
   );
 };
 
-export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
+export const PageRecoveryPhoneSetup = () => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();

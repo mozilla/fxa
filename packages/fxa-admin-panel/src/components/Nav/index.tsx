@@ -3,10 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
+import shieldIcon from '../../images/icon-shield.svg';
 import logsIcon from '../../images/icon-logs.svg';
+import emailBlocklistIcon from '../../images/icon-email-blocklist.svg';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../Guard';
 
@@ -67,6 +69,36 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.EmailBlocklist]}>
+          <li>
+            <NavLink
+              to="/email-blocklist"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={emailBlocklistIcon}
+                alt="blocklist icon"
+              />
+              Email Blocklist (regex)
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.DomainBlocklist]}>
+          <li>
+            <NavLink
+              to="/domain-blocklist"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={emailBlocklistIcon}
+                alt="blocklist icon"
+              />
+              Email Blocklist (string)
+            </NavLink>
+          </li>
+        </Guard>
         <Guard features={[AdminPanelFeature.RelyingParties]}>
           <li>
             <NavLink
@@ -94,6 +126,36 @@ export const Nav = () => (
                 alt="rate limit icon"
               />
               Rate Limiting
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.ManageWafTokens]}>
+          <li>
+            <NavLink
+              to="/waf-tokens"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={shieldIcon}
+                alt="shield icon"
+              />
+              WAF Bypass Tokens
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.OAuthScopes]}>
+          <li>
+            <NavLink
+              to="/oauth-scopes"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={keyIcon}
+                alt="key icon"
+              />
+              OAuth Scopes
             </NavLink>
           </li>
         </Guard>

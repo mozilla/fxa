@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import TermsPrivacyAgreement from '.';
 import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
 
 export default {
   title: 'Components/TermsPrivacyAgreement',
@@ -14,25 +14,55 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const FirefoxOnly = () => (
+const mockCustomLegalTerms: RelierLegalTerms = {
+  label: 'Custom Service Label',
+  termsOfServiceLink:
+    'https://www.mozilla.org/about/legal/terms/subscription-services/',
+  privacyNoticeLink: 'https://www.mozilla.org/privacy/subscription-services/',
+  fontSize: 'default',
+};
+
+export const Default = () => (
   <AppLayout>
     <TermsPrivacyAgreement />
   </AppLayout>
 );
 
-export const MonitorClient = () => (
+export const WithCustomTerms = () => (
   <AppLayout>
-    <TermsPrivacyAgreement isMonitorClient />
-  </AppLayout>
-);
-export const RelayClient = () => (
-  <AppLayout>
-    <TermsPrivacyAgreement isRelayClient />
+    <TermsPrivacyAgreement legalTerms={mockCustomLegalTerms} />
   </AppLayout>
 );
 
-export const OAuthNativeRelay = () => (
+export const FontSize1Default = () => (
   <AppLayout>
-    <TermsPrivacyAgreement isFirefoxClientServiceRelay />
+    <TermsPrivacyAgreement
+      legalTerms={{
+        ...mockCustomLegalTerms,
+        fontSize: 'default',
+      }}
+    />
+  </AppLayout>
+);
+
+export const FontSize2Medium = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement
+      legalTerms={{
+        ...mockCustomLegalTerms,
+        fontSize: 'medium',
+      }}
+    />
+  </AppLayout>
+);
+
+export const FontSize3Large = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement
+      legalTerms={{
+        ...mockCustomLegalTerms,
+        fontSize: 'large',
+      }}
+    />
   </AppLayout>
 );

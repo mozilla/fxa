@@ -1,0 +1,334 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { headers } from 'next/headers';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import {
+  getNextChargeChurnContent,
+  AlreadyCanceling,
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/ui';
+import { getApp } from '@fxa/payments/ui/server';
+import { LinkExternal } from '@fxa/shared/react';
+
+type ChurnErrorProps = {
+  cmsOfferingContent?: {
+    productName: string;
+    successActionButtonUrl: string;
+    supportUrl: string;
+    webIcon: string;
+  } | null;
+  locale: string;
+  reason: string;
+  pageContent:
+    | {
+        flowType: 'cancel' | 'stay_subscribed';
+        active: boolean;
+        cancelAtPeriodEnd: boolean;
+        currency: string;
+        currentPeriodEnd: number;
+        defaultPaymentMethodType?: SubPlatPaymentMethodType;
+        last4?: string;
+        nextInvoiceTax?: number;
+        nextInvoiceTotal?: number;
+        productName: string;
+        webIcon: string;
+      }
+    | { flowType: 'not_found' };
+  subscriptionId: string;
+};
+
+export async function ChurnError({
+  cmsOfferingContent,
+  locale,
+  reason,
+  pageContent,
+  subscriptionId,
+}: ChurnErrorProps) {
+  const acceptLanguage = (await headers()).get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage);
+
+  if (reason === 'customer_mismatch') {
+    switch (reason) {
+      case 'customer_mismatch':
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-customer-mismatch-heading"
+          >
+            <div className="w-full max-w-[480px] p-10 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+              <div className="w-full flex flex-col items-center gap-4 text-center">
+                <h1
+                  id="error-customer-mismatch-heading"
+                  className="font-bold self-stretch text-center font-header text-xl leading-8"
+                >
+                  {l10n.getString(
+                    'churn-error-page-title-customer-mismatch',
+                    "Coupon can't be redeemed"
+                  )}
+                </h1>
+                <p className="w-full self-stretch leading-7 text-lg text-grey-900 text-center">
+                  {l10n.getString(
+                    'churn-error-page-message-customer-mismatch',
+                    'This coupon was issued for a different subscription and can only be redeemed by the original recipient.'
+                  )}
+                </p>
+                <div className="flex flex-col gap-3 w-full mt-6">
+                  <Link
+                    className="border box-border font-header h-14 items-center justify-center rounded-md text-white text-center font-bold py-4 px-6 bg-blue-500 hover:bg-blue-700 flex w-full"
+                    href={`/${locale}/subscriptions/landing`}
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-sign-in',
+                      'Sign in'
+                    )}
+                  </Link>
+                  <LinkExternal
+                    className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+                    href={'https://support.mozilla.org'}
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-contact-support',
+                      'Contact Support'
+                    )}
+                  </LinkExternal>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      default:
+        break;
+    }
+  }
+  if (cmsOfferingContent) {
+    const { productName, successActionButtonUrl, supportUrl, webIcon } =
+      cmsOfferingContent;
+
+    switch (reason) {
+      case 'already_canceling_at_period_end':
+        if (!pageContent || pageContent.flowType === 'not_found') {
+          break;
+        }
+        const { currentPeriodEnd } = pageContent;
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-already-canceling-heading"
+          >
+            <AlreadyCanceling
+              currentPeriodEnd={currentPeriodEnd}
+              locale={locale}
+              productName={productName}
+              webIcon={webIcon}
+            />
+          </section>
+        );
+      case 'discount_already_applied':
+      case 'redemption_limit_exceeded':
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-discount-already-applied-heading"
+          >
+            <div className="w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-center justify-center gap-6 text-center">
+                <Image src={webIcon} alt={productName} height={64} width={64} />
+                <h1
+                  id="error-discount-already-applied-heading"
+                  className="font-bold leading-7 text-center text-xl"
+                >
+                  {l10n.getString(
+                    'churn-error-page-title-discount-already-applied',
+                    'Discount code already applied'
+                  )}
+                </h1>
+                <div className="leading-6">
+                  <p className="my-2">
+                    {l10n.getString(
+                      'churn-error-page-message-discount-already-applied',
+                      { productName },
+                      `This discount was applied to a ${productName} subscription for your account. If you still need help, contact our Support team.`
+                    )}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 w-full">
+                  <Link
+                    href={`/${locale}/subscriptions/landing`}
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-manage-subscriptions',
+                      'Manage subscriptions'
+                    )}
+                  </Link>
+                  <LinkExternal
+                    href={supportUrl}
+                    className="box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-contact-support',
+                      'Contact Support'
+                    )}
+                  </LinkExternal>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      case 'subscription_not_active':
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-subscription-not-active-heading"
+          >
+            <div className="w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-center justify-center gap-6 text-center">
+                <Image src={webIcon} alt={productName} height={64} width={64} />
+                <h1
+                  id="error-subscription-not-active-heading"
+                  className="font-bold leading-7 text-center text-xl"
+                >
+                  {l10n.getString(
+                    'churn-error-page-title-subscription-not-active',
+                    { productName },
+                    `This discount is only available to current ${productName}
+                      subscribers`
+                  )}
+                </h1>
+                <div className="w-full">
+                  <LinkExternal
+                    href={successActionButtonUrl}
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-go-to-product-page',
+                      { productName },
+                      `Go to ${productName}`
+                    )}
+                  </LinkExternal>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      case 'subscription_still_active':
+        if (!pageContent || pageContent.flowType === 'not_found') {
+          // Re-render as general error section below
+          break;
+        }
+
+        const nextChargeChurnContent = getNextChargeChurnContent({
+          currency: pageContent.currency,
+          currentPeriodEnd: pageContent.currentPeriodEnd,
+          locale,
+          defaultPaymentMethodType: pageContent.defaultPaymentMethodType,
+          last4: pageContent.last4,
+          nextInvoiceTotal: pageContent.nextInvoiceTotal,
+          nextInvoiceTax: pageContent.nextInvoiceTax,
+        });
+
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-subscription-still-active-heading"
+          >
+            <div className="w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
+                <Image src={webIcon} alt={productName} height={64} width={64} />
+
+                <h1
+                  id="error-subscription-still-active-heading"
+                  className="font-bold leading-7 text-center text-xl"
+                >
+                  {l10n.getString(
+                    'churn-error-page-title-subscription-still-active',
+                    { productName },
+                    `Your ${productName} subscription is still active`
+                  )}
+                </h1>
+                <div className="leading-6">
+                  <p className="my-2">
+                    {l10n.getString(
+                      nextChargeChurnContent.l10nId,
+                      nextChargeChurnContent.l10nVars,
+                      nextChargeChurnContent.fallback
+                    )}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 w-full">
+                  <LinkExternal
+                    href={successActionButtonUrl}
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-go-to-product-page',
+                      { productName },
+                      `Go to ${productName}`
+                    )}
+                  </LinkExternal>
+                  <Link
+                    href={`/${locale}/subscriptions/landing`}
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  >
+                    {l10n.getString(
+                      'churn-error-page-button-manage-subscriptions',
+                      'Manage subscriptions'
+                    )}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      default:
+        break;
+    }
+  }
+  return (
+    <section
+      className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+      aria-labelledby="general-error-heading"
+    >
+      <div className="w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
+          <h1
+            id="general-error-heading"
+            className="font-bold leading-7 text-center text-xl"
+          >
+            {l10n.getString(
+              'churn-error-page-title-general-error',
+              'There was an issue with renewing your subscription'
+            )}
+          </h1>
+          <div className="leading-6">
+            {l10n.getString(
+              'churn-error-page-message-general-error',
+              'Contact support or try again.'
+            )}
+          </div>
+          <div className="flex flex-col gap-3 w-full">
+            <LinkExternal
+              href={'https://support.mozilla.org'}
+              className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+            >
+              {l10n.getString(
+                'churn-error-page-button-contact-support',
+                'Contact Support'
+              )}
+            </LinkExternal>
+            <Link
+              href={`/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed`}
+              className="border-2 box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-blue-600 hover:bg-grey-50 text-blue-600"
+            >
+              {l10n.getString('churn-error-page-button-try-again', 'Try again')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
-  OAuthNativeClients,
+  isOAuthIntegration,
   OAuthNativeIntegration,
-  OAuthNativeServices,
 } from './oauth-native-integration';
+import { IntegrationType } from './integration';
 import { OAuthWebIntegration } from './oauth-web-integration';
 
 function mockClientInfo(clientId: string) {
@@ -130,13 +131,126 @@ describe('OAuthNativeIntegration', function () {
     });
   });
 
-  describe('wantsKeys', () => {
-    it('returns true', () => {
+  describe('requiresKeys', () => {
+    it('returns true for Sync when scope has scoped keys', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: [model.clientInfo?.redirectUri],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.requiresKeys()).toBe(true);
+    });
+
+    it('returns false for non-Sync services', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.requiresKeys()).toBe(false);
+    });
+
+    it('returns false when scopedKeysEnabled is false', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: false,
+        scopedKeysValidation: {},
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.requiresKeys()).toBe(false);
+    });
+  });
+
+  describe('wantsKeysIfPasswordEntered', () => {
+    it('returns true for non-Sync browser services with scoped keys', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.wantsKeysIfPasswordEntered()).toBe(true);
+    });
+
+    it('returns false for Sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.wantsKeysIfPasswordEntered()).toBe(false);
+    });
+  });
+
+  describe('wantsKeys (combined)', () => {
+    it('returns true when requiresKeys is true', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
       expect(model.wantsKeys()).toBe(true);
+      expect(model.requiresKeys()).toBe(true);
+    });
+
+    it('returns true when wantsKeysIfPasswordEntered is true', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.wantsKeys()).toBe(true);
+      expect(model.requiresKeys()).toBe(false);
+      expect(model.wantsKeysIfPasswordEntered()).toBe(true);
+    });
+
+    it('returns false when no scoped keys are requested', () => {
+      expect(model.wantsKeys()).toBe(false);
     });
   });
 
   describe('getServiceName', () => {
+    it('returns VPN service name for vpn service', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.getServiceName()).toBe('Mozilla VPN');
+    });
+
     it('returns "Firefox" for non-sync services', () => {
       model.data.service = 'non-sync-service';
       expect(model.getServiceName()).toBe('Firefox');
@@ -153,10 +267,10 @@ describe('OAuthNativeIntegration', function () {
       expect(model.getServiceName()).toBe('Firefox Relay');
     });
 
-    it('returns AI Window service name for aiwindow service', () => {
+    it('returns Smart Window service name for smartwindow service', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.getServiceName()).toBe('Firefox AI Window');
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.getServiceName()).toBe('Firefox Smart Window');
     });
   });
 
@@ -173,30 +287,70 @@ describe('OAuthNativeIntegration', function () {
       expect(model.isFirefoxClientServiceRelay()).toBe(false);
     });
 
-    it('returns false when service is aiwindow', () => {
+    it('returns false when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
+      model.data.service = OAuthNativeServices.SmartWindow;
       expect(model.isFirefoxClientServiceRelay()).toBe(false);
     });
   });
 
-  describe('isFirefoxClientServiceAiWindow', () => {
-    it('returns true when service is aiwindow', () => {
+  describe('isFirefoxClientServiceSmartWindow', () => {
+    it('returns true when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(true);
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(true);
     });
 
     it('returns false when service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Sync;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(false);
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(false);
     });
 
     it('returns false when service is relay', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Relay;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(false);
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(false);
+    });
+  });
+
+  describe('isFirefoxClientServiceVpn', () => {
+    it('returns true when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.isFirefoxClientServiceVpn()).toBe(true);
+    });
+
+    it('returns false when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.isFirefoxClientServiceVpn()).toBe(false);
+    });
+
+    it('returns false when service is relay', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.isFirefoxClientServiceVpn()).toBe(false);
+    });
+  });
+
+  describe('isOAuthIntegration', () => {
+    it('returns true for PairingAuthority', () => {
+      expect(
+        isOAuthIntegration({ type: IntegrationType.PairingAuthority })
+      ).toBe(true);
+    });
+
+    it('returns true for PairingSupplicant', () => {
+      expect(
+        isOAuthIntegration({ type: IntegrationType.PairingSupplicant })
+      ).toBe(true);
+    });
+
+    it('returns false for SyncBasic', () => {
+      expect(isOAuthIntegration({ type: IntegrationType.SyncBasic })).toBe(
+        false
+      );
     });
   });
 
@@ -218,9 +372,15 @@ describe('OAuthNativeIntegration', function () {
       expect(model.isFirefoxNonSync()).toBe(true);
     });
 
-    it('returns true when service is aiwindow', () => {
+    it('returns true when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.isFirefoxNonSync()).toBe(true);
+    });
+
+    it('returns true when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
       expect(model.isFirefoxNonSync()).toBe(true);
     });
   });
@@ -232,10 +392,10 @@ describe('OAuthNativeIntegration', function () {
       expect(model.getWebChannelServices()).toEqual({ relay: {} });
     });
 
-    it('returns aiwindow services when service is aiwindow', () => {
+    it('returns smartwindow services when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.getWebChannelServices()).toEqual({ aiwindow: {} });
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.getWebChannelServices()).toEqual({ smartwindow: {} });
     });
 
     it('returns sync services when service is sync', () => {
@@ -251,6 +411,170 @@ describe('OAuthNativeIntegration', function () {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Sync;
       expect(model.getWebChannelServices()).toEqual({ sync: {} });
+    });
+
+    it('returns vpn services when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.getWebChannelServices()).toEqual({ vpn: {} });
+    });
+  });
+
+  describe('scope tolerance (no URL scope)', () => {
+    const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+
+    function buildModel(opts: {
+      scope?: string;
+      service?: OAuthNativeServices;
+      clientId?: OAuthNativeClients;
+      scopedKeysEnabled?: boolean;
+      scopedKeysValidation?: Record<string, { redirectUris: string[] }>;
+      keysJwk?: string;
+    }) {
+      const clientId = opts.clientId ?? OAuthNativeClients.FirefoxDesktop;
+      const freshData = new GenericData({ clientId });
+      const freshOauthData = new GenericData({});
+      const m = new OAuthNativeIntegration(freshData, freshOauthData, {
+        scopedKeysEnabled: opts.scopedKeysEnabled ?? true,
+        scopedKeysValidation: opts.scopedKeysValidation ?? {},
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      m.clientInfo = mockClientInfo(clientId);
+      if (opts.service !== undefined) {
+        m.data.service = opts.service;
+      }
+      // Bind-decorated `scope` validates non-empty; omit when the test
+      // wants to mirror the runtime "URL has no scope" state.
+      if (opts.scope !== undefined) {
+        m.data.scope = opts.scope;
+      }
+      if (opts.keysJwk !== undefined) {
+        m.data.keysJwk = opts.keysJwk;
+      }
+      return m;
+    }
+
+    describe('getNormalizedScope', () => {
+      it('returns "" when URL scope is missing (server resolves from service=)', () => {
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.getNormalizedScope()).toBe('');
+      });
+
+      it('returns the URL scope when present (explicit scope wins)', () => {
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.getNormalizedScope()).toBe(SYNC_SCOPE);
+      });
+    });
+
+    describe('getPermissions', () => {
+      it('returns [] when URL scope is missing (no client-side permissions to enumerate)', () => {
+        // Without this override, super.getPermissions() throws
+        // INVALID_PARAMETER(scope) on an empty scope, which breaks any
+        // call site that enumerates the permission set (e.g. verifySession
+        // in ConfirmSignupCode).
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.getPermissions()).toEqual([]);
+      });
+
+      it('defers to super.getPermissions() when URL scope is present', () => {
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.getPermissions()).toEqual([SYNC_SCOPE]);
+      });
+    });
+
+    describe('_scopeRequestsKeys (via requiresKeys / wantsKeysIfPasswordEntered)', () => {
+      it('Sync without URL scope requires keys when keysJwk is present', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+        });
+        expect(m.requiresKeys()).toBe(true);
+        expect(m.wantsKeys()).toBe(true);
+      });
+
+      it('VPN without URL scope wants keys opportunistically (with keysJwk)', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Vpn,
+          keysJwk: 'mock',
+        });
+        expect(m.wantsKeysIfPasswordEntered()).toBe(true);
+        expect(m.requiresKeys()).toBe(false);
+      });
+
+      it('Relay and SmartWindow without URL scope want keys on password too', () => {
+        const relay = buildModel({
+          service: OAuthNativeServices.Relay,
+          keysJwk: 'mock',
+        });
+        const sw = buildModel({
+          service: OAuthNativeServices.SmartWindow,
+          keysJwk: 'mock',
+        });
+        expect(relay.wantsKeysIfPasswordEntered()).toBe(true);
+        expect(sw.wantsKeysIfPasswordEntered()).toBe(true);
+      });
+
+      it('returns false without keysJwk (no wrapped keys → no Sync grant possible)', () => {
+        const m = buildModel({ service: OAuthNativeServices.Sync });
+        expect(m.requiresKeys()).toBe(false);
+        expect(m.wantsKeysIfPasswordEntered()).toBe(false);
+      });
+
+      it('returns false when scopedKeysEnabled is false', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+          scopedKeysEnabled: false,
+        });
+        expect(m.requiresKeys()).toBe(false);
+      });
+
+      it('explicit URL scope that DOES carry keys still works via super', () => {
+        // Today's flow: Firefox includes apps/oldsync in the URL scope,
+        // super._scopeRequestsKeys matches the scopedKeysValidation entry,
+        // requiresKeys=true. This path is preserved byte-for-byte.
+        const m = buildModel({
+          scope: SYNC_SCOPE,
+          service: OAuthNativeServices.Sync,
+          keysJwk: 'mock',
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.requiresKeys()).toBe(true);
+      });
+
+      it('explicit URL scope that does NOT carry keys returns false via super', () => {
+        // Realistic non-keys VPN URL: scope=apps/vpn profile (no oldsync),
+        // keysJwk present, scopedKeysValidation only configured for
+        // apps/oldsync. The override delegates to super, which iterates
+        // the URL scopes against validation and finds no match → false.
+        // Confirms wantsKeysIfPasswordEntered=false in this case.
+        const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+        const m = buildModel({
+          scope: `${VPN_SCOPE} profile`,
+          service: OAuthNativeServices.Vpn,
+          keysJwk: 'mock',
+          scopedKeysValidation: {
+            [SYNC_SCOPE]: { redirectUris: ['https://mock.com'] },
+          },
+        });
+        expect(m.wantsKeysIfPasswordEntered()).toBe(false);
+        expect(m.requiresKeys()).toBe(false);
+      });
     });
   });
 });

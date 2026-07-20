@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import ProductPromo, { ProductPromoProps } from '.';
@@ -28,14 +27,14 @@ function storyWithProps(props: ProductPromoProps, storyName?: string) {
 export const MobilePromo = storyWithProps(
   {
     type: 'settings',
-    monitorPromo: { hidePromo: false },
+    vpnPromo: { hidePromo: false },
   },
-  'Monitor promo - Banner - mobile only'
+  'VPN promo - Banner - mobile only'
 );
 export const DesktopPromo = storyWithProps(
   {
     type: 'sidebar',
-    monitorPromo: { hidePromo: false },
+    vpnPromo: { hidePromo: false },
   },
-  'Monitor promo - Sidebar - desktop'
+  'VPN promo - Sidebar - desktop'
 );

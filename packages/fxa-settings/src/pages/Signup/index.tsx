@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
+import CardHeader, {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../components/CardHeader';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
@@ -23,7 +25,6 @@ import {
   usePageViewEvent,
 } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
-import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
   isOAuthNativeIntegration,
@@ -31,10 +32,6 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -55,7 +52,6 @@ export const Signup = ({
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
   },
-  deeplink,
   flowQueryParams,
   isMobile,
   setCurrentSplitLayout,
@@ -79,6 +75,8 @@ export const Signup = ({
     ? supportsKeysOptionalLogin
     : !isSync;
 
+  const legalTerms = integration.getLegalTerms();
+
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
     GleanMetrics.registration.engage({ event: { reason: 'password' } });
@@ -93,19 +91,6 @@ export const Signup = ({
   const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
     string[]
   >([]);
-  const [client, setClient] = useState<MozServices | undefined>(undefined);
-
-  useEffect(() => {
-    if (isOAuth) {
-      const clientId = integration.getClientId();
-      if (isClientMonitor(clientId)) {
-        setClient(MozServices.Monitor);
-      }
-      if (isClientRelay(clientId)) {
-        setClient(MozServices.Relay);
-      }
-    }
-  }, [integration, isOAuth]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<SignupFormData>({
@@ -158,7 +143,9 @@ export const Signup = ({
           lastLogin: Date.now(),
           sessionToken: data.signUp.sessionToken,
           verified: false,
+          sessionVerified: false,
           metricsEnabled: true,
+          hasPassword: true,
         };
 
         // Persist account data to local storage to match parity with content-server
@@ -176,9 +163,6 @@ export const Signup = ({
             offeredEngines: offeredSyncEngines,
             declinedEngines: declinedSyncEngines,
           };
-          GleanMetrics.registration.cwts({
-            sync: { cwts: selectedEnginesForGlean },
-          });
 
           firefox.fxaLogin({
             email,
@@ -201,17 +185,6 @@ export const Signup = ({
             uid: data.signUp.uid,
             verified: false,
             services: integration.getWebChannelServices(),
-          });
-        } else {
-          GleanMetrics.registration.marketing({
-            standard: {
-              marketing: {
-                news: selectedNewsletterSlugs.indexOf('mozilla-and-you') >= 0,
-                take_action:
-                  selectedNewsletterSlugs.indexOf('mozilla-foundation') >= 0,
-                testing: selectedNewsletterSlugs.indexOf('test-pilot') >= 0,
-              },
-            },
           });
         }
 
@@ -250,26 +223,12 @@ export const Signup = ({
       email,
       isSync,
       offeredSyncEngines,
-      selectedEnginesForGlean,
       isSyncOAuth,
       integration,
       isOAuth,
       sensitiveDataClient,
     ]
   );
-
-  const isDeeplinking = !!deeplink;
-  if (isDeeplinking) {
-    // To avoid flickering, we only render third party auth and navigate
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SignupSetPasswordPage?.pageTitle;
@@ -290,7 +249,10 @@ export const Signup = ({
                 : 'left',
             }}
           />
-          <h1 className="card-header">
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
             {cmsInfo.SignupSetPasswordPage.headline}
           </h1>
           <p className="mt-1 text-sm">
@@ -376,7 +338,13 @@ export const Signup = ({
           handleSubmit,
           onSubmit,
           offeredSyncEngineConfigs,
-          requirePasswordConfirmation: isSync,
+          // Require password confirmation whenever the password is used for key
+          // derivation — Sync (keys mandatory) and non-Sync Firefox services
+          // that derive keys when the browser can't complete a keyless login
+          // (`supportsKeysOptionalLogin` false).
+          requirePasswordConfirmation:
+            integration.isSync() ||
+            integration.requiresPasswordForLogin(supportsKeysOptionalLogin),
           setSelectedNewsletterSlugs,
           cmsButton: {
             text: cmsInfo?.SignupSetPasswordPage.primaryButtonText,
@@ -387,15 +355,13 @@ export const Signup = ({
         onSubmit={handleSubmit(onSubmit)}
       />
 
-      {showThirdPartyAuth && (
-        <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
-      )}
-
-      <TermsPrivacyAgreement
-        isMonitorClient={client === MozServices.Monitor}
-        isRelayClient={client === MozServices.Relay}
-        {...{ isFirefoxClientServiceRelay }}
+      <AlternativeAuthOptions
+        showThirdPartyAuth={showThirdPartyAuth}
+        viewName="signup"
+        flowQueryParams={flowQueryParams}
       />
+
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>
   );
 };

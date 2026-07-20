@@ -6,7 +6,6 @@ import cacheManager, { Cacheable } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
-import mapValues from 'lodash/mapValues';
 import { Stripe } from 'stripe';
 import {
   deleteAccountCustomer,
@@ -162,13 +161,6 @@ export abstract class StripeHelper {
   }
 
   /**
-   * Given a plan indicates if the plan is in a valid state.
-   * @param plan - Plan to validate
-   * @returns - true if plan is valid
-   */
-  protected abstract validatePlan(plan: Stripe.Plan): Promise<boolean>;
-
-  /**
    * Fetch all product data and cache it if Redis is enabled.
    *
    * Use `allProducts` below to use the cached-enhanced version.
@@ -246,7 +238,7 @@ export abstract class StripeHelper {
     // If the customer has subscriptions and no currency, we must have a stale
     // customer record. Let's update it.
     if (customer.subscriptions?.data.length && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customer.id);
+      await this.stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
       // Retrieve the customer again.
       customer = await this.expandResource<Stripe.Customer>(
         stripeCustomerId,
@@ -385,17 +377,10 @@ export abstract class StripeHelper {
         continue;
       }
 
-      item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
-      item.metadata = mapValues(item.metadata, (v) => v.trim());
+      item.product.metadata = Object.fromEntries(Object.entries(item.product.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
+      item.metadata = Object.fromEntries(Object.entries(item.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
 
-      // We should return all the plans when relying on Firestore docs for
-      // their configuration
-      if (
-        this.config.subscriptions.productConfigsFirestore.enabled ||
-        (await this.validatePlan(item))
-      ) {
-        plans.push(item);
-      }
+      plans.push(item);
     }
 
     return plans;
@@ -450,17 +435,7 @@ export abstract class StripeHelper {
 
   async allAbbrevPlans(acceptLanguage = 'en'): Promise<AbbrevPlan[]> {
     const plans = await this.allConfiguredPlans();
-    const validPlans: (Stripe.Plan | ConfiguredPlan)[] = [];
     const validPlansFinal: (Stripe.Plan | ConfiguredPlan)[] = [];
-    const validPlanIds: Stripe.Plan['id'][] = [];
-
-    for (const p of plans) {
-      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does not have a `configuration`
-      if (p.configuration || (await this.validatePlan(p))) {
-        validPlans.push(p);
-        validPlanIds.push(p.id);
-      }
-    }
 
     if (this.productConfigurationManager && this.stripeMapperService) {
       try {
@@ -473,36 +448,15 @@ export abstract class StripeHelper {
           );
 
         const validPlansMapped =
-          await this.stripeMapperService.mapCMSToStripePlans(
-            validPlans,
-            locale,
-            this.config.cms.enabled
-          );
+          await this.stripeMapperService.mapCMSToStripePlans(plans, locale);
 
-        validPlansFinal.push(...validPlansMapped.mappedPlans);
-        if (validPlansMapped.nonMatchingPlans.length) {
-          const nonMatchingPlans = validPlansMapped.nonMatchingPlans;
-          this.log.error(`stripeHelper.allAbbrevPlans.nonMatchingPlans`, {
-            acceptLanguage,
-            nonMatchingPlans,
-          });
-          Sentry.withScope((scope) => {
-            scope.setContext('allAbbrevPlans', {
-              acceptLanguage,
-              nonMatchingPlans,
-            });
-            Sentry.captureMessage(
-              `StripeHelper.allAbbrevPlans - CMS config does not match Stripe metadata`,
-              'warning' as Sentry.SeverityLevel
-            );
-          });
-        }
+        validPlansFinal.push(...validPlansMapped);
       } catch (error) {
         Sentry.captureException(error);
-        validPlansFinal.push(...validPlans);
+        validPlansFinal.push(...plans);
       }
     } else {
-      validPlansFinal.push(...validPlans);
+      validPlansFinal.push(...plans);
     }
 
     return validPlansFinal.map((p) => ({

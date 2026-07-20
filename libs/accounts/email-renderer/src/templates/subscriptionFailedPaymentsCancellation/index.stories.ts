@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   isCancellationEmail: true,
   cancellationSurveyUrl:
     'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',

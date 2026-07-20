@@ -5,7 +5,11 @@ import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CartManager, TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import {
+  PaymentsGleanManager,
+  type GenericGleanSubManageEvent,
+} from '@fxa/payments/metrics';
+import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
   CheckoutEvents,
@@ -13,21 +17,20 @@ import {
   PaymentsEmitterEvents,
   SP3RolloutEvent,
   SubscriptionEndedEvents,
+  TrialConvertedEvents,
   type AuthEvents,
 } from './emitter.types';
+import type {
+  CheckoutFailPayload,
+  CheckoutSuccessPayload,
+} from '@fxa/payments/metrics';
 import { AccountManager } from '@fxa/shared/account/account';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
-import {
-  getSubplatInterval,
-  CustomerManager,
-  SubscriptionManager,
-  PaymentMethodManager,
-  type SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+import { getSubplatInterval } from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { EmitterServiceHandleAuthError } from './emitter.error';
 import { NimbusManager } from '@fxa/payments/experiments';
+import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -36,14 +39,12 @@ export class PaymentsEmitterService {
   constructor(
     private accountManager: AccountManager,
     private cartManager: CartManager,
-    private customerManager: CustomerManager,
     private log: Logger,
     private nimbusManager: NimbusManager,
     private paymentsGleanManager: PaymentsGleanManager,
-    private paymentMethodManager: PaymentMethodManager,
+    private paymentsGleanService: PaymentsMetricsAggregatorService,
     private productConfigurationManager: ProductConfigurationManager,
-    @Inject(StatsDService) public statsd: StatsD,
-    private subscriptionManager: SubscriptionManager
+    @Inject(StatsDService) public statsd: StatsD
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -55,9 +56,17 @@ export class PaymentsEmitterService {
       'subscriptionEnded',
       this.handleSubscriptionEnded.bind(this)
     );
+    this.emitter.on(
+      'trialConverted',
+      this.handleTrialConverted.bind(this)
+    );
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
     this.emitter.on('locationView', this.handleLocationView.bind(this));
     this.emitter.on('auth', this.handleAuthEvent.bind(this));
+    this.emitter.on(
+      'genericGleanSubManageEvent',
+      this.handleGenericSubManageGleanEvent.bind(this)
+    );
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
@@ -191,23 +200,33 @@ export class PaymentsEmitterService {
           ...additionalData,
           experimentationData: { nimbusUserId },
         },
-        eventData.paymentProvider
+        eventData.paymentProvider,
+        eventData.paymentMethod
       );
     }
   }
 
-  async handleCheckoutSuccess(eventData: CheckoutPaymentEvents) {
-    const additionalData = await retrieveAdditionalMetricsData(
-      this.productConfigurationManager,
-      this.cartManager,
-      eventData.params
-    );
+  /**
+   * Backend-triggered: cart-side code emits this after a cart transitions
+   * to terminal SUCCESS. Mirrors handleCheckoutSubmit — eventData carries
+   * the request CommonMetrics and the handler uses retrieveAdditionalMetricsData
+   * to look up the cart and CMS data.
+   */
+  async handleCheckoutSuccess(eventData: CheckoutSuccessPayload) {
+    try {
+      const additionalData = await retrieveAdditionalMetricsData(
+        this.productConfigurationManager,
+        this.cartManager,
+        eventData.params
+      );
 
-    const metricsOptOut = await this.retrieveOptOut(
-      additionalData.cartMetricsData.uid
-    );
+      const metricsOptOut = await this.retrieveOptOut(
+        additionalData.cartMetricsData.uid
+      );
+      if (metricsOptOut) {
+        return;
+      }
 
-    if (!metricsOptOut) {
       const nimbusUserId = await this.getNimbusUserId({
         uid: additionalData.cartMetricsData.uid,
         language: additionalData.locale,
@@ -217,46 +236,41 @@ export class PaymentsEmitterService {
           eventData?.searchParams?.['experimentationPreview'] === 'true',
       });
 
-      // Determine payment method type
-      let paymentMethodType: SubPlatPaymentMethodType | undefined;
-      if (additionalData.cartMetricsData.stripeCustomerId) {
-        const { stripeCustomerId } = additionalData.cartMetricsData;
-        const customer = await this.customerManager.retrieve(stripeCustomerId);
-        const subscriptions =
-          await this.subscriptionManager.listForCustomer(stripeCustomerId);
-        const paymentMethodTypeResponse =
-          await this.paymentMethodManager.determineType(
-            customer,
-            subscriptions
-          );
-
-        if (paymentMethodTypeResponse?.type) {
-          paymentMethodType = paymentMethodTypeResponse.type;
-        }
-      }
-
       this.paymentsGleanManager.recordFxaPaySetupSuccess(
         {
           commonMetricsData: eventData,
           ...additionalData,
           experimentationData: { nimbusUserId },
         },
-        paymentMethodType
+        eventData.paymentProvider,
+        eventData.paymentMethod
       );
+    } catch (error) {
+      Sentry.captureException(error);
     }
   }
 
-  async handleCheckoutFail(eventData: CheckoutPaymentEvents) {
-    const additionalData = await retrieveAdditionalMetricsData(
-      this.productConfigurationManager,
-      this.cartManager,
-      eventData.params
-    );
+  /**
+   * Backend-triggered: cart-side code emits this after a cart transitions
+   * to terminal FAIL via a checkout-submit path (gated by onCheckoutFail).
+   * The errorReasonId is read from the cart record (finishErrorCart wrote
+   * it before this emit), surfaced via retrieveAdditionalMetricsData.
+   */
+  async handleCheckoutFail(eventData: CheckoutFailPayload) {
+    try {
+      const additionalData = await retrieveAdditionalMetricsData(
+        this.productConfigurationManager,
+        this.cartManager,
+        eventData.params
+      );
 
-    const metricsOptOut = await this.retrieveOptOut(
-      additionalData.cartMetricsData.uid
-    );
-    if (!metricsOptOut) {
+      const metricsOptOut = await this.retrieveOptOut(
+        additionalData.cartMetricsData.uid
+      );
+      if (metricsOptOut) {
+        return;
+      }
+
       const nimbusUserId = await this.getNimbusUserId({
         uid: additionalData.cartMetricsData.uid,
         language: additionalData.locale,
@@ -271,7 +285,15 @@ export class PaymentsEmitterService {
         ...additionalData,
         experimentationData: { nimbusUserId },
       });
+    } catch (error) {
+      Sentry.captureException(error);
     }
+  }
+
+  async handleGenericSubManageGleanEvent(
+    eventData: GenericGleanSubManageEvent
+  ) {
+    await this.paymentsGleanService.recordGenericSubManageEvent(eventData);
   }
 
   async handleSubscriptionEnded(eventData: SubscriptionEndedEvents) {
@@ -319,6 +341,34 @@ export class PaymentsEmitterService {
         },
         eventData.paymentProvider
       );
+    }
+  }
+
+  async handleTrialConverted(eventData: TrialConvertedEvents) {
+    const {
+      productId,
+      priceId,
+      conversionStatus,
+      providerEventId,
+      uid,
+      billingCountry,
+    } = eventData;
+
+    const metricsOptOut = await this.retrieveOptOut(uid);
+
+    if (!metricsOptOut) {
+      this.paymentsGleanManager.recordFxaSubscriptionTrialConverted({
+        cmsMetricsData: {
+          priceId,
+          productId,
+        },
+        trialConversionData: {
+          conversionStatus,
+          providerEventId,
+          productId,
+          billingCountry,
+        },
+      });
     }
   }
 

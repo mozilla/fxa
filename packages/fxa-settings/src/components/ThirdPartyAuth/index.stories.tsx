@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import ThirdPartyAuth from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
@@ -15,27 +14,14 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => {
-  // Default separator type is 'or'
-  return (
-    <AppLayout>
-      <Subject showSeparator />
-    </AppLayout>
-  );
-};
+export const IconVariant = () => (
+  <AppLayout>
+    <Subject />
+  </AppLayout>
+);
 
-export const SignInWithSeparator = () => {
-  return (
-    <AppLayout>
-      <Subject showSeparator separatorType="signInWith" />
-    </AppLayout>
-  );
-};
-
-export const NoSeparator = () => {
-  return (
-    <AppLayout>
-      <Subject showSeparator={false} />
-    </AppLayout>
-  );
-};
+export const BoxVariant = () => (
+  <AppLayout>
+    <Subject variant="box" />
+  </AppLayout>
+);

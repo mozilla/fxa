@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import Signup from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
@@ -16,7 +15,8 @@ import {
 import { SignupIntegration } from './interfaces';
 import { mockAppContext } from '../../models/mocks';
 import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
-import { AppContext, OAuthNativeServices } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { AppContext } from '../../models';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 import { getSyncEngineIds } from '../../lib/sync-engines';
@@ -45,7 +45,7 @@ const StoryWithProps = ({
 
   return (
     <AppContext.Provider value={mockAppContext()}>
-      <LocationProvider>
+      <MemoryRouter>
         <Signup
           {...{
             integration,
@@ -55,18 +55,13 @@ const StoryWithProps = ({
           }}
           email={MOCK_EMAIL}
         />
-      </LocationProvider>
+      </MemoryRouter>
     </AppContext.Provider>
   );
 };
 
 export const Default = () => <StoryWithProps />;
 export const CantChangeEmail = () => <StoryWithProps />;
-export const ClientIsMonitor = () => (
-  <StoryWithProps
-    integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])}
-  />
-);
 export const SyncDesktopV3 = () => (
   <StoryWithProps integration={createMockSignupSyncDesktopV3Integration()} />
 );
@@ -100,10 +95,10 @@ export const WithThirdPartyAuthServiceRelayIntegration = () => (
   />
 );
 
-export const WithThirdPartyAuthServiceAIWindowIntegration = () => (
+export const WithThirdPartyAuthServiceSmartWindowIntegration = () => (
   <StoryWithProps
     integration={createMockSignupOAuthNativeIntegration(
-      OAuthNativeServices.AiWindow,
+      OAuthNativeServices.SmartWindow,
       false
     )}
     supportsKeysOptionalLogin={true}

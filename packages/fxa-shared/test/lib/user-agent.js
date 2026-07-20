@@ -499,4 +499,36 @@ describe('lib/user-agent:', () => {
       assert.equal(result.formFactor, 'iPad Mini');
     });
   });
+
+  describe('platformFromOS:', () => {
+    const { platformFromOS } = require('../../lib/user-agent');
+
+    it('maps iOS OS families to ios', () => {
+      assert.equal(platformFromOS('iOS'), 'ios');
+      assert.equal(platformFromOS('iPhone OS'), 'ios');
+    });
+
+    it('maps Android to android', () => {
+      assert.equal(platformFromOS('Android'), 'android');
+    });
+
+    it('maps desktop OS families to desktop', () => {
+      assert.equal(platformFromOS('Windows'), 'desktop');
+      assert.equal(platformFromOS('Mac OS X'), 'desktop');
+      assert.equal(platformFromOS('Linux'), 'desktop');
+    });
+
+    it('returns unknown when the OS is missing', () => {
+      assert.equal(platformFromOS(''), 'unknown');
+      assert.equal(platformFromOS(undefined), 'unknown');
+    });
+
+    it('returns unknown for non-desktop or unrecognized OS families', () => {
+      assert.equal(platformFromOS('Windows Phone'), 'unknown');
+      assert.equal(platformFromOS('Windows Mobile'), 'unknown');
+      assert.equal(platformFromOS('Firefox OS'), 'unknown');
+      assert.equal(platformFromOS('tvOS'), 'unknown');
+      assert.equal(platformFromOS('SomeFutureOS'), 'unknown');
+    });
+  });
 });

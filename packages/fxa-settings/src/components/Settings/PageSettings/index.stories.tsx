@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Account } from '../../../models/Account';
 
 import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
 
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { Meta } from '@storybook/react';
@@ -20,6 +19,7 @@ import {
   coldStartAccount,
   completelyFilledOutAccount,
   partiallyFilledOutAccount,
+  linkedAccountNoPassword,
 } from './mocks';
 
 export default {
@@ -47,13 +47,13 @@ const storyWithContext = (
 
   const story = () => {
     return (
-      <LocationProvider>
+      <MemoryRouter>
         <AppContext.Provider value={mockAppContext(context)}>
           <SettingsLayout>
             <PageSettings />
           </SettingsLayout>
         </AppContext.Provider>
-      </LocationProvider>
+      </MemoryRouter>
     );
   };
   if (storyName) story.storyName = storyName;
@@ -87,4 +87,9 @@ export const PartiallyFilledOutWithKeyPromo = storyWithContext(
 export const PartiallyFilledOutWithPhonePromo = storyWithContext(
   accountEligibleForRecoveryPhoneOnly,
   'with recovery phone promo'
+);
+
+export const LinkedAccountNoPassword = storyWithContext(
+  linkedAccountNoPassword,
+  'linked account, no password'
 );

@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { getDefault, Config } from '../../../lib/config';
 import { Nav } from '.';
 import { AppContext } from 'fxa-settings/src/models';
@@ -47,17 +46,17 @@ const storyWithContext = (
     : { account: account as Account };
 
   const story = () => (
-    <LocationProvider>
+    <MemoryRouter>
       <AppContext.Provider value={mockAppContext(context)}>
         <Nav />
       </AppContext.Provider>
-    </LocationProvider>
+    </MemoryRouter>
   );
   if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Basic = () => <Nav />;
+export const Basic = storyWithContext(account);
 
 export const WithLinkToSubscriptions = storyWithContext(
   account,

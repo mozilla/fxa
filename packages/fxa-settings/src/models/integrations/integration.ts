@@ -9,6 +9,7 @@ import { IntegrationFeatures } from './features';
 import {
   RelierClientInfo,
   RelierCmsInfo,
+  RelierLegalTerms,
   RelierSubscriptionInfo,
 } from './relier-interfaces';
 
@@ -49,6 +50,13 @@ export class GenericIntegration<
   clientInfo: RelierClientInfo | undefined;
   subscriptionInfo: RelierSubscriptionInfo | undefined;
   cmsInfo: RelierCmsInfo | undefined;
+  legalTerms: RelierLegalTerms | undefined;
+  // Set by IntegrationFactory.initClientInfo when the /v1/oauth/client/:id
+  // fetch in `useClientInfoState` failed (network, WAF challenge, 5xx,
+  // unknown client_id). Downstream code uses this to surface a discrete
+  // error instead of falling through to scope-validation paths with a
+  // half-populated clientInfo.
+  clientInfoLoadFailed: boolean = false;
 
   constructor(
     type: IntegrationType,
@@ -56,13 +64,15 @@ export class GenericIntegration<
     features: TFeatures,
     clientInfo?: RelierClientInfo,
     subscriptionInfo?: RelierSubscriptionInfo | undefined,
-    cmsInfo?: RelierCmsInfo | undefined
+    cmsInfo?: RelierCmsInfo | undefined,
+    legalTerms?: RelierLegalTerms | undefined
   ) {
     this.type = type;
     this.data = data;
     this.clientInfo = clientInfo;
     this.subscriptionInfo = subscriptionInfo;
     this.cmsInfo = cmsInfo;
+    this.legalTerms = legalTerms;
     this.features = features;
   }
 
@@ -82,7 +92,11 @@ export class GenericIntegration<
     return false;
   }
 
-  isFirefoxClientServiceAiWindow() {
+  isFirefoxClientServiceSmartWindow() {
+    return false;
+  }
+
+  isFirefoxClientServiceVpn() {
     return false;
   }
 
@@ -96,6 +110,10 @@ export class GenericIntegration<
     _syncEngines?: SyncEngines
   ): WebChannelServices | undefined {
     return undefined;
+  }
+
+  isFirefoxClient() {
+    return this.isFirefoxDesktopClient() || this.isFirefoxMobileClient();
   }
 
   isFirefoxMobileClient() {
@@ -142,8 +160,67 @@ export class GenericIntegration<
     }
   }
 
-  wantsKeys(): boolean {
+  /**
+   * Whether this integration strictly requires keys, forcing password entry.
+   * Currently only Sync requires keys.
+   *
+   * Note, the Relay browser service login launched in Firefox desktop 135, and
+   * the "keys optional" capability launched in Fx desktop 147, meaning all Relay
+   * service users in those Fx versions require a password.
+   *
+   * Desktop OAuth launched with Fx 134. SyncDesktopV3 users don't have non-Sync
+   * browser support.
+   */
+  requiresKeys(): boolean {
     return false;
+  }
+
+  /**
+   * Whether this integration wants keys opportunistically — if the user
+   * enters a password for another reason, we should also fetch keys.
+   * This applies to non-Sync browser services (Relay, VPN, SmartWindow) that
+   * request the Sync scope so users can turn Sync on in the browser without
+   * being bounced back to FxA.
+   */
+  wantsKeysIfPasswordEntered(): boolean {
+    return false;
+  }
+
+  /**
+   * Whether this integration requests scoped keys. When true, `keys: true`
+   * is sent to the auth server, which may trigger email verification.
+   * Use `requiresKeys()` when you need to know if keys are mandatory
+   * (e.g., forcing password entry), and `wantsKeys()` when you need to
+   * know if scoped keys are being requested, either because they're
+   * required or because the user entered a password and keys can be
+   * derived opportunistically.
+   */
+  wantsKeys(): boolean {
+    return this.requiresKeys() || this.wantsKeysIfPasswordEntered();
+  }
+
+  /**
+   * Whether a passwordless account must set a password because scoped keys
+   * must be derived and sent to the browser.
+   *
+   * - Sync always requires keys (`requiresKeys`), so a passwordless Sync sign-in
+   *   must set a password first.
+   * - A non-Sync Firefox service that wants keys (`wantsKeysIfPasswordEntered`)
+   *   only requires a password when the browser has NOT decoupled Sync. When the
+   *   browser has the "keys optional" capability set (Fx desktop 147+, TBD in mobile),
+   *   it can complete login without keys, so no password is required.
+   *
+   * When this is true (and the caller has also confirmed the account has no
+   * password), when the user has authenticated, route them to
+   * `/post_verify/set_password` and defer the fxaLogin/fxaOAuthLogin web channel
+   * messages until keys are available — otherwise the browser receives a keyless
+   * OAuth login.
+   */
+  requiresPasswordForLogin(supportsKeysOptionalLogin = false): boolean {
+    return (
+      this.requiresKeys() ||
+      (!supportsKeysOptionalLogin && this.wantsKeysIfPasswordEntered())
+    );
   }
 
   wantsLogin(): boolean {
@@ -179,5 +256,9 @@ export class GenericIntegration<
     return Object.keys(this.cmsInfo || {}).length > 0
       ? this.cmsInfo
       : undefined;
+  }
+
+  getLegalTerms() {
+    return this.legalTerms;
   }
 }

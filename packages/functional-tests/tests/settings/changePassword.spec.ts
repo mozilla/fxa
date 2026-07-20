@@ -35,6 +35,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, changePassword, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
@@ -51,6 +52,14 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText('Password updated');
 
+      // Account already has a password, so the change password CTA should
+      // emit reason='change' (vs 'create' for passwordless accounts).
+      const submitPings = gleanEventsHelper.getEventsByName(
+        'account_pref_change_password_submit'
+      );
+      expect(submitPings.length).toBeGreaterThan(0);
+      expect(submitPings[0].extras.reason).toBe('change');
+
       // Sign out and login with new password
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
@@ -60,6 +69,43 @@ test.describe('severity-1 #smoke', () => {
 
       // Update credentials for account cleanup
       credentials.password = newPassword;
+    });
+
+    test('re-prompts for MFA on a subsequent change after the session token rotates', async ({
+      target,
+      pages: { page, changePassword, settings, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
+      const secondPassword = testAccountTracker.generatePassword();
+      const thirdPassword = testAccountTracker.generatePassword();
+
+      // First change: satisfy the MFA guard, which caches a `password`-scope JWT.
+      await settings.password.changeButton.click();
+      await settings.confirmMfaGuard(credentials.email);
+      await changePassword.fillOutChangePassword(
+        credentials.password,
+        secondPassword
+      );
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText('Password updated');
+      credentials.password = secondPassword;
+
+      // The successful change rotates the session token, which every cached MFA
+      // JWT derives from via its `stid` claim. Those JWTs are now dead, so the
+      // next protected action must re-prompt for MFA rather than reuse them.
+      await settings.password.changeButton.click();
+      await expect(settings.mfaGuardHeading).toBeVisible();
+
+      // The recovered flow still completes once the new MFA code is confirmed.
+      await settings.confirmMfaGuard(credentials.email);
+      await changePassword.fillOutChangePassword(
+        credentials.password,
+        thirdPassword
+      );
+      await expect(settings.alertBar).toHaveText('Password updated');
+      credentials.password = thirdPassword;
     });
 
     test('reset password via settings works', async ({

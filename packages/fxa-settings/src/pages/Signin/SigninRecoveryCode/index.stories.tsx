@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import SigninRecoveryCode from '.';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
 import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
@@ -20,9 +19,9 @@ export default {
   decorators: [
     withLocalization,
     (Story) => (
-      <LocationProvider>
+      <MemoryRouter>
         <Story />
-      </LocationProvider>
+      </MemoryRouter>
     ),
   ],
 } as Meta;
@@ -66,10 +65,16 @@ export const DefaultWithCms = () => (
   />
 );
 
-export const WithOAuthDesktopServiceRelay = () => (
+export const SplitLayoutWithCms = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-    integration={createMockOAuthNativeIntegration(false)}
+    integration={createMockOAuthNativeIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SigninRecoveryCodePage: {
+        ...MOCK_CMS_INFO.SigninRecoveryCodePage,
+        splitLayout: true,
+      },
+    })}
     navigateToRecoveryPhone={() => {
       action('handleNavigation')();
       return Promise.resolve();
@@ -103,7 +108,7 @@ export const WithBannerErrorOnSubmit = () => (
 );
 
 export const WithRecoveryPhoneSuccessNav = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryCode
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={mockWebIntegration}
@@ -115,11 +120,11 @@ export const WithRecoveryPhoneSuccessNav = () => (
       signinState={mockSigninLocationState}
       submitRecoveryCode={mockSubmitSuccess}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );
 
 export const WithRecoveryPhoneErrorNav = () => (
-  <LocationProvider>
+  <MemoryRouter>
     <SigninRecoveryCode
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={mockWebIntegration}
@@ -130,5 +135,5 @@ export const WithRecoveryPhoneErrorNav = () => (
       signinState={mockSigninLocationState}
       submitRecoveryCode={mockSubmitSuccess}
     />
-  </LocationProvider>
+  </MemoryRouter>
 );

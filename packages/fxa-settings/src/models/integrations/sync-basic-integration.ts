@@ -50,7 +50,7 @@ export class SyncBasicIntegration extends GenericIntegration<
     }
   }
 
-  wantsKeys() {
+  requiresKeys() {
     return true;
   }
 

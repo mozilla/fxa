@@ -9,12 +9,13 @@ const PATH = process.env.PATH.split(':')
 const apps = [
   {
     name: 'auth',
-    script: 'node -r esbuild-register bin/key_server.js',
+    script:
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register bin/key_server.js',
     cwd: __dirname,
     env: {
       DB: 'mysql',
       NODE_ENV: 'dev',
-      NODE_OPTIONS: '--inspect=9160 --dns-result-order=ipv4first',
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --inspect=9160 --dns-result-order=ipv4first`.trim(),
       TS_NODE_TRANSPILE_ONLY: 'true',
       IP_ADDRESS: '0.0.0.0',
       SIGNIN_UNBLOCK_FORCED_EMAILS: '^block.*@restmail\\.net$',
@@ -41,11 +42,12 @@ const apps = [
   },
   {
     name: 'inbox',
-    script: 'node -r esbuild-register test/mail_helper.js',
+    script:
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register test/mail_helper.js',
     cwd: __dirname,
     env: {
       NODE_ENV: 'dev',
-      NODE_OPTIONS: '--dns-result-order=ipv4first',
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --dns-result-order=ipv4first`.trim(),
       MAILER_PORT: '9001',
       PATH,
     },

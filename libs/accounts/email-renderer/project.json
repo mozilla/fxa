@@ -6,7 +6,7 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
+      "dependsOn": ["build-ts", "l10n-merge", "build-css"],
       "executor": "nx:run-commands",
       "options": {
         "commands": [
@@ -19,20 +19,30 @@
       }
     },
     "build-ts": {
-      "executor": "@nx/esbuild:esbuild",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "dependsOn": ["l10n-prime"],
+      "dependsOn": ["l10n-prime", "^build"],
       "options": {
         "outputPath": "dist/libs/accounts/email-renderer",
         "main": "libs/accounts/email-renderer/src/index.ts",
         "tsConfig": "libs/accounts/email-renderer/tsconfig.lib.json",
-        "assets": ["libs/accounts/email-renderer/*.md"],
-        "format": ["cjs"],
+        "assets": [
+          "libs/accounts/email-renderer/*.md",
+          "libs/accounts/email-renderer/src/**/*.txt",
+          "libs/accounts/email-renderer/src/**/*.mjml"
+        ],
         "generatePackageJson": true
       }
     },
     "build-css": {
+      "cache": true,
       "executor": "nx:run-commands",
+      "inputs": [
+        "{projectRoot}/src/**/*.scss"
+      ],
+      "outputs": [
+        "{projectRoot}/src/css"
+      ],
       "options": {
         "commands": [
           "ts-node libs/accounts/email-renderer/src/sass-compile-files.ts"
@@ -59,10 +69,10 @@
     "build-storybook": {
       "executor": "nx:run-commands",
       "outputs": ["{projectRoot}/storybook-static"],
-      "dependsOn": ["build-css", "build-ts"],
+      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "options": {
         "commands": [
-          "nx run accounts-email-renderer:build-storybook-only",
+          "STORYBOOK_BUILD=true nx run accounts-email-renderer:build-storybook-only",
           "nx run accounts-email-renderer:build-storybook-copy-locales",
           "nx run accounts-email-renderer:build-storybook-copy-templates"
         ],
@@ -97,7 +107,7 @@
     },
     "storybook": {
       "executor": "@nx/storybook:storybook",
-      "dependsOn": ["build-css", "build-ts"],
+      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "options": {
         "port": 4400,
         "configDir": "libs/accounts/email-renderer/.storybook",
@@ -116,16 +126,24 @@
         "cwd": "."
       },
       "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
-      "outputs": ["{projectRoot}/public/en/auth.ftl"]
+      "outputs": [
+        "{projectRoot}/public/locales/en/branding.ftl",
+        "{projectRoot}/public/locales/en/emails.ftl"
+      ]
     },
     "l10n-merge": {
+      "cache": true,
+      "dependsOn": ["l10n-prime"],
       "executor": "nx:run-commands",
       "options": {
         "command": "yarn grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-merge",
         "cwd": "."
       },
       "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
-      "outputs": ["{projectRoot}/public/en/auth.ftl"]
+      "outputs": [
+        "{projectRoot}/public/locales/en/emails.ftl",
+        "{projectRoot}/public/locales/en/branding.ftl"
+      ]
     },
     "l10n-copy": {
       "executor": "nx:run-commands",

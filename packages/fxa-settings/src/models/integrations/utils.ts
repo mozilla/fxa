@@ -2,14 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { OAuthNativeServices } from './oauth-native-integration';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { isOAuthIntegration } from './oauth-native-integration';
+
+const oauthNativeServices = new Set<string>(Object.values(OAuthNativeServices));
 
 export function isFirefoxService(service?: string) {
-  return (
-    service === OAuthNativeServices.Sync ||
-    service === OAuthNativeServices.Relay ||
-    service === OAuthNativeServices.AiWindow
-  );
+  return !!service && oauthNativeServices.has(service);
+}
+
+/**
+ * Resolves the `service` value to send with a sign-in or sign-up request,
+ * mainly so the server names the right service in the new-device-login email:
+ * the Firefox service name when present (e.g. 'sync'), otherwise an OAuth RP's
+ * client id so the server names the RP. Only for genuine OAuth integrations — a
+ * Web integration's getClientId() can fall back to the first-party Settings
+ * client.
+ */
+export function resolveServiceOrClientId(
+  integration: Parameters<typeof isOAuthIntegration>[0] & {
+    getService(): string | undefined;
+    getClientId(): string | undefined;
+  }
+): string | undefined {
+  const service = integration.getService();
+  if (isFirefoxService(service)) {
+    return service;
+  }
+  return isOAuthIntegration(integration)
+    ? integration.getClientId()
+    : undefined;
 }
 
 const NO_LONGER_SUPPORTED_CONTEXTS = new Set([

@@ -27,7 +27,7 @@ module.exports = function (
   authServerCacheRedis
 ) {
   // Various extra helpers.
-  const devicesImpl = require('../devices')(log, db, push, pushbox);
+  const devicesImpl = require('../devices')(log, db, push, pushbox, glean);
   const cadReminders = require('../cad-reminders')(config, log);
   const signinUtils = require('./utils/signin')(
     log,
@@ -241,6 +241,28 @@ module.exports = function (
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
+  const { passkeyRoutes } = require('./passkeys');
+  const passkeys = passkeyRoutes(
+    customs,
+    db,
+    config,
+    statsd,
+    glean,
+    log,
+    mailer
+  );
+
+  const { passwordlessRoutes } = require('./passwordless');
+  const passwordless = passwordlessRoutes(
+    log,
+    db,
+    config,
+    customs,
+    glean,
+    statsd,
+    authServerCacheRedis
+  );
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -253,6 +275,7 @@ module.exports = function (
     attachedClients,
     emails,
     password,
+    passwordless,
     recoveryCodes,
     recoveryPhone,
     securityEvents,
@@ -268,7 +291,8 @@ module.exports = function (
     cloudScheduler,
     cms,
     geo,
-    mfa
+    mfa,
+    passkeys
   );
 
   function optionallyIgnoreTrace(fn) {

@@ -69,13 +69,20 @@
     "signUpRoutes": true,
     "signInRoutes": true,
     "emailFirstRoutes": true,
-    "postVerifyThirdPartyAuthRoutes": true
+    "postVerifyThirdPartyAuthRoutes": true,
+    "pairRoutes": true
   },
   "featureFlags": {
-    "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,
-    "paymentsNextSubscriptionManagement": true
+    "paymentsNextSubscriptionManagement": true,
+    "passkeysEnabled": true,
+    "passkeyRegistrationEnabled": true,
+    "passkeyAuthenticationEnabled": true,
+    "passwordlessEnabled": true
+  },
+  "darkMode": {
+    "enabled": true
   },
   "rolloutRates": {
     "keyStretchV2": 1,

@@ -11,7 +11,7 @@ import { convertError } from '../../mysql';
 // These are the values of the `securityEventNames` table in the fxa DB.  The
 // numeric id is a MySQL auto_increment'd value.  It's best to run the
 // migrations and then add the id values here when adding more event types.
-export const EVENT_NAMES: Record<string, number> = {
+export const EVENT_NAMES = {
   'account.create': 1,
   'account.login': 2,
   'account.reset': 3,
@@ -67,7 +67,17 @@ export const EVENT_NAMES: Record<string, number> = {
   'account.signin_confirm_bypass_known_ip': 48,
   'account.signin_confirm_bypass_new_account': 49,
   'account.signin_confirm_bypass_known_device': 50,
-} as const;
+  'account.passkey.registration_success': 51,
+  'account.passkey.registration_failure': 52,
+  'account.passkey.removed': 53,
+  'account.passkey.authentication_success': 54,
+  'account.passkey.authentication_failure': 55,
+  'account.passwordless_login_otp_sent': 56,
+  'account.passwordless_login_otp_failed': 57,
+  'account.passwordless_login_otp_verified': 58,
+  'account.passwordless_registration_complete': 59,
+  'account.recovery_codes_set': 60,
+} as const satisfies Record<string, number>;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
 
@@ -81,11 +91,6 @@ export function sanitizeIp(addr: string) {
     addr = addr.split(',')[0].trim();
   }
 
-  // Pefix with :: for v6 formatting
-  if (ip.isV4Format(addr)) {
-    addr = '::' + addr;
-  }
-
   return addr.trim();
 }
 
@@ -93,7 +98,27 @@ function ipHmac(key: Buffer, uid: Buffer, addr: string) {
   addr = sanitizeIp(addr);
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(uid);
-  hmac.update(ip.toBuffer(sanitizeIp(addr)));
+  hmac.update(ip.toBuffer(addr));
+
+  return hmac.digest();
+}
+/**
+ * This is used during lookups only to match records written before we
+ * stopped prefixing ipv4 addresses; FXA-13433.
+ *
+ * After some amount of time, we will have more recent login records with the new HMAC than
+ * the old, and we can remove this legacy HMAC function and the associated tests.
+ *
+ * Cleanup ticket: https://mozilla-hub.atlassian.net/browse/FXA-13667
+ */
+function ipHmacLegacy(key: Buffer, uid: Buffer, addr: string) {
+  addr = sanitizeIp(addr);
+  if (ip.isV4Format(addr)) {
+    addr = '::' + addr;
+  }
+  const hmac = crypto.createHmac('sha256', key);
+  hmac.update(uid);
+  hmac.update(ip.toBuffer(addr));
 
   return hmac.digest();
 }
@@ -142,7 +167,7 @@ export class SecurityEvent extends BaseAuthModel {
         EVENT_NAMES[name],
         ipAddrHmac,
         Date.now(),
-        ipAddr,
+        sanitizeIp(ipAddr),
         additionalInfo ? JSON.stringify(additionalInfo) : null
       );
     } catch (e) {
@@ -175,7 +200,8 @@ export class SecurityEvent extends BaseAuthModel {
 
   static async findByUidAndIP(uid: string, ipAddr: string, ipHmacKey: string) {
     const id = uuidTransformer.to(uid);
-    const ipAddrHmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
+    const key = Buffer.from(ipHmacKey);
+    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -190,7 +216,7 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.id'
       )
       .where('securityEvents.uid', id)
-      .andWhere('securityEvents.ipAddrHmac', ipAddrHmac)
+      .whereIn('securityEvents.ipAddrHmac', hmacs)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
@@ -201,7 +227,8 @@ export class SecurityEvent extends BaseAuthModel {
     ipHmacKey: string
   ) {
     const id = uuidTransformer.to(uid);
-    const ipAddrHmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
+    const key = Buffer.from(ipHmacKey);
+    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -218,7 +245,7 @@ export class SecurityEvent extends BaseAuthModel {
       .where('securityEvents.uid', id)
       .where('securityEvents.verified', 1)
       .where('securityEvents.nameId', EVENT_NAMES['account.login'])
-      .andWhere('securityEvents.ipAddrHmac', ipAddrHmac)
+      .whereIn('securityEvents.ipAddrHmac', hmacs)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }

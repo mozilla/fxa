@@ -125,6 +125,53 @@ describe('head/startup-styles', function () {
     });
   });
 
+  describe('addDarkModeStyles', function () {
+    const THEME_KEY = '__fxa_storage.theme_preference';
+
+    it('adds `dark` when theme_preference is "dark"', function () {
+      windowMock.localStorage.setItem(THEME_KEY, JSON.stringify('dark'));
+      startupStyles.addDarkModeStyles();
+      assert.isTrue(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+
+    it('does not add `dark` when theme_preference is "light"', function () {
+      windowMock.localStorage.setItem(THEME_KEY, JSON.stringify('light'));
+      startupStyles.addDarkModeStyles();
+      assert.isFalse(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+
+    it('adds `dark` when theme_preference is "system" and OS prefers dark', function () {
+      windowMock.localStorage.setItem(THEME_KEY, JSON.stringify('system'));
+      windowMock.matchMedia = function () {
+        return { matches: true };
+      };
+      startupStyles.addDarkModeStyles();
+      assert.isTrue(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+
+    it('does not add `dark` when theme_preference is "system" and OS prefers light', function () {
+      windowMock.localStorage.setItem(THEME_KEY, JSON.stringify('system'));
+      windowMock.matchMedia = function () {
+        return { matches: false };
+      };
+      startupStyles.addDarkModeStyles();
+      assert.isFalse(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+
+    it('defaults to light (no `dark` class) when theme_preference is not set', function () {
+      startupStyles.addDarkModeStyles();
+      assert.isFalse(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+
+    it('defaults to light when localStorage is unavailable', function () {
+      sinon
+        .stub(windowMock.localStorage, 'getItem')
+        .throws(new Error('unavailable'));
+      startupStyles.addDarkModeStyles();
+      assert.isFalse(/\bdark\b/.test(startupStyles.getClassName()));
+    });
+  });
+
   describe('initialize', function () {
     it('runs all the tests', function () {
       startupStyles.initialize();

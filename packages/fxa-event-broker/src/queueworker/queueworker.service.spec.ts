@@ -59,11 +59,13 @@ const baseDeleteMessage = {
 const basePasswordResetMessage = {
   ...baseMessage,
   event: 'reset',
+  generation: now - 5000,
 };
 
 const basePasswordChangeMessage = {
   ...baseMessage,
   event: 'passwordChange',
+  generation: now - 5000,
 };
 
 const basePrimaryEmailMessage = {
@@ -313,6 +315,32 @@ describe('QueueworkerService', () => {
       });
     }
 
+    it('uses generation as changeTime for password change events', async () => {
+      const msg = updateStubMessage(basePasswordChangeMessage);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(basePasswordChangeMessage.generation);
+    });
+
+    it('uses generation as changeTime for password reset events', async () => {
+      const msg = updateStubMessage(basePasswordResetMessage);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(basePasswordResetMessage.generation);
+    });
+
+    it('falls back to timestamp when generation is absent for password events', async () => {
+      const { generation, ...messageWithoutGeneration } =
+        basePasswordChangeMessage;
+      const msg = updateStubMessage(messageWithoutGeneration);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(messageWithoutGeneration.timestamp);
+    });
+
     const invalidMessages = {
       login: { ...baseLoginMessage, clientId: 'test1234' },
       'password change': { ...basePasswordChangeMessage, ts: false },
@@ -359,11 +387,19 @@ describe('QueueworkerService', () => {
       webHookService.hasWebhookRegistered = jest.fn().mockReturnValue(false);
       const msg = updateStubMessage(baseDeleteMessage);
       await (service as any).handleMessage(msg);
-      expect(logger.debug).toBeCalledTimes(3);
+      expect(logger.debug).toHaveBeenCalledTimes(3);
+
       expect(logger.debug.mock.calls[1][0]).toBe('noWebhookRegistered');
-      expect(metrics.increment).toBeCalledWith('message.webhookNotFound', {
-        clientId: baseLoginMessage.clientId,
+      expect(logger.debug.mock.calls[1][1]).toEqual({
+        clientId: '444c5d137fc34d82ae65441d7f26a504',
+        eventType: 'delete',
       });
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'message.webhookNotFound',
+        {
+          eventType: 'delete',
+        }
+      );
     });
   });
 });

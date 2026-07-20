@@ -21,6 +21,99 @@ function serialize(clientIdHex, token) {
   };
 }
 
+/**
+ * Sorts authorized clients by last_access_time, client_name, created_time, and scope.
+ */
+function sortAuthorizedClients(clients) {
+  return clients.sort(function (a, b) {
+    if (b.last_access_time > a.last_access_time) {
+      return 1;
+    }
+    if (b.last_access_time < a.last_access_time) {
+      return -1;
+    }
+    if (a.client_name > b.client_name) {
+      return 1;
+    }
+    if (a.client_name < b.client_name) {
+      return -1;
+    }
+    if (a.created_time > b.created_time) {
+      return 1;
+    }
+    if (a.created_time < b.created_time) {
+      return -1;
+    }
+    // To help provide a deterministic result order to simplify testing, also sort of scope values.
+    if (a.scope > b.scope) {
+      return 1;
+    }
+    if (a.scope < b.scope) {
+      return -1;
+    }
+    return 0;
+  });
+}
+
+/**
+ * Processes access tokens into unified records by clientId.
+ * Merges multiple access tokens for the same client.
+ * Filters out clients already seen in refresh tokens and canGrant clients.
+ * @param {Array} accessTokens
+ * @param {Set} seenClientIds - ClientIds to exclude
+ * @returns {Array} Array of serialized records
+ */
+function processAccessTokens(accessTokens, seenClientIds) {
+  const accessTokenRecordsByClientId = new Map();
+
+  for (const token of accessTokens) {
+    const clientId = token.clientId.toString('hex');
+    if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
+      let record = accessTokenRecordsByClientId.get(clientId);
+      if (typeof record === 'undefined') {
+        record = {
+          clientId,
+          clientName: token.clientName,
+          createdAt: token.createdAt,
+          lastUsedAt: token.createdAt,
+          scope: ScopeSet.fromArray([]),
+        };
+        accessTokenRecordsByClientId.set(clientId, record);
+      }
+      // Merge details of all access tokens into a single record.
+      record.scope.add(token.scope);
+      if (token.createdAt < record.createdAt) {
+        record.createdAt = token.createdAt;
+      }
+      if (record.lastUsedAt < token.createdAt) {
+        record.lastUsedAt = token.createdAt;
+      }
+    }
+  }
+
+  return Array.from(accessTokenRecordsByClientId.values()).map((record) =>
+    serialize(record.clientId, record)
+  );
+}
+
+/**
+ * Processes refresh tokens into serialized records.
+ * @param {Array} refreshTokens
+ * @returns {Object} { records: Array, seenClientIds: Set }
+ */
+function processRefreshTokens(refreshTokens) {
+  const records = [];
+  const seenClientIds = new Set();
+
+  for (const token of refreshTokens) {
+    const clientId = token.clientId.toString('hex');
+    records.push(serialize(clientId, token));
+    seenClientIds.add(clientId);
+  }
+
+  return { records, seenClientIds };
+}
+
 module.exports = {
   async destroy(clientId, uid, refreshTokenId) {
     await oauthDB.ready();
@@ -34,90 +127,47 @@ module.exports = {
       await oauthDB.deleteClientAuthorization(clientId, uid);
     }
   },
+  /**
+   * Fetches all authorized clients for a given user ID,
+   * @param {*} uid
+   * @returns
+   */
   async list(uid) {
     await oauthDB.ready();
-    const authorizedClients = [];
-
+    // get both refresh and access tokens in parallel
     const [refreshTokens, accessTokens] = await Promise.all([
       oauthDB.getRefreshTokensByUid(uid),
       oauthDB.getAccessTokensByUid(uid),
     ]);
 
-    // First, enumerate all the refresh tokens.
-    // Each of these is a separate instance of an authorized client
-    // and should be displayed to the user as such. Nice and simple!
-    const seenClientIds = new Set();
-    for (const token of refreshTokens) {
-      const clientId = token.clientId.toString('hex');
-      authorizedClients.push(serialize(clientId, token));
-      seenClientIds.add(clientId);
-    }
+    const { records: refreshRecords, seenClientIds } =
+      processRefreshTokens(refreshTokens);
 
-    // Next, enumerate all the access tokens. In the interests of giving the user a
-    // complete-yet-comprehensible list of all the things attached to their account,
-    // we want to:
-    //
-    //  1. Show a single unified record for any client that is not using refresh tokens.
-    //  2. Avoid showing access tokens for `canGrant` clients; such clients will always
-    //     hold some other sort of token, and we don't want them to appear in the list twice.
-    const accessTokenRecordsByClientId = new Map();
-    for (const token of accessTokens) {
-      const clientId = token.clientId.toString('hex');
-      if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
-        let record = accessTokenRecordsByClientId.get(clientId);
-        if (typeof record === 'undefined') {
-          record = {
-            clientId,
-            clientName: token.clientName,
-            createdAt: token.createdAt,
-            lastUsedAt: token.createdAt,
-            scope: ScopeSet.fromArray([]),
-          };
-          accessTokenRecordsByClientId.set(clientId, record);
-        }
-        // Merge details of all access tokens into a single record.
-        record.scope.add(token.scope);
-        if (token.createdAt < record.createdAt) {
-          record.createdAt = token.createdAt;
-        }
-        if (record.lastUsedAt < token.createdAt) {
-          record.lastUsedAt = token.createdAt;
-        }
-      }
-    }
-    for (const [clientId, record] of accessTokenRecordsByClientId.entries()) {
-      authorizedClients.push(serialize(clientId, record));
-    }
+    const accessRecords = processAccessTokens(accessTokens, seenClientIds);
 
-    // Sort the final list first by last_access_time, then by client_name, then by created_time.
-    authorizedClients.sort(function (a, b) {
-      if (b.last_access_time > a.last_access_time) {
-        return 1;
-      }
-      if (b.last_access_time < a.last_access_time) {
-        return -1;
-      }
-      if (a.client_name > b.client_name) {
-        return 1;
-      }
-      if (a.client_name < b.client_name) {
-        return -1;
-      }
-      if (a.created_time > b.created_time) {
-        return 1;
-      }
-      if (a.created_time < b.created_time) {
-        return -1;
-      }
-      // To help provide a deterministic result order to simplify testing, also sort of scope values.
-      if (a.scope > b.scope) {
-        return 1;
-      }
-      if (a.scope < b.scope) {
-        return -1;
-      }
-      return 0;
-    });
-    return authorizedClients;
+    const authorizedClients = [...refreshRecords, ...accessRecords];
+    return sortAuthorizedClients(authorizedClients);
+  },
+
+  /**
+   * Fetches a list of unique OAuth clients authorized by a user.
+   * Each clientId appears only once. The DB layer handles uniqueness
+   * and selects the token with the most recent lastAccessTime.
+   */
+  async listUnique(uid) {
+    await oauthDB.ready();
+
+    const [refreshTokens, accessTokens] = await Promise.all([
+      oauthDB.getUniqueRefreshTokensByUid(uid),
+      oauthDB.getAccessTokensByUid(uid),
+    ]);
+
+    const { records: refreshRecords, seenClientIds } =
+      processRefreshTokens(refreshTokens);
+
+    const accessRecords = processAccessTokens(accessTokens, seenClientIds);
+
+    const authorizedClients = [...refreshRecords, ...accessRecords];
+    return sortAuthorizedClients(authorizedClients);
   },
 };

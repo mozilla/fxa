@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import CardHeader from '.';
@@ -72,31 +71,45 @@ describe('CardHeader', () => {
       />
     );
     expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })
+    ).toBeInTheDocument();
     expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
   });
 
   it('renders CMS header with only headline', () => {
     renderWithLocalizationProvider(
-      <CardHeader
-        headingText={MOCK_HEADING}
-        cmsHeadline={MOCK_CMS_HEADLINE}
-      />
+      <CardHeader headingText={MOCK_HEADING} cmsHeadline={MOCK_CMS_HEADLINE} />
     );
-    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })
+    ).toBeInTheDocument();
   });
 
-  it('renders CMS header with only description', () => {
+  it('falls back to default heading when cmsHeadline is null (Strapi unset field)', () => {
+    renderWithLocalizationProvider(
+      <CardHeader headingText={MOCK_HEADING} cmsHeadline={null} />
+    );
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+  });
+
+  it('falls back to default heading when only description is provided (no headline)', () => {
     renderWithLocalizationProvider(
       <CardHeader
         headingText={MOCK_HEADING}
         cmsDescription={MOCK_CMS_DESCRIPTION}
       />
     );
-    expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
+    // Without cmsHeadline, the CMS path is not used
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(MOCK_CMS_DESCRIPTION)).not.toBeInTheDocument();
   });
 
-  it('renders CMS header with only logo', () => {
+  it('falls back to default heading when only logo is provided (no headline)', () => {
     renderWithLocalizationProvider(
       <CardHeader
         headingText={MOCK_HEADING}
@@ -104,6 +117,88 @@ describe('CardHeader', () => {
         cmsLogoAltText={MOCK_CMS_LOGO_ALT_TEXT}
       />
     );
-    expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
+    // Without cmsHeadline, the CMS path is not used
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_LOGO_ALT_TEXT)
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders CMS header with default font size', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsHeadlineFontSize="default"
+      />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass('card-header-cms', 'text-xl');
+  });
+
+  it('renders CMS header with medium font size', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsHeadlineFontSize="medium"
+      />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass('card-header-cms', 'text-xxl');
+  });
+
+  it('renders CMS header with large font size', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsHeadlineFontSize="large"
+      />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass('card-header-cms', 'text-xxxl');
+  });
+
+  it('renders CMS header with custom text color', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsHeadlineTextColor="#592ACB"
+      />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveStyle({ color: '#592ACB' });
+  });
+
+  it('renders CMS header with both font size and text color', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsHeadlineFontSize="large"
+        cmsHeadlineTextColor="#C50042"
+      />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass('card-header-cms', 'text-xxxl');
+    expect(heading).toHaveStyle({ color: '#C50042' });
+  });
+
+  it('renders CMS header with default font size when fontSize is undefined', () => {
+    renderWithLocalizationProvider(
+      <CardHeader headingText={MOCK_HEADING} cmsHeadline={MOCK_CMS_HEADLINE} />
+    );
+    const heading = screen.getByRole('heading', { name: MOCK_CMS_HEADLINE });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass('text-xl');
   });
 });

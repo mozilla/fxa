@@ -65,7 +65,7 @@ const webpackConfig = {
       'fast-text-encoding': require.resolve('fast-text-encoding'),
       fxaCryptoDeriver: path.resolve(
         __dirname,
-        '../../dist/libs/vendored/crypto-relier/main.js'
+        '../../dist/libs/vendored/crypto-relier/src/index.js'
       ),
       fxaPairingChannel: require.resolve(
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
@@ -82,6 +82,14 @@ const webpackConfig = {
       uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
+      '@fxa/vendored/common-password-list': path.resolve(
+        __dirname,
+        '../../libs/vendored/common-password-list/src/index.ts'
+      ),
+      '@fxa/vendored/incremental-encoder': path.resolve(
+        __dirname,
+        '../../libs/vendored/incremental-encoder/src/index.ts'
+      ),
     },
   },
 

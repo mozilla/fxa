@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Subject } from './mocks';
+import { createMockWebIntegration, Subject } from './mocks';
 import CompleteResetPassword from '.';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/ResetPassword/CompleteResetPassword',
@@ -18,11 +18,11 @@ export const NoSync = () => (
   <Subject recoveryKeyExists={true} estimatedSyncDeviceCount={0} />
 );
 
-export const OAuthDesktopServiceRelay = () => (
+export const WithCmsAdditionalAccessibilityInfo = () => (
   <Subject
-    isFirefoxClientServiceRelay={true}
     estimatedSyncDeviceCount={0}
     recoveryKeyExists={false}
+    integration={createMockWebIntegration({ cmsInfo: MOCK_CMS_INFO })}
   />
 );
 

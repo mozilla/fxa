@@ -5,13 +5,29 @@
 import React, { useState } from 'react';
 import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
 import CompleteResetPassword from '.';
-import { LocationProvider } from '@reach/router';
+import { MemoryRouter } from 'react-router';
 import {
   CompleteResetPasswordLocationState,
   CompleteResetPasswordProps,
 } from './interfaces';
+import { RelierCmsInfo, WebIntegration } from '../../../models';
+import { GenericData } from '../../../lib/model-data';
 
 const mockSubmitNewPassword = (newPassword: string) => Promise.resolve();
+
+export function createMockWebIntegration({
+  cmsInfo,
+}: {
+  cmsInfo?: RelierCmsInfo;
+}) {
+  const integration = new WebIntegration(
+    new GenericData({
+      uid: MOCK_UID,
+    })
+  );
+  integration.cmsInfo = cmsInfo;
+  return integration;
+}
 
 export const Subject = ({
   submitNewPassword = mockSubmitNewPassword,
@@ -19,8 +35,7 @@ export const Subject = ({
   recoveryKeyExists,
   testErrorMessage = '',
   estimatedSyncDeviceCount,
-  integrationIsSync = false,
-  isFirefoxClientServiceRelay: isDesktopServiceRelay = false,
+  integration = createMockWebIntegration({}),
 }: Partial<CompleteResetPasswordProps> & {
   testErrorMessage?: string;
 }) => {
@@ -35,7 +50,7 @@ export const Subject = ({
   } as CompleteResetPasswordLocationState;
 
   return (
-    <LocationProvider>
+    <MemoryRouter>
       <CompleteResetPassword
         {...{
           email,
@@ -46,10 +61,9 @@ export const Subject = ({
           hasConfirmedRecoveryKey,
           recoveryKeyExists,
           estimatedSyncDeviceCount,
-          integrationIsSync,
-          isFirefoxClientServiceRelay: isDesktopServiceRelay,
+          integration,
         }}
       />
-    </LocationProvider>
+    </MemoryRouter>
   );
 };

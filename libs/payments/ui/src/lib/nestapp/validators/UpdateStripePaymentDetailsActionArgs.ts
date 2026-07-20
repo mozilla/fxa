@@ -11,4 +11,7 @@ export class UpdateStripePaymentDetailsArgs
 
   @IsString()
   confirmationTokenId!: string;
+
+  @IsString()
+  ipAddress!: string;
 }

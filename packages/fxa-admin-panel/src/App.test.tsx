@@ -7,7 +7,8 @@ import App from './App';
 import { mockConfigBuilder } from './lib/config';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { MockedProvider } from '@apollo/client/testing';
+
+jest.mock('./lib/api', () => ({ adminApi: {} }));
 
 it('renders without imploding', () => {
   const guard = new AdminPanelGuard(GuardEnv.Prod);
@@ -19,9 +20,7 @@ it('renders without imploding', () => {
     },
   });
   const { queryByTestId } = renderWithLocalizationProvider(
-    <MockedProvider addTypename={false}>
-      <App {...{ config }} />
-    </MockedProvider>
+    <App {...{ config }} />
   );
   expect(queryByTestId('app')).toBeInTheDocument();
 });

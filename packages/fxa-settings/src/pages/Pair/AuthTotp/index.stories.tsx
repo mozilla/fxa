@@ -2,25 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import AuthTotp from '.';
-import AppLayout from '../../../components/AppLayout';
+import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { AppContext } from '../../../models/contexts/AppContext';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/AuthTotp',
   component: AuthTotp,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <AppContext.Provider value={mockAppContext()}>
+        <MemoryRouter>
+          <Story />
+        </MemoryRouter>
+      </AppContext.Provider>
+    ),
+  ],
 } as Meta;
 
 const storyWithProps = ({ ...props }) => {
   const story = () => (
-    <AppLayout>
-      <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} {...props} />
-    </AppLayout>
+    <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} {...props} />
   );
   return story;
 };

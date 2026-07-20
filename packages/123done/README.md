@@ -19,7 +19,15 @@ See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/docker/roles/rp) A
 - This process is to deploy an existing FxA-integrated Heroku application. Separate steps are required to create a new Heroku app integrated with FxA, including updating the client URL redirect values in the FxA OAuth database.
 - Unless your tests require the untrusted 123Done app, you may just need to deploy the 123Done trusted app to stage and prod (i.e. deploy two instead of all four apps).
 
-#### Instructions
+#### How it works
+
+123Done is self-contained (it has no monorepo imports), so it deploys as a standalone slug:
+only the `packages/123done` subtree is published as the Heroku app's git root. The slug's
+`package.json` is 123Done's own, so `npm install` pulls just its dependencies, and the standard
+root `Procfile` (`web: node server.js`) starts it. There are no root-`package.json` overrides
+and no shared deploy branch to maintain.
+
+#### Account and access
 
 1. Sign up for Heroku at https://sso.heroku.com/login
 
@@ -28,46 +36,79 @@ See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/docker/roles/rp) A
   - You can see who is a Curator with add permissions here: https://people.mozilla.org/a/heroku-members/.
   - There are some additional one-time steps to complete as referenced in the Access Group invitation email.
 
-2. Install [heroku cli](https://devcenter.heroku.com/articles/heroku-cli) and login
+2. Install [heroku cli](https://devcenter.heroku.com/articles/heroku-cli) and login: `heroku login`
 
-- `heroku login`
+3. Ensure access to the 123Done apps. Have a `mozillacorporation` member [grant access](https://devcenter.heroku.com/articles/collaborating) (view, deploy, operate, manage) to the apps you need:
 
-3. Ensure access to 123Done apps
+- `production-123done`
+- `production-123done-untrusted`
+- `stage-123done`
+- `stage-123done-untrusted`
+- There is a trusted and an untrusted OAuth RP app per environment to test both flows; unless your tests require the untrusted app, you may only need the two trusted apps.
 
-- Search for and have a `mozillacorporation` member [grant access](https://devcenter.heroku.com/articles/collaborating) (view, deploy, operate, manage) to following apps:
-  - `production-123done`
-  - `production-123done-untrusted`
-  - `stage-123done`
-  - `stage-123done-untrusted`
-- You'll get an invitation email for each app.
-- Why are there four apps?
-  - There is a trusted and an untrusted OAuth RP app for each environment to test trusted and untrusted OAuth flows.
+#### One-time app setup (per app)
 
-4. Clone each app on the command line that you need to deploy with the provided instructions in the invitation email.
+The subtree deploy uses the plain Node buildpack and the standard root `Procfile`. Apps that
+previously deployed from the monorepo root used the multi-procfile buildpack with a `PROCFILE`
+config var, so reconfigure each of those once:
 
-- E.g. `heroku git:clone -a stage-123done`
-- Note: While app config for stage is in the 123Done package in our FxA monorepo, prod config is in environment variables in the Heroku dashboard to avoid exposing the OAuth client secret.
+```sh
+heroku buildpacks:clear -a stage-123done
+heroku buildpacks:set heroku/nodejs -a stage-123done
+heroku config:unset PROCFILE -a stage-123done
+```
 
-5. Deploy app
+These commands are required for an app that previously used the multi-procfile buildpack, and a
+harmless no-op on a brand-new app (which auto-detects the Node buildpack from `package.json`).
 
-- In the `fxa` repo, checkout branch `origin/heroku-updates` and create and checkout a local branch of the same name.
-  - This branch contains different root level `package.json` commands and/or (dev)dependencies that reduce the size of the Heroku deploy slug. There are limits to the size that can be deployed.
-  - The main differences are the `install` run script and to avoid the `check-package-manager.sh` script, since the command uses `npm` instead of `yarn`.
-    - Note: Heroku is compatible with `yarn`, but at the time of writing, only `npm` worked correctly.
-- Rebase `train-XXX` branch
-  - `git rebase origin/train-XXX`
-    - `XXX` is the train for the environment you want to deploy in.
-- Create a remote for your local repository for each app you want to deploy.
-  - E.g. `heroku git:remote -a stage-123done`
-- Deploy
-  - `git push <heroku remote origin> heroku-updates:main -f`
-    - Force push is needed here because of the commit with changes to `package.json`
-    - `<heroku remote origin>` is the git remote linked to the version of the heroku app you're deploying, i.e. stage/production and trusted/untrusted.
-    - N.B. There may have been breaking changes to the `fxa` root `package.json` since the last 123Done deploy. Confer with the team, but if needed, the root `package.json` can be modified and the last commit amended. Then retry the command.
+#### Config vars (per app)
 
-6. Push changes to back to FxA repo
+`config.js` reads its configuration from these env vars. Set them on the app (Heroku dashboard
+or `heroku config:set`); never commit secret values to the repo.
 
-- `git push origin heroku-updates -f`
+- `CLIENT_ID`, `CLIENT_SECRET_123DONE` — OAuth client id and secret
+- `REDIRECT_URI`, `ISSUER_URI`, `SCOPES`
+- `PKCE_CLIENT_ID`, `PKCE_REDIRECT_URI`
+- `COOKIE_SECRET`, `COOKIE_NAME`
+- `PORT` is provided by Heroku automatically.
+
+Heads up on older apps: some set the client secret as `CLIENT_SECRET` and omit `SCOPES` /
+`COOKIE_*`. The current code reads `CLIENT_SECRET_123DONE`, so check `heroku config -a <app>`
+and rename or add the vars to match the names above. If they do not match, the app still boots
+but the OAuth token exchange fails. Keep the client secret only in Heroku config vars.
+
+#### Deploy
+
+1. Check out the branch/ref that contains the 123Done code you want to ship (the deploy reads
+   `packages/123done` from that ref). For a normal release this is the train branch.
+2. Add a git remote for the target app: `heroku git:remote -a stage-123done` (creates a remote
+   named `heroku`).
+3. Run the deploy script from anywhere in the repo. It deploys your current `HEAD` by default,
+   or pass an explicit ref as the second argument:
+
+```sh
+# deploy the current checkout
+packages/123done/scripts/deploy-heroku.sh heroku
+
+# or deploy a specific ref (must be fetched locally)
+packages/123done/scripts/deploy-heroku.sh heroku train-XXX
+```
+
+The script builds a slug-root commit from the `packages/123done` tree at that ref (via git
+plumbing, so it is instant regardless of monorepo size), stamps a `version.json` so
+`/__version__` reports the source commit, then **confirms the resolved remote URL before
+force-pushing** to the app's `main`. It does not create or rewrite any shared branch. Set
+`DEPLOY_YES=1` to skip the prompt for non-interactive use. Repeat per app, pointing the remote
+at the right app (stage/prod, trusted/untrusted).
+
+#### Verify
+
+```sh
+heroku ps -a stage-123done                          # web dyno "up", running `node server.js`
+curl https://stage-123done.herokuapp.com/__version__ # "commit" matches the deployed source ref
+```
+
+Then open the app in a browser and complete a sign-in to confirm the OAuth flow end to end.
 
 ## Testing
 

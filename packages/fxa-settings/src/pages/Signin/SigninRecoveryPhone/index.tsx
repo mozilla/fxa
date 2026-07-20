@@ -5,12 +5,12 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
-import { RouteComponentProps } from '@reach/router';
+
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
 import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
-import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import Banner from '../../../components/Banner';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import ButtonBack from '../../../components/ButtonBack';
 import {
@@ -59,7 +59,9 @@ const SigninRecoveryPhone = ({
   sendError,
   numBackupCodes,
   integration,
-}: SigninRecoveryPhoneProps & RouteComponentProps) => {
+  signinState,
+  setCurrentSplitLayout,
+}: SigninRecoveryPhoneProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
   const [errorLink, setErrorLink] = useState<BannerLinkProps>();
@@ -133,6 +135,7 @@ const SigninRecoveryPhone = ({
               'Use backup authentication codes instead?'
             ),
             gleanId: 'login_backup_phone_error_use_backup_code_link',
+            locationState: { signinState, lastFourPhoneDigits },
           });
         }
         return;
@@ -159,24 +162,19 @@ const SigninRecoveryPhone = ({
   };
 
   const cmsInfo = integration?.getCmsInfo();
+  const cmsPage = cmsInfo?.SigninRecoveryPhonePage;
+  const splitLayout = cmsPage?.splitLayout;
+  const title = cmsPage?.pageTitle;
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       <div className="relative flex items-center">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
         />
-        {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
-          <img
-            src={cmsInfo.shared.logoUrl}
-            alt={cmsInfo.shared.logoAltText}
-            className="justify-start mb-4 max-h-[40px]"
-          />
-        ) : (
-          <FtlMsg id="signin-recovery-phone-flow-heading">
-            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signin-recovery-phone-flow-heading">
+          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+        </FtlMsg>
       </div>
 
       {(errorMessage || errorDescription) && (
@@ -191,6 +189,7 @@ const SigninRecoveryPhone = ({
               path: errorLink.path,
               localizedText: errorLink.localizedText,
               gleanId: errorLink.gleanId,
+              locationState: errorLink.locationState,
             } as BannerLinkProps,
           })}
         />
@@ -206,10 +205,24 @@ const SigninRecoveryPhone = ({
           }}
         />
       )}
-      <BackupRecoveryPhoneCodeImage />
-      <FtlMsg id="signin-recovery-phone-heading">
-        <h2 className="card-header my-4">Enter recovery code</h2>
-      </FtlMsg>
+      {cmsPage?.primaryImage?.url ? (
+        <img
+          src={cmsPage.primaryImage.url}
+          alt={cmsPage.primaryImage.altText || ''}
+          className="mx-auto my-4"
+        />
+      ) : (
+        <BackupRecoveryPhoneCodeImage
+          illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+        />
+      )}
+      {cmsPage?.headline ? (
+        <h2 className="card-header my-4">{cmsPage.headline}</h2>
+      ) : (
+        <FtlMsg id="signin-recovery-phone-heading">
+          <h2 className="card-header my-4">Enter recovery code</h2>
+        </FtlMsg>
+      )}
       <FtlMsg
         id="signin-recovery-phone-instruction-v3"
         vars={{ lastFourPhoneDigits }}
@@ -228,10 +241,13 @@ const SigninRecoveryPhone = ({
           'signin-recovery-phone-input-label',
           'Enter 6-digit code'
         )}
-        localizedSubmitButtonText={ftlMsgResolver.getMsg(
-          'signin-recovery-phone-code-submit-button',
-          'Confirm'
-        )}
+        localizedSubmitButtonText={
+          cmsPage?.primaryButtonText ||
+          ftlMsgResolver.getMsg(
+            'signin-recovery-phone-code-submit-button',
+            'Confirm'
+          )
+        }
         verifyCode={handleVerifyCode}
         {...{
           clearBanners,

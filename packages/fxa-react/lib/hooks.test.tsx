@@ -58,19 +58,19 @@ describe('useClickOutsideEffect', () => {
     );
   };
 
-  it('triggers onDismiss on a click outside', () => {
+  it('triggers onDismiss on a mousedown outside', () => {
     const onDismiss = jest.fn();
     const { getByTestId } = render(<Subject onDismiss={onDismiss} />);
     const outside = getByTestId('outside');
-    fireEvent.click(outside);
+    fireEvent.mouseDown(outside);
     expect(onDismiss).toBeCalled();
   });
 
-  it('does not trigger onDismiss on a click inside', () => {
+  it('does not trigger onDismiss on a mousedown inside', () => {
     const onDismiss = jest.fn();
     const { getByTestId } = render(<Subject onDismiss={onDismiss} />);
     const inside = getByTestId('inside');
-    fireEvent.click(inside);
+    fireEvent.mouseDown(inside);
     expect(onDismiss).not.toBeCalled();
   });
 });

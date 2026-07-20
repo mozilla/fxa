@@ -17,7 +17,6 @@ initSentry(
   {
     ...config,
     release: version,
-    integrations: [Sentry.extraErrorDataIntegration({ depth: 5 })],
   },
   {
     warn: (type: string, data: unknown) =>

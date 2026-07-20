@@ -23,11 +23,12 @@ const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
-  subscriptionAccountFinishSetup: 'subscription_account_finish_setup',
   subscriptionAccountReminderFirst: 'subscription_account_finish_setup',
   subscriptionAccountReminderSecond: 'subscription_account_finish_setup',
   subscriptionReactivation: 'subscription_reactivation',
   subscriptionRenewalReminder: 'subscription_renewal_reminder',
+  subscriptionEndingReminder: 'subscription_ending_reminder',
+  freeTrialEndingReminder: 'free_trial_ending_reminder',
   subscriptionReplaced: 'subscription_replaced',
   subscriptionUpgrade: 'subscription_upgrade',
   subscriptionDowngrade: 'subscription_downgrade',
@@ -210,6 +211,9 @@ module.exports = (log, config) => {
     data = {},
     metricsContext = {}
   ) {
+    if (config.amplitude && config.amplitude.enabled === false) {
+      return;
+    }
     const statsd = Container.get(StatsD);
     if (!eventType || !request) {
       log.error('amplitude.badArgument', {

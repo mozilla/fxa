@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { useLocation } from 'react-router';
 import SigninRecoveryChoice from '.';
 import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -16,9 +16,11 @@ import AppLayout from '../../../components/AppLayout';
 
 export const SigninRecoveryChoiceContainer = ({
   integration,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
-} & RouteComponentProps) => {
+  setCurrentSplitLayout?: (value: boolean) => void;
+}) => {
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
@@ -216,8 +218,15 @@ export const SigninRecoveryChoiceContainer = ({
     autoSendPhoneCode,
   ]);
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninRecoveryChoicePage?.splitLayout;
+
   if (!signinState || !signinState.sessionToken) {
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   const shouldLoadInCard = loading || !phoneData.phoneNumber || !numBackupCodes;
@@ -232,6 +241,7 @@ export const SigninRecoveryChoiceContainer = ({
         signinState,
         integration,
         loading: shouldLoadInCard,
+        setCurrentSplitLayout,
       }}
     />
   );

@@ -1,6 +1,6 @@
 # Improving Testing Standards and Experience in the Monorepo
 
-- Status: Proposed
+- Status: accepted
 - Deciders: Wil Clouser, Dan Schomburg, Valerie Pomerleau, Barry Chen, Amri Toufali, Vijay Budhram
 
 ## Context and Problem Statement
@@ -163,7 +163,6 @@ A. Unify Testing Frameworks
             4  db-migrations
             3  fxa-geodb
             2  fxa-profile-server
-            2  fortress
             2  123done
             1  browserid-verifier
 

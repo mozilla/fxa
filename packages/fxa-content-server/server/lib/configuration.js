@@ -223,12 +223,6 @@ const conf = (module.exports = convict({
         format: 'int',
       },
     },
-    sendFxAStatusOnSettings: {
-      default: false,
-      doc: 'Sends a webchannel message on the settings page to request auth data from the browser',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS',
-    },
     keyStretchV2: {
       default: true,
       doc: 'Enables V2 key stretching',
@@ -252,6 +246,46 @@ const conf = (module.exports = convict({
       doc: 'Enables Paid Subscriptions link in Account Settings to redirect to payments next',
       format: Boolean,
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
+    },
+    passkeysEnabled: {
+      default: false,
+      doc: 'Master switch for passkeys UI. Must be true for registration or authentication UI to activate.',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
+    },
+    passkeyRegistrationEnabled: {
+      default: false,
+      doc: 'Enables passkey registration and management UI',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED',
+    },
+    passkeyAuthenticationEnabled: {
+      default: false,
+      doc: 'Enables passkey sign-in UI',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED',
+    },
+    passwordlessEnabled: {
+      default: false,
+      doc: 'Enables auto-redirect to passwordless OTP signup for new accounts on allowed RPs',
+      format: Boolean,
+      env: 'PASSWORDLESS_SIGNUP_ENABLED',
+    },
+  },
+  passkeys: {
+    maxPerUser: {
+      default: 10,
+      doc: 'Maximum number of passkeys a single user account may register. Must stay in sync with auth-server PASSKEYS__MAX_PASSKEYS_PER_USER.',
+      format: Number,
+      env: 'PASSKEYS__MAX_PASSKEYS_PER_USER',
+    },
+  },
+  darkMode: {
+    enabled: {
+      default: false,
+      doc: 'Enables dark mode toggle',
+      format: Boolean,
+      env: 'DARK_MODE_ENABLED',
     },
   },
   cms: {
@@ -334,6 +368,12 @@ const conf = (module.exports = convict({
       doc: 'Enable users to visit the React version of "web channel example" routes',
       format: Boolean,
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
+    },
+    pocPairingRoutes: {
+      default: true,
+      doc: 'FXA-13863: Enable the throwaway deep-link pairing POC pages (poc_deep_link, poc_pair_init, poc_pair_start)',
+      format: Boolean,
+      env: 'REACT_CONVERSION_POC_PAIRING_ROUTES',
     },
   },
   brandMessagingMode: {
@@ -440,10 +480,10 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
-  settings_gql_url: {
-    default: 'http://localhost:8290',
-    doc: 'The URL of the Firefox Account settings GraphQL server',
-    env: 'FXA_GQL_URL',
+  legal_docs_url: {
+    default: 'http://localhost:3030/settings/legal-docs',
+    doc: 'The base URL for fetching legal documents (privacy policy, terms of service)',
+    env: 'LEGAL_DOCS_URL',
     format: 'url',
   },
   googleAuthConfig: {
@@ -679,6 +719,20 @@ const conf = (module.exports = convict({
         format: Array,
       },
     },
+    client_info: {
+      timeout: {
+        default: 10000,
+        doc: 'Timeout in milliseconds for each /v1/oauth/client/:id fetch attempt in fxa-settings.',
+        env: 'OAUTH_CLIENT_INFO_TIMEOUT',
+        format: Number,
+      },
+      retries: {
+        default: 4,
+        doc: 'Number of attempts (including the first) for the /v1/oauth/client/:id fetch in fxa-settings.',
+        env: 'OAUTH_CLIENT_INFO_RETRIES',
+        format: Number,
+      },
+    },
   },
   openid_configuration: {
     claims_supported: ['aud', 'exp', 'iat', 'iss', 'sub'],
@@ -739,6 +793,22 @@ const conf = (module.exports = convict({
       default: 'wss://channelserver.services.mozilla.com',
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI',
+    },
+  },
+  mobileStoreLinks: {
+    ios: {
+      default:
+        'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
+      doc: 'App Store URL for Firefox iOS (used by the deep-link interstitial store fallback).',
+      env: 'MOBILE_STORE_LINK_IOS',
+      format: String,
+    },
+    android: {
+      default:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+      doc: 'Play Store URL for Firefox Android (used by the deep-link interstitial store fallback).',
+      env: 'MOBILE_STORE_LINK_ANDROID',
+      format: String,
     },
   },
   payments_next_hosted_url: {
@@ -908,8 +978,8 @@ const conf = (module.exports = convict({
     },
   },
   servicesWithEmailVerification: {
-    doc: 'Services that will alwasy send a session verification email on sign in',
-    default: ['e6eb0d1e856335fc'],
+    doc: 'For users in a non-2FA non-Sync unverified session state going through an RP redirect flow, we skip 1) redirecting the user to enter emailed code verification page, and we skip 2) sending that email verification. Services in this list will NOT skip the redirect or email, and are blocked in the BE from completing the oauth flow by hitting our API directly in this state. Auth-server has this config as well.',
+    default: ['32aaeb6f1c21316a'], // SubPlat dev
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
@@ -1101,6 +1171,10 @@ conf.set('process_type', path.basename(process.argv[1], '.js'));
 // Always send CSP headers in development mode
 if (conf.get('env') === 'development') {
   conf.set('csp.enabled', true);
+  // FXA-13863: enable the throwaway deep-link pairing POC pages locally so they
+  // are available for development/testing. They remain gated (default off) in
+  // stage/prod unless REACT_CONVERSION_POC_PAIRING_ROUTES is set.
+  conf.set('showReactApp.pocPairingRoutes', true);
 }
 
 const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');

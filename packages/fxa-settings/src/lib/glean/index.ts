@@ -19,19 +19,26 @@ import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
+import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
 import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
+import * as cad from 'fxa-shared/metrics/glean/web/cad';
 import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
+import * as cadRedirectDesktop from 'fxa-shared/metrics/glean/web/cadRedirectDesktop';
+import * as cadRedirectMobile from 'fxa-shared/metrics/glean/web/cadRedirectMobile';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
+import * as firefoxPromo from 'fxa-shared/metrics/glean/web/firefoxPromo';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
+import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
+import * as passkeyEnterPassword from 'fxa-shared/metrics/glean/web/passkeyEnterPassword';
+import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   appFramework,
@@ -46,11 +53,8 @@ import {
   entrypoint,
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
-import * as sync from 'fxa-shared/metrics/glean/web/sync';
-import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
-import * as webauthn from 'fxa-shared/metrics/glean/web/webauthn';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
@@ -193,23 +197,6 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
       event[name].set(gleanPingMetrics.event[name] || '');
     }
   }
-
-  // Initial cwts values will be included not only in the cwtsEngage event,
-  // but also in subsequent events (sucha as page load events). This is because there was no suitable data type for an
-  // event's extra keys that worked for both string and event metrics.
-  // It should be noted that the user may change their sync settings after the initial cwtsEngage event
-  // but the new settings will not be reflected in the glean pings.
-  if (gleanPingMetrics?.sync?.cwts) {
-    Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
-      sync.cwts[k].set(v);
-    });
-  }
-
-  if (gleanPingMetrics?.standard?.marketing) {
-    Object.entries(gleanPingMetrics.standard.marketing).forEach(([k, v]) => {
-      standard.marketing[k].set(v);
-    });
-  }
 };
 
 const recordEventMetric = (
@@ -239,11 +226,16 @@ const recordEventMetric = (
     case 'email_first_apple_oauth_start':
       email.firstAppleOauthStart.record();
       break;
-    case 'reg_cwts_engage':
-      reg.cwtsEngage.record();
+    case 'email_first_passkey_submit':
+      email.firstPasskeySubmit.record();
       break;
-    case 'reg_marketing_engage':
-      reg.marketingEngage.record();
+    case 'email_first_passkey_submit_frontend_error':
+      email.firstPasskeySubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'email_first_passkey_submit_success':
+      email.firstPasskeySubmitSuccess.record();
       break;
     case 'reg_view':
       reg.view.record();
@@ -335,6 +327,48 @@ const recordEventMetric = (
     case 'login_locked_account_banner_view':
       login.lockedAccountBannerView.record();
       break;
+    case 'login_alternative_auth_view':
+      login.alternativeAuthView.record();
+      break;
+    case 'login_alternative_auth_google_start':
+      login.alternativeAuthGoogleStart.record();
+      break;
+    case 'login_alternative_auth_apple_start':
+      login.alternativeAuthAppleStart.record();
+      break;
+    case 'login_passkey_submit':
+      login.passkeySubmit.record();
+      break;
+    case 'login_passkey_submit_frontend_error':
+      login.passkeySubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'login_passkey_submit_success':
+      login.passkeySubmitSuccess.record();
+      break;
+    case 'login_alternative_auth_passkey_submit':
+      login.alternativeAuthPasskeySubmit.record();
+      break;
+    case 'login_alternative_auth_passkey_submit_frontend_error':
+      login.alternativeAuthPasskeySubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'login_alternative_auth_passkey_submit_success':
+      login.alternativeAuthPasskeySubmitSuccess.record();
+      break;
+    case 'login_otp_passkey_submit':
+      login.otpPasskeySubmit.record();
+      break;
+    case 'login_otp_passkey_submit_frontend_error':
+      login.otpPasskeySubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'login_otp_passkey_submit_success':
+      login.otpPasskeySubmitSuccess.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;
@@ -378,13 +412,17 @@ const recordEventMetric = (
       passwordReset.createNewRecoveryKeyMessageClick.record();
       break;
     case 'password_reset_create_new_submit':
-      passwordReset.createNewSubmit.record();
+      passwordReset.createNewSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_create_new_success_view':
       passwordReset.createNewSuccessView.record();
       break;
     case 'password_reset_create_new_view':
-      passwordReset.createNewView.record();
+      passwordReset.createNewView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_email_confirmation_different_account':
       passwordReset.emailConfirmationDifferentAccount.record();
@@ -439,32 +477,72 @@ const recordEventMetric = (
     case 'third_party_auth_apple_reg_start':
       thirdPartyAuth.appleRegStart.record();
       break;
-    case 'third_party_auth_login_no_pw_view':
-      thirdPartyAuth.loginNoPwView.record();
-      break;
     case 'third_party_auth_google_login_start':
       thirdPartyAuth.googleLoginStart.record();
       break;
     case 'third_party_auth_apple_login_start':
       thirdPartyAuth.appleLoginStart.record();
       break;
-    case 'third_party_auth_apple_deeplink':
-      thirdPartyAuth.appleDeeplink.record();
+    case 'cad_view':
+      cad.view.record();
       break;
-    case 'third_party_auth_google_deeplink':
-      thirdPartyAuth.googleDeeplink.record();
+    case 'cad_submit':
+      cad.submit.record();
+      break;
+    case 'cad_startbrowsing_submit':
+      cad.startbrowsingSubmit.record();
+      break;
+    case 'cad_firefox_view':
+      cadFirefox.view.record();
+      break;
+    case 'cad_firefox_choice_view':
+      cadFirefox.choiceView.record();
+      break;
+    case 'cad_firefox_choice_engage':
+      cadFirefox.choiceEngage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_choice_submit':
+      cadFirefox.choiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_choice_notnow_submit':
+      cadFirefox.choiceNotnowSubmit.record();
+      break;
+    case 'cad_firefox_sync_device_submit':
+      cadFirefox.syncDeviceSubmit.record();
       break;
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();
       break;
+    case 'cad_approve_device_view':
+      cadApproveDevice.view.record();
+      break;
     case 'cad_approve_device_submit':
       cadApproveDevice.submit.record();
+      break;
+    case 'cad_mobile_pair_view':
+      cadMobilePair.view.record();
       break;
     case 'cad_mobile_pair_submit':
       cadMobilePair.submit.record();
       break;
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
+      break;
+    case 'cad_redirect_desktop_view':
+      cadRedirectDesktop.view.record();
+      break;
+    case 'cad_redirect_desktop_default_view':
+      cadRedirectDesktop.defaultView.record();
+      break;
+    case 'cad_redirect_desktop_download':
+      cadRedirectDesktop.download.record();
+      break;
+    case 'cad_redirect_mobile_view':
+      cadRedirectMobile.view.record();
       break;
     case 'account_pref_view':
       accountPref.view.record();
@@ -511,7 +589,9 @@ const recordEventMetric = (
       });
       break;
     case 'account_pref_change_password_submit':
-      accountPref.changePasswordSubmit.record();
+      accountPref.changePasswordSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_google_unlink_submit':
       accountPref.googleUnlinkSubmit.record({
@@ -630,6 +710,12 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_promo_vpn_view':
+      accountPref.promoVpnView.record();
+      break;
+    case 'account_pref_promo_vpn_submit':
+      accountPref.promoVpnSubmit.record();
+      break;
     case 'account_pref_mfa_guard_view':
       accountPref.mfaGuardView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
@@ -640,6 +726,34 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_passkey_create_view':
+      accountPref.passkeyCreateView.record();
+      break;
+    case 'account_pref_passkey_create_submit_frontend_error':
+      accountPref.passkeyCreateSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_passkey_create_success_view':
+      accountPref.passkeyCreateSuccessView.record();
+      break;
+    case 'account_pref_passkey_create_retry_without_prf_request':
+      accountPref.passkeyCreateRetryWithoutPrfRequest.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        outcome: gleanPingMetrics?.event?.['outcome'] || '',
+      });
+      break;
+    case 'account_pref_passkey_delete_view':
+      accountPref.passkeyDeleteView.record();
+      break;
+    case 'account_pref_passkey_delete_submit_frontend_error':
+      accountPref.passkeyDeleteSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_passkey_delete_success_view':
+      accountPref.passkeyDeleteSuccessView.record();
+      break;
     case 'account_banner_create_recovery_key_view':
       accountBanner.createRecoveryKeyView.record();
       break;
@@ -649,40 +763,156 @@ const recordEventMetric = (
     case 'account_banner_reactivation_success_view':
       accountBanner.reactivationSuccessView.record();
       break;
+    case 'firefox_promo_connect_mobile_view':
+      firefoxPromo.connectMobileView.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_connect_mobile_submit':
+      firefoxPromo.connectMobileSubmit.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_connect_mobile_dismiss':
+      firefoxPromo.connectMobileDismiss.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_view':
+      firefoxPromo.switchToFirefoxView.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_submit':
+      firefoxPromo.switchToFirefoxSubmit.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'firefox_promo_switch_to_firefox_dismiss':
+      firefoxPromo.switchToFirefoxDismiss.record({
+        mobile_device_count:
+          gleanPingMetrics?.event?.['mobile_device_count'] || '',
+      });
+      break;
+    case 'reg_otp_view':
+      reg.otpView.record();
+      break;
+    case 'reg_otp_engage':
+      reg.otpEngage.record();
+      break;
+    case 'reg_otp_submit':
+      reg.otpSubmit.record();
+      break;
+    case 'reg_otp_submit_success':
+      reg.otpSubmitSuccess.record();
+      break;
+    case 'reg_otp_submit_frontend_error':
+      reg.otpSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'reg_otp_email_confirmation_resend_code':
+      reg.otpEmailConfirmationResendCode.record();
+      break;
+    case 'reg_otp_change_email':
+      reg.otpChangeEmail.record();
+      break;
+    case 'login_otp_view':
+      login.otpView.record();
+      break;
+    case 'login_otp_engage':
+      login.otpEngage.record();
+      break;
+    case 'login_otp_submit':
+      login.otpSubmit.record();
+      break;
+    case 'login_otp_submit_success':
+      login.otpSubmitSuccess.record();
+      break;
+    case 'login_otp_submit_frontend_error':
+      login.otpSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'login_otp_email_confirmation_resend_code':
+      login.otpEmailConfirmationResendCode.record();
+      break;
+    case 'login_otp_change_email':
+      login.otpChangeEmail.record();
+      break;
     case 'error_view':
       error.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
-    case 'third_party_auth_set_password_success':
-      thirdPartyAuthSetPassword.success.record();
+    case 'post_verify_set_password_view':
+      postVerifySetPassword.view.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
-    case 'webauthn_capabilities': {
-      const e = (gleanPingMetrics as any).event || {};
-      // Always coerce expected extras to strings to ensure they appear in Looker "Events Extras"
-      const extras: Record<string, string> = {};
-      const allKeys = [
-        'supported',
-        'ppa',
-        'cg',
-        'rel',
-        'hyb',
-        'uvpa',
-        'prf',
-        'error_reason',
-        'os_family',
-        'os_major',
-        'browser_family',
-        'browser_major',
-      ] as const;
-      for (const key of allKeys) {
-        if (e[key] !== undefined) {
-          extras[key] = String(e[key]);
-        }
-      }
-      webauthn.capabilities.record(extras as any);
+    case 'post_verify_set_password_engage':
+      postVerifySetPassword.engage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
-    }
+    case 'post_verify_set_password_submit':
+      postVerifySetPassword.submit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'post_verify_set_password_submit_frontend_error':
+      postVerifySetPassword.submitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'post_verify_set_password_success':
+      postVerifySetPassword.success.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_button_view':
+      passkey.buttonView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_auth_success':
+      passkey.authSuccess.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_enter_password_view':
+      passkeyEnterPassword.view.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_enter_password_engage':
+      passkeyEnterPassword.engage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_enter_password_submit':
+      passkeyEnterPassword.submit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_enter_password_submit_frontend_error':
+      passkeyEnterPassword.submitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_enter_password_success':
+      passkeyEnterPassword.success.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'promo_qr_mobile_view':
+      promoQrMobile.view.record();
+      break;
   }
 };
 
@@ -783,10 +1013,10 @@ export const GleanMetrics: Pick<
   isDone: () =>
     new Promise((resolve) => {
       const checkForEmptyFnList = () => {
-        if (lambdas.length === 0) {
+        if (lambdas.length === 0 && !EXEC_MUTEX) {
           setTimeout(resolve, 5);
         } else {
-          setTimeout(checkForEmptyFnList, lambdas.length * 5);
+          setTimeout(checkForEmptyFnList, lambdas.length * 5 || 5);
         }
       };
 

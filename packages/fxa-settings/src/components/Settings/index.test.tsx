@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { History } from '@reach/router';
 import { waitFor } from '@testing-library/react';
-import { Account, AppContext, useInitialSettingsState } from '../../models';
+import { Account, AppContext } from '../../models';
+import { useAccountState } from '../../models/contexts/AccountStateContext';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
@@ -17,23 +17,57 @@ import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
-jest.mock('@apollo/client', () => {
-  const actual = jest.requireActual('@apollo/client');
-  return {
-    ...actual,
-    useApolloClient: () => ({
-      clearStore: jest.fn().mockResolvedValue(undefined),
-    }),
-  };
-});
-
 const mockSessionStatus = jest.fn();
+const mockUseAccountData = jest.fn();
+const mockAccountState = {
+  isLoading: false,
+  error: null,
+  uid: 'mock-uid',
+  email: 'johndoe@example.com',
+  metricsEnabled: true,
+  verified: true,
+  primaryEmail: {
+    email: 'johndoe@example.com',
+    isPrimary: true,
+    verified: true,
+  },
+  displayName: null,
+  avatar: null,
+  emails: [],
+  totp: null,
+  backupCodes: null,
+  recoveryKey: null,
+  recoveryPhone: null,
+  attachedClients: [],
+  linkedAccounts: [],
+  subscriptions: [],
+  securityEvents: [],
+  accountCreated: null,
+  passwordCreated: null,
+  hasPassword: true,
+  loadingFields: new Set<string>(),
+  setAccountData: jest.fn(),
+  updateField: jest.fn(),
+  setLoading: jest.fn(),
+  setFieldLoading: jest.fn(),
+  setError: jest.fn(),
+  clearAccount: jest.fn(),
+};
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
-  useInitialSettingsState: jest.fn(),
   useAuthClient: jest.fn(() => ({
     sessionStatus: mockSessionStatus,
   })),
+}));
+
+jest.mock('../../models/contexts/AccountStateContext', () => ({
+  ...jest.requireActual('../../models/contexts/AccountStateContext'),
+  useAccountState: jest.fn(),
+}));
+
+jest.mock('../../lib/hooks/useAccountData', () => ({
+  ...jest.requireActual('../../lib/hooks/useAccountData'),
+  useAccountData: (...args: any[]) => mockUseAccountData(...args),
 }));
 
 jest.mock('../../lib/totp-utils', () => {
@@ -67,12 +101,6 @@ mockMfaGuard.mockImplementation(({ children }: { children: ReactNode }) => (
   <div data-testid="mfa-guard">MockMfaGuard</div>
 ));
 
-const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-}));
-
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
@@ -88,8 +116,19 @@ describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
-    mockNavigate.mockReset();
+    // Reset account state mock to default values
+    (useAccountState as jest.Mock).mockReturnValue({
+      ...mockAccountState,
+      isLoading: false,
+      error: null,
+    });
+    mockUseAccountData.mockReturnValue({
+      isLoading: false,
+      error: null,
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
+    });
     mockSessionStatus.mockResolvedValue({
       details: {
         sessionVerified: true,
@@ -105,40 +144,85 @@ describe('Settings App', () => {
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
-      loading: true,
+    mockUseAccountData.mockReturnValue({
+      isLoading: true,
+      error: null,
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
     });
     const { getByLabelText } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
     );
 
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
   it('renders `AppErrorDialog` component when settings query errors', async () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValue({
-      error: { message: 'Error' },
+    mockUseAccountData.mockReturnValue({
+      isLoading: false,
+      error: new Error('Error'),
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
     });
-    const { getByRole } = renderWithRouter(
+    const { getByTestId } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
-      </AppContext.Provider>
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    // Wait for sessionStatus to be called - the component needs this to get past the loading check
+    await waitFor(() => {
+      expect(mockSessionStatus).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('error-loading-app')).toBeInTheDocument();
+    });
+  });
+
+  it('redirects to root when account data is unavailable in localStorage', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Create an account object where accessing primaryEmail throws,
+    // simulating the Account.data getter failure when localStorage has no data
+    const brokenAccount = {
+      ...MOCK_ACCOUNT,
+    } as unknown as Account;
+    Object.defineProperty(brokenAccount, 'primaryEmail', {
+      get() {
+        throw new Error('Account data not loaded from localStorage');
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: brokenAccount })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
     );
 
     await waitFor(() => {
-      expect(getByRole('heading', { level: 2 })).toHaveTextContent(
-        'General application error'
-      );
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
     });
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Account data unavailable, redirecting to sign-in'
+    );
+    warnSpy.mockRestore();
   });
 
   it('redirects to root if account is not verified', async () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg === 'Account or email verification is required to access /settings!'
       )
         return;
     });
@@ -172,7 +256,7 @@ describe('Settings App', () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg === 'Account or email verification is required to access /settings!'
       )
         return;
     });
@@ -188,6 +272,29 @@ describe('Settings App', () => {
       <AppContext.Provider
         value={mockAppContext({ session: unverifiedSession })}
       >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to root when sessionStatus call fails', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (
+        msg === 'Account or email verification is required to access /settings!'
+      )
+        return;
+    });
+    mockSessionStatus.mockRejectedValue(new Error('Session status failed'));
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }
@@ -235,7 +342,7 @@ describe('Settings App', () => {
   it('routes to PageSettings', async () => {
     const {
       getByTestId,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
@@ -245,7 +352,7 @@ describe('Settings App', () => {
       }
     );
 
-    await navigate(SETTINGS_PATH);
+    await router.navigate(SETTINGS_PATH);
 
     expect(getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -253,7 +360,7 @@ describe('Settings App', () => {
   it('routes to PageDisplayName', async () => {
     const {
       getByTestId,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
@@ -261,7 +368,7 @@ describe('Settings App', () => {
       { route: SETTINGS_PATH }
     );
 
-    await navigate(SETTINGS_PATH + '/display_name');
+    await router.navigate(SETTINGS_PATH + '/display_name');
 
     expect(getByTestId('input-label')).toHaveTextContent('Enter display name');
   });
@@ -269,7 +376,7 @@ describe('Settings App', () => {
   it('routes to PageAvatar', async () => {
     const {
       getAllByTestId,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
@@ -279,7 +386,7 @@ describe('Settings App', () => {
       }
     );
 
-    await navigate(SETTINGS_PATH + '/avatar');
+    await router.navigate(SETTINGS_PATH + '/avatar');
 
     expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
   });
@@ -308,7 +415,7 @@ describe('Settings App', () => {
     const session = mockSession(true);
     const {
       getByTestId,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
@@ -316,7 +423,7 @@ describe('Settings App', () => {
       { route: SETTINGS_PATH }
     );
 
-    await navigate(SETTINGS_PATH + '/change_password');
+    await router.navigate(SETTINGS_PATH + '/change_password');
 
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
@@ -325,7 +432,7 @@ describe('Settings App', () => {
     const session = mockSession(true);
     const {
       getByTestId,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
@@ -333,15 +440,14 @@ describe('Settings App', () => {
       { route: SETTINGS_PATH }
     );
 
-    await navigate(SETTINGS_PATH + '/delete_account');
+    await router.navigate(SETTINGS_PATH + '/delete_account');
 
     expect(getByTestId('delete-account-confirm')).toBeInTheDocument();
   });
 
   it('redirects to ConnectedServices', async () => {
     const {
-      history,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
@@ -351,15 +457,15 @@ describe('Settings App', () => {
       }
     );
 
-    await navigate(SETTINGS_PATH + '/clients');
+    await router.navigate(SETTINGS_PATH + '/clients');
 
-    expect(history.location.pathname).toBe('/settings#connected-services');
+    expect(router.state.location.pathname).toBe('/settings');
+    expect(router.state.location.hash).toBe('#connected-services');
   });
 
   it('redirects to PageAvatar', async () => {
     const {
-      history,
-      history: { navigate },
+      router,
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
@@ -369,9 +475,9 @@ describe('Settings App', () => {
       }
     );
 
-    await navigate(SETTINGS_PATH + '/avatar/change');
+    await router.navigate(SETTINGS_PATH + '/avatar/change');
 
-    expect(history.location.pathname).toBe('/settings/avatar');
+    expect(router.state.location.pathname).toBe('/settings/avatar/');
   });
 
   describe('guarded routes render MFA guard', () => {
@@ -384,19 +490,14 @@ describe('Settings App', () => {
         hasPassword: false,
       },
       {
-        pageName: 'PageMfaGuardTestWithGql',
-        route: '/mfa_guard/test/gql',
-        hasPassword: false,
-      },
-      {
         pageName: 'Page2faChange',
         route: '/two_step_authentication/change',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageSecondaryEmailAdd',
         route: '/emails',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageSecondaryEmailVerify',
@@ -406,7 +507,7 @@ describe('Settings App', () => {
       {
         pageName: 'Page2faReplaceBackupCodes',
         route: '/two_step_authentication/replace_codes',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageRecoveryPhoneSetup',
@@ -426,12 +527,12 @@ describe('Settings App', () => {
       {
         pageName: 'PageRecoveryPhoneRemove',
         route: '/recovery_phone/remove',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'Page2faSetup',
         route: '/two_step_authentication',
-        hasPassword: true,
+        hasPassword: false,
       },
     ];
 
@@ -445,14 +546,14 @@ describe('Settings App', () => {
         } as unknown as Account;
         const {
           getByTestId,
-          history: { navigate },
+          router,
         } = renderWithRouter(
           <AppContext.Provider value={mockAppContext({ session, account })}>
             <Subject />
           </AppContext.Provider>,
           { route: SETTINGS_PATH }
         );
-        await navigate(SETTINGS_PATH + route);
+        await router.navigate(SETTINGS_PATH + route);
 
         expect(getByTestId('mfa-guard')).toBeInTheDocument();
       }
@@ -460,7 +561,7 @@ describe('Settings App', () => {
   });
 
   describe('prevents access to certain routes when account has no password', () => {
-    let history: History;
+    let router: ReturnType<typeof renderWithRouter>['router'];
 
     beforeEach(async () => {
       const account = {
@@ -471,9 +572,10 @@ describe('Settings App', () => {
       const config = {
         l10n: { strict: true },
         metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
+        sentry: { env: 'test' },
       } as Config;
 
-      ({ history } = renderWithRouter(
+      ({ router } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account, config })}>
           <AppLocalizationProvider
             messages={{ en: ['testo: lol'] }}
@@ -487,25 +589,13 @@ describe('Settings App', () => {
     });
 
     it('redirects PageRecoveryKeyCreate', async () => {
-      await history.navigate(SETTINGS_PATH + '/account_recovery');
-      expect(history.location.pathname).toBe('/settings');
-    });
-
-    it('redirects two-step authentication page', async () => {
-      await history.navigate(SETTINGS_PATH + '/two_step_authentication');
-      expect(history.location.pathname).toBe('/settings');
-    });
-
-    it('redirects Page2faReplaceRecoveryCodes', async () => {
-      await history.navigate(
-        SETTINGS_PATH + '/two_step_authentication/replace_codes'
-      );
-      expect(history.location.pathname).toBe('/settings');
+      await router.navigate(SETTINGS_PATH + '/account_recovery');
+      expect(router.state.location.pathname).toBe('/settings');
     });
 
     it('redirects ChangePassword', async () => {
-      await history.navigate(SETTINGS_PATH + '/change_password');
-      expect(history.location.pathname).toBe('/settings/create_password');
+      await router.navigate(SETTINGS_PATH + '/change_password');
+      expect(router.state.location.pathname).toBe('/settings/create_password');
     });
   });
 });

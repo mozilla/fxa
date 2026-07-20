@@ -2,28 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { NavigateFunction } from 'react-router';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
+import type { SetPasswordLocationState } from '../PostVerify/SetPassword/interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
-  useSession,
   isOAuthIntegration,
   isOAuthNativeIntegration,
   useAuthClient,
   isOAuthWebIntegration,
 } from '../../models';
+import { isSendTabEntrypoint } from '../../lib/utilities';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
-import { InMemoryCache } from '@apollo/client';
 import AuthenticationMethods from '../../constants/authentication-methods';
+import config from '../../lib/config';
 
 interface NavigationTarget {
   to: string;
@@ -41,11 +42,15 @@ interface NavigationTargetError {
   error: AuthError;
 }
 
+export type PairOrigin = NonNullable<SigninLocationState['origin']>;
+
 interface SyncNavigateOptions {
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
+  signupSuccess?: boolean;
+  origin?: PairOrigin;
 }
 
 export function getSyncNavigate(
@@ -55,14 +60,25 @@ export function getSyncNavigate(
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
     syncHidePromoAfterLogin,
+    signupSuccess,
+    origin,
   }: SyncNavigateOptions = {}
-) {
+): {
+  to: string;
+  shouldHardNavigate: boolean;
+  locationState?: Pick<SigninLocationState, 'origin'> &
+    Pick<SetPasswordLocationState, 'passwordCreationReason'>;
+} {
   const searchParams = new URLSearchParams(queryParams);
 
   if (isSignInWithThirdPartyAuth) {
     return {
-      to: `/post_verify/third_party_auth/set_password?${searchParams}`,
+      to: `/post_verify/set_password?${searchParams}`,
       shouldHardNavigate: false,
+      // Explicit so the destination page doesn't have to infer the flow from
+      // a missing field. Mirrors the explicit reason set by the OTP and
+      // passkey callers in SigninPasswordlessCode and signin-flow.
+      locationState: { passwordCreationReason: 'third_party_auth' },
     };
   }
 
@@ -87,48 +103,53 @@ export function getSyncNavigate(
     };
   }
 
+  // Backbone-era callers may pass `signupSuccess: true` instead of
+  // `origin: 'signup'` — honor both. Otherwise fall back to 'signin'.
+  const pairOrigin: PairOrigin = signupSuccess
+    ? 'signup'
+    : (origin ?? 'signin');
+
+  // TODO: adjust this once `pairRoutes` rollout is 100% and Backbone /pair is retired.
+  // At that point /pair is always React and we can always soft-nav with
+  // location state — no config check, no query params needed.
+  if (config.showReactApp?.pairRoutes) {
+    const to = searchParams.toString() ? `/pair?${searchParams}` : '/pair';
+    return {
+      to,
+      shouldHardNavigate: false,
+      locationState: { origin: pairOrigin },
+    };
+  }
+
   searchParams.set('showSuccessMessage', 'true');
+  if (signupSuccess) {
+    searchParams.set('signupSuccess', 'true');
+  }
+  if (origin === 'post-verify-set-password') {
+    searchParams.set('passwordCreated', 'true');
+  }
   return {
     to: `/pair?${searchParams}`,
-    // TODO: don't hard navigate once Pair is converted to React
     shouldHardNavigate: true,
   };
 }
 
 export const cachedSignIn = async (
   sessionToken: string,
-  authClient: ReturnType<typeof useAuthClient>,
-  cache: InMemoryCache,
-  session: ReturnType<typeof useSession>,
-  isOauthPromptNone = false
+  authClient: ReturnType<typeof useAuthClient>
 ) => {
   try {
     // retrieves the account's authentication methods only
     // authenticatorAssuranceLevel reflects account AAL
     // and does not reflect the token's AAL (==> not useful here)
-    const {
-      authenticationMethods,
-    }: {
-      authenticationMethods: AuthenticationMethods[];
-    } = await authClient.accountProfile(sessionToken);
+    const { authenticationMethods } =
+      await authClient.accountProfile(sessionToken);
 
     const totpIsActive = authenticationMethods.includes(
       AuthenticationMethods.OTP
     );
-    if (totpIsActive) {
-      // Cache this for subsequent requests
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp() {
-            return { exists: true, verified: true };
-          },
-        },
-      });
-    }
 
     // after accountProfile data is retrieved we must check verified status
-    // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
     const { details } = await authClient.sessionStatus(sessionToken);
     const sessionVerified = details.sessionVerified;
     const emailVerified = details.accountEmailVerified;
@@ -139,7 +160,8 @@ export const cachedSignIn = async (
     if (!emailVerified) {
       verificationReason = VerificationReasons.SIGN_UP;
       verificationMethod = VerificationMethods.EMAIL_OTP;
-      !isOauthPromptNone && (await session.sendVerificationCode());
+      // We should send the code prior to nav. That couples with an actual navigation action, where it belongs.
+      // !isOauthPromptNone && (await session.sendVerificationCode());
     } else if (!sessionVerified) {
       // we are inferring verification method and verification reason here
       // ideally we would check the server directly to allow for more verification reasons
@@ -147,8 +169,11 @@ export const cachedSignIn = async (
       if (totpIsActive) {
         verificationMethod = VerificationMethods.TOTP_2FA;
       } else {
+        // Note when using this method, the expectation is that we will send the user
+        // a verification code, if and only if the navigation handler directs them to
+        // a verification code page. There are some RPs that require email_otp verification,
+        // so for these RPs, we can just pass the user straight through.
         verificationMethod = VerificationMethods.EMAIL_OTP;
-        !isOauthPromptNone && (await session.sendVerificationCode());
       }
     }
 
@@ -162,6 +187,8 @@ export const cachedSignIn = async (
         uid: storedLocalAccount!.uid,
         sessionVerified,
         emailVerified,
+        // Return TOTP status for components that need it
+        totpIsActive,
       },
     };
   } catch (error) {
@@ -187,7 +214,7 @@ export const cachedSignIn = async (
 // data back to Backbone. This means temporarily we need to send the sync data up
 // _before_ we hard navigate to CAD/pair in these flows.
 export async function handleNavigation(navigationOptions: NavigationOptions) {
-  const { integration } = navigationOptions;
+  const { navigate, integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
     integration.isSync() || integration.isFirefoxNonSync();
@@ -217,6 +244,16 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
+  }
+
+  // Send Tab entrypoints skip intermediate pages (inline recovery key, signup
+  // confirmed sync) and go directly to the /pair choice screen.
+  if (
+    isSendTabEntrypoint(integration.data?.entrypoint) &&
+    integration.isSync()
+  ) {
+    navigationOptions.showInlineRecoveryKeySetup = false;
+    navigationOptions.showSignupConfirmedSync = false;
   }
 
   // When a session is unverified, we need to redirect to the appropriate page depending on status of
@@ -256,6 +293,21 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       sendFxaLogin(navigationOptions);
     }
 
+    // If we are about to direct a user to an email-OTP verification page
+    // (/signin_token_code for an unverified session, or /confirm_signup_code for an
+    // unverified email) and we know their session isn't fully verified, then send them
+    // an otp code. Sending here couples the email with the actual navigation action.
+    if (
+      (to?.includes('signin_token_code') || to?.includes('confirm_signup_code')) &&
+      navigationOptions.signinData.sessionToken &&
+      navigationOptions.signinData.verificationMethod ===
+        VerificationMethods.EMAIL_OTP
+    ) {
+      await navigationOptions.authClient.sessionResendVerifyCode(
+        navigationOptions.signinData.sessionToken
+      );
+    }
+
     if (
       navigationOptions.signinData.verificationReason ===
         VerificationReasons.SIGN_UP ||
@@ -267,7 +319,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       wantsTwoStepAuthentication ||
       wantsKeys
     ) {
-      performNavigation({ to, locationState });
+      performNavigation({ navigate, to, locationState });
       return { error: undefined };
     }
 
@@ -280,7 +332,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         return { error };
       }
       if (to) {
-        performNavigation({
+        performNavigation({ navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -291,7 +343,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     }
 
     if (navigationOptions.performNavigation !== false) {
-      performNavigation({ to, locationState });
+      performNavigation({ navigate, to, locationState });
     }
     return { error: undefined };
   }
@@ -316,7 +368,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({ to, locationState, shouldHardNavigate });
+      performNavigation({ navigate,
+        to,
+        locationState,
+        shouldHardNavigate,
+        replace: navigationOptions.origin === 'post-verify-set-password',
+      });
     }
     return { error: undefined };
   }
@@ -345,15 +402,20 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         code: oauthData.code,
         redirect: oauthData.redirect,
         state: oauthData.state,
+        scope: oauthData.scope,
       });
     }
     if (navigationOptions.performNavigation !== false) {
-      performNavigation({
-        to,
-        locationState,
-        shouldHardNavigate,
-        replace: true,
-      });
+      if (to === '/post_verify/service_welcome') {
+        navigate(to, { state: { origin: 'signin' }, replace: true });
+      } else {
+        performNavigation({ navigate,
+          to,
+          locationState,
+          shouldHardNavigate,
+          replace: true,
+        });
+      }
     }
   }
 
@@ -375,6 +437,7 @@ const createSigninLocationState = (
     },
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
+    isPasswordlessOtpSignin,
     origin,
   } = navigationOptions;
   return {
@@ -387,6 +450,7 @@ const createSigninLocationState = (
     verificationReason,
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
+    isPasswordlessOtpSignin,
     origin,
   };
 };
@@ -445,6 +509,7 @@ const getUnverifiedNavigationTarget = (
 };
 
 function performNavigation({
+  navigate,
   to,
   shouldHardNavigate = false,
   locationState,
@@ -452,7 +517,7 @@ function performNavigation({
 }: Pick<
   NavigationTarget,
   'to' | 'locationState' | 'shouldHardNavigate' | 'replace'
->) {
+> & { navigate: NavigateFunction }) {
   if (shouldHardNavigate) {
     // Hard navigate to RP, or (temp until CAD/pair is Reactified)
     hardNavigate(to, undefined, undefined, replace);
@@ -473,14 +538,19 @@ const getNonOAuthNavigationTarget = async (
     redirectTo,
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
+    origin,
   } = navigationOptions;
   if (integration.isSync()) {
+    const syncNav = getSyncNavigate(queryParams, {
+      showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync,
+      origin,
+    });
+    const locationState = createSigninLocationState(navigationOptions);
     return {
-      ...getSyncNavigate(queryParams, {
-        showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync,
-      }),
+      ...syncNav,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   }
   // We don't want a hard navigate to `/settings` as it
@@ -496,23 +566,46 @@ const getOAuthNavigationTarget = async (
 ): Promise<NavigationTarget | NavigationTargetError> => {
   const locationState = createSigninLocationState(navigationOptions);
 
+  // Passwordless (third-party-auth) sign-ins that need keys must set a password
+  // first. For Sync this is always the case; for non-Sync Firefox clients that
+  // want keys it only applies when the browser hasn't decoupled Sync.
+  // Returning here, before `finishOAuthFlowHandler` runs, ensures no keyless
+  // `oauthData` is produced and no premature fxaOAuthLogin fires.
   if (
     navigationOptions.isSignInWithThirdPartyAuth &&
-    navigationOptions.integration.isSync()
+    navigationOptions.integration.requiresPasswordForLogin(
+      navigationOptions.supportsKeysOptionalLogin
+    )
+  ) {
+    const syncNav = getSyncNavigate(navigationOptions.queryParams, {
+      showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth: navigationOptions.isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+      origin: navigationOptions.origin,
+    });
+    return {
+      ...syncNav,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
+    };
+  }
+
+  // A passkey/passwordless session is session-AAL2 but has no account 2FA, so
+  // an AAL2 RP (AMO) loops unless we force TOTP enrollment when none is set.
+  if (
+    isOAuthWebIntegration(navigationOptions.integration) &&
+    navigationOptions.integration.wantsTwoStepAuthentication() &&
+    navigationOptions.accountHasTotp === false
   ) {
     return {
-      ...getSyncNavigate(navigationOptions.queryParams, {
-        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth:
-          navigationOptions.isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
-      }),
+      to: `/inline_totp_setup${navigationOptions.queryParams || ''}`,
       locationState,
     };
   }
 
-  const { error, redirect, code, state } =
+  // `scope` is the server-resolved scope per ADR 0049, only forwarded
+  // to Firefox via fxaOAuthLogin; ignored otherwise.
+  const { error, redirect, code, state, scope } =
     await navigationOptions.finishOAuthFlowHandler(
       navigationOptions.signinData.uid,
       navigationOptions.signinData.sessionToken,
@@ -521,17 +614,33 @@ const getOAuthNavigationTarget = async (
     );
   if (error) {
     if (
+      error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno ||
       error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
       GleanMetrics.login.error({ event: { reason: error.message } });
-      // If user already has TOTP enabled, send them to enter their code instead of setup
-      const hasTotp =
-        locationState.verificationMethod === VerificationMethods.TOTP_2FA;
+
+      const to = (() => {
+        // If the user doesn't have totp, and encountered an unverified_session error, send them
+        // to signin_token_code, this is a 'mustVerify' case
+        if (
+          locationState.verificationMethod !== VerificationMethods.TOTP_2FA &&
+          error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno
+        ) {
+          return `/signin_token_code${navigationOptions.queryParams || ''}`;
+        }
+
+        // If user already has TOTP enabled, send them to enter their code instead of setup
+        if (locationState.verificationMethod === VerificationMethods.TOTP_2FA) {
+          return `/signin_totp_code${navigationOptions.queryParams || ''}`;
+        }
+
+        // Otherwise, we are dealing with an RP that requires totp setup. Send them there.
+        return `/inline_totp_setup${navigationOptions.queryParams || ''}`;
+      })();
+
       return {
-        to: hasTotp
-          ? `/signin_totp_code${navigationOptions.queryParams || ''}`
-          : `/inline_totp_setup${navigationOptions.queryParams || ''}`,
+        to,
         locationState,
       };
     }
@@ -539,28 +648,33 @@ const getOAuthNavigationTarget = async (
   }
 
   if (navigationOptions.integration.isSync()) {
+    const syncNav = getSyncNavigate(navigationOptions.queryParams, {
+      showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth: navigationOptions.isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+      origin: navigationOptions.origin,
+    });
     return {
-      ...getSyncNavigate(navigationOptions.queryParams, {
-        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth:
-          navigationOptions.isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
-      }),
+      ...syncNav,
       oauthData: {
         code,
         redirect,
         state,
+        scope,
       },
-      locationState,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   } else if (navigationOptions.integration.isFirefoxNonSync()) {
     return {
-      to: '/settings',
+      to: navigationOptions.integration.isFirefoxClientServiceVpn()
+        ? '/post_verify/service_welcome'
+        : '/settings',
       oauthData: {
         code,
         redirect,
         state,
+        scope,
       },
     };
   }

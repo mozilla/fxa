@@ -19,7 +19,10 @@ export type DeleteAccountCloudTaskConfig = CloudTasksConfig & {
   };
 };
 
-/** Reasons an account can be deleted. */
+/**
+ * Reasons an account can be deleted. Persisted on `deletedAccounts.deletionReason`
+ * (VARCHAR(64)) so deletions can be attributed.
+ */
 export enum ReasonForDeletion {
   UserRequested = 'fxa_user_requested_account_delete',
   Unverified = 'fxa_unverified_account_delete',
@@ -27,6 +30,13 @@ export enum ReasonForDeletion {
   InactiveAccountScheduled = 'fxa_inactive_account_scheduled_delete',
   InactiveAccountEmailBounced = 'fxa_inactive_account_email_bounced_delete',
   AdminRequested = 'fxa_admin_requested_account_delete',
+  EmailBounce = 'fxa_email_bounce_account_delete',
+  InvalidEmail = 'fxa_invalid_email_account_delete',
+  /**
+   * An unverified account is deleted to free up its email so the address can be
+   * re-registered (account "recreated") during a new signup.
+   */
+  AccountRecreated = 'fxa_account_delete_unverified_to_recreate',
 }
 
 /** Task payload requesting an account deletion */

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import supportedLanguages from './supported-languages.json';
+const supportedLanguages: string[] = require('./supported-languages.json');
 
 describe('l10n/supportedLanguages:', () => {
   it('returns an array of languages', () => {
