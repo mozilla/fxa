@@ -1288,9 +1288,12 @@ describe('CartService', () => {
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
-    it('fetches old cart and creates new cart with same details', async () => {
+    it('fetches old cart and creates new cart with same details and re-validated eligibility', async () => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
@@ -1302,6 +1305,12 @@ describe('CartService', () => {
       const result = await cartService.restartCart(mockOldCart.id);
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockOldCart.id);
+      expect(eligibilityService.checkEligibility).toHaveBeenCalledWith(
+        mockOldCart.interval,
+        mockOldCart.offeringConfigId,
+        mockOldCart.uid,
+        mockAccountCustomer.stripeCustomerId
+      );
       expect(cartManager.createCart).toHaveBeenCalledWith({
         uid: mockOldCart.uid,
         interval: mockOldCart.interval,
@@ -1311,9 +1320,38 @@ describe('CartService', () => {
         currency: mockOldCart.currency,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         amount: mockOldCart.amount,
-        eligibilityStatus: mockOldCart.eligibilityStatus,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
         isFreeTrial: mockOldCart.isFreeTrial,
       });
+      expect(result).toEqual(mockNewCart);
+    });
+
+    it('creates a FAIL error cart when the user is no longer eligible', async () => {
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockNewCart);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue({
+          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+        });
+
+      const result = await cartService.restartCart(mockOldCart.id);
+
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
+        }),
+        CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
+      );
+      expect(cartManager.createCart).not.toHaveBeenCalled();
       expect(result).toEqual(mockNewCart);
     });
 
