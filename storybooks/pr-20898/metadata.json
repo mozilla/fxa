@@ -1,0 +1,12 @@
+{
+  "commit": "44aea7ac2ea0a6347e3aa265eb114af96e82fef2",
+  "summary": "chore(deps): bump brace-expansion from 1.1.12 to 1.1.16",
+  "description": "Bumps [brace-expansion](https://github.com/juliangruber/brace-expansion) from 1.1.12 to 1.1.16.\n- [Release notes](https://github.com/juliangruber/brace-expansion/releases)\n- [Commits](https://github.com/juliangruber/brace-expansion/compare/v1.1.12...v1.1.16)\n\n---\nupdated-dependencies:\n- dependency-name: brace-expansion\n  dependency-version: 1.1.16\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784596298000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
