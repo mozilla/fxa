@@ -355,6 +355,16 @@ commands:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
+            # #phone tests run serially on node 0 (see run-phone-tests-serialized),
+            # so when they're excluded here reserve node 0 out of the split.
+            RESERVE_PHONE_NODE=false
+            if [[ "<< parameters.grep_invert >>" == *"#phone"* && "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]]; then
+              RESERVE_PHONE_NODE=true
+            fi
+            if [[ "$RESERVE_PHONE_NODE" == "true" && "${CIRCLE_NODE_INDEX:-0}" == "0" ]]; then
+              echo "Node 0 is reserved for serialized #phone tests; skipping split tests on this node."
+              exit 0
+            fi
             if [[ "<< parameters.project >>" == "production" ]]; then
               GREP="--grep=\"severity-1\""
             elif [[ "<< parameters.project >>" == "stage" ]]; then
@@ -367,7 +377,12 @@ commands:
             else
               GREP_INVERT=""
             fi
-            echo "targeting project << parameters.project >> $GREP $GREP_INVERT"
+            # Redistribute the split across the remaining nodes (shifted by one).
+            SPLIT_ARGS=""
+            if [[ "$RESERVE_PHONE_NODE" == "true" ]]; then
+              SPLIT_ARGS="--total=$((CIRCLE_NODE_TOTAL - 1)) --index=$((CIRCLE_NODE_INDEX - 1))"
+            fi
+            echo "targeting project << parameters.project >> $GREP $GREP_INVERT $SPLIT_ARGS"
             npx nx build fxa-auth-client
             cd packages/functional-tests/<< parameters.test_dir >>
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
@@ -377,7 +392,8 @@ commands:
               --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT --pass-with-no-tests" \
               --verbose \
               --split-by=timings \
-              --timings-type=classname
+              --timings-type=classname \
+              $SPLIT_ARGS
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
@@ -388,7 +404,9 @@ commands:
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
             PLAYWRIGHT_FAIL_FAST: << parameters.fail_fast >>
 
-  # DRY helper to run phone-tagged tests in a single worker on node 0
+  # Runs phone-tagged tests in a single worker on node 0. When these tests are
+  # excluded from the split (grep_invert includes #phone), run-playwright-tests
+  # keeps node 0 out of the split so it only runs these serial tests.
   run-phone-tests-serialized:
     parameters:
       project:
