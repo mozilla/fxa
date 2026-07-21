@@ -1,0 +1,12 @@
+{
+  "commit": "1d86aa38e72258f67dfb482d7520765ceac8c8ab",
+  "summary": "fix(deps): Update yarn.lock",
+  "description": "This commit:\n\n* Updates the yarn.lock file after running yarn install",
+  "timestamp": 1784653649000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
