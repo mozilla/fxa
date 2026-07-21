@@ -233,6 +233,8 @@ close-icon-aria-label =
     .aria-label = Хабарламаны жабу
 code-icon-aria-label =
     .aria-label = Код
+edit-icon-aria-label =
+    .aria-label = Түзету
 error-icon-aria-label =
     .aria-label = Қате
 info-icon-aria-label =
@@ -932,6 +934,8 @@ passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
 passkey-delete-error = Рұқсат кілтіңізді өшіру кезінде қате орын алды. Бірнеше минуттан кейін қайталап көріңіз.
+passkey-rename-save-button = Сақтау
+passkey-rename-cancel-button = Бас тарту
 
 
 switch-turn-off = Сөндіру

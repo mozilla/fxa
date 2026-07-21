@@ -371,7 +371,7 @@ input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Înapoi
 # Generic error shown when the legal document fails to load
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 
 ## LinkDamaged component
 
@@ -1616,7 +1616,7 @@ index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai
 
 ## InlineRecoveryKeySetup page component
 
-inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci mai târziu.
+inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
 inline-recovery-key-setup-recovery-created = Cheia de recuperare a contului a fost creată
 inline-recovery-key-setup-download-header = Securizează-ți contul
 inline-recovery-key-setup-download-subheader = Descarcă și salveaz-o acum
@@ -2003,7 +2003,7 @@ reset-password-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 reset-password-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 reset-password-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
 # Follows the error message (e.g, "There was a problem sending a code")
-reset-password-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+reset-password-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 reset-password-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 reset-password-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 reset-password-with-recovery-key-verified-page-title = Parolă resetată cu succes
@@ -2171,7 +2171,7 @@ signin-recovery-code-required-error = Necesită cod de autentificare de rezervă
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
-signin-recovery-code-use-phone-failure-description = Te rugăm să încerci mai târziu.
+signin-recovery-code-use-phone-failure-description = Te rugăm să încerci din nou mai târziu.
 
 ## SigninRecoveryPhone page
 
@@ -2190,7 +2190,7 @@ signin-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 signin-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 signin-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
 # Follows the error message (e.g, "There was a problem sending a code")
-signin-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+signin-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 signin-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 signin-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
