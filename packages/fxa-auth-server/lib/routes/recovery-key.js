@@ -419,9 +419,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_POST,
         auth: {
-          // hint update is only possible when authenticated
-          // from /settings or (eventually) after signup, signin or successful password reset
-          strategies: ['sessionTokenBearer', 'sessionToken'],
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -437,8 +435,6 @@ module.exports = (
         const { uid } = request.auth.credentials;
 
         const { hint } = request.payload;
-
-        // Note: Session verification is handled by the auth strategy
 
         const keyForUid = await db.recoveryKeyExists(uid);
 
