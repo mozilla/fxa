@@ -1,0 +1,11 @@
+{
+  "commit": "bad85a67570dce7b4e4a5717563ae85fc85aecb9",
+  "summary": "feat(auth): Add new DAU Glean event based on access token created, add option to opt-out",
+  "description": "Because:\n* Firefox always creates a Sync-scoped access token even when the user is not using Sync, impacting DAU\n* Our grant types always create an access token when a refresh token is created. This is standard oauth, but because Firefox does not immediately need and use the access token given back for fxa-credentials and authorization_code grants, we need to either suppress the access token creation, or suppress the DAU event\n* Because it is standard oauth to always return an access token, and because doing something non-standard will add another wrinkle to moving to an oauth standard library later, and because we already have at least one other separate case where we want to suppress a DAU event (FXA-14159), we want to continue creating the access tokens and logging access token created events\n\nThis commit:\n* Adds a new \"oauth token created DAU\" Glean event that fires near the previous DAU measurement event, oauth access token created\n* Adds a suppress_dau option for fxa-credentials and authorization_code oauth token grants so that when passed, we still emit the access token created event, but we suppress the new event\n\ncloses FXA-14206",
+  "timestamp": 1784676053000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
