@@ -65,6 +65,16 @@ jobs:
     needs:
       - tag
     steps:
+      # The fxa-mono image build exhausts the ~14GB disk on a standard runner.
+      # Reclaim the preinstalled toolchains this build never uses. rm -rf is a
+      # no-op on any path that is absent, so it stays safe across image updates.
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force || true
+          df -h /
+
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
         with:
           ref: ${{ env.GIT_TAG }}
