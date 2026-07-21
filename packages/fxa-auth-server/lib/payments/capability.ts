@@ -246,6 +246,7 @@ export class CapabilityService {
       subscribedPlayPrices,
       subscribedAppStorePrices,
     ] = await Promise.all([
+      // What kind of customer are dealing with?
       this.fetchSubscribedPricesFromStripe(uid),
       this.fetchSubscribedPricesFromPlay(uid),
       this.fetchSubscribedPricesFromAppStore(uid),
@@ -548,6 +549,7 @@ export class CapabilityService {
       });
     }
     if (removedCapabilities.length > 0) {
+      // DS: What does this list look. So if any capabilities is removed this gets triggered?
       this.broadcastCapabilitiesRemoved({
         uid,
         capabilities: removedCapabilities,
@@ -599,6 +601,10 @@ export class CapabilityService {
         uid,
         // This number needs to be in seconds.
         eventCreatedAt: eventCreatedAt ?? Math.floor(Date.now() / 1000),
+        // DS: Huh? So based the calling code I commented on, it looks like isActive gets set as false if just a single capability is removed.
+        //     What if there are other capabilities that are still active?
+        //     Looking at RP's code they use this as a signal to deactivate the account.
+        //     Also, sorry if this is a silly question. I just don't know a ton about the data model here.
         isActive: false,
         productCapabilities: capabilities,
       }
@@ -661,6 +667,9 @@ export class CapabilityService {
           err,
         });
       }
+      // DS: This definitely silently fails.
+      //     Are we sure we aren't dealing with play store subscriptions here?
+      //     IUC, these were mobile users who had apps isntalled on their phone.
       return [];
     }
   }
@@ -689,6 +698,9 @@ export class CapabilityService {
           err,
         });
       }
+      // DS: This definitely swallows any transient error. I'll look for logs around this...
+      //     Are we sure we aren't dealing with app store subscriptions here?
+      //     IUC, these were mobile users who had apps isntalled on their phone.
       return [];
     }
   }
@@ -699,6 +711,8 @@ export class CapabilityService {
   private async fetchSubscribedPricesFromStripe(
     uid: string
   ): Promise<string[]> {
+
+    // DS: If this silently fails, we are in trouble. Keep traversing this path.
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
@@ -706,6 +720,8 @@ export class CapabilityService {
     if (!subscriptions) {
       return [];
     }
+
+    // DS: Did we check the subscription status of the affected customers?
     const subscribedPrices = subscriptions
       .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
       .flatMap((sub) => sub.items.data)
