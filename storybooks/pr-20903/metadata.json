@@ -1,0 +1,12 @@
+{
+  "commit": "77765254d81dc51250dabfc7ed1f8652d46b2884",
+  "summary": "chore(deps): bump webpack-dev-server from 4.15.2 to 5.2.6",
+  "description": "Bumps [webpack-dev-server](https://github.com/webpack/webpack-dev-server) from 4.15.2 to 5.2.6.\n- [Release notes](https://github.com/webpack/webpack-dev-server/releases)\n- [Changelog](https://github.com/webpack/webpack-dev-server/blob/v5.2.6/CHANGELOG.md)\n- [Commits](https://github.com/webpack/webpack-dev-server/compare/v4.15.2...v5.2.6)\n\n---\nupdated-dependencies:\n- dependency-name: webpack-dev-server\n  dependency-version: 5.2.6\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784655318000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
