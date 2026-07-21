@@ -77,19 +77,19 @@ describe('SmsManager', () => {
     });
 
     expect(msg).toBeDefined();
-    expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
+    expect(mockTwilioSmsClient.messages.create).toHaveBeenCalledWith({
       to,
       from: from[0],
       body,
     });
     expect(msg?.status).toEqual('sent');
-    expect(mockLog.log).toBeCalledTimes(1);
-    expect(mockLog.log).toBeCalledWith('SMS sent', {
+    expect(mockLog.log).toHaveBeenCalledTimes(1);
+    expect(mockLog.log).toHaveBeenCalledWith('SMS sent', {
       sid: 'foo',
       status: 'sent',
     });
-    expect(mockMetrics.increment).toBeCalledTimes(1);
-    expect(mockMetrics.increment).toBeCalledWith('sms.send.sent');
+    expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
+    expect(mockMetrics.increment).toHaveBeenCalledWith('sms.send.sent');
   });
 
   it('Rejects invalid number', async () => {
@@ -131,25 +131,25 @@ describe('SmsManager', () => {
     });
 
     expect(msg).toBeDefined();
-    expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
+    expect(mockTwilioSmsClient.messages.create).toHaveBeenCalledWith({
       to,
       from: from[0],
       body,
     });
-    expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
+    expect(mockTwilioSmsClient.messages.create).toHaveBeenCalledWith({
       to,
       from: from[0],
       body,
     });
-    expect(mockTwilioSmsClient.messages.create).toBeCalledTimes(2);
+    expect(mockTwilioSmsClient.messages.create).toHaveBeenCalledTimes(2);
     expect(msg?.status).toEqual('sent');
-    expect(mockLog.log).toBeCalledTimes(1);
-    expect(mockLog.log).toBeCalledWith('SMS sent', {
+    expect(mockLog.log).toHaveBeenCalledTimes(1);
+    expect(mockLog.log).toHaveBeenCalledWith('SMS sent', {
       sid: 'foo',
       status: 'sent',
     });
-    expect(mockMetrics.increment).toBeCalledTimes(1);
-    expect(mockMetrics.increment).toBeCalledWith('sms.send.sent');
+    expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
+    expect(mockMetrics.increment).toHaveBeenCalledWith('sms.send.sent');
   });
 
   it('Retries but eventually fails if send rate limit exceeded.', async () => {
@@ -167,9 +167,9 @@ describe('SmsManager', () => {
       'Too many SMS are currently being sent. Try again later.'
     );
 
-    expect(mockLog.log).toBeCalledTimes(0);
-    expect(mockMetrics.increment).toBeCalledTimes(1);
-    expect(mockTwilioSmsClient.messages.create).toBeCalledTimes(3); // initial call + config.maxRetries.
+    expect(mockLog.log).toHaveBeenCalledTimes(0);
+    expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
+    expect(mockTwilioSmsClient.messages.create).toHaveBeenCalledTimes(3); // initial call + config.maxRetries.
   });
 
   it('Records failure', async () => {
@@ -184,8 +184,8 @@ describe('SmsManager', () => {
       })
     ).rejects.toEqual(boom);
 
-    expect(mockLog.log).toBeCalledTimes(0);
-    expect(mockMetrics.increment).toBeCalledTimes(1);
+    expect(mockLog.log).toHaveBeenCalledTimes(0);
+    expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
   });
 
   it('Rotates numbers', () => {
@@ -263,11 +263,11 @@ describe('SmsManager', () => {
         MessageStatus: 'delivered',
         RawDlrDoneDate: 'TWILIO_DATE_FORMAT',
       });
-      expect(mockMetrics.increment).toBeCalledTimes(1);
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.delivered'
       );
-      expect(mockLog.log).toBeCalledWith(
+      expect(mockLog.log).toHaveBeenCalledWith(
         'recovery-phone.message.status.delivered',
         {
           From: '+1234567890',
@@ -285,14 +285,14 @@ describe('SmsManager', () => {
         MessageStatus: 'failed',
         ErrorCode: '4000',
       });
-      expect(mockMetrics.increment).toBeCalledTimes(2);
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledTimes(2);
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.failed'
       );
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.error.4000'
       );
-      expect(mockLog.log).toBeCalledWith(
+      expect(mockLog.log).toHaveBeenCalledWith(
         'recovery-phone.message.status.failed',
         {
           From: '+1234567890',
@@ -310,14 +310,14 @@ describe('SmsManager', () => {
         MessageStatus: 'undelivered',
         ErrorCode: '4000',
       });
-      expect(mockMetrics.increment).toBeCalledTimes(2);
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledTimes(2);
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.undelivered'
       );
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.error.4000'
       );
-      expect(mockLog.log).toBeCalledWith(
+      expect(mockLog.log).toHaveBeenCalledWith(
         'recovery-phone.message.status.undelivered',
         {
           From: '+1234567890',
@@ -334,11 +334,11 @@ describe('SmsManager', () => {
         From: '+1234567890',
         MessageStatus: 'sending',
       });
-      expect(mockMetrics.increment).toBeCalledTimes(1);
-      expect(mockMetrics.increment).toBeCalledWith(
+      expect(mockMetrics.increment).toHaveBeenCalledTimes(1);
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
         'recovery-phone.message.status.sending'
       );
-      expect(mockLog.log).toBeCalledTimes(0);
+      expect(mockLog.log).toHaveBeenCalledTimes(0);
     });
   });
 });

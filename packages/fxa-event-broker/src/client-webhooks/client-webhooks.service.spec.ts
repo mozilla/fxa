@@ -53,7 +53,7 @@ describe('ClientWebhooksService', () => {
     const cancelMock = jest.fn();
     (service as any).cancel = cancelMock;
     service.onApplicationShutdown();
-    expect(cancelMock).toBeCalled();
+    expect(cancelMock).toHaveBeenCalled();
   });
 
   describe('onApplicationBootstartp', () => {
@@ -133,9 +133,9 @@ describe('ClientWebhooksService', () => {
       await service.onApplicationBootstrap();
       const mockExit = jest.spyOn(process, 'exit').mockImplementation();
       triggerError(new Error('oops'));
-      expect(mockExit).toBeCalledTimes(1);
-      expect(log.error).toBeCalledTimes(1);
-      expect(Sentry.captureException).toBeCalledTimes(1);
+      expect(mockExit).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
   });
 });

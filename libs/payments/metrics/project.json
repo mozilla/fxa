@@ -64,7 +64,7 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "libs/payments/metrics/jest.config.ts",
-        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+        "testPathPatterns": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
       }
     },
     "test-integration": {
@@ -72,7 +72,7 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "libs/payments/metrics/jest.config.ts",
-        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+        "testPathPatterns": ["\\.in\\.spec\\.ts$"]
       }
     }
   }

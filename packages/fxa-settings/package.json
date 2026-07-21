@@ -5,14 +5,14 @@
   "private": true,
   "scripts": {
     "prebuild": "nx l10n-prime && nx legal-prime",
-    "build": "nx build-l10n && nx build-static && nx build-ts && nx build-css && nx build-react",
-    "build-fast": "nx build-l10n && nx build-css",
+    "build": "exit 0",
+    "build-fast": "exit 0",
     "build-static": "yarn grunt hash-static",
     "build-ts": "tsc --build",
     "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-storybook": "nx build-l10n && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && storybook build",
-    "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
-    "build-react": "nx build-react-dev && nx build-react-stage && nx build-react-prod",
+    "build-storybook": "STORYBOOK_BUILD=1 yarn build-css && storybook build",
+    "build-l10n": "exit 0",
+    "build-react": "yarn build-react-dev && yarn build-react-stage && yarn build-react-prod",
     "build-react-dev": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/dev node scripts/build.js",
     "build-react-stage": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/stage node scripts/build.js",
     "build-react-prod": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/prod node scripts/build.js",
@@ -229,7 +229,7 @@
     "grunt-hash": "^0.5.0",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
-    "nx": "21.2.4",
+    "nx": "^23.0.1",
     "pm2": "^7.0.0",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
@@ -251,7 +251,201 @@
     "tags": [
       "scope:frontend",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-static",
+          "build-ts",
+          "build-css",
+          "build-react"
+        ]
+      },
+      "build-fast": {
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-css"
+        ]
+      },
+      "build-storybook": {
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n"
+        ]
+      },
+      "build-ts": {
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/tsconfig.tsbuildinfo"
+        ]
+      },
+      "build-react-dev": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/dev"
+        ]
+      },
+      "build-react-stage": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/stage"
+        ]
+      },
+      "build-react-prod": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/prod"
+        ]
+      },
+      "build-react": {
+        "cache": true,
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-static",
+          "build-css"
+        ],
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/dev",
+          "{projectRoot}/build/stage",
+          "{projectRoot}/build/prod"
+        ]
+      },
+      "build-css": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/src/styles/tailwind.out.css"
+        ]
+      },
+      "build-static": {
+        "cache": true,
+        "dependsOn": [
+          "prebuild"
+        ],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/static"
+        ]
+      },
+      "build-l10n": {
+        "cache": true,
+        "dependsOn": [
+          "l10n-bundle",
+          "l10n-merge-test"
+        ],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/en/branding.ftl",
+          "{projectRoot}/public/locales/en/settings.ftl",
+          "{projectRoot}/public/locales/**/main.ftl",
+          "{projectRoot}/test/settings.ftl"
+        ]
+      },
+      "l10n-merge": {
+        "cache": true,
+        "dependsOn": [
+          "prebuild"
+        ],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/en/branding.ftl",
+          "{projectRoot}/public/locales/en/settings.ftl"
+        ]
+      },
+      "l10n-bundle": {
+        "cache": true,
+        "dependsOn": [
+          "l10n-merge"
+        ],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/public/locales/**/main.ftl"
+        ]
+      },
+      "l10n-merge-test": {
+        "cache": true,
+        "dependsOn": [
+          "prebuild"
+        ],
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/test/settings.ftl"
+        ]
+      }
+    }
   },
   "babel": {
     "presets": [

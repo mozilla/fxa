@@ -12,12 +12,15 @@ import {
   StripePriceRecurringFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
-import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './customer.error';
+import {
+  PlanIntervalMultiplePlansError,
+  PriceForCurrencyNotFoundError,
+} from './customer.error';
 import { PriceManager } from './price.manager';
 import { SubplatInterval } from './types';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { StripePriceCurrencyOptionFactory } from 'libs/payments/stripe/src/lib/factories/price.factory';
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 
 describe('PriceManager', () => {
   let priceManager: PriceManager;
@@ -100,19 +103,21 @@ describe('PriceManager', () => {
 
   describe('retrievePricingForCurrency', () => {
     it('returns price data if currency matches default currency of price', async () => {
-      const mockPrice = StripeResponseFactory(
-        StripePriceFactory()
-      );
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
 
       jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
 
-      const result = await priceManager.retrievePricingForCurrency(mockPrice.id, mockPrice.currency)
+      const result = await priceManager.retrievePricingForCurrency(
+        mockPrice.id,
+        mockPrice.currency
+      );
       expect(result).toEqual({
         price: mockPrice,
         unitAmountForCurrency: mockPrice.unit_amount,
-        currencyOptionForCurrency: mockPrice.currency_options[mockPrice.currency],
-      })
-    })
+        currencyOptionForCurrency:
+          mockPrice.currency_options[mockPrice.currency],
+      });
+    });
 
     it('returns price currency options data if price does not match default currency of price', async () => {
       const defaultCurrency = 'usd';
@@ -134,22 +139,26 @@ describe('PriceManager', () => {
 
       jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
 
-      const result = await priceManager.retrievePricingForCurrency(mockPrice.id, currencyOption)
+      const result = await priceManager.retrievePricingForCurrency(
+        mockPrice.id,
+        currencyOption
+      );
       expect(result).toEqual({
         price: mockPrice,
-        unitAmountForCurrency: mockPrice.currency_options[currencyOption].unit_amount,
+        unitAmountForCurrency:
+          mockPrice.currency_options[currencyOption].unit_amount,
         currencyOptionForCurrency: mockPrice.currency_options[currencyOption],
-      })
-    })
+      });
+    });
 
     it('throws an error if price does not have provided currency', async () => {
-      const mockPrice = StripeResponseFactory(
-        StripePriceFactory()
-      );
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
 
       jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
 
-      await expect(priceManager.retrievePricingForCurrency(mockPrice.id, 'invalid')).rejects.toBeInstanceOf(PriceForCurrencyNotFoundError)
-    })
-  })
+      await expect(
+        priceManager.retrievePricingForCurrency(mockPrice.id, 'invalid')
+      ).rejects.toBeInstanceOf(PriceForCurrencyNotFoundError);
+    });
+  });
 });

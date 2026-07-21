@@ -26,14 +26,14 @@ describe('EventLogging', () => {
 
   it('should record event', () => {
     eventLogging.onEvent(EventNames.ClearBounces);
-    expect(logger.info).lastCalledWith('admin-panel-events', {
+    expect(logger.info).toHaveBeenLastCalledWith('admin-panel-events', {
       event: 'clear-bounces',
     });
   });
 
   it('should record account search event with flag', () => {
     eventLogging.onAccountSearch('email', true);
-    expect(logger.info).lastCalledWith('admin-panel-events', {
+    expect(logger.info).toHaveBeenLastCalledWith('admin-panel-events', {
       event: 'account-search',
       'search-type': 'email',
       'auto-completed': true,

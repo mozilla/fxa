@@ -77,7 +77,7 @@ describe('PaypalBillingAgreementManager', () => {
         token
       );
       expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
-      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+      expect(paypalClient.createBillingAgreement).not.toHaveBeenCalled();
     });
 
     it('returns a new billing agreement when no billing agreement exists and token passed', async () => {
@@ -99,7 +99,10 @@ describe('PaypalBillingAgreementManager', () => {
         token
       );
       expect(result).toEqual(mockBillingAgreementId);
-      expect(paypalBillingAgreementManager.create).toBeCalledWith(uid, token);
+      expect(paypalBillingAgreementManager.create).toHaveBeenCalledWith(
+        uid,
+        token
+      );
     });
 
     it('throws an error if no billing agreement id is present and user has subscriptions', async () => {
@@ -118,7 +121,7 @@ describe('PaypalBillingAgreementManager', () => {
       await expect(
         paypalBillingAgreementManager.retrieveOrCreateId(uid, true, token)
       ).rejects.toBeInstanceOf(PayPalActiveSubscriptionsMissingAgreementError);
-      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+      expect(paypalClient.createBillingAgreement).not.toHaveBeenCalled();
     });
 
     it('throws an error if no billing agreement id is present and token is not provided', async () => {
@@ -136,7 +139,7 @@ describe('PaypalBillingAgreementManager', () => {
       await expect(
         paypalBillingAgreementManager.retrieveOrCreateId(uid, false)
       ).rejects.toBeInstanceOf(PaypalBillingAgreementMissingTokenError);
-      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+      expect(paypalClient.createBillingAgreement).not.toHaveBeenCalled();
     });
   });
 
@@ -152,7 +155,7 @@ describe('PaypalBillingAgreementManager', () => {
         await paypalBillingAgreementManager.cancel(billingAgreementId);
 
       expect(result).toBeUndefined();
-      expect(paypalClient.baUpdate).toBeCalledWith({
+      expect(paypalClient.baUpdate).toHaveBeenCalledWith({
         billingAgreementId,
         cancel: true,
       });
@@ -165,7 +168,7 @@ describe('PaypalBillingAgreementManager', () => {
 
       await expect(() =>
         paypalBillingAgreementManager.cancel(billingAgreementId)
-      ).rejects.toThrowError();
+      ).rejects.toThrow();
     });
   });
 
@@ -202,7 +205,7 @@ describe('PaypalBillingAgreementManager', () => {
     });
 
     it('throws an error', async () => {
-      await expect(paypalBillingAgreementManager.create).rejects.toThrowError();
+      await expect(paypalBillingAgreementManager.create).rejects.toThrow();
     });
   });
 
@@ -228,8 +231,8 @@ describe('PaypalBillingAgreementManager', () => {
         street2: nvpBillingAgreementMock.STREET2,
         zip: nvpBillingAgreementMock.ZIP,
       });
-      expect(baUpdateMock).toBeCalledTimes(1);
-      expect(baUpdateMock).toBeCalledWith({ billingAgreementId });
+      expect(baUpdateMock).toHaveBeenCalledTimes(1);
+      expect(baUpdateMock).toHaveBeenCalledWith({ billingAgreementId });
     });
 
     it('returns agreement details (cancelled status)', async () => {
@@ -255,8 +258,8 @@ describe('PaypalBillingAgreementManager', () => {
         street2: nvpBillingAgreementMock.STREET2,
         zip: nvpBillingAgreementMock.ZIP,
       });
-      expect(baUpdateMock).toBeCalledTimes(1);
-      expect(baUpdateMock).toBeCalledWith({ billingAgreementId });
+      expect(baUpdateMock).toHaveBeenCalledTimes(1);
+      expect(baUpdateMock).toHaveBeenCalledWith({ billingAgreementId });
     });
 
     it('throws when baUpdate rejects', async () => {

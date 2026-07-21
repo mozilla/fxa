@@ -152,7 +152,7 @@ describe('rate-limit', () => {
     expect(rateLimit.skip('test', { email: 'foo@firefox.com' })).toBeTruthy();
     expect(rateLimit.skip('test', { email: 'bar@firefox.com ' })).toBeFalsy();
     expect(rateLimit.skip('test', {})).toBeFalsy();
-    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.email');
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.ignore.email');
   });
 
   it('can ignore certain ips', () => {
@@ -168,7 +168,7 @@ describe('rate-limit', () => {
     expect(rateLimit.skip('test', { ip: '127.0.0.1' })).toBeTruthy();
     expect(rateLimit.skip('test', { ip: '0.0.0.0' })).toBeFalsy();
     expect(rateLimit.skip('test', {})).toBeFalsy();
-    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.ip');
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.ignore.ip');
   });
 
   it('can ignore certain uids', () => {
@@ -184,7 +184,7 @@ describe('rate-limit', () => {
     expect(rateLimit.skip('test', { uid: '000-000-000' })).toBeTruthy();
     expect(rateLimit.skip('test', { uid: '000-000-001' })).toBeFalsy();
     expect(rateLimit.skip('test', {})).toBeFalsy();
-    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.uid');
+    expect(statsd.increment).toHaveBeenCalledWith('rate_limit.ignore.uid');
   });
 
   describe('rate limit search', () => {
@@ -601,31 +601,25 @@ describe('rate-limit', () => {
         test     : ip                 :  1           :   1 second            : 1s             : block
         test     : ip                 :  1           :   1 second            : 1s             : block
       `)
-      ).toThrowError(/Invalid configuration! Duplicates detected:/);
+      ).toThrow(/Invalid configuration! Duplicates detected:/);
     });
 
     it('throws on malformed rule', () => {
-      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:1s:block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:-2:1s:1s:block')).toThrowError();
-      expect(() =>
-        parseConfigRules('foo:bar:1:1sdfds:1s:block')
-      ).toThrowError();
-      expect(() =>
-        parseConfigRules('foo:bar:1:1s:1dsfds:block')
-      ).toThrowError();
-      expect(() =>
-        parseConfigRules('foo:bar:1:1s:-1h:block:ban')
-      ).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:-1h:block')).toThrowError();
-      expect(() => parseConfigRules(':bar:1:1s:-1h:block')).toThrowError();
-      expect(() => parseConfigRules('foo::1:1s:-1h:block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar::1s:-1h:block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1::-1h:block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s::block')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1')).toThrowError();
-      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:')).toThrowError();
-      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:foo')).toThrowError();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1s:1s:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:-2:1s:1s:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1sdfds:1s:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1s:1dsfds:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1s:-1h:block:ban')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1s:-1h:block')).toThrow();
+      expect(() => parseConfigRules(':bar:1:1s:-1h:block')).toThrow();
+      expect(() => parseConfigRules('foo::1:1s:-1h:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar::1s:-1h:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1::-1h:block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1:1s::block')).toThrow();
+      expect(() => parseConfigRules('foo:bar:1')).toThrow();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:')).toThrow();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:foo')).toThrow();
     });
   });
 

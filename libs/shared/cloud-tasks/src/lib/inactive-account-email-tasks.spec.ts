@@ -87,11 +87,11 @@ describe('send-email-tasks', () => {
           taskOptions: mockTaskOptions,
         });
         expect(taskName).toEqual('task123');
-        expect(mockStatsd.increment).toBeCalledWith(
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'cloud-tasks.inactive-account-email.enqueue.success',
           ['inactiveDeleteFirstNotification']
         );
-        expect(mockCloudClient.createTask).toBeCalledWith({
+        expect(mockCloudClient.createTask).toHaveBeenCalledWith({
           parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.inactiveAccountEmails.firstEmailQueueName}`,
           task: {
             httpRequest: {
@@ -128,11 +128,11 @@ describe('send-email-tasks', () => {
           emailOptions: { deliveryTime: now + 60 * 24 * 60 * 60 * 1000 },
           taskOptions: mockTaskOptions,
         });
-        expect(mockStatsd.increment).toBeCalledWith(
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'cloud-tasks.inactive-account-email.enqueue.success',
           ['inactiveDeleteFirstNotification']
         );
-        expect(mockCloudClient.createTask).toBeCalledWith({
+        expect(mockCloudClient.createTask).toHaveBeenCalledWith({
           parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.inactiveAccountEmails.firstEmailQueueName}`,
           task: {
             httpRequest: {
@@ -175,11 +175,11 @@ describe('send-email-tasks', () => {
           taskOptions: mockTaskOptions,
         });
         expect(taskName).toEqual('task123');
-        expect(mockStatsd.increment).toBeCalledWith(
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'cloud-tasks.inactive-account-email.enqueue.success',
           ['inactiveDeleteSecondNotification']
         );
-        expect(mockCloudClient.createTask).toBeCalledWith({
+        expect(mockCloudClient.createTask).toHaveBeenCalledWith({
           parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.inactiveAccountEmails.secondEmailQueueName}`,
           task: {
             httpRequest: {
@@ -228,11 +228,11 @@ describe('send-email-tasks', () => {
           taskOptions: mockTaskOptions,
         });
         expect(taskName).toEqual('task123');
-        expect(mockStatsd.increment).toBeCalledWith(
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'cloud-tasks.inactive-account-email.enqueue.success',
           ['inactiveDeleteFinalNotification']
         );
-        expect(mockCloudClient.createTask).toBeCalledWith({
+        expect(mockCloudClient.createTask).toHaveBeenCalledWith({
           parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.inactiveAccountEmails.thirdEmailQueueName}`,
           task: {
             httpRequest: {

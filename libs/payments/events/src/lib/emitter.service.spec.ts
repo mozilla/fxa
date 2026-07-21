@@ -74,7 +74,7 @@ import {
   SubPlatNimbusResultFactory,
 } from '@fxa/payments/experiments';
 import * as Sentry from '@sentry/nestjs';
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
@@ -480,9 +480,7 @@ describe('PaymentsEmitterService', () => {
 
       await paymentsEmitterService.handleCheckoutFail(mockCommonMetricsData);
 
-      expect(
-        paymentsGleanManager.recordFxaPaySetupFail
-      ).not.toHaveBeenCalled();
+      expect(paymentsGleanManager.recordFxaPaySetupFail).not.toHaveBeenCalled();
     });
   });
 
