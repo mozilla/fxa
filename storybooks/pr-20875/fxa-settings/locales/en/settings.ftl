@@ -311,6 +311,10 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 
@@ -1403,6 +1407,19 @@ passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
+
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
 
 ##
 

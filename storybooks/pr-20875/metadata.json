@@ -1,8 +1,8 @@
 {
-  "commit": "004aed8eec0485d0723c5526ce30f49074ad80a9",
+  "commit": "63e3635ef17185a107469cced520fdc63bc48b1c",
   "summary": "feat(passkeys): request PRF at sign-in to record capability",
   "description": "Because:\n - Ahead of passwordless Sync (Phase 2) we need the true PRF capability of\n   the passkey base; the registration-time prfEnabled flag under-reports it.\n\nThis commit:\n - Requests the WebAuthn PRF extension at passkey sign-in behind a new\n   scope-aware, default-off flag (PASSKEYS__REQUEST_PRF_AT_AUTHENTICATION).\n - Detects PRF support client-side, strips the output so it never reaches\n   the server, and sends only a boolean on authentication/finish.\n - Rolls prfEnabled forward false->true (monotonic, best-effort) inside the\n   verified finish flow; never blocks sign-in.\n - Adds Glean + StatsD telemetry to back the kill switch.",
-  "timestamp": 1784662474000,
+  "timestamp": 1784666925000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
