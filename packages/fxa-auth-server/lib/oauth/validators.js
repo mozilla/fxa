@@ -35,24 +35,23 @@ exports.token = Joi.string()
 exports.sessionTokenId = authServerValidators.sessionTokenId;
 exports.sessionToken = authServerValidators.sessionToken;
 
-const scopeString = Joi.string().max(256);
+const scopeString = Joi.string().max(256).allow('');
 exports.scope = Joi.extend({
   type: 'scope',
   base: Joi.any(), // We're not returning a string, so don't base this on Joi.string().
   messages: {
-    base: 'needs to be a valid scope string',
+    'scope.base': 'needs to be a valid scope string',
   },
-  prepare(value, state, options) {
-    const err = scopeString.validate(value).err;
-    if (err) {
-      return err;
+  prepare(value, helpers) {
+    // Enforce the length limit before parsing.
+    const { error } = scopeString.validate(value);
+    if (error) {
+      return { errors: helpers.error('scope.base') };
     }
     try {
       return { value: ScopeSet.fromString(value || '') };
     } catch (err) {
-      return {
-        errors: this.$_createError('scope.base', { v: value }, state, options),
-      };
+      return { errors: helpers.error('scope.base') };
     }
   },
 }).scope();
