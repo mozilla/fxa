@@ -194,9 +194,7 @@ const ResetPasswordRecoveryPhoneContainer = lazy(
 
 const Settings = lazy(() => import('../Settings'));
 
-export const App = ({
-  flowQueryParams,
-}: { flowQueryParams: QueryParams }) => {
+export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const { data: isSignedInData } = useLocalSignedInQueryState();
 
   // Configure Sentry before any other hooks that might throw.
@@ -214,7 +212,9 @@ export const App = ({
 
   // Register navigate so out-of-component code (e.g. AppContext errorHandler)
   // can perform client-side navigations with state.
-  useEffect(() => { registerNavigate(navigate); }, [navigate]);
+  useEffect(() => {
+    registerNavigate(navigate);
+  }, [navigate]);
 
   // GQL call for minimal metrics data
   const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
@@ -572,12 +572,34 @@ const AuthAndAccountSetupRoutes = ({
     <>
       <Routes>
         {/* Index */}
-        <Route path="/" element={
-          <IndexContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, setCurrentSplitLayout }} />
-        } />
-        <Route path="/oauth" element={
-          <IndexContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, setCurrentSplitLayout }} />
-        } />
+        <Route
+          path="/"
+          element={
+            <IndexContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/oauth"
+          element={
+            <IndexContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
 
         {/* Legal */}
         <Route path="/legal/*" element={<Legal />} />
@@ -595,151 +617,421 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/cookies_disabled" element={<CookiesDisabled />} />
 
         {/* Post verify */}
-        <Route path="/post_verify/third_party_auth/callback/*" element={
-          <ThirdPartyAuthCallback {...{ flowQueryParams, integration, useFxAStatusResult }} />
-        } />
-        <Route path="/post_verify/set_password/*" element={
-          <SetPasswordContainer {...{ flowQueryParams, integration, useFxAStatusResult }} />
-        } />
+        <Route
+          path="/post_verify/third_party_auth/callback/*"
+          element={
+            <ThirdPartyAuthCallback
+              {...{ flowQueryParams, integration, useFxAStatusResult }}
+            />
+          }
+        />
+        <Route
+          path="/post_verify/set_password/*"
+          element={
+            <SetPasswordContainer
+              {...{ flowQueryParams, integration, useFxAStatusResult }}
+            />
+          }
+        />
         {/* Legacy URL kept alive for in-flight redirects and bookmarks from
             the third-party-auth flow; all new navigations target
             /post_verify/set_password (FXA-13475). */}
-        <Route path="/post_verify/third_party_auth/set_password/*" element={
-          <SetPasswordContainer {...{ flowQueryParams, integration, useFxAStatusResult }} />
-        } />
-        <Route path="/post_verify/service_welcome/*" element={
-          <ServiceWelcome {...{ integration }} />
-        } />
+        <Route
+          path="/post_verify/third_party_auth/set_password/*"
+          element={
+            <SetPasswordContainer
+              {...{ flowQueryParams, integration, useFxAStatusResult }}
+            />
+          }
+        />
+        <Route
+          path="/post_verify/service_welcome/*"
+          element={<ServiceWelcome {...{ integration }} />}
+        />
 
         {/* Reset password */}
-        <Route path="/reset_password/*" element={
-          <ResetPasswordContainer {...{ flowQueryParams, serviceName, setCurrentSplitLayout }} />
-        } />
-        <Route path="/confirm_reset_password/*" element={
-          <ConfirmResetPasswordContainer {...{ integration }} />
-        } />
-        <Route path="/reset_password_totp_recovery_choice/*" element={<ResetPasswordRecoveryChoiceContainer />} />
-        <Route path="/reset_password_recovery_phone/*" element={
-          <ResetPasswordRecoveryPhoneContainer {...{ integration }} />
-        } />
-        <Route path="/confirm_totp_reset_password/*" element={<ConfirmTotpResetPasswordContainer />} />
-        <Route path="/confirm_backup_code_reset_password/*" element={
-          <ConfirmBackupCodeResetPasswordContainer {...{ integration }} />
-        } />
-        <Route path="/complete_reset_password/*" element={
-          <CompleteResetPasswordContainer {...{ integration }} />
-        } />
-        <Route path="/account_recovery_reset_password/*" element={
-          <CompleteResetPasswordContainer {...{ integration }} />
-        } />
-        <Route path="/account_recovery_confirm_key/*" element={
-          <AccountRecoveryConfirmKeyContainer />
-        } />
-        <Route path="/reset_password_with_recovery_key_verified/*" element={
-          <ResetPasswordWithRecoveryKeyVerifiedContainer {...{ integration }} />
-        } />
-        <Route path="/reset_password_verified/*" element={
-          <ResetPasswordConfirmedContainer {...{ integration, serviceName }} />
-        } />
+        <Route
+          path="/reset_password/*"
+          element={
+            <ResetPasswordContainer
+              {...{ flowQueryParams, serviceName, setCurrentSplitLayout }}
+            />
+          }
+        />
+        <Route
+          path="/confirm_reset_password/*"
+          element={<ConfirmResetPasswordContainer {...{ integration }} />}
+        />
+        <Route
+          path="/reset_password_totp_recovery_choice/*"
+          element={<ResetPasswordRecoveryChoiceContainer />}
+        />
+        <Route
+          path="/reset_password_recovery_phone/*"
+          element={<ResetPasswordRecoveryPhoneContainer {...{ integration }} />}
+        />
+        <Route
+          path="/confirm_totp_reset_password/*"
+          element={<ConfirmTotpResetPasswordContainer />}
+        />
+        <Route
+          path="/confirm_backup_code_reset_password/*"
+          element={
+            <ConfirmBackupCodeResetPasswordContainer {...{ integration }} />
+          }
+        />
+        <Route
+          path="/complete_reset_password/*"
+          element={<CompleteResetPasswordContainer {...{ integration }} />}
+        />
+        <Route
+          path="/account_recovery_reset_password/*"
+          element={<CompleteResetPasswordContainer {...{ integration }} />}
+        />
+        <Route
+          path="/account_recovery_confirm_key/*"
+          element={<AccountRecoveryConfirmKeyContainer />}
+        />
+        <Route
+          path="/reset_password_with_recovery_key_verified/*"
+          element={
+            <ResetPasswordWithRecoveryKeyVerifiedContainer
+              {...{ integration }}
+            />
+          }
+        />
+        <Route
+          path="/reset_password_verified/*"
+          element={
+            <ResetPasswordConfirmedContainer
+              {...{ integration, serviceName }}
+            />
+          }
+        />
 
         {/* Signin */}
-        <Route path="/authorization/*" element={<AuthorizationContainer {...{ integration }} />} />
+        <Route
+          path="/authorization/*"
+          element={<AuthorizationContainer {...{ integration }} />}
+        />
         <Route path="/report_signin/*" element={<ReportSigninContainer />} />
-        <Route path="/oauth/force_auth/*" element={
-          <SigninContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, isSignedIntoFirefox, setCurrentSplitLayout }} />
-        } />
-        <Route path="/force_auth/*" element={
-          <SigninContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, isSignedIntoFirefox, setCurrentSplitLayout }} />
-        } />
-        <Route path="/oauth/signin_passwordless_code/*" element={
-          <SigninPasswordlessCodeContainer {...{ integration, serviceName, flowQueryParams, isSignedIntoFirefox, setCurrentSplitLayout, useFxAStatusResult }} />
-        } />
-        <Route path="/signin_passwordless_code/*" element={
-          <SigninPasswordlessCodeContainer {...{ integration, serviceName, flowQueryParams, isSignedIntoFirefox, setCurrentSplitLayout, useFxAStatusResult }} />
-        } />
-        <Route path="/oauth/signin/*" element={
-          <SigninContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, isSignedIntoFirefox, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signin/*" element={
-          <SigninContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, isSignedIntoFirefox, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signin_bounced/*" element={<SigninBounced email={localAccount?.email} />} />
-        <Route path="/complete_signin/*" element={<CompleteSigninContainer />} />
-        <Route path="/signin_confirmed/*" element={
-          <SigninConfirmed {...{ isSignedIn, serviceName, integration }} />
-        } />
-        <Route path="/signin_passkey_fallback/*" element={
-          <SigninPasskeyFallbackContainer {...{ integration, flowQueryParams }} />
-        } />
-        <Route path="/signin_recovery_choice/*" element={
-          <SigninRecoveryChoiceContainer {...{ integration, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signin_recovery_phone/*" element={
-          <SigninRecoveryPhoneContainer {...{ integration, setCurrentSplitLayout, supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin }} />
-        } />
-        <Route path="/signin_recovery_code/*" element={
-          <SigninRecoveryCodeContainer {...{ integration, setCurrentSplitLayout, supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin }} />
-        } />
+        <Route
+          path="/oauth/force_auth/*"
+          element={
+            <SigninContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/force_auth/*"
+          element={
+            <SigninContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/oauth/signin_passwordless_code/*"
+          element={
+            <SigninPasswordlessCodeContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+                useFxAStatusResult,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signin_passwordless_code/*"
+          element={
+            <SigninPasswordlessCodeContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+                useFxAStatusResult,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/oauth/signin/*"
+          element={
+            <SigninContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signin/*"
+          element={
+            <SigninContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                isSignedIntoFirefox,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signin_bounced/*"
+          element={<SigninBounced email={localAccount?.email} />}
+        />
+        <Route
+          path="/complete_signin/*"
+          element={<CompleteSigninContainer />}
+        />
+        <Route
+          path="/signin_confirmed/*"
+          element={
+            <SigninConfirmed {...{ isSignedIn, serviceName, integration }} />
+          }
+        />
+        <Route
+          path="/signin_passkey_fallback/*"
+          element={
+            <SigninPasskeyFallbackContainer
+              {...{ integration, flowQueryParams }}
+            />
+          }
+        />
+        <Route
+          path="/signin_recovery_choice/*"
+          element={
+            <SigninRecoveryChoiceContainer
+              {...{ integration, setCurrentSplitLayout }}
+            />
+          }
+        />
+        <Route
+          path="/signin_recovery_phone/*"
+          element={
+            <SigninRecoveryPhoneContainer
+              {...{
+                integration,
+                setCurrentSplitLayout,
+                supportsKeysOptionalLogin:
+                  useFxAStatusResult.supportsKeysOptionalLogin,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signin_recovery_code/*"
+          element={
+            <SigninRecoveryCodeContainer
+              {...{
+                integration,
+                setCurrentSplitLayout,
+                supportsKeysOptionalLogin:
+                  useFxAStatusResult.supportsKeysOptionalLogin,
+              }}
+            />
+          }
+        />
         <Route path="/signin_reported/*" element={<SigninReported />} />
-        <Route path="/signin_token_code/*" element={
-          <SigninTokenCodeContainer {...{ integration, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signin_totp_code/*" element={
-          <SigninTotpCodeContainer {...{ integration, serviceName, setCurrentSplitLayout, useFxAStatusResult }} />
-        } />
-        <Route path="/signin_verified/*" element={
-          <SigninConfirmed {...{ isSignedIn, serviceName, integration }} />
-        } />
-        <Route path="/signin_unblock/*" element={
-          <SigninUnblockContainer {...{ integration, flowQueryParams, setCurrentSplitLayout, useFxAStatusResult }} />
-        } />
-        <Route path="/inline_recovery_key_setup/*" element={
-          <InlineRecoveryKeySetupContainer cmsInfo={integration.getCmsInfo()} />
-        } />
+        <Route
+          path="/signin_token_code/*"
+          element={
+            <SigninTokenCodeContainer
+              {...{ integration, setCurrentSplitLayout }}
+            />
+          }
+        />
+        <Route
+          path="/signin_totp_code/*"
+          element={
+            <SigninTotpCodeContainer
+              {...{
+                integration,
+                serviceName,
+                setCurrentSplitLayout,
+                useFxAStatusResult,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signin_verified/*"
+          element={
+            <SigninConfirmed {...{ isSignedIn, serviceName, integration }} />
+          }
+        />
+        <Route
+          path="/signin_unblock/*"
+          element={
+            <SigninUnblockContainer
+              {...{
+                integration,
+                flowQueryParams,
+                setCurrentSplitLayout,
+                useFxAStatusResult,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/inline_recovery_key_setup/*"
+          element={
+            <InlineRecoveryKeySetupContainer
+              cmsInfo={integration.getCmsInfo()}
+            />
+          }
+        />
 
         {/* Signup */}
-        <Route path="/confirm_signup_code/*" element={
-          <ConfirmSignupCodeContainer {...{ integration, flowQueryParams, setCurrentSplitLayout }} />
-        } />
-        <Route path="/oauth/signup/*" element={
-          <SignupContainer {...{ integration, serviceName, flowQueryParams, useFxAStatusResult, setCurrentSplitLayout }} />
-        } />
-        <Route path="/primary_email_verified/*" element={
-          <PrimaryEmailVerified {...{ isSignedIn, serviceName, integration }} />
-        } />
-        <Route path="/signup/*" element={
-          <SignupContainer {...{ integration, flowQueryParams, useFxAStatusResult, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signup_confirmed/*" element={
-          <SignupConfirmed {...{ isSignedIn, serviceName }} />
-        } />
-        <Route path="/signup_confirmed_sync/*" element={
-          <SignupConfirmedSync offeredSyncEngines={useFxAStatusResult.offeredSyncEngines} {...{ integration, setCurrentSplitLayout }} />
-        } />
-        <Route path="/signup_verified/*" element={
-          <SignupConfirmed {...{ isSignedIn, serviceName }} />
-        } />
+        <Route
+          path="/confirm_signup_code/*"
+          element={
+            <ConfirmSignupCodeContainer
+              {...{ integration, flowQueryParams, setCurrentSplitLayout }}
+            />
+          }
+        />
+        <Route
+          path="/oauth/signup/*"
+          element={
+            <SignupContainer
+              {...{
+                integration,
+                serviceName,
+                flowQueryParams,
+                useFxAStatusResult,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/primary_email_verified/*"
+          element={
+            <PrimaryEmailVerified
+              {...{ isSignedIn, serviceName, integration }}
+            />
+          }
+        />
+        <Route
+          path="/signup/*"
+          element={
+            <SignupContainer
+              {...{
+                integration,
+                flowQueryParams,
+                useFxAStatusResult,
+                setCurrentSplitLayout,
+              }}
+            />
+          }
+        />
+        <Route
+          path="/signup_confirmed/*"
+          element={<SignupConfirmed {...{ isSignedIn, serviceName }} />}
+        />
+        <Route
+          path="/signup_confirmed_sync/*"
+          element={
+            <SignupConfirmedSync
+              offeredSyncEngines={useFxAStatusResult.offeredSyncEngines}
+              {...{ integration, setCurrentSplitLayout }}
+            />
+          }
+        />
+        <Route
+          path="/signup_verified/*"
+          element={<SignupConfirmed {...{ isSignedIn, serviceName }} />}
+        />
 
-        <Route path="/inline_totp_setup/*" element={
-          <InlineTotpSetupContainer integration={integration} {...{ isSignedIn, serviceName, flowQueryParams }} />
-        } />
-        <Route path="/inline_recovery_setup/*" element={
-          <InlineRecoverySetupContainer integration={integration} {...{ isSignedIn, serviceName }} />
-        } />
+        <Route
+          path="/inline_totp_setup/*"
+          element={
+            <InlineTotpSetupContainer
+              integration={integration}
+              {...{ isSignedIn, serviceName, flowQueryParams }}
+            />
+          }
+        />
+        <Route
+          path="/inline_recovery_setup/*"
+          element={
+            <InlineRecoverySetupContainer
+              integration={integration}
+              {...{ isSignedIn, serviceName }}
+            />
+          }
+        />
 
         {/* Pairing */}
-        <Route path="/connect_another_device/*" element={<ConnectAnotherDevice />} />
-        <Route path="/pair/supp/allow/*" element={<PairSuppAllow integration={integration} />} />
-        <Route path="/pair/supp/wait_for_auth/*" element={<PairSuppWaitForAuth integration={integration} />} />
+        <Route
+          path="/connect_another_device/*"
+          element={<ConnectAnotherDevice />}
+        />
+        <Route
+          path="/pair/supp/allow/*"
+          element={<PairSuppAllow integration={integration} />}
+        />
+        <Route
+          path="/pair/supp/wait_for_auth/*"
+          element={<PairSuppWaitForAuth integration={integration} />}
+        />
         <Route path="/pair/supp/complete/*" element={<PairSuccess />} />
-        <Route path="/pair/supp/*" element={<PairSupp integration={integration} />} />
-        <Route path="/pair/auth/allow/*" element={<PairAuthAllow integration={integration} />} />
-        <Route path="/pair/auth/wait_for_supp/*" element={<PairAuthWaitForSupp integration={integration} />} />
-        <Route path="/pair/auth/complete/*" element={<PairAuthComplete integration={integration} />} />
-        <Route path="/pair/auth/totp/*" element={<PairAuthTotp integration={integration} />} />
+        <Route
+          path="/pair/supp/*"
+          element={<PairSupp integration={integration} />}
+        />
+        <Route
+          path="/pair/auth/allow/*"
+          element={<PairAuthAllow integration={integration} />}
+        />
+        <Route
+          path="/pair/auth/wait_for_supp/*"
+          element={<PairAuthWaitForSupp integration={integration} />}
+        />
+        <Route
+          path="/pair/auth/complete/*"
+          element={<PairAuthComplete integration={integration} />}
+        />
+        <Route
+          path="/pair/auth/totp/*"
+          element={<PairAuthTotp integration={integration} />}
+        />
         <Route path="/pair/failure/*" element={<PairFailure />} />
         <Route path="/pair/unsupported/*" element={<PairUnsupported />} />
-        <Route path="/pair/*" element={<PairIndex integration={integration} />} />
+        <Route
+          path="/pair/*"
+          element={<PairIndex integration={integration} />}
+        />
         <Route path="/oauth/success/:clientId/*" element={<PairSuccess />} />
       </Routes>
       {/* This must be placed after the routes so it's rendered at the bottom of the DOM. */}
