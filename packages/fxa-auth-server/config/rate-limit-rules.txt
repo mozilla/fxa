@@ -30,6 +30,9 @@ emailBounceStatusCheck                : ip                : 100         : 15 min
 recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
 getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
 
+# OAuth token introspection (RFC 7662). `report` only for now; flip to `block` after tuning. FXA-13452.
+oauthIntrospect                       : ip                : 300         : 1 minute        : 15 minutes  : report
+
 #
 # Password Reset Email Send Limits
 # Controls the number of emails that can be sent

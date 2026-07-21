@@ -2580,6 +2580,8 @@ const convictConf = convict({
         '/__heartbeat__',
         '/__version__',
         '/',
+        // Versioned path — must match request.route.path.
+        '/v1/introspect',
       ],
       doc: 'When checkAllEndpoints is true, this is allows certain endpoints to be skipped from the automatic customs check.',
       env: 'RATE_LIMIT__SKIP_ENDPOINTS',

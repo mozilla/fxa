@@ -20,7 +20,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
 
-module.exports = ({ oauthDB }) => ({
+module.exports = ({ oauthDB, customs }) => ({
   method: 'POST',
   path: '/introspect',
   config: {
@@ -66,6 +66,8 @@ module.exports = ({ oauthDB }) => ({
       }),
     },
     handler: async function introspectEndpoint(req) {
+      await customs.checkIpOnly(req, 'oauthIntrospect');
+
       const tokenTypeHint = req.payload.token_type_hint;
       let token;
       let tokenType;
