@@ -301,6 +301,8 @@ close-icon-aria-label =
     .aria-label = Κλείσιμο μηνύματος
 code-icon-aria-label =
     .aria-label = Κωδικός
+edit-icon-aria-label =
+    .aria-label = Επεξεργασία
 error-icon-aria-label =
     .aria-label = Σφάλμα
 info-icon-aria-label =
@@ -1000,6 +1002,14 @@ passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
 passkey-delete-error = Προέκυψε πρόβλημα κατά τη διαγραφή του κλειδιού πρόσβασής σας. Δοκιμάστε ξανά σε λίγα λεπτά.
+passkey-sub-row-rename-title = Μετονομασία κλειδιού πρόσβασης
+passkey-rename-modal-heading = Μετονομασία κλειδιού πρόσβασης
+passkey-rename-input-label = Όνομα κλειδιού πρόσβασης
+passkey-rename-save-button = Αποθήκευση
+passkey-rename-cancel-button = Ακύρωση
+passkey-rename-error-too-long = Το όνομα πρέπει να περιέχει λιγότερους από 256 χαρακτήρες.
+passkey-rename-error-duplicate = Υπάρχει ήδη κλειδί πρόσβασης με αυτό το όνομα.
+passkey-rename-success = Το κλειδί πρόσβασης μετονομάστηκε
 
 
 switch-turn-off = Απενεργοποίηση

@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Код
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Түзету
 error-icon-aria-label =
     .aria-label = Қате
 # Used as information icon for informative messaging
@@ -1255,6 +1258,8 @@ passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
 passkey-delete-error = Рұқсат кілтіңізді өшіру кезінде қате орын алды. Бірнеше минуттан кейін қайталап көріңіз.
+passkey-rename-save-button = Сақтау
+passkey-rename-cancel-button = Бас тарту
 
 ## Switch component
 
