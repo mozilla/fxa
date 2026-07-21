@@ -393,11 +393,7 @@ describe('cms', () => {
           webhookPayload.entry
         );
         expect(mockStatsD.increment).toHaveBeenCalledWith(
-          'cms.cacheReset.error.auth',
-          {
-            clientId: webhookPayload.entry.clientId,
-            entrypoint: webhookPayload.entry.entrypoint,
-          }
+          'cms.cacheReset.error.auth'
         );
         expect(err.message).toBe('Invalid authorization header');
       }

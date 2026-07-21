@@ -481,10 +481,8 @@ export class CMSHandler {
           )
         )
       );
-      this.statsd.increment('cms.cacheReset.error.auth', {
-        clientId: entry.clientId,
-        entrypoint: entry.entrypoint,
-      });
+      // Unauthenticated path: don't tag with attacker-controlled `entry` fields.
+      this.statsd.increment('cms.cacheReset.error.auth');
       throw new Error('Invalid authorization header');
     }
 
