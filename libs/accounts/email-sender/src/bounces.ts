@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppError } from '@fxa/accounts/errors';
-import { EmailNormalization } from './email-normalization';
+import { EmailNormalization, escapeLikePattern } from './email-normalization';
 
 export type BouncesConfig = {
   enabled: boolean;
@@ -71,7 +71,7 @@ export class Bounces {
     if (this.config.aliasCheckEnabled) {
       bounces = await this.checkBouncesWithAliases(email);
     } else {
-      bounces = await this.db.emailBounces.findByEmail(email);
+      bounces = await this.db.emailBounces.findByEmail(escapeLikePattern(email));
     }
 
     return this.applyRules(bounces);
@@ -93,12 +93,15 @@ export class Bounces {
     //   - test+asdf@domain.com       Covered by wildcard email
     // but not
     //   - testing@domain.com         Not picked up by wildcard since we include the '+'
+    // Escape LIKE wildcards in the user-supplied email up front; the intentional
+    // trailing '+%' wildcard is injected afterwards, so it stays unescaped.
+    const escapedEmail = escapeLikePattern(email);
     const normalizedEmail = this.emailNormalization.normalizeEmailAliases(
-      email,
+      escapedEmail,
       ''
     );
     const wildcardEmail = this.emailNormalization.normalizeEmailAliases(
-      email,
+      escapedEmail,
       '+%'
     );
 

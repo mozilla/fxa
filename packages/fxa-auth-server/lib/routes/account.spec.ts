@@ -5081,6 +5081,16 @@ describe('/account/email_bounce_status', () => {
       expect(result).toEqual({ hasHardBounce: false });
     });
   });
+
+  it('escapes LIKE wildcards in the email before the non-alias lookup', () => {
+    const request = mocks.mockRequest({
+      payload: { email: 'bob_smith@example.com' },
+    });
+    const route = buildRoute();
+    return runTest(route, request, () => {
+      expect(mockDB.emailBounces).toHaveBeenCalledWith('bob\\_smith@example.com');
+    });
+  });
 });
 
 describe('/account/metrics_opt', () => {

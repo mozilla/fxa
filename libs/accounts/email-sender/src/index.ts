@@ -4,3 +4,4 @@
 
 export * from './email-sender';
 export * from './bounces';
+export { escapeLikePattern } from './email-normalization';

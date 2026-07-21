@@ -5,6 +5,7 @@
 'use strict';
 
 const { AppError: error } = require('@fxa/accounts/errors');
+const { escapeLikePattern } = require('@fxa/accounts/email-sender');
 const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 module.exports = (config, db) => {
@@ -44,7 +45,7 @@ module.exports = (config, db) => {
     if (BOUNCES_ALIAS_CHECK_ENABLED) {
       bounces = await checkBouncesWithAliases(email);
     } else {
-      bounces = await db.emailBounces(email);
+      bounces = await db.emailBounces(escapeLikePattern(email));
     }
 
     return applyRules(bounces);
@@ -66,8 +67,17 @@ module.exports = (config, db) => {
     //   - test+asdf@domain.com       Covered by wildcard email
     // but not
     //   - testing@domain.com         Not picked up by wildcard since we include the '+'
-    const normalizedEmail = emailNormalization.normalizeEmailAliases(email, '');
-    const wildcardEmail = emailNormalization.normalizeEmailAliases(email, '+%');
+    // Escape LIKE wildcards in the user-supplied email up front; the intentional
+    // trailing '+%' wildcard is injected afterwards, so it stays unescaped.
+    const escapedEmail = escapeLikePattern(email);
+    const normalizedEmail = emailNormalization.normalizeEmailAliases(
+      escapedEmail,
+      ''
+    );
+    const wildcardEmail = emailNormalization.normalizeEmailAliases(
+      escapedEmail,
+      '+%'
+    );
 
     const [normalizedBounces, wildcardBounces] = await Promise.all([
       db.emailBounces(normalizedEmail),

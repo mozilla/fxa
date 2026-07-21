@@ -198,4 +198,50 @@ describe('bounces', () => {
     expect(tallies[BOUNCE_TYPE_COMPLAINT].count).toBe(1);
     expect(tallies[BOUNCE_TYPE_COMPLAINT].latest).toBe(latestBounce);
   });
+
+  describe('LIKE wildcard escaping', () => {
+    it.each([
+      { email: '%@example.com', escaped: '\\%@example.com' },
+      { email: '_@example.com', escaped: '\\_@example.com' },
+      { email: 'a\\b@example.com', escaped: 'a\\\\b@example.com' },
+    ])(
+      'escapes wildcards in $email before the non-alias lookup',
+      async ({ email, escaped }) => {
+        const conf = {
+          ...config,
+          smtp: {
+            bounces: { enabled: true, aliasCheckEnabled: false },
+          },
+        };
+        const db = {
+          emailBounces: jest.fn().mockResolvedValue([]),
+        };
+        await createBounces(conf, db).check(email);
+        expect(db.emailBounces).toHaveBeenCalledTimes(1);
+        expect(db.emailBounces).toHaveBeenCalledWith(escaped);
+      }
+    );
+
+    it('escapes user-supplied wildcards but keeps the intentional trailing % in the alias path', async () => {
+      const conf = {
+        ...config,
+        smtp: {
+          bounces: {
+            enabled: true,
+            aliasCheckEnabled: true,
+            emailAliasNormalization: JSON.stringify([
+              { domain: 'example.com', regex: '\\+.*', replace: '' },
+            ]),
+          },
+        },
+      };
+      const db = {
+        emailBounces: jest.fn().mockResolvedValue([]),
+      };
+      await createBounces(conf, db).check('bob_smith+alias@example.com');
+      expect(db.emailBounces).toHaveBeenCalledTimes(2);
+      expect(db.emailBounces).toHaveBeenCalledWith('bob\\_smith@example.com');
+      expect(db.emailBounces).toHaveBeenCalledWith('bob\\_smith+%@example.com');
+    });
+  });
 });

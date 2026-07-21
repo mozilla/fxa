@@ -495,4 +495,61 @@ describe('Bounces', () => {
       );
     });
   });
+
+  describe('LIKE wildcard escaping', () => {
+    const aliasNormalizationConfig = JSON.stringify([
+      { domain: 'example.com', regex: '\\+.*', replace: '' },
+    ]);
+
+    it.each([
+      { email: '%@example.com', escaped: '\\%@example.com' },
+      { email: '_@example.com', escaped: '\\_@example.com' },
+      { email: 'a\\b@example.com', escaped: 'a\\\\b@example.com' },
+    ])(
+      'escapes wildcards in $email before the non-alias lookup',
+      async ({ email, escaped }) => {
+        const config: BouncesConfig = {
+          ...defaultBouncesConfig,
+          aliasCheckEnabled: false,
+        };
+        const db: BounceDb = {
+          emailBounces: {
+            findByEmail: jest.fn().mockResolvedValue([]),
+          },
+        };
+        const bounces = new Bounces(config, db);
+
+        await bounces.check(email, 'verifyEmail');
+
+        expect(db.emailBounces.findByEmail).toHaveBeenCalledTimes(1);
+        expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(escaped);
+      }
+    );
+
+    it('escapes user-supplied wildcards but keeps the intentional trailing % in the alias path', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: true,
+        emailAliasNormalization: aliasNormalizationConfig,
+      };
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockResolvedValue([]),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      await bounces.check('bob_smith+alias@example.com', 'verifyEmail');
+
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledTimes(2);
+      // '_' is escaped in the normalized (root) lookup...
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(
+        'bob\\_smith@example.com'
+      );
+      // ...and in the wildcard lookup, while the injected '%' stays unescaped.
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(
+        'bob\\_smith+%@example.com'
+      );
+    });
+  });
 });

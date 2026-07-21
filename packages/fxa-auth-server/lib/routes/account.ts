@@ -73,7 +73,7 @@ import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
-import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
+import { BOUNCE_TYPE_HARD, escapeLikePattern } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -1818,12 +1818,16 @@ export class AccountHandler {
         const emailNormalization = new EmailNormalization(
           bouncesConfig.emailAliasNormalization
         );
+        // Escape LIKE wildcards in the user-supplied email up front; the
+        // intentional trailing '+%' wildcard is injected afterwards, so it
+        // stays unescaped.
+        const escapedEmail = escapeLikePattern(email);
         const normalizedEmail = emailNormalization.normalizeEmailAliases(
-          email,
+          escapedEmail,
           ''
         );
         const wildcardEmail = emailNormalization.normalizeEmailAliases(
-          email,
+          escapedEmail,
           '+%'
         );
 
@@ -1843,7 +1847,7 @@ export class AccountHandler {
           }
         );
       } else {
-        bounces = await this.db.emailBounces(email);
+        bounces = await this.db.emailBounces(escapeLikePattern(email));
       }
 
       const hasHardBounce = bounces.some(
