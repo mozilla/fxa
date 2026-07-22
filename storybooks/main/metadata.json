@@ -1,8 +1,8 @@
 {
-  "commit": "b34d008d6f11dd82619290c3e0c1140592f7a113",
-  "summary": "Merge pull request #20894 from mozilla/FXA-14218",
-  "description": "bug(auth): Remove broken call for legacy customs server to reset",
-  "timestamp": 1784687157000,
+  "commit": "e95b0e033735292f6eb590111e79e081559aa2b7",
+  "summary": "Merge pull request #20859 from mozilla/pay-3790-support-billing-api",
+  "description": "feat(subplat): add free access program to billing-and-subscriptions API",
+  "timestamp": 1784728530000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
