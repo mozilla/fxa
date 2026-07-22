@@ -1,8 +1,8 @@
 {
-  "commit": "b720fc3bd261cfc93d8a49c41c28a195606f6e03",
+  "commit": "c36a12c0b363cb4fb8d52c75ffe1e6feeb817ee6",
   "summary": "feat(signin): add \"Forgot password?\" link to the passkey password fallback",
   "description": "Because:\n - Passkey users entering their password on the fallback screen had no reset\n   path when they can't recall it. Because reset risks Sync data loss, it is\n   offered only as a last resort, after they exhaust their attempts.\n\nThis commit:\n - Adds a throttle-gated \"Forgot password?\" link to the passkey password\n   fallback screen, shown only after a throttling (errno 114) error.\n\nCloses #FXA-14170",
-  "timestamp": 1784757599000,
+  "timestamp": 1784762672000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
