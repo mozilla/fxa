@@ -1,0 +1,12 @@
+{
+  "commit": "506f7eda752168878d738725d89a71d8ccad27fd",
+  "summary": "chore(deps): bump fast-uri from 3.1.2 to 3.1.4",
+  "description": "Bumps [fast-uri](https://github.com/fastify/fast-uri) from 3.1.2 to 3.1.4.\n- [Release notes](https://github.com/fastify/fast-uri/releases)\n- [Commits](https://github.com/fastify/fast-uri/compare/v3.1.2...v3.1.4)\n\n---\nupdated-dependencies:\n- dependency-name: fast-uri\n  dependency-version: 3.1.4\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784746159000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
