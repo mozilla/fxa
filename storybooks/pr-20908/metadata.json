@@ -1,0 +1,12 @@
+{
+  "commit": "b1894b1cbdef7137e1f9961e956a801993feb972",
+  "summary": "chore(deps): bump sharp from 0.33.5 to 0.35.0",
+  "description": "Bumps [sharp](https://github.com/lovell/sharp) from 0.33.5 to 0.35.0.\n- [Release notes](https://github.com/lovell/sharp/releases)\n- [Commits](https://github.com/lovell/sharp/compare/v0.33.5...v0.35.0)\n\n---\nupdated-dependencies:\n- dependency-name: sharp\n  dependency-version: 0.35.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784746123000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
