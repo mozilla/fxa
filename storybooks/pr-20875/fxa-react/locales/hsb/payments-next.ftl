@@ -261,7 +261,7 @@ next-payment-confirm-with-legal-links-static-3 = Awtorizuju { -brand-mozilla } p
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = Trjebaće płaćensku metodu, zo byšće swój darmotnu testowu wersiju startował. Njewobćežeće so do { $endDate }.
-checkbox-confirm-free-trial-with-legal-links = Awtorizuju { -brand-mozilla } po <termsOfServiceLink>płaćenskich wuměnjenjach</termsOfServiceLink> a <privacyNoticeLink>rozłoženju wo škiće datow</privacyNoticeLink> swoju płaćensku metodu za podatu sumu poćežić, po tym zo testowy čas je so skónčił, doniž swój abonement njewupowědźu.
+checkbox-confirm-free-trial-with-legal-links = Awtorizuju { -brand-mozilla } po <termsOfServiceLink>płaćenskich wuměnjenjach</termsOfServiceLink> a <privacyNoticeLink>rozłoženju wo škiće datow</privacyNoticeLink> swoju płaćensku metodu za podatu sumu poćežić, po tym zo testowy čas je so dnja { $endDate } skónčił, doniž swój abonement njewupowědźu.
 next-payment-confirm-checkbox-error = Dyrbiće to dokónčić, prjedy hač móžeće pokročować
 
 ## Checkout Form
