@@ -283,6 +283,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Cod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Golygu
 error-icon-aria-label =
     .aria-label = Gwall
 # Used as information icon for informative messaging
@@ -1275,6 +1278,18 @@ passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
 passkey-delete-error = Bu problem wrth ddileu'ch cyfrinallwedd. Ceisiwch eto mewn ychydig funudau.
+passkey-sub-row-rename-title = Ailenwi'r cyfrinallwedd
+passkey-rename-modal-heading = Ailenwi'r cyfrinallwedd
+passkey-rename-modal-description = Rhowch enw newydd ar gyfer y cyfrinallwedd hwn.
+passkey-rename-input-label = Enw cyfrinallwedd
+passkey-rename-save-button = Cadw
+passkey-rename-cancel-button = Diddymu
+passkey-rename-error-empty = Rhowch enw ar gyfer y cyfrinallwedd hwn
+passkey-rename-error-too-long = Rhaid i'r enw gynnwys llai na 256 nod.
+passkey-rename-error-invalid = Dim ond llythrennau, rhifau, atalnodau a symbolau sy'n cael eu caniatáu.
+passkey-rename-error-duplicate = Mae cyfrinallwedd gyda'r enw hwn eisoes yn bodoli
+passkey-rename-success = Cyfrinallwedd wedi'i ailenwi
+passkey-rename-error = Bu problem wrth ailenwi'ch cyfrinallwedd. Ceisiwch eto mewn ychydig funudau.
 
 ## Switch component
 
@@ -1469,6 +1484,7 @@ auth-error-225 = Cyfrinallwedd eisoes wedi'i gofrestru
 auth-error-226 = Wedi cyrraedd terfyn y cyfrinallwedd
 auth-error-227 = Wedi methu dilysu'r cyfrinallwedd
 auth-error-228 = Wedi methu cofrestri'r cyfrinallwedd
+auth-error-233 = I greu cyfrinallwedd, gosodwch glo sgrin, PIN, ôl bys, neu adnabod wyneb ar eich dyfais neu allwedd ddiogelwch. Yna ceisiwch eto.
 auth-error-238 = Methodd her y cyfrinallwedd
 auth-error-239 = Ymddiheuriadau, doedd dim modd i ni allu dileu eich cyfrif. Ceisiwch eto, neu cysylltwch â'r tîm cymorth os yw'r broblem yn parhau.
 auth-error-999 = Gwall anhysbys

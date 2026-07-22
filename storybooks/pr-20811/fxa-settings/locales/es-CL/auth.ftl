@@ -227,7 +227,7 @@ freeTrialEndingReminder-content-charge-discount = Descuento: { $invoiceDiscountA
 freeTrialEndingReminder-content-charge-discount-2 = Descuento
 # Variables:
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
-freeTrialEndingReminder-content-charge-tax = Impuesto: { $importeImpuestoFactura }
+freeTrialEndingReminder-content-charge-tax = Impuesto: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Impuesto
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
@@ -415,12 +415,12 @@ subscriptionRenewalReminder-content-charge-with-tax-year = En ese momento, { -br
 subscriptionRenewalReminder-content-charge-with-tax-default = En ese momento, { -brand-mozilla } renovará tu suscripción y se aplicará un cargo de { $invoiceTotalExcludingTax } + { $invoiceTax } de impuestos al método de pago de tu cuenta.
 # Variables
 #   $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
-subscriptionRenewalReminder-content-charge-invoice-total-day = En ese momento, { -brand-mozilla } renovará tu suscripción diaria y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
-subscriptionRenewalReminder-content-charge-invoice-total-week = En ese momento, { -brand-mozilla } renovará tu suscripción semanal y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
-subscriptionRenewalReminder-content-charge-invoice-total-month = En ese momento, { -brand-mozilla } renovará tu suscripción mensual y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
-subscriptionRenewalReminder-content-charge-invoice-total-halfyear = En ese momento, { -brand-mozilla } renovará tu suscripción semestral y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
-subscriptionRenewalReminder-content-charge-invoice-total-year = En ese momento, { -brand-mozilla } renovará tu suscripción anual y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
-subscriptionRenewalReminder-content-charge-invoice-total-default = En ese momento, { -brand-mozilla } renovará tu suscripción y se aplicará un cargo de { $invoiceTotalExcludingTax } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-day = En ese momento, { -brand-mozilla } renovará tu suscripción diaria y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-week = En ese momento, { -brand-mozilla } renovará tu suscripción semanal y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-month = En ese momento, { -brand-mozilla } renovará tu suscripción mensual y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-halfyear = En ese momento, { -brand-mozilla } renovará tu suscripción semestral y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-year = En ese momento, { -brand-mozilla } renovará tu suscripción anual y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
+subscriptionRenewalReminder-content-charge-invoice-total-default = En ese momento, { -brand-mozilla } renovará tu suscripción y se aplicará un cargo de { $invoiceTotal } al método de pago de tu cuenta.
 subscriptionRenewalReminder-content-closing = Atentamente,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN

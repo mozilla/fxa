@@ -71,6 +71,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = რაღაც ხარვეზი წარმოიქმნა
+app-something-went-wrong-message = უკვე გვაცნობეს ამ ხარვეზის შესახებ. განაახლეთ გვერდი, რომ ხელახლა სცადოთ.
+app-error-id = შეცდომის ID: { $errorId }
+app-error-details-summary = შეცდომის შესახებ
 app-query-parameter-err-heading = არასწორი მოთხოვნა: გამოძახების უმართებულო პარამეტრები
 
 

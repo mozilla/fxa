@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Szerkesztés
 error-icon-aria-label =
     .aria-label = Hiba
 # Used as information icon for informative messaging
@@ -1257,6 +1260,18 @@ passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
 passkey-delete-error = Hiba történt a jelkulcs törlésekor. Próbálja újra néhány perc múlva.
+passkey-sub-row-rename-title = Jelkulcs átnevezése
+passkey-rename-modal-heading = Jelkulcs átnevezése
+passkey-rename-modal-description = Adjon meg egy új nevet ennek a jelkulcsnak.
+passkey-rename-input-label = Jelkulcs neve
+passkey-rename-save-button = Mentés
+passkey-rename-cancel-button = Mégse
+passkey-rename-error-empty = Adjon meg egy nevet ennek a jelkulcsnak
+passkey-rename-error-too-long = A névnek 256 karakternél rövidebbnek kell lennie.
+passkey-rename-error-invalid = Csak betűk, számok, írásjelek és szimbólumok engedélyezettek.
+passkey-rename-error-duplicate = Már létezik ilyen nevű jelkulcs
+passkey-rename-success = Jelszó átnevezve
+passkey-rename-error = Hiba történt a jelkulcs átnevezésekor. Próbálja újra néhány perc múlva.
 
 ## Switch component
 
@@ -1451,6 +1466,7 @@ auth-error-225 = A jelkulcs már regisztrálva van
 auth-error-226 = A jelkulcsok korlátja elérve
 auth-error-227 = A jelkulcsos hitelesítés sikertelen
 auth-error-228 = A jelkulcs regisztrációja sikertelen
+auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
 auth-error-999 = Nem várt hiba

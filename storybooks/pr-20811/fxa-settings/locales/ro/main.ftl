@@ -274,6 +274,8 @@ close-icon-aria-label =
     .aria-label = Închide mesajul
 code-icon-aria-label =
     .aria-label = Cod
+edit-icon-aria-label =
+    .aria-label = Editează
 error-icon-aria-label =
     .aria-label = Eroare
 info-icon-aria-label =
@@ -343,7 +345,7 @@ input-phone-number-enter-number = Introdu numărul de telefon
 input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
 legal-back-button = Înapoi
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 
 
 reset-pwd-link-damaged-header = Link de resetare a parolei corupt
@@ -974,6 +976,18 @@ passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
 passkey-delete-error = A apărut o problemă la ștergerea cheii. Încearcă din nou peste câteva minute.
+passkey-sub-row-rename-title = Redenumește cheia de acces
+passkey-rename-modal-heading = Redenumește cheia de acces
+passkey-rename-modal-description = Introdu o denumire nouă pentru această cheie de acces.
+passkey-rename-input-label = Denumire cheie de acces
+passkey-rename-save-button = Salvează
+passkey-rename-cancel-button = Anulează
+passkey-rename-error-empty = Introdu o denumire pentru această cheie de acces
+passkey-rename-error-too-long = Denumirea trebuie să aibă mai puțin de 256 de caractere.
+passkey-rename-error-invalid = Sunt permise numai litere, cifre, semne de punctuație și simboluri.
+passkey-rename-error-duplicate = Există deja o cheie de acces cu această denumire
+passkey-rename-success = Cheia de acces a fost redenumită
+passkey-rename-error = A apărut o problemă la redenumirea cheii de acces. Încearcă din  nou în câteva minute.
 
 
 switch-turn-off = Oprește
@@ -1114,6 +1128,7 @@ auth-error-225 = Cheia de acces este deja înregistrată
 auth-error-226 = S-a atins limita de chei de acces
 auth-error-227 = Autentificarea cu cheie de acces a eșuat
 auth-error-228 = Înregistrarea cheii de acces a eșuat
+auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
 auth-error-999 = Eroare neașteptată
@@ -1201,7 +1216,7 @@ index-account-delete-success = Cont șters cu succes
 index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai scris corect adresa?
 
 
-inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci mai târziu.
+inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
 inline-recovery-key-setup-recovery-created = Cheia de recuperare a contului a fost creată
 inline-recovery-key-setup-download-header = Securizează-ți contul
 inline-recovery-key-setup-download-subheader = Descarcă și salveaz-o acum
@@ -1412,9 +1427,9 @@ password-reset-recovery-method-phone = Număr de telefon de recuperare
 password-reset-recovery-method-code = Coduri de autentificare de rezervă
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $count } cod rămas
-        [few] { $count } coduri rămase
-       *[other] { $count } de coduri rămase
+        [one] { $numBackupCodes } cod rămas
+        [few] { $numBackupCodes } coduri rămase
+       *[other] { $numBackupCodes } de coduri rămase
     }
 password-reset-recovery-method-send-code-error-heading = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
 password-reset-recovery-method-send-code-error-description = Te rugăm să încerci din nou mai târziu sau să folosești codurile de autentificare de rezervă.
@@ -1430,7 +1445,7 @@ reset-password-recovery-phone-resend-success = Cod trimis
 reset-password-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 reset-password-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 reset-password-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
-reset-password-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+reset-password-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 reset-password-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 reset-password-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 reset-password-with-recovery-key-verified-page-title = Parolă resetată cu succes
@@ -1540,7 +1555,7 @@ signin-recovery-code-phone-link = Folosește numărul de telefon de recuperare
 signin-recovery-code-support-link = Ți-ai blocat accesul la cont?
 signin-recovery-code-required-error = Necesită cod de autentificare de rezervă
 signin-recovery-code-use-phone-failure = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
-signin-recovery-code-use-phone-failure-description = Te rugăm să încerci mai târziu.
+signin-recovery-code-use-phone-failure-description = Te rugăm să încerci din nou mai târziu.
 
 
 signin-recovery-phone-flow-heading = Intră în cont
@@ -1553,7 +1568,7 @@ signin-recovery-phone-resend-success = Cod trimis
 signin-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 signin-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 signin-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
-signin-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+signin-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 signin-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 signin-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 signin-recovery-phone-success-message = Autentificare cu succes. Este posibil să se aplice limite dacă îți folosești iar numărul de telefon de recuperare.

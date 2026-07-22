@@ -294,7 +294,7 @@ postAddTwoStepAuthentication-code-required-v4 = Při každém přihlášení nyn
 postAddTwoStepAuthentication-recovery-method-codes = Přidali jste také záložní ověřovací kódy jako metodu obnovení.
 # Variables:
 #  $maskedPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
-postAddTwoStepAuthentication-recovery-method-phone = Jako telefonní číslo pro obnovení jste přidali také číslo { $maskedLastFourPhoneNumber }.
+postAddTwoStepAuthentication-recovery-method-phone = Jako telefonní číslo pro obnovení jste přidali také číslo { $maskedPhoneNumber }.
 postAddTwoStepAuthentication-how-protects-link = Jak tato funkce chrání váš účet
 postAddTwoStepAuthentication-how-protects-plaintext = Jak tato nastavení chrání váš účet:
 postAddTwoStepAuthentication-device-sign-out-message = Pro ochranu všech vašich připojených zařízení byste se měli odhlásit všude, kde používáte tento účet, a poté se znovu přihlásit pomocí dvoufázového ověření.

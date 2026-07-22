@@ -71,6 +71,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = რაღაც ხარვეზი წარმოიქმნა
+app-something-went-wrong-message = უკვე გვაცნობეს ამ ხარვეზის შესახებ. განაახლეთ გვერდი, რომ ხელახლა სცადოთ.
+app-error-id = შეცდომის ID: { $errorId }
+app-error-details-summary = შეცდომის შესახებ
 app-query-parameter-err-heading = არასწორი მოთხოვნა: გამოძახების უმართებულო პარამეტრები
 
 
@@ -185,6 +189,14 @@ device-info-browser-os = { $browserName } სისტემაზე { $generic
 device-info-ip-address = IP-მისამართი: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = გადმოწერეთ { -brand-firefox } სადაც არ უნდა იყოთ
+firefox-promo-banner-mobile-description = დაასინქრონეთ ჩანართები, სანიშნები და პაროლები თქვენს მოწყობილობებზე. ამასთანავე, ყველაფერი უსაფრთხოდ დარჩება დაშიფრული.
+firefox-promo-banner-mobile-cta = მოწყობილობის დაკავშირება
+firefox-promo-banner-switch-heading = სწრაფი გადართვა. იოლი გამართვა.
+firefox-promo-banner-switch-description = როცა { -brand-firefox }-ზე გადახვალთ, შეგეძლებათ თან წაიყოლოთ თქვენი სანიშნები, პაროლები, ისტორია და სხვ., რომ შეუფერხებლად დაიწყოთ გვერდების მონახულება.
+firefox-promo-banner-switch-cta = გადასვლა { -brand-firefox }-ზე
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = პაროლი
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -259,6 +271,8 @@ close-icon-aria-label =
     .aria-label = შეტყობინების დახურვა
 code-icon-aria-label =
     .aria-label = კოდი
+edit-icon-aria-label =
+    .aria-label = ჩასწორება
 error-icon-aria-label =
     .aria-label = შეცდომა
 info-icon-aria-label =
@@ -328,6 +342,7 @@ input-phone-number-enter-number = მიუთითეთ ტელეფონ
 input-phone-number-country-united-states = შეერთებული შტატები
 input-phone-number-country-canada = კანადა
 legal-back-button = უკან
+app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 
 reset-pwd-link-damaged-header = პაროლის გასანულებელი ბმული დაზიანებულია
@@ -950,10 +965,23 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
+passkey-delete-modal-content-v2 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე სხვა გზით შესვლა (პაროლით, სხვა საშვით ან მიბმული ანგარიშით).
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
 passkey-delete-error = ხარვეზი წარმოიშვა პროფილის საშვის წაშლისას. კვლავ სცადეთ რამდენიმე წუთში.
+passkey-sub-row-rename-title = საშვის გადარქმევა
+passkey-rename-modal-heading = საშვის გადარქმევა
+passkey-rename-modal-description = მიუთითეთ ახალი სახელი ამ საშვისთვის.
+passkey-rename-input-label = საშვის სახელი
+passkey-rename-save-button = შენახვა
+passkey-rename-cancel-button = გაუქმება
+passkey-rename-error-empty = მიუთითეთ სახელი ამ საშვისთვის
+passkey-rename-error-too-long = სახელი უნდა შედგებოდეს არაუმეტეს 256 ასონიშნისგან.
+passkey-rename-error-invalid = მისაღებია მხოლოდ ასოები, ციფრები, სასვენი ნიშნები და სიმბოლოები.
+passkey-rename-error-duplicate = საშვი ამ სახელით უკვე არსებობს
+passkey-rename-success = საშვი გადარქმეულია
+passkey-rename-error = ხარვეზი წარმოიშვა საშვის გადარქმევისას. კვლავ სცადეთ რამდენიმე წუთში.
 
 
 switch-turn-off = გამორთვა
@@ -1091,6 +1119,7 @@ auth-error-225 = საშვი უკვე აღნუსხულია
 auth-error-226 = საშვის ზღვარი მიღწეულია
 auth-error-227 = საშვის დამოწმება ვერ მოხერხდა
 auth-error-228 = საშვის აღნუსხვა ვერ მოხერხდა
+auth-error-233 = საშვის შესაქმნელად დააყენეთ ეკრანის ჩამკეტი, PIN-კოდი, თითის ანაბეჭდი ან სახის ამომცნობი თქვენს მოწყობილობასა თუ უსაფრთხოების გასაღებზე. შემდეგ სცადეთ ხელახლა.
 auth-error-238 = საშვის შემოწმება ვერ მოხერხდა
 auth-error-239 = სამწუხაროდ, თქვენი ანგარიშის წაშლა ვერ მოხერხდა. გთხოვთ, კვლავ სცადოთ ან დაუკავშირდეთ მხარდაჭერის გუნდს, თუ ხარვეზი გამეორდება.
 auth-error-999 = მოულოდნელი შეცდომა
@@ -1119,8 +1148,12 @@ oauth-error-1000 = რაღაც ხარვეზია. გთხოვთ 
 passkey-registration-error-not-allowed = საშვის გამართვა ვერ მოხერხდა ან მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 passkey-registration-error-not-allowed-existing = საშვის გამართვა მიუწვდომელია ამ მოწყობილობაზე. ან მოწყობილობა უკვე აღრიცხულია ან გამართვა შეწყვეტილია.
 passkey-registration-error-timeout = საშვის გამართვა გაუქმებულია. სცადეთ ხელახლა.
+passkey-registration-canceled-v2 = საშვის გამართვა გაუქმდა ან დრო ამოიწურა.
+passkey-registration-canceled-link = ვრცლად
 passkey-registration-error-not-supported-v2 = თქვენს ბრაუზერსა თუ მოწყობილობაზე მხარდაუჭერელია საშვები.
 passkey-registration-error-not-supported-link = ვრცლად
+passkey-registration-error-could-not-complete = საშვის დაყენება ვერ დასრულდა. სცადეთ სხვა გზა ან მოწყობილობა.
+passkey-registration-error-could-not-complete-link = ვრცლად
 passkey-registration-error-security = საშვების გამართვა ვერ ხერხდება ამ გვერდზე. გამოიყენეთ დაცული საიტი და ხელახლა სცადეთ.
 passkey-registration-error-invalid-state = ეს საშვი უკვე აღნუსხულია. გამოიყენეთ ანგარიშში შესასვლელად ან დაამატეთ სხვა საშვი.
 passkey-registration-error-not-readable = წვდომა ვერ მოხერხდა დამმოწმებელთან. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.

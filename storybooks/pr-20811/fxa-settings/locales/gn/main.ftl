@@ -37,7 +37,7 @@
 
 app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
 app-something-went-wrong-message = Roñemomarandu apañuái. Embopyahu pe kuatiarogue eiporu jey hag̃ua.
-app-error-id = ID jejavy: { $error }
+app-error-id = ID jejavy: { $errorId }
 app-error-details-summary = Mba’emimi jejavygua
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 
@@ -1444,8 +1444,8 @@ signin-passwordless-code-heading = Emoinge ayvu ñemoneĩrã
 signin-passwordless-code-subheading = Eike hag̃ua eikotevẽ jeku’e’i eiporúvo ko ayvu.
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationTime } aravo’ieta pa’ũme.
-       *[other] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationTime } aravo’ietaite pa’ũme.
+        [one] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationMinutes } aravo’ieta pa’ũme.
+       *[other] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationMinutes } aravo’ietaite pa’ũme.
     }
 signin-passwordless-code-input-label-v2 = Emoinge ayvu 6 taíva
 signin-passwordless-code-confirm-button = Ñemoneĩ

@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Redigera
 error-icon-aria-label =
     .aria-label = Fel
 # Used as information icon for informative messaging
@@ -1253,6 +1256,18 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
 passkey-delete-error = Det gick inte att ta bort din lösenordsnyckel. Försök igen om några minuter.
+passkey-sub-row-rename-title = Byt namn på lösenordsnyckel
+passkey-rename-modal-heading = Byt namn på lösenordsnyckel
+passkey-rename-modal-description = Ange ett nytt namn på lösenordsnyckeln.
+passkey-rename-input-label = Namn på lösenordsnyckel
+passkey-rename-save-button = Spara
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Ange ett namn för lösenordsnyckeln
+passkey-rename-error-too-long = Namnet måste innehålla färre än 256 tecken.
+passkey-rename-error-invalid = Endast bokstäver, siffror, skiljetecken och symboler är tillåtna.
+passkey-rename-error-duplicate = En lösenordsnyckel med det namnet finns redan
+passkey-rename-success = Lösenordsnyckel bytte namn
+passkey-rename-error = Det uppstod ett problem med att byta namn på lösenordsnyckeln. Försök igen om några minuter.
 
 ## Switch component
 
@@ -1446,6 +1461,7 @@ auth-error-225 = Lösenordet har redan registrerats
 auth-error-226 = Gränsvärdet för lösenordsnycklar har nåtts
 auth-error-227 = Autentisering av lösenordsnyckel misslyckades
 auth-error-228 = Registrering av lösenordsnyckel misslyckades
+auth-error-233 = För att skapa en lösenordsnyckel konfigurerar du ett skärmlås, PIN-kod, fingeravtryck eller ansiktsigenkänning på din enhet eller säkerhetsnyckel. Försök sedan igen.
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
 auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
 auth-error-999 = Oväntat fel

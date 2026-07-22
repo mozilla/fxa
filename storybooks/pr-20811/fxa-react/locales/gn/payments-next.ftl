@@ -607,7 +607,7 @@ churn-error-page-message-general-error = Eñe’ẽ pytyvõha ndive ha eha’ã 
 # $productName (String) - The name of the product associated with the subscription.
 churn-error-page-button-go-to-product-page = Eho { $productName }-pe
 # $productName (String) - The name of the product associated with the subscription.
-churn-error-page-title-subscription-not-active = Ko tepyguejy oiporukuaa oñemboheraguapýva { $productTitle } ndive añoite.
+churn-error-page-title-subscription-not-active = Ko tepyguejy oiporukuaa oñemboheraguapýva { $productName } ndive añoite.
 # $productName (String) - The name of the product associated with the subscription.
 churn-error-page-title-subscription-still-active = Ne ñemboheraguapy { $productName }-pegua oikóiti
 
@@ -737,7 +737,6 @@ manage-payment-method-tax-address-required = Ndorojuhúi ne rendaite ehepyme’�
 ## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
 
 next-charge-with-discount-and-tax-card = Hembyvéta { $discountPercent }% jehepyme’ẽrã oútavape { $nextInvoiceTotal } + { $taxDue } impuesto kuatia’atãpe hu’ãtava { $last4 }-pe { $currentPeriodEnd }.
-next-charge-with-discount-and-tax-payment-method = Hembyvéta ndéve { $discountPercent }% nde jehepyme’ẽrã oútavape { $nextInvoiceTotal } + { $taxDue } impuesto-ramo nde jehepyme’ẽrãme { $currentPeriodEnd }.
 next-charge-next-charge-with-discount-and-tax = Hembyvéta { $discountPercent } jehepyme’ẽrã oútavape { $nextInvoiceTotal } + { $taxDue } impuesto-ramo { $currentPeriodEnd }.
 next-charge-with-discount-no-tax-card = Hembyvéta { $discountPercent } jehepyme’ẽrã oútavape { $nextInvoiceTotal } kuatia’atãpe hu’ãtava { $last4 } pe { $currentPeriodEnd }.
 next-charge-with-discount-no-tax-payment-method = Hembyvéta { $discountPercent } jehepyme’ẽrã oútavape { $nextInvoiceTotal } mba’éichapa ehepyme’ẽta { $paymentMethod } og̃uahẽvo { $currentPeriodEnd }.

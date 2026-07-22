@@ -37,7 +37,7 @@
 
 app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
 app-something-went-wrong-message = Roñemomarandu apañuái. Embopyahu pe kuatiarogue eiporu jey hag̃ua.
-app-error-id = ID jejavy: { $error }
+app-error-id = ID jejavy: { $errorId }
 app-error-details-summary = Mba’emimi jejavygua
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 

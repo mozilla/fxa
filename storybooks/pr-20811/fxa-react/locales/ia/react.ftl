@@ -3,7 +3,7 @@
 app-something-went-wrong-heading = Alco errate eveniva
 app-something-went-wrong-message = Nos ha essite notificate del problema. Actualisar le pagina pro retentar.
 # $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
-app-error-id = ID de error: { $error }
+app-error-id = ID de error: { $errorId }
 # Expandable toggle that reveals technical details about the error
 app-error-details-summary = Detalios del error
 # Specific handling for issues when bad or missing query parameters are detected

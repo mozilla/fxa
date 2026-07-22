@@ -1497,7 +1497,7 @@ legal-terms-heading = Regulamin usługi
 
 ## AuthAllow page - Part of the device pairing flow
 
-pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -product-firefox(case: "gen") }?
+pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?
 # Submit button to confirm that the user initiated the device pairing
 # and that they approve of the new device being added to their account
 pair-auth-allow-confirm-button = Tak, zatwierdź urządzenie

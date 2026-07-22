@@ -3,7 +3,7 @@
 app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
 app-something-went-wrong-message = Roñemomarandu apañuái. Embopyahu pe kuatiarogue eiporu jey hag̃ua.
 # $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
-app-error-id = ID jejavy: { $error }
+app-error-id = ID jejavy: { $errorId }
 # Expandable toggle that reveals technical details about the error
 app-error-details-summary = Mba’emimi jejavygua
 # Specific handling for issues when bad or missing query parameters are detected
