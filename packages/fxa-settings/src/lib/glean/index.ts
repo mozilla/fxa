@@ -896,6 +896,11 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'passkey_get_help_link_click':
+      passkey.getHelpLinkClick.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'passkey_enter_password_view':
       passkeyEnterPassword.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

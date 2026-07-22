@@ -181,6 +181,7 @@ export const eventsMap = {
   passkey: {
     buttonView: 'passkey_button_view',
     authSuccess: 'passkey_auth_success',
+    getHelpLinkClick: 'passkey_get_help_link_click',
   },
 
   cad: {

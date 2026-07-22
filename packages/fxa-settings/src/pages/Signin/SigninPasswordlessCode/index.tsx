@@ -612,21 +612,6 @@ const SigninPasswordlessCode = ({
         }}
       />
 
-      {showPasskeySignin && (
-        <AlternativeAuthOptions
-          showThirdPartyAuth={false}
-          showPasskeySignin={showPasskeySignin}
-          passkeySignIn={{
-            isLoading: passkey.isLoading,
-            onClick: passkey.onClick,
-          }}
-          errorBanner={passkey.errorBanner}
-          {...{ viewName, flowQueryParams }}
-        />
-      )}
-
-      <TermsPrivacyAgreement legalTerms={integration.getLegalTerms()} />
-
       <div className="mt-6 text-grey-500 text-sm inline-flex gap-1">
         <FtlMsg id="signin-passwordless-code-expired">
           <p>Code expired?</p>
@@ -659,6 +644,21 @@ const SigninPasswordlessCode = ({
           </FtlMsg>
         )}
       </div>
+
+      {showPasskeySignin && (
+        <AlternativeAuthOptions
+          showThirdPartyAuth={false}
+          showPasskeySignin={showPasskeySignin}
+          passkeySignIn={{
+            isLoading: passkey.isLoading,
+            onClick: passkey.onClick,
+          }}
+          errorBanner={passkey.errorBanner}
+          {...{ viewName, flowQueryParams }}
+        />
+      )}
+
+      <TermsPrivacyAgreement legalTerms={integration.getLegalTerms()} />
     </AppLayout>
   );
 };

@@ -63,6 +63,7 @@ export type ExternalLinkProps = {
   url: string;
   localizedText: string;
   gleanId?: string;
+  onClick?: () => void;
   path?: never;
   locationState?: never;
 };

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Banner from './index';
 import { BannerProps } from './interfaces';
 
@@ -74,6 +75,23 @@ describe('Banner Component', () => {
       expect(
         screen.getByRole('button', { name: /Close banner/i })
       ).toHaveAttribute('data-glean-id', 'dismiss-glean-id');
+    });
+
+    it('maps an external link gleanId to the data-glean-id attribute', () => {
+      renderWithLocalizationProvider(
+        <Banner
+          {...getDefaultProps()}
+          link={{
+            url: 'https://example.com/help',
+            localizedText: 'Learn more',
+            gleanId: 'link-glean-id',
+          }}
+        />
+      );
+      expect(screen.getByRole('link', { name: /Learn more/i })).toHaveAttribute(
+        'data-glean-id',
+        'link-glean-id'
+      );
     });
   });
 });

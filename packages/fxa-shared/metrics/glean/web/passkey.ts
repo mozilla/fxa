@@ -48,3 +48,23 @@ export const buttonView = new EventMetricType<{
   },
   ['reason']
 );
+
+/**
+ * The help link in the passkey sign-in trouble banner was clicked. The
+ * banner is shown for a cancelled ceremony (dismissed prompt, no passkey on
+ * this device, or the authenticator can't satisfy the request).
+ *
+ * Generated from `passkey.get_help_link_click`.
+ */
+export const getHelpLinkClick = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'get_help_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
