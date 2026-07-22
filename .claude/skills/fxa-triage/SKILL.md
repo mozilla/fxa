@@ -4,7 +4,7 @@ description: >-
   Generates a daily FxA triage summary. Queries Jira, GitHub, Bugzilla,
   and optionally Sentry, then outputs a Slack-ready update with detailed analysis.
   Use when starting triage duties or preparing the daily triage post.
-allowed-tools: Bash, WebFetch, mcp__atlassian__searchJiraIssuesUsingJql, mcp__sentry__search_issues, mcp__sentry__search_events, mcp__sentry__find_releases, mcp__sentry__get_sentry_resource, mcp__slack__slack_search_channels, mcp__slack__slack_read_channel, mcp__slack__slack_read_thread, mcp__slack__slack_search_public, mcp__slack__slack_send_message_draft, mcp__grafana__list_datasources, mcp__grafana__query_prometheus, mcp__grafana__query_prometheus_histogram, mcp__grafana__search_dashboards, mcp__grafana__get_dashboard_by_uid, mcp__grafana__get_dashboard_panel_queries, mcp__grafana__get_panel_image, mcp__grafana__generate_deeplink, mcp__grafana__grafana_api_request, mcp__circleci__list_followed_projects, mcp__circleci__get_latest_pipeline_status, mcp__circleci__get_build_failure_logs, mcp__circleci__get_job_test_results, mcp__circleci__find_flaky_tests
+allowed-tools: Bash, WebFetch, Skill, mcp__atlassian__searchJiraIssuesUsingJql, mcp__sentry__search_issues, mcp__sentry__search_events, mcp__sentry__find_releases, mcp__sentry__get_sentry_resource, mcp__slack__slack_search_channels, mcp__slack__slack_read_channel, mcp__slack__slack_read_thread, mcp__slack__slack_search_public, mcp__slack__slack_send_message_draft, mcp__grafana__list_datasources, mcp__grafana__query_prometheus, mcp__grafana__query_prometheus_histogram, mcp__grafana__search_dashboards, mcp__grafana__get_dashboard_by_uid, mcp__grafana__get_dashboard_panel_queries, mcp__grafana__get_panel_image, mcp__grafana__generate_deeplink, mcp__grafana__grafana_api_request, mcp__circleci__list_followed_projects, mcp__circleci__get_latest_pipeline_status, mcp__circleci__get_build_failure_logs, mcp__circleci__get_job_test_results, mcp__circleci__find_flaky_tests
 user-invocable: true
 ---
 
@@ -139,11 +139,23 @@ If a Slack MCP is configured, test with a minimal read (list channels, fetch a r
 > - **Read tools:** `mcp__slack__slack_search_channels`, `mcp__slack__slack_read_channel`, `mcp__slack__slack_read_thread`, `mcp__slack__slack_search_public` — enable Phase 1F/2F automated thread fetching. `slack_read_thread` is essential — see Phase 2F for why.
 > - **Draft tool:** `mcp__slack__slack_send_message_draft` — enables the optional Phase 5.6 draft step. Composes a Slack draft for the engineer to review and send manually; never sends directly. If your MCP server uses different tool names, update the frontmatter to match. Even with the tool listed, the harness's per-user permission settings gate the actual call.
 
-### 1F.1: Grafana MCP (optional)
+### 1F.1: Grafana access (optional)
 
-Test with a minimal `mcp__grafana__list_datasources` call. If it returns the FxA datasources (the Prometheus datasource `grafana.prometheus_datasource_uid` from the operational config, or whichever current UID is in use), Grafana auto-query is available — Phase 2G will run automatically. If it fails, mark Grafana MCP as skipped — Phase 1I will fall back to asking the engineer for manual screenshots.
+Grafana auto-query (Phase 2G) has two paths. Probe them in order and record the result as `$GRAFANA_MODE`:
 
-> **Image rendering capability:** `mcp__grafana__get_panel_image` requires the Grafana Image Renderer plugin to be installed server-side. Phase 2G uses image rendering only opportunistically — metric data from `query_prometheus` is always primary, panel PNGs are a bonus when available.
+1. **MCP path (`$GRAFANA_MODE=mcp`).** Test with a minimal `mcp__grafana__list_datasources` call. If it returns the FxA datasources (the Prometheus datasource `grafana.prometheus_datasource_uid` from the operational config, or whichever current UID is in use), the Grafana MCP server is configured — Phase 2G runs via MCP tools.
+
+2. **Yardstick fallback (`$GRAFANA_MODE=yardstick`).** If no `grafana` MCP server is configured (the `mcp__grafana__*` tools aren't loaded, i.e. no image is set), check whether the `mzcld` proxy is exposing Grafana locally:
+
+   ```bash
+   curl -sf -o /dev/null -w '%{http_code}' http://localhost:3000/api/datasources && echo " — yardstick proxy up" || echo "proxy down"
+   ```
+
+   If that returns `200`, Phase 2G runs via the Grafana HTTP API over the proxy (see Phase 2G "Yardstick fallback"). Delegate datasource UIDs and GMP query conventions to the `yardstick:yardstick-grafana` skill — invoke it before querying so the datasource map and GMP rules are loaded.
+
+3. **Skipped (`$GRAFANA_MODE=skipped`).** If neither path is available, mark Grafana as skipped — Phase 1I falls back to asking the engineer for manual screenshots.
+
+> **Image rendering capability:** `mcp__grafana__get_panel_image` (MCP path) and `/render/d-solo/...` (yardstick path) both require the Grafana Image Renderer plugin server-side. Phase 2G uses image rendering only opportunistically — metric data is always primary, panel PNGs are a bonus when available.
 
 ### 1F.2: CircleCI access (optional)
 
@@ -182,7 +194,7 @@ Report a status table:
 | Jira MCP       | ✅ / ❌ [details] |
 | Sentry MCP     | ✅ / ❌ [details] |
 | Slack MCP      | ✅ read-only / ⚠️ skipped — manual fallback / ❌ [details] |
-| Grafana MCP    | ✅ datasources available / ⚠️ skipped — manual fallback / ❌ [details] |
+| Grafana        | ✅ MCP (datasources available) / ✅ yardstick proxy (localhost:3000) / ⚠️ skipped — manual fallback / ❌ [details] |
 | CircleCI       | ✅ token valid (user: X) / ⚠️ skipped — CIRCLECI_TOKEN not set / ❌ token rejected |
 | Bugzilla       | ✅ always available |
 ```
@@ -202,11 +214,11 @@ Ask for:
 2. **Sources to skip:** any combination of Grafana, WAF, manual Slack review (only relevant if 1F Slack MCP is unavailable). Or "none". Skipped sources are marked `:eyes: Not reviewed` in the output and don't get asked about below.
 
 3. **Grafana anomalies** (skip if Grafana skipped).
-   - **If Grafana MCP is healthy** (per Phase 1F.1), Phase 2G auto-queries the canonical dashboards' underlying PromQL — no engineer screenshots needed. The auto-detected anomalies will appear in Section C. You can still spot-check the dashboards manually if you want; share any per-panel screenshots of things you noticed that the auto-query might miss.
-   - **If Grafana MCP is unavailable**, offer the engineer three choices (don't assume — ask):
+   - **If `$GRAFANA_MODE` is `mcp` or `yardstick`** (per Phase 1F.1), Phase 2G auto-queries the canonical dashboards' underlying PromQL — no engineer screenshots needed. The auto-detected anomalies will appear in Section C. You can still spot-check the dashboards manually if you want; share any per-panel screenshots of things you noticed that the auto-query might miss.
+   - **If `$GRAFANA_MODE` is `skipped`** (neither the MCP server nor the yardstick proxy is available), offer the engineer three choices (don't assume — ask):
      - **(a) Skip** Grafana for today (marked `:eyes: Not reviewed`).
      - **(b) Manual screenshots** — open these prod dashboards (7-day window) and skim for anomalies. Share **per-panel screenshots of anything that looks off**, or "all looked normal" if nothing stands out. Full-page captures are too fuzzy — always per-panel at native zoom.
-     - **(c) Configure the MCP now** — set up the Grafana MCP server (`mcp/grafana` Docker image, stdio) in the MCP config (`~/.claude.json` → `projects[<repo>].mcpServers.grafana`, or `.mcp.json`), with `GRAFANA_URL` set to `grafana.instance` from the operational config (copied in once at setup — the MCP launches before the page is fetched) and the service-account token referenced from a shell env var (`${GRAFANA_SERVICE_ACCOUNT_TOKEN}`) so the secret never lands in the config file. **Important: restart Claude Code after configuring** before the `mcp__grafana__*` tools load — so Grafana cannot be queried in _today's_ run. Fall back to **(a)** skip or **(b)** manual screenshots for today; auto-query goes live next session.
+     - **(c) Enable auto-query now** — either start the `mzcld` proxy so Grafana is reachable at `http://localhost:3000` (yardstick fallback, no config change needed), or set up the Grafana MCP server (`mcp/grafana` Docker image, stdio) in the MCP config (`~/.claude.json` → `projects[<repo>].mcpServers.grafana`, or `.mcp.json`), with `GRAFANA_URL` set to `grafana.instance` from the operational config and the service-account token referenced from a shell env var (`${GRAFANA_SERVICE_ACCOUNT_TOKEN}`) so the secret never lands in the config file. **Important: the MCP path requires a Claude Code restart** before the `mcp__grafana__*` tools load — so it can't be queried in _today's_ run; the proxy path goes live immediately once the probe in Phase 1F.1 passes. Otherwise fall back to **(a)** skip or **(b)** manual screenshots for today.
 
    Dashboards (manual fallback / spot-check reference):
    - The canonical dashboards are `grafana.dashboards` (`{name: uid}`) in the operational config. Build each URL from `grafana.instance` + `grafana.dashboard_url_template` (7-day window) and skim every one.
@@ -591,9 +603,11 @@ The cron filter isn't available, so this path can't isolate nightly runs specifi
 
 If neither path is available (no token AND no MCP), skip Section B's `:circleci:` bullet entirely and note "CircleCI not reviewed" in Section C's known-gaps subsection.
 
-### 2G: Grafana (via MCP, when Phase 1F.1 passed)
+### 2G: Grafana (auto-query, when Phase 1F.1 passed)
 
-If Grafana MCP was marked skipped in Phase 1F.1, skip this section entirely — the engineer's manual notes from Phase 1I item 3 are the input to Section C instead.
+If `$GRAFANA_MODE` is `skipped`, skip this section entirely — the engineer's manual notes from Phase 1I item 3 are the input to Section C instead.
+
+This section describes the **MCP path** (`$GRAFANA_MODE=mcp`). When `$GRAFANA_MODE=yardstick`, run the same five steps but swap each `mcp__grafana__*` tool for its Grafana HTTP API equivalent over the `mzcld` proxy — see **Yardstick fallback** at the end of this section. The anomaly-detection logic (step 3) is identical in both modes.
 
 Auto-query the canonical FxA dashboards listed in `grafana.dashboards` (`{name: uid}`) from the operational config. Note their roles as documented there — e.g. the Big SES dashboard covers email-send health (bounces, complaints, delivery rates, throttling), Connection Pool / GCP Redis cover datastore health, etc.
 
@@ -655,6 +669,17 @@ Run all dashboards' panel-query fetches in parallel; serialise within a dashboar
 **Datasource UID note:** the canonical FxA Prometheus datasource UID is `grafana.prometheus_datasource_uid` in the operational config. If `mcp__grafana__list_datasources` returns a different UID for the same datasource name, prefer the live value over the config value — don't fail the run on a UID change.
 
 **Env discipline:** Grafana queries follow the same env discipline as Sentry — `prod` and/or `stage` from `$ENVS`, never `local`. If a panel's PromQL has no `environment` selector at all, run it as-is (it's already env-agnostic infra-level data). If it has a placeholder that doesn't match `prod`/`stage`, skip the panel and note it.
+
+**Yardstick fallback (`$GRAFANA_MODE=yardstick`):** No `grafana` MCP server is configured, so query Grafana through its HTTP API over the `mzcld` proxy at `http://localhost:3000` instead. Invoke the `yardstick:yardstick-grafana` skill first for the canonical datasource UIDs and GMP query conventions. Never call `https://yardstick.mozilla.org` directly (it's behind IAP); the proxy handles auth, so no token header is needed on `localhost` calls. Map each step above to:
+
+- **Discover panel queries** (step 1) — `GET http://localhost:3000/api/dashboards/uid/<uid>`, then read `.dashboard.panels[].targets[]`; each target's `datasource`, `expr` (Prometheus) or `rawSql` (SQL datasources) is what steps 2a/2b need.
+- **Run queries** (step 2) — `POST http://localhost:3000/api/ds/query` with the same body shape already documented in 2b (works for both Prometheus and non-Prometheus targets), `from: "now-7d"`, `to: "now"`. Parse `results.A.frames` for the series.
+- **Env → datasource mapping:** on this path env is selected by datasource, not just a label. Per the yardstick datasource table, map `prod` → `gcp-v2-prod` and `stage` → `gcp-v2-nonprod` when a panel uses a `$datasource` template variable; substitute `$environment` as on the MCP path when it uses a label selector.
+- **Anomaly detection** (step 3) — identical.
+- **Panel image** (step 4) — `GET http://localhost:3000/render/d-solo/<uid>/_?panelId=<id>&from=now-7d&to=now&width=1000&height=500`. If the Image Renderer plugin isn't installed the call errors — degrade silently, record `image_unavailable: true`, continue.
+- **Deeplinks** (step 5) — build the URL from `grafana.instance` + `grafana.dashboard_url_template` (a shareable `https://yardstick.mozilla.org` link, not `localhost`), rather than calling `mcp__grafana__generate_deeplink`.
+
+If any HTTP call fails (proxy down mid-run, query timeout, unsupported datasource), note it in `grafana_notes` and continue — do not block the run.
 
 ## Phase 2.5: Baseline Diff
 
@@ -953,7 +978,7 @@ Include:
 - **GitHub: PRs Awaiting Review** — Table with PR number, title, author, age, draft status.
 - **GitHub: Secondary Repos** — Open PRs on ecosystem-platform or channelserver.
 - **Bugzilla: All Open Bugs** — Table of unresolved bugs.
-- **Grafana** — Table of auto-detected anomalies from Phase 2G: dashboard, panel, env, metric, anomaly type, value vs. baseline, deeplink. Include "Reviewed — normal" rows for dashboards that passed cleanly so the reader knows they weren't skipped. If Grafana MCP was unavailable, fall back to the manual-screenshot block using the engineer's notes from Phase 1I item 3 (or "Not reviewed" if they skipped it).
+- **Grafana** — Table of auto-detected anomalies from Phase 2G: dashboard, panel, env, metric, anomaly type, value vs. baseline, deeplink. Include "Reviewed — normal" rows for dashboards that passed cleanly so the reader knows they weren't skipped. If `$GRAFANA_MODE` was `skipped`, fall back to the manual-screenshot block using the engineer's notes from Phase 1I item 3 (or "Not reviewed" if they skipped it).
 - **Slack** — Summarised threads. Or "Not reviewed." / "Reviewed — nothing actionable."
 - **Sentry: Volume-Based** — Table of top issues per project after noise filtering (short ID, title, event count, first/last seen, flag reason, **env**). When `$ENVS=both`, split into separate tables per env. On Thursdays, add separate table(s) for post-deploy regressions per selected env. Include 24h error counts per env.
 - **Sentry: Concerning by Content** — Separate table of issues flagged by nature/meaning, regardless of volume. Each row: short ID, title, culprit, one-line reason, env, project. Group by project (`fxa-auth`, `fxa-content`, `fxa-profile`); when `$ENVS=both`, also split by env.
@@ -990,8 +1015,8 @@ Write `$HISTORY_DIR/YYYY-MM-DD.md` with:
    - `bugzilla_new_7d`, `bugzilla_updated_7d`, `bugzilla_open_unresolved`
    - `dependabot_open_prs`, `dependabot_open_alerts.{high, medium, new_highs_24h, pr_clearing_new_highs}`
    - `github_open_prs_total`, `github_secondary_prs.{ecosystem_platform, channelserver}`
-   - `grafana_source` — `"mcp"` (Phase 2G auto-query ran), `"manual"` (engineer pasted screenshots in Phase 1I), or `"skipped"` (engineer skipped Grafana entirely)
-   - `grafana_dashboards_queried` — array of `{uid, title, panel_count, anomaly_count}` (only when `grafana_source: "mcp"`)
+   - `grafana_source` — `"mcp"` (Phase 2G auto-query ran via MCP), `"yardstick"` (Phase 2G auto-query ran via the `mzcld` proxy HTTP API), `"manual"` (engineer pasted screenshots in Phase 1I), or `"skipped"` (engineer skipped Grafana entirely)
+   - `grafana_dashboards_queried` — array of `{uid, title, panel_count, anomaly_count}` (when `grafana_source` is `"mcp"` or `"yardstick"`)
    - `grafana_anomalies` — array of `{dashboard, panel, env, metric, anomaly_type, value, baseline, deeplink, image_unavailable?}`
    - `grafana_notes` (array of strings — panels skipped because of unresolved template vars, datasource UID mismatches, manual-mode caveats, etc.)
    - **Deprecated, kept only when `grafana_source: "manual"`** for back-compat with old reports: `grafana_prod_error_pct_avg`, `grafana_prod_error_pct_max`, `grafana_prod_latency_median_ms`, `grafana_prod_memory_auth_server_pct`, `grafana_stage_error_pct_avg`
