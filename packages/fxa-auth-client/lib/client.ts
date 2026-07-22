@@ -1408,7 +1408,13 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<any> {
     const email = normalizeEmails(emailInput);
-    const credentials = await crypto.getCredentials(email.original, password);
+    // Salt the first attempt with the primary email; the INCORRECT_EMAIL_CASE
+    // handler below re-derives with the signup email (`error.email`). See
+    // `sessionReauth` for why the v1 salt is ambiguous.
+    const credentials = await crypto.getCredentials(
+      options.skipCaseError ? email.original : email.primary,
+      password
+    );
     const payload = {
       email: email.primary,
       authPW: credentials.authPW,
@@ -1430,7 +1436,7 @@ export default class AuthClient {
         options.skipCaseError = true;
 
         return this.accountDestroy(
-          { ...error, original: error.email },
+          { ...email, original: error.email },
           password,
           options,
           sessionToken,
@@ -1635,7 +1641,15 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<SessionReauthedAccountData> {
     const email = normalizeEmails(emailInput);
-    const credentials = await crypto.getCredentials(email.original, password);
+    // For an account whose signup email differs from its current primary, the v1
+    // verifier may be salted with either address. Salt the first attempt with the
+    // primary (the address the user authenticates with); the INCORRECT_EMAIL_CASE
+    // handler below re-derives with the signup email (`error.email`). When the two
+    // addresses match (the common case) this is unchanged.
+    const credentials = await crypto.getCredentials(
+      options.skipCaseError ? email.original : email.primary,
+      password
+    );
 
     try {
       const accountData = await this.sessionReauthWithAuthPW(
@@ -1657,13 +1671,6 @@ export default class AuthClient {
         !options.skipCaseError
       ) {
         options.skipCaseError = true;
-
-        // This is quite confusing. If you look at the server side, the following option is
-        // actually checked against the account's primary email. If it doesn't match, then there
-        // is a failure. The assumption here is that the calling code passed in the primary email
-        // instead of the original email. So the email in the error is the actual original email,
-        // and the email initially provided is the primary email... which may or may not be equal
-        // the original email on the account...
         options.originalLoginEmail = email.primary;
 
         return this.sessionReauth(
@@ -2009,102 +2016,97 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<SignedInAccountData> {
     const email = normalizeEmails(emailInput);
-    const oldCredentials = await this.sessionReauth(
-      sessionToken,
-      email,
-      oldPassword,
-      {
-        keys: true,
-      },
-      headers
-    );
+    // For an account whose signup email differs from its current primary, the v1
+    // verifier may be salted with either address, so try the primary first (the
+    // address the user authenticates with) and fall back to the signup email on
+    // INCORRECT_EMAIL_CASE. Unlike the other flows this loops here rather than
+    // reusing `sessionReauth`'s retry: the reauth and the `/mfa/password/change`
+    // payload must share a single salt per attempt. The reauth identifies the
+    // account by its primary email, while the change payload keeps `email.original`
+    // (the signup email) so the server's match against `accounts.email` still holds.
+    const saltCandidates =
+      email.primary === email.original
+        ? [email.original]
+        : [email.primary, email.original];
 
-    const oldCredentialsAuth = await crypto.getCredentials(
-      email.original,
-      oldPassword
-    );
-    const oldAuthPW = oldCredentialsAuth.authPW;
+    let lastError: any;
+    for (let i = 0; i < saltCandidates.length; i++) {
+      const saltEmail = saltCandidates[i];
+      try {
+        const oldCredentials = await crypto.getCredentials(
+          saltEmail,
+          oldPassword
+        );
 
-    const keys = await this.accountKeys(
-      oldCredentials.keyFetchToken!,
-      oldCredentials.unwrapBKey!,
-      headers
-    );
-
-    const newCredentials = await crypto.getCredentials(
-      email.original,
-      newPassword
-    );
-
-    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
-    const authPW = newCredentials.authPW;
-
-    let payload: {
-      email: string;
-      oldAuthPW: string;
-      authPW: string;
-      wrapKb: string;
-      authPWVersion2?: string;
-      wrapKbVersion2?: string;
-      clientSalt?: string;
-    } = {
-      email: email.original,
-      oldAuthPW,
-      authPW,
-      wrapKb,
-    };
-
-    if (this.keyStretchVersion === 2) {
-      const v2Payload = await this.createPasswordChangeV2Payload(
-        email,
-        newPassword,
-        keys,
-        newCredentials,
-        wrapKb,
-        headers
-      );
-      payload = {
-        ...payload,
-        authPWVersion2: v2Payload.authPWVersion2,
-        wrapKbVersion2: v2Payload.wrapKbVersion2,
-        clientSalt: v2Payload.clientSalt,
-      };
-    }
-
-    try {
-      const accountData = await this.jwtPost(
-        '/mfa/password/change',
-        jwt,
-        payload,
-        headers
-      );
-
-      return accountData;
-    } catch (error: any) {
-      if (
-        error &&
-        error.email &&
-        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-        !options.skipCaseError
-      ) {
-        options.skipCaseError = true;
-        Sentry.addBreadcrumb({
-          category: 'passwordChangeJWT',
-          message: 'Unexpected incorrect email case!',
-        });
-        return await this.passwordChangeWithJWT(
-          jwt,
-          { ...email, original: error.email },
-          oldPassword,
-          newPassword,
+        const reauth = await this.sessionReauthWithAuthPW(
           sessionToken,
-          options,
+          email,
+          oldCredentials.authPW,
+          { keys: true },
           headers
         );
-      } else {
+
+        const keys = await this.accountKeys(
+          reauth.keyFetchToken!,
+          oldCredentials.unwrapBKey,
+          headers
+        );
+
+        const newCredentials = await crypto.getCredentials(
+          saltEmail,
+          newPassword
+        );
+        const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+
+        let payload: {
+          email: string;
+          oldAuthPW: string;
+          authPW: string;
+          wrapKb: string;
+          authPWVersion2?: string;
+          wrapKbVersion2?: string;
+          clientSalt?: string;
+        } = {
+          email: email.original,
+          oldAuthPW: oldCredentials.authPW,
+          authPW: newCredentials.authPW,
+          wrapKb,
+        };
+
+        if (this.keyStretchVersion === 2) {
+          const v2Payload = await this.createPasswordChangeV2Payload(
+            email,
+            newPassword,
+            keys,
+            newCredentials,
+            wrapKb,
+            headers
+          );
+          payload = {
+            ...payload,
+            authPWVersion2: v2Payload.authPWVersion2,
+            wrapKbVersion2: v2Payload.wrapKbVersion2,
+            clientSalt: v2Payload.clientSalt,
+          };
+        }
+
+        return await this.jwtPost(
+          '/mfa/password/change',
+          jwt,
+          payload,
+          headers
+        );
+      } catch (error: any) {
+        const hasNextCandidate = i < saltCandidates.length - 1;
+        if (hasNextCandidate && error?.errno === ERRORS.INCORRECT_EMAIL_CASE) {
+          lastError = error;
+          continue;
+        }
         throw error;
       }
     }
+    // Unreachable while `saltCandidates` is non-empty.
+    throw lastError;
   }
 
   async createPassword(

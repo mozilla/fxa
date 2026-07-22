@@ -228,4 +228,264 @@ describe('lib/client', () => {
       });
     });
   });
+
+  describe('v1 credential salt fallback (signup email !== primary email)', () => {
+    let saltClient: AuthClient;
+    let originalFetch: typeof globalThis.fetch;
+    let calls: Array<{ url: string; body: any }>;
+    let responses: Array<() => Response>;
+
+    const sessionToken = '00'.repeat(32);
+    const password = 'hunter2hunter2';
+    const signupEmail = 'signup@example.com';
+    const primaryEmail = 'primary@example.com';
+
+    const emailCaseError = (correctedEmail: string) =>
+      new Response(
+        JSON.stringify({
+          errno: 120,
+          code: 400,
+          error: 'Bad Request',
+          message: 'Incorrect email case',
+          email: correctedEmail,
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    const ok = (json: Record<string, any> = {}) =>
+      new Response(JSON.stringify(json), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+    before(() => {
+      saltClient = new AuthClient('http://localhost:9000');
+    });
+
+    beforeEach(() => {
+      originalFetch = globalThis.fetch;
+      calls = [];
+      responses = [];
+      globalThis.fetch = (async (url: string, init?: RequestInit) => {
+        calls.push({
+          url: String(url),
+          body: init?.body ? JSON.parse(init.body as string) : undefined,
+        });
+        const next = responses.shift();
+        return next ? next() : ok();
+      }) as typeof globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    it('sessionReauth: falls back to the signup email salt after INCORRECT_EMAIL_CASE', async () => {
+      responses = [() => emailCaseError(signupEmail), () => ok({ uid: 'abc' })];
+
+      const result = await saltClient.sessionReauth(
+        sessionToken,
+        { primary: primaryEmail, original: signupEmail },
+        password
+      );
+
+      assert.equal(calls.length, 2);
+      // The account is always identified by its primary email; only the salt varies.
+      assert.equal(calls[0].body.email, primaryEmail);
+      assert.equal(calls[1].body.email, primaryEmail);
+      // First attempt derives authPW from the primary, the retry from the signup email.
+      const primaryAuthPW = (
+        await crypto.getCredentials(primaryEmail, password)
+      ).authPW;
+      const signupAuthPW = (await crypto.getCredentials(signupEmail, password))
+        .authPW;
+      assert.equal(calls[0].body.authPW, primaryAuthPW);
+      assert.equal(calls[1].body.authPW, signupAuthPW);
+      assert.notEqual(calls[0].body.authPW, calls[1].body.authPW);
+      assert.equal((result as any).uid, 'abc');
+    });
+
+    it('sessionReauth: primary-salted account (signup !== primary) succeeds on the first attempt with no fallback', async () => {
+      // The reported-bug population: the verifier is salted with the primary
+      // email (e.g. a password reset that followed a primary-email swap). The
+      // primary-salted first attempt succeeds, so there is no second request.
+      responses = [() => ok({ uid: 'abc' })];
+
+      const result = await saltClient.sessionReauth(
+        sessionToken,
+        { primary: primaryEmail, original: signupEmail },
+        password
+      );
+
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0].body.email, primaryEmail);
+      const primaryAuthPW = (
+        await crypto.getCredentials(primaryEmail, password)
+      ).authPW;
+      assert.equal(calls[0].body.authPW, primaryAuthPW);
+      assert.equal((result as any).uid, 'abc');
+    });
+
+    it('sessionReauth: makes a single request for a normal account (signup === primary)', async () => {
+      responses = [() => ok({ uid: 'abc' })];
+
+      const result = await saltClient.sessionReauth(
+        sessionToken,
+        primaryEmail,
+        password
+      );
+
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0].body.email, primaryEmail);
+      // The salt is the primary email, which is also the signup email here.
+      const primaryAuthPW = (
+        await crypto.getCredentials(primaryEmail, password)
+      ).authPW;
+      assert.equal(calls[0].body.authPW, primaryAuthPW);
+      assert.equal((result as any).uid, 'abc');
+    });
+
+    it('sessionReauth: does not fall back on a non-email-case error', async () => {
+      responses = [
+        () =>
+          new Response(
+            JSON.stringify({
+              errno: 103,
+              code: 400,
+              message: 'Incorrect password',
+            }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+          ),
+      ];
+
+      let caught: any;
+      try {
+        await saltClient.sessionReauth(
+          sessionToken,
+          { primary: primaryEmail, original: signupEmail },
+          password
+        );
+      } catch (e) {
+        caught = e;
+      }
+
+      assert.equal(calls.length, 1);
+      assert.equal(caught?.errno, 103);
+    });
+
+    it('accountDestroy: falls back to the signup email salt after INCORRECT_EMAIL_CASE', async () => {
+      responses = [() => emailCaseError(signupEmail), () => ok({})];
+
+      await saltClient.accountDestroy(
+        { primary: primaryEmail, original: signupEmail },
+        password,
+        {},
+        sessionToken
+      );
+
+      assert.equal(calls.length, 2);
+      assert.equal(calls[0].body.email, primaryEmail);
+      assert.equal(calls[1].body.email, primaryEmail);
+      const primaryAuthPW = (
+        await crypto.getCredentials(primaryEmail, password)
+      ).authPW;
+      const signupAuthPW = (await crypto.getCredentials(signupEmail, password))
+        .authPW;
+      assert.equal(calls[0].body.authPW, primaryAuthPW);
+      assert.equal(calls[1].body.authPW, signupAuthPW);
+    });
+
+    it('passwordChangeWithJWT: falls back to the signup email salt, and the change payload keeps the signup email', async () => {
+      // Stub the key-bundle fetch/derivation so the test can focus on the salt
+      // fallback rather than a real /account/keys crypto bundle.
+      const origAccountKeys = saltClient.accountKeys;
+      (saltClient as any).accountKeys = async () => ({
+        kA: '11'.repeat(32),
+        kB: '22'.repeat(32),
+      });
+
+      try {
+        responses = [
+          () => emailCaseError(signupEmail), // reauth attempt 1 (primary salt) fails
+          () => ok({ keyFetchToken: '33'.repeat(32) }), // reauth attempt 2 (signup salt) ok
+          () => ok({ uid: 'abc' }), // /mfa/password/change
+        ];
+
+        const result = await saltClient.passwordChangeWithJWT(
+          'fake.jwt.token',
+          { primary: primaryEmail, original: signupEmail },
+          password,
+          'newpassword9newpassword9',
+          sessionToken
+        );
+
+        const primaryAuthPW = (
+          await crypto.getCredentials(primaryEmail, password)
+        ).authPW;
+        const signupAuthPW = (
+          await crypto.getCredentials(signupEmail, password)
+        ).authPW;
+
+        // reauth (fails) -> reauth (ok) -> change.
+        assert.equal(calls.length, 3);
+        // Both reauth attempts identify by the primary email; the salt flips
+        // primary -> signup between them.
+        assert.ok(calls[0].url.includes('/session/reauth'));
+        assert.equal(calls[0].body.email, primaryEmail);
+        assert.equal(calls[0].body.authPW, primaryAuthPW);
+        assert.ok(calls[1].url.includes('/session/reauth'));
+        assert.equal(calls[1].body.email, primaryEmail);
+        assert.equal(calls[1].body.authPW, signupAuthPW);
+        // The change payload keeps the signup email (so the server's match against
+        // accounts.email holds) with the matching signup-derived oldAuthPW.
+        assert.ok(calls[2].url.includes('/mfa/password/change'));
+        assert.equal(calls[2].body.email, signupEmail);
+        assert.equal(calls[2].body.oldAuthPW, signupAuthPW);
+        assert.equal((result as any).uid, 'abc');
+      } finally {
+        (saltClient as any).accountKeys = origAccountKeys;
+      }
+    });
+
+    it('passwordChangeWithJWT: primary-salted account (signup !== primary) succeeds on the first attempt with no fallback', async () => {
+      // The reported-bug population: the verifier is salted with the primary
+      // email. The primary-salted reauth succeeds immediately, and the change
+      // payload keeps the signup email with the primary-derived oldAuthPW.
+      const origAccountKeys = saltClient.accountKeys;
+      (saltClient as any).accountKeys = async () => ({
+        kA: '11'.repeat(32),
+        kB: '22'.repeat(32),
+      });
+
+      try {
+        responses = [
+          () => ok({ keyFetchToken: '33'.repeat(32) }), // reauth attempt 1 (primary salt) ok
+          () => ok({ uid: 'abc' }), // /mfa/password/change
+        ];
+
+        const result = await saltClient.passwordChangeWithJWT(
+          'fake.jwt.token',
+          { primary: primaryEmail, original: signupEmail },
+          password,
+          'newpassword9newpassword9',
+          sessionToken
+        );
+
+        const primaryAuthPW = (
+          await crypto.getCredentials(primaryEmail, password)
+        ).authPW;
+
+        // reauth (ok) -> change; no fallback.
+        assert.equal(calls.length, 2);
+        assert.ok(calls[0].url.includes('/session/reauth'));
+        assert.equal(calls[0].body.email, primaryEmail);
+        assert.equal(calls[0].body.authPW, primaryAuthPW);
+        assert.ok(calls[1].url.includes('/mfa/password/change'));
+        assert.equal(calls[1].body.email, signupEmail);
+        assert.equal(calls[1].body.oldAuthPW, primaryAuthPW);
+        assert.equal((result as any).uid, 'abc');
+      } finally {
+        (saltClient as any).accountKeys = origAccountKeys;
+      }
+    });
+  });
 });
