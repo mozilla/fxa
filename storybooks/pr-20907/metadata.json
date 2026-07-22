@@ -1,0 +1,12 @@
+{
+  "commit": "41d8197ce56e5bcd680a63d7919af678b4bab848",
+  "summary": "fix(payments-next): revert nextjs to 15 Because:",
+  "description": "* Next.js was automatically updated to version 16 as part of the nx\n  upgrade.\n\nThis commit:\n\n* Revert Next.js to previous 15 version.\n\nCloses #",
+  "timestamp": 1784746229000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
