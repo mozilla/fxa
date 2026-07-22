@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bad85a67570dce7b4e4a5717563ae85fc85aecb9</title>
+  <title>Storybooks for commit 1a375c628a3c13e5ba125de7a4d8298b9ed62f30</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,16 +23,16 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bad85a67570dce7b4e4a5717563ae85fc85aecb9</h1>
+  <h1>Storybooks for commit 1a375c628a3c13e5ba125de7a4d8298b9ed62f30</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/21/2026, 11:20:53 PM UTC</dd>
+    <dd>7/22/2026, 2:45:40 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(auth): Add new DAU Glean event based on access token created, add option to opt-out</pre></dd>
+    <dd><pre>feat(auth): Add new DAU exclusion field on access token created, add option to opt-out</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 * Firefox always creates a Sync-scoped access token even when the user is not using Sync, impacting DAU
@@ -40,8 +40,8 @@
 * Because it is standard oauth to always return an access token, and because doing something non-standard will add another wrinkle to moving to an oauth standard library later, and because we already have at least one other separate case where we want to suppress a DAU event (FXA-14159), we want to continue creating the access tokens and logging access token created events
 
 This commit:
-* Adds a new &quot;oauth token created DAU&quot; Glean event that fires near the previous DAU measurement event, oauth access token created
-* Adds a suppress_dau option for fxa-credentials and authorization_code oauth token grants so that when passed, we still emit the access token created event, but we suppress the new event
+* Adds a new &quot;exclude_dau&quot; option fxa-credentials and authorization_code oauth token grants so that when passed, we still emit the access token created event, but the new field will make these events filterable
+* Passes UID from earlier in the grant flow to avoid a DB call
 
 closes FXA-14206</pre></dd>
   </dl>
