@@ -189,13 +189,6 @@ class CustomsClient {
 
   async reset(request, email) {
     await this.resetV2(request, email);
-
-    await this.makeRequest('/passwordReset', {
-      ...this.sanitizePayload({
-        ip: request.app.clientAddress,
-        email: emailNormalization.normalizeEmailAliases(email),
-      }),
-    });
   }
 
   /**
