@@ -411,10 +411,11 @@ async function run(config) {
     );
     const freeAccessService = new FreeAccessProgramService(
       freeAccessConfigurationManager,
-      freeAccessJournalManager,
-      freeAccessNotifier,
+      accountManager,
       statsd,
-      log
+      log,
+      freeAccessJournalManager,
+      freeAccessNotifier
     );
     Container.set(FreeAccessProgramService, freeAccessService);
   }

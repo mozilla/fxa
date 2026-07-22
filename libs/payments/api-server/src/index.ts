@@ -8,3 +8,4 @@ export * from './lib/billing-and-subscriptions.schema';
 export * from './lib/billing-and-subscriptions.factories';
 export * from './lib/util/openapi';
 export * from './lib/util/response-validation.interceptor';
+export * from './lib/free-access-program.config';

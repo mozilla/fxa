@@ -7,6 +7,7 @@ import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 import { PaypalClientConfig } from '@fxa/payments/paypal';
 import { StripeConfig } from '@fxa/payments/stripe';
+import { FreeAccessProgramConfig } from '@fxa/payments/api-server';
 import { StrapiClientConfig } from '@fxa/shared/cms';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { FxaWebhookConfig, StripeEventConfig } from '@fxa/payments/webhooks';
@@ -99,4 +100,9 @@ export class RootConfig {
   @IsBoolean()
   @IsDefined()
   public readonly swaggerUi!: boolean;
+
+  @Type(() => FreeAccessProgramConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly freeAccessProgramConfig!: Partial<FreeAccessProgramConfig>;
 }

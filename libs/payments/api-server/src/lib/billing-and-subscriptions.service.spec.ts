@@ -51,10 +51,13 @@ import {
   StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
+  FreeAccessProgramConfigurationManager,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import { FreeAccessProgramService } from '@fxa/free-access-program';
+import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -65,6 +68,7 @@ import {
   IapOfferingFactory,
 } from './billing-and-subscriptions.factories';
 import { BillingAndSubscriptionsService } from './billing-and-subscriptions.service';
+import { FreeAccessProgramConfig } from './free-access-program.config';
 
 const UID = 'abc123';
 const CLIENT_ID = 'client_xyz';
@@ -81,12 +85,17 @@ describe('BillingAndSubscriptionsService', () => {
   let productManager: ProductManager;
   let capabilityManager: CapabilityManager;
   let productConfigurationManager: ProductConfigurationManager;
+  let freeAccessProgramService: FreeAccessProgramService;
   let appleIapPurchaseManager: AppleIapPurchaseManager;
   let googleIapPurchaseManager: GoogleIapPurchaseManager;
   let logger: { log: jest.Mock; error: jest.Mock };
 
+  // Mutable so individual tests can toggle the feature flag; reset in beforeEach.
+  const mockFreeAccessProgramConfig = { enabled: true };
+
   beforeEach(async () => {
     logger = { log: jest.fn(), error: jest.fn() };
+    mockFreeAccessProgramConfig.enabled = true;
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -100,6 +109,13 @@ describe('BillingAndSubscriptionsService', () => {
         ProductManager,
         CapabilityManager,
         ProductConfigurationManager,
+        FreeAccessProgramConfigurationManager,
+        FreeAccessProgramService,
+        {
+          provide: FreeAccessProgramConfig,
+          useValue: mockFreeAccessProgramConfig,
+        },
+        AccountManager,
         AppleIapPurchaseManager,
         AppleIapClient,
         MockAppleIapClientConfigProvider,
@@ -133,12 +149,17 @@ describe('BillingAndSubscriptionsService', () => {
     productManager = moduleRef.get(ProductManager);
     capabilityManager = moduleRef.get(CapabilityManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
+    freeAccessProgramService = moduleRef.get(FreeAccessProgramService);
     appleIapPurchaseManager = moduleRef.get(AppleIapPurchaseManager);
     googleIapPurchaseManager = moduleRef.get(GoogleIapPurchaseManager);
 
     // Default: no IAP unless overridden.
     jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
     jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+    // Default: no Free Access Program membership unless overridden.
+    jest
+      .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+      .mockResolvedValue({ isMember: false, grantsByClient: {} });
   });
 
   describe('get', () => {
@@ -743,6 +764,247 @@ describe('BillingAndSubscriptionsService', () => {
       expect(loggedError.message).toContain('Unsupported IAP interval');
       expect(loggedError.message).toContain('interval=fortnightly');
       expect(loggedError.message).toContain('storeId=google_sku');
+    });
+
+    describe('free access program', () => {
+      // Per-offering filtering by clientId lives in FreeAccessProgramService and
+      // is covered by its spec; these tests cover how the billing service maps
+      // the grants it returns into subscriptions and gates NotFound on membership.
+
+      // Grant expiries are epoch ms; the response reports current_period_end as
+      // a unix timestamp in seconds.
+      const FAP_EXPIRY_VPN_MS = Date.UTC(2099, 0, 2);
+      const FAP_EXPIRY_RELAY_MS = Date.UTC(2100, 0, 2);
+      const FAP_EXPIRY_VPN_SECONDS = Math.floor(FAP_EXPIRY_VPN_MS / 1000);
+      const FAP_EXPIRY_RELAY_SECONDS = Math.floor(FAP_EXPIRY_RELAY_MS / 1000);
+
+      const customerNotFound = () =>
+        jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockRejectedValue(
+            new AccountCustomerNotFoundError(UID, new Error('not found'))
+          );
+
+      // Minimal stand-in for EligibilityContentByOfferingResultUtil: the service
+      // only reads stripeProductId from the offering.
+      const mockOffering = (stripeProductId: string) =>
+        ({
+          getOffering: () => ({ stripeProductId }),
+        } as never);
+
+      it('emits a free_access subscription for each grant for the client', async () => {
+        customerNotFound();
+        jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              [CLIENT_ID]: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+              ],
+            },
+          });
+        jest
+          .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+          .mockResolvedValue(mockOffering('prod_vpn'));
+
+        const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        expect(result.subscriptions).toHaveLength(1);
+        expect(result.subscriptions[0]).toEqual({
+          _subscription_type: 'free_access',
+          current_period_end: FAP_EXPIRY_VPN_SECONDS,
+          product_id: 'prod_vpn',
+        });
+      });
+
+      it('resolves free access for the requesting uid', async () => {
+        customerNotFound();
+        const findSpy = jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              [CLIENT_ID]: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+              ],
+            },
+          });
+        const getOfferingSpy = jest
+          .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+          .mockResolvedValue(mockOffering('prod_vpn'));
+
+        await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        expect(findSpy).toHaveBeenCalledWith(UID);
+        expect(getOfferingSpy).toHaveBeenCalledWith('vpn');
+      });
+
+      it('emits nothing and resolves no offering for a member whose grants belong to another client', async () => {
+        customerNotFound();
+        // Member has grants, but only for a different client than the requester.
+        jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              other_client: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+              ],
+            },
+          });
+        const getOfferingSpy = jest.spyOn(
+          productConfigurationManager,
+          'getEligibilityContentByOffering'
+        );
+
+        const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        expect(result.subscriptions).toHaveLength(0);
+        // No offering is resolved when this client has no grants.
+        expect(getOfferingSpy).not.toHaveBeenCalled();
+      });
+
+      it('does not throw NotFound for a member whose grants belong to another client', async () => {
+        customerNotFound();
+        jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              other_client: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+              ],
+            },
+          });
+
+        const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        expect(result.subscriptions).toEqual([]);
+      });
+
+      it('returns both a web subscription and a free_access subscription', async () => {
+        const customer = StripeResponseFactory(
+          StripeCustomerFactory({
+            id: STRIPE_CUSTOMER_ID,
+            currency: 'usd',
+          })
+        );
+        const price = StripePriceFactory({
+          id: 'price_web',
+          currency: 'usd',
+          recurring: StripePriceRecurringFactory({ interval: 'month' }),
+        });
+        const sub = StripeSubscriptionFactory({
+          id: 'sub_web',
+          status: 'active',
+          items: {
+            object: 'list',
+            data: [
+              StripeSubscriptionItemFactory({
+                price: { ...price, product: 'prod_web' },
+              }),
+            ],
+            has_more: false,
+            url: '',
+          },
+        });
+
+        jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockResolvedValue({
+            uid: UID,
+            stripeCustomerId: STRIPE_CUSTOMER_ID,
+          } as never);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(customer);
+        jest
+          .spyOn(subscriptionManager, 'listActiveForCustomer')
+          .mockResolvedValue([sub]);
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(
+            StripeResponseFactory(StripeCardPaymentMethodFactory())
+          );
+        jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              [CLIENT_ID]: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+              ],
+            },
+          });
+        jest
+          .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+          .mockResolvedValue(mockOffering('prod_vpn'));
+        jest
+          .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+          .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
+
+        const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        const types = result.subscriptions.map((s) => s._subscription_type);
+        expect(types).toEqual(['web', 'free_access']);
+      });
+
+      it('returns a free_access subscription per grant with its own expiry', async () => {
+        customerNotFound();
+        jest
+          .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+          .mockResolvedValue({
+            isMember: true,
+            grantsByClient: {
+              [CLIENT_ID]: [
+                { offeringApiIdentifier: 'vpn', expiresAt: FAP_EXPIRY_VPN_MS },
+                {
+                  offeringApiIdentifier: 'relay',
+                  expiresAt: FAP_EXPIRY_RELAY_MS,
+                },
+              ],
+            },
+          });
+        jest
+          .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+          .mockImplementation(async (apiIdentifier: string) =>
+            apiIdentifier === 'vpn'
+              ? mockOffering('prod_vpn')
+              : mockOffering('prod_relay')
+          );
+
+        const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+        expect(result.subscriptions).toHaveLength(2);
+        // One subscription per grant, each with its own CMS-sourced expiry.
+        expect(result.subscriptions).toEqual([
+          {
+            _subscription_type: 'free_access',
+            current_period_end: FAP_EXPIRY_VPN_SECONDS,
+            product_id: 'prod_vpn',
+          },
+          {
+            _subscription_type: 'free_access',
+            current_period_end: FAP_EXPIRY_RELAY_SECONDS,
+            product_id: 'prod_relay',
+          },
+        ]);
+      });
+
+      it('does not resolve free access when the feature is disabled', async () => {
+        mockFreeAccessProgramConfig.enabled = false;
+        // FAP-only customer: no Stripe customer and no IAP purchases.
+        customerNotFound();
+        const findSpy = jest.spyOn(
+          freeAccessProgramService,
+          'findFreeAccessForUid'
+        );
+
+        // With the feature off, a FAP-only customer is treated as unknown.
+        await expect(
+          service.get({ uid: UID, clientId: CLIENT_ID })
+        ).rejects.toMatchObject({ response: { errno: 176 } });
+        expect(findSpy).not.toHaveBeenCalled();
+      });
     });
   });
 });

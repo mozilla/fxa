@@ -132,6 +132,29 @@ export const appleIapSubscriptionSchema = z.object({
 export type AppleIapSubscription = z.infer<typeof appleIapSubscriptionSchema>;
 
 /**
+ * Zod schema for a Free Access Program grant.
+ *
+ * A Free Access Program customer is not subscribed to a Stripe Price, so the
+ * product identity is sourced from the related offering. There is no price,
+ * subscription id, or billing interval behind a free grant, so none of those
+ * fields are reported — only the product the grant provides access to.
+ */
+export const freeAccessSubscriptionSchema = z.object({
+  _subscription_type: z.literal('free_access'),
+  current_period_end: z
+    .number()
+    .describe('Unix timestamp when the current billing period ends'),
+  product_id: z.string(),
+});
+
+/**
+ * A Free Access Program grant.
+ */
+export type FreeAccessSubscription = z.infer<
+  typeof freeAccessSubscriptionSchema
+>;
+
+/**
  * Zod schema for a subscription returned by the billing-and-subscriptions
  * endpoint, discriminated on `_subscription_type`.
  */
@@ -139,6 +162,7 @@ export const subscriptionSchema = z.discriminatedUnion('_subscription_type', [
   webSubscriptionSchema,
   googleIapSubscriptionSchema,
   appleIapSubscriptionSchema,
+  freeAccessSubscriptionSchema,
 ]);
 
 /**

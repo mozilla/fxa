@@ -6,7 +6,9 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { StatsD } from 'hot-shots';
 
+import { AccountManager } from '@fxa/shared/account/account';
 import {
+  type FreeAccessByClientProjection,
   FreeAccessProgramConfigurationManager,
   type FreeAccessProjection,
   type FreeAccessProjectionEntry,
@@ -39,9 +41,11 @@ describe('FreeAccessProgramService', () => {
       FreeAccessProgramConfigurationManager,
       | 'getCachedProjection'
       | 'getFreshProjection'
+      | 'getCachedAccessGrantsByClient'
       | 'invalidateProjectionCache'
     >
   >;
+  let accountManager: jest.Mocked<Pick<AccountManager, 'getPrimaryEmailByUid'>>;
   let journalManager: jest.Mocked<
     Pick<FreeAccessProgramJournalManager, 'get' | 'set'>
   >;
@@ -54,7 +58,11 @@ describe('FreeAccessProgramService', () => {
     configurationManager = {
       getCachedProjection: jest.fn().mockResolvedValue({}),
       getFreshProjection: jest.fn().mockResolvedValue({}),
+      getCachedAccessGrantsByClient: jest.fn().mockResolvedValue({}),
       invalidateProjectionCache: jest.fn().mockResolvedValue(undefined),
+    };
+    accountManager = {
+      getPrimaryEmailByUid: jest.fn().mockResolvedValue(undefined),
     };
     journalManager = {
       // Default: warm-but-empty journal; tests opt into the cold-start
@@ -80,6 +88,7 @@ describe('FreeAccessProgramService', () => {
           provide: FreeAccessProgramConfigurationManager,
           useValue: configurationManager,
         },
+        { provide: AccountManager, useValue: accountManager },
         {
           provide: FreeAccessProgramJournalManager,
           useValue: journalManager,
@@ -149,6 +158,93 @@ describe('FreeAccessProgramService', () => {
       expect(
         await service.findOfferingIdsForEmail('nobody@example.com')
       ).toEqual([]);
+    });
+  });
+
+  describe('findFreeAccessForUid', () => {
+    const UID = 'uid-1';
+
+    const grantsByClient = (
+      map: Record<string, Record<string, Array<[string, number]>>>
+    ): FreeAccessByClientProjection =>
+      Object.fromEntries(
+        Object.entries(map).map(([email, byClient]) => [
+          email,
+          Object.fromEntries(
+            Object.entries(byClient).map(([clientId, grants]) => [
+              clientId,
+              grants.map(([offeringApiIdentifier, expiresAt]) => ({
+                offeringApiIdentifier,
+                expiresAt,
+              })),
+            ])
+          ),
+        ])
+      );
+
+    it('returns not-a-member without touching access grants when the uid has no email', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue(undefined);
+
+      expect(await service.findFreeAccessForUid(UID)).toEqual({
+        isMember: false,
+        grantsByClient: {},
+      });
+      expect(
+        configurationManager.getCachedAccessGrantsByClient
+      ).not.toHaveBeenCalled();
+    });
+
+    it('returns not-a-member when the email is absent from the projection gate', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('user@example.com');
+      configurationManager.getCachedProjection.mockResolvedValue({});
+
+      expect(await service.findFreeAccessForUid(UID)).toEqual({
+        isMember: false,
+        grantsByClient: {},
+      });
+      expect(
+        configurationManager.getCachedAccessGrantsByClient
+      ).not.toHaveBeenCalled();
+    });
+
+    it('returns all grants for the email keyed by client, without filtering', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('User@Example.com');
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      configurationManager.getCachedAccessGrantsByClient.mockResolvedValue(
+        grantsByClient({
+          'user@example.com': {
+            'client-a': [['vpn', 4_070_995_200_000]],
+            'client-b': [['relay', 4_070_995_200_000]],
+          },
+        })
+      );
+
+      expect(await service.findFreeAccessForUid(UID)).toEqual({
+        isMember: true,
+        grantsByClient: {
+          'client-a': [
+            { offeringApiIdentifier: 'vpn', expiresAt: 4_070_995_200_000 },
+          ],
+          'client-b': [
+            { offeringApiIdentifier: 'relay', expiresAt: 4_070_995_200_000 },
+          ],
+        },
+      });
+    });
+
+    it('is a member with an empty grant map when the email has no resolved grants', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('user@example.com');
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      configurationManager.getCachedAccessGrantsByClient.mockResolvedValue({});
+
+      expect(await service.findFreeAccessForUid(UID)).toEqual({
+        isMember: true,
+        grantsByClient: {},
+      });
     });
   });
 
@@ -321,6 +417,45 @@ describe('FreeAccessProgramService', () => {
       await expect(service.reconcile()).rejects.toThrow('strapi-down');
       expect(statsd.increment).toHaveBeenCalledWith(
         'free_access_program.reconcile.failure'
+      );
+    });
+  });
+
+  // payments-api constructs the service read-only (no journal manager /
+  // notifier). The read methods must work; reconcile() must fail loudly.
+  describe('read-only construction (optional write-path deps)', () => {
+    let readOnlyService: FreeAccessProgramService;
+
+    beforeEach(async () => {
+      const moduleRef = await Test.createTestingModule({
+        providers: [
+          {
+            provide: FreeAccessProgramConfigurationManager,
+            useValue: configurationManager,
+          },
+          { provide: AccountManager, useValue: accountManager },
+          { provide: StatsDService, useValue: statsd as unknown as StatsD },
+          { provide: Logger, useValue: logger },
+          FreeAccessProgramService,
+        ],
+      }).compile();
+      readOnlyService = moduleRef.get(FreeAccessProgramService);
+    });
+
+    it('resolves free access for a uid without the write-path deps', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('user@example.com');
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+
+      await expect(
+        readOnlyService.findFreeAccessForUid('uid-1')
+      ).resolves.toEqual({ isMember: true, grantsByClient: {} });
+    });
+
+    it('throws from reconcile() when the journal manager and notifier are absent', async () => {
+      await expect(readOnlyService.reconcile()).rejects.toThrow(
+        'requires a journal manager and notifier'
       );
     });
   });
