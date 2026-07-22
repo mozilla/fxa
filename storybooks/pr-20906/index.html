@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 12cdc50cebe787558f2df5e11a0eac869416994b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 12cdc50cebe787558f2df5e11a0eac869416994b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/22/2026, 4:42:41 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>bug(auth-client): fix password check for accounts whose signup and primary emails differ</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - When an account&#039;s signup email differs from its current primary, the
+   current-password check derived v1 credentials from the signup email, but
+   the stored verifier may be salted with the primary. This blocked password
+   change, recovery-key setup, and account deletion with &quot;Incorrect email case&quot;.
+
+This commit:
+ - Salts the first attempt with the primary email and falls back to the signup
+   email on INCORRECT_EMAIL_CASE in sessionReauth, accountDestroy, and
+   passwordChangeWithJWT; adds tests covering both salt cases.
+
+Closes FXA-14223</pre></dd>
+  </dl>
+</body>
+</html>
