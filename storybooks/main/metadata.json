@@ -1,8 +1,8 @@
 {
-  "commit": "d57412e61b6a1b523f8b3cd30c93d092ea3776dd",
-  "summary": "Merge pull request #20902 from mozilla/dependabot/npm_and_yarn/body-parser-1.20.6",
-  "description": "chore(deps): bump body-parser from 1.20.3 to 1.20.6",
-  "timestamp": 1784741904000,
+  "commit": "30edb24bbef9e6d14c66aa4309e9382cb00cb5cd",
+  "summary": "Merge pull request #20903 from mozilla/dependabot/npm_and_yarn/webpack-dev-server-5.2.6",
+  "description": "chore(deps): bump webpack-dev-server from 4.15.2 to 5.2.6",
+  "timestamp": 1784742004000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
