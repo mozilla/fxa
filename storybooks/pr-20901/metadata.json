@@ -1,8 +1,8 @@
 {
-  "commit": "dfc6ccda1d004a3b1bea50e24d5bbe62e7da8c2a",
+  "commit": "935cf8ba71311c5b7ab9a879dc906f112e74c8f4",
   "summary": "Pin Next back to 15",
   "description": "",
-  "timestamp": 1784741542000,
+  "timestamp": 1784743438000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
