@@ -362,6 +362,49 @@ describe('InvoiceManager', () => {
     });
   });
 
+  describe('retrieveBySubscriptionBeforeTimestamp', () => {
+    it('returns the invoice ID when an invoice exists', async () => {
+      const mockInvoice = StripeInvoiceFactory();
+      const mockResponse = StripeResponseFactory(
+        StripeApiListFactory([mockInvoice])
+      );
+
+      jest
+        .spyOn(stripeClient, 'invoicesList')
+        .mockResolvedValue(mockResponse);
+
+      const timestampMs = 1700000000000;
+      const result =
+        await invoiceManager.retrieveBySubscriptionBeforeTimestamp(
+          'sub_123',
+          timestampMs
+        );
+
+      expect(result).toBe(mockInvoice.id);
+      expect(stripeClient.invoicesList).toHaveBeenCalledWith({
+        subscription: 'sub_123',
+        created: { lte: Math.floor(timestampMs / 1000) },
+        limit: 1,
+      });
+    });
+
+    it('returns undefined when no invoices exist', async () => {
+      const mockResponse = StripeResponseFactory(StripeApiListFactory([]));
+
+      jest
+        .spyOn(stripeClient, 'invoicesList')
+        .mockResolvedValue(mockResponse);
+
+      const result =
+        await invoiceManager.retrieveBySubscriptionBeforeTimestamp(
+          'sub_123',
+          1700000000000
+        );
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('retrieve', () => {
     it('retrieves an invoice', async () => {
       const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
