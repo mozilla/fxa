@@ -16,6 +16,7 @@ export const StripeCustomerFactory = (
     location: null,
     automatic_tax: 'supported',
     ip_address: faker.internet.ipv4(),
+    provider: 'stripe',
   },
   default_source: faker.string.uuid(),
   description: '',

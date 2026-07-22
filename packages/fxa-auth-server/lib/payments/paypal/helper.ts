@@ -456,6 +456,10 @@ export class PayPalHelper {
       }
     }
 
+    const taxAmountInCents = invoice.total_taxes?.length
+      ? invoice.total_taxes.reduce((sum, tax) => sum + tax.amount, 0)
+      : null;
+
     const promises: Promise<any>[] = [
       this.chargeCustomer({
         amountInCents: invoice.amount_due,
@@ -466,7 +470,7 @@ export class PayPalHelper {
         idempotencyKey,
         ...(countryCode && { countryCode }),
         ...(ipaddress && { ipaddress }),
-        ...(invoice.tax && { taxAmountInCents: invoice.tax }),
+        ...(taxAmountInCents !== null && { taxAmountInCents }),
       }),
     ];
     if (invoice.status === 'draft') {

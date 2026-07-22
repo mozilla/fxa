@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { StripePrice } from '../stripe.client.types';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 
 export const StripePriceCurrencyOptionFactory = (
   override?: Partial<Stripe.Price.CurrencyOptions>
@@ -12,7 +12,7 @@ export const StripePriceCurrencyOptionFactory = (
   custom_unit_amount: null,
   tax_behavior: 'exclusive',
   unit_amount: faker.number.int({ max: 1000 }),
-  unit_amount_decimal: faker.commerce.price({ min: 1000 }),
+  unit_amount_decimal: Stripe.Decimal.from(faker.commerce.price({ min: 1000 })),
   ...override,
 });
 
@@ -25,7 +25,8 @@ export const StripePriceFactory = (
   const unit_amount =
     override?.unit_amount || faker.number.int({ min: 1, max: 1000 });
   const unit_amount_decimal =
-    override?.unit_amount_decimal || faker.commerce.price({ min: 1000 });
+    override?.unit_amount_decimal ||
+    Stripe.Decimal.from(faker.commerce.price({ min: 1000 }));
   return {
     id: `price_${faker.string.alphanumeric({ length: 24 })}`,
     object: 'price',
@@ -59,7 +60,6 @@ export const StripePriceFactory = (
 export const StripePriceRecurringFactory = (
   override?: Partial<StripePrice['recurring']>
 ): StripePrice['recurring'] => ({
-  aggregate_usage: null,
   meter: null,
   interval: faker.helpers.arrayElement(['day', 'week', 'month', 'year']),
   interval_count: 1,

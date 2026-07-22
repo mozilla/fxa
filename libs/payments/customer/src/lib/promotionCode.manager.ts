@@ -60,8 +60,8 @@ export class PromotionCodeManager {
 
     // promotion code currency may be null, in which case it is applicable to all currencies
     if (
-      promoCode.coupon.currency &&
-      promoCode.coupon.currency.toLowerCase() !== cartCurrency.toLowerCase()
+      promoCode.promotion.coupon.currency &&
+      promoCode.promotion.coupon.currency.toLowerCase() !== cartCurrency.toLowerCase()
     )
       throw new CouponErrorInvalidCurrency();
 

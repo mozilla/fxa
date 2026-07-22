@@ -72,8 +72,6 @@
         "canceled_at": null,
         "collection_method": "charge_automatically",
         "created": 1594153896,
-        "current_period_end": 1596832296,
-        "current_period_start": 1594153896,
         "customer": "cust_new",
         "days_until_due": null,
         "default_payment_method": null,
@@ -139,7 +137,9 @@
               },
               "quantity": 1,
               "subscription": "sub_HbadgOVyxa8z64",
-              "tax_rates": []
+              "tax_rates": [],
+              "current_period_start": 1594153896,
+              "current_period_end": 1596832296
             }
           ],
           "has_more": false,

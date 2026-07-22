@@ -173,8 +173,14 @@ describe('Subscription Service', () => {
             // The stripe API returns timestamps in seconds... converting seconds to millis.
             created: created / 1e3,
             cancel_at_period_end: cancelAtPeriodEnd,
-            current_period_end: currentPeriodEnd / 1e3,
-            current_period_start: currentPeriodStart / 1e3,
+            items: {
+              data: [
+                {
+                  current_period_end: currentPeriodEnd / 1e3,
+                  current_period_start: currentPeriodStart / 1e3,
+                },
+              ],
+            },
             ended_at: endedAt,
             id: subscriptionId,
             latest_invoice: latestInvoice,

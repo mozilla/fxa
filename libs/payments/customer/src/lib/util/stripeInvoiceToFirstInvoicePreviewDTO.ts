@@ -11,10 +11,11 @@ import { InvoicePreview, STRIPE_INVOICE_METADATA } from '../types';
 export function stripeInvoiceToInvoicePreviewDTO(
   invoice: StripeUpcomingInvoice | StripeInvoice
 ): InvoicePreview {
-  const taxAmounts = invoice.total_tax_amounts.map((amount) => ({
-    title: amount.tax_rate.display_name || '',
-    inclusive: amount.inclusive,
-    amount: amount.amount,
+  const taxAmounts = (invoice.total_taxes ?? []).map((tax) => ({
+    title:
+      tax.tax_rate_details?.tax_rate?.display_name || '',
+    inclusive: tax.tax_behavior === 'inclusive',
+    amount: tax.amount,
   }));
 
   const discountAmount = invoice.total_discount_amounts
@@ -26,7 +27,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
 
   const { remainingAmountTotal, unusedAmountTotal } = invoice.lines.data.reduce(
     (totals, line) => {
-      if (line.proration === true) {
+      if (line.parent?.subscription_item_details?.proration === true) {
         const amount = line.amount || 0;
         const description = line.description || '';
 
@@ -46,15 +47,20 @@ export function stripeInvoiceToInvoicePreviewDTO(
   );
 
   const notProrated = invoice.lines.data.find(
-    (line) => line.proration === false
+    (line) => line.parent?.subscription_item_details?.proration === false
   );
   const subsequentAmount = notProrated?.amount;
-  const subsequentAmountExcludingTax =
-    notProrated?.amount_excluding_tax ?? undefined;
+  const subsequentAmountExcludingTax = notProrated
+    ? notProrated.amount -
+      (notProrated.taxes ?? [])
+        .filter((tax) => tax.tax_behavior === 'inclusive')
+        .reduce((sum, tax) => sum + tax.amount, 0)
+    : undefined;
 
-  const subsequentTax = notProrated?.tax_amounts.map((tax) => ({
-    title: tax.tax_rate.display_name || '',
-    inclusive: tax.inclusive,
+  const subsequentTax = notProrated?.taxes?.map((tax) => ({
+    title:
+      tax.tax_rate_details?.tax_rate?.display_name || '',
+    inclusive: tax.tax_behavior === 'inclusive',
     amount: tax.amount,
   }));
 
@@ -64,8 +70,8 @@ export function stripeInvoiceToInvoicePreviewDTO(
     taxAmounts,
     discountAmount,
     subtotal: invoice.subtotal,
-    discountEnd: invoice.discount?.end,
-    discountType: invoice.discount?.coupon.duration,
+    discountEnd: invoice.discounts[0]?.end,
+    discountType: invoice.discounts[0]?.source?.coupon.duration,
     number: invoice.number,
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
@@ -76,7 +82,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     creditApplied: invoice.ending_balance
       ? invoice.starting_balance - invoice.ending_balance
       : invoice.starting_balance,
-    promotionName: invoice.discount?.coupon.name,
+    promotionName: invoice.discounts[0]?.source?.coupon.name,
     remainingAmountTotal,
     startingBalance: invoice.starting_balance,
     totalExcludingTax: invoice.total_excluding_tax,

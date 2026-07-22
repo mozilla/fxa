@@ -11,7 +11,6 @@
   "attempted": true,
   "auto_advance": false,
   "billing_reason": "subscription_create",
-  "charge": "ch_1GQL9tBVqmGyQTMaNLu55LsR",
   "collection_method": "charge_automatically",
   "created": 1585088620,
   "currency": "usd",
@@ -28,7 +27,6 @@
   "default_source": null,
   "default_tax_rates": [],
   "description": null,
-  "discount": null,
   "due_date": null,
   "ending_balance": 0,
   "footer": null,
@@ -54,73 +52,35 @@
           "end": 1669314089,
           "start": 1666635762
         },
-        "plan": {
-          "id": "price_1LwVGQBVqmGyQTMavfvTYMbD",
-          "object": "plan",
-          "active": true,
-          "aggregate_usage": null,
-          "amount": 700,
-          "amount_decimal": "700",
-          "billing_scheme": "per_unit",
-          "created": 1666635642,
-          "currency": "usd",
-          "interval": "month",
-          "interval_count": 1,
-          "livemode": false,
-          "metadata": {
-            "productOrder": "3"
+        "quantity": 1,
+        "tax_rates": [],
+        "unit_amount_excluding_tax": "-700",
+        "pricing": {
+          "price_details": {
+            "price": "price_1LwVGQBVqmGyQTMavfvTYMbD",
+            "product": "prod_GvH2k78kKusAlV"
           },
-          "nickname": null,
-          "product": "prod_GvH2k78kKusAlV",
-          "tiers": null,
-          "tiers_mode": null,
-          "transform_usage": null,
-          "trial_period_days": null,
-          "usage_type": "licensed"
-        },
-        "price": {
-          "id": "price_1LwVGQBVqmGyQTMavfvTYMbD",
-          "object": "price",
-          "active": true,
-          "billing_scheme": "per_unit",
-          "created": 1666635642,
-          "currency": "usd",
-          "custom_unit_amount": null,
-          "livemode": false,
-          "lookup_key": null,
-          "metadata": {
-            "productOrder": "3"
-          },
-          "nickname": null,
-          "product": "prod_GvH2k78kKusAlV",
-          "recurring": {
-            "aggregate_usage": null,
-            "interval": "month",
-            "interval_count": 1,
-            "trial_period_days": null,
-            "usage_type": "licensed"
-          },
-          "tax_behavior": "exclusive",
-          "tiers_mode": null,
-          "transform_quantity": null,
-          "type": "recurring",
-          "unit_amount": 700,
+          "type": "price_details",
           "unit_amount_decimal": "700"
         },
-        "proration": true,
-        "proration_details": {
-          "credited_items": {
-            "invoice": "in_1LwVHCBVqmGyQTMaOQWEFgJ9",
-            "invoice_line_items": ["il_1LwVHCBVqmGyQTMaiyzoPbP4"]
-          }
+        "parent": {
+          "type": "invoice_item_details",
+          "invoice_item_details": {
+            "invoice_item": "il_1LwVINBVqmGyQTMak09RiXq3",
+            "proration": true,
+            "proration_details": {
+              "credited_items": {
+                "invoice": "in_1LwVHCBVqmGyQTMaOQWEFgJ9",
+                "invoice_line_items": [
+                  "il_1LwVHCBVqmGyQTMaiyzoPbP4"
+                ]
+              }
+            },
+            "subscription": "sub_1LwVHBBVqmGyQTMaC5dRSQ36"
+          },
+          "subscription_item_details": null
         },
-        "quantity": 1,
-        "subscription": "sub_1LwVHBBVqmGyQTMaC5dRSQ36",
-        "subscription_item": "si_MfqzhUGwwRvTxw",
-        "tax_amounts": [],
-        "tax_rates": [],
-        "type": "invoiceitem",
-        "unit_amount_excluding_tax": "-700"
+        "taxes": []
       },
       {
         "id": "il_1LwVINBVqmGyQTMaBfOgfMvs",
@@ -139,74 +99,30 @@
           "end": 1669314089,
           "start": 1666635762
         },
-        "plan": {
-          "id": "plan_GqM9N6qyhvxaVk",
-          "object": "plan",
-          "active": true,
-          "aggregate_usage": null,
-          "amount": 1200,
-          "amount_decimal": "1200",
-          "billing_scheme": "per_unit",
-          "created": 1598305143,
-          "currency": "usd",
-          "interval": "month",
-          "interval_count": 1,
-          "livemode": false,
-          "metadata": {
-            "appStoreProductIds": "skydiving.with.foxkeh",
-            "productOrder": "5",
-            "productSet": "foxkeh"
+        "quantity": 1,
+        "tax_rates": [],
+        "unit_amount_excluding_tax": "1200",
+        "pricing": {
+          "price_details": {
+            "price": "plan_GqM9N6qyhvxaVk",
+            "product": "prod_GvH2k78kKusAlV"
           },
-          "nickname": null,
-          "product": "prod_GvH2k78kKusAlV",
-          "tiers": null,
-          "tiers_mode": null,
-          "transform_usage": null,
-          "trial_period_days": 15,
-          "usage_type": "licensed"
-        },
-        "price": {
-          "id": "plan_GqM9N6qyhvxaVk",
-          "object": "price",
-          "active": true,
-          "billing_scheme": "per_unit",
-          "created": 1598305143,
-          "currency": "usd",
-          "custom_unit_amount": null,
-          "livemode": false,
-          "lookup_key": null,
-          "metadata": {
-            "appStoreProductIds": "skydiving.with.foxkeh",
-            "productOrder": "5",
-            "productSet": "foxkeh"
-          },
-          "nickname": null,
-          "product": "prod_GvH2k78kKusAlV",
-          "recurring": {
-            "aggregate_usage": null,
-            "interval": "month",
-            "interval_count": 1,
-            "trial_period_days": 15,
-            "usage_type": "licensed"
-          },
-          "tax_behavior": "exclusive",
-          "tiers_mode": null,
-          "transform_quantity": null,
-          "type": "recurring",
-          "unit_amount": 1200,
+          "type": "price_details",
           "unit_amount_decimal": "1200"
         },
-        "proration": true,
-        "proration_details": {
-          "credited_items": null
+        "parent": {
+          "type": "invoice_item_details",
+          "invoice_item_details": {
+            "invoice_item": "il_1LwVINBVqmGyQTMaBfOgfMvs",
+            "proration": true,
+            "proration_details": {
+              "credited_items": null
+            },
+            "subscription": "sub_1LwVHBBVqmGyQTMaC5dRSQ36"
+          },
+          "subscription_item_details": null
         },
-        "quantity": 1,
-        "subscription": "sub_1LwVHBBVqmGyQTMaC5dRSQ36",
-        "subscription_item": "si_MfqzhUGwwRvTxw",
-        "tax_amounts": [],
-        "tax_rates": [],
-        "type": "invoiceitem",
-        "unit_amount_excluding_tax": "1200"
+        "taxes": []
       }
     ],
     "has_more": false,
@@ -217,8 +133,6 @@
   "metadata": {},
   "next_payment_attempt": 1585088620,
   "number": "AAF2CECC-0001",
-  "paid": false,
-  "payment_intent": null,
   "period_end": 1585088620,
   "period_start": 1585088620,
   "post_payment_credit_notes_amount": 0,
@@ -233,11 +147,30 @@
     "paid_at": null,
     "voided_at": null
   },
-  "subscription": "sub_GyHjvuW3xOeaZS",
   "subtotal": 500,
-  "tax": null,
   "tax_percent": null,
   "total": 500,
-  "total_tax_amounts": [],
-  "webhooks_delivered_at": null
+  "webhooks_delivered_at": null,
+  "parent": {
+    "type": "subscription_details",
+    "subscription_details": {
+      "subscription": "sub_GyHjvuW3xOeaZS"
+    }
+  },
+  "payments": {
+    "object": "list",
+    "data": [
+      {
+        "payment": {
+          "charge": "ch_1GQL9tBVqmGyQTMaNLu55LsR"
+        },
+        "status": "paid"
+      }
+    ],
+    "has_more": false,
+    "total_count": 1,
+    "url": ""
+  },
+  "discounts": [],
+  "total_taxes": []
 }

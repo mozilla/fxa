@@ -53,7 +53,7 @@ import {
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import { Logger } from 'mozlog';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
@@ -75,6 +75,12 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import {
+  STRIPE_API_VERSION,
+  StripeDiscount,
+  StripeInvoice,
+  StripeResponse,
+} from '@fxa/payments/stripe';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -82,6 +88,31 @@ export * from 'fxa-shared/payments/stripe';
 export const MOZILLA_TAX_ID = 'Tax ID';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
 export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
+
+/**
+ * Transitional dual-read of an invoice's subscription reference: prefer the
+ * basil shape (parent.subscription_details.subscription), falling back to the
+ * legacy top-level `subscription` field for invoices still in the acacia shape
+ * (events emitted by an acacia-era account, or docs cached in the Firestore
+ * mirror before the basil cutover). Remove once no acacia-era invoices remain.
+ */
+export function getInvoiceSubscription(
+  invoice: Stripe.Invoice
+): string | Stripe.Subscription | undefined {
+  return (
+    invoice.parent?.subscription_details?.subscription ??
+    (
+      invoice as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription;
+      }
+    ).subscription
+  );
+}
+
+type StripeInvoiceWithExpandedDiscounts = Omit<Stripe.Invoice, 'discounts'> & {
+  discounts: StripeDiscount[];
+};
+
 export enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
@@ -198,7 +229,7 @@ export class StripeHelper extends StripeHelperBase {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: STRIPE_API_VERSION,
       maxNetworkRetries: 3,
     });
 
@@ -368,9 +399,12 @@ export class StripeHelper extends StripeHelperBase {
     subscriptionId: string;
     includeCanceled?: boolean;
   }) {
-    return this.stripe.invoices.retrieveUpcoming({
+    return this.stripe.invoices.createPreview({
       subscription: subscriptionId,
-      ...(includeCanceled && { subscription_cancel_at_period_end: false }),
+      expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+      ...(includeCanceled && {
+        subscription_details: { cancel_at_period_end: false },
+      }),
     });
   }
 
@@ -436,7 +470,14 @@ export class StripeHelper extends StripeHelperBase {
     priceId: string,
     promotionCode: Stripe.PromotionCode
   ) {
-    const { coupon } = promotionCode;
+    const { coupon } = promotionCode.promotion;
+    if (!coupon || typeof coupon === 'string') {
+      throw error.internalValidationError(
+        'verifyPromotionAndCoupon',
+        { promotionCodeId: promotionCode.id },
+        new Error('Promotion code coupon was not expanded')
+      );
+    }
 
     const verifyCoupon = this.checkPromotionAndCouponProperties(coupon);
     const verifyPromotionCode = this.checkPromotionAndCouponProperties({
@@ -600,7 +641,7 @@ export class StripeHelper extends StripeHelperBase {
       return false;
     }
     const subscription = await this.expandResource(
-      invoice.subscription,
+      getInvoiceSubscription(invoice),
       SUBSCRIPTIONS_RESOURCE
     );
     if (subscription?.collection_method !== 'send_invoice') {
@@ -632,8 +673,13 @@ export class StripeHelper extends StripeHelperBase {
    * TODO: We may be able to remove this method in the future if we want to add logic
    * to expandResource to check if the discounts property is expanded.
    */
-  getInvoiceWithDiscount(invoiceId: string) {
-    return this.stripe.invoices.retrieve(invoiceId, { expand: ['discounts'] });
+  async getInvoiceWithDiscount(
+    invoiceId: string
+  ): Promise<StripeResponse<StripeInvoiceWithExpandedDiscounts>> {
+    const invoice = await this.stripe.invoices.retrieve(invoiceId, {
+      expand: ['discounts'],
+    });
+    return invoice as StripeResponse<StripeInvoiceWithExpandedDiscounts>;
   }
 
   /**
@@ -672,10 +718,9 @@ export class StripeHelper extends StripeHelperBase {
       (invoice) => invoice.collection_method === 'charge_automatically'
     );
     for (const invoice of stripeInvoices) {
+      const invoiceCharge = invoice.payments?.data[0]?.payment.charge;
       const chargeId =
-        typeof invoice.charge === 'string'
-          ? invoice.charge
-          : invoice.charge?.id;
+        typeof invoiceCharge === 'string' ? invoiceCharge : invoiceCharge?.id;
       if (!chargeId) continue;
 
       const charge = await this.stripe.charges.retrieve(chargeId);
@@ -952,9 +997,10 @@ export class StripeHelper extends StripeHelperBase {
       collection_method: 'send_invoice',
       status: 'open',
       created,
-      expand: ['data.customer', 'data.subscription'],
+      expand: ['data.customer', 'data.parent.subscription_details.subscription'],
     })) {
-      const subscription = invoice.subscription as Stripe.Subscription;
+      const subscription = invoice.parent?.subscription_details
+        ?.subscription as Stripe.Subscription;
       if (
         subscription &&
         ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)
@@ -1014,15 +1060,18 @@ export class StripeHelper extends StripeHelperBase {
       );
     } else if (typeof subscription.latest_invoice === 'string') {
       const invoice = await this.stripe.invoices.retrieve(
-        subscription.latest_invoice
+        subscription.latest_invoice,
+        { expand: ['payments'] }
       );
 
+      const invoicePaymentIntent = invoice.payments?.data[0]?.payment
+        .payment_intent;
       if (
-        invoice.payment_intent &&
-        typeof invoice.payment_intent === 'string'
+        invoicePaymentIntent &&
+        typeof invoicePaymentIntent === 'string'
       ) {
         const paymentIntent = await this.stripe.paymentIntents.retrieve(
-          invoice.payment_intent
+          invoicePaymentIntent
         );
         if (paymentIntent.payment_method) {
           paymentMethod = await this.getPaymentMethod(
@@ -1200,8 +1249,9 @@ export class StripeHelper extends StripeHelperBase {
 
     return invoices.data.filter((invoice) => {
       // The invoice list we fetched did not expand the subscription so these must be strings
-      if (typeof invoice.subscription !== 'string') return false;
-      return activeSubscriptionIds.includes(invoice.subscription);
+      const subscription = invoice.parent?.subscription_details?.subscription;
+      if (typeof subscription !== 'string') return false;
+      return activeSubscriptionIds.includes(subscription);
     });
   }
 
@@ -1443,7 +1493,7 @@ export class StripeHelper extends StripeHelperBase {
 
     try {
       invoice = await this.stripe.invoices.pay(invoiceId, {
-        expand: ['payment_intent'],
+        expand: ['payments.data.payment.payment_intent'],
       });
     } catch (err) {
       if (err.code === 'card_declined') {
@@ -1462,23 +1512,25 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Verify that the invoice was paid successfully.
    *
-   * Note that the invoice *must have the `payment_intent` expanded*
+   * Note that the invoice *must have the `payments` payment_intent expanded*
    * or this function will fail.
    */
   paidInvoice(invoice: Stripe.Subscription['latest_invoice']): boolean {
+    const paymentIntent =
+      typeof invoice === 'string'
+        ? undefined
+        : invoice?.payments?.data[0]?.payment.payment_intent;
     if (
       !invoice ||
       typeof invoice === 'string' ||
-      !invoice.payment_intent ||
-      typeof invoice.payment_intent === 'string'
+      !paymentIntent ||
+      typeof paymentIntent === 'string'
     ) {
       throw error.internalValidationError('paidInvoice', {
         invoice: invoice,
       });
     }
-    return (
-      invoice.status === 'paid' && invoice.payment_intent.status === 'succeeded'
-    );
+    return invoice.status === 'paid' && paymentIntent.status === 'succeeded';
   }
 
   /**
@@ -1487,7 +1539,8 @@ export class StripeHelper extends StripeHelperBase {
   async fetchPaymentIntentFromInvoice(
     invoice: Stripe.Invoice
   ): Promise<Stripe.PaymentIntent> {
-    if (!invoice.payment_intent) {
+    const paymentIntent = invoice.payments?.data[0]?.payment.payment_intent;
+    if (!paymentIntent) {
       // We don't have any code working with draft invoices, so
       // this should not be hit... yet. PayPal support *will* likely operate
       // on draft invoices though.
@@ -1497,34 +1550,42 @@ export class StripeHelper extends StripeHelperBase {
         new Error(`Invoice not finalized: ${invoice.id}`)
       );
     }
-    if (typeof invoice.payment_intent !== 'string') {
-      return invoice.payment_intent;
+    if (typeof paymentIntent !== 'string') {
+      return paymentIntent;
     }
-    return this.stripe.paymentIntents.retrieve(invoice.payment_intent);
+    return this.stripe.paymentIntents.retrieve(paymentIntent);
   }
 
   /**
    * Extract the source country from a subscription payment details.
    *
-   * Requires the `latest_invoice.payment_intent` to be expanded during
-   * subscription load.
+   * Requires the `latest_invoice.payments` payment_intent to be expanded
+   * during subscription load.
    */
   extractSourceCountryFromSubscription(
     subscription: Stripe.Subscription
   ): null | string {
+    const latestInvoice = subscription.latest_invoice;
+    const paymentIntent =
+      typeof latestInvoice === 'string'
+        ? undefined
+        : latestInvoice?.payments?.data[0]?.payment.payment_intent;
     // Eliminate all the optional values and ensure they were expanded such
     // that they're not a string.
     if (
-      !subscription.latest_invoice ||
-      typeof subscription.latest_invoice === 'string' ||
-      !subscription.latest_invoice.payment_intent ||
-      typeof subscription.latest_invoice.payment_intent === 'string'
+      !latestInvoice ||
+      typeof latestInvoice === 'string' ||
+      !paymentIntent ||
+      typeof paymentIntent === 'string'
     ) {
       return null;
     }
 
-    const latestCharge = subscription.latest_invoice.payment_intent
-      .latest_charge as string | Stripe.Charge | null | undefined;
+    const latestCharge = paymentIntent.latest_charge as
+      | string
+      | Stripe.Charge
+      | null
+      | undefined;
     if (latestCharge && typeof latestCharge !== 'string') {
       // Get the country from the payment details.
       // However, historically there were (rare) instances where `charges` was
@@ -1702,14 +1763,10 @@ export class StripeHelper extends StripeHelperBase {
       // to get details of why it failed. The caller should expand the last_invoice
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
       // as the `expand` argument or this will not fetch the failure code/message.
-      if (
-        this.checkSubscriptionPastDue(sub) &&
-        latestInvoice &&
-        latestInvoice.charge
-      ) {
-        let charge = latestInvoice.charge;
-        if (typeof latestInvoice.charge === 'string') {
-          charge = await this.stripe.charges.retrieve(latestInvoice.charge);
+      let charge = latestInvoice.payments?.data[0]?.payment.charge;
+      if (this.checkSubscriptionPastDue(sub) && latestInvoice && charge) {
+        if (typeof charge === 'string') {
+          charge = await this.stripe.charges.retrieve(charge);
         }
 
         if (typeof charge !== 'string') {
@@ -1718,7 +1775,11 @@ export class StripeHelper extends StripeHelperBase {
         }
       }
 
-      const { discount } = sub;
+      const firstDiscount = sub.discounts?.[0];
+      const discount =
+        typeof firstDiscount === 'object' ? firstDiscount : undefined;
+      const rawCoupon = discount?.source.coupon;
+      const coupon = typeof rawCoupon === 'object' ? rawCoupon : undefined;
 
       // This type inconsistency runs quite deep, but plan does exist on the subscription here
       // for all current use-cases.
@@ -1738,13 +1799,14 @@ export class StripeHelper extends StripeHelperBase {
       subs.push({
         _subscription_type: MozillaSubscriptionTypes.WEB,
         created: sub.created,
-        current_period_end: sub.current_period_end,
-        current_period_start: sub.current_period_start,
+        current_period_end: sub.items.data[0].current_period_end,
+        current_period_start: sub.items.data[0].current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
         latest_invoice: latestInvoice.number,
-        latest_invoice_items:
-          stripeInvoiceToLatestInvoiceItemsDTO(latestInvoice),
+        latest_invoice_items: stripeInvoiceToLatestInvoiceItemsDTO(
+          latestInvoice as StripeInvoice
+        ),
         plan_id: plan.id,
         product_name,
         product_id,
@@ -1752,13 +1814,13 @@ export class StripeHelper extends StripeHelperBase {
         subscription_id: sub.id,
         failure_code,
         failure_message,
-        promotion_amount_off: discount?.coupon?.amount_off ?? null,
+        promotion_amount_off: coupon?.amount_off ?? null,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
-        promotion_duration: (discount?.coupon?.duration as string) ?? null,
+        promotion_duration: (coupon?.duration as string) ?? null,
         promotion_end: discount?.end ?? null,
-        promotion_name: discount?.coupon?.name ?? null,
-        promotion_percent_off: discount?.coupon?.percent_off ?? null,
+        promotion_name: coupon?.name ?? null,
+        promotion_percent_off: coupon?.percent_off ?? null,
       });
     }
     return subs;
@@ -1807,8 +1869,8 @@ export class StripeHelper extends StripeHelperBase {
       // plans for this subscription.
       subs.push({
         created: sub.created,
-        current_period_end: sub.current_period_end,
-        current_period_start: sub.current_period_start,
+        current_period_end: sub.items.data[0].current_period_end,
+        current_period_start: sub.items.data[0].current_period_start,
         plan_changed,
         previous_product,
         product_name,
@@ -1835,8 +1897,8 @@ export class StripeHelper extends StripeHelperBase {
    */
   getPriceIdFromInvoice(invoice: Stripe.Invoice) {
     return invoice.lines.data.find(
-      (invoiceLine) => invoiceLine.type === 'subscription'
-    )?.price?.id;
+      (invoiceLine) => invoiceLine.parent?.type === 'subscription_item_details'
+    )?.pricing?.price_details?.price;
   }
 
   /**
@@ -1861,7 +1923,7 @@ export class StripeHelper extends StripeHelperBase {
     // Get the new subscription, ignoring any invoiceitem line items
     // that could contain prorations for old subscriptions
     const subscriptionLineItem = invoice.lines.data.find(
-      (line) => line.type === 'subscription'
+      (line) => line.parent?.type === 'subscription_item_details'
     );
 
     // In certain instances the invoice won't have a 'subscription' line item.
@@ -1869,8 +1931,8 @@ export class StripeHelper extends StripeHelperBase {
     const invoiceitemLineItem = !subscriptionLineItem
       ? invoice.lines.data.find(
           (line) =>
-            line.type === 'invoiceitem' &&
-            !line.proration_details?.credited_items
+            line.parent?.type === 'invoice_item_details' &&
+            !line.parent.invoice_item_details?.proration_details?.credited_items
         )
       : undefined;
 
@@ -1889,9 +1951,11 @@ export class StripeHelper extends StripeHelperBase {
     }
 
     // Dig up & expand objects in the invoice that usually come as just IDs
-    const { amount: offeringAmountInCents, plan } = lineItem;
-    if (!plan) {
-      // No plan is present if this is not a subscription or proration, which
+    const offeringAmountInCents = lineItem.amount;
+    const price = lineItem.pricing?.price_details?.price;
+    const priceId = typeof price === 'string' ? price : price?.id;
+    if (!priceId) {
+      // No price is present if this is not a subscription or proration, which
       // should never happen as we only have subscriptions.
       throw error.internalValidationError(
         'extractInvoiceDetailsForEmail',
@@ -1899,31 +1963,34 @@ export class StripeHelper extends StripeHelperBase {
         new Error(`Unexpected line item: ${invoice.lines.data[0].id}`)
       );
     }
+    const plan = await this.expandResource<Stripe.Plan>(
+      priceId,
+      PLAN_RESOURCE
+    );
     const [abbrevProduct, charge] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
-      this.expandResource(invoice.charge, CHARGES_RESOURCE),
+      this.expandResource(
+        invoice.payments?.data[0]?.payment.charge,
+        CHARGES_RESOURCE
+      ),
     ]);
 
-    // if the invoice does not have the deprecated discount property but has a discount ID in discounts
-    // expand the discount
     let discountType: Stripe.Coupon.Duration | null = null;
     let discountDuration: number | null = null;
 
-    if (invoice.discount) {
-      discountType = invoice.discount.coupon.duration;
-      discountDuration = invoice.discount.coupon.duration_in_months;
-    }
-
-    if (
-      invoice.id &&
-      !invoice.discount &&
-      !!invoice.discounts?.length &&
-      invoice.discounts.length === 1
-    ) {
-      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id);
-      const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
-      discountType = discount.coupon.duration;
-      discountDuration = discount.coupon.duration_in_months;
+    if (invoice.id && !!invoice.discounts?.length && invoice.discounts.length === 1) {
+      // The discount may arrive as a string id, in which case expand it.
+      let discount = invoice.discounts[0] as string | StripeDiscount;
+      if (typeof discount === 'string') {
+        const invoiceWithDiscount = await this.getInvoiceWithDiscount(
+          invoice.id
+        );
+        discount = invoiceWithDiscount.discounts[0];
+      }
+      const coupon =
+        typeof discount === 'object' ? discount.source.coupon : undefined;
+      discountType = coupon?.duration ?? null;
+      discountDuration = coupon?.duration_in_months ?? null;
     }
 
     if (!!invoice.discounts?.length && invoice.discounts.length > 1) {
@@ -1956,7 +2023,10 @@ export class StripeHelper extends StripeHelperBase {
     if (invoice.lines.data) {
       const totals = invoice.lines.data.reduce(
         (totals, line) => {
-          if (line.proration === true) {
+          const proration =
+            line.parent?.subscription_item_details?.proration ||
+            line.parent?.invoice_item_details?.proration;
+          if (proration === true) {
             const amount = line.amount || 0;
             const description = line.description || '';
 
@@ -1991,16 +2061,19 @@ export class StripeHelper extends StripeHelperBase {
       total: invoiceTotalInCents,
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
-      tax: invoiceTaxAmountInCents,
-      total_tax_amounts: invoiceTotalTaxAmounts,
+      total_taxes: invoiceTotalTaxes,
       status: invoiceStatus,
       amount_due: invoiceAmountDueInCents,
       ending_balance: invoiceEndingBalance,
       starting_balance: invoiceStartingBalance,
     } = invoice;
 
-    const hasExclusiveTax = invoiceTotalTaxAmounts.some(
-      (tax) => !tax.inclusive
+    const invoiceTaxAmountInCents = invoiceTotalTaxes?.length
+      ? invoiceTotalTaxes.reduce((sum, tax) => sum + tax.amount, 0)
+      : null;
+
+    const hasExclusiveTax = (invoiceTotalTaxes ?? []).some(
+      (tax) => tax.tax_behavior !== 'inclusive'
     );
 
     const nextInvoiceDate = lineItem.period.end;
@@ -2035,22 +2108,25 @@ export class StripeHelper extends StripeHelperBase {
     const planSuccessActionButtonURL = successActionButtonURL || '';
 
     const { lastFour, cardType } = this.extractCardDetails({
-      charge,
+      charge: charge ?? null,
     });
 
-    const paymentIntent = invoice.payment_intent as string;
+    const paymentIntentRef = invoice.payments?.data[0]?.payment.payment_intent;
+    const paymentIntent =
+      typeof paymentIntentRef === 'string'
+        ? paymentIntentRef
+        : paymentIntentRef?.id;
     const payment_provider = await this.getPaymentProvider(
       customer,
       paymentIntent
     );
 
+    const subscription = getInvoiceSubscription(invoice);
     return {
       uid,
       email,
       subscriptionId:
-        typeof invoice.subscription === 'string'
-          ? invoice.subscription
-          : invoice.subscription?.id,
+        typeof subscription === 'string' ? subscription : subscription?.id,
       cardType,
       lastFour,
       payment_provider,
@@ -2163,18 +2239,26 @@ export class StripeHelper extends StripeHelperBase {
     return { lastFour, cardType };
   }
 
-  async getSubsequentPrices(invoice: Stripe.Invoice | Stripe.UpcomingInvoice) {
+  async getSubsequentPrices(invoice: Stripe.Invoice) {
     const subsequentItem = invoice.lines.data.find(
-      (line) => line.proration === false
+      (line) => line.parent?.subscription_item_details?.proration === false
     );
     const subsequentAmount = subsequentItem?.amount;
-    const subsequentAmountExcludingTax =
-      subsequentItem?.amount_excluding_tax ?? undefined;
 
-    const subsequentTax = subsequentItem?.tax_amounts.map((tax) => ({
-      inclusive: tax.inclusive,
+    const subsequentTax = subsequentItem?.taxes?.map((tax) => ({
+      inclusive: tax.tax_behavior === 'inclusive',
       amount: tax.amount,
     }));
+
+    const inclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+    const subsequentAmountExcludingTax =
+      subsequentAmount !== undefined && inclusiveTax !== undefined
+        ? subsequentAmount - inclusiveTax
+        : undefined;
 
     const exclusiveTax =
       subsequentTax &&
@@ -2289,10 +2373,7 @@ export class StripeHelper extends StripeHelperBase {
 
     let invoice = subscription.latest_invoice;
     if (typeof invoice === 'string') {
-      // if we have to do a fetch, go ahead and ensure we also get the additional needed resource
-      invoice = await this.stripe.invoices.retrieve(invoice, {
-        expand: ['charge'],
-      });
+      invoice = await this.stripe.invoices.retrieve(invoice);
     }
 
     const {
@@ -2369,15 +2450,16 @@ export class StripeHelper extends StripeHelperBase {
     // subscription is updated. Instead there will be pending invoice items
     // which will be added to next invoice once its generated.
     // For more info see https://stripe.com/docs/api/subscriptions/update
-    let upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined;
+    let upcomingInvoiceWithInvoiceItem: Stripe.Invoice | undefined;
     try {
-      const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+      const upcomingInvoice = await this.stripe.invoices.createPreview({
         customer: customer.id,
         subscription: subscription.id,
+        expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
       });
       // Only use upcomingInvoice if there are `invoiceitems`
       upcomingInvoiceWithInvoiceItem = upcomingInvoice?.lines.data.some(
-        (line) => line.type === 'invoiceitem'
+        (line) => line.parent?.type === 'invoice_item_details'
       )
         ? upcomingInvoice
         : undefined;
@@ -2479,9 +2561,10 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined
+    upcomingInvoiceWithInvoiceItem: Stripe.Invoice | undefined
   ) {
-    const { current_period_end: serviceLastActiveDate } = subscription;
+    const { current_period_end: serviceLastActiveDate } =
+      subscription.items.data[0];
 
     const {
       uid,
@@ -2555,8 +2638,9 @@ export class StripeHelper extends StripeHelperBase {
     const { lastFour, cardType } =
       await this.extractCustomerDefaultPaymentDetailsByUid(uid);
 
-    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+    const upcomingInvoice = await this.stripe.invoices.createPreview({
       subscription: subscription.id,
+      expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
     });
     const {
       total: invoiceTotalInCents,
@@ -2650,7 +2734,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined,
+    upcomingInvoiceWithInvoiceItem: Stripe.Invoice | undefined,
     planOld: Stripe.Plan
   ) {
     const {

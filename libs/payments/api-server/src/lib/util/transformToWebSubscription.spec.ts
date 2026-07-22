@@ -16,14 +16,14 @@ describe('transformToWebSubscription', () => {
       id: 'sub_w',
       status: 'active',
       created: 1,
-      current_period_start: 2,
-      current_period_end: 3,
       cancel_at_period_end: false,
       ended_at: null,
       items: {
         object: 'list',
         data: [
           StripeSubscriptionItemFactory({
+            current_period_start: 2,
+            current_period_end: 3,
             price: { ...price, product: 'prod_w' },
           }),
         ],

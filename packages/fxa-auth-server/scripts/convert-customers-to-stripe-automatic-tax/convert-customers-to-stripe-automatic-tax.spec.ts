@@ -570,12 +570,12 @@ describe('StripeAutomaticTaxConverter', () => {
   });
 
   describe('fetchInvoicePreview', () => {
-    let result: Stripe.Response<Stripe.UpcomingInvoice>;
+    let result: Stripe.Response<Stripe.Invoice>;
     let stub: jest.Mock;
 
     beforeEach(async () => {
       stub = jest.fn().mockResolvedValue(mockInvoicePreview);
-      stripeStub.invoices.retrieveUpcoming = stub as any;
+      stripeStub.invoices.createPreview = stub as any;
 
       result = await stripeAutomaticTaxConverter.fetchInvoicePreview(
         mockSubscription.id
@@ -585,7 +585,7 @@ describe('StripeAutomaticTaxConverter', () => {
     it('calls stripe for the invoice preview', () => {
       expect(stub).toHaveBeenCalledWith({
         subscription: mockSubscription.id,
-        expand: ['total_tax_amounts.tax_rate'],
+        expand: ['total_taxes.tax_rate_details.tax_rate'],
       });
     });
 
@@ -609,6 +609,7 @@ describe('StripeAutomaticTaxConverter', () => {
       const _mockInvoicePreview = {
         ...mockInvoicePreview,
         total_excluding_tax: 10,
+        total_taxes: [{ amount: 371 }],
       };
 
       const result = stripeAutomaticTaxConverter.buildReport(
@@ -630,14 +631,14 @@ describe('StripeAutomaticTaxConverter', () => {
         mockPlan.interval_count,
         mockPlan.interval,
         (_mockInvoicePreview as any).total_excluding_tax,
-        (_mockInvoicePreview as any).tax,
+        371,
         mockSpecialTaxAmounts.hst,
         mockSpecialTaxAmounts.gst,
         mockSpecialTaxAmounts.pst,
         mockSpecialTaxAmounts.qst,
         mockSpecialTaxAmounts.rst,
         (_mockInvoicePreview as any).total,
-        mockSubscription.current_period_end,
+        mockSubscription.items.data[0].current_period_end,
         `"${mockAccount.locale}"`,
       ]);
     });

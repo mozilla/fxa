@@ -23,6 +23,7 @@ import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
 import { AppConfig } from '../config';
 import { StripeMapperService } from '@fxa/payments/legacy';
+import { STRIPE_API_VERSION } from '@fxa/payments/stripe';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 export const StripeFactory: Provider<Stripe> = {
@@ -30,7 +31,7 @@ export const StripeFactory: Provider<Stripe> = {
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
     const stripe = new Stripe(stripeConfig.stripeApiKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: STRIPE_API_VERSION,
       maxNetworkRetries: 3,
     });
     stripe.customers.list({ limit: 1 }).catch((error) => {

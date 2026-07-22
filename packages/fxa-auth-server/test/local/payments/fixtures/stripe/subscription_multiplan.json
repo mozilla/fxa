@@ -57,7 +57,9 @@
         },
         "quantity": 1,
         "subscription": "sub_GgImrfvgTxUibx",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1580940996,
+        "current_period_end": 1583446596
       },
       {
         "id": "si_GgImRsmHJKUnRT",
@@ -92,7 +94,9 @@
         },
         "quantity": 1,
         "subscription": "sub_GgImrfvgTxUibx",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1580940996,
+        "current_period_end": 1583446596
       }
     ],
     "has_more": false,

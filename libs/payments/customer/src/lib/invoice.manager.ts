@@ -105,7 +105,7 @@ export class InvoiceManager {
         }
       : undefined;
 
-    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+    const requestObject: Stripe.InvoiceCreatePreviewParams = {
       currency,
       customer: customer?.id,
       automatic_tax: {
@@ -122,7 +122,7 @@ export class InvoiceManager {
     };
 
     const upcomingInvoice =
-      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
+      await this.stripeClient.invoicesCreatePreview(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
@@ -138,7 +138,7 @@ export class InvoiceManager {
     fromSubscriptionItem: StripeSubscriptionItem;
     trialEnd?: number;
   }): Promise<InvoicePreview> {
-    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+    const requestObject: Stripe.InvoiceCreatePreviewParams = {
       customer: customer.id,
       subscription_details: {
         items: [
@@ -155,7 +155,7 @@ export class InvoiceManager {
     };
 
     const upcomingInvoice =
-      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
+      await this.stripeClient.invoicesCreatePreview(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
@@ -193,7 +193,7 @@ export class InvoiceManager {
     subscription: StripeSubscription;
     excludeDiscounts?: boolean;
   }): Promise<InvoicePreview> {
-    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming({
+    const upcomingInvoice = await this.stripeClient.invoicesCreatePreview({
       customer: customer.id,
       subscription: subscription.id,
       subscription_details: {
@@ -265,6 +265,10 @@ export class InvoiceManager {
     );
     const idempotencyKey = `${invoice.id}-${paymentAttemptCount}`;
 
+    const taxAmountInCents = invoice.total_taxes?.length
+      ? invoice.total_taxes.reduce((total, tax) => total + tax.amount, 0)
+      : null;
+
     // Charge the customer on PayPal
     const chargeOptions = {
       amountInCents: invoice.amount_due,
@@ -275,7 +279,7 @@ export class InvoiceManager {
       countryCode,
       idempotencyKey,
       ...(ipaddress && { ipaddress }),
-      ...(invoice.tax !== null && { taxAmountInCents: invoice.tax }),
+      ...(taxAmountInCents !== null && { taxAmountInCents }),
     } satisfies ChargeOptions;
     let paypalCharge: ChargeResponse;
     try {

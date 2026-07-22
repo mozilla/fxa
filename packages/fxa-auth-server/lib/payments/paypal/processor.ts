@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
 import { Logger } from 'mozlog';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { Container } from 'typedi';
 
 import { PayPalClientError } from '@fxa/payments/paypal';
@@ -94,7 +94,10 @@ export class PaypalProcessor {
     return Promise.all([
       this.stripeHelper.markUncollectible(invoice),
       this.stripeHelper.cancelSubscription(
-        (invoice.subscription as Stripe.Subscription).id
+        (
+          invoice.parent?.subscription_details
+            ?.subscription as Stripe.Subscription
+        ).id
       ),
     ]);
   }
