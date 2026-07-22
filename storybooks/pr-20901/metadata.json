@@ -1,0 +1,12 @@
+{
+  "commit": "250a4345383d3aa77379bc8711f7e33463540a52",
+  "summary": "Pin Next back to 15",
+  "description": "",
+  "timestamp": 1784739904000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
