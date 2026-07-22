@@ -1,8 +1,8 @@
 {
-  "commit": "e3caef8ec6dc165bf81a8e52a31fee8fedcac3c3",
-  "summary": "Merge pull request #20900 from mozilla/update-yarn-lock-file",
-  "description": "fix(deps): Update yarn.lock",
-  "timestamp": 1784654981000,
+  "commit": "b34d008d6f11dd82619290c3e0c1140592f7a113",
+  "summary": "Merge pull request #20894 from mozilla/FXA-14218",
+  "description": "bug(auth): Remove broken call for legacy customs server to reset",
+  "timestamp": 1784687157000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
