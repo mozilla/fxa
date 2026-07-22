@@ -145,13 +145,13 @@ Grafana auto-query (Phase 2G) has two paths. Probe them in order and record the 
 
 1. **MCP path (`$GRAFANA_MODE=mcp`).** Test with a minimal `mcp__grafana__list_datasources` call. If it returns the FxA datasources (the Prometheus datasource `grafana.prometheus_datasource_uid` from the operational config, or whichever current UID is in use), the Grafana MCP server is configured — Phase 2G runs via MCP tools.
 
-2. **Yardstick fallback (`$GRAFANA_MODE=yardstick`).** If no `grafana` MCP server is configured (the `mcp__grafana__*` tools aren't loaded, i.e. no image is set), check whether the `mzcld` proxy is exposing Grafana locally:
+2. **Yardstick fallback (`$GRAFANA_MODE=yardstick`).** If no `grafana` MCP server is configured (the `mcp__grafana__*` tools aren't loaded), check whether the `mzcld` IAP proxy is exposing Grafana locally. The proxy is started in a separate terminal with `mzcld iap --host yardstick.mozilla.org --proxy --port 3000`; probe its **unauthenticated** health endpoint:
 
    ```bash
-   curl -sf -o /dev/null -w '%{http_code}' http://localhost:3000/api/datasources && echo " — yardstick proxy up" || echo "proxy down"
+   curl -sf http://localhost:3000/api/health | jq -e '.database == "ok"' >/dev/null && echo "yardstick proxy up" || echo "proxy down"
    ```
 
-   If that returns `200`, Phase 2G runs via the Grafana HTTP API over the proxy (see Phase 2G "Yardstick fallback"). Delegate datasource UIDs and GMP query conventions to the `yardstick:yardstick-grafana` skill — invoke it before querying so the datasource map and GMP rules are loaded.
+   If that succeeds, Phase 2G runs against Grafana over the proxy (see Phase 2G "Yardstick fallback"). **Auth:** the `mzcld` tunnel injects only the Google **IAP** token — every Grafana *API* call still needs a Grafana **Service Account token** (`Authorization: Bearer …`, sourced from 1Password/env, never printed). Within this mode, prefer the **`gcx`** CLI (SRE's preferred agentic Grafana tool) when it's installed and a `yardstick` context is configured; otherwise fall back to raw HTTP over the proxy. Either way, invoke the `yardstick:yardstick-grafana` skill first so the datasource UIDs and GMP query conventions are loaded.
 
 3. **Skipped (`$GRAFANA_MODE=skipped`).** If neither path is available, mark Grafana as skipped — Phase 1I falls back to asking the engineer for manual screenshots.
 
@@ -194,7 +194,7 @@ Report a status table:
 | Jira MCP       | ✅ / ❌ [details] |
 | Sentry MCP     | ✅ / ❌ [details] |
 | Slack MCP      | ✅ read-only / ⚠️ skipped — manual fallback / ❌ [details] |
-| Grafana        | ✅ MCP (datasources available) / ✅ yardstick proxy (localhost:3000) / ⚠️ skipped — manual fallback / ❌ [details] |
+| Grafana        | ✅ MCP (datasources available) / ✅ yardstick (gcx or proxy, localhost:3000) / ⚠️ skipped — manual fallback / ❌ [details] |
 | CircleCI       | ✅ token valid (user: X) / ⚠️ skipped — CIRCLECI_TOKEN not set / ❌ token rejected |
 | Bugzilla       | ✅ always available |
 ```
@@ -218,7 +218,7 @@ Ask for:
    - **If `$GRAFANA_MODE` is `skipped`** (neither the MCP server nor the yardstick proxy is available), offer the engineer three choices (don't assume — ask):
      - **(a) Skip** Grafana for today (marked `:eyes: Not reviewed`).
      - **(b) Manual screenshots** — open these prod dashboards (7-day window) and skim for anomalies. Share **per-panel screenshots of anything that looks off**, or "all looked normal" if nothing stands out. Full-page captures are too fuzzy — always per-panel at native zoom.
-     - **(c) Enable auto-query now** — either start the `mzcld` proxy so Grafana is reachable at `http://localhost:3000` (yardstick fallback, no config change needed), or set up the Grafana MCP server (`mcp/grafana` Docker image, stdio) in the MCP config (`~/.claude.json` → `projects[<repo>].mcpServers.grafana`, or `.mcp.json`), with `GRAFANA_URL` set to `grafana.instance` from the operational config and the service-account token referenced from a shell env var (`${GRAFANA_SERVICE_ACCOUNT_TOKEN}`) so the secret never lands in the config file. **Important: the MCP path requires a Claude Code restart** before the `mcp__grafana__*` tools load — so it can't be queried in _today's_ run; the proxy path goes live immediately once the probe in Phase 1F.1 passes. Otherwise fall back to **(a)** skip or **(b)** manual screenshots for today.
+     - **(c) Enable auto-query now** — either start the `mzcld` proxy (`mzcld iap --host yardstick.mozilla.org --proxy --port 3000`) so Grafana is reachable at `http://localhost:3000` and query it via `gcx`/HTTP with a Grafana Service Account token (yardstick fallback — no MCP restart needed), or set up the Grafana MCP server (`mcp/grafana` Docker image, stdio) in the MCP config (`~/.claude.json` → `projects[<repo>].mcpServers.grafana`, or `.mcp.json`), with `GRAFANA_URL` set to `grafana.instance` from the operational config and the service-account token referenced from a shell env var (`${GRAFANA_SERVICE_ACCOUNT_TOKEN}`) so the secret never lands in the config file. **Important: the MCP path requires a Claude Code restart** before the `mcp__grafana__*` tools load — so it can't be queried in _today's_ run; the proxy path goes live immediately once the probe in Phase 1F.1 passes. Otherwise fall back to **(a)** skip or **(b)** manual screenshots for today.
 
    Dashboards (manual fallback / spot-check reference):
    - The canonical dashboards are `grafana.dashboards` (`{name: uid}`) in the operational config. Build each URL from `grafana.instance` + `grafana.dashboard_url_template` (7-day window) and skim every one.
@@ -607,7 +607,7 @@ If neither path is available (no token AND no MCP), skip Section B's `:circleci:
 
 If `$GRAFANA_MODE` is `skipped`, skip this section entirely — the engineer's manual notes from Phase 1I item 3 are the input to Section C instead.
 
-This section describes the **MCP path** (`$GRAFANA_MODE=mcp`). When `$GRAFANA_MODE=yardstick`, run the same five steps but swap each `mcp__grafana__*` tool for its Grafana HTTP API equivalent over the `mzcld` proxy — see **Yardstick fallback** at the end of this section. The anomaly-detection logic (step 3) is identical in both modes.
+This section describes the **MCP path** (`$GRAFANA_MODE=mcp`). When `$GRAFANA_MODE=yardstick`, run the same five steps via `gcx` (preferred) or raw HTTP over the `mzcld` proxy — see **Yardstick fallback** at the end of this section. The anomaly-detection logic (step 3) is identical in both modes.
 
 Auto-query the canonical FxA dashboards listed in `grafana.dashboards` (`{name: uid}`) from the operational config. Note their roles as documented there — e.g. the Big SES dashboard covers email-send health (bounces, complaints, delivery rates, throttling), Connection Pool / GCP Redis cover datastore health, etc.
 
@@ -670,16 +670,19 @@ Run all dashboards' panel-query fetches in parallel; serialise within a dashboar
 
 **Env discipline:** Grafana queries follow the same env discipline as Sentry — `prod` and/or `stage` from `$ENVS`, never `local`. If a panel's PromQL has no `environment` selector at all, run it as-is (it's already env-agnostic infra-level data). If it has a placeholder that doesn't match `prod`/`stage`, skip the panel and note it.
 
-**Yardstick fallback (`$GRAFANA_MODE=yardstick`):** No `grafana` MCP server is configured, so query Grafana through its HTTP API over the `mzcld` proxy at `http://localhost:3000` instead. Invoke the `yardstick:yardstick-grafana` skill first for the canonical datasource UIDs and GMP query conventions. Never call `https://yardstick.mozilla.org` directly (it's behind IAP); the proxy handles auth, so no token header is needed on `localhost` calls. Map each step above to:
+**Yardstick fallback (`$GRAFANA_MODE=yardstick`):** No `grafana` MCP server is configured, so query Grafana over the `mzcld` IAP proxy at `http://localhost:3000`. Never call `https://yardstick.mozilla.org` directly (it's behind IAP). **The proxy injects only the IAP token — Grafana API calls still require a Grafana Service Account token.** Read it from 1Password/env into a variable and never print it: `TOKEN=$(op read "op://Private/<item>/credential")`; pass it as `Authorization: Bearer $TOKEN` on HTTP calls (and to `gcx login`). Invoke the `yardstick:yardstick-grafana` skill first for the canonical datasource UIDs and GMP query conventions (UTF-8-quoted metric names, no `__name__` regex, `$__rate_interval`).
 
-- **Discover panel queries** (step 1) — `GET http://localhost:3000/api/dashboards/uid/<uid>`, then read `.dashboard.panels[].targets[]`; each target's `datasource`, `expr` (Prometheus) or `rawSql` (SQL datasources) is what steps 2a/2b need.
-- **Run queries** (step 2) — `POST http://localhost:3000/api/ds/query` with the same body shape already documented in 2b (works for both Prometheus and non-Prometheus targets), `from: "now-7d"`, `to: "now"`. Parse `results.A.frames` for the series.
-- **Env → datasource mapping:** on this path env is selected by datasource, not just a label. Per the yardstick datasource table, map `prod` → `gcp-v2-prod` and `stage` → `gcp-v2-nonprod` when a panel uses a `$datasource` template variable; substitute `$environment` as on the MCP path when it uses a label selector.
+Prefer **`gcx`** (SRE's preferred agentic Grafana CLI; authenticate once with `gcx login yardstick --server http://localhost:3000 --token $TOKEN` then `gcx config use-context yardstick`); fall back to raw HTTP only where gcx has no command. Map each MCP step to:
+
+- **Discover panel queries** (step 1) — no gcx command; use the HTTP API `GET http://localhost:3000/api/dashboards/uid/<uid>` (Bearer token), then read `.dashboard.panels[].targets[]` for each target's `datasource` and `expr` (Prometheus) / `rawSql` (SQL datasources).
+- **List datasources** — `gcx datasources list --type prometheus` (maps names → UIDs).
+- **Run queries** (step 2) — `gcx metrics query -d <uid> '<promql>' --since 7d -o json`; parse the returned series. HTTP fallback: `POST http://localhost:3000/api/ds/query` (Bearer token), body as in 2b, `from: "now-7d"`, `to: "now"`, parse `results.A.frames`.
+- **Env → datasource mapping:** env is selected by datasource here. Per the yardstick table, map `prod` → `gcp-v2-prod` (`adpvtjmrxoc1sb`) and `stage`/`dev` → `gcp-v2-nonprod` (`edq6thuke248we`) when a panel uses a `${datasource}` variable; substitute `$environment` as on the MCP path when it uses a label selector.
 - **Anomaly detection** (step 3) — identical.
-- **Panel image** (step 4) — `GET http://localhost:3000/render/d-solo/<uid>/_?panelId=<id>&from=now-7d&to=now&width=1000&height=500`. If the Image Renderer plugin isn't installed the call errors — degrade silently, record `image_unavailable: true`, continue.
+- **Panel image** (step 4) — `GET http://localhost:3000/render/d-solo/<uid>/_?panelId=<id>&from=now-7d&to=now&width=1000&height=500` (Bearer token). If the Image Renderer plugin isn't installed the call errors — degrade silently, record `image_unavailable: true`, continue.
 - **Deeplinks** (step 5) — build the URL from `grafana.instance` + `grafana.dashboard_url_template` (a shareable `https://yardstick.mozilla.org` link, not `localhost`), rather than calling `mcp__grafana__generate_deeplink`.
 
-If any HTTP call fails (proxy down mid-run, query timeout, unsupported datasource), note it in `grafana_notes` and continue — do not block the run.
+Record which transport was used (`gcx` or `http`) in `grafana_notes`. If any call fails (proxy down mid-run, query timeout, unsupported datasource, missing token), note it there and continue — do not block the run.
 
 ## Phase 2.5: Baseline Diff
 
@@ -1015,7 +1018,7 @@ Write `$HISTORY_DIR/YYYY-MM-DD.md` with:
    - `bugzilla_new_7d`, `bugzilla_updated_7d`, `bugzilla_open_unresolved`
    - `dependabot_open_prs`, `dependabot_open_alerts.{high, medium, new_highs_24h, pr_clearing_new_highs}`
    - `github_open_prs_total`, `github_secondary_prs.{ecosystem_platform, channelserver}`
-   - `grafana_source` — `"mcp"` (Phase 2G auto-query ran via MCP), `"yardstick"` (Phase 2G auto-query ran via the `mzcld` proxy HTTP API), `"manual"` (engineer pasted screenshots in Phase 1I), or `"skipped"` (engineer skipped Grafana entirely)
+   - `grafana_source` — `"mcp"` (Phase 2G auto-query ran via MCP), `"yardstick"` (Phase 2G auto-query ran via `gcx` or the `mzcld` proxy HTTP API — transport noted in `grafana_notes`), `"manual"` (engineer pasted screenshots in Phase 1I), or `"skipped"` (engineer skipped Grafana entirely)
    - `grafana_dashboards_queried` — array of `{uid, title, panel_count, anomaly_count}` (when `grafana_source` is `"mcp"` or `"yardstick"`)
    - `grafana_anomalies` — array of `{dashboard, panel, env, metric, anomaly_type, value, baseline, deeplink, image_unavailable?}`
    - `grafana_notes` (array of strings — panels skipped because of unresolved template vars, datasource UID mismatches, manual-mode caveats, etc.)
