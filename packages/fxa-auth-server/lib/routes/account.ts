@@ -1,12 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import {
-  Account,
-  EmailBlocklist,
-  DomainBlocklist,
-  getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AppStoreSubscription,
   PlayStoreSubscription,
@@ -42,7 +37,11 @@ import {
 } from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
-import { deleteAccountIfUnverified, fetchRpCmsData } from './utils/account';
+import {
+  checkBlocklists,
+  deleteAccountIfUnverified,
+  fetchRpCmsData,
+} from './utils/account';
 import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
@@ -584,27 +583,7 @@ export class AccountHandler {
   }
 
   private async checkBlocklists(normalizedEmail: string): Promise<void> {
-    const blockedRegex =
-      await EmailBlocklist.findMatchingRegex(normalizedEmail);
-    if (blockedRegex !== null) {
-      this.log.info('account.create.blocked', {
-        domain: normalizedEmail.split('@')[1],
-        blockedRegex,
-        blocker: 'regex',
-      });
-      this.statsd.increment('account.create.blocked', { blocker: 'regex' });
-      throw error.requestBlocked(false);
-    }
-    const blockedDomain =
-      await DomainBlocklist.findMatchingDomain(normalizedEmail);
-    if (blockedDomain !== null) {
-      this.log.info('account.create.blocked', {
-        domain: blockedDomain,
-        blocker: 'domain',
-      });
-      this.statsd.increment('account.create.blocked', { blocker: 'domain' });
-      throw error.requestBlocked(false);
-    }
+    await checkBlocklists(normalizedEmail, this.log, this.statsd);
   }
 
   private async checkEmailDomainValidity(email: string): Promise<boolean> {
