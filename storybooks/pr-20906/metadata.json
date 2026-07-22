@@ -1,8 +1,8 @@
 {
-  "commit": "12cdc50cebe787558f2df5e11a0eac869416994b",
+  "commit": "c560d3aac62d640f97b24cb9aeeb405e888d2a68",
   "summary": "bug(auth-client): fix password check for accounts whose signup and primary emails differ",
   "description": "Because:\n - When an account's signup email differs from its current primary, the\n   current-password check derived v1 credentials from the signup email, but\n   the stored verifier may be salted with the primary. This blocked password\n   change, recovery-key setup, and account deletion with \"Incorrect email case\".\n\nThis commit:\n - Salts the first attempt with the primary email and falls back to the signup\n   email on INCORRECT_EMAIL_CASE in sessionReauth, accountDestroy, and\n   passwordChangeWithJWT; adds tests covering both salt cases.\n\nCloses FXA-14223",
-  "timestamp": 1784738561000,
+  "timestamp": 1784742771000,
   "storybooks": [
     "fxa-settings"
   ],
