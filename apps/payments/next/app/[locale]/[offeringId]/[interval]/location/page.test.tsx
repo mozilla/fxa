@@ -284,7 +284,6 @@ describe('Location page', () => {
     expect(screen.getByTestId('terms-and-privacy')).toBeInTheDocument();
     expect(mockTermsAndPrivacy).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentServerUrl: 'https://accounts.example.com',
         showFXALinks: true,
       })
     );

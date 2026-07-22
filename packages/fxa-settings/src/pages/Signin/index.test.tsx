@@ -171,8 +171,14 @@ function privacyAndTermsRendered() {
   const privacy = screen.getByRole('link', {
     name: /Privacy Notice/,
   });
-  expect(terms).toHaveAttribute('href', '/legal/terms');
-  expect(privacy).toHaveAttribute('href', '/legal/privacy');
+  expect(terms).toHaveAttribute(
+    'href',
+    'https://www.mozilla.org/about/legal/terms/services/'
+  );
+  expect(privacy).toHaveAttribute(
+    'href',
+    'https://www.mozilla.org/privacy/mozilla-accounts/'
+  );
 }
 
 function thirdPartyAuthRendered() {

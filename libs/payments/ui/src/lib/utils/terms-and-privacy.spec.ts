@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  buildFirefoxAccountsTerms,
   buildPaymentTerms,
   PaymentProviders,
 } from './terms-and-privacy';
@@ -69,6 +70,29 @@ describe('buildPaymentTerms', () => {
     expect(result[0].items).toEqual([
       expect.objectContaining({
         href: 'https://stripe.com/privacy',
+      }),
+    ]);
+  });
+});
+
+describe('buildFirefoxAccountsTerms', () => {
+  it('returns no items when showFxaLinks is false', () => {
+    expect(buildFirefoxAccountsTerms(false)).toEqual([]);
+  });
+
+  it('returns Mozilla Accounts ToS and Privacy links pointing to mozilla.org', () => {
+    const result = buildFirefoxAccountsTerms(true);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe('Mozilla Accounts');
+    expect(result[0].items).toEqual([
+      expect.objectContaining({
+        href: 'https://www.mozilla.org/about/legal/terms/services/',
+        text: 'Terms of Service',
+      }),
+      expect.objectContaining({
+        href: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+        text: 'Privacy Notice',
       }),
     ]);
   });

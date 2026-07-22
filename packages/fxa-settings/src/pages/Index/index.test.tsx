@@ -55,7 +55,10 @@ describe('Index page', () => {
       screen.getByRole('link', {
         name: /Terms of Service/,
       })
-    ).toHaveAttribute('href', '/legal/terms');
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/services/'
+    );
   });
 
   it('renders as expected when sync', () => {
@@ -75,7 +78,10 @@ describe('Index page', () => {
       screen.getByRole('link', {
         name: /Terms of Service/,
       })
-    ).toHaveAttribute('href', '/legal/terms');
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/services/'
+    );
   });
 
   it('renders as expected with service=relay', () => {
