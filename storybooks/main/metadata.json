@@ -1,8 +1,8 @@
 {
-  "commit": "e95b0e033735292f6eb590111e79e081559aa2b7",
-  "summary": "Merge pull request #20859 from mozilla/pay-3790-support-billing-api",
-  "description": "feat(subplat): add free access program to billing-and-subscriptions API",
-  "timestamp": 1784728530000,
+  "commit": "c6ca4befb2725b2151a236bc78f3d485fed13ba3",
+  "summary": "Merge pull request #20898 from mozilla/dependabot/npm_and_yarn/brace-expansion-1.1.16",
+  "description": "chore(deps): bump brace-expansion from 1.1.12 to 1.1.16",
+  "timestamp": 1784734922000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
