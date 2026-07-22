@@ -1,8 +1,8 @@
 {
-  "commit": "15e4f2fc3e1d818430eee6d75ff8cc540149f1db",
-  "summary": "Merge pull request #20887 from mozilla/FXA-14171-email-first-passkey",
-  "description": "fix(settings): warn (not error) on cancelled/timed-out passkey sign-in",
-  "timestamp": 1784743380000,
+  "commit": "77106d3a1c64389967c11eec9214ef233eb1eca0",
+  "summary": "Merge pull request #20907 from mozilla/revert-to-next-15",
+  "description": "fix(payments-next): revert nextjs to 15",
+  "timestamp": 1784747574000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
