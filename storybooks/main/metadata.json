@@ -1,8 +1,8 @@
 {
-  "commit": "05191f35021eadb1fc9b506dc14ca9282cecc22a",
-  "summary": "Merge pull request #20895 from mozilla/fxa-14112-blocklist-bypass",
-  "description": "fix(auth): harden email/domain blocklist",
-  "timestamp": 1784737821000,
+  "commit": "d57412e61b6a1b523f8b3cd30c93d092ea3776dd",
+  "summary": "Merge pull request #20902 from mozilla/dependabot/npm_and_yarn/body-parser-1.20.6",
+  "description": "chore(deps): bump body-parser from 1.20.3 to 1.20.6",
+  "timestamp": 1784741904000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
