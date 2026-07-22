@@ -1,0 +1,11 @@
+postRemoveTwoStepAuthentication-title-2 = "You turned off two-step authentication"
+
+postRemoveTwoStepAuthentication-not-required-2 = "You no longer need security codes from your authentication app when you sign in."
+
+postRemoveTwoStepAuthentication-from-device = "You disabled it from:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
