@@ -209,7 +209,6 @@ export default async function CheckoutLayout({
                 {...cart}
                 {...purchaseDetails}
                 {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-                contentServerUrl={config.contentServerUrl}
                 showFXALinks={true}
               />
             </div>

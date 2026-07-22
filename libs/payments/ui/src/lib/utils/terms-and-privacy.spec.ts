@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  buildFirefoxAccountsTerms,
   buildPaymentTerms,
+  buildProductTerms,
   PaymentProviders,
 } from './terms-and-privacy';
 
@@ -25,10 +27,7 @@ describe('buildPaymentTerms', () => {
   });
 
   it('returns PayPal privacy link for PayPal provider with active subscription', () => {
-    const result = buildPaymentTerms(
-      { type: PaymentProviders.paypal },
-      true
-    );
+    const result = buildPaymentTerms({ type: PaymentProviders.paypal }, true);
 
     expect(result).toHaveLength(1);
     expect(result[0].title).toContain('PayPal');
@@ -70,6 +69,72 @@ describe('buildPaymentTerms', () => {
       expect.objectContaining({
         href: 'https://stripe.com/privacy',
       }),
+    ]);
+  });
+});
+
+describe('buildFirefoxAccountsTerms', () => {
+  it('returns no items when showFxaLinks is false', () => {
+    expect(buildFirefoxAccountsTerms(false)).toEqual([]);
+  });
+
+  it('returns Mozilla Accounts ToS and Privacy links pointing to mozilla.org', () => {
+    const result = buildFirefoxAccountsTerms(true);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe('Mozilla Accounts');
+    expect(result[0].items).toEqual([
+      expect.objectContaining({
+        href: 'https://www.mozilla.org/about/legal/terms/services/',
+        text: 'Terms of Service',
+      }),
+      expect.objectContaining({
+        href: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+        text: 'Privacy Notice',
+      }),
+    ]);
+  });
+});
+
+describe('buildProductTerms', () => {
+  const PRODUCT_NAME = 'Mozilla VPN';
+  const TOS_URL =
+    'https://www.mozilla.org/about/legal/terms/subscription-services/';
+  const PRIVACY_URL = 'https://www.mozilla.org/privacy/subscription-services/';
+
+  it('returns no items when neither url is provided', () => {
+    expect(buildProductTerms(PRODUCT_NAME)).toEqual([]);
+  });
+
+  it('titles the group with the product name', () => {
+    const result = buildProductTerms(PRODUCT_NAME, TOS_URL, PRIVACY_URL);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe(PRODUCT_NAME);
+  });
+
+  it('returns only the Terms of Service and Privacy Notice links', () => {
+    const result = buildProductTerms(PRODUCT_NAME, TOS_URL, PRIVACY_URL);
+
+    expect(result[0].items).toEqual([
+      expect.objectContaining({ href: TOS_URL, text: 'Terms of Service' }),
+      expect.objectContaining({ href: PRIVACY_URL, text: 'Privacy Notice' }),
+    ]);
+  });
+
+  it('omits the Terms of Service link when its url is absent', () => {
+    const result = buildProductTerms(PRODUCT_NAME, undefined, PRIVACY_URL);
+
+    expect(result[0].items).toEqual([
+      expect.objectContaining({ href: PRIVACY_URL, text: 'Privacy Notice' }),
+    ]);
+  });
+
+  it('omits the Privacy Notice link when its url is absent', () => {
+    const result = buildProductTerms(PRODUCT_NAME, TOS_URL, undefined);
+
+    expect(result[0].items).toEqual([
+      expect.objectContaining({ href: TOS_URL, text: 'Terms of Service' }),
     ]);
   });
 });
