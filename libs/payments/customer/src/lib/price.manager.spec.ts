@@ -7,12 +7,15 @@ import { MockLoggerProvider } from '@fxa/shared/log';
 
 import {
   StripeClient,
+  StripeApiSearchResultFactory,
   StripeResponseFactory,
   StripePriceFactory,
   StripePriceRecurringFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
 import {
+  PlanAppleIAPMultiplePlansError,
+  PlanGoogleIAPMultiplePlansError,
   PlanIntervalMultiplePlansError,
   PriceForCurrencyNotFoundError,
 } from './customer.error';
@@ -98,6 +101,152 @@ describe('PriceManager', () => {
           subplatInterval
         )
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
+    });
+  });
+
+  describe('findAppleIAPPriceByStoreId', () => {
+    const storeId = 'apple.iap.product';
+
+    it('searches by the appStoreProductIds metadata field', async () => {
+      const mockPrice = StripePriceFactory();
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([mockPrice]))
+        );
+
+      await priceManager.findAppleIAPPriceByStoreId(storeId);
+
+      expect(stripeClient.pricesSearch).toHaveBeenCalledWith(
+        `metadata['appStoreProductIds']:'${storeId}'`
+      );
+    });
+
+    it('escapes a single quote in the storeId before searching', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([]))
+        );
+
+      await priceManager.findAppleIAPPriceByStoreId("sku_o'brien");
+
+      expect(stripeClient.pricesSearch).toHaveBeenCalledWith(
+        `metadata['appStoreProductIds']:'sku_o\\'brien'`
+      );
+    });
+
+    it('returns the single matching price', async () => {
+      const mockPrice = StripePriceFactory();
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([mockPrice]))
+        );
+
+      const result = await priceManager.findAppleIAPPriceByStoreId(storeId);
+      expect(result).toEqual(mockPrice);
+    });
+
+    it('returns undefined when no price matches', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([]))
+        );
+
+      const result = await priceManager.findAppleIAPPriceByStoreId(storeId);
+      expect(result).toBeUndefined();
+    });
+
+    it('throws PlanAppleIAPMultiplePlansError when multiple prices match', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeApiSearchResultFactory([
+              StripePriceFactory(),
+              StripePriceFactory(),
+            ])
+          )
+        );
+
+      await expect(
+        priceManager.findAppleIAPPriceByStoreId(storeId)
+      ).rejects.toBeInstanceOf(PlanAppleIAPMultiplePlansError);
+    });
+  });
+
+  describe('findGoogleIAPPriceByStoreId', () => {
+    const storeId = 'google.play.sku';
+
+    it('searches by the playSkuIds metadata field', async () => {
+      const mockPrice = StripePriceFactory();
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([mockPrice]))
+        );
+
+      await priceManager.findGoogleIAPPriceByStoreId(storeId);
+
+      expect(stripeClient.pricesSearch).toHaveBeenCalledWith(
+        `metadata['playSkuIds']:'${storeId}'`
+      );
+    });
+
+    it('escapes a single quote in the storeId before searching', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([]))
+        );
+
+      await priceManager.findGoogleIAPPriceByStoreId("sku_o'brien");
+
+      expect(stripeClient.pricesSearch).toHaveBeenCalledWith(
+        `metadata['playSkuIds']:'sku_o\\'brien'`
+      );
+    });
+
+    it('returns the single matching price', async () => {
+      const mockPrice = StripePriceFactory();
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([mockPrice]))
+        );
+
+      const result = await priceManager.findGoogleIAPPriceByStoreId(storeId);
+      expect(result).toEqual(mockPrice);
+    });
+
+    it('returns undefined when no price matches', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiSearchResultFactory([]))
+        );
+
+      const result = await priceManager.findGoogleIAPPriceByStoreId(storeId);
+      expect(result).toBeUndefined();
+    });
+
+    it('throws PlanGoogleIAPMultiplePlansError when multiple prices match', async () => {
+      jest
+        .spyOn(stripeClient, 'pricesSearch')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeApiSearchResultFactory([
+              StripePriceFactory(),
+              StripePriceFactory(),
+            ])
+          )
+        );
+
+      await expect(
+        priceManager.findGoogleIAPPriceByStoreId(storeId)
+      ).rejects.toBeInstanceOf(PlanGoogleIAPMultiplePlansError);
     });
   });
 

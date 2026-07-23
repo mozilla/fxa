@@ -29,6 +29,20 @@ export class PlanIntervalMultiplePlansError extends CustomerError {
   }
 }
 
+export class PlanAppleIAPMultiplePlansError extends CustomerError {
+  constructor(priceIds: string[], storeId: string) {
+    super('Apple storeId has multiple plans', { priceIds, storeId });
+    this.name = 'PlanAppleIAPMultiplePlansError';
+  }
+}
+
+export class PlanGoogleIAPMultiplePlansError extends CustomerError {
+  constructor(priceIds: string[], storeId: string) {
+    super('Google storeId has multiple plans', { priceIds, storeId });
+    this.name = 'PlanGoogleIAPMultiplePlansError';
+  }
+}
+
 export class PriceForCurrencyNotFoundError extends CustomerError {
   constructor(priceId: string, currency: string) {
     super('Price for currency not found', { priceId, currency });
@@ -40,7 +54,7 @@ export class SubscriptionCustomerMismatchError extends CustomerError {
   constructor(
     customerId: string,
     subscriptionCustomerId: string,
-    subscriptionId: string,
+    subscriptionId: string
   ) {
     super('Subscription customer does not match provided customer', {
       customerId,
