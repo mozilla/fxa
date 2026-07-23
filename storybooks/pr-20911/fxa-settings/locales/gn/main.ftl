@@ -233,6 +233,8 @@ close-icon-aria-label =
     .aria-label = Emboty ñe’ẽmondo
 code-icon-aria-label =
     .aria-label = Ayvu
+edit-icon-aria-label =
+    .aria-label = Mbosako’i
 error-icon-aria-label =
     .aria-label = Javy
 info-icon-aria-label =
@@ -930,6 +932,11 @@ passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
 passkey-delete-error = Iñapysẽ apañuái emboguévo ne ñe’ẽ ñemi jeikeha. Eha’ã jey ag̃amieve.
+passkey-sub-row-rename-title = Emboherajey ñe’ẽ ñemi jeikeha
+passkey-rename-modal-heading = Emboherajey ñe’ẽ ñemi jeikeha
+passkey-rename-input-label = Ñe’ẽ ñemi jeikeha réra
+passkey-rename-save-button = Ñongatu
+passkey-rename-cancel-button = Eheja
 
 
 switch-turn-off = Pe’aite
