@@ -71,10 +71,9 @@ export class UpgradePage extends BasePaymentPage {
     }
     // If still on /processing or /start, wait for a real terminal state
     if (/\/(processing|start)(\/|$|\?)/.test(url)) {
-      await expect(this.page).toHaveURL(
-        /\/(success|error)(\/|$|\?)/,
-        { timeout }
-      );
+      await expect(this.page).toHaveURL(/\/(success|error)(\/|$|\?)/, {
+        timeout,
+      });
       const resolvedUrl = this.page.url();
       if (/\/error(\/|$|\?)/.test(resolvedUrl)) {
         throw new Error(
@@ -82,8 +81,9 @@ export class UpgradePage extends BasePaymentPage {
         );
       }
     }
-    await expect(this.page).toHaveURL(/\/success(\/|$|\?)/, { timeout: 30_000 });
+    await expect(this.page).toHaveURL(/\/success(\/|$|\?)/, {
+      timeout: 30_000,
+    });
     await expect(this.successHeading).toBeVisible({ timeout: 30_000 });
   }
-
 }

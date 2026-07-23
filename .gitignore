@@ -177,6 +177,7 @@ process.yml
 
 # Next.js
 .next
+next-env.d.ts
 
 
 tmp

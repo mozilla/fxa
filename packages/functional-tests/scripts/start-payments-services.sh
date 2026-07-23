@@ -21,6 +21,9 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-profile-server \
     payments-next
 
+# Spawn the pm2 daemon before concurrent `pm2 start` calls to avoid deadlock.
+npx pm2 ping
+
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t start \
     --parallel=2 \
