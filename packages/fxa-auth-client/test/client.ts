@@ -4,7 +4,6 @@
 
 import * as assert from 'assert';
 import AuthClient from '../server';
-import * as crypto from '../lib/crypto';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -89,6 +88,50 @@ describe('lib/client', () => {
         'ABCD1234'
       );
       assert.notEqual(lastInit?.credentials, 'include');
+    });
+  });
+
+  describe('createOAuthToken', () => {
+    let httpsClient: AuthClient;
+    let originalFetch: typeof globalThis.fetch;
+    let lastBody: Record<string, any> | undefined;
+    // valid-length hex so HAWK credential derivation succeeds
+    const sessionToken = 'a'.repeat(64);
+
+    before(() => {
+      httpsClient = new AuthClient('https://localhost:9000');
+    });
+
+    beforeEach(() => {
+      originalFetch = globalThis.fetch;
+      lastBody = undefined;
+      globalThis.fetch = (async (_url: string, init?: RequestInit) => {
+        lastBody = init?.body ? JSON.parse(init.body as string) : undefined;
+        return new Response('{"access_token":"token"}', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }) as typeof globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    it('forwards exclude_dau to /oauth/token when set', async () => {
+      await httpsClient.createOAuthToken(sessionToken, 'ea3ca969f8c6bb0d', {
+        scope: 'profile:avatar',
+        exclude_dau: true,
+      });
+      assert.equal(lastBody?.exclude_dau, true);
+    });
+
+    it('omits exclude_dau from the payload when not set', async () => {
+      await httpsClient.createOAuthToken(sessionToken, 'ea3ca969f8c6bb0d', {
+        scope: 'profile:avatar',
+      });
+      // cleanStringify drops null/undefined, so the key is absent entirely
+      assert.ok(lastBody && !('exclude_dau' in lastBody));
     });
   });
 
