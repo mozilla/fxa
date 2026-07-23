@@ -6,7 +6,9 @@ import Container from 'typedi';
 import { Logger } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
+import { AccountManager } from '@fxa/shared/account/account';
 import { FirestoreService } from '@fxa/shared/db/firestore';
+import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   FreeAccessProgramConfigurationManager,
@@ -100,12 +102,17 @@ async function main() {
     firestore
   );
   Container.set(FreeAccessProgramJournalManager, journalManager);
+  const accountDatabase = await setupAccountDatabase(config.database.mysql.auth);
+  const accountManager = new AccountManager(accountDatabase);
+  Container.set(AccountManager, accountManager);
+
   const service = new FreeAccessProgramService(
     configurationManager,
-    journalManager,
-    notifier,
+    accountManager,
     statsd,
-    log as any
+    log as any,
+    journalManager,
+    notifier
   );
   Container.set(FreeAccessProgramService, service);
 

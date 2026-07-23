@@ -13,7 +13,7 @@ import {
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NimbusManager } from './nimbus.manager';
 import { SubPlatNimbusResultFactory } from './nimbus.factories';
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import {
   MockNimbusManagerConfig,
   NimbusManagerConfig,

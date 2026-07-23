@@ -140,18 +140,13 @@ describe('Customs', () => {
     expect(err.output.statusCode).toBe(400);
   });
 
-  it('posts a sanitized /passwordReset body on reset', async () => {
+  it('does not call the legacy customs server on reset', async () => {
     const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
     global.fetch = jest.fn().mockResolvedValue(customsResponse({}));
 
     await customs.reset(request, email);
 
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(`${CUSTOMS_URL_REAL}/passwordReset`);
-    expect(JSON.parse(init.body)).toEqual({
-      ip: request.app.clientAddress,
-      email,
-    });
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('posts ip and action to /checkIpOnly', async () => {
@@ -178,9 +173,6 @@ describe('Customs', () => {
     global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
 
     await expect(customs.check(request, email, action)).rejects.toMatchObject({
-      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
-    });
-    await expect(customs.reset(request, email)).rejects.toMatchObject({
       errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
     });
   });
@@ -257,6 +249,7 @@ describe('Customs', () => {
       check: jest.fn(),
       skip: jest.fn(),
       supportsAction: jest.fn(),
+      unblock: jest.fn(),
     };
 
     const customs = new Customs(
@@ -271,6 +264,7 @@ describe('Customs', () => {
       mockRateLimit.check = jest.fn();
       mockRateLimit.skip = jest.fn(() => false);
       mockRateLimit.supportsAction = jest.fn(() => true);
+      mockRateLimit.unblock = jest.fn(async () => Promise.resolve());
       const originalGet = configModule.config.get.bind(configModule.config);
       jest
         .spyOn(configModule.config, 'get')
@@ -443,6 +437,20 @@ describe('Customs', () => {
           ip_email: normalizedIpEmail,
         })
       );
+    });
+
+    it('unblocks the ip and normalized email on reset', async () => {
+      const emailWithAlias = 'user+alias@mozilla.com';
+      const normalizedEmail = 'user@mozilla.com';
+
+      await customs.reset(request, emailWithAlias);
+
+      expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
+      expect(mockRateLimit.unblock).toHaveBeenCalledWith({
+        ip,
+        email: normalizedEmail,
+        ip_email: `${ip}_${normalizedEmail}`,
+      });
     });
   });
 

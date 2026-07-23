@@ -74,7 +74,7 @@ describe('BasketService', () => {
     it('throws on query', async () => {
       await expect(async () => {
         await service.getUserToken(validEmail);
-      }).rejects.toThrowError('No API key configured!');
+      }).rejects.toThrow('No API key configured!');
     });
   });
 });

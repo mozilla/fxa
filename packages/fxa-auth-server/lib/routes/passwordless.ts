@@ -29,10 +29,10 @@ import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
 } from './utils/passwordless';
-import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import {
+  checkBlocklists,
   getOptionalCmsEmailConfig,
   notifyAttachedServicesForAccountSession,
 } from './utils/account';
@@ -187,27 +187,7 @@ class PasswordlessHandler {
     );
 
     if (isNewAccount) {
-      const normalized = normalizeEmail(email);
-      const blockedRegex = await EmailBlocklist.findMatchingRegex(normalized);
-      if (blockedRegex !== null) {
-        this.log.info('account.create.blocked', {
-          domain: normalized.split('@')[1],
-          blockedRegex,
-          blocker: 'regex',
-        });
-        this.statsd.increment('account.create.blocked', { blocker: 'regex' });
-        throw error.requestBlocked(false);
-      }
-      const blockedDomain =
-        await DomainBlocklist.findMatchingDomain(normalized);
-      if (blockedDomain !== null) {
-        this.log.info('account.create.blocked', {
-          domain: blockedDomain,
-          blocker: 'domain',
-        });
-        this.statsd.increment('account.create.blocked', { blocker: 'domain' });
-        throw error.requestBlocked(false);
-      }
+      await this.checkBlocklists(email);
     }
 
     return this.generateAndSendOtp(
@@ -217,6 +197,11 @@ class PasswordlessHandler {
       isNewAccount,
       false
     );
+  }
+
+  /** Normalize the email and run the shared blocklist check. */
+  private async checkBlocklists(email: string): Promise<void> {
+    await checkBlocklists(normalizeEmail(email), this.log, this.statsd);
   }
 
   async confirmCode(request: AuthRequest) {
@@ -409,6 +394,10 @@ class PasswordlessHandler {
       request
     );
 
+    if (isNewAccount) {
+      await this.checkBlocklists(email);
+    }
+
     // Delete existing code before sending a new one
     const otpKey = account ? account.uid : email;
     await this.otpManager.delete(otpKey);
@@ -531,6 +520,9 @@ class PasswordlessHandler {
     email: string,
     request: AuthRequest
   ): Promise<any> {
+    // Chokepoint: block creation regardless of which OTP path was used.
+    await this.checkBlocklists(email);
+
     const emailCode = await random.hex(16);
     const authSalt = await random.hex(32);
     const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(32, 32, 32);

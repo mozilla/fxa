@@ -73,7 +73,7 @@ describe('ClientCapabilityService', () => {
     };
     (service as any).scheduler.addInterval = addInterval;
     await service.onApplicationBootstrap();
-    expect(mockUpdate).toBeCalledTimes(1);
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
     const ivl = intervals.shift() as NodeJS.Timeout;
     clearInterval(ivl);
   });

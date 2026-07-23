@@ -6,104 +6,16 @@ import Boom from '@hapi/boom';
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 
-import { FreeAccessProgramService } from '@fxa/free-access-program';
+import {
+  classifyAccessWebhook,
+  FreeAccessProgramService,
+  isDuplicateAccessWebhook,
+  type FreeAccessProgramWebhookResult,
+  type StrapiAccessWebhookPayload,
+} from '@fxa/free-access-program';
 import { StrapiClient } from '@fxa/shared/cms';
 
 import type { AuthLogger, AuthRequest } from '../../types';
-
-const TARGET_MODEL = 'access';
-const UPSERT_EVENTS = new Set(['entry.publish', 'entry.update']);
-const DELETE_EVENTS = new Set(['entry.unpublish', 'entry.delete']);
-
-// Dedupe replays of Strapi's static bearer token; longer than realistic retry intervals.
-const DEDUPE_TTL_MS = 60_000;
-const DEDUPE_MAX_ENTRIES = 1000;
-
-type StrapiAccessWebhookPayload = {
-  event: string;
-  model?: string;
-  createdAt?: string;
-  entry?: {
-    documentId?: string;
-    [k: string]: unknown;
-  };
-  [k: string]: unknown;
-};
-
-export class FreeAccessProgramWebhookHandler {
-  private readonly seenEvents = new Map<string, number>();
-
-  constructor(
-    private log: AuthLogger,
-    private strapiClient: StrapiClient,
-    private reconciler: FreeAccessProgramService
-  ) {}
-
-  async postAccess(request: AuthRequest) {
-    this.log.begin('subscriptions.freeAccessProgramWebhook', request);
-
-    const authorization =
-      (request.headers.authorization as string | undefined) ?? '';
-    if (!this.strapiClient.verifyWebhookSignature(authorization)) {
-      throw Boom.unauthorized('Invalid Strapi webhook signature');
-    }
-
-    const payload = request.payload as StrapiAccessWebhookPayload;
-    if (payload.model !== TARGET_MODEL) {
-      return { handled: false, reason: 'model' as const };
-    }
-
-    const documentId = payload.entry?.documentId;
-    if (!documentId) {
-      return { handled: false, reason: 'no_document_id' as const };
-    }
-
-    const dedupeKey = `${payload.event}|${documentId}|${payload.createdAt ?? ''}`;
-    if (this.isReplay(dedupeKey)) {
-      return { handled: true, dedupe: true as const };
-    }
-    this.markSeen(dedupeKey);
-
-    if (
-      !UPSERT_EVENTS.has(payload.event) &&
-      !DELETE_EVENTS.has(payload.event)
-    ) {
-      return { handled: false, reason: 'event' as const };
-    }
-
-    try {
-      await this.reconciler.reconcile();
-    } catch (err) {
-      // Swallow: the periodic cron sweep is the backstop.
-      this.log.error(
-        'subscriptions.freeAccessProgramWebhook.reconcile.error',
-        { err }
-      );
-    }
-
-    return { handled: true };
-  }
-
-  private isReplay(key: string): boolean {
-    const expiresAt = this.seenEvents.get(key);
-    if (expiresAt === undefined) return false;
-    if (expiresAt <= Date.now()) {
-      this.seenEvents.delete(key);
-      return false;
-    }
-    return true;
-  }
-
-  private markSeen(key: string): void {
-    const now = Date.now();
-    if (this.seenEvents.size >= DEDUPE_MAX_ENTRIES) {
-      for (const [k, exp] of this.seenEvents) {
-        if (exp <= now) this.seenEvents.delete(k);
-      }
-    }
-    this.seenEvents.set(key, now + DEDUPE_TTL_MS);
-  }
-}
 
 const payloadSchema = isA
   .object({
@@ -125,11 +37,7 @@ export const freeAccessProgramWebhookRoutes = (
   strapiClient: StrapiClient,
   reconciler: FreeAccessProgramService
 ): ServerRoute[] => {
-  const handler = new FreeAccessProgramWebhookHandler(
-    log,
-    strapiClient,
-    reconciler
-  );
+  const seenEvents = new Map<string, number>();
 
   return [
     {
@@ -153,7 +61,41 @@ export const freeAccessProgramWebhookRoutes = (
             .unknown(false),
         },
       },
-      handler: (request: AuthRequest) => handler.postAccess(request),
+      handler: async (
+        request: AuthRequest
+      ): Promise<FreeAccessProgramWebhookResult> => {
+        log.begin('subscriptions.freeAccessProgramWebhook', request);
+
+        const authorization =
+          (request.headers.authorization as string | undefined) ?? '';
+        if (!strapiClient.verifyWebhookSignature(authorization)) {
+          throw Boom.unauthorized('Invalid Strapi webhook signature');
+        }
+
+        const classification = classifyAccessWebhook(
+          request.payload as StrapiAccessWebhookPayload
+        );
+        if ('skip' in classification) {
+          return { handled: false, reason: classification.skip };
+        }
+
+        if (
+          isDuplicateAccessWebhook(seenEvents, classification.dedupeKey, Date.now())
+        ) {
+          return { handled: true, dedupe: true };
+        }
+
+        try {
+          await reconciler.reconcile();
+        } catch (err) {
+          // Swallow: the periodic cron sweep is the backstop.
+          log.error('subscriptions.freeAccessProgramWebhook.reconcile.error', {
+            err,
+          });
+        }
+
+        return { handled: true };
+      },
     },
   ];
 };

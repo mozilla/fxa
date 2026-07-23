@@ -66,4 +66,24 @@ describe('accountManager', () => {
     //   //       Validate that session is verified, and unverified session no longer exists.
     // });
   });
+
+  describe('getPrimaryEmailByUid', () => {
+    it('returns the primary email for an existing account', async () => {
+      const email = faker.internet.email();
+      const uid = await accountManager.createAccountStub(email, 1, 'en-US');
+
+      const result = await accountManager.getPrimaryEmailByUid(uid);
+      expect(result).toBe(email);
+    });
+
+    it('returns undefined for an unknown uid', async () => {
+      const unknownUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+      });
+
+      const result = await accountManager.getPrimaryEmailByUid(unknownUid);
+      expect(result).toBeUndefined();
+    });
+  });
 });

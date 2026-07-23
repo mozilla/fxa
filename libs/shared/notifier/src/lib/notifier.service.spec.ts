@@ -78,7 +78,7 @@ describe('NotifierService', () => {
 
     notifierService.send(event, callback);
 
-    expect(mockSnsService.publish).toBeCalledWith(
+    expect(mockSnsService.publish).toHaveBeenCalledWith(
       {
         TopicArn: MockNotifierSnsConfig.snsTopicArn,
         Message: JSON.stringify({
@@ -99,15 +99,15 @@ describe('NotifierService', () => {
       },
       expect.anything()
     );
-    expect(statsd.timing).toBeCalledWith(
+    expect(statsd.timing).toHaveBeenCalledWith(
       'notifier.publish',
       expect.any(Number)
     );
-    expect(mockLogger.debug).toBeCalledWith(
+    expect(mockLogger.debug).toHaveBeenCalledWith(
       'Notifier.publish success',
       responseData
     );
-    expect(callback).toBeCalledWith(undefined, responseData);
+    expect(callback).toHaveBeenCalledWith(undefined, responseData);
   });
 
   it('sends and encounters error', () => {
@@ -133,7 +133,7 @@ describe('NotifierService', () => {
 
     notifierService.send(event, callback);
 
-    expect(mockSnsService.publish).toBeCalledWith(
+    expect(mockSnsService.publish).toHaveBeenCalledWith(
       {
         TopicArn: MockNotifierSnsConfig.snsTopicArn,
         Message: JSON.stringify({
@@ -148,11 +148,11 @@ describe('NotifierService', () => {
       },
       expect.anything()
     );
-    expect(statsd.timing).toBeCalledWith(
+    expect(statsd.timing).toHaveBeenCalledWith(
       'notifier.publish',
       expect.any(Number)
     );
-    expect(mockLogger.error).toBeCalledWith('Notifier.publish', err);
-    expect(callback).toBeCalledWith(err, responseData);
+    expect(mockLogger.error).toHaveBeenCalledWith('Notifier.publish', err);
+    expect(callback).toHaveBeenCalledWith(err, responseData);
   });
 });

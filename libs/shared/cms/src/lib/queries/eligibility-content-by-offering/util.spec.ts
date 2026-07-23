@@ -28,7 +28,7 @@ describe('EligibilityByOfferingResultUtil', () => {
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult
     );
-    expect(() => util.getOffering()).toThrowError(OfferingNotFoundError);
+    expect(() => util.getOffering()).toThrow(OfferingNotFoundError);
   });
 
   it('throws error if more than offering is returned', () => {
@@ -42,6 +42,6 @@ describe('EligibilityByOfferingResultUtil', () => {
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult
     );
-    expect(() => util.getOffering()).toThrowError(OfferingMultipleError);
+    expect(() => util.getOffering()).toThrow(OfferingMultipleError);
   });
 });

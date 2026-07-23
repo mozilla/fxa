@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import type { StatsD } from 'hot-shots';
 
+import { AccountManager } from '@fxa/shared/account/account';
 import {
-  FreeAccessCapabilityMap,
+  type FreeAccessCapabilityMap,
   FreeAccessProgramConfigurationManager,
 } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
@@ -15,6 +16,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { FreeAccessProgramJournalManager } from './free-access-program.journal.manager';
 import {
   FREE_ACCESS_NOTIFIER,
+  type FreeAccessForUid,
   type FreeAccessNotifier,
   type ReconcileResult,
 } from './free-access-program.types';
@@ -24,10 +26,16 @@ import { diffByEmail } from './util/diffByEmail';
 export class FreeAccessProgramService {
   constructor(
     private configurationManager: FreeAccessProgramConfigurationManager,
-    private journalManager: FreeAccessProgramJournalManager,
-    @Inject(FREE_ACCESS_NOTIFIER) private notifier: FreeAccessNotifier,
+    private accountManager: AccountManager,
     @Inject(StatsDService) private statsd: StatsD,
-    private logger: Logger
+    private logger: Logger,
+    // Write-path dependencies: required by reconcile(), unused by the read
+    // methods. Optional so read-only consumers (e.g. payments-api) can
+    // construct the service without wiring the journal/notifier.
+    @Optional() private journalManager?: FreeAccessProgramJournalManager,
+    @Optional()
+    @Inject(FREE_ACCESS_NOTIFIER)
+    private notifier?: FreeAccessNotifier
   ) {}
 
   async findCapabilitiesForEmail(
@@ -41,22 +49,44 @@ export class FreeAccessProgramService {
   async findOfferingIdsForEmail(email?: string | null): Promise<string[]> {
     if (!email) return [];
     const projection = await this.configurationManager.getCachedProjection();
-    return [
-      ...(projection[email.toLowerCase()]?.offeringApiIdentifiers ?? []),
-    ];
+    return [...(projection[email.toLowerCase()]?.offeringApiIdentifiers ?? [])];
+  }
+
+  async findFreeAccessForUid(uid: string): Promise<FreeAccessForUid> {
+    const empty: FreeAccessForUid = { isMember: false, grantsByClient: {} };
+
+    const email = (
+      await this.accountManager.getPrimaryEmailByUid(uid)
+    )?.toLowerCase();
+    if (!email) return empty;
+
+    const projection = await this.configurationManager.getCachedProjection();
+    if (!(email in projection)) return empty;
+
+    const grantsByClient =
+      await this.configurationManager.getCachedAccessGrantsByClient();
+    return { isMember: true, grantsByClient: grantsByClient[email] ?? {} };
   }
 
   async reconcile(): Promise<ReconcileResult> {
+    const journalManager = this.journalManager;
+    const notifier = this.notifier;
+    if (!journalManager || !notifier) {
+      throw new Error(
+        'FreeAccessProgramService.reconcile requires a journal manager and notifier'
+      );
+    }
+
     const startedAt = Date.now();
     try {
       const [before, after] = await Promise.all([
-        this.journalManager.get(),
+        journalManager.get(),
         this.configurationManager.getFreshProjection(),
       ]);
 
       if (before === null) {
         // Cold start: seed the journal without firing N events.
-        await this.journalManager.set(after);
+        await journalManager.set(after);
         this.statsd.increment(
           'free_access_program.reconcile.cold_start_seeded'
         );
@@ -73,10 +103,10 @@ export class FreeAccessProgramService {
       // Invalidate before fan-out so in-process readers don't serve stale
       // state while RPs are already learning the new state.
       try {
-        await this.journalManager.set(after);
+        await journalManager.set(after);
         await this.invalidateAfterFanout();
       } finally {
-        await this.fireNotifications(changedEmails);
+        await this.fireNotifications(changedEmails, notifier);
       }
 
       this.recordDuration(startedAt);
@@ -96,10 +126,13 @@ export class FreeAccessProgramService {
     );
   }
 
-  private async fireNotifications(emails: string[]): Promise<void> {
+  private async fireNotifications(
+    emails: string[],
+    notifier: FreeAccessNotifier
+  ): Promise<void> {
     for (const email of emails) {
       try {
-        await this.notifier.notifyEmailChanged(email);
+        await notifier.notifyEmailChanged(email);
       } catch (err) {
         this.statsd.increment('free_access_program.reconcile.notify.error');
         this.logger.error(err);
@@ -113,9 +146,7 @@ export class FreeAccessProgramService {
     try {
       await this.configurationManager.invalidateProjectionCache();
     } catch (err) {
-      this.statsd.increment(
-        'free_access_program.reconcile.invalidate.error'
-      );
+      this.statsd.increment('free_access_program.reconcile.invalidate.error');
       this.logger.error(err);
       Sentry.captureException(err);
     }

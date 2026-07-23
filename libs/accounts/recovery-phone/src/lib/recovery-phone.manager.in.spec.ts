@@ -123,7 +123,7 @@ describe('RecoveryPhoneManager', () => {
       mockLookUpData
     );
 
-    expect(insertIntoSpy).toBeCalledWith('recoveryPhones');
+    expect(insertIntoSpy).toHaveBeenCalledWith('recoveryPhones');
   });
 
   it('should fail for invalid format phone number', async () => {
@@ -171,7 +171,7 @@ describe('RecoveryPhoneManager', () => {
     const result = await recoveryPhoneManager.removePhoneNumber(
       mockPhone.uid.toString('hex')
     );
-    expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
+    expect(deleteFromSpy).toHaveBeenCalledWith('recoveryPhones');
     expect(result).toBe(true);
   });
 
@@ -183,7 +183,7 @@ describe('RecoveryPhoneManager', () => {
     await expect(
       recoveryPhoneManager.removePhoneNumber(uid.toString('hex'))
     ).rejects.toThrow('Recovery number does not exist');
-    expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
+    expect(deleteFromSpy).toHaveBeenCalledWith('recoveryPhones');
   });
 
   it('should change a recovery phone', async () => {

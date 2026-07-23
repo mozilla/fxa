@@ -30,6 +30,10 @@ import {
   type StripeProduct,
   type StripeSubscription,
 } from '@fxa/payments/stripe';
+import {
+  type FreeAccessForUid,
+  FreeAccessProgramService,
+} from '@fxa/free-access-program';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 
@@ -37,11 +41,13 @@ import type {
   BillingAndSubscriptionsResponse,
   Subscription,
 } from './billing-and-subscriptions.schema';
+import { FreeAccessProgramConfig } from './free-access-program.config';
 import { buildBillingDetails } from './util/buildBillingDetails';
 import { buildIapPriceInfoMap } from './util/buildIapPriceInfoMap';
 import { hasSubscriptionRequiringPaymentMethod } from './util/hasSubscriptionRequiringPaymentMethod';
 import { mapPriceInfo } from './util/mapPriceInfo';
 import { transformToAppleIapSubscription } from './util/transformToAppleIapSubscription';
+import { transformToFreeAccessSubscription } from './util/transformToFreeAccessSubscription';
 import { transformToGoogleIapSubscription } from './util/transformToGoogleIapSubscription';
 import { transformToWebSubscription } from './util/transformToWebSubscription';
 
@@ -53,6 +59,8 @@ const UNKNOWN_SUBSCRIPTION_CUSTOMER_ERRNO = 176;
 @Injectable()
 export class BillingAndSubscriptionsService {
   constructor(
+    private readonly freeAccessProgramConfig: FreeAccessProgramConfig,
+    private readonly freeAccessProgramService: FreeAccessProgramService,
     private readonly accountCustomerManager: AccountCustomerManager,
     private readonly customerManager: CustomerManager,
     private readonly subscriptionManager: SubscriptionManager,
@@ -94,19 +102,31 @@ export class BillingAndSubscriptionsService {
       }
     }
 
-    const [activeStripeSubscriptions, googleIapPurchases, appleIapPurchases] =
-      await Promise.all([
-        stripeCustomer
-          ? this.subscriptionManager.listActiveForCustomer(stripeCustomer.id)
-          : Promise.resolve<StripeSubscription[]>([]),
-        this.googleIapPurchaseManager.getForUser(uid),
-        this.appleIapPurchaseManager.getForUser(uid),
-      ]);
+    const [
+      activeStripeSubscriptions,
+      googleIapPurchases,
+      appleIapPurchases,
+      freeAccess,
+    ] = await Promise.all([
+      stripeCustomer
+        ? this.subscriptionManager.listActiveForCustomer(stripeCustomer.id)
+        : Promise.resolve<StripeSubscription[]>([]),
+      this.googleIapPurchaseManager.getForUser(uid),
+      this.appleIapPurchaseManager.getForUser(uid),
+      // Only resolve Free Access Program data when the feature is enabled.
+      this.freeAccessProgramConfig.enabled
+        ? this.freeAccessProgramService.findFreeAccessForUid(uid)
+        : Promise.resolve<FreeAccessForUid>({
+            isMember: false,
+            grantsByClient: {},
+          }),
+    ]);
 
     if (
       !stripeCustomer &&
       googleIapPurchases.length === 0 &&
-      appleIapPurchases.length === 0
+      appleIapPurchases.length === 0 &&
+      !freeAccess.isMember
     ) {
       throw new NotFoundException({
         errno: UNKNOWN_SUBSCRIPTION_CUSTOMER_ERRNO,
@@ -120,11 +140,11 @@ export class BillingAndSubscriptionsService {
         activeStripeSubscriptions.length === 0
           ? undefined
           : activeStripeSubscriptions.some(
-              (sub) =>
-                this.subscriptionManager.getPaymentProvider(sub) === 'paypal'
-            )
-          ? 'paypal'
-          : 'stripe';
+                (sub) =>
+                  this.subscriptionManager.getPaymentProvider(sub) === 'paypal'
+              )
+            ? 'paypal'
+            : 'stripe';
 
       const defaultPaymentMethodId =
         stripeCustomer.invoice_settings.default_payment_method;
@@ -162,8 +182,9 @@ export class BillingAndSubscriptionsService {
 
     for (const sub of activeStripeSubscriptions) {
       const price = getPriceFromSubscription(sub);
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([price.id]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [price.id]
+      );
       if (!(clientId in clients)) {
         continue;
       }
@@ -230,8 +251,9 @@ export class BillingAndSubscriptionsService {
       if (!iap) {
         continue;
       }
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([iap.priceId]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [iap.priceId]
+      );
       if (!(clientId in clients)) {
         continue;
       }
@@ -243,12 +265,29 @@ export class BillingAndSubscriptionsService {
       if (!iap) {
         continue;
       }
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([iap.priceId]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [iap.priceId]
+      );
       if (!(clientId in clients)) {
         continue;
       }
       subscriptions.push(transformToAppleIapSubscription(purchase, iap));
+    }
+
+    const freeAccessGrants =
+      freeAccess.grantsByClient[clientId.toLowerCase()] ?? [];
+    for (const grant of freeAccessGrants) {
+      const offering = (
+        await this.productConfigurationManager.getEligibilityContentByOffering(
+          grant.offeringApiIdentifier
+        )
+      ).getOffering();
+      subscriptions.push(
+        transformToFreeAccessSubscription({
+          currentPeriodEnd: Math.floor(grant.expiresAt / 1000),
+          productId: offering.stripeProductId,
+        })
+      );
     }
 
     return {

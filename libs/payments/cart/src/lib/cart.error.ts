@@ -259,6 +259,16 @@ export class CartEligibilityMismatchError extends CartError {
   }
 }
 
+export class CartEligibilityStatusNotAllowedError extends CartError {
+  constructor(cartId: string, eligibilityStatus: CartEligibilityStatus) {
+    super('Cart eligibility status not allowed for checkout', {
+      cartId,
+      eligibilityStatus,
+    });
+    this.name = 'CartEligibilityStatusNotAllowedError';
+  }
+}
+
 export class CartFreeTrialMismatchError extends CartError {
   constructor(
     cartId: string,

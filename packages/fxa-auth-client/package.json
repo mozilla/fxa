@@ -69,6 +69,18 @@
   "nx": {
     "tags": [
       "scope:shared:lib"
-    ]
+    ],
+    "targets": {
+      "build-ts": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

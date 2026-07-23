@@ -52,6 +52,7 @@ import { NotifierService } from '@fxa/shared/notifier';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
+  CartEligibilityStatusNotAllowedError,
   CartFreeTrialMismatchError,
   CartAccountNotFoundError,
   CartUidNotFoundError,
@@ -60,6 +61,7 @@ import {
   CartUidMismatchError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
+import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { ResultCart } from './cart.types';
 import {
   handleEligibilityStatusMap,
@@ -251,6 +253,16 @@ export class CheckoutService {
       throw new CartEligibilityMismatchError(
         cart.id,
         cart.eligibilityStatus,
+        cartEligibilityStatus
+      );
+    }
+
+    if (
+      cartEligibilityStatus !== CartEligibilityStatus.CREATE &&
+      cartEligibilityStatus !== CartEligibilityStatus.UPGRADE
+    ) {
+      throw new CartEligibilityStatusNotAllowedError(
+        cart.id,
         cartEligibilityStatus
       );
     }

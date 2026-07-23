@@ -81,6 +81,8 @@ describe('App Store Service', () => {
 
   it('should call purchase manager', async () => {
     await service.getSubscriptions('uid-123');
-    expect(mockQueryCurrentSubscriptionPurchases).toBeCalledWith('uid-123');
+    expect(mockQueryCurrentSubscriptionPurchases).toHaveBeenCalledWith(
+      'uid-123'
+    );
   });
 });

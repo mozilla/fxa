@@ -806,6 +806,11 @@ module.exports = function (webpackEnv) {
             exclude: [
               { file: '**/src/**/__tests__/**' },
               { file: '**/src/**/?(*.){spec|test}.*' },
+              // Storybook stories are dev-only and not part of the production
+              // bundle. Storybook 10 exposes its types via package `exports`,
+              // which the app's `moduleResolution: node` cannot resolve, so
+              // type-check them in build-storybook (not the app build) instead.
+              { file: '**/src/**/*.stories.*' },
               { file: '**/src/setupProxy.*' },
               { file: '**/src/setupTests.*' },
             ],

@@ -44,6 +44,11 @@ import {
   StripeWebhookService,
   SubscriptionEventsService,
 } from '@fxa/payments/webhooks';
+import {
+  FreeAccessProgramService,
+  FreeAccessProgramWebhooksController,
+  FreeAccessProgramWebhooksService,
+} from '@fxa/free-access-program';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -75,6 +80,7 @@ import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
 import {
   CmsContentValidationManager,
+  FreeAccessProgramConfigurationManager,
   MeteringConfigurationManager,
   ProductConfigurationManager,
   StrapiClient,
@@ -106,6 +112,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     AppController,
     BillingAndSubscriptionsController,
     CmsWebhooksController,
+    FreeAccessProgramWebhooksController,
     FxaWebhooksController,
     StripeWebhooksController,
     UsageController,
@@ -128,6 +135,7 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     BillingAndSubscriptionsService,
     CapabilityManager,
     ProductConfigurationManager,
+    FreeAccessProgramConfigurationManager,
     CartManager,
     SubscriptionEventsService,
     PaymentsGleanFactory,
@@ -156,6 +164,8 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     CmsContentValidationManager,
     MeteringConfigurationManager,
     CmsWebhookService,
+    FreeAccessProgramService,
+    FreeAccessProgramWebhooksService,
     FxaWebhookService,
     NimbusManager,
     NimbusManagerConfig,

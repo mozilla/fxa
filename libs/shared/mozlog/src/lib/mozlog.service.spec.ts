@@ -70,17 +70,20 @@ describe('MozLoggerService', () => {
 
   it('logs info', () => {
     service.info('info');
-    expect(mockMozLog.info).toBeCalledWith('info', {});
+    expect(mockMozLog.info).toHaveBeenCalledWith('info', {});
   });
 
   it('logs info with data', () => {
     service.info('info', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.info).toBeCalledWith('info', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.info).toHaveBeenCalledWith('info', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
 
   it('logs info for atypical message', () => {
     service.info({ weird: 'message' }, { foo: 'bar', baz: 1 });
-    expect(mockMozLog.info).toBeCalledWith('', {
+    expect(mockMozLog.info).toHaveBeenCalledWith('', {
       message: { weird: 'message' },
       '0': { foo: 'bar', baz: 1 },
     });
@@ -88,7 +91,7 @@ describe('MozLoggerService', () => {
 
   it('logs info for atypical number of args', () => {
     service.info({ weird: 'message' }, { foo: 'bar' }, { baz: 1 });
-    expect(mockMozLog.info).toBeCalledWith('', {
+    expect(mockMozLog.info).toHaveBeenCalledWith('', {
       message: { weird: 'message' },
       '0': { foo: 'bar' },
       '1': { baz: 1 },
@@ -97,21 +100,30 @@ describe('MozLoggerService', () => {
 
   it('logs debug', () => {
     service.debug('debug', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.debug).toBeCalledWith('debug', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.debug).toHaveBeenCalledWith('debug', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
   it('logs error', () => {
     service.error('error', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.error).toBeCalledWith('error', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.error).toHaveBeenCalledWith('error', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
 
   it('logs warn', () => {
     service.warn('warn', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.warn).toBeCalledWith('warn', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.warn).toHaveBeenCalledWith('warn', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
 
   it('logs verbose', () => {
     service.verbose('verbose', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.verbose).toBeCalledWith('verbose', {
+    expect(mockMozLog.verbose).toHaveBeenCalledWith('verbose', {
       foo: 'bar',
       baz: 1,
     });
@@ -119,11 +131,17 @@ describe('MozLoggerService', () => {
 
   it('logs trace', () => {
     service.trace('trace', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.trace).toBeCalledWith('trace', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.trace).toHaveBeenCalledWith('trace', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
 
   it('logs warning', () => {
     service.warn('warning', { foo: 'bar', baz: 1 });
-    expect(mockMozLog.warn).toBeCalledWith('warning', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.warn).toHaveBeenCalledWith('warning', {
+      foo: 'bar',
+      baz: 1,
+    });
   });
 });

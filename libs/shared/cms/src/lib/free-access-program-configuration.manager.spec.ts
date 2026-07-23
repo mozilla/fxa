@@ -153,6 +153,61 @@ describe('FreeAccessProgramConfigurationManager', () => {
     });
   });
 
+  describe('getCachedAccessGrantsByClient', () => {
+    it('returns the per-client access grants of the Strapi accesses query', async () => {
+      strapiClient.queryUncached.mockResolvedValue({
+        accesses: [
+          {
+            documentId: 'ent-1',
+            internalName: 'VPN + Relay',
+            offerings: [
+              {
+                apiIdentifier: 'vpn',
+                capabilities: [
+                  { slug: 'vpn', services: [{ oauthClientId: 'client-a' }] },
+                ],
+              },
+              {
+                apiIdentifier: 'relay',
+                capabilities: [
+                  { slug: 'relay', services: [{ oauthClientId: 'client-b' }] },
+                ],
+              },
+            ],
+            matchers: [
+              {
+                __typename: 'ComponentMatchersEmailList',
+                emails: { 'user@example.com': ['2099-01-01', ''] },
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await manager.getCachedAccessGrantsByClient();
+
+      expect(strapiClient.queryUncached).toHaveBeenCalledTimes(1);
+      // Each client sees only its own offering — never the other's.
+      expect(result).toEqual({
+        'user@example.com': {
+          'client-a': [
+            { offeringApiIdentifier: 'vpn', expiresAt: Date.UTC(2099, 0, 2) },
+          ],
+          'client-b': [
+            { offeringApiIdentifier: 'relay', expiresAt: Date.UTC(2099, 0, 2) },
+          ],
+        },
+      });
+    });
+
+    it('propagates errors from the Strapi client', async () => {
+      strapiClient.queryUncached.mockRejectedValue(new Error('strapi-down'));
+      await expect(manager.getCachedAccessGrantsByClient()).rejects.toThrow(
+        'strapi-down'
+      );
+    });
+  });
+
   describe('invalidateProjectionCache', () => {
     it('resolves without throwing (decorators stripped in unit context)', async () => {
       await expect(

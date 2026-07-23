@@ -130,7 +130,7 @@ describe('CacheFirstStrategy', () => {
 
     jest.spyOn(cacheClient, 'get').mockRejectedValue(new Error('cache error'));
 
-    await expect(cacheFirstStrategy.handle(context)).rejects.toThrowError(
+    await expect(cacheFirstStrategy.handle(context)).rejects.toThrow(
       'cache error'
     );
     expect(targetMethod).not.toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('CacheFirstStrategy', () => {
 
     targetMethod.mockRejectedValue(new Error('method error'));
 
-    await expect(cacheFirstStrategy.handle(context)).rejects.toThrowError(
+    await expect(cacheFirstStrategy.handle(context)).rejects.toThrow(
       'method error'
     );
   });

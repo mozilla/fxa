@@ -27,7 +27,7 @@ describe('retrieveSubscriptionItem', () => {
         url: '/v1/subscription_items?subscription=sub_24',
       },
     });
-    expect(() => retrieveSubscriptionItem(mockSubscription)).toThrowError(
+    expect(() => retrieveSubscriptionItem(mockSubscription)).toThrow(
       SubscriptionItemMultipleItemsError
     );
   });
@@ -41,7 +41,7 @@ describe('retrieveSubscriptionItem', () => {
         url: '/v1/subscription_items?subscription=sub_24',
       },
     });
-    expect(() => retrieveSubscriptionItem(mockSubscription)).toThrowError(
+    expect(() => retrieveSubscriptionItem(mockSubscription)).toThrow(
       SubscriptionItemMissingItemError
     );
   });

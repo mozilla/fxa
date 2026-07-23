@@ -48,6 +48,6 @@ describe('LegacyStatsDProvider', () => {
 
   it('should provide statsd', async () => {
     expect(statsd).toBeDefined();
-    expect(mockStatsd).toBeCalledWith(mockConfig);
+    expect(mockStatsd).toHaveBeenCalledWith(mockConfig);
   });
 });
