@@ -1,0 +1,11 @@
+{
+  "commit": "621dd8861f3988ffd52ba6173283e538328ae47f",
+  "summary": "fix(payments-api): iap support archived prices Because:",
+  "description": "* `GET /billing-and-subscriptions` could not resolve IAP Stripe price\n  for legacy archived prices.\n\nThis commit:\n\n* If Stripe price could not be resolved using prices configured in\n  default Strapi purchase, then search for Stripe price using the IAP\n  storeId configured in Strapi.\n\nCloses #PAY-3836",
+  "timestamp": 1784831369000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
