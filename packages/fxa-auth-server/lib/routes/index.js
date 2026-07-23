@@ -87,7 +87,8 @@ module.exports = function (
     mailer,
     devicesImpl,
     statsd,
-    glean
+    glean,
+    authServerCacheRedis
   );
   const oauthRoutes = oauth.map((route) => ({
     path: route.path,
