@@ -1,8 +1,8 @@
 {
-  "commit": "c669eaf221591775c124d6322b847f9c77c205ed",
-  "summary": "Merge pull request #20909 from mozilla/dependabot/npm_and_yarn/fast-uri-3.1.4",
-  "description": "chore(deps): bump fast-uri from 3.1.2 to 3.1.4",
-  "timestamp": 1784817718000,
+  "commit": "5d4f85dc61e509cdde619d891d3763098786bddb",
+  "summary": "Merge pull request #20908 from mozilla/dependabot/npm_and_yarn/sharp-0.35.0",
+  "description": "chore(deps): bump sharp from 0.33.5 to 0.35.0",
+  "timestamp": 1784817766000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
