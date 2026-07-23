@@ -1,8 +1,8 @@
 {
-  "commit": "187d0ddd6616d03050d3ab7dcd32043787da94a2",
-  "summary": "Merge pull request #20919 from mozilla/PAY-3836",
-  "description": "fix(payments-api): iap support archived prices",
-  "timestamp": 1784839957000,
+  "commit": "3cb78fa342a289dd8964fbfa99e7a37d5eeebfd7",
+  "summary": "Merge pull request #20897 from mozilla/FXA-14165",
+  "description": "fix(admin-server): log resetAccounts as a distinct admin-panel event",
+  "timestamp": 1784850302000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

@@ -1147,9 +1147,13 @@ passkey-registration-error-constraint = Dyw gosod cyfrinallweddi ddim ar gael gy
 passkey-registration-error-unexpected = Wedi methu gosod y cyfrinallwedd. Ceisiwch eto neu dewiswch ddull arall.
 
 
+passkey-authentication-trouble-heading = Methu â mewngofnodi gyda chyfrinair
+passkey-authentication-trouble-description = Ceisiwch eto neu defnyddiwch opsiwn mewngofnodi arall.
+passkey-authentication-trouble-link = Sut i ddefnyddio allweddi
 passkey-authentication-error-not-allowed = Wedi methu mewngofnodi gyda'r cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 passkey-authentication-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Ceisiwch eto neu dewiswch ddull arall.
 passkey-authentication-error-timeout = Daeth y terfyn amser ar y cais am gyfrinallwedd. Ceisiwch eto.
+passkey-authentication-error-timeout-v2 = Daeth terfyn amser ar gyfer mewngofnodi i'r tocyn allwedd. Ceisiwch eto.
 passkey-authentication-error-not-supported-v2 = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrinallweddi.
 passkey-authentication-error-security = Does dim modd defnyddio cyfrinallweddi ar y dudalen hon. Gwiriwch eich bod ar y wefan ddiogel gywir a rhowch gynnig arall arni. diogel cywir a rhowch gynnig arall arni.
 passkey-authentication-error-invalid-state = Aeth rhywbeth o'i le gyda'ch cyfrinallwedd. Ceisiwch eto neu defnyddiwch ddull mewngofnodi arall.

@@ -1450,12 +1450,24 @@ passkey-registration-error-unexpected = הגדרת מפתח הגישה נכשל�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = לא ניתן היה להיכנס עם מפתח גישה
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = נא לנסות שוב או להשתמש באפשרות כניסה אחרת.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = כיצד להשתמש במפתחות גישה
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = הכניסה באמצעות מפתח הגישה נכשלה או שאינה זמינה. נא לנסות שוב או לבחור בשיטה אחרת.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = הגדרת מפתח הגישה אינה זמינה עם מכשיר זה. נא לנסות שוב או לבחור בשיטה אחרת.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = תם הזמן שהוקצב לבקשת מפתח הגישה. נא לנסות שוב.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = תם הזמן שהוקצב לכניסה עם מפתח גישה. נא לנסות שוב.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = הדפדפן או המכשיר שלך אינם תומכים במפתחות גישה (passkeys).
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

@@ -1133,9 +1133,13 @@ passkey-registration-error-constraint = La configuration de la clé d’accès n
 passkey-registration-error-unexpected = La configuration de la clé d’accès a échoué. Réessayez ou choisissez une autre méthode.
 
 
+passkey-authentication-trouble-heading = Impossible de se connecter avec une clé d’accès
+passkey-authentication-trouble-description = Réessayez ou utilisez une autre option de connexion.
+passkey-authentication-trouble-link = Comment utiliser les clés d’accès
 passkey-authentication-error-not-allowed = La connexion par clé d’accès a échoué ou n’est pas disponible. Réessayez ou choisissez une autre méthode.
 passkey-authentication-error-not-allowed-existing = La configuration d’une clé d’accès n’est pas possible avec cet appareil. Veuillez réessayer ou choisir une autre méthode.
 passkey-authentication-error-timeout = Délai de requête de la clé d’accès dépassé. Veuillez réessayer.
+passkey-authentication-error-timeout-v2 = Délai de connexion par clé d’accès dépassé. Veuillez réessayer.
 passkey-authentication-error-not-supported-v2 = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
 passkey-authentication-error-security = Les clés d’accès ne peuvent pas être utilisées sur cette page. Vérifiez que vous vous trouvez sur le bon site sécurisé et réessayez.
 passkey-authentication-error-invalid-state = Une erreur s’est produite avec votre clé d’accès. Réessayez ou utilisez une autre méthode de connexion.
