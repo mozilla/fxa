@@ -50,7 +50,11 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 const HEX_STRING = validators.HEX_STRING;
 
+// Apple uses the same URL for the audience of the client-secret JWT we send
+// and for the issuer of the id_tokens we verify, but the two roles are
+// distinct; name them separately so call sites read correctly.
 const APPLE_AUD = 'https://appleid.apple.com';
+const APPLE_ISSUER = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
@@ -119,7 +123,7 @@ export class LinkedAccountHandler {
         token,
         this.config.appleAuthConfig.securityEventsClientIds,
         this.applePublicKey.pem,
-        APPLE_AUD,
+        APPLE_ISSUER,
         this.statsd
       )) as AppleJWTSETPayload;
 
@@ -355,7 +359,21 @@ export class LinkedAccountHandler {
             }
             const tokenResponse = await res.json();
             rawIdToken = tokenResponse['id_token'];
-            idToken = jose.decodeJwt(rawIdToken);
+
+            // Verify the id_token signature against Apple's published keys
+            // instead of trusting an unverified decode. Reuses the same JWKS
+            // fetch + verify helpers as the Apple SET webhook handler.
+            const applePublicKey = await getApplePublicKey(
+              rawIdToken,
+              this.statsd
+            );
+            idToken = await validateSecurityToken(
+              rawIdToken,
+              [clientId],
+              applePublicKey.pem,
+              APPLE_ISSUER,
+              this.statsd
+            );
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();
@@ -394,6 +412,21 @@ export class LinkedAccountHandler {
           provider,
           userid,
           name,
+        });
+        throw error.thirdPartyAccountError();
+      }
+
+      // The IdP must have verified mailbox ownership before we auto-link or
+      // create an account by email, otherwise an unverified third-party
+      // identity could take over an existing FxA account at that address.
+      // Apple sends email_verified as the string "true"; Google as a boolean.
+      const emailVerified =
+        idToken.email_verified === true || idToken.email_verified === 'true';
+      if (!emailVerified) {
+        this.statsd.increment('linked_account.email_not_verified');
+        this.log.error('linked_account.email_not_verified', {
+          provider,
+          userid,
         });
         throw error.thirdPartyAccountError();
       }
