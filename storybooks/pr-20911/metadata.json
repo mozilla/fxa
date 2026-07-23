@@ -1,8 +1,8 @@
 {
-  "commit": "f8ad3b6fc7f2486d3b5d1212069abebdc32c9961",
+  "commit": "835f21b18d359bea22e1270b871975b04dbc544b",
   "summary": "feat(payments): Switch all Mozilla accounts legal links over to Mozilla.org version Because:",
   "description": "* We use Mozilla account links (e.g. https://accounts.firefox.com/legal/terms) throughout the repo.\n\nThis commit:\n\n* Updates links for all accounts & subplat surfaces to point to current versions on http://mozilla.org.\n* Instead of downloadable PDFs for legal docs in SubPlat emails, replaces the links to download legal PDFs to the equivalent legal docs on http://mozilla.org (e.g., …/subscription_services_privacy_notice.pdf is replaced by https://www.mozilla.org/privacy/subscription-services/)\n* Retires https://github.com/mozilla/fxa/actions/workflows/pull-legal-docs.yml github action\n* Does NOT remove current Legal docs from the accounts CDN, since these need to stay in place for emails sent prior to this change to avoid broken URLs.\n\nCloses #[PAY-3829](https://mozilla-hub.atlassian.net/browse/PAY-3829)",
-  "timestamp": 1784828490000,
+  "timestamp": 1784828733000,
   "storybooks": [
     "fxa-settings"
   ],
