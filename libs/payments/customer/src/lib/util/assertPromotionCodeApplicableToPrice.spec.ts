@@ -22,7 +22,7 @@ describe('assertPromotionCodeApplicableToPrice', () => {
         mockPrice,
         undefined
       )
-    ).toThrowError(PromotionCodePriceNotValidError);
+    ).toThrow(PromotionCodePriceNotValidError);
   });
 
   it('does not throw if promotion code is included in promotion codes for price and no product is provided', async () => {

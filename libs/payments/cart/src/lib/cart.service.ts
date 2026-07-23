@@ -621,7 +621,16 @@ export class CartService {
         );
       }
 
-      return await this.cartManager.createCart({
+      const eligibility = await this.eligibilityService.checkEligibility(
+        oldCart.interval as SubplatInterval,
+        oldCart.offeringConfigId,
+        oldCart.uid,
+        accountCustomer?.stripeCustomerId
+      );
+      const cartEligibilityStatus =
+        handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+
+      const createCartParams: SetupCart = {
         uid: oldCart.uid,
         interval: oldCart.interval,
         offeringConfigId: oldCart.offeringConfigId,
@@ -631,9 +640,38 @@ export class CartService {
         couponCode: oldCart.couponCode || undefined,
         stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
         amount: oldCart.amount,
-        eligibilityStatus: oldCart.eligibilityStatus,
+        eligibilityStatus: cartEligibilityStatus,
         isFreeTrial: oldCart.isFreeTrial,
-      });
+      };
+
+      if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
+        return this.cartManager.createErrorCart(
+          createCartParams,
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
+        );
+      }
+
+      if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
+        return this.cartManager.createErrorCart(
+          createCartParams,
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID
+        );
+      }
+
+      if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
+        return this.cartManager.createErrorCart(
+          createCartParams,
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE
+        );
+      }
+
+      if (cartEligibilityStatus === CartEligibilityStatus.BLOCKED_IAP) {
+        return this.cartManager.createErrorCart(
+          createCartParams,
+          CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
+        );
+      }
+      return await this.cartManager.createCart(createCartParams);
     });
   }
 

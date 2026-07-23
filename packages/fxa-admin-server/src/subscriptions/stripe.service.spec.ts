@@ -144,7 +144,7 @@ describe('Stripe Service', () => {
     const result2 = await service.lookupLatestInvoice('invoice-123');
 
     expect(result2).toEqual({ hosted_invoice_url: 'http://www.foo.bar' });
-    expect(mockLookupLatestInvoice).toBeCalledWith('invoice-123');
+    expect(mockLookupLatestInvoice).toHaveBeenCalledWith('invoice-123');
     expect(result1).toBeNull();
   });
 

@@ -18,7 +18,11 @@ import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
-import { notifyAttachedServicesForAccountSession } from './utils/account';
+import {
+  checkBlocklists,
+  notifyAttachedServicesForAccountSession,
+} from './utils/account';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
 import {
   getGooglePublicKey,
   getApplePublicKey,
@@ -473,7 +477,10 @@ export class LinkedAccountHandler {
         }
         // This is a new user creating a new FxA account, we
         // create the FxA account with random password and mark email
-        // verified
+        // verified.
+        // Block creation on a blocklisted email/domain, as other signup paths do.
+        await checkBlocklists(normalizeEmail(email), this.log, this.statsd);
+
         const emailCode = await random.hex(16);
         const authSalt = await random.hex(32);
         const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(

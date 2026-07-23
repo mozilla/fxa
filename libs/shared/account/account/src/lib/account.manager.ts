@@ -10,6 +10,7 @@ import { AccountDbProvider } from '@fxa/shared/db/mysql/account';
 import {
   createAccount,
   getAccounts,
+  getPrimaryEmailByUid,
   verifyAccountSession,
   VerificationMethods,
 } from './account.repository';
@@ -52,6 +53,15 @@ export class AccountManager {
   async getAccounts(uids: string[]) {
     const bufferUids = uids.map((uid) => uuidTransformer.to(uid));
     return getAccounts(this.db, bufferUids);
+  }
+
+  /**
+   * Return the current primary email address for an account, or undefined if
+   * the account has no primary email row (e.g. unknown uid).
+   */
+  async getPrimaryEmailByUid(uid: string): Promise<string | undefined> {
+    const row = await getPrimaryEmailByUid(this.db, uuidTransformer.to(uid));
+    return row?.email;
   }
 
   async verifySession(

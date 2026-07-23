@@ -200,9 +200,9 @@ describe('StripeWebhookService', () => {
 
         await expect(
           stripeWebhookService.handleWebhookEvent({}, 'signature')
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
 
-        expect(Sentry.captureException).toBeCalledTimes(1);
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1);
       });
     });
   });

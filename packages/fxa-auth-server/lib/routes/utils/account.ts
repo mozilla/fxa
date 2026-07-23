@@ -1,3 +1,4 @@
+import { StatsD } from 'hot-shots';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { AppError as error } from '@fxa/accounts/errors';
@@ -7,6 +8,39 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { DB } from '../../db';
 import { getClientServiceTags } from '../../metrics/client-tags';
+import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
+
+/**
+ * Throws `error.requestBlocked` if the (normalized) email matches the
+ * admin-managed regex or domain blocklist. Shared by all account-creation
+ * paths so none can bypass the block.
+ */
+export async function checkBlocklists(
+  normalizedEmail: string,
+  log: AuthLogger,
+  statsd: StatsD
+): Promise<void> {
+  const blockedRegex = await EmailBlocklist.findMatchingRegex(normalizedEmail);
+  if (blockedRegex !== null) {
+    log.info('account.create.blocked', {
+      domain: normalizedEmail.split('@')[1],
+      blockedRegex,
+      blocker: 'regex',
+    });
+    statsd.increment('account.create.blocked', { blocker: 'regex' });
+    throw error.requestBlocked(false);
+  }
+  const blockedDomain =
+    await DomainBlocklist.findMatchingDomain(normalizedEmail);
+  if (blockedDomain !== null) {
+    log.info('account.create.blocked', {
+      domain: blockedDomain,
+      blocker: 'domain',
+    });
+    statsd.increment('account.create.blocked', { blocker: 'domain' });
+    throw error.requestBlocked(false);
+  }
+}
 
 export async function deleteAccountIfUnverified(
   db: DB,

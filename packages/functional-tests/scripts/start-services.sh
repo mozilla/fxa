@@ -18,8 +18,7 @@ chmod +x node_modules/@nestjs/cli/bin/nest.js
 # fresh build here so the started services have everything they need.
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t build \
-    --skip-nx-cache \
-    --parallel=2 \
+    --parallel=4 \
     -p \
     123done \
     fxa-admin-panel \
@@ -29,6 +28,17 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-profile-server \
     fxa-settings
 
+# Pre-start the pm2 daemon once. Every service's `start` script runs
+# `pm2 start`, so when several run concurrently they otherwise race to spawn
+# the shared pm2 daemon and can deadlock (the pm2 client hangs forever waiting
+# on the daemon RPC). Pinging first guarantees the daemon is already up so the
+# concurrent `pm2 start` calls just connect to it.
+npx pm2 ping
+
+# Start the services with limited parallelism. Even with the daemon already
+# running, keep this at 2 (matching the value used before the nx upgrade) to
+# avoid overwhelming the single pm2 daemon with many simultaneous `pm2 start`
+# connections during service boot.
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t start \
     --parallel=2 \

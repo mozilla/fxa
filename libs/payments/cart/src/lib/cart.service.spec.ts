@@ -348,7 +348,10 @@ describe('CartService', () => {
       ).rejects.toThrow(Error);
 
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalledWith('checkoutFail', expect.anything());
+      expect(emitSpy).not.toHaveBeenCalledWith(
+        'checkoutFail',
+        expect.anything()
+      );
     });
 
     it('cancels and stamps suppression metadata for a created subscription with paid zero-cost invoice', async () => {
@@ -920,7 +923,7 @@ describe('CartService', () => {
         .spyOn(accountManager, 'getAccounts')
         .mockResolvedValue([mockAccount]);
 
-      await expect(() => cartService.setupCart(args)).rejects.toThrowError(
+      await expect(() => cartService.setupCart(args)).rejects.toThrow(
         CartCurrencyNotFoundError
       );
 
@@ -1285,9 +1288,12 @@ describe('CartService', () => {
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
-    it('fetches old cart and creates new cart with same details', async () => {
+    it('fetches old cart and creates new cart with same details and re-validated eligibility', async () => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
@@ -1299,6 +1305,12 @@ describe('CartService', () => {
       const result = await cartService.restartCart(mockOldCart.id);
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockOldCart.id);
+      expect(eligibilityService.checkEligibility).toHaveBeenCalledWith(
+        mockOldCart.interval,
+        mockOldCart.offeringConfigId,
+        mockOldCart.uid,
+        mockAccountCustomer.stripeCustomerId
+      );
       expect(cartManager.createCart).toHaveBeenCalledWith({
         uid: mockOldCart.uid,
         interval: mockOldCart.interval,
@@ -1308,9 +1320,38 @@ describe('CartService', () => {
         currency: mockOldCart.currency,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         amount: mockOldCart.amount,
-        eligibilityStatus: mockOldCart.eligibilityStatus,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
         isFreeTrial: mockOldCart.isFreeTrial,
       });
+      expect(result).toEqual(mockNewCart);
+    });
+
+    it('creates a FAIL error cart when the user is no longer eligible', async () => {
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockNewCart);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue({
+          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+        });
+
+      const result = await cartService.restartCart(mockOldCart.id);
+
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
+        }),
+        CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
+      );
+      expect(cartManager.createCart).not.toHaveBeenCalled();
       expect(result).toEqual(mockNewCart);
     });
 
@@ -1322,7 +1363,7 @@ describe('CartService', () => {
 
       await expect(() =>
         cartService.restartCart(mockOldCart.id)
-      ).rejects.toThrowError(CartRestartInvalidPromoCodeError);
+      ).rejects.toThrow(CartRestartInvalidPromoCodeError);
 
       expect(
         promotionCodeManager.assertValidPromotionCodeNameForPrice
@@ -1510,7 +1551,7 @@ describe('CartService', () => {
 
       await expect(
         cartService.finalizeProcessingCart(mockCart.id)
-      ).rejects.toThrowError(CartError);
+      ).rejects.toThrow(CartError);
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
     it('throws a CartSubscriptionNotFoundError', async () => {
@@ -1529,7 +1570,7 @@ describe('CartService', () => {
 
       await expect(
         cartService.finalizeProcessingCart(mockCart.id)
-      ).rejects.toThrowError(CartSubscriptionNotFoundError);
+      ).rejects.toThrow(CartSubscriptionNotFoundError);
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
     it('calls checkoutService.postPaySteps', async () => {
@@ -3473,9 +3514,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputCustomerIdMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputCustomerIdMissingError/);
     });
     it('throws assertion error for missing stripeSubscriptionId', async () => {
       const localMockCart = {
@@ -3484,9 +3525,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputSubscriptionIdMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputSubscriptionIdMissingError/);
     });
     it('throws assertion error for missing uid', async () => {
       const localMockCart = {
@@ -3495,9 +3536,9 @@ describe('CartService', () => {
       };
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
 
-      await expect(cartService.submitNeedsInput(mockCart.id, mockRequestArgs)).rejects.toThrow(
-        /SubmitNeedsInputUidMissingError/
-      );
+      await expect(
+        cartService.submitNeedsInput(mockCart.id, mockRequestArgs)
+      ).rejects.toThrow(/SubmitNeedsInputUidMissingError/);
     });
 
     it('throws IntentGetInTouchError when payment intent status is requires_payment_method with card_declined', async () => {

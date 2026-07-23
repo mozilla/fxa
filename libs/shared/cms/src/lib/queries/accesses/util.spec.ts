@@ -7,6 +7,11 @@ import { AccessUtil } from './util';
 
 const NOW = new Date('2026-06-01T12:00:00.000Z').getTime();
 
+// parseStrictDate resolves a YYYY-MM-DD grant date to start-of-next-day UTC, so a
+// grant dated 2099-01-01 expires at the very start of 2099-01-02.
+const EXPIRY_2099 = Date.UTC(2099, 0, 2);
+const EXPIRY_2100 = Date.UTC(2100, 0, 2);
+
 /**
  * Build a minimal `AccessesQuery` with a single email→matcher wiring —
  * keeps each test focused on the specific projection behaviour.
@@ -284,5 +289,131 @@ describe('AccessUtil.project', () => {
     const entry = new AccessUtil(query).project()['user@example.com'];
     expect(entry.capabilities).toEqual({ 'client-a': ['vpn'] });
     expect(entry.offeringApiIdentifiers).toEqual([]);
+  });
+});
+
+describe('AccessUtil.projectByClient', () => {
+  beforeEach(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('attributes each offering only to the client whose capability it carries', () => {
+    // One email, one access, two offerings tied to two different clients.
+    const query = buildQuery([
+      {
+        documentId: 'ent-1',
+        offerings: [
+          {
+            apiIdentifier: 'vpn',
+            capabilities: [{ slug: 'vpn', oauthClientId: 'client-a' }],
+          },
+          {
+            apiIdentifier: 'relay',
+            capabilities: [{ slug: 'relay', oauthClientId: 'client-b' }],
+          },
+        ],
+        emails: { 'user@example.com': ['2099-01-01', ''] },
+      },
+    ]);
+
+    expect(new AccessUtil(query).projectByClient()).toEqual({
+      'user@example.com': {
+        'client-a': [{ offeringApiIdentifier: 'vpn', expiresAt: EXPIRY_2099 }],
+        'client-b': [
+          { offeringApiIdentifier: 'relay', expiresAt: EXPIRY_2099 },
+        ],
+      },
+    });
+  });
+
+  it('lists an offering under every client it serves', () => {
+    const query = buildQuery([
+      {
+        documentId: 'ent-1',
+        offerings: [
+          {
+            apiIdentifier: 'vpn',
+            capabilities: [
+              { slug: 'vpn', oauthClientId: 'Client-A' },
+              { slug: 'vpn', oauthClientId: 'client-b' },
+            ],
+          },
+        ],
+        emails: { 'user@example.com': ['2099-01-01', ''] },
+      },
+    ]);
+
+    const byClient = new AccessUtil(query).projectByClient()[
+      'user@example.com'
+    ];
+    // oauthClientId is lowercased.
+    expect(byClient['client-a']).toEqual([
+      { offeringApiIdentifier: 'vpn', expiresAt: EXPIRY_2099 },
+    ]);
+    expect(byClient['client-b']).toEqual([
+      { offeringApiIdentifier: 'vpn', expiresAt: EXPIRY_2099 },
+    ]);
+  });
+
+  it('keeps the latest expiry when the same email/client/offering spans accesses', () => {
+    const query = buildQuery([
+      {
+        documentId: 'ent-a',
+        offerings: [
+          {
+            apiIdentifier: 'vpn',
+            capabilities: [{ slug: 'vpn', oauthClientId: 'client-a' }],
+          },
+        ],
+        emails: { 'user@example.com': ['2099-01-01', ''] },
+      },
+      {
+        documentId: 'ent-b',
+        offerings: [
+          {
+            apiIdentifier: 'vpn',
+            capabilities: [{ slug: 'vpn', oauthClientId: 'client-a' }],
+          },
+        ],
+        emails: { 'user@example.com': ['2100-01-01', ''] },
+      },
+    ]);
+
+    expect(
+      new AccessUtil(query).projectByClient()['user@example.com']['client-a']
+    ).toEqual([{ offeringApiIdentifier: 'vpn', expiresAt: EXPIRY_2100 }]);
+  });
+
+  it('excludes past-expiry grants', () => {
+    const query = buildQuery([
+      {
+        documentId: 'ent-stale',
+        offerings: [
+          {
+            apiIdentifier: 'vpn',
+            capabilities: [{ slug: 'vpn', oauthClientId: 'client-a' }],
+          },
+        ],
+        emails: { 'user@example.com': ['2024-01-01', ''] },
+      },
+    ]);
+
+    expect(new AccessUtil(query).projectByClient()).toEqual({});
+  });
+
+  it('excludes offerings that carry no oauth client', () => {
+    const query = buildQuery([
+      {
+        documentId: 'ent-1',
+        offerings: [{ apiIdentifier: 'vpn', capabilities: [] }],
+        emails: { 'user@example.com': ['2099-01-01', ''] },
+      },
+    ]);
+
+    expect(new AccessUtil(query).projectByClient()).toEqual({});
   });
 });

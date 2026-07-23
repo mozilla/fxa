@@ -490,6 +490,40 @@ describe('/account/passwordless/confirm_code', () => {
     });
   });
 
+  it('does not create a new account when the email matches the regex blocklist', async () => {
+    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    mockDB.createAccount = jest.fn();
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValueOnce(
+      '@example\\.com$'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    expect(mockDB.createAccount).toHaveBeenCalledTimes(0);
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('does not create a new account when the domain matches the domain blocklist', async () => {
+    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    mockDB.createAccount = jest.fn();
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValueOnce(
+      'example.com'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    expect(mockDB.createAccount).toHaveBeenCalledTimes(0);
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValue(null);
+  });
+
   it('should create session for existing account with valid code', () => {
     // Primary differs from the signup email; the login notification must use the primary.
     const currentPrimaryEmail = 'current-primary@mozilla.com';
@@ -1674,6 +1708,58 @@ describe('/account/passwordless/resend_code', () => {
         expect(err.errno).toBe(206);
       }
     );
+  });
+
+  it('blocks resend for a new account when the email matches the regex blocklist', async () => {
+    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValueOnce(
+      '@example\\.com$'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    // No OTP sent to a blocked address.
+    expect(mockOtpManagerDelete).toHaveBeenCalledTimes(0);
+    expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
+    (EmailBlocklist.findMatchingRegex as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('blocks resend for a new account when the domain matches the domain blocklist', async () => {
+    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValueOnce(
+      'example.com'
+    );
+
+    await expect(runTest(route, mockRequest)).rejects.toThrow(
+      error.requestBlocked()
+    );
+    expect(mockOtpManagerDelete).toHaveBeenCalledTimes(0);
+    expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
+    (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('does not check the blocklist when resending for an existing account', async () => {
+    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        verifierSetAt: 0,
+        emails: [{ email: TEST_EMAIL, isPrimary: true }],
+      })
+    );
+
+    await runTest(route, mockRequest);
+
+    expect(DomainBlocklist.findMatchingDomain).not.toHaveBeenCalled();
   });
 });
 

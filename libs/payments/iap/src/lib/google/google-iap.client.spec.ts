@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GoogleIapClient } from './google-iap.client';
-import { GoogleIapUnknownError } from './google-iap.error';
+import { GoogleIapClientUnknownError } from './google-iap.error';
 import { MockGoogleIapClientConfigProvider } from './google-iap.client.config';
 import { faker } from '@faker-js/faker';
 
@@ -64,7 +64,7 @@ describe('GoogleIapClient', () => {
       });
     });
 
-    it('should throw GoogleIapUnknownError on failure', async () => {
+    it('should throw GoogleIapClientUnknownError on failure', async () => {
       const mockPackageName = faker.string.uuid();
       const mockSku = faker.string.uuid();
       const mockPurchaseToken = faker.string.uuid();
@@ -83,9 +83,7 @@ describe('GoogleIapClient', () => {
           mockSku,
           mockPurchaseToken
         )
-      ).rejects.toThrow(
-        new GoogleIapUnknownError('Unknown Google IAP Error', error)
-      );
+      ).rejects.toThrow(new GoogleIapClientUnknownError(error));
     });
   });
 });

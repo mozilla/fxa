@@ -1,11 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "types": ["jest", "@testing-library/jest-dom", "node"]
   },
   "include": [
     "./components",
     "./lib"
+  ],
+  "exclude": [
+    "./**/storybooks.tsx",
+    "./**/*.stories.tsx",
+    "./**/*.stories.ts"
   ]
 }

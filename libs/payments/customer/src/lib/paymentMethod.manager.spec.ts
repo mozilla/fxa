@@ -99,6 +99,11 @@ describe('PaymentMethodManager', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
       );
+      // Pin a non-expired expiry so no payment method error is produced.
+      if (mockPaymentMethod.card) {
+        mockPaymentMethod.card.exp_year = 2999;
+        mockPaymentMethod.card.exp_month = 12;
+      }
       const mockStripeCustomer = StripeCustomerFactory();
       const mockSubscriptions = [StripeSubscriptionFactory()];
       const mockUid = faker.string.uuid();
@@ -123,7 +128,7 @@ describe('PaymentMethodManager', () => {
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
-        hasPaymentMethodError: expect.objectContaining({}) as any,
+        hasPaymentMethodError: undefined,
       });
     });
 
@@ -149,7 +154,7 @@ describe('PaymentMethodManager', () => {
       expect(result).toEqual({
         type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: mockPaypalBillingAgreementId,
-        hasPaymentMethodError: expect.objectContaining({}) as any,
+        hasPaymentMethodError: undefined,
       });
     });
 
@@ -157,6 +162,11 @@ describe('PaymentMethodManager', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
       );
+      // Pin a non-expired expiry so no payment method error is produced.
+      if (mockPaymentMethod.card) {
+        mockPaymentMethod.card.exp_year = 2999;
+        mockPaymentMethod.card.exp_month = 12;
+      }
       const mockStripeCustomer = StripeCustomerFactory();
       const mockSubscriptions = [StripeSubscriptionFactory()];
       const mockUid = faker.string.uuid();
@@ -181,7 +191,7 @@ describe('PaymentMethodManager', () => {
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
-        hasPaymentMethodError: expect.objectContaining({}) as any,
+        hasPaymentMethodError: undefined,
       });
     });
 

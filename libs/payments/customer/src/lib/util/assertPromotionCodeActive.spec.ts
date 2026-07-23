@@ -19,7 +19,7 @@ describe('assertPromotionCodeActive', () => {
   it('throws error if there is no promotion code', async () => {
     const mockPromotionCode = StripeResponseFactory(undefined);
 
-    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrow(
       CouponErrorGeneric
     );
   });
@@ -29,7 +29,7 @@ describe('assertPromotionCodeActive', () => {
       active: false,
     });
 
-    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrow(
       CouponErrorGeneric
     );
   });
@@ -41,7 +41,7 @@ describe('assertPromotionCodeActive', () => {
       }),
     });
 
-    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrow(
       CouponErrorInvalidCode
     );
   });
@@ -52,7 +52,7 @@ describe('assertPromotionCodeActive', () => {
       times_redeemed: 3,
     });
 
-    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrow(
       CouponErrorLimitReached
     );
   });
@@ -63,7 +63,7 @@ describe('assertPromotionCodeActive', () => {
       expires_at: expiredTime,
     });
 
-    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrow(
       CouponErrorExpired
     );
   });

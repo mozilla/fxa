@@ -41,16 +41,20 @@ import {
   StripeClient,
 } from '@fxa/payments/stripe';
 import {
+  FreeAccessProgramConfigurationManager,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import { FreeAccessProgramService } from '@fxa/free-access-program';
+import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { BillingAndSubscriptionsController } from './billing-and-subscriptions.controller';
 import { BillingAndSubscriptionsService } from './billing-and-subscriptions.service';
+import { MockFreeAccessProgramConfigProvider } from './free-access-program.config';
 
 const FxaOAuthUserFactory = (
   override?: Partial<FxaOAuthUser>
@@ -79,6 +83,10 @@ describe('BillingAndSubscriptionsController', () => {
         ProductManager,
         CapabilityManager,
         ProductConfigurationManager,
+        FreeAccessProgramConfigurationManager,
+        FreeAccessProgramService,
+        MockFreeAccessProgramConfigProvider,
+        AccountManager,
         AppleIapPurchaseManager,
         AppleIapClient,
         MockAppleIapClientConfigProvider,

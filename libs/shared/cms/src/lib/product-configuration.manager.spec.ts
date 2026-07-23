@@ -61,11 +61,11 @@ import {
   PageContentByPriceIdsQueryFactory,
   PageContentByPriceIdsResultUtil,
 } from './queries/page-content-by-price-ids';
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import {
-    freeTrialQuery,
-    FreeTrialResultFactory,
-    FreeTrialUtil,
+  freeTrialQuery,
+  FreeTrialResultFactory,
+  FreeTrialUtil,
 } from './queries/free-trial';
 
 jest.mock('@type-cacheable/core', () => {
@@ -400,7 +400,7 @@ describe('productConfigurationManager', () => {
           'test',
         ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
-      expect(strapiClient.query).toBeCalledTimes(1);
+      expect(strapiClient.query).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -455,7 +455,7 @@ describe('productConfigurationManager', () => {
           ['test']
         );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
-      expect(strapiClient.query).toBeCalledTimes(1);
+      expect(strapiClient.query).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -777,10 +777,9 @@ describe('productConfigurationManager', () => {
       const result =
         await productConfigurationManager.getFreeTrial(apiIdentifier);
 
-      expect(strapiClient.query).toHaveBeenCalledWith(
-        freeTrialQuery,
-        { apiIdentifier }
-      );
+      expect(strapiClient.query).toHaveBeenCalledWith(freeTrialQuery, {
+        apiIdentifier,
+      });
 
       expect(result).toBeInstanceOf(FreeTrialUtil);
       expect(result.freeTrial.freeTrials).toHaveLength(1);

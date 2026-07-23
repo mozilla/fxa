@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render } from '@testing-library/react';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
 const reportError = () => {};
 

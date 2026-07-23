@@ -38,6 +38,16 @@ jest.mock('./utils/third-party-events', () => {
   });
 });
 
+// Default to "not blocked" so happy paths run without a DB.
+jest.mock('fxa-shared/db/models/auth', () => ({
+  EmailBlocklist: {
+    findMatchingRegex: jest.fn().mockResolvedValue(null),
+  },
+  DomainBlocklist: {
+    findMatchingDomain: jest.fn().mockResolvedValue(null),
+  },
+}));
+
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -230,6 +240,25 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+      });
+
+      it('does not create a new account when the domain is blocklisted', async () => {
+        const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+        mockDB.accountRecord = jest.fn(() =>
+          Promise.reject(error.unknownAccount(mockGoogleUser.email))
+        );
+        (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValueOnce(
+          mockGoogleUser.email.split('@')[1]
+        );
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.requestBlocked().errno,
+        });
+        expect(mockDB.createAccount).not.toHaveBeenCalled();
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValue(
+          null
+        );
       });
 
       it('throws thirdPartyAccountError when the Google token endpoint responds non-ok', async () => {

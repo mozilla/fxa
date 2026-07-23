@@ -236,7 +236,7 @@ describe('PubsubProxy Controller', () => {
         expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
       }
 
-      expect(jwtset[generateFunc]).toBeCalledTimes(1);
+      expect(jwtset[generateFunc]).toHaveBeenCalledTimes(1);
     }
     for (const [key, value] of Object.entries(eventTypes)) {
       const [creatFunc, generateFunc] = value;
@@ -296,8 +296,8 @@ describe('PubsubProxy Controller', () => {
     }
 
     expect(err?.getStatus()).toBe(400);
-    expect(logger.error).toBeCalledTimes(1);
-    expect(Sentry.captureException).toBeCalledTimes(1);
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
   it('records a metric on not found client ids', async () => {
@@ -323,9 +323,12 @@ describe('PubsubProxy Controller', () => {
       err = error;
     }
     expect(err?.getStatus()).toBe(200);
-    expect(mockMetricValue.increment).toBeCalledWith('proxy.webhookNotFound', {
-      clientId: 'abc1234',
-    });
+    expect(mockMetricValue.increment).toHaveBeenCalledWith(
+      'proxy.webhookNotFound',
+      {
+        clientId: 'abc1234',
+      }
+    );
   });
 
   it('proxies an error code back', async () => {

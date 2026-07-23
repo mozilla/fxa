@@ -71,6 +71,22 @@ export function getAccounts(db: AccountDatabase, uids: Buffer[]) {
     .execute();
 }
 
+/**
+ * Get the current primary email address for an account by uid.
+ *
+ * Returns the row from the `emails` table flagged as primary — this is the
+ * user's current primary email, which may differ from the immutable signup
+ * email stored on the `accounts` table.
+ */
+export function getPrimaryEmailByUid(db: AccountDatabase, uid: Buffer) {
+  return db
+    .selectFrom('emails')
+    .select('email')
+    .where('uid', '=', uid)
+    .where('isPrimary', '=', true)
+    .executeTakeFirst();
+}
+
 /** See session_token.js in auth server for master list. */
 export enum VerificationMethods {
   email = 0,
