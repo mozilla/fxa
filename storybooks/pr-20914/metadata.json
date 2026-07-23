@@ -1,0 +1,12 @@
+{
+  "commit": "074138833dcea8712d962264f26940dc2a34fb43",
+  "summary": "chore(deps): bump next-auth from 5.0.0-beta.30 to 5.0.0-beta.32",
+  "description": "Bumps [next-auth](https://github.com/nextauthjs/next-auth) from 5.0.0-beta.30 to 5.0.0-beta.32.\n- [Release notes](https://github.com/nextauthjs/next-auth/releases)\n- [Commits](https://github.com/nextauthjs/next-auth/compare/next-auth@5.0.0-beta.30...next-auth@5.0.0-beta.32)\n\n---\nupdated-dependencies:\n- dependency-name: next-auth\n  dependency-version: 5.0.0-beta.32\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1784817886000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
