@@ -15,6 +15,7 @@ export enum EventNames {
   UnsubscribeFromMailingLists = 'unsubscribe-from-mailing-lists',
   Remove2FA = 'remove-2fa',
   DeleteRecoveryPhone = 'delete-recovery-phone',
+  RemovePasskeys = 'remove-passkeys',
 }
 
 /**

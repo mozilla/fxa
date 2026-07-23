@@ -122,6 +122,26 @@ export const Account = ({
     }
   };
 
+  const handleRemovePasskey = async (credentialId: string) => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    try {
+      const removed = await adminApi.removePasskey(uid, credentialId);
+      if (!removed) {
+        window.alert('No passkey was removed.');
+        return;
+      }
+      adminApi
+        .recordSecurityEvent(uid, 'account.passkey.removed')
+        .catch(() => {});
+      window.alert('The passkey has been removed.');
+      onCleared();
+    } catch {
+      window.alert('Error removing passkey.');
+    }
+  };
+
   function highlight(val: string) {
     return query === val ? 'bg-yellow-100' : undefined;
   }
@@ -327,10 +347,11 @@ export const Account = ({
               'Backup State',
               'PRF Enabled',
               'Authenticator',
+              'Action',
             ]}
           >
             {passkeys.map((passkey: PasskeyType) => (
-              <TableRowXHeader key={`${passkey.name}-${passkey.createdAt}`}>
+              <TableRowXHeader key={passkey.credentialId}>
                 <td data-testid="passkey-name">{passkey.name}</td>
                 <td data-testid="passkey-created-at">
                   {getFormattedDate(passkey.createdAt)}
@@ -348,6 +369,19 @@ export const Account = ({
                 </td>
                 <td data-testid="passkey-authenticator-name">
                   {passkey.authenticatorName || 'Unknown'}
+                </td>
+                <td>
+                  <Guard features={[AdminPanelFeature.RemovePasskeys]}>
+                    <button
+                      className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                      type="button"
+                      data-testid={`remove-passkey-${passkey.credentialId}`}
+                      aria-label={`Remove passkey ${passkey.name}`}
+                      onClick={() => handleRemovePasskey(passkey.credentialId)}
+                    >
+                      Remove
+                    </button>
+                  </Guard>
                 </td>
               </TableRowXHeader>
             ))}
@@ -502,6 +536,7 @@ export const Account = ({
           has2FA: totps && totps.some((x) => x.enabled),
           hasRecoveryPhone:
             recoveryPhone && recoveryPhone.some((x) => x.exists),
+          hasPasskeys: passkeys && passkeys.length > 0,
         }}
       />
     </>

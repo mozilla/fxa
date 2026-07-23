@@ -98,6 +98,7 @@ export interface RecoveryPhone {
 
 export interface Passkey {
   name: string;
+  credentialId: string;
   createdAt: number;
   lastUsedAt: number | null;
   aaguid: string;

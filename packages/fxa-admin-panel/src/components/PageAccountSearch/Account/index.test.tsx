@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { Account, AccountProps } from './index';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
+import { adminApi } from '../../../lib/api';
 
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
@@ -34,6 +36,7 @@ jest.mock('../../../lib/api', () => ({
     editLocale: jest.fn(),
     unlinkAccount: jest.fn(),
     clearEmailBounce: jest.fn(),
+    removePasskey: jest.fn(),
     recordSecurityEvent: jest.fn().mockResolvedValue(true),
   },
 }));
@@ -232,6 +235,7 @@ it('displays passkeys with authenticator name', () => {
     passkeys: [
       {
         name: 'iPhone Face ID',
+        credentialId: 'aphonecredentialid',
         createdAt: 1589467100316,
         lastUsedAt: null,
         aaguid: '00000000-0000-0000-0000-000000000000',
@@ -241,6 +245,7 @@ it('displays passkeys with authenticator name', () => {
       },
       {
         name: 'YubiKey 5',
+        credentialId: 'ayubikeycredentialid',
         createdAt: 1589467200000,
         lastUsedAt: 1700000000000,
         aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
@@ -263,6 +268,7 @@ it('displays passkeys with never-used date', () => {
     passkeys: [
       {
         name: 'iPhone Face ID',
+        credentialId: 'aphonecredentialid',
         createdAt: 1589467100316,
         lastUsedAt: null,
         aaguid: '00000000-0000-0000-0000-000000000000',
@@ -283,6 +289,7 @@ it('displays passkeys with last-used date', () => {
     passkeys: [
       {
         name: 'YubiKey 5',
+        credentialId: 'ayubikeycredentialid',
         createdAt: 1589467200000,
         lastUsedAt: 1700000000000,
         aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
@@ -295,6 +302,145 @@ it('displays passkeys with last-used date', () => {
   const { getByTestId } = render(<Account {...withPasskey} />);
 
   expect(getByTestId('passkey-last-used-at')).toHaveTextContent('2023-11');
+});
+
+const passkeyFixture = {
+  name: 'iPhone Face ID',
+  credentialId: 'aphonecredentialid',
+  createdAt: 1589467100316,
+  lastUsedAt: null,
+  aaguid: '00000000-0000-0000-0000-000000000000',
+  authenticatorName: undefined,
+  backupState: true,
+  prfEnabled: false,
+};
+
+it('does not render a per-passkey remove button for a support agent', () => {
+  // The default mocked user is a support agent; RemovePasskeys is Admin-only.
+  render(<Account {...{ ...accountResponse, passkeys: [passkeyFixture] }} />);
+
+  expect(
+    screen.queryByRole('button', { name: /remove passkey/i })
+  ).not.toBeInTheDocument();
+});
+
+it('removes a single passkey by credentialId when an admin confirms', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(true);
+  // recordSecurityEvent is fire-and-forget (.catch); it must return a promise.
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, onCleared, passkeys: [passkeyFixture] }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey iPhone Face ID' })
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskey).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'aphonecredentialid'
+      );
+      expect(adminApi.recordSecurityEvent).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'account.passkey.removed'
+      );
+      expect(alertSpy).toHaveBeenCalledWith('The passkey has been removed.');
+      expect(onCleared).toHaveBeenCalled();
+    });
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('does not record the event or clear when no passkey was removed', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(false);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, onCleared, passkeys: [passkeyFixture] }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey iPhone Face ID' })
+    );
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('No passkey was removed.');
+    });
+    expect(adminApi.recordSecurityEvent).not.toHaveBeenCalled();
+    expect(onCleared).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('targets the clicked passkey by its own credentialId with multiple passkeys', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(true);
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
+
+  const secondPasskey = {
+    ...passkeyFixture,
+    name: 'YubiKey 5',
+    credentialId: 'ayubikeycredentialid',
+  };
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, passkeys: [passkeyFixture, secondPasskey] }}
+      />
+    );
+
+    expect(
+      screen.getAllByRole('button', { name: /remove passkey/i })
+    ).toHaveLength(2);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey YubiKey 5' })
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskey).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'ayubikeycredentialid'
+      );
+    });
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
 });
 
 it('displays secondary emails', async () => {
