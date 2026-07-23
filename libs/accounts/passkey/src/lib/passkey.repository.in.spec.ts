@@ -144,7 +144,11 @@ describe('PasskeyRepository (Integration)', () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
       const passkey = PasskeyFactory({ uid: uidBuffer(uid1), signCount: 0 });
-      await PasskeyRepository.insertPasskey(db, uid1, toNewPasskeyData(passkey));
+      await PasskeyRepository.insertPasskey(
+        db,
+        uid1,
+        toNewPasskeyData(passkey)
+      );
 
       // Wrong uid — WHERE clause should prevent the update
       const success = await PasskeyRepository.updatePasskeyCounterAndLastUsed(
@@ -161,6 +165,115 @@ describe('PasskeyRepository (Integration)', () => {
         passkey.credentialId.toString('base64url')
       );
       expect(found?.signCount).toBe(0);
+    });
+  });
+
+  describe('updatePasskeyPrfEnabled (monotonic)', () => {
+    it('rolls prfEnabled forward from false to true', async () => {
+      const uid = await createTestAccount();
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        prfEnabled: false,
+      });
+      await PasskeyRepository.insertPasskey(db, uid, toNewPasskeyData(passkey));
+
+      const rows = await PasskeyRepository.updatePasskeyPrfEnabled(
+        db,
+        uid,
+        passkey.credentialId.toString('base64url')
+      );
+
+      expect(rows).toBe(1);
+      const found = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
+      expect(found?.prfEnabled).toBe(true);
+    });
+
+    it('is a no-op (0 rows) when prfEnabled is already true', async () => {
+      const uid = await createTestAccount();
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid), prfEnabled: true });
+      await PasskeyRepository.insertPasskey(db, uid, toNewPasskeyData(passkey));
+
+      const rows = await PasskeyRepository.updatePasskeyPrfEnabled(
+        db,
+        uid,
+        passkey.credentialId.toString('base64url')
+      );
+
+      expect(rows).toBe(0);
+      const found = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
+      expect(found?.prfEnabled).toBe(true);
+    });
+
+    it('does not update when uid does not match the credential owner', async () => {
+      const uid1 = await createTestAccount();
+      const uid2 = await createTestAccount();
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid1),
+        prfEnabled: false,
+      });
+      await PasskeyRepository.insertPasskey(
+        db,
+        uid1,
+        toNewPasskeyData(passkey)
+      );
+
+      const rows = await PasskeyRepository.updatePasskeyPrfEnabled(
+        db,
+        uid2,
+        passkey.credentialId.toString('base64url')
+      );
+
+      expect(rows).toBe(0);
+      const found = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
+      expect(found?.prfEnabled).toBe(false);
+    });
+    it('does not update when the credential does not match', async () => {
+      const uid = await createTestAccount();
+      const passkey1 = PasskeyFactory({
+        uid: uidBuffer(uid),
+        prfEnabled: false,
+      });
+      const passkey2 = PasskeyFactory({
+        uid: uidBuffer(uid),
+        prfEnabled: false,
+      });
+      await PasskeyRepository.insertPasskey(
+        db,
+        uid,
+        toNewPasskeyData(passkey1)
+      );
+      await PasskeyRepository.insertPasskey(
+        db,
+        uid,
+        toNewPasskeyData(passkey2)
+      );
+
+      const rows = await PasskeyRepository.updatePasskeyPrfEnabled(
+        db,
+        uid,
+        passkey1.credentialId.toString('base64url')
+      );
+      // Should update passkey1 but not passkey2
+      expect(rows).toBe(1);
+      const found1 = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey1.credentialId.toString('base64url')
+      );
+      const found2 = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey2.credentialId.toString('base64url')
+      );
+      expect(found1?.prfEnabled).toBe(true);
+      expect(found2?.prfEnabled).toBe(false);
     });
   });
 });

@@ -3713,12 +3713,24 @@ export default class AuthClient {
    * `allowCredentials` so the browser uses discoverable credentials, which
    * prevents account enumeration.
    *
+   * @param options.keysRequired Hints that this is a keys-required (Sync)
+   *   sign-in, so the server may request PRF under the keys-required scope.
    * @param headers Optional additional headers
    */
   async beginPasskeyAuthentication(
+    options: { keysRequired?: boolean } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-    return this.request('POST', '/passkey/authentication/start', {}, headers);
+    const payload =
+      options.keysRequired === undefined
+        ? {}
+        : { keysRequired: options.keysRequired };
+    return this.request(
+      'POST',
+      '/passkey/authentication/start',
+      payload,
+      headers
+    );
   }
 
   /**
@@ -3734,6 +3746,9 @@ export default class AuthClient {
    *   the login is not yet complete here and the server defers its login
    *   notifications/metrics until keys are available. The caller owns this
    *   decision, based on the browser's keys-optional capability.
+   * @param options.prfSupported Whether the browser returned a PRF output at
+   *   `get()`; rolls `prfEnabled` forward server-side. Omit when PRF wasn't
+   *   requested. Never the PRF output itself.
    * @param headers Optional additional headers
    */
   async completePasskeyAuthentication(
@@ -3742,6 +3757,7 @@ export default class AuthClient {
     options: {
       keysRequired: boolean;
       service?: string;
+      prfSupported?: boolean;
       metricsContext?: MetricsContext;
     },
     headers?: Headers
@@ -3751,12 +3767,16 @@ export default class AuthClient {
       challenge: string;
       keysRequired: boolean;
       service?: string;
+      prfSupported?: boolean;
       metricsContext?: MetricsContext;
     } = {
       response,
       challenge,
       keysRequired: options.keysRequired,
       ...(options.service ? { service: options.service } : {}),
+      ...(options.prfSupported !== undefined
+        ? { prfSupported: options.prfSupported }
+        : {}),
       ...(options.metricsContext
         ? { metricsContext: options.metricsContext }
         : {}),

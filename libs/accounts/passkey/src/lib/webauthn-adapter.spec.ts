@@ -10,6 +10,7 @@ import {
   verifyWebauthnAuthenticationResponse,
   extractPrfEnabled,
   UserVerificationRequiredError,
+  shouldRequestPrfAtAuth,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
 import { VirtualAuthenticator } from './virtual-authenticator';
@@ -29,6 +30,7 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     challengeTimeout: 30_000,
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
     ...overrides,
   });
 }
@@ -492,6 +494,77 @@ describe('generateWebauthnAuthenticationOptions', () => {
     expect(options.allowCredentials).toEqual([
       expect.objectContaining({ id: credId }),
     ]);
+  });
+
+  it('requests the PRF extension with the configured salt when requestPrf is true and a salt is set', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: TEST_PRF_SALT }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: true,
+      }
+    );
+
+    expect(options.extensions).toEqual(
+      expect.objectContaining({ prf: { eval: { first: TEST_PRF_SALT } } })
+    );
+  });
+
+  it('omits the PRF extension when requestPrf is true but no salt is configured', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: '' }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: true,
+      }
+    );
+
+    expect(options.extensions ?? {}).not.toHaveProperty('prf');
+  });
+
+  it('omits the PRF extension when requestPrf is false even with a salt', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: TEST_PRF_SALT }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: false,
+      }
+    );
+
+    expect(options.extensions ?? {}).not.toHaveProperty('prf');
+  });
+});
+
+describe('shouldRequestPrfAtAuth', () => {
+  const withScope = (scope: PasskeyConfig['requestPrfAtAuthentication']) =>
+    testConfig({ requestPrfAtAuthentication: scope, prfSalt: TEST_PRF_SALT });
+
+  it('never requests PRF under the "off" scope', () => {
+    expect(shouldRequestPrfAtAuth(withScope('off'), true)).toBe(false);
+    expect(shouldRequestPrfAtAuth(withScope('off'), false)).toBe(false);
+  });
+
+  it('always requests PRF under the "all" scope', () => {
+    expect(shouldRequestPrfAtAuth(withScope('all'), true)).toBe(true);
+    expect(shouldRequestPrfAtAuth(withScope('all'), false)).toBe(true);
+  });
+
+  it('requests PRF under "keys-required" only for a keys-required sign-in', () => {
+    expect(shouldRequestPrfAtAuth(withScope('keys-required'), true)).toBe(true);
+    expect(shouldRequestPrfAtAuth(withScope('keys-required'), false)).toBe(
+      false
+    );
+  });
+
+  it('never requests PRF when no salt is configured, even under "all"', () => {
+    const noSalt = testConfig({
+      requestPrfAtAuthentication: 'all',
+      prfSalt: '',
+    });
+    expect(shouldRequestPrfAtAuth(noSalt, true)).toBe(false);
   });
 });
 

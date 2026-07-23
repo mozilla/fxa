@@ -5,8 +5,9 @@
 import { LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import * as Sentry from '@sentry/nestjs';
 import Redis from 'ioredis';
-import { PasskeyConfig } from './passkey.config';
+import { PasskeyConfig, PRF_AUTH_SCOPES, PrfAuthScope } from './passkey.config';
 import { validateSync } from 'class-validator';
 import type {
   AuthenticatorAttachment,
@@ -32,6 +33,8 @@ export type RawPasskeyConfig = {
   authenticatorAttachment: AuthenticatorAttachment | '';
   requestPrfAtRegistration: boolean;
   prfSalt: string;
+  /** Free-form string; normalized to a valid `PrfAuthScope` by `buildPasskeyConfig`. */
+  requestPrfAtAuthentication: string;
 };
 
 /**
@@ -40,6 +43,9 @@ export type RawPasskeyConfig = {
  * Normalizes `authenticatorAttachment`: an empty string (the Convict
  * no-preference sentinel) is converted to `undefined` so that the
  * WebAuthn library omits the field from registration options entirely.
+ * `requestPrfAtAuthentication` is likewise normalized to a valid scope,
+ * defaulting an unrecognized value to `'off'` (and reporting it) instead of
+ * throwing.
  *
  * @param raw - Raw config values read from Convict.
  * @returns A fully validated {@link PasskeyConfig} instance.
@@ -47,9 +53,26 @@ export type RawPasskeyConfig = {
  *   human-readable list of all validation errors.
  */
 export function buildPasskeyConfig(raw: RawPasskeyConfig): PasskeyConfig {
+  // Default an unrecognized scope to the "off" kill switch (and report it) so a
+  // bad stage/prod value degrades safely instead of crashing startup.
+  const requestPrfAtAuthentication = (
+    PRF_AUTH_SCOPES as readonly string[]
+  ).includes(raw.requestPrfAtAuthentication)
+    ? (raw.requestPrfAtAuthentication as PrfAuthScope)
+    : 'off';
+  if (requestPrfAtAuthentication !== raw.requestPrfAtAuthentication) {
+    Sentry.captureMessage(
+      `Invalid PASSKEYS__REQUEST_PRF_AT_AUTHENTICATION value ${JSON.stringify(
+        raw.requestPrfAtAuthentication
+      )}; defaulting to "off"`,
+      'warning'
+    );
+  }
+
   const passkeyConfig = new PasskeyConfig({
     ...raw,
     authenticatorAttachment: raw.authenticatorAttachment || undefined,
+    requestPrfAtAuthentication,
   });
 
   const errors = validateSync(passkeyConfig, {

@@ -29,6 +29,7 @@ jest.mock('./passkey.repository', () => ({
   insertPasskey: jest.fn(),
   updatePasskeyCounterAndLastUsed: jest.fn(),
   updatePasskeyName: jest.fn(),
+  updatePasskeyPrfEnabled: jest.fn(),
 }));
 
 const mockDb = {} as unknown as AccountDatabase;
@@ -43,6 +44,7 @@ const mockConfig = new PasskeyConfig({
   maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
   requestPrfAtRegistration: false,
   prfSalt: '',
+  requestPrfAtAuthentication: 'off',
 });
 
 const mockMetrics = {
@@ -245,6 +247,36 @@ describe('PasskeyManager', () => {
 
       expect(result).toBe(false);
       expect(PasskeyRepository.updatePasskeyName).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('setPasskeyPrfEnabled', () => {
+    const uid = Buffer.alloc(16, 1).toString('hex');
+    const credentialId = Buffer.alloc(32, 2).toString('base64url');
+
+    it('returns true when the repository rolls the flag forward', async () => {
+      (
+        PasskeyRepository.updatePasskeyPrfEnabled as jest.Mock
+      ).mockResolvedValue(1);
+
+      const result = await manager.setPasskeyPrfEnabled(uid, credentialId);
+
+      expect(result).toBe(true);
+      expect(PasskeyRepository.updatePasskeyPrfEnabled).toHaveBeenCalledWith(
+        mockDb,
+        uid,
+        credentialId
+      );
+    });
+
+    it('returns false when no row was updated (already true, not found, or wrong user)', async () => {
+      (
+        PasskeyRepository.updatePasskeyPrfEnabled as jest.Mock
+      ).mockResolvedValue(0);
+
+      const result = await manager.setPasskeyPrfEnabled(uid, credentialId);
+
+      expect(result).toBe(false);
     });
   });
 });

@@ -2973,6 +2973,64 @@ passkey:
           Sign-in surface the banner was shown on: 'emailfirst', 'signin',
           'otplogin', or 'alternative_auth'.
         type: string
+  signin_prf_support:
+    type: event
+    description: |
+      Records whether the WebAuthn PRF extension produced an output at passkey
+      sign-in (`navigator.credentials.get()`), i.e. whether the credential
+      supports PRF on this device. Early telemetry ahead of passwordless Sync
+      (Phase 2) to learn the true PRF capability of the passkey base, which the
+      registration-time `prfEnabled` flag under-reports. Only the presence of
+      the PRF output is recorded — never the output itself.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14085
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      supported:
+        description: |
+          Whether the PRF output was present: "present" or "absent". The
+          sign-in device's OS is available separately via Glean's built-in
+          `client_info.os`, so it is not duplicated here.
+        type: string
+  signin_retry_without_prf_request:
+    type: event
+    description: |
+      A passkey sign-in's first WebAuthn attempt failed in a way the optional
+      PRF extension could have caused (e.g. Windows Hello UnknownError,
+      FXA-13991), so the ceremony silently retried once without PRF. Mirrors
+      `account_pref.passkey_create_retry_without_prf_request` for the sign-in
+      (`navigator.credentials.get()`) path.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14085
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The DOMException name of the first-attempt error that triggered the
+          retry (e.g. UnknownError).
+        type: string
+      outcome:
+        description: |
+          Whether the retry without PRF succeeded: "success" or "failure".
+        type: string
 
 account_pref:
   view:

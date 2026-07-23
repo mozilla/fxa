@@ -901,6 +901,17 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'passkey_signin_prf_support':
+      passkey.signinPrfSupport.record({
+        supported: gleanPingMetrics?.event?.['supported'] || '',
+      });
+      break;
+    case 'passkey_signin_retry_without_prf_request':
+      passkey.signinRetryWithoutPrfRequest.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        outcome: gleanPingMetrics?.event?.['outcome'] || '',
+      });
+      break;
     case 'passkey_enter_password_view':
       passkeyEnterPassword.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

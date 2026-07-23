@@ -58,6 +58,7 @@ beforeAll(async () => {
     challengeTimeout: 1000 * 60 * 5,
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
   });
 
   const moduleRef = await buildTestModule(redis, config, mockLogger);
@@ -149,6 +150,7 @@ describe('PasskeyChallengeManager (integration)', () => {
         challengeTimeout: 1000,
         requestPrfAtRegistration: false,
         prfSalt: '',
+        requestPrfAtAuthentication: 'off',
       });
 
       const moduleRef = await buildTestModule(redis, shortConfig, mockLogger);
