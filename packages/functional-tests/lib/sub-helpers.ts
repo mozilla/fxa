@@ -17,7 +17,10 @@ function getStripeClient(): Stripe {
     );
   }
   return new Stripe(key, {
-    apiVersion: '2024-11-20.acacia',
+    // Pinned independently of STRIPE_API_VERSION (@fxa/payments/stripe) so the
+    // functional-test helpers don't pull in the payments app graph. Keep in sync
+    // with that constant on a Stripe upgrade.
+    apiVersion: '2026-06-24.dahlia',
   });
 }
 

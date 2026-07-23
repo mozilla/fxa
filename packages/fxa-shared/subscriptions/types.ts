@@ -146,11 +146,12 @@ export const MozillaSubscriptionTypes = {
 } as const;
 export type WebSubscription = Pick<
   Stripe.Subscription,
-  | 'created'
-  | 'current_period_end'
-  | 'current_period_start'
-  | 'cancel_at_period_end'
+  'created' | 'cancel_at_period_end'
 > &
+  Pick<
+    Stripe.SubscriptionItem,
+    'current_period_end' | 'current_period_start'
+  > &
   Partial<Pick<Stripe.Charge, 'failure_code' | 'failure_message'>> & {
     _subscription_type: SubscriptionTypes[0];
     end_at: Stripe.Subscription['ended_at'];
@@ -224,8 +225,8 @@ export class SubscriptionStripeError extends Error {
 }
 
 export type InvoicePreview = [
-  invoicePreview: Stripe.UpcomingInvoice,
-  proratedInvoice?: Stripe.UpcomingInvoice,
+  invoicePreview: Stripe.Invoice,
+  proratedInvoice?: Stripe.Invoice,
 ];
 
 export type SubscriptionChangeEligibility = {

@@ -15,6 +15,7 @@ const {
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
   CUSTOMER_RESOURCE,
+  SUBSCRIPTIONS_RESOURCE,
 } = require('../../payments/stripe');
 const moment = require('moment');
 const authDbModule = require('fxa-shared/db/models/auth');
@@ -2650,6 +2651,33 @@ describe('StripeWebhookHandler', () => {
         1
       )
     );
+
+    it('reads the subscription from the basil parent shape', async () => {
+      const invoice = deepCopy(eventInvoicePaid).data.object;
+      invoice.billing_reason = 'subscription_create';
+      delete invoice.subscription;
+      invoice.parent = {
+        subscription_details: { subscription: 'sub_basil' },
+      };
+
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
+        { uid: '1234', test: 'fake' }
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        { status: 'active' }
+      );
+      StripeWebhookHandlerInstance.db.account = jest.fn(async () => ({
+        emails: 'fakeemails',
+        locale: 'fakelocale',
+        verifierSetAt: Date.now(),
+      }));
+
+      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      expect(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+      ).toHaveBeenCalledWith('sub_basil', SUBSCRIPTIONS_RESOURCE);
+    });
 
     it('does not send the first invoice email for a trialing subscription', async () => {
       const invoice = eventInvoicePaid.data.object;

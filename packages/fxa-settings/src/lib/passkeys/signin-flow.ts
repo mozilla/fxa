@@ -14,6 +14,10 @@ import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 import Banner from '../../components/Banner';
+import type {
+  BannerContentProps,
+  ExternalLinkProps,
+} from '../../components/Banner/interfaces';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
 import { useNavigate } from 'react-router';
@@ -35,6 +39,7 @@ import {
   type PublicKeyCredentialJSON,
 } from './';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
+import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 
 /**
  * Sign-in surface the user clicked the passkey button on. Drives Glean event
@@ -225,6 +230,17 @@ export interface UsePasskeySignInResult {
   onClick: () => Promise<void>;
 }
 
+/**
+ * The banner the hook surfaces in its `errorBanner` slot: an `error` (red)
+ * banner for a genuine failure, or a `warning` (amber) banner for a benign
+ * outcome (cancelled ceremony or timeout).
+ */
+type PasskeyBannerState = {
+  type: 'error' | 'warning';
+  content: BannerContentProps;
+  link?: ExternalLinkProps;
+};
+
 export function usePasskeySignIn({
   integration,
   authClient,
@@ -238,7 +254,7 @@ export function usePasskeySignIn({
   supportsKeysOptionalLogin,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [banner, setBanner] = useState<PasskeyBannerState | undefined>();
   const inFlight = useRef(false);
   const navigate = useNavigate();
 
@@ -251,29 +267,83 @@ export function usePasskeySignIn({
     }
   }, [isButtonVisible, surface]);
 
-  const errorBanner = useMemo<React.ReactNode | undefined>(
-    () =>
-      errorMessage
-        ? React.createElement(Banner, {
-            type: 'error',
-            content: { localizedHeading: errorMessage },
-          })
-        : undefined,
-    [errorMessage]
-  );
+  const errorBanner = useMemo<React.ReactNode | undefined>(() => {
+    if (!banner) {
+      return undefined;
+    }
+    return React.createElement(Banner, {
+      type: banner.type,
+      content: banner.content,
+      link: banner.link,
+    });
+  }, [banner]);
 
   const setLocalizedError = useCallback(
     (ftlId: string, fallback: string) => {
-      setErrorMessage(ftlMsgResolver.getMsg(ftlId, fallback));
+      setBanner({
+        type: 'error',
+        content: { localizedHeading: ftlMsgResolver.getMsg(ftlId, fallback) },
+      });
     },
     [ftlMsgResolver]
   );
+
+  // Shown when a passkey sign-in is cancelled (dismissed prompt, no passkey on
+  // this device, or the authenticator can't satisfy the request). Points to
+  // help plus another sign-in option.
+  const setWarningBanner = useCallback(() => {
+    setBanner({
+      type: 'warning',
+      content: {
+        localizedHeading: ftlMsgResolver.getMsg(
+          'passkey-authentication-trouble-heading',
+          'Couldn’t sign in with a passkey'
+        ),
+        localizedDescription: ftlMsgResolver.getMsg(
+          'passkey-authentication-trouble-description',
+          'Try again or use another sign-in option.'
+        ),
+      },
+      link: {
+        url:
+          surface === 'emailfirst'
+            ? PASSKEY_SUPPORT_URL
+            : PASSKEY_TROUBLESHOOT_URL,
+        localizedText: ftlMsgResolver.getMsg(
+          'passkey-authentication-trouble-link',
+          'How to use passkeys'
+        ),
+        onClick: () => {
+          try {
+            GleanMetrics.passkey.getHelpLinkClick({
+              event: { reason: toPasskeyMetricsSurface(surface) },
+            });
+          } catch {
+            // A metrics failure must never block the help link.
+          }
+        },
+      },
+    });
+  }, [ftlMsgResolver, surface]);
+
+  // A timed-out ceremony is transient — its own message, warning style, retry.
+  const setTimeoutBanner = useCallback(() => {
+    setBanner({
+      type: 'warning',
+      content: {
+        localizedHeading: ftlMsgResolver.getMsg(
+          'passkey-authentication-error-timeout-v2',
+          'Passkey sign-in timed out. Try again.'
+        ),
+      },
+    });
+  }, [ftlMsgResolver]);
 
   const onClick = useCallback(async () => {
     if (inFlight.current) {
       return;
     }
-    setErrorMessage(undefined);
+    setBanner(undefined);
     const gleanEvents = gleanEventsForSurface(surface);
 
     // Button stays visible even without support — the user may have a passkey
@@ -324,7 +394,14 @@ export function usePasskeySignIn({
             Sentry.captureException
           );
           gleanEvents.submitFrontendError(categorized.gleanReason);
-          setLocalizedError(categorized.ftlId, categorized.fallbackText);
+          // Cancelled and timed-out ceremonies are benign — warn, don't error.
+          if (categorized.gleanReason === 'not_allowed') {
+            setWarningBanner();
+          } else if (categorized.gleanReason === 'timeout') {
+            setTimeoutBanner();
+          } else {
+            setLocalizedError(categorized.ftlId, categorized.fallbackText);
+          }
           finish();
           return;
         }
@@ -492,6 +569,8 @@ export function usePasskeySignIn({
     queryParams,
     flowQueryParams,
     setLocalizedError,
+    setWarningBanner,
+    setTimeoutBanner,
     surface,
     supportsKeysOptionalLogin,
   ]);

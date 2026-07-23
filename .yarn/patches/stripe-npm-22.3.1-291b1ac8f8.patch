@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 090d03f906fc7f3932fce763204c76a269575db0..3fc59877772ce64884e565cac823f7a0c3624d87 100644
+--- a/package.json
++++ b/package.json
+@@ -25,6 +25,7 @@
+     "node": ">=18"
+   },
+   "main": "cjs/stripe.cjs.node.js",
++  "types": "./esm/stripe.esm.node.d.ts",
+   "devDependencies": {
+     "@types/chai": "^4.3.4",
+     "@types/chai-as-promised": "^7.1.5",

@@ -76,7 +76,9 @@
         },
         "quantity": 1,
         "subscription": "sub_HZRCVOtAhOXGyC",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1593657521,
+        "current_period_end": 1596335921
       }
     ],
     "has_more": false,
@@ -127,7 +129,7 @@
           "object": "line_item",
           "amount": 499,
           "currency": "usd",
-          "description": "1 × Firefox Private Network (at $4.99 / month)",
+          "description": "1 \u00d7 Firefox Private Network (at $4.99 / month)",
           "discountable": true,
           "livemode": false,
           "metadata": {},
@@ -331,7 +333,9 @@
           "request_three_d_secure": "automatic"
         }
       },
-      "payment_method_types": ["card"],
+      "payment_method_types": [
+        "card"
+      ],
       "receipt_email": null,
       "review": null,
       "setup_future_usage": "off_session",

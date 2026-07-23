@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 
 import {
   EligibilityManager,

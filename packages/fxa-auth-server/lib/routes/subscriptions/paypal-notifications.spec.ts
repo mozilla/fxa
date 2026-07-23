@@ -338,6 +338,39 @@ describe('PayPalNotificationHandler', () => {
       );
       expect(stripeHelper.payInvoiceOutOfBand).not.toHaveBeenCalled();
     });
+
+    it('reads the basil subscription shape and refunds a canceled subscription', async () => {
+      const invoice = {
+        metadata: {
+          paypalTransactionId: ipnTransactionId,
+        },
+        parent: {
+          subscription_details: {
+            subscription: 'sub_id',
+          },
+        },
+      };
+      const message = validMessage;
+      stripeHelper.expandResource = jest
+        .fn()
+        .mockResolvedValue({ status: 'canceled' });
+
+      const result = await handler.handleSuccessfulPayment(invoice, message);
+
+      expect(result).toEqual(refundReturn);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
+        invoice,
+        validMessage.txn_id,
+        RefundType.Full
+      );
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
+        'sub_id',
+        SUBSCRIPTIONS_RESOURCE
+      );
+      expect(stripeHelper.payInvoiceOutOfBand).not.toHaveBeenCalled();
+    });
   });
 
   describe('handleMerchPayment', () => {

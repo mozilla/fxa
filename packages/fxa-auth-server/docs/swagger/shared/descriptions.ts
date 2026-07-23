@@ -215,6 +215,14 @@ const DESCRIPTIONS = {
     - \`grant_type=authorization_code\` and the original authorization request included \`access_type=offline\`.
     - \`grant_type=fxa-credentials\` and the request included \`access_type=offline\`.
   `,
+  excludeDau: dedent`
+    When true, tag this access-token creation so it is excluded from the daily
+    active users (DAU) signal. The \`access_token.created\` Glean event still fires,
+    with its \`exclude_dau\` field set to true. Use this when the access token does
+    not represent active use of the service — for example, a token created for a
+    signed-in user regardless of whether they are using the service. Accepted on
+    the \`fxa-credentials\` and \`authorization_code\` grants.
+  `,
   refreshTokenId: 'The specific `refresh_token_id` to be destroyed.',
   reminder: 'Indicates that verification originates from a reminder email.',
   resource:

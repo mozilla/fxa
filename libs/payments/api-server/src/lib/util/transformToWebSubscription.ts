@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getPriceFromSubscription } from '@fxa/payments/customer';
+import {
+  getPriceFromSubscription,
+  retrieveSubscriptionItem,
+} from '@fxa/payments/customer';
 import type { StripeSubscription } from '@fxa/payments/stripe';
 
 import type {
@@ -21,11 +24,12 @@ export const transformToWebSubscription = (
       `Subscription has no product id (subscriptionId=${sub.id})`
     );
   }
+  const subscriptionItem = retrieveSubscriptionItem(sub);
   return {
     _subscription_type: 'web',
     created: sub.created,
-    current_period_end: sub.current_period_end,
-    current_period_start: sub.current_period_start,
+    current_period_end: subscriptionItem.current_period_end,
+    current_period_start: subscriptionItem.current_period_start,
     cancel_at_period_end: sub.cancel_at_period_end,
     end_at: sub.ended_at ?? null,
     plan_id: priceId,

@@ -115,6 +115,39 @@ describe('Google IAP Purchase Repository', () => {
         updatePurchase(mockDb, mockPurchaseRecord.purchaseToken, {})
       ).rejects.toThrow('Must provide at least one update param');
     });
+
+    it('persists paymentState and expiryTimeMillis on a refresh', async () => {
+      const refresh = FirestoreGoogleIapPurchaseRecordFactory({
+        paymentState: 0,
+        expiryTimeMillis: 1_700_000_000_000,
+      });
+      await updatePurchase(mockDb, mockPurchaseRecord.purchaseToken, refresh);
+      expect(mockDoc.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          paymentState: refresh.paymentState,
+          expiryTimeMillis: refresh.expiryTimeMillis,
+        })
+      );
+    });
+
+    it('persists the replacedByAnotherPurchase flag on a partial update', async () => {
+      await updatePurchase(mockDb, mockPurchaseRecord.purchaseToken, {
+        replacedByAnotherPurchase: true,
+        userId: 'replaced-placeholder',
+      });
+      expect(mockDoc.update).toHaveBeenCalledWith({
+        replacedByAnotherPurchase: true,
+        userId: 'replaced-placeholder',
+      });
+    });
+
+    it('drops undefined fields from a partial update', async () => {
+      await updatePurchase(mockDb, mockPurchaseRecord.purchaseToken, {
+        userId: 'updated-user',
+        cancelReason: undefined,
+      });
+      expect(mockDoc.update).toHaveBeenCalledWith({ userId: 'updated-user' });
+    });
   });
 
   describe('deletePurchasesByUserId', () => {

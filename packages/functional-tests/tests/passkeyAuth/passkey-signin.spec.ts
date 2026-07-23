@@ -93,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
     });
 
-    test('shows an error banner when the user cancels the WebAuthn prompt', async ({
+    test('shows a warning banner when the user cancels the WebAuthn prompt', async ({
       target,
       pages: { page, settings, settingsPasskeyAdd, signin },
       testAccountTracker,
@@ -116,10 +116,10 @@ test.describe('severity-1 #smoke', () => {
           await signin.passkeySigninButton.click();
         },
         async () => {
-          // Match by role to avoid coupling to the exact localized string.
-          await expect(page.getByRole('alert')).toContainText(
-            /Sign-in with passkey failed/i
-          );
+          // A cancelled ceremony now surfaces a warning banner, not the error banner.
+          await expect(
+            page.getByText(/Couldn’t sign in with a passkey/i)
+          ).toBeVisible();
         }
       );
 
@@ -576,6 +576,9 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await page.waitForURL(/inline_totp_setup/);
+      await expect(
+        page.getByRole('heading', { name: /Set up two-step authentication/i })
+      ).toBeVisible();
     });
 
     test('shows the passkey button on prompt=login re-auth and completes sign-in via passkey', async ({

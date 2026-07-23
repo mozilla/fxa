@@ -27,6 +27,7 @@ export { StripeCustomerFactory } from './lib/factories/customer.factory';
 export { StripeCustomerSessionFactory } from './lib/factories/customer-session.factory';
 export { StripeDiscountFactory } from './lib/factories/discount.factory';
 export { StripeInvoiceLineItemFactory } from './lib/factories/invoice-line-item.factory';
+export { StripeInvoicePaymentFactory } from './lib/factories/invoice-payment.factory';
 export { StripeInvoiceFactory } from './lib/factories/invoice.factory';
 export { StripePlanFactory } from './lib/factories/plan.factory';
 export {
@@ -45,7 +46,7 @@ export { StripePaymentIntentFactory } from './lib/factories/payment-intent.facto
 export { StripeSetupIntentFactory } from './lib/factories/setup-intent.factory';
 export { StripeTaxRateFactory } from './lib/factories/tax-rate.factory';
 export { StripeTotalDiscountAmountsFactory } from './lib/factories/total-discount-amounts.factory';
-export { StripeTotalTaxAmountsFactory } from './lib/factories/total-tax-amounts.factory';
+export { StripeInvoiceLineItemTaxFactory } from './lib/factories/total-tax-amounts.factory';
 export { StripeUpcomingInvoiceFactory } from './lib/factories/upcoming-invoice.factory';
 export { StripeRangeQueryParamFactory } from './lib/factories/utils.factory';
 export * from './lib/stripe.client';

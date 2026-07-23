@@ -8,7 +8,7 @@ import {
   PayPalBillingAgreements,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import { AppError as error } from '@fxa/accounts/errors';
@@ -17,7 +17,11 @@ import {
   isIpnMerchPmt,
   RefundType,
 } from '@fxa/payments/paypal';
-import { StripeHelper, SUBSCRIPTIONS_RESOURCE } from '../../payments/stripe';
+import {
+  getInvoiceSubscription,
+  StripeHelper,
+  SUBSCRIPTIONS_RESOURCE,
+} from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 import { PayPalHandler } from './paypal';
@@ -53,12 +57,13 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
     }
 
-    if (invoice.subscription) {
+    const subscriptionRef = getInvoiceSubscription(invoice);
+    if (subscriptionRef) {
       const subscription =
-        typeof invoice.subscription !== 'string'
-          ? invoice.subscription
+        typeof subscriptionRef !== 'string'
+          ? subscriptionRef
           : await this.stripeHelper.expandResource<Stripe.Subscription>(
-              invoice.subscription,
+              subscriptionRef,
               SUBSCRIPTIONS_RESOURCE
             );
 

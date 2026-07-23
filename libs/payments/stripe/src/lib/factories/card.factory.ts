@@ -29,6 +29,7 @@ export const StripeCardFactory = (
   last4: faker.finance.creditCardNumber().slice(-4),
   metadata: null,
   name: faker.person.fullName(),
+  regulated_status: null,
   tokenization_method: null,
   ...override,
 });

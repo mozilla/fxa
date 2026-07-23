@@ -6,6 +6,7 @@ import { CollectionReference } from '@google-cloud/firestore';
 import { APPLE_APP_STORE_FORM_OF_PAYMENT } from '../constants';
 import { TransactionType } from 'app-store-server-api';
 import type { FirestoreAppleIapPurchaseRecord } from '../types';
+import { stripUndefined } from '../util';
 
 /**
  * Creates a purchase record in the database.
@@ -99,10 +100,32 @@ export async function updatePurchase(
   update: Partial<Omit<FirestoreAppleIapPurchaseRecord, 'id'>>
 ): Promise<void> {
   // Re-build properties for type-safety (Typescript allows wider type to be applied to narrower object type)
-  const _update: typeof update = {};
-  if (update.userId !== undefined) _update.userId = update.userId;
+  const _update = stripUndefined({
+    userId: update.userId,
+    autoRenewStatus: update.autoRenewStatus,
+    autoRenewProductId: update.autoRenewProductId,
+    bundleId: update.bundleId,
+    environment: update.environment,
+    inAppOwnershipType: update.inAppOwnershipType,
+    originalPurchaseDate: update.originalPurchaseDate,
+    originalTransactionId: update.originalTransactionId,
+    productId: update.productId,
+    status: update.status,
+    transactionId: update.transactionId,
+    type: update.type,
+    verifiedAt: update.verifiedAt,
+    currency: update.currency,
+    price: update.price,
+    storefront: update.storefront,
+    expiresDate: update.expiresDate,
+    purchaseDate: update.purchaseDate,
+    renewalCurrency: update.renewalCurrency,
+    renewalPrice: update.renewalPrice,
+    latestNotificationType: update.latestNotificationType,
+    formOfPayment: update.formOfPayment,
+  });
 
-  if (Object.values(_update).length === 0) {
+  if (Object.keys(_update).length === 0) {
     throw new Error('Must provide at least one update param');
   }
 

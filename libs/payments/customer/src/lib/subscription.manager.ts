@@ -190,19 +190,8 @@ export class SubscriptionManager {
     if (!stripeCouponId) return false;
 
     const subscription = await this.retrieve(subscriptionId);
-    const currentSubscriptionCouponId = subscription.discount?.coupon.id;
-    if (
-      currentSubscriptionCouponId &&
-      currentSubscriptionCouponId === stripeCouponId
-    ) {
-      return true;
-    }
-
-    const discounts = subscription.discounts;
-    if (discounts.includes(stripeCouponId)) {
-      return true;
-    }
-
-    return false;
+    return subscription.discounts.some(
+      (discount) => discount.source?.coupon.id === stripeCouponId
+    );
   }
 }

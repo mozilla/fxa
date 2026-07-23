@@ -6,7 +6,7 @@ import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-
 import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/subscription-purchase';
 import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { MozSubscription } from '../rest/model/moz-subscription.model';
 
 /**
@@ -23,8 +23,8 @@ export class StripeFormatter {
       // The stripe API returns timestamps in UTC seconds instead of milliseconds. The conversion
       // can be done here to normalize the response so that it is consistent with other APIs.
       created: subscription.created * 1e3,
-      currentPeriodEnd: subscription.current_period_end * 1e3,
-      currentPeriodStart: subscription.current_period_start * 1e3,
+      currentPeriodEnd: subscription.items.data[0].current_period_end * 1e3,
+      currentPeriodStart: subscription.items.data[0].current_period_start * 1e3,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       endedAt: !!subscription.ended_at
         ? subscription.ended_at * 1e3
@@ -41,13 +41,7 @@ export class StripeFormatter {
 }
 export type MozStripeSubscriptionDetails = Pick<
   Stripe.Subscription,
-  | 'created'
-  | 'current_period_end'
-  | 'cancel_at_period_end'
-  | 'current_period_start'
-  | 'ended_at'
-  | 'status'
-  | 'id'
+  'created' | 'cancel_at_period_end' | 'ended_at' | 'status' | 'id' | 'items'
 >;
 export type MozPlanDetails = Pick<
   AbbrevPlan,

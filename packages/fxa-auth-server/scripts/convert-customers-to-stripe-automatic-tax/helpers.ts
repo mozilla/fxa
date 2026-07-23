@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
+
+type ExpandableTaxAmount = {
+  amount: number;
+  tax_rate_details: { tax_rate: string | Stripe.TaxRate } | null;
+};
 
 /**
  * Minimum number of days before monthly plan renewal to be upgraded to Stripe automatic tax
@@ -157,7 +162,7 @@ export class StripeAutomaticTaxConverterHelpers {
     }
 
     const renewalDate = new Date(
-      sub.current_period_end * SECONDS_TO_MILLISECONDS
+      sub.items.data[0].current_period_end * SECONDS_TO_MILLISECONDS
     );
 
     return noSoonerThan < renewalDate;
@@ -169,7 +174,7 @@ export class StripeAutomaticTaxConverterHelpers {
    * @param taxAmounts A list of tax amounts with tax rates expanded
    * @returns The amount of the first matching tax amount
    */
-  getSpecialTaxAmounts(taxAmounts: Stripe.Invoice.TotalTaxAmount[]) {
+  getSpecialTaxAmounts(taxAmounts: ExpandableTaxAmount[]) {
     const specialTaxAmounts = {
       hst: 0,
       pst: 0,
@@ -179,7 +184,8 @@ export class StripeAutomaticTaxConverterHelpers {
     };
 
     for (const taxAmount of taxAmounts) {
-      const taxRate = taxAmount.tax_rate as Stripe.TaxRate;
+      const taxRate = taxAmount.tax_rate_details?.tax_rate;
+      if (typeof taxRate !== 'object') continue;
       const key = taxRate.display_name.toLowerCase();
 
       if (key in specialTaxAmounts) {

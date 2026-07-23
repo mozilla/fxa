@@ -40,3 +40,4 @@ export const STRIPE_MINIMUM_CHARGE_AMOUNTS = {
 } as { [key: string]: number };
 
 export const MOZILLA_TAX_ID = 'Tax ID';
+export const STRIPE_API_VERSION = '2026-06-24.dahlia';

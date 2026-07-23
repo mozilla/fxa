@@ -975,7 +975,7 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
         currency: 'eur',
-        tax: 500,
+        total_taxes: [{ amount: 500 }],
       };
 
       const response = await paypalHelper.processInvoice({
@@ -995,7 +995,7 @@ describe('PayPalHelper', () => {
           paymentAttempts
         ),
         ipaddress: '127.0.0.1',
-        taxAmountInCents: validInvoice.tax,
+        taxAmountInCents: 500,
       });
       expect(response).toEqual([{ transactionId }, {}]);
     });

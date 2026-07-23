@@ -1,6 +1,6 @@
 import 'chai';
 import { assert } from 'chai';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 
 import {
   DeepPartial,
@@ -31,8 +31,6 @@ function assertSubscription(item?: DeepPartial<Stripe.Subscription>) {
     'cancel_at',
     'canceled_at',
     'created',
-    'current_period_end',
-    'current_period_start',
     'ended_at',
     'id',
     'items',
@@ -57,7 +55,7 @@ function assertSource(item?: DeepPartial<Stripe.CustomerSource>) {
 }
 
 function assertInvoice(item?: DeepPartial<Stripe.Invoice>) {
-  assert.hasAllKeys(item, ['id', 'object', 'payment_intent', 'status']);
+  assert.hasAllKeys(item, ['id', 'object', 'status']);
 }
 
 function assertIntent(
@@ -117,10 +115,6 @@ describe('stripe', () => {
       assertSubscription(result);
       assertSubscriptionItem(result.items?.data?.[0]);
       assertInvoice(result.latest_invoice as any);
-      assertIntent(
-        (result.latest_invoice as Stripe.Invoice)
-          .payment_intent as Stripe.PaymentIntent
-      );
     });
   });
 
@@ -143,14 +137,14 @@ describe('stripe', () => {
     it('filters recursively', () => {
       const result = filterInvoice(subscriptionExpanded.latest_invoice);
       assertInvoice(result);
-      assertIntent(result.payment_intent as any);
     });
   });
 
   describe('filterIntent', () => {
     it('filters', () => {
       const result = filterIntent(
-        subscriptionExpanded.latest_invoice.payment_intent
+        subscriptionExpanded.latest_invoice.payments.data[0].payment
+          .payment_intent
       );
       assertIntent(result as any);
     });

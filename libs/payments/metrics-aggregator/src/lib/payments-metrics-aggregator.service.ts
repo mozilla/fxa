@@ -60,7 +60,7 @@ export class PaymentsMetricsAggregatorService {
 
     return {
       customerId: customer?.id,
-      couponCode: subscription?.discount?.coupon.id,
+      couponCode: subscription?.discounts[0]?.source?.coupon.id,
       currency: customer?.currency || undefined,
       taxAddress: taxAddress,
       productId: price?.product,

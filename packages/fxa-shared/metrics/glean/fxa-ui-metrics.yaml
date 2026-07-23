@@ -2948,6 +2948,31 @@ passkey:
           'otplogin' and 'alternative_auth' are no-password surfaces, so they
           pair only with 'nopassword'/'createdpassword' (never 'withpassword').
         type: string
+  get_help_link_click:
+    type: event
+    description: |
+      The help link in the passkey sign-in trouble banner was clicked. The
+      banner is shown for a cancelled ceremony (dismissed prompt, no passkey on
+      this device, or the authenticator can't satisfy the request).
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14171
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Sign-in surface the banner was shown on: 'emailfirst', 'signin',
+          'otplogin', or 'alternative_auth'.
+        type: string
 
 account_pref:
   view:

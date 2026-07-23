@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
-import { Stripe } from 'stripe';
+import Stripe from 'stripe';
 
 import { ProductManager } from './product.manager';
 import { PromotionCodeManager } from './promotionCode.manager';
@@ -179,9 +179,12 @@ describe('PromotionCodeManager', () => {
     it('resolves correctly when valid', async () => {
       const mockPrice = StripePriceFactory();
       const mockPromotionCode = StripePromotionCodeFactory({
-        coupon: StripeCouponFactory({
-          currency: mockPrice.currency,
-        }),
+        promotion: {
+          type: 'coupon',
+          coupon: StripeCouponFactory({
+            currency: mockPrice.currency,
+          }),
+        },
       });
       const mockCartCurrency = mockPrice.currency;
 
@@ -245,9 +248,12 @@ describe('PromotionCodeManager', () => {
         currency: 'cad',
       });
       const mockPromotionCode = StripePromotionCodeFactory({
-        coupon: StripeCouponFactory({
-          currency: 'cad',
-        }),
+        promotion: {
+          type: 'coupon',
+          coupon: StripeCouponFactory({
+            currency: 'cad',
+          }),
+        },
       });
       const mockCartCurrency = 'CAD';
 
@@ -273,9 +279,12 @@ describe('PromotionCodeManager', () => {
         currency: 'cad',
       });
       const mockPromotionCode = StripePromotionCodeFactory({
-        coupon: StripeCouponFactory({
-          currency: null,
-        }),
+        promotion: {
+          type: 'coupon',
+          coupon: StripeCouponFactory({
+            currency: null,
+          }),
+        },
       });
       const mockCartCurrency = 'CAD';
 
@@ -301,9 +310,12 @@ describe('PromotionCodeManager', () => {
         currency: 'cad',
       });
       const mockPromotionCode = StripePromotionCodeFactory({
-        coupon: StripeCouponFactory({
-          currency: 'cad',
-        }),
+        promotion: {
+          type: 'coupon',
+          coupon: StripeCouponFactory({
+            currency: 'cad',
+          }),
+        },
       });
       const mockCartCurrency = 'usd';
 

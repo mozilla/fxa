@@ -11,6 +11,7 @@ export const StripeCustomerSessionFactory = (
   object: 'customer_session',
   client_secret: faker.string.alphanumeric(24),
   customer: faker.string.alphanumeric(24),
+  customer_account: null,
   expires_at: faker.number.int(),
   created: faker.number.int(),
   livemode: false,

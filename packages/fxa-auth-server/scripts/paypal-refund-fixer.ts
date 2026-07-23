@@ -4,7 +4,7 @@
 import { AuthLogger } from '../lib/types';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
-import stripe from 'stripe';
+import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { CurrencyHelper } from '../lib/payments/currencies';
@@ -16,18 +16,18 @@ import { configureSentry } from '../lib/sentry';
 const config = require('../config').default.getProperties();
 
 class PayPalFixer {
-  private stripe: stripe;
+  private stripe: Stripe;
 
   constructor(
     private log: AuthLogger,
     private stripeHelper: StripeHelper,
     private paypalHelper: PayPalHelper
   ) {
-    this.stripe = (this.stripeHelper as any).stripe as stripe;
+    this.stripe = this.stripeHelper.stripe;
   }
 
   private activeSubscriptions(
-    subscriptions: stripe.Subscription[] | undefined
+    subscriptions: Stripe.Subscription[] | undefined
   ) {
     if (!subscriptions) {
       return [];
@@ -63,7 +63,7 @@ class PayPalFixer {
     }
   }
 
-  async zeroAccountBalance(customer: stripe.Customer) {
+  async zeroAccountBalance(customer: Stripe.Customer) {
     if (customer.balance >= 0) {
       return;
     }
@@ -75,7 +75,7 @@ class PayPalFixer {
     });
   }
 
-  async issueRefund(invoice: stripe.Invoice) {
+  async issueRefund(invoice: Stripe.Invoice) {
     const transactionId =
       this.stripeHelper.getInvoicePaypalTransactionId(invoice);
     if (!transactionId) {
@@ -127,7 +127,7 @@ class PayPalFixer {
       }
       if (subs.length === 1) {
         const sub = subs[0];
-        if (sub.id === invoice.subscription) {
+        if (sub.id === invoice.parent?.subscription_details?.subscription) {
           await this.stripeHelper.cancelSubscription(sub.id);
         } else {
           this.log.info('Skipping cancellation of unrelated subscription.', {});

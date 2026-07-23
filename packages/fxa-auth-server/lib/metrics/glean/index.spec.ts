@@ -759,6 +759,30 @@ describe('Glean server side events', () => {
         const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
         expect(metrics['scopes']).toBe('openid,profile');
       });
+
+      it('does not mutate a caller-provided scopes array', async () => {
+        const glean = gleanMetrics(config);
+        const scopes = ['profile', 'openid'];
+        await glean.oauth.tokenCreated(request, { scopes });
+        // sort() must operate on a copy, not the caller's array.
+        expect(scopes).toEqual(['profile', 'openid']);
+      });
+
+      it('passes exclude_dau through when set', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenCreated(request, { excludeDau: true });
+        expect(gleanMocks['recordAccessTokenCreated']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
+        expect(metrics['exclude_dau']).toBe(true);
+      });
+
+      it('defaults exclude_dau to false when omitted', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenCreated(request, { scopes: 'profile' });
+        expect(gleanMocks['recordAccessTokenCreated']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
+        expect(metrics['exclude_dau']).toBe(false);
+      });
     });
 
     describe('tokenChecked', () => {

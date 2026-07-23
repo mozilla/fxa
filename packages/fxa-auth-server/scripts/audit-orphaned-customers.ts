@@ -5,6 +5,7 @@
 import program from 'commander';
 import Stripe from 'stripe';
 import Container from 'typedi';
+import { STRIPE_API_VERSION } from '@fxa/payments/stripe';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { promises as fs } from 'fs';
 import { AppConfig, AuthLogger } from '../lib/types';
@@ -143,7 +144,7 @@ async function retrieveStripeCustomers(
 
   const config = Container.get(AppConfig);
   const stripe = new Stripe(config.subscriptions.stripeApiKey, {
-    apiVersion: '2024-11-20.acacia',
+    apiVersion: STRIPE_API_VERSION,
     maxNetworkRetries: 3,
   });
   const baseQuery = `created<=${endDate} AND created>=${startDate}`;

@@ -219,10 +219,13 @@ export class AppStoreSubscriptionPurchase {
   }
 
   isEntitlementActive() {
-    return [
-      SubscriptionStatus.Active,
-      SubscriptionStatus.InBillingGracePeriod,
-    ].includes(this.status);
+    if (this.status === SubscriptionStatus.InBillingGracePeriod) {
+      return true;
+    }
+    return (
+      this.status === SubscriptionStatus.Active &&
+      (this.expiresDate === undefined || this.expiresDate > Date.now())
+    );
   }
 
   willRenew() {

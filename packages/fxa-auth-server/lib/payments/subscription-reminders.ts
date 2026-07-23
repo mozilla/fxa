@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import assert from 'assert';
 import { Logger } from 'mozlog';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { DateTime, Duration, Interval } from 'luxon';
 
 import { reportSentryError } from '../sentry';
@@ -207,7 +207,7 @@ export class SubscriptionReminders {
     if (
       await this.alreadySentEmail(
         uid,
-        Math.floor(subscription.current_period_start * 1000),
+        Math.floor(subscription.items.data[0].current_period_start * 1000),
         emailParams,
         'subscriptionEndingReminder'
       )
@@ -219,8 +219,8 @@ export class SubscriptionReminders {
       this.log.info('sendSubscriptionEndingReminderEmail', {
         message: 'Sending a stay subscribed reminder email.',
         subscriptionId: subscription.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
+        currentPeriodStart: subscription.items.data[0].current_period_start,
+        currentPeriodEnd: subscription.items.data[0].current_period_end,
         currentDateMs: Date.now(),
       });
       const { email } = account;
@@ -258,7 +258,7 @@ export class SubscriptionReminders {
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
           serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
           subscriptionSupportUrl:
             purchase.offering.commonContent.localizations.at(0)?.supportUrl ||
@@ -314,7 +314,7 @@ export class SubscriptionReminders {
     if (
       await this.alreadySentEmail(
         uid,
-        Math.floor(subscription.current_period_start * 1000),
+        Math.floor(subscription.items.data[0].current_period_start * 1000),
         emailParams,
         'freeTrialEndingReminder'
       )
@@ -326,8 +326,8 @@ export class SubscriptionReminders {
       this.log.info('sendFreeTrialEndingReminderEmail', {
         message: 'Sending a free trial ending reminder email.',
         subscriptionId: subscription.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
+        currentPeriodStart: subscription.items.data[0].current_period_start,
+        currentPeriodEnd: subscription.items.data[0].current_period_end,
         currentDateMs: Date.now(),
       });
       const { email } = account;
@@ -340,6 +340,10 @@ export class SubscriptionReminders {
       const invoiceDiscountAmountInCents = (
         invoicePreview.total_discount_amounts ?? []
       ).reduce((sum, discountAmount) => sum + (discountAmount.amount ?? 0), 0);
+      const invoiceTaxAmountInCents = (invoicePreview.total_taxes ?? []).reduce(
+        (sum, tax) => sum + tax.amount,
+        0
+      );
       const cmsPageContent =
         await this.productConfigurationManager.getPageContentByPriceIds(
           [formattedSubscription.planId],
@@ -363,14 +367,14 @@ export class SubscriptionReminders {
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
           serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
           invoiceTotalInCents: invoicePreview.total,
           invoiceSubtotalInCents: invoicePreview.subtotal,
           invoiceDiscountAmountInCents,
-          invoiceTaxAmountInCents: invoicePreview.tax ?? 0,
+          invoiceTaxAmountInCents,
           invoiceTotalCurrency: invoicePreview.currency,
-          showTaxAmount: (invoicePreview.tax ?? 0) > 0,
+          showTaxAmount: invoiceTaxAmountInCents > 0,
           showDiscount: invoiceDiscountAmountInCents > 0,
           subscriptionSupportUrl:
             purchase.offering.commonContent.localizations.at(0)?.supportUrl ||
@@ -450,7 +454,7 @@ export class SubscriptionReminders {
     if (
       await this.alreadySentEmail(
         uid,
-        Math.floor(subscription.current_period_start * 1000),
+        Math.floor(subscription.items.data[0].current_period_start * 1000),
         emailParams,
         'subscriptionRenewalReminder'
       )
@@ -474,16 +478,14 @@ export class SubscriptionReminders {
       if (typeof latestInvoice === 'string') {
         latestInvoice = await this.stripeHelper.getInvoice(latestInvoice);
       }
-      const currentDiscount =
-        latestInvoice?.discount || latestInvoice?.discounts?.[0];
+      const currentDiscount = latestInvoice?.discounts?.[0];
       const currentDiscountId =
         typeof currentDiscount === 'string'
           ? currentDiscount
           : (currentDiscount?.id ?? null);
 
       // Check upcoming invoice for upcoming discount
-      const upcomingDiscount =
-        invoicePreview.discount || invoicePreview.discounts?.[0];
+      const upcomingDiscount = invoicePreview.discounts?.[0];
       const upcomingDiscountId = upcomingDiscount
         ? typeof upcomingDiscount === 'string'
           ? upcomingDiscount
@@ -518,8 +520,8 @@ export class SubscriptionReminders {
       this.log.info('sendSubscriptionRenewalReminderEmail', {
         message: 'Sending a renewal reminder email.',
         subscriptionId: subscription.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
+        currentPeriodStart: subscription.items.data[0].current_period_start,
+        currentPeriodEnd: subscription.items.data[0].current_period_end,
         currentDateMs: Date.now(),
         reminderLength: effectiveReminderDuration.as('days'),
       });
@@ -542,11 +544,15 @@ export class SubscriptionReminders {
           reminderLength: effectiveReminderDuration.as('days'),
           planInterval,
           // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
-          showTax: (invoicePreview.total_tax_amounts ?? []).some(
-            (tax: { inclusive: boolean }) => !tax.inclusive
+          showTax: (invoicePreview.total_taxes ?? []).some(
+            (tax) => tax.tax_behavior !== 'inclusive'
           ),
           invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
-          invoiceTaxInCents: invoicePreview.tax,
+          invoiceTaxInCents:
+            invoicePreview.total_taxes?.reduce(
+              (sum, tax) => sum + tax.amount,
+              0
+            ) ?? null,
           invoiceTotalInCents: invoicePreview.total,
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,

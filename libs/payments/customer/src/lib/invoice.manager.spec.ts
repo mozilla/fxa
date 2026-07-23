@@ -12,6 +12,7 @@ import {
   StripeCouponFactory,
   StripeCustomerFactory,
   StripeInvoiceFactory,
+  StripeInvoiceLineItemTaxFactory,
   StripePriceFactory,
   StripePromotionCodeFactory,
   StripeResponseFactory,
@@ -178,7 +179,7 @@ describe('InvoiceManager', () => {
       const mockInvoicePreview = InvoicePreviewFactory();
 
       jest
-        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .spyOn(stripeClient, 'invoicesCreatePreview')
         .mockResolvedValue(mockUpcomingInvoice);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
@@ -215,7 +216,7 @@ describe('InvoiceManager', () => {
           StripeResponseFactory(StripeApiListFactory([mockPromotionCode]))
         );
       jest
-        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .spyOn(stripeClient, 'invoicesCreatePreview')
         .mockResolvedValue(mockUpcomingInvoice);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
@@ -244,7 +245,7 @@ describe('InvoiceManager', () => {
       const mockSubscriptionItem = StripeSubscriptionItemFactory();
 
       jest
-        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .spyOn(stripeClient, 'invoicesCreatePreview')
         .mockResolvedValue(mockUpcomingInvoice);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
@@ -308,7 +309,7 @@ describe('InvoiceManager', () => {
       const mockPreviewUpcomingInvoice = InvoicePreviewFactory();
 
       const spy = jest
-        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .spyOn(stripeClient, 'invoicesCreatePreview')
         .mockResolvedValue(mockUpcomingInvoice);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
@@ -338,7 +339,7 @@ describe('InvoiceManager', () => {
       const mockPreviewUpcomingInvoice = InvoicePreviewFactory();
 
       const spy = jest
-        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .spyOn(stripeClient, 'invoicesCreatePreview')
         .mockResolvedValue(mockUpcomingInvoice);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
@@ -505,7 +506,6 @@ describe('InvoiceManager', () => {
         currencyCode: mockInvoice.currency,
         countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
-        taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
         mockInvoice.id,
@@ -622,7 +622,6 @@ describe('InvoiceManager', () => {
         currencyCode: mockInvoice.currency,
         countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
-        taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
         mockInvoice.id,
@@ -687,7 +686,6 @@ describe('InvoiceManager', () => {
         currencyCode: mockInvoice.currency,
         countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
-        taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
         mockInvoice.id,
@@ -706,7 +704,7 @@ describe('InvoiceManager', () => {
       expect(stripeClient.invoicesUpdate).toHaveBeenCalledTimes(1);
       expect(stripeClient.invoicesPay).not.toHaveBeenCalled();
     });
-    it('successfully processes non-zero invoice with a tax of 0', async () => {
+    it('successfully processes non-zero invoice with tax', async () => {
       const mockPaymentAttemptCount = 1;
       const mockCustomer = StripeResponseFactory(
         StripeCustomerFactory({
@@ -724,7 +722,7 @@ describe('InvoiceManager', () => {
               mockPaymentAttemptCount
             ),
           },
-          tax: 0,
+          total_taxes: [StripeInvoiceLineItemTaxFactory({ amount: 100 })],
           customer_shipping: { address: StripeAddressFactory() },
         })
       );
@@ -759,7 +757,7 @@ describe('InvoiceManager', () => {
         currencyCode: mockInvoice.currency,
         countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
-        taxAmountInCents: mockInvoice.tax,
+        taxAmountInCents: 100,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
         mockInvoice.id,
