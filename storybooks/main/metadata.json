@@ -1,8 +1,8 @@
 {
-  "commit": "d6db2c824396fe750bea97841303cfae7468cab6",
-  "summary": "Merge pull request #20901 from mozilla/payments-functional_fix",
-  "description": "fix(functional-tests): Fix failing payments functional tests",
-  "timestamp": 1784828139000,
+  "commit": "2224043690c8c48b505622380039eecbb287ad52",
+  "summary": "Merge pull request #20910 from mozilla/FXA-14213-passkey-mfa-otp-rate-limit",
+  "description": "fix(auth): add rate-limit rules for passkey MFA OTP request/verify",
+  "timestamp": 1784830016000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
