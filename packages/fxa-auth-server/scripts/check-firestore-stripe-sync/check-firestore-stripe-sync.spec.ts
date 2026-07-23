@@ -474,8 +474,10 @@ describe('FirestoreStripeSyncChecker', () => {
     it('returns false when status differs', () => {
       const firestoreSubscription = {
         status: 'canceled',
-        current_period_end: mockSubscription.current_period_end,
-        current_period_start: mockSubscription.current_period_start,
+        current_period_end:
+          mockSubscription.items.data[0].current_period_end,
+        current_period_start:
+          mockSubscription.items.data[0].current_period_start,
       };
 
       const result = syncChecker.isSubscriptionInSync(
@@ -489,7 +491,8 @@ describe('FirestoreStripeSyncChecker', () => {
       const firestoreSubscription = {
         status: mockSubscription.status,
         current_period_end: 999999,
-        current_period_start: mockSubscription.current_period_start,
+        current_period_start:
+          mockSubscription.items.data[0].current_period_start,
       };
 
       const result = syncChecker.isSubscriptionInSync(

@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import {
   Plan,
   SubscriptionStripeError,
@@ -104,8 +104,6 @@ export function filterSubscription(
     'cancel_at',
     'canceled_at',
     'created',
-    'current_period_end',
-    'current_period_start',
     'ended_at',
     'id',
     'items',
@@ -192,11 +190,7 @@ export function filterProduct(item: Stripe.Product) {
  * @param item
  */
 export function filterInvoice(item: Stripe.Invoice) {
-  const invoice = pick(item, 'id', 'status', 'object', 'payment_intent');
-  if (invoice.payment_intent && typeof invoice.payment_intent !== 'string') {
-    invoice.payment_intent = filterIntent(invoice.payment_intent) as any;
-  }
-  return invoice;
+  return pick(item, 'id', 'status', 'object');
 }
 
 /**

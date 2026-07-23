@@ -117,17 +117,19 @@ describe('PaypalProcessor', () => {
 
   describe('cancelInvoiceSubscription', () => {
     it('marks invoice and cancels subscription', async () => {
+      const invoice = deepCopy(paidInvoice);
+      invoice.parent = {
+        subscription_details: { subscription: { id: 'sub_basil' } },
+      };
       mockStripeHelper.markUncollectible = jest.fn().mockResolvedValue({});
       mockStripeHelper.cancelSubscription = jest.fn().mockResolvedValue({});
-      const result = await processor.cancelInvoiceSubscription(paidInvoice);
+      const result = await processor.cancelInvoiceSubscription(invoice);
       expect(result).toEqual([{}, {}]);
       expect(mockStripeHelper.markUncollectible).toHaveBeenCalledTimes(1);
-      expect(mockStripeHelper.markUncollectible).toHaveBeenCalledWith(
-        paidInvoice
-      );
+      expect(mockStripeHelper.markUncollectible).toHaveBeenCalledWith(invoice);
       expect(mockStripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
       expect(mockStripeHelper.cancelSubscription).toHaveBeenCalledWith(
-        paidInvoice.subscription.id
+        'sub_basil'
       );
     });
   });

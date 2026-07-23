@@ -25,6 +25,7 @@ import {
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
+  getInvoiceSubscription,
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
   SUBSCRIPTIONS_RESOURCE,
@@ -1073,9 +1074,10 @@ export class StripeWebhookHandler extends StripeHandler {
         email: account.primaryEmail,
       },
     ];
-    const subscription = invoice.subscription
+    const subscriptionRef = getInvoiceSubscription(invoice);
+    const subscription = subscriptionRef
       ? await this.stripeHelper.expandResource(
-          invoice.subscription,
+          subscriptionRef,
           SUBSCRIPTIONS_RESOURCE
         )
       : null;

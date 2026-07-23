@@ -149,7 +149,7 @@ export abstract class StripeHelper {
    * Once stripe has been instantiated, this method should be invoked to ensure stripe metrics are being collected.
    */
   protected initStripe() {
-    this.stripe.on('response', (response) => {
+    this.stripe.on('response', (response: Stripe.ResponseEvent) => {
       this.statsd.timing('stripe_request', response.elapsed);
       // Note that we can't record the method/path as a tag
       // because ids are in the path which results in too great

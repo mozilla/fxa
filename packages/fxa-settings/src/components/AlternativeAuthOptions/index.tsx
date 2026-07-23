@@ -62,7 +62,7 @@ const AlternativeAuthOptions = ({
       {separator && (
         <div
           className={`text-sm flex items-center justify-center mt-6 ${
-            errorBanner ? 'mb-3' : 'mb-6'
+            errorBanner ? 'mb-0' : 'mb-6'
           }`}
         >
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
@@ -75,7 +75,7 @@ const AlternativeAuthOptions = ({
         </div>
       )}
 
-      {errorBanner && <div className="mb-4">{errorBanner}</div>}
+      {errorBanner}
 
       <div className="flex flex-col gap-2.5">
         {renderPasskey && (

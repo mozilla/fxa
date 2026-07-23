@@ -22,6 +22,7 @@ export const StripeCardPaymentMethodFactory = (
     email: null,
     name: null,
     phone: null,
+    tax_id: null,
   },
   card: {
     brand: 'visa',
@@ -46,6 +47,7 @@ export const StripeCardPaymentMethodFactory = (
       available: ['visa'],
       preferred: null,
     },
+    regulated_status: null,
     three_d_secure_usage: {
       supported: true,
     },
@@ -55,6 +57,7 @@ export const StripeCardPaymentMethodFactory = (
   },
   created: faker.date.past().getTime() / 1000,
   customer: null,
+  customer_account: null,
   livemode: true,
   metadata: {},
   type: 'card',

@@ -5,6 +5,7 @@ import program from 'commander';
 import { StripeHelper } from '../lib/payments/stripe';
 import Stripe from 'stripe';
 import Container from 'typedi';
+import { STRIPE_API_VERSION } from '@fxa/payments/stripe';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
@@ -150,7 +151,7 @@ async function retrieveSubscriptionsByCreatedStripe(
 ): Promise<SubscriptionData[]> {
   const config = Container.get(AppConfig);
   const stripe = new Stripe(config.subscriptions.stripeApiKey, {
-    apiVersion: '2024-11-20.acacia',
+    apiVersion: STRIPE_API_VERSION,
     maxNetworkRetries: 3,
   });
   const baseQuery = `created<=${endDate} AND created>=${startDate}`;
@@ -174,7 +175,8 @@ async function retrieveSubscriptionsByCreatedStripe(
         : undefined;
     const invoicePaymentIntentId =
       typeof sub.latest_invoice !== 'string'
-        ? ((sub.latest_invoice as Stripe.Invoice)?.payment_intent as string)
+        ? ((sub.latest_invoice as Stripe.Invoice)?.payments?.data[0]?.payment
+            .payment_intent as string)
         : undefined;
     const output: SubscriptionData = {
       subscription: sub,

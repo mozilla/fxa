@@ -85,7 +85,9 @@
         },
         "quantity": 1,
         "subscription": "sub_1LLsX2JEcmKzuWtRqw2US2v6",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1643130431,
+        "current_period_end": 1645808831
       }
     ],
     "has_more": false,
@@ -143,7 +145,7 @@
           "object": "line_item",
           "amount": 999,
           "currency": "usd",
-          "description": "1 × Mozilla VPN (at $9.99 / month)",
+          "description": "1 \u00d7 Mozilla VPN (at $9.99 / month)",
           "discount_amounts": [],
           "discountable": true,
           "discounts": [],
@@ -384,7 +386,9 @@
             "generated_from": null,
             "last4": "3808",
             "networks": {
-              "available": ["visa"],
+              "available": [
+                "visa"
+              ],
               "preferred": null
             },
             "three_d_secure_usage": {
@@ -412,7 +416,9 @@
           "request_three_d_secure": "automatic"
         }
       },
-      "payment_method_types": ["card"],
+      "payment_method_types": [
+        "card"
+      ],
       "processing": null,
       "receipt_email": null,
       "review": null,

@@ -149,7 +149,16 @@ const PocPairInit = () => {
     // isn't installed, so we watch for the app opening and, failing that within
     // `timeout`, redirect to the App Store.
     if (!isAndroid) {
-      // Primary signal: page hidden/backgrounded ⇒ the app opened ⇒ cancel store.
+      // Primary signal: the page being hidden/backgrounded means Firefox took
+      // the foreground ⇒ cancel the store fallback.
+      //
+      // We deliberately do NOT listen for window `blur`. On Safari and Brave the
+      // custom-scheme confirmation ("Open in Firefox?") and the "Cannot Open
+      // Page" error dialog both steal focus and fire `blur` *before* anything
+      // actually launches — falsely marking the app as opened and suppressing
+      // the store fallback (so a not-installed user is stranded instead of sent
+      // to the store). visibilitychange/pagehide only fire on a real
+      // background/teardown, so they don't have that false positive.
       const onHidden = () => {
         if (document.hidden) {
           appOpenedRef.current = true;
@@ -160,12 +169,16 @@ const PocPairInit = () => {
       };
       document.addEventListener('visibilitychange', onHidden);
       window.addEventListener('pagehide', onLeave);
-      window.addEventListener('blur', onLeave);
 
-      // Still here after `timeout` ⇒ Firefox didn't open ⇒ go to the store.
-      // replace() so Back doesn't loop the user back into this interstitial.
+      // Timer callbacks are throttled/suspended while the page is backgrounded,
+      // so if Firefox actually opened this fires late (or only after we return).
+      // We check if the app never flagged as opened and the page is still visible.
+      // We removed the strict wall-clock elapsed check here because Safari's handling
+      // of custom schemes can throttle the timer loop unpredictably.
       const timer = window.setTimeout(() => {
-        if (!appOpenedRef.current && !document.hidden) {
+        const neverLeft = !appOpenedRef.current && document.visibilityState === 'visible';
+
+        if (neverLeft) {
           window.location.replace(storeUrl);
         }
       }, timeout);
@@ -173,14 +186,26 @@ const PocPairInit = () => {
       cleanupRef.current = () => {
         document.removeEventListener('visibilitychange', onHidden);
         window.removeEventListener('pagehide', onLeave);
-        window.removeEventListener('blur', onLeave);
         window.clearTimeout(timer);
         cleanupRef.current = null;
       };
     }
 
     // Fire the attempt within the gesture, after any listeners are attached.
-    window.location.href = deepLink;
+    // We route this through an invisible iframe instead of window.location.href.
+    // This allows Safari to test the protocol under the hood without triggering
+    // the destructive "Address is invalid" modal that blocks subsequent JS execution.
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = deepLink;
+    document.body.appendChild(iframe);
+
+    // Clean up the DOM element immediately after execution
+    window.setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 100);
   };
 
   return (

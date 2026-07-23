@@ -266,6 +266,11 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     requestedGrant.ppidSeed = params.ppid_seed;
     requestedGrant.resource = params.resource;
     requestedGrant.ttl = Math.min(params.ttl, MAX_TTL_S);
+    // When true, the `access_token.created` Glean event is tagged with
+    // `exclude_dau` so this token creation is excluded from the DAU signal (the
+    // event still fires). Exposed on the authorization_code / fxa-credentials
+    // grants only; absent elsewhere, so it coerces to false.
+    requestedGrant.excludeDau = params.exclude_dau === true;
     return requestedGrant;
   }
 
@@ -622,13 +627,20 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       service: oauthClientId,
       uid,
     });
+    const reason = params.reason
+      ? `${params.grant_type}:${params.reason}`
+      : params.grant_type;
+    const scopes = grant.scope?.toString() || '';
+    // This maps to the `access_token.created` Glean event which always fires here
+    // because an access token is always created. `exclude_dau` tags the
+    // event so the DAU signal can exclude token creations that we know don't
+    // represent active use of the service.
     glean.oauth.tokenCreated(req, {
       uid,
       oauthClientId,
-      reason: params.reason
-        ? `${params.grant_type}:${params.reason}`
-        : params.grant_type,
-      scopes: grant.scope?.toString() || '',
+      reason,
+      scopes,
+      excludeDau: grant.excludeDau,
     });
 
     if (tokens.keys_jwe) {
@@ -661,6 +673,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     // Include grant properties needed by the /oauth/token handler for newTokenNotification.
     // These are internal properties that get stripped before returning to the client.
     tokens._clientId = oauthClientId;
+    tokens._uid = uid;
     if (grant.existingDeviceId) {
       tokens._existingDeviceId = grant.existingDeviceId;
     }
@@ -713,6 +726,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           // Strip internal properties that are only used by /oauth/token handler
           delete result._clientId;
           delete result._existingDeviceId;
+          delete result._uid;
           return result;
         },
       },
@@ -758,6 +772,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               resource: validators.resourceUrl
                 .optional()
                 .description(DESCRIPTION.resource),
+              exclude_dau: Joi.boolean()
+                .optional()
+                .default(false)
+                .description(DESCRIPTION.excludeDau),
             }).xor('client_secret', 'code_verifier'),
             // refresh token
             Joi.object({
@@ -782,6 +800,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               access_type: Joi.string()
                 .valid('online', 'offline')
                 .default('online'),
+              exclude_dau: Joi.boolean()
+                .optional()
+                .default(false)
+                .description(DESCRIPTION.excludeDau),
               // Note: the max allowed TTL is currently configured in oauth-server config,
               // making it hard to know what limit to set here.
               ttl: Joi.number().positive().optional(),
@@ -908,6 +930,11 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
 
         const scopeSet = ScopeSet.fromString(grant.scope);
 
+        // Captured before the internal props are stripped below. Preferred uid
+        // source for grant flows without a session token (e.g. authorization_code,
+        // token-exchange), avoiding a redundant access-token verification.
+        const grantUid = grant._uid;
+
         // Token exchange doesn't provide a session token, and token migration
         // doesn't need a new session token created, so skip those blocks for both.
         const isRefreshTokenUpgrade =
@@ -977,6 +1004,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               skipEmail: isSilentUpgrade,
               existingDeviceId: grant._existingDeviceId,
               clientId: grant._clientId,
+              uid: grantUid,
             }
           );
         }
@@ -989,17 +1017,18 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         // Strip internal properties before returning to client
         delete grant._clientId;
         delete grant._existingDeviceId;
+        delete grant._uid;
         delete grant.session_token_id;
 
         // attempt to record metrics, but swallow the error if one is thrown.
         try {
-          let uid = sessionToken && sessionToken.uid;
-
-          // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
-          // have the uid in `credentials`, so we get it from the oauth DB.
+          // Some grant flows (e.g. authorization_code, token-exchange) have no
+          // session token, so fall back to the uid carried on the grant. As a
+          // last resort (should not happen — an access token is always minted),
+          // recover it by verifying the access token.
+          let uid = (sessionToken && sessionToken.uid) || grantUid;
           if (!uid) {
-            const tokenVerify = await token.verify(grant.access_token);
-            uid = tokenVerify.user;
+            uid = (await token.verify(grant.access_token)).user;
           }
 
           await req.emitMetricsEvent('oauth.token.created', {

@@ -69,6 +69,7 @@ import {
   StripeResponseFactory,
   StripeSetupIntentFactory,
   StripeSubscriptionFactory,
+  StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
   MockStrapiClientConfigProvider,
@@ -1394,7 +1395,16 @@ describe('SubscriptionManagementService integration', () => {
           status: 'active',
           cancel_at_period_end: false,
           currency: 'usd',
-          current_period_end: 1735689600,
+          items: {
+            object: 'list',
+            data: [
+              StripeSubscriptionItemFactory({
+                current_period_end: 1735689600,
+              }),
+            ],
+            has_more: false,
+            url: '',
+          },
         })
       );
       const mockPaymentMethodInfo = {
@@ -1522,7 +1532,16 @@ describe('SubscriptionManagementService integration', () => {
           status: 'active',
           cancel_at_period_end: true,
           currency: 'usd',
-          current_period_end: 1735689600,
+          items: {
+            object: 'list',
+            data: [
+              StripeSubscriptionItemFactory({
+                current_period_end: 1735689600,
+              }),
+            ],
+            has_more: false,
+            url: '',
+          },
         })
       );
       const mockPaymentMethodInfo = {

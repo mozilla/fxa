@@ -552,6 +552,9 @@ describe('StripeFirestore', () => {
 
     beforeEach(() => {
       invoice = deepCopy(paidInvoice);
+      invoice.parent = {
+        subscription_details: { subscription: invoice.subscription },
+      };
     });
 
     it('inserts a record', async () => {
@@ -616,7 +619,7 @@ describe('StripeFirestore', () => {
     const mockInvoice = {
       id: invoiceId,
       customer: customerId,
-      subscription: subscriptionId,
+      parent: { subscription_details: { subscription: subscriptionId } },
     };
     const eventTime = 123;
 
@@ -726,7 +729,7 @@ describe('StripeFirestore', () => {
     it('returns invoice as-is when it has no subscription', async () => {
       const mockInvoiceWithoutSubscription = {
         ...mockInvoice,
-        subscription: null,
+        parent: null,
       };
       stripe.invoices.retrieve.mockResolvedValue(
         mockInvoiceWithoutSubscription

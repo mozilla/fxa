@@ -57,7 +57,9 @@
         },
         "quantity": 1,
         "subscription": "sub_FvOedh0SsaUVni",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1580749977,
+        "current_period_end": 1583255577
       }
     ],
     "has_more": false,

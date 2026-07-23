@@ -509,6 +509,13 @@ access_token:
       scopes:
         description: The OAuth scopes granted for the access token, in a comma-separated list
         type: string
+      # A non-PII boolean flag; covered by this event's existing data review.
+      exclude_dau:
+        description: >
+          True when this access-token creation should be excluded from the daily
+          active users (DAU) signal — e.g. a token created for a signed-in user
+          regardless of whether they are using the service. Defaults to false.
+        type: boolean
 login:
   backup_code_success:
     type: event

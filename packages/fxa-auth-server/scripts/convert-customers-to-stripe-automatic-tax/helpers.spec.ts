@@ -6,6 +6,7 @@ import {
   FirestoreSubscription,
   StripeAutomaticTaxConverterHelpers,
 } from './helpers';
+import { StripeTaxRateFactory } from '@fxa/payments/stripe';
 import Stripe from 'stripe';
 
 import customer1 from '../../test/local/payments/fixtures/stripe/customer1.json';
@@ -300,7 +301,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     it('returns true for yearly when more than 30 days out', () => {
       const periodEnd = new Date(fakeToday);
       periodEnd.setUTCDate(periodEnd.getUTCDate() + 31);
-      yearlySub.current_period_end = periodEnd.getTime() / 1000;
+      yearlySub.items.data[0].current_period_end = periodEnd.getTime() / 1000;
 
       const result = helpers.isWithinNoticePeriod(yearlySub);
 
@@ -310,7 +311,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     it('returns false for yearly when less than 30 days out', () => {
       const periodEnd = new Date(fakeToday);
       periodEnd.setUTCDate(periodEnd.getUTCDate() + 29);
-      yearlySub.current_period_end = periodEnd.getTime() / 1000;
+      yearlySub.items.data[0].current_period_end = periodEnd.getTime() / 1000;
 
       const result = helpers.isWithinNoticePeriod(yearlySub);
 
@@ -320,7 +321,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     it('returns true for monthly when more than 14 days out', () => {
       const periodEnd = new Date(fakeToday);
       periodEnd.setUTCDate(periodEnd.getUTCDate() + 15);
-      monthlySub.current_period_end = periodEnd.getTime() / 1000;
+      monthlySub.items.data[0].current_period_end = periodEnd.getTime() / 1000;
 
       const result = helpers.isWithinNoticePeriod(monthlySub);
 
@@ -330,7 +331,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     it('returns false for monthly when less than 14 days out', () => {
       const periodEnd = new Date(fakeToday);
       periodEnd.setUTCDate(periodEnd.getUTCDate() + 13);
-      monthlySub.current_period_end = periodEnd.getTime() / 1000;
+      monthlySub.items.data[0].current_period_end = periodEnd.getTime() / 1000;
 
       const result = helpers.isWithinNoticePeriod(monthlySub);
 
@@ -339,14 +340,10 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
   });
 
   describe('getSpecialTaxAmounts', () => {
-    const getMockTaxAmount = (amount: number, display_name: string) =>
-      ({
-        amount,
-        inclusive: false,
-        tax_rate: {
-          display_name,
-        },
-      }) as Stripe.Invoice.TotalTaxAmount;
+    const getMockTaxAmount = (amount: number, display_name: string) => ({
+      amount,
+      tax_rate_details: { tax_rate: StripeTaxRateFactory({ display_name }) },
+    });
 
     const mockTaxAmounts = [
       getMockTaxAmount(10, 'HST'),

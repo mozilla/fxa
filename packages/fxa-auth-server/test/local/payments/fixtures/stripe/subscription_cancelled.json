@@ -55,7 +55,9 @@
         },
         "quantity": 1,
         "subscription": "sub_GWSkxxni5LtLCN",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1582646071,
+        "current_period_end": 1582732471
       }
     ],
     "has_more": false,

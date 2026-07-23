@@ -17,35 +17,6 @@
   "default_payment_method": null,
   "default_source": null,
   "default_tax_rates": [],
-  "discount": {
-    "id": "di_1KgxpeBVqmGyQTMaCJfeihs0",
-    "object": "discount",
-    "checkout_session": null,
-    "coupon": {
-      "id": "SaqnwhC7",
-      "object": "coupon",
-      "amount_off": 50,
-      "created": 1641847527,
-      "currency": "usd",
-      "duration": "repeating",
-      "duration_in_months": 3,
-      "livemode": false,
-      "max_redemptions": null,
-      "metadata": {},
-      "name": "$0.50 off",
-      "percent_off": null,
-      "redeem_by": null,
-      "times_redeemed": 18,
-      "valid": true
-    },
-    "customer": "cus_G8ByGeO3M4cBPW",
-    "end": 1581644137,
-    "invoice": null,
-    "invoice_item": null,
-    "promotion_code": "promo_3FGUk7BVqmGyQTMaC7RjldxJ",
-    "start": 1573695337,
-    "subscription": "sub_GAt1vgMqOSr5hT"
-  },
   "ended_at": null,
   "invoice_customer_balance_settings": {
     "consume_applied_balance_on_void": true
@@ -83,7 +54,9 @@
         },
         "quantity": 1,
         "subscription": "sub_GAt1vgMqOSr5hT",
-        "tax_rates": []
+        "tax_rates": [],
+        "current_period_start": 1573695337,
+        "current_period_end": 1576287337
       }
     ],
     "has_more": false,
@@ -127,5 +100,39 @@
   "status": "active",
   "tax_percent": null,
   "trial_end": null,
-  "trial_start": null
+  "trial_start": null,
+  "discounts": [
+    {
+      "id": "di_1KgxpeBVqmGyQTMaCJfeihs0",
+      "object": "discount",
+      "checkout_session": null,
+      "customer": "cus_G8ByGeO3M4cBPW",
+      "end": 1581644137,
+      "invoice": null,
+      "invoice_item": null,
+      "promotion_code": "promo_3FGUk7BVqmGyQTMaC7RjldxJ",
+      "start": 1573695337,
+      "subscription": "sub_GAt1vgMqOSr5hT",
+      "source": {
+        "coupon": {
+          "id": "SaqnwhC7",
+          "object": "coupon",
+          "amount_off": 50,
+          "created": 1641847527,
+          "currency": "usd",
+          "duration": "repeating",
+          "duration_in_months": 3,
+          "livemode": false,
+          "max_redemptions": null,
+          "metadata": {},
+          "name": "$0.50 off",
+          "percent_off": null,
+          "redeem_by": null,
+          "times_redeemed": 18,
+          "valid": true
+        },
+        "type": "coupon"
+      }
+    }
+  ]
 }

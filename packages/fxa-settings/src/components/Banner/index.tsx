@@ -89,7 +89,8 @@ export const Banner = ({
             <LinkExternal
               className="text-sm link-blue"
               href={link.url}
-              {...(link.gleanId && { 'data-glean-id': link.gleanId })}
+              {...(link.gleanId && { gleanDataAttrs: { id: link.gleanId } })}
+              onClick={link.onClick}
             >
               {link.localizedText}
             </LinkExternal>

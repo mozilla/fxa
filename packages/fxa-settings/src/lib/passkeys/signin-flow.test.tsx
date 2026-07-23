@@ -14,6 +14,7 @@ import {
   type PasskeySignInIntegration,
 } from './signin-flow';
 import { getCredential, isWebAuthnSupported } from './webauthn';
+import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 import { storeAccountData } from '../storage-utils';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
@@ -73,6 +74,7 @@ jest.mock('../glean', () => ({
     passkey: {
       buttonView: jest.fn(),
       authSuccess: jest.fn(),
+      getHelpLinkClick: jest.fn(),
     },
   },
 }));
@@ -611,22 +613,12 @@ describe('usePasskeySignIn', () => {
     }
   );
 
-  // Locks the contract: each DOMException name maps to its expected FTL id
-  // AND its fallback string. Drift in either lands silently otherwise.
-  // The fallback substrings are stable phrases pulled from webauthn-errors.ts
-  // — robust to minor copy edits, strict on intent.
+  // Device/platform DOMExceptions keep the red error banner. Locks the
+  // contract: each name maps to its expected FTL id AND its fallback string.
+  // Drift in either lands silently otherwise. The fallback substrings are
+  // stable phrases from webauthn-errors.ts — robust to minor copy edits,
+  // strict on intent.
   it.each([
-    [
-      'NotAllowedError',
-      'passkey-authentication-error-not-allowed',
-      'Sign-in with passkey failed',
-    ],
-    [
-      'AbortError',
-      'passkey-authentication-error-not-allowed',
-      'Sign-in with passkey failed',
-    ],
-    ['TimeoutError', 'passkey-authentication-error-timeout', 'timed out'],
     [
       'NotSupportedError',
       'passkey-authentication-error-not-supported-v2',
@@ -644,8 +636,35 @@ describe('usePasskeySignIn', () => {
       'access the authenticator',
     ],
   ])(
-    'categorises WebAuthn DOMException %s and surfaces %s',
+    'shows the error banner for device/platform DOMException %s (%s)',
     async (errorName, expectedFtlId, fallbackSubstring) => {
+      (getCredential as jest.Mock).mockRejectedValue(
+        new DOMException('failed', errorName)
+      );
+      const { args, spies } = buildArgs();
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(handleNavigation).not.toHaveBeenCalled();
+      const banner = result.current.errorBanner as React.ReactElement;
+      expect(banner.props.type).toBe('error');
+      expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
+        expectedFtlId,
+        expect.stringContaining(fallbackSubstring)
+      );
+    }
+  );
+
+  // A cancelled ceremony (NotAllowedError / AbortError share the 'not_allowed'
+  // reason) surfaces the neutral warning banner with the help link — never the
+  // red error banner, and never Sentry.
+  it.each([['NotAllowedError'], ['AbortError']])(
+    'shows the neutral warning banner for a cancelled ceremony (%s), not the error copy, and does not report to Sentry',
+    async (errorName) => {
       (getCredential as jest.Mock).mockRejectedValue(
         new DOMException('cancelled', errorName)
       );
@@ -658,11 +677,74 @@ describe('usePasskeySignIn', () => {
       });
 
       expect(handleNavigation).not.toHaveBeenCalled();
-      expect(result.current.errorBanner).toBeDefined();
-      expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
-        expectedFtlId,
-        expect.stringContaining(fallbackSubstring)
+
+      // The core contract: a neutral warning banner (not the red error banner)
+      // carrying the help link.
+      const banner = result.current.errorBanner as React.ReactElement;
+      expect(banner.props.type).toBe('warning');
+      expect(banner.props.content).toEqual({
+        localizedHeading: 'Couldn’t sign in with a passkey',
+        localizedDescription: 'Try again or use another sign-in option.',
+      });
+      expect(banner.props.link.localizedText).toBe('How to use passkeys');
+      // Never routed to the red error banner copy, and never reported to Sentry.
+      expect(spies.ftlMsgResolver.getMsg).not.toHaveBeenCalledWith(
+        'passkey-authentication-error-not-allowed',
+        expect.anything()
       );
+      expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+    }
+  );
+
+  // Timeout is transient: its own message, warning style, no help link.
+  it('shows a dedicated warning banner (no help link) on a timed-out ceremony', async () => {
+    (getCredential as jest.Mock).mockRejectedValue(
+      new DOMException('timed out', 'TimeoutError')
+    );
+    const { args } = buildArgs();
+
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    await act(async () => {
+      await result.current.onClick();
+    });
+
+    const banner = result.current.errorBanner as React.ReactElement;
+    expect(banner.props.type).toBe('warning');
+    expect(banner.props.content).toEqual({
+      localizedHeading: 'Passkey sign-in timed out. Try again.',
+    });
+    expect(banner.props.link).toBeUndefined();
+    expect(GleanMetrics.passkey.getHelpLinkClick).not.toHaveBeenCalled();
+    expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+  });
+
+  // Email-first sends users to the "what is a passkey" article; the other
+  // surfaces (where the user already has a passkey) go to troubleshooting.
+  it.each([
+    ['emailfirst' as const, PASSKEY_SUPPORT_URL, 'emailfirst'],
+    ['login' as const, PASSKEY_TROUBLESHOOT_URL, 'signin'],
+    ['login_otp' as const, PASSKEY_TROUBLESHOOT_URL, 'otplogin'],
+    ['alternative_auth' as const, PASSKEY_TROUBLESHOOT_URL, 'alternative_auth'],
+  ])(
+    'warning banner links to the right article and records a get-help click for surface=%s',
+    async (surface, expectedUrl, expectedReason) => {
+      (getCredential as jest.Mock).mockRejectedValue(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+      const { args } = buildArgs({ surface });
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      const banner = result.current.errorBanner as React.ReactElement;
+      expect(banner.props.link.url).toBe(expectedUrl);
+
+      banner.props.link.onClick();
+      expect(GleanMetrics.passkey.getHelpLinkClick).toHaveBeenCalledWith({
+        event: { reason: expectedReason },
+      });
     }
   );
 
@@ -960,7 +1042,9 @@ describe('usePasskeySignIn', () => {
       'fires passkey.auth_success with reason=%s on the no-Sync-password branch (surface=%s)',
       async (surface, expectedReason) => {
         const { args } = buildArgs({ surface });
-        const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+        const { result } = renderHook(() => usePasskeySignIn(args), {
+          wrapper,
+        });
         await act(async () => {
           await result.current.onClick();
         });
