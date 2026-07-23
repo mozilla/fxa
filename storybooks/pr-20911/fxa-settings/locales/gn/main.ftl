@@ -937,6 +937,10 @@ passkey-rename-modal-heading = Emboherajey ñe’ẽ ñemi jeikeha
 passkey-rename-input-label = Ñe’ẽ ñemi jeikeha réra
 passkey-rename-save-button = Ñongatu
 passkey-rename-cancel-button = Eheja
+passkey-rename-error-empty = Ehai peteĩ téra ko ñe’ẽ ñemíme g̃uarã
+passkey-rename-error-too-long = Pe téra oguerekova’erã michĩvérõ 256 tairenda.
+passkey-rename-error-duplicate = Oĩma ñe’ẽ ñemi ko térape ojehaipyréva
+passkey-rename-success = Ñe’ẽ ñemi mboherapyre
 
 
 switch-turn-off = Pe’aite
