@@ -47,6 +47,7 @@ jest.mock('../../../lib/api', () => ({
     enableAccount: jest.fn(),
     remove2FA: jest.fn(),
     deleteRecoveryPhone: jest.fn(),
+    removePasskeys: jest.fn(),
     recordSecurityEvent: jest.fn(),
   },
 }));
@@ -78,6 +79,7 @@ const defaultProps = {
   onCleared: jest.fn(),
   has2FA: true,
   hasRecoveryPhone: true,
+  hasPasskeys: true,
 };
 
 function renderDangerZone(props: Partial<typeof defaultProps> = {}) {
@@ -199,6 +201,91 @@ describe('DangerZone Component', () => {
     });
   });
 
+  describe('Remove All Passkeys', () => {
+    it('renders remove passkeys button when account has passkeys', () => {
+      renderDangerZone();
+
+      expect(screen.getByText('Remove All Passkeys')).toBeInTheDocument();
+      expect(
+        screen.getByText("Delete all of the account's passkeys.")
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('remove-all-passkeys')).toBeInTheDocument();
+    });
+
+    it('does not render remove passkeys button when account has no passkeys', () => {
+      renderDangerZone({ hasPasskeys: false });
+
+      expect(screen.queryByText('Remove All Passkeys')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('remove-all-passkeys')
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not remove passkeys when the admin cancels the confirmation', async () => {
+      mockConfirm.mockReturnValue(false);
+
+      renderDangerZone();
+
+      await user.click(screen.getByTestId('remove-all-passkeys'));
+
+      expect(mockConfirm).toHaveBeenCalledWith(
+        'Are you sure? This cannot be undone.'
+      );
+      expect(adminApi.removePasskeys).not.toHaveBeenCalled();
+    });
+
+    it('removes passkeys and records a security event when the admin confirms', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.removePasskeys as jest.Mock).mockResolvedValue(true);
+
+      renderDangerZone();
+
+      await user.click(screen.getByTestId('remove-all-passkeys'));
+
+      await waitFor(() => {
+        expect(adminApi.removePasskeys).toHaveBeenCalledWith('test-uid-123');
+        expect(adminApi.recordSecurityEvent).toHaveBeenCalledWith(
+          'test-uid-123',
+          'account.passkey.removed'
+        );
+        expect(mockAlert).toHaveBeenCalledWith(
+          "The account's passkeys have been removed."
+        );
+        expect(defaultProps.onCleared).toHaveBeenCalled();
+      });
+    });
+
+    it('does not record the event or clear when no passkeys were removed', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.removePasskeys as jest.Mock).mockResolvedValue(false);
+
+      renderDangerZone();
+
+      await user.click(screen.getByTestId('remove-all-passkeys'));
+
+      await waitFor(() => {
+        expect(mockAlert).toHaveBeenCalledWith('No passkeys were removed.');
+      });
+      expect(adminApi.recordSecurityEvent).not.toHaveBeenCalled();
+      expect(defaultProps.onCleared).not.toHaveBeenCalled();
+    });
+
+    it('shows an error alert when removePasskeys fails', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.removePasskeys as jest.Mock).mockRejectedValue(
+        new Error('Network error')
+      );
+
+      renderDangerZone();
+
+      await user.click(screen.getByTestId('remove-all-passkeys'));
+
+      await waitFor(() => {
+        expect(mockAlert).toHaveBeenCalledWith('Error removing passkeys.');
+      });
+    });
+  });
+
   describe('Component Rendering', () => {
     it('renders danger zone section', () => {
       renderDangerZone();
@@ -213,6 +300,7 @@ describe('DangerZone Component', () => {
       expect(screen.getByTestId('disable-account')).toBeInTheDocument();
       expect(screen.getByTestId('remove-2fa')).toBeInTheDocument();
       expect(screen.getByTestId('delete-recovery-phone')).toBeInTheDocument();
+      expect(screen.getByTestId('remove-all-passkeys')).toBeInTheDocument();
       expect(
         screen.getByTestId('unsubscribe-from-mailing-lists')
       ).toBeInTheDocument();
@@ -231,6 +319,9 @@ describe('DangerZone Component', () => {
       expect(screen.queryByTestId('remove-2fa')).not.toBeInTheDocument();
       expect(
         screen.queryByTestId('delete-recovery-phone')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('remove-all-passkeys')
       ).not.toBeInTheDocument();
       expect(
         screen.queryByTestId('unsubscribe-from-mailing-lists')

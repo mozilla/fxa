@@ -17,6 +17,7 @@ type DangerZoneProps = {
   onCleared: Function;
   has2FA?: boolean | null;
   hasRecoveryPhone?: boolean | null;
+  hasPasskeys?: boolean | null;
 };
 
 const DangerZoneAction = ({
@@ -65,6 +66,7 @@ export const DangerZone = ({
   onCleared,
   has2FA,
   hasRecoveryPhone,
+  hasPasskeys,
 }: DangerZoneProps) => {
   const [unverifyLoading, setUnverifyLoading] = useState(false);
 
@@ -159,6 +161,26 @@ export const DangerZone = ({
     }
   };
 
+  const handleRemovePasskeys = async () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    try {
+      const removed = await adminApi.removePasskeys(uid);
+      if (!removed) {
+        window.alert('No passkeys were removed.');
+        return;
+      }
+      adminApi
+        .recordSecurityEvent(uid, 'account.passkey.removed')
+        .catch(() => {});
+      window.alert("The account's passkeys have been removed.");
+      onCleared();
+    } catch {
+      window.alert('Error removing passkeys.');
+    }
+  };
+
   // define loading messages
   const loadingMessage = 'Please wait a moment...';
   let unverifyMessage = '';
@@ -175,6 +197,7 @@ export const DangerZone = ({
           AdminPanelFeature.UnsubscribeFromMailingLists,
           AdminPanelFeature.Remove2FA,
           AdminPanelFeature.DeleteRecoveryPhone,
+          AdminPanelFeature.RemovePasskeys,
         ]}
       >
         <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-sm text-lg text-white">
@@ -238,6 +261,17 @@ export const DangerZone = ({
             buttonHandler={handleDeleteRecoveryPhone}
             buttonText="Delete"
             buttonTestId="delete-recovery-phone"
+          />
+        </Guard>
+      )}
+      {hasPasskeys && (
+        <Guard features={[AdminPanelFeature.RemovePasskeys]}>
+          <DangerZoneAction
+            header="Remove All Passkeys"
+            description="Delete all of the account's passkeys."
+            buttonHandler={handleRemovePasskeys}
+            buttonText="Remove All"
+            buttonTestId="remove-all-passkeys"
           />
         </Guard>
       )}

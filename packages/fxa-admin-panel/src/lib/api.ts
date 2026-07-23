@@ -141,6 +141,20 @@ export const adminApi = {
     });
   },
 
+  removePasskeys(uid: string): Promise<boolean> {
+    return apiFetch('/api/account/remove-passkeys', {
+      method: 'POST',
+      body: JSON.stringify({ uid }),
+    });
+  },
+
+  removePasskey(uid: string, credentialId: string): Promise<boolean> {
+    return apiFetch('/api/account/remove-passkey', {
+      method: 'POST',
+      body: JSON.stringify({ uid, credentialId }),
+    });
+  },
+
   recordSecurityEvent(uid: string, name: string): Promise<boolean> {
     return apiFetch('/api/account/record-security-event', {
       method: 'POST',
