@@ -223,10 +223,18 @@ export class BillingAndSubscriptionsService {
           offering.offering.defaultPurchase.stripePlanChoices.map(
             (choice) => choice.stripePlanChoice
           );
-        const price = await this.priceManager.retrieveByInterval(
+        let price = await this.priceManager.retrieveByInterval(
           priceIds,
           offering.interval as unknown as SubplatInterval
         );
+
+        if (!price) {
+          const isGoogle = googleIapPurchases.some((p) => p.sku === storeId);
+          price = isGoogle
+            ? await this.priceManager.findGoogleIAPPriceByStoreId(storeId)
+            : await this.priceManager.findAppleIAPPriceByStoreId(storeId);
+        }
+
         if (!price) {
           continue;
         }

@@ -9,6 +9,7 @@ export * from './lib/accountCustomer/accountCustomer.types';
 export { StripeAddressFactory } from './lib/factories/address.factory';
 export {
   StripeApiListFactory,
+  StripeApiSearchResultFactory,
   StripeResponseFactory,
 } from './lib/factories/api-list.factory';
 export { StripeCardFactory } from './lib/factories/card.factory';
