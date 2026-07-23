@@ -1,0 +1,16 @@
+repo_name: "Firefox Accounts (mozilla/fxa)"
+node_version: "24"
+install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds"
+
+# Security-sensitive repo (auth, payments, user data): keep advisory checks on
+# and hold a higher compatibility bar before auto-merging.
+automerge:
+  min_compatibility_score: 85
+  allow_major: false
+  check_advisories: true
+
+# Large Nx monorepo — installs and nx affected runs are slow, so allow a bit
+# more room for the fixer to iterate.
+fix:
+  max_claude_turns: 40
+  max_budget_usd: 3.00
