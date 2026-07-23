@@ -54,16 +54,30 @@ export const Page2faSetup = () => {
     'Two-step authentication'
   );
 
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [flowHasPhoneChoice, setFlowHasPhoneChoice] = useState(false);
   const [backupCodeError, setBackupCodeError] = useState('');
   const [backupMethod, setBackupMethod] = useState<Choice | null>(null);
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
-  const [flowHasPhoneChoice] = useState(() => account.recoveryPhone.available);
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;
     nationalFormat: string | undefined;
   }>({ phoneNumber: '', nationalFormat: '' });
+
+  // Ensure recoveryPhone.available is populated before snapshotting it.
+  // The /account fetch may still be in-flight when this component mounts;
+  // reading the value too early permanently skips the phone-choice step.
+  // See InlineRecoverySetupFlow for the same pattern.
+  useEffect(() => {
+    async function ensureAccountData() {
+      await account.refresh('account');
+      setFlowHasPhoneChoice(account.recoveryPhone.available);
+      setAccountLoaded(true);
+    }
+    ensureAccountData();
+  }, [account]);
 
   // this will impact the progress bar
   // when recovery phone is available, an extra choice step is added
@@ -161,7 +175,7 @@ export const Page2faSetup = () => {
     goBackToSettings,
   ]);
 
-  if (totpInfoLoading) return <LoadingSpinner fullScreen />;
+  if (totpInfoLoading || !accountLoaded) return <LoadingSpinner fullScreen />;
 
   if (totpInfoError || !totpInfo) {
     return <></>;
