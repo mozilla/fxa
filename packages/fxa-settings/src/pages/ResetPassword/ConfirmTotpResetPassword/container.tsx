@@ -4,15 +4,22 @@
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import ConfirmTotpResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
+import { ResetPasswordIntegration } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
-const ConfirmTotpResetPasswordContainer = () => {
+const ConfirmTotpResetPasswordContainer = ({
+  integration,
+}: {
+  integration: ResetPasswordIntegration;
+}) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const location = useLocation();
   const {
     code,
@@ -22,10 +29,17 @@ const ConfirmTotpResetPasswordContainer = () => {
     recoveryKeyExists,
     estimatedSyncDeviceCount,
     uid,
+    hasPasskey,
   } = location.state as CompleteResetPasswordLocationState;
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    hasPasskey,
+    serviceRequiresKeys: integration.isSync(),
+    requireHasPasskey: true,
+  });
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
@@ -39,6 +53,7 @@ const ConfirmTotpResetPasswordContainer = () => {
         recoveryKeyExists,
         token,
         uid,
+        hasPasskey,
       },
       replace: true,
     });
@@ -78,6 +93,7 @@ const ConfirmTotpResetPasswordContainer = () => {
         recoveryKeyExists,
         token,
         uid,
+        hasPasskey,
       },
       replace: false,
     });
@@ -90,6 +106,8 @@ const ConfirmTotpResetPasswordContainer = () => {
         codeErrorMessage,
         setCodeErrorMessage,
         onTroubleWithCode,
+        email,
+        showPasskeyOption,
       }}
     />
   );

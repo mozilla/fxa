@@ -4,8 +4,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
-import { ResetPasswordIntegration } from '../interfaces';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
+import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
 import ConfirmResetPassword from '.';
 import {
   ConfirmResetPasswordLocationState,
@@ -15,10 +15,13 @@ import { ResendStatus } from '../../../lib/types';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 const ConfirmResetPasswordContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration }) => {
+}: {
+  integration: ResetPasswordIntegration;
+}) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );
@@ -26,7 +29,15 @@ const ConfirmResetPasswordContainer = ({
   const [resendErrorMessage, setResendErrorMessage] = useState('');
 
   const authClient = useAuthClient();
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  // The account isn't known until the OTP is verified, so the footer is shown
+  // unconditionally when the feature is on — except for an active Sync sign-in,
+  // where a passkey can't recover Sync data in Phase 1.
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    serviceRequiresKeys: integration.isSync(),
+  });
 
   const navigateWithQuery = useNavigateWithQuery();
   let location = useLocation();
@@ -40,16 +51,26 @@ const ConfirmResetPasswordContainer = ({
     }
   });
 
-  const handleNavigation = (
-    code: string,
-    emailToHashWith: string,
-    token: string,
-    uid: string,
-    estimatedSyncDeviceCount?: number,
-    recoveryKeyExists?: boolean,
-    recoveryKeyHint?: string,
-    totpExists?: boolean
-  ) => {
+  const handleNavigation = ({
+    code,
+    emailToHashWith,
+    token,
+    uid,
+    estimatedSyncDeviceCount,
+    recoveryKeyExists,
+    recoveryKeyHint,
+    totpExists,
+    hasPasskey,
+  }: {
+    code: string;
+    emailToHashWith: string;
+    token: string;
+    uid: string;
+    estimatedSyncDeviceCount?: number;
+    recoveryKeyExists?: boolean;
+    recoveryKeyHint?: string;
+    totpExists?: boolean;
+  } & PasskeyResetSignals) => {
     if (totpExists && recoveryKeyExists === false) {
       navigateWithQuery('/confirm_totp_reset_password', {
         state: {
@@ -61,6 +82,7 @@ const ConfirmResetPasswordContainer = ({
           recoveryKeyHint,
           token,
           uid,
+          hasPasskey,
         },
         replace: true,
       });
@@ -76,6 +98,7 @@ const ConfirmResetPasswordContainer = ({
           token,
           uid,
           totpExists,
+          hasPasskey,
         },
         replace: true,
       });
@@ -89,6 +112,7 @@ const ConfirmResetPasswordContainer = ({
           recoveryKeyExists,
           token,
           uid,
+          hasPasskey,
         },
         replace: true,
       });
@@ -124,7 +148,7 @@ const ConfirmResetPasswordContainer = ({
     const options = { metricsContext };
     try {
       GleanMetrics.passwordReset.emailConfirmationSubmit();
-      const { code, emailToHashWith, token, uid } =
+      const { code, emailToHashWith, token, uid, hasPasskey } =
         await authClient.passwordForgotVerifyOtp(email, otpCode, options);
       const {
         exists: recoveryKeyExists,
@@ -134,7 +158,7 @@ const ConfirmResetPasswordContainer = ({
       const totpStatus = await checkForTotp(token);
       const totpExists = totpStatus.exists && totpStatus.verified;
 
-      handleNavigation(
+      handleNavigation({
         code,
         emailToHashWith,
         token,
@@ -142,8 +166,9 @@ const ConfirmResetPasswordContainer = ({
         estimatedSyncDeviceCount,
         recoveryKeyExists,
         recoveryKeyHint,
-        totpExists
-      );
+        totpExists,
+        hasPasskey,
+      });
     } catch (error) {
       // return custom error for expired or incorrect code
       const localizerErrorMessage = getLocalizedErrorMessage(
@@ -183,6 +208,7 @@ const ConfirmResetPasswordContainer = ({
         setResendStatus,
         verifyCode,
         integration,
+        showPasskeyOption,
       }}
     />
   );

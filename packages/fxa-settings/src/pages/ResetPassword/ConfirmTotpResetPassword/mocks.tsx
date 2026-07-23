@@ -10,6 +10,8 @@ export const Subject = ({
   verifyCode = () => Promise.resolve(),
   errorMessage = '',
   onTroubleWithCode = () => {},
+  email = 'test@example.com',
+  showPasskeyOption = false,
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
@@ -20,6 +22,8 @@ export const Subject = ({
           codeErrorMessage,
           setCodeErrorMessage,
           onTroubleWithCode,
+          email,
+          showPasskeyOption,
         }}
       />
     </MemoryRouter>

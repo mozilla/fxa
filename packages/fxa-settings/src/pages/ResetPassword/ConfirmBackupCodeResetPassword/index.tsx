@@ -12,6 +12,7 @@ import Banner from '../../../components/Banner';
 import ButtonBack from '../../../components/ButtonBack';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { useFtlMsgResolver } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
 
@@ -20,6 +21,8 @@ export type ConfirmBackupCodeResetPasswordProps = {
   codeErrorMessage: string;
   setCodeErrorMessage: Dispatch<SetStateAction<string>>;
   integration: ResetPasswordIntegration;
+  email?: string;
+  showPasskeyOption?: boolean;
 };
 
 const ConfirmBackupCodeResetPassword = ({
@@ -27,6 +30,8 @@ const ConfirmBackupCodeResetPassword = ({
   codeErrorMessage,
   setCodeErrorMessage,
   integration,
+  email,
+  showPasskeyOption,
 }: ConfirmBackupCodeResetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo();
@@ -100,6 +105,11 @@ const ConfirmBackupCodeResetPassword = ({
           </LinkExternal>
         </FtlMsg>
       </div>
+
+      <LinkRememberPassword
+        entrypoint="confirm_backup_code_reset_password"
+        {...{ email, showPasskeyOption }}
+      />
     </AppLayout>
   );
 };

@@ -654,7 +654,12 @@ const AuthAndAccountSetupRoutes = ({
           path="/reset_password/*"
           element={
             <ResetPasswordContainer
-              {...{ flowQueryParams, serviceName, setCurrentSplitLayout }}
+              {...{
+                flowQueryParams,
+                integration,
+                serviceName,
+                setCurrentSplitLayout,
+              }}
             />
           }
         />
@@ -672,7 +677,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/confirm_totp_reset_password/*"
-          element={<ConfirmTotpResetPasswordContainer />}
+          element={<ConfirmTotpResetPasswordContainer {...{ integration }} />}
         />
         <Route
           path="/confirm_backup_code_reset_password/*"
@@ -690,7 +695,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/account_recovery_confirm_key/*"
-          element={<AccountRecoveryConfirmKeyContainer />}
+          element={<AccountRecoveryConfirmKeyContainer {...{ integration }} />}
         />
         <Route
           path="/reset_password_with_recovery_key_verified/*"

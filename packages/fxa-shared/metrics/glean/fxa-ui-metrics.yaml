@@ -1592,6 +1592,7 @@ password_reset:
     description: |
       Forgot Password Confirmation Code Sign In
       User clicks the "sign in" button on the "Enter Confirmation Code" screen'
+      Deprecated: superseded by remember_password_link_click and no longer emitted.
     send_in_pings:
       - events
     notification_emails:
@@ -1769,6 +1770,66 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+  remember_password_link_view:
+    type: event
+    description: |
+      Password Reset Remember Password Footer Link View
+      Impression of the "Remember your password? Sign in" footer shown across the
+      password reset flow.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13821
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      has_passkey_option:
+        description: |
+          "true" when the passkey-aware wording ("Have a passkey or remember your
+          password?") was shown instead of the standard "Remember your password?".
+        type: string
+      reason:
+        description: |
+          The reset-flow step the footer was shown on (e.g. reset_password,
+          confirm_reset_password, complete_reset_password).
+        type: string
+  remember_password_link_click:
+    type: event
+    description: |
+      Password Reset Remember Password Footer Link Click
+      User clicks the "Sign in" link in the "Remember your password?" footer shown
+      across the password reset flow. Supersedes email_confirmation_signin.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13821
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      has_passkey_option:
+        description: |
+          "true" when the passkey-aware wording ("Have a passkey or remember your
+          password?") was shown instead of the standard "Remember your password?".
+        type: string
+      reason:
+        description: |
+          The reset-flow step the footer was shown on (e.g. reset_password,
+          confirm_reset_password, complete_reset_password).
+        type: string
   submit:
     type: event
     description: |
