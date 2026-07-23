@@ -570,6 +570,7 @@ password-reset-chevron-collapsed = Expand warning
 password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 
 password-reset-warning-have-key = Have an account recovery key?
+# "it" refers to the user's account recovery key.
 password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
 
 password-reset-warning-signed-in-device = Still signed in on another device?

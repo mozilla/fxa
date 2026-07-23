@@ -1124,9 +1124,13 @@ passkey-registration-error-constraint = Installation av lösenordsnyckel är int
 passkey-registration-error-unexpected = Inställning av lösenordsnyckel misslyckades. Försök igen eller välj en annan metod.
 
 
+passkey-authentication-trouble-heading = Det gick inte att logga in med en lösenordsnyckel
+passkey-authentication-trouble-description = Försök igen eller använd ett annat inloggningsalternativ.
+passkey-authentication-trouble-link = Hur man använder lösenordsnycklar
 passkey-authentication-error-not-allowed = Inloggning med lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
 passkey-authentication-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Försök igen eller välj en annan metod.
 passkey-authentication-error-timeout = Begäran om lösenordsnyckel har gått ut. Försök igen.
+passkey-authentication-error-timeout-v2 = Det tog för lång tid för lösenordsinloggning. Försök igen.
 passkey-authentication-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 passkey-authentication-error-security = Lösenordsnycklar kan inte användas på den här sidan. Kontrollera att du är på rätt säker webbplats och försök igen.
 passkey-authentication-error-invalid-state = Något gick fel med lösenordsnyckeln. Försök igen eller använd en annan inloggningsmetod.
