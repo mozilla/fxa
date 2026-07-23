@@ -375,7 +375,7 @@ plan-price-interval-year =
 
 # App error dialog
 general-error-heading = Eroare generală de aplicație
-basic-error-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+basic-error-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 payment-error-1 = Hmm. A apărut o problemă la autorizarea plății tale. Încearcă din nou sau contactează emitentul cardului.
 payment-error-2 = Hmm. A apărut o problemă la autorizarea plății tale. Contactează emitentul cardului.
 payment-error-3b = A apărut o eroare neașteptată la procesarea plății. Te rugăm să încerci din nou.
