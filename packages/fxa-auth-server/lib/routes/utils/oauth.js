@@ -32,7 +32,12 @@ module.exports = {
     grant,
     options = {}
   ) {
-    const { skipEmail = false, existingDeviceId, clientId: optionsClientId } = options;
+    const {
+      skipEmail = false,
+      existingDeviceId,
+      clientId: optionsClientId,
+      uid: optionsUid,
+    } = options;
     const fxaMailer = Container.get(FxaMailer);
     const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
@@ -49,10 +54,15 @@ module.exports = {
     }
 
     if (!credentials.uid) {
-      // this can be removed once issue #3000 has been resolved
-      const tokenVerify = await token.verify(grant.access_token);
-      // some grant flows won't have the uid in `credentials`
-      credentials.uid = tokenVerify.user;
+      // Some grant flows (e.g. authorization_code, token-exchange) have no
+      // session token, so fall back to the uid carried on the grant. As a
+      // last resort that's likely not needed, obtain it by verifying the
+      // access token.
+      credentials.uid = optionsUid;
+      if (!credentials.uid) {
+        const tokenVerify = await token.verify(grant.access_token);
+        credentials.uid = tokenVerify.user;
+      }
     }
 
     if (!credentials.refreshTokenId) {

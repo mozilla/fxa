@@ -38,7 +38,9 @@ const noop = () => {};
 const mockLog = { debug: noop, warn: noop, info: noop, error: noop };
 const mockDb = { touchSessionToken: jest.fn() };
 const mockStatsD = { increment: jest.fn() };
-const mockGlean = { oauth: { tokenCreated: jest.fn() } };
+const mockGlean = {
+  oauth: { tokenCreated: jest.fn() },
+};
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
@@ -338,10 +340,6 @@ describe('/token POST', () => {
   });
 
   describe('Glean metrics', () => {
-    beforeEach(() => {
-      mockGlean.oauth.tokenCreated.mockClear();
-    });
-
     it('logs the token created event', async () => {
       const request = {
         app: {},
@@ -359,6 +357,7 @@ describe('/token POST', () => {
         oauthClientId: CLIENT_ID,
         reason: 'authorization_code',
         scopes: '',
+        excludeDau: false,
       });
     });
 
@@ -375,7 +374,9 @@ describe('/token POST', () => {
           scope: ScopeSet.fromString(SMARTWINDOW_SCOPES),
         }),
       }));
-      const mockGleanLocal = { oauth: { tokenCreated: jest.fn() } };
+      const mockGleanLocal = {
+        oauth: { tokenCreated: jest.fn() },
+      };
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
         glean: mockGleanLocal,
@@ -395,6 +396,7 @@ describe('/token POST', () => {
         oauthClientId: CLIENT_ID,
         reason: 'fxa-credentials',
         scopes: SMARTWINDOW_SCOPES,
+        excludeDau: false,
       });
     });
   });
@@ -705,6 +707,96 @@ describe('token exchange grant_type', () => {
 });
 
 describe('/oauth/token POST', () => {
+  describe('exclude_dau input validation', () => {
+    // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
+    function v(req: any) {
+      const oauthTokenRoute = tokenRoutes[1];
+      return oauthTokenRoute.config.validate.payload.validate(req);
+    }
+
+    it('accepts exclude_dau=true for the authorization_code grant', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: CODE,
+        exclude_dau: true,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.exclude_dau).toBe(true);
+    });
+
+    it('accepts exclude_dau=true for the fxa-credentials grant', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+        exclude_dau: true,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.exclude_dau).toBe(true);
+    });
+
+    it('defaults exclude_dau to false when omitted', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.exclude_dau).toBe(false);
+    });
+  });
+
+  describe('Glean metrics', () => {
+    it('fires the token created event with exclude_dau false by default', async () => {
+      const request = {
+        app: {},
+        auth: { credentials: { uid: 'abc' } },
+        headers: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          access_type: 'offline',
+        },
+        emitMetricsEvent: async () => {},
+      };
+      await tokenRoutes[1].handler(request);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledTimes(1);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(
+        request,
+        expect.objectContaining({
+          reason: 'fxa-credentials',
+          scopes: 'testo',
+          excludeDau: false,
+        })
+      );
+    });
+
+    it('tags the token created event with excludeDau when exclude_dau is set', async () => {
+      const request = {
+        app: {},
+        auth: { credentials: { uid: 'abc' } },
+        headers: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          access_type: 'offline',
+          exclude_dau: true,
+        },
+        emitMetricsEvent: async () => {},
+      };
+      await tokenRoutes[1].handler(request);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledTimes(1);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(
+        request,
+        expect.objectContaining({
+          reason: 'fxa-credentials',
+          scopes: 'testo',
+          excludeDau: true,
+        })
+      );
+    });
+  });
+
   describe('update session last access time', () => {
     beforeEach(() => {
       mockDb.touchSessionToken.mockClear();
@@ -861,6 +953,7 @@ describe('/oauth/token POST', () => {
           skipEmail: true,
           existingDeviceId: MOCK_DEVICE_ID,
           clientId: FIREFOX_IOS_CLIENT_ID,
+          uid: 'eaf0',
         }
       );
       expect(sessionTokenStub).not.toHaveBeenCalled();
@@ -951,6 +1044,7 @@ describe('/oauth/token POST', () => {
           skipEmail: true,
           existingDeviceId: undefined,
           clientId: FIREFOX_IOS_CLIENT_ID,
+          uid: 'eaf0',
         }
       );
     });

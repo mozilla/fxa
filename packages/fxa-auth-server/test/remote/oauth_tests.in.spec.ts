@@ -186,6 +186,29 @@ describe.each(testVersions)(
       expect(devices.length).toBe(1);
     });
 
+    describe('exclude_dau', () => {
+      // The exclude_dau tagging itself is asserted at the unit layer (token.spec
+      // via mockGlean); here we confirm the option is accepted end-to-end and does
+      // not change the token response — an access token and refresh token are still
+      // returned as normal.
+      it('accepts exclude_dau and still returns a normal token response', async () => {
+        const SCOPE = OAUTH_SCOPE_OLD_SYNC;
+        const res = await client.grantOAuthTokensFromSessionToken({
+          grant_type: 'fxa-credentials',
+          client_id: PUBLIC_CLIENT_ID,
+          access_type: 'offline',
+          scope: SCOPE,
+          exclude_dau: true,
+        });
+
+        expect(res.access_token).toBeTruthy();
+        expect(res.refresh_token).toBeTruthy();
+        expect(res.scope).toBe(SCOPE);
+        expect(res.token_type).toBeTruthy();
+        expect(res.expires_in).toBeTruthy();
+      });
+    });
+
     it('successfully propagates `resource` and `clientId` in the ID token `aud` claim', async () => {
       const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
 

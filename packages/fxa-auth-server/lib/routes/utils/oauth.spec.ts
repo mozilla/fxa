@@ -151,13 +151,48 @@ describe('newTokenNotification', () => {
     expect(devices.upsert).toHaveBeenCalledTimes(1);
   });
 
-  it('creates a device and sends an email with token uid', async () => {
+  it('resolves the uid from the uid option when credentials has none', async () => {
+    const MOCK_UID_FROM_OPTION = '11d4847823f24b0f95e1524987cb0391';
     credentials = {};
     request = mockRequest({ credentials });
-    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant, {
+      skipEmail: true,
+      uid: MOCK_UID_FROM_OPTION,
+    });
 
-    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
     expect(devices.upsert).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenNthCalledWith(
+      1,
+      expect.anything(),
+      expect.objectContaining({ uid: MOCK_UID_FROM_OPTION }),
+      expect.anything()
+    );
+  });
+
+  it('falls back to verifying the access token when neither credentials nor option supply the uid', async () => {
+    credentials = {};
+    request = mockRequest({ credentials });
+    const grantWithAccessToken = {
+      ...grant,
+      access_token: 'mock_access_token',
+    };
+    await oauthUtils.newTokenNotification(
+      db,
+      mailer,
+      devices,
+      request,
+      grantWithAccessToken,
+      { skipEmail: true }
+    );
+
+    // token.verify mock returns MOCK_UID.
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenNthCalledWith(
+      1,
+      expect.anything(),
+      expect.objectContaining({ uid: MOCK_UID }),
+      expect.anything()
+    );
   });
 
   it('does nothing for non-NOTIFICATION_SCOPES', async () => {

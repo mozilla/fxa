@@ -410,6 +410,7 @@ class EventsServerEventLogger {
    * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} reason - additional context-dependent info, e.g. the cause of an error.
    * @param {string} scopes - The OAuth scopes granted for the access token, in a comma-separated list.
+   * @param {boolean} exclude_dau - True when this access-token creation should be excluded from the daily active users (DAU) signal — e.g. a token created for a signed-in user regardless of whether they are using the service. Defaults to false..
    */
   recordAccessTokenCreated({
     user_agent,
@@ -430,6 +431,7 @@ class EventsServerEventLogger {
     utm_term,
     reason,
     scopes,
+    exclude_dau,
   }: {
     user_agent: string;
     ip_address: string;
@@ -449,6 +451,7 @@ class EventsServerEventLogger {
     utm_term: string;
     reason: string;
     scopes: string;
+    exclude_dau: boolean;
   }) {
     const event = {
       category: 'access_token',
@@ -456,6 +459,7 @@ class EventsServerEventLogger {
       extra: {
         reason: String(reason),
         scopes: String(scopes),
+        exclude_dau: String(exclude_dau),
       },
     };
     this.#record({
