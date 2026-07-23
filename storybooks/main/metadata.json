@@ -1,8 +1,8 @@
 {
-  "commit": "bf5f539893b3f480324e146965309a95afbd5f15",
-  "summary": "Merge pull request #20913 from mozilla/dependabot/github_actions/aws-actions/configure-aws-credentials-6.2.3",
-  "description": "chore(deps): bump aws-actions/configure-aws-credentials from 6.2.2 to 6.2.3",
-  "timestamp": 1784817635000,
+  "commit": "2061f850b203134882559a378c631813bed4ad66",
+  "summary": "Merge pull request #20912 from mozilla/dependabot/npm_and_yarn/next-15.5.21",
+  "description": "chore(deps): bump next from 15.5.18 to 15.5.21",
+  "timestamp": 1784817661000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
