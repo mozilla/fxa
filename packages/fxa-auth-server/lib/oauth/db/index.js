@@ -390,6 +390,19 @@ class OauthDB extends ConnectedServicesDb {
     };
   }
 
+  // True iff a consent row exists for the exact (uid, scope, service, clientId).
+  // Used by the VPN-in-Desktop DAU bandaid (FXA-14159) to decide whether a VPN
+  // token creation for the Firefox Desktop client should count toward DAU.
+  async hasConsentForScopeAndClient(uid, scope, service, clientId) {
+    await this.ready();
+    return this.mysql._hasConsentForScopeAndClient(
+      uid,
+      scope,
+      service,
+      clientId
+    );
+  }
+
   // True iff the user has any prior consent for this service (any scope/client).
   // Used for the browser-service grain of the first-authorization signal.
   async hasConsentForService(uid, service) {

@@ -17,6 +17,11 @@ const CODE_WITHOUT_KEYS = 'f0f0f0';
 const mockDb = { touchSessionToken: jest.fn() };
 const mockStatsD = { increment: jest.fn() };
 const mockGlean = { oauth: { tokenCreated: jest.fn() } };
+const mockAuthServerCacheRedis = { get: jest.fn(), set: jest.fn() };
+// The vpn-dau helper's own decision logic is unit-tested in
+// lib/oauth/vpn-dau.spec.ts; here we mock it at the module boundary to verify
+// token.js applies its result to the Glean event and still returns the token.
+const mockShouldExcludeFromDau = jest.fn();
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
@@ -35,7 +40,12 @@ const tokenRoutesDepMocks = {
       }
       return t;
     },
-    validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+    validateRequestedGrant: () => ({
+      offline: true,
+      scope: 'testo',
+      userId: buf(UID),
+      clientId: buf(CLIENT_ID),
+    }),
   },
   '../../oauth/util': {
     makeAssertionJWT: async () => ({}),
@@ -76,6 +86,7 @@ const tokenRoutesArgMocks = {
   devices: {},
   statsd: mockStatsD,
   glean: mockGlean,
+  authServerCacheRedis: mockAuthServerCacheRedis,
 };
 
 // Captured at module scope so beforeAll's set and afterAll's remove use the
@@ -115,6 +126,9 @@ beforeAll(() => {
     '../../lib/oauth/util',
     () => tokenRoutesDepMocks['../../oauth/util']
   );
+  jest.doMock('../../lib/oauth/vpn-dau', () => ({
+    shouldExcludeFromDau: mockShouldExcludeFromDau,
+  }));
   const tokenRouteFactory = require('../../lib/routes/oauth/token');
   tokenRoutes = tokenRouteFactory(tokenRoutesArgMocks);
 });
@@ -177,6 +191,63 @@ describe('/token POST (integration)', () => {
         output: { statusCode: 503 },
         errno: 202, // Disabled client
       });
+    });
+  });
+
+  describe('VPN-in-Desktop DAU bandaid', () => {
+    function fxaCredentialsRequest(overrides: any = {}) {
+      return {
+        headers: {},
+        emitMetricsEvent: jest.fn(),
+        payload: {
+          client_id: NON_DISABLED_CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          assertion: 'unused-mocked-assertion',
+          ...overrides,
+        },
+      };
+    }
+
+    it('tags the Glean event with excludeDau when the helper says to exclude', async () => {
+      mockShouldExcludeFromDau.mockResolvedValue(true);
+      const request = fxaCredentialsRequest();
+      await route.config.handler(request);
+      expect(mockShouldExcludeFromDau).toHaveBeenCalledTimes(1);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(request, {
+        uid: UID,
+        oauthClientId: CLIENT_ID,
+        reason: 'fxa-credentials',
+        scopes: 'testo',
+        excludeDau: true,
+      });
+    });
+
+    it('leaves excludeDau false when the helper says to count', async () => {
+      mockShouldExcludeFromDau.mockResolvedValue(false);
+      const request = fxaCredentialsRequest();
+      await route.config.handler(request);
+      expect(mockShouldExcludeFromDau).toHaveBeenCalledTimes(1);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(
+        request,
+        expect.objectContaining({ excludeDau: false })
+      );
+    });
+
+    it('still returns the granted token when the helper excludes it from DAU', async () => {
+      mockShouldExcludeFromDau.mockResolvedValue(true);
+      const result = await route.config.handler(fxaCredentialsRequest());
+      expect(result).toMatchObject({ refresh_token: '00ff' });
+    });
+
+    it('does not consult the helper when the client already supplied exclude_dau=true', async () => {
+      mockShouldExcludeFromDau.mockResolvedValue(false);
+      const request = fxaCredentialsRequest({ exclude_dau: true });
+      await route.config.handler(request);
+      expect(mockShouldExcludeFromDau).not.toHaveBeenCalled();
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(
+        request,
+        expect.objectContaining({ excludeDau: true })
+      );
     });
   });
 });

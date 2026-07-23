@@ -221,6 +221,13 @@ const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
 // same service.
 const QUERY_HAS_CONSENT_FOR_SCOPE =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+// Full-PK existence check for the VPN-in-Desktop DAU bandaid (FXA-14159).
+// Adds clientId to QUERY_HAS_CONSENT_FOR_SCOPE so a VPN consent recorded for a
+// different client (e.g. Mobile or the standalone VPN app) does not count as
+// Desktop authorization. A complete PK match — the fastest lookup this table
+// supports.
+const QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? AND clientId=? LIMIT 1';
 // Existence checks for the first-authorization signal (FXA-13784). Bounded by
 // the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
 // fetching all of a user's consents and filtering in JS.
@@ -703,6 +710,19 @@ class MysqlStore extends MysqlOAuthShared {
       buf(uid),
       scope,
       service,
+    ]);
+    return rows.length > 0;
+  }
+
+  // True iff a consent row exists for the exact (uid, scope, service, clientId).
+  // Used by the VPN-in-Desktop DAU bandaid (FXA-14159) to confirm the user
+  // authorized VPN for this specific client before counting the token.
+  async _hasConsentForScopeAndClient(uid, scope, service, clientId) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT, [
+      buf(uid),
+      scope,
+      service,
+      buf(clientId),
     ]);
     return rows.length > 0;
   }

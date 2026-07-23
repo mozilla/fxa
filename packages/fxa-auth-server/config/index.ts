@@ -1450,6 +1450,27 @@ const convictConf = convict({
         env: 'FXA_ACCOUNT_ACTIVITY_UPDATE_AFTER',
       },
     },
+    // FXA-14159 bandaid: Firefox Desktop mints a VPN-scoped access token for
+    // every signed-in user via the fxa-credentials grant, inflating VPN's
+    // services-DAU. When enabled, the token endpoint consults accountAuthorizations
+    // for real VPN consent and, when absent, tags the access_token_created Glean
+    // event with exclude_dau so the DAU rollup filters it (the token is still
+    // granted). The lookup is per-uid rollout-gated and Redis-cached to protect
+    // the OAuth DB. Remove once Desktop moves to refresh tokens (~Fx 155).
+    vpnDauBandaid: {
+      rolloutRate: {
+        doc: 'Fraction (0-1) of eligible fxa-credentials grants for which the accountAuthorizations lookup runs, bucketed deterministically per-uid. 0 disables the bandaid; ramp per-env (e.g. 0.2 -> 0.5 -> 1).',
+        format: Number,
+        default: 0,
+        env: 'OAUTH_DESKTOP_VPN_DAU_FIX_ROLLOUT_RATE',
+      },
+      cacheTtl: {
+        doc: 'How long the per-uid VPN authorization result (positive and negative) is cached in Redis before the OAuth DB is consulted again.',
+        format: 'duration',
+        default: '12 hours',
+        env: 'OAUTH_DESKTOP_VPN_DAU_FIX_CACHE_TTL',
+      },
+    },
     tokenExchange: {
       allowedClientIds: {
         doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',

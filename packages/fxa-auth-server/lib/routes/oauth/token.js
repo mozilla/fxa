@@ -97,6 +97,22 @@ const ACCOUNT_ACTIVITY_UPDATE_AFTER_MS = config.get(
   'oauthServer.accountActivity.updateAfter'
 );
 
+// VPN-in-Desktop DAU bandaid (FXA-14159). See ../../oauth/vpn-dau.
+const vpnDau = require('../../oauth/vpn-dau');
+// The client and scope the bandaid targets are fixed product facts, not
+// operational knobs, so they're constants rather than config: Firefox Desktop
+// is the only client that mints a VPN token for every signed-in user, and the
+// VPN scope is its canonical scope (a key of oauthServer.exchange.serviceScopes).
+const FIREFOX_DESKTOP_CLIENT_ID = '5882386c6d801776';
+const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+const VPN_DAU_POLICY = {
+  clientId: FIREFOX_DESKTOP_CLIENT_ID,
+  scope: VPN_SCOPE,
+  rolloutRate: config.get('oauthServer.vpnDauBandaid.rolloutRate'),
+  // Convict 'duration' yields milliseconds; Redis EX wants seconds.
+  cacheTtlSeconds: config.get('oauthServer.vpnDauBandaid.cacheTtl') / 1000,
+};
+
 // These scopes are used to request a one-off exchange of claims or credentials,
 // but they don't make sense to use on an ongoing basis via refresh tokens.
 const SCOPES_TO_EXCLUDE_FROM_REFRESH_TOKEN_GRANTS = ScopeSet.fromArray([
@@ -236,7 +252,16 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
-module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
+module.exports = ({
+  log,
+  oauthDB,
+  db,
+  mailer,
+  devices,
+  statsd,
+  glean,
+  authServerCacheRedis,
+}) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {
@@ -631,6 +656,29 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       ? `${params.grant_type}:${params.reason}`
       : params.grant_type;
     const scopes = grant.scope?.toString() || '';
+
+    // VPN-in-Desktop DAU bandaid (FXA-14159): Firefox Desktop mints a VPN token
+    // for every signed-in user via fxa-credentials. When the user hasn't
+    // actually authorized VPN for this client, tag the event `exclude_dau` so
+    // the DAU rollup filters it. The token is still granted. Don't override a
+    // client-supplied exclude_dau=true. See ../../oauth/vpn-dau for the gating,
+    // rollout, and Redis caching that keep this off the hot path for everyone
+    // except Firefox Desktop VPN grants.
+    if (params.grant_type === GRANT_FXA_ASSERTION && !grant.excludeDau) {
+      const exclude = await vpnDau.shouldExcludeFromDau(
+        { oauthDB, redis: authServerCacheRedis, statsd, log },
+        {
+          uid,
+          clientId: oauthClientId,
+          scopeSet: grant.scope,
+          policy: VPN_DAU_POLICY,
+        }
+      );
+      if (exclude) {
+        grant.excludeDau = true;
+      }
+    }
+
     // This maps to the `access_token.created` Glean event which always fires here
     // because an access token is always created. `exclude_dau` tags the
     // event so the DAU signal can exclude token creations that we know don't
