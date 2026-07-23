@@ -579,7 +579,7 @@ export class AccountController {
     @Body('locators') locators: string | string[],
     @CurrentUser() user: string
   ) {
-    this.eventLogging.onEvent('deleteAccounts');
+    this.eventLogging.onEvent(EventNames.DeleteAccounts);
 
     const locatorList = Array.isArray(locators) ? locators : [locators];
     if (locatorList.length > 1000) {
@@ -664,7 +664,7 @@ export class AccountController {
     @CurrentUser() user: string,
     @Req() req: Request
   ) {
-    this.eventLogging.onEvent('deleteAccounts');
+    this.eventLogging.onEvent(EventNames.ResetAccounts);
 
     const locatorList = Array.isArray(locators) ? locators : [locators];
     if (locatorList.length > 1000) {
