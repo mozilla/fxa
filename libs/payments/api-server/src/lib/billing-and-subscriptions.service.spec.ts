@@ -265,11 +265,15 @@ describe('BillingAndSubscriptionsService', () => {
         product: 'prod_g',
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
-      } as never);
-      jest.spyOn(priceManager, 'retrieveByInterval').mockResolvedValue(iapPrice);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(iapPrice);
       jest
         .spyOn(productManager, 'retrieve')
         .mockResolvedValue(
@@ -313,11 +317,15 @@ describe('BillingAndSubscriptionsService', () => {
         product: 'prod_a',
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
-      } as never);
-      jest.spyOn(priceManager, 'retrieveByInterval').mockResolvedValue(iapPrice);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(iapPrice);
       jest
         .spyOn(productManager, 'retrieve')
         .mockResolvedValue(
@@ -335,6 +343,157 @@ describe('BillingAndSubscriptionsService', () => {
         _subscription_type: 'iap_apple',
         app_store_product_id: 'apple.prod',
       });
+    });
+
+    it('falls back to the Google IAP price search when no interval price is found', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError(UID, new Error('not found'))
+        );
+      jest
+        .spyOn(googleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([
+          GoogleIapPurchaseFactory({ sku: 'google_sku' }) as never,
+        ]);
+      const iapPrice = StripePriceFactory({
+        id: 'price_g',
+        product: 'prod_g',
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(undefined);
+      const findGoogleSpy = jest
+        .spyOn(priceManager, 'findGoogleIAPPriceByStoreId')
+        .mockResolvedValue(iapPrice);
+      const findAppleSpy = jest
+        .spyOn(priceManager, 'findAppleIAPPriceByStoreId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(productManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeProductFactory({ id: 'prod_g', name: 'Google IAP Product' })
+          )
+        );
+      jest
+        .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+        .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
+
+      const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+      expect(findGoogleSpy).toHaveBeenCalledWith('google_sku');
+      // A Google store id is routed to the Google search only.
+      expect(findAppleSpy).not.toHaveBeenCalled();
+      expect(result.subscriptions).toHaveLength(1);
+      expect(result.subscriptions[0]).toMatchObject({
+        _subscription_type: 'iap_google',
+        price_id: iapPrice.id,
+        product_id: 'prod_g',
+        product_name: 'Google IAP Product',
+      });
+    });
+
+    it('falls back to the Apple IAP price search when no interval price is found', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError(UID, new Error('not found'))
+        );
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([
+          AppleIapPurchaseFactory({ productId: 'apple.prod' }) as never,
+        ]);
+      const iapPrice = StripePriceFactory({
+        id: 'price_a',
+        product: 'prod_a',
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(undefined);
+      const findGoogleSpy = jest
+        .spyOn(priceManager, 'findGoogleIAPPriceByStoreId')
+        .mockResolvedValue(undefined);
+      const findAppleSpy = jest
+        .spyOn(priceManager, 'findAppleIAPPriceByStoreId')
+        .mockResolvedValue(iapPrice);
+      jest
+        .spyOn(productManager, 'retrieve')
+        .mockResolvedValue(
+          StripeResponseFactory(
+            StripeProductFactory({ id: 'prod_a', name: 'Apple IAP Product' })
+          )
+        );
+      jest
+        .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
+        .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
+
+      const result = await service.get({ uid: UID, clientId: CLIENT_ID });
+
+      expect(findAppleSpy).toHaveBeenCalledWith('apple.prod');
+      // A non-Google (Apple) store id is routed to the Apple search only.
+      expect(findGoogleSpy).not.toHaveBeenCalled();
+      expect(result.subscriptions).toHaveLength(1);
+      expect(result.subscriptions[0]).toMatchObject({
+        _subscription_type: 'iap_apple',
+        app_store_product_id: 'apple.prod',
+        product_id: 'prod_a',
+      });
+    });
+
+    it('rejects when neither the interval nor the fallback search finds a price', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError(UID, new Error('not found'))
+        );
+      jest
+        .spyOn(googleIapPurchaseManager, 'getForUser')
+        .mockResolvedValue([
+          GoogleIapPurchaseFactory({ sku: 'google_sku' }) as never,
+        ]);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: 'price_missing' }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(priceManager, 'findGoogleIAPPriceByStoreId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(priceManager, 'findAppleIAPPriceByStoreId')
+        .mockResolvedValue(undefined);
+      const productRetrieveSpy = jest.spyOn(productManager, 'retrieve');
+
+      await expect(
+        service.get({ uid: UID, clientId: CLIENT_ID })
+      ).rejects.toThrow('Something went wrong');
+
+      // The product is never retrieved because the storeId is skipped when no
+      // price is found; the failure surfaces later from buildIapPriceInfoMap.
+      expect(productRetrieveSpy).not.toHaveBeenCalled();
+      const loggedError = logger.error.mock.calls[0][0] as Error;
+      expect(loggedError.message).toContain('Stripe price not found');
+      expect(loggedError.message).toContain('storeId=google_sku');
     });
 
     it('filters out web subs whose price has no capability for the client', async () => {
@@ -395,7 +554,9 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([visibleSub, hiddenSub]);
       jest
         .spyOn(paymentMethodManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(StripeCardPaymentMethodFactory()));
+        .mockResolvedValue(
+          StripeResponseFactory(StripeCardPaymentMethodFactory())
+        );
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockImplementation(
@@ -517,9 +678,7 @@ describe('BillingAndSubscriptionsService', () => {
       jest
         .spyOn(subscriptionManager, 'listActiveForCustomer')
         .mockResolvedValue([sub]);
-      jest
-        .spyOn(invoiceManager, 'retrieve')
-        .mockResolvedValue(openInvoice);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(openInvoice);
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
@@ -681,9 +840,7 @@ describe('BillingAndSubscriptionsService', () => {
       jest
         .spyOn(subscriptionManager, 'listActiveForCustomer')
         .mockResolvedValue([sub]);
-      jest
-        .spyOn(invoiceManager, 'retrieve')
-        .mockResolvedValue(paidInvoice);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(paidInvoice);
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
@@ -704,9 +861,11 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([
           GoogleIapPurchaseFactory({ sku: 'unknown_sku' }) as never,
         ]);
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: () => undefined,
-      } as never);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: () => undefined,
+        } as never);
 
       await expect(
         service.get({ uid: UID, clientId: CLIENT_ID })
@@ -729,10 +888,12 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([
           GoogleIapPurchaseFactory({ sku: 'google_sku' }) as never,
         ]);
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, interval: 'fortnightly' }),
-      } as never);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, interval: 'fortnightly' }),
+        } as never);
 
       await expect(
         service.get({ uid: UID, clientId: CLIENT_ID })

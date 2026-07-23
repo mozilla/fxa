@@ -120,11 +120,11 @@ export class BillingAndSubscriptionsService {
         activeStripeSubscriptions.length === 0
           ? undefined
           : activeStripeSubscriptions.some(
-              (sub) =>
-                this.subscriptionManager.getPaymentProvider(sub) === 'paypal'
-            )
-          ? 'paypal'
-          : 'stripe';
+                (sub) =>
+                  this.subscriptionManager.getPaymentProvider(sub) === 'paypal'
+              )
+            ? 'paypal'
+            : 'stripe';
 
       const defaultPaymentMethodId =
         stripeCustomer.invoice_settings.default_payment_method;
@@ -162,8 +162,9 @@ export class BillingAndSubscriptionsService {
 
     for (const sub of activeStripeSubscriptions) {
       const price = getPriceFromSubscription(sub);
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([price.id]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [price.id]
+      );
       if (!(clientId in clients)) {
         continue;
       }
@@ -202,10 +203,18 @@ export class BillingAndSubscriptionsService {
           offering.offering.defaultPurchase.stripePlanChoices.map(
             (choice) => choice.stripePlanChoice
           );
-        const price = await this.priceManager.retrieveByInterval(
+        let price = await this.priceManager.retrieveByInterval(
           priceIds,
           offering.interval as unknown as SubplatInterval
         );
+
+        if (!price) {
+          const isGoogle = googleIapPurchases.some((p) => p.sku === storeId);
+          price = isGoogle
+            ? await this.priceManager.findGoogleIAPPriceByStoreId(storeId)
+            : await this.priceManager.findAppleIAPPriceByStoreId(storeId);
+        }
+
         if (!price) {
           continue;
         }
@@ -230,8 +239,9 @@ export class BillingAndSubscriptionsService {
       if (!iap) {
         continue;
       }
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([iap.priceId]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [iap.priceId]
+      );
       if (!(clientId in clients)) {
         continue;
       }
@@ -243,8 +253,9 @@ export class BillingAndSubscriptionsService {
       if (!iap) {
         continue;
       }
-      const clients =
-        await this.capabilityManager.priceIdsToClientCapabilities([iap.priceId]);
+      const clients = await this.capabilityManager.priceIdsToClientCapabilities(
+        [iap.priceId]
+      );
       if (!(clientId in clients)) {
         continue;
       }
