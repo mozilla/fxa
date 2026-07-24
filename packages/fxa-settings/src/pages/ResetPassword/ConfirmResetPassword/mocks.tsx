@@ -12,6 +12,7 @@ import { ResetPasswordIntegration } from '../interfaces';
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 const mockVerifyCode = (code: string) => Promise.resolve();

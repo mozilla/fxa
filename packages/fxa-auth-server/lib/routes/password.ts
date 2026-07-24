@@ -18,6 +18,7 @@ import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import * as butil from '../crypto/butil';
 import * as random from '../crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
+import { PasskeyService } from '@fxa/accounts/passkey';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';
@@ -1145,6 +1146,15 @@ module.exports = function (
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
+        response: {
+          schema: isA.object({
+            code: isA.string().required(),
+            emailToHashWith: isA.string().required(),
+            token: isA.string().required(),
+            uid: isA.string().required(),
+            hasPasskey: isA.boolean().optional(),
+          }),
+        },
       },
       handler: async function (request: any) {
         log.begin('Password.forgotOtpVerify', request);
@@ -1191,11 +1201,29 @@ module.exports = function (
           getClientServiceTags(request)
         );
 
+        // Passkey-aware reset messaging: does the account have a passkey? Fail
+        // open so the reset flow never breaks.
+        let hasPasskey: boolean | undefined;
+        if (
+          config.passkeys?.enabled &&
+          config.passkeys?.authenticationEnabled
+        ) {
+          try {
+            hasPasskey = await Container.get(PasskeyService).hasPasskey(
+              account.uid
+            );
+          } catch (err) {
+            log.error('passwordForgotVerifyOtp.hasPasskey', { err });
+            statsd.increment('password.forgotVerifyOtp.hasPasskey.error');
+          }
+        }
+
         return {
           code: passwordForgotToken.passCode,
           emailToHashWith: passwordForgotToken.email,
           token: passwordForgotToken.data,
           uid: passwordForgotToken.uid,
+          hasPasskey,
         };
       },
     },

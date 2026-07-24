@@ -1039,7 +1039,13 @@ export default class AuthClient {
       metricsContext?: MetricsContext;
     } = {},
     headers?: Headers
-  ) {
+  ): Promise<{
+    code: string;
+    emailToHashWith: string;
+    token: string;
+    uid: string;
+    hasPasskey?: boolean;
+  }> {
     const payload = {
       email,
       code,

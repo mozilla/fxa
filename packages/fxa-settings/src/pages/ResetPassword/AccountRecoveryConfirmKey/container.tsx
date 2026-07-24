@@ -7,23 +7,30 @@ import { useLocation } from 'react-router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { useAccount } from '../../../models';
+import { useAccount, useConfig } from '../../../models';
 import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models/hooks';
 
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
+import { ResetPasswordIntegration } from '../interfaces';
 
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
-const AccountRecoveryConfirmKeyContainer = () => {
+const AccountRecoveryConfirmKeyContainer = ({
+  integration,
+}: {
+  integration: ResetPasswordIntegration;
+}) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const account = useAccount();
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
@@ -40,7 +47,14 @@ const AccountRecoveryConfirmKeyContainer = () => {
     token,
     uid,
     totpExists,
+    hasPasskey,
   } = (location.state as AccountRecoveryConfirmKeyLocationState) || {};
+
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    hasPasskey,
+    serviceRequiresKeys: integration.isSync(),
+    requireHasPasskey: true,
+  });
 
   // The password forgot code can only be used once to retrieve `accountResetToken`
   // so we set its value after the first request for subsequent requests.
@@ -80,6 +94,7 @@ const AccountRecoveryConfirmKeyContainer = () => {
         estimatedSyncDeviceCount,
         kB,
         recoveryKeyId,
+        hasPasskey,
       },
       replace: true,
     });
@@ -125,6 +140,8 @@ const AccountRecoveryConfirmKeyContainer = () => {
         verifyRecoveryKey,
         uid,
         totpExists,
+        hasPasskey,
+        showPasskeyOption,
       }}
     />
   );

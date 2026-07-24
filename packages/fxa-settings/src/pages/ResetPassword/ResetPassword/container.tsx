@@ -3,22 +3,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 
 import { ResetPasswordContainerProps } from './interfaces';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import ResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 const ResetPasswordContainer = ({
   flowQueryParams = {},
+  integration,
   serviceName,
   setCurrentSplitLayout,
 }: ResetPasswordContainerProps) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+
+  // The account isn't known yet at reset entry, so the passkey footer is shown
+  // unconditionally when the feature is on — except for an active Sync sign-in,
+  // where a passkey can't recover Sync data in Phase 1.
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    serviceRequiresKeys: integration.isSync(),
+  });
 
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -50,6 +60,7 @@ const ResetPasswordContainer = ({
         serviceName,
         setErrorMessage,
         setCurrentSplitLayout,
+        showPasskeyOption,
       }}
     />
   );

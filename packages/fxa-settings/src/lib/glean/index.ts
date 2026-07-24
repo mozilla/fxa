@@ -430,6 +430,20 @@ const recordEventMetric = (
     case 'password_reset_email_confirmation_signin':
       passwordReset.emailConfirmationSignin.record();
       break;
+    case 'password_reset_remember_password_link_view':
+      passwordReset.rememberPasswordLinkView.record({
+        has_passkey_option:
+          gleanPingMetrics?.event?.['has_passkey_option'] || '',
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'password_reset_remember_password_link_click':
+      passwordReset.rememberPasswordLinkClick.record({
+        has_passkey_option:
+          gleanPingMetrics?.event?.['has_passkey_option'] || '',
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'password_reset_email_confirmation_submit':
       passwordReset.emailConfirmationSubmit.record();
       break;

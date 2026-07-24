@@ -19,12 +19,10 @@ const ResetPasswordWarning = ({
   locationState,
   searchParams,
   defaultClosed = false,
-  showVersion2,
 }: {
   locationState: CompleteResetPasswordLocationState;
   searchParams?: string;
   defaultClosed?: boolean;
-  showVersion2?: boolean;
 }) => {
   const ftlMsgResolver = useFtlMsgResolver();
   // component is expanded by default on desktop
@@ -47,19 +45,29 @@ const ResetPasswordWarning = ({
           role="img"
           className="me-4"
           aria-label={ftlMsgResolver.getMsg(
-            'reset-password-warning-icon',
+            'password-reset-warning-icon',
             'Warning'
           )}
         />
         <p className="flex-1 font-semibold">
-          <FtlMsg id="password-reset-data-may-not-be-recovered">
-            Your browser data may not be recovered
+          <FtlMsg id="password-reset-warning-review-sign-in-options">
+            Review sign-in options to keep browser data
           </FtlMsg>
         </p>
         <Chevron
           role="img"
           className={`ms-2 ${expanded ? '-rotate-180' : ''}`}
-          aria-label={expanded ? 'Collapse warning' : 'Expand warning'}
+          aria-label={
+            expanded
+              ? ftlMsgResolver.getMsg(
+                  'password-reset-chevron-expanded',
+                  'Collapse warning'
+                )
+              : ftlMsgResolver.getMsg(
+                  'password-reset-chevron-collapsed',
+                  'Expand warning'
+                )
+          }
         />
       </summary>
       <div className="flex flex-col pt-4 pb-2 gap-4 text-xs leading-snug">
@@ -77,7 +85,7 @@ const ResetPasswordWarning = ({
                 </p>
               </FtlMsg>
               <div>
-                <FtlMsg id="password-reset-warning-use-key-link">
+                <FtlMsg id="password-reset-warning-use-key-link-v2">
                   <Link
                     to={`/account_recovery_confirm_key${searchParams || ''}`}
                     state={locationState}
@@ -86,7 +94,7 @@ const ResetPasswordWarning = ({
                       GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
                     }
                   >
-                    Use it now to reset your password and keep your data
+                    Use it to reset your password and keep your browser data
                   </Link>
                 </FtlMsg>
               </div>
@@ -96,17 +104,28 @@ const ResetPasswordWarning = ({
         <div className="flex items-start gap-4">
           <IconSyncDevice role="img" className="mt-[2px]" aria-hidden={true} />
           <div className="flex flex-col flex-1 gap-1">
-            <FtlMsg id="password-reset-previously-signed-in-device-2">
+            <FtlMsg id="password-reset-warning-signed-in-device">
               <p className="font-semibold text-sm">
-                Have any device where you previously signed in?
+                Still signed in on another device?
               </p>
             </FtlMsg>
-            <FtlMsg id="password-reset-data-may-be-saved-locally-2">
+            <FtlMsg id="password-reset-warning-signed-in-device-description">
               <p className="text-grey-500 dark:text-grey-200">
-                Your browser data might be saved on that device. Reset your
-                password, then sign in there to restore and sync your data.
+                Your browser data may be available. Reset your password, then
+                sign in on that device to restore and sync your data.
               </p>
             </FtlMsg>
+            <div>
+              <FtlMsg id="password-reset-warning-restore-data-link">
+                <a
+                  href="https://support.mozilla.org/en-US/kb/how-change-or-reset-your-mozilla-account-password"
+                  className="link-blue"
+                  data-glean-id="password_reset_warning_restore_data_link"
+                >
+                  Learn how to restore browser data from a signed-in device
+                </a>
+              </FtlMsg>
+            </div>
           </div>
         </div>
         <div className="flex items-start gap-4">
@@ -116,28 +135,17 @@ const ResetPasswordWarning = ({
             aria-hidden={true}
           />
           <div className="flex flex-col flex-1 gap-1">
-            <FtlMsg id="password-reset-no-old-device-2">
+            <FtlMsg id="password-reset-warning-new-device">
               <p className="font-semibold text-sm">
-                Have a new device but don’t have access to any of your previous
-                ones?
+                Using a new device but can’t access your old ones?
               </p>
             </FtlMsg>
-            <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered-2">
+            <FtlMsg id="password-reset-warning-new-device-description">
               <p className="text-grey-500 dark:text-grey-200">
-                We’re sorry, but your encrypted browser data on Firefox servers
-                can’t be recovered.
+                After you reset your password, encrypted browser data on Firefox
+                servers won’t be available on this device.
               </p>
             </FtlMsg>
-            <div>
-              <FtlMsg id="password-reset-learn-about-restoring-account-data">
-                <a
-                  href="https://support.mozilla.org/kb/how-reset-your-password-without-account-recovery-keys-access-data"
-                  className="link-blue"
-                >
-                  Learn more about restoring account data
-                </a>
-              </FtlMsg>
-            </div>
           </div>
         </div>
       </div>

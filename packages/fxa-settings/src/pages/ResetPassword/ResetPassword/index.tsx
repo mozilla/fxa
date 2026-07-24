@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { Control, useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useFtlMsgResolver } from '../../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -25,6 +25,7 @@ const ResetPassword = ({
   serviceName,
   setErrorMessage,
   setCurrentSplitLayout,
+  showPasskeyOption,
 }: ResetPasswordProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,6 +44,14 @@ const ResetPassword = ({
       },
     });
 
+  // Read at the top level (not an inner component) so the footer doesn't remount
+  // and re-fire its view metric on each render.
+  const rememberPasswordEmail = useWatch({
+    control,
+    name: 'email',
+    defaultValue: getValues().email,
+  });
+
   const onSubmit = async () => {
     setIsSubmitting(true);
     // clear error messages
@@ -60,26 +69,6 @@ const ResetPassword = ({
     setIsSubmitting(false);
   };
 
-  // using a controlled component updates the link target as the input field is updated
-  // The email field is not pre-filled for the reset_password page,
-  // but if the user enters an email address, the entered email
-  // address should be propagated back to the signin page. If
-  // the user enters no email and instead clicks "Remember your password? Sign in"
-  // immediately, the /signin page should have the original email.
-  // See https://github.com/mozilla/fxa-content-server/issues/5293.
-  const ControlledLinkRememberPassword = ({
-    control,
-  }: {
-    control: Control<ResetPasswordFormData>;
-  }) => {
-    const email: string = useWatch({
-      control,
-      name: 'email',
-      defaultValue: getValues().email,
-    });
-    return <LinkRememberPassword textStart {...{ email }} />;
-  };
-
   return (
     <AppLayout {...{ setCurrentSplitLayout }}>
       <FtlMsg id="password-reset-flow-heading">
@@ -90,10 +79,9 @@ const ResetPassword = ({
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
 
-      <FtlMsg id="password-reset-body-2">
+      <FtlMsg id="password-reset-body-3">
         <p className="mt-2 mb-6">
-          We’ll ask for a couple of things only you know to keep your account
-          safe.
+          Resetting your password may affect synced browser data.
         </p>
       </FtlMsg>
 
@@ -126,7 +114,12 @@ const ResetPassword = ({
         </FtlMsg>
       </form>
 
-      <ControlledLinkRememberPassword {...{ control }} />
+      <LinkRememberPassword
+        textStart
+        entrypoint="reset_password"
+        email={rememberPasswordEmail}
+        showPasskeyOption={showPasskeyOption}
+      />
     </AppLayout>
   );
 };

@@ -33,6 +33,7 @@ import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -74,6 +75,7 @@ const CompleteResetPasswordContainer = ({
     recoveryKeyId,
     recoveryKeyExists,
     estimatedSyncDeviceCount,
+    hasPasskey,
   } = location.state as CompleteResetPasswordLocationState;
 
   const kB = sensitiveDataClient.getDataType(
@@ -92,6 +94,15 @@ const CompleteResetPasswordContainer = ({
   const isSyncUser =
     integration.isSync() ||
     (estimatedSyncDeviceCount && estimatedSyncDeviceCount > 0);
+
+  // Gate the passkey footer on whether this flow is a Sync sign-in (the requested
+  // service), not on sync-device history: a passkey is a valid alternative for a
+  // non-Sync reset even when the account has Sync data on other devices.
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    hasPasskey,
+    serviceRequiresKeys: integration.isSync(),
+    requireHasPasskey: true,
+  });
 
   const handleNavigationWithRecoveryKey = (
     state: Record<string, any>,
@@ -374,6 +385,7 @@ const CompleteResetPasswordContainer = ({
         hasConfirmedRecoveryKey,
         recoveryKeyExists,
         estimatedSyncDeviceCount,
+        showPasskeyOption,
       }}
       integration={integration}
       locationState={location.state as CompleteResetPasswordLocationState}

@@ -28,6 +28,7 @@ const CompleteResetPassword = ({
   submitNewPassword,
   estimatedSyncDeviceCount,
   recoveryKeyExists,
+  showPasskeyOption,
   integration,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
@@ -123,7 +124,10 @@ const CompleteResetPassword = ({
         />
       </section>
       <div className="flex flex-col mt-6 gap-4">
-        <LinkRememberPassword {...{ email }} />
+        <LinkRememberPassword
+          entrypoint="complete_reset_password"
+          {...{ email, showPasskeyOption }}
+        />
         {showRecoveryKeyLink && (
           <FtlMsg id="complete-reset-pw-recovery-key-link">
             <Link

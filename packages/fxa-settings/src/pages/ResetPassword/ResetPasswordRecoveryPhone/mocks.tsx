@@ -12,6 +12,7 @@ const mockResendCodeSuccess = () => Promise.resolve();
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 export const Subject = ({

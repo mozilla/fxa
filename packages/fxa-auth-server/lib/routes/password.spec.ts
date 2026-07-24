@@ -7,6 +7,7 @@ import { Container } from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AuthLogger } from '../types';
+import { PasskeyService } from '@fxa/accounts/passkey';
 import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 
 const mocks = require('../../test/mocks');
@@ -376,6 +377,102 @@ describe('/password', () => {
             uid,
             tokenId: undefined,
           })
+        );
+      });
+    });
+
+    describe('passkey signals', () => {
+      const mockPasskeyConfig = {
+        passwordForgotOtp: { digits: 8, ttl: 300 },
+        passkeys: { enabled: true, authenticationEnabled: true },
+      };
+
+      // The top-level afterEach already calls Container.reset(), which clears
+      // any PasskeyService set here.
+
+      function runVerifyOtp(config: {
+        passwordForgotOtp: { digits: number; ttl?: number };
+        passkeys?: { enabled: boolean; authenticationEnabled: boolean };
+      }) {
+        const passwordRoutes = makeRoutes({
+          config,
+          customs: mockCustoms,
+          db: mockDB,
+          mailer: mockMailer,
+          metricsContext: mockMetricsContext,
+          log: mockLog,
+          authServerCacheRedis: mockRedis,
+          statsd: mockStatsd,
+        });
+        return runRoute(
+          passwordRoutes,
+          '/password/forgot/verify_otp',
+          mockRequest
+        );
+      }
+
+      it('reports hasPasskey when the passkey feature is enabled', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(true),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(mockPasskeyService.hasPasskey).toHaveBeenCalledWith(uid);
+        expect(response.hasPasskey).toBe(true);
+      });
+
+      it('omits hasPasskey when the passkey feature is disabled', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(true),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockConfig);
+
+        expect(response.hasPasskey).toBeUndefined();
+      });
+
+      it('leaves hasPasskey undefined when the lookup throws', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockRejectedValue(new Error('boom')),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(response.hasPasskey).toBeUndefined();
+        expect(mockLog.error).toHaveBeenCalledWith(
+          'passwordForgotVerifyOtp.hasPasskey',
+          expect.objectContaining({ err: expect.any(Error) })
+        );
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'password.forgotVerifyOtp.hasPasskey.error'
+        );
+      });
+
+      it('logs an error and leaves hasPasskey undefined when enabled but the passkey service is unregistered', async () => {
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(response.hasPasskey).toBeUndefined();
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'password.forgotVerifyOtp.hasPasskey.error'
+        );
+      });
+
+      it('returns only the allowlisted response keys, never an internal field', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(true),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        // Guards the token-returning route against an accidental internal-field
+        // spread slipping past the .unknown(true) response schema.
+        expect(Object.keys(response).sort()).toEqual(
+          ['code', 'emailToHashWith', 'hasPasskey', 'token', 'uid'].sort()
         );
       });
     });
