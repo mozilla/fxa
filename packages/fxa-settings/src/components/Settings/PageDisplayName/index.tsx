@@ -41,6 +41,9 @@ export const PageDisplayName = () => {
       displayName: initialValue,
     },
   });
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation.
+  const { isDirty, isValid } = formState;
   const isValidDisplayName = validateDisplayName(initialValue);
 
   const onSubmit = useCallback(
@@ -68,13 +71,12 @@ export const PageDisplayName = () => {
           <div className="my-6">
             <Localized id="display-name-input" attrs={{ label: true }}>
               <InputText
-                name="displayName"
                 label="Enter display name"
                 className="mb-2"
                 data-testid="display-name-input"
                 autoFocus
                 onChange={() => trigger('displayName')}
-                inputRef={register({
+                registration={register('displayName', {
                   validate: isValidDisplayName,
                 })}
               />
@@ -96,9 +98,7 @@ export const PageDisplayName = () => {
                 type="submit"
                 data-testid="submit-display-name"
                 className="cta-primary cta-base-p mx-2 flex-1"
-                disabled={
-                  !formState.isDirty || !formState.isValid || account.loading
-                }
+                disabled={!isDirty || !isValid || account.loading}
               >
                 Save
               </button>

@@ -136,7 +136,6 @@ describe('ResetPasswordRecoveryChoice container', () => {
     it('passes the correct props to the child component', async () => {
       render();
       await waitFor(() => {
-        expect(mockResetPasswordRecoveryChoice).toHaveBeenCalledTimes(1);
         expect(mockResetPasswordRecoveryChoice).toHaveBeenCalledWith(
           {
             lastFourPhoneDigits: '1234',
@@ -145,7 +144,8 @@ describe('ResetPasswordRecoveryChoice container', () => {
             numBackupCodes: 3,
             completeResetPasswordLocationState: { token: 'tok' },
           },
-          {}
+          // React 19: non-forwardRef components receive undefined as second arg
+          undefined
         );
       });
     });

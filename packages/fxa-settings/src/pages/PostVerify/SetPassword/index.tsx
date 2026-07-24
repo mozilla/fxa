@@ -64,23 +64,16 @@ export const SetPassword = ({
     [createPasswordHandler, ftlMsgResolver, gleanReason]
   );
 
-  const {
-    handleSubmit,
-    register,
-    getValues,
-    errors,
-    formState,
-    trigger,
-    watch,
-  } = useForm<SetPasswordFormData>({
-    mode: 'onChange',
-    criteriaMode: 'all',
-    defaultValues: {
-      email,
-      newPassword: '',
-      confirmPassword: '',
-    },
-  });
+  const { handleSubmit, register, getValues, formState, trigger, watch } =
+    useForm<SetPasswordFormData>({
+      mode: 'onChange',
+      criteriaMode: 'all',
+      defaultValues: {
+        email,
+        newPassword: '',
+        confirmPassword: '',
+      },
+    });
 
   // Fire engage on the first keystroke into the password field (not on focus
   // alone) so the event reflects actual user intent to type a password.
@@ -147,7 +140,7 @@ export const SetPassword = ({
       <FormSetupAccount
         {...{
           formState,
-          errors,
+          errors: formState.errors,
           trigger,
           register,
           getValues,

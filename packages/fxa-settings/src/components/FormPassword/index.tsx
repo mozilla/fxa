@@ -7,7 +7,7 @@ import React, { useCallback, useState } from 'react';
 import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
-import { UseFormMethods, ValidateResult } from 'react-hook-form';
+import { UseFormReturn, ValidateResult } from 'react-hook-form';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
@@ -15,13 +15,16 @@ import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useNavigate } from 'react-router';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFormReturn = UseFormReturn<any>;
+
 type FormPasswordProps = {
-  formState: UseFormMethods['formState'];
-  errors: UseFormMethods['errors'];
+  formState: AnyFormReturn['formState'];
+  errors: Record<string, any>;
   onSubmit: () => void;
-  trigger: UseFormMethods['trigger'];
-  register: UseFormMethods['register'];
-  getValues: UseFormMethods['getValues'];
+  trigger: AnyFormReturn['trigger'];
+  register: AnyFormReturn['register'];
+  getValues: AnyFormReturn['getValues'];
   primaryEmail: string;
   newPasswordErrorText?: string;
   setNewPasswordErrorText: React.Dispatch<
@@ -67,6 +70,11 @@ export const FormPassword = ({
   onFocusMetricsEvent,
   loading,
 }: FormPasswordProps) => {
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one. Short-circuit `||` in the disabled expression would skip
+  // later accesses, preventing re-renders when those properties change.
+  const { isDirty, isValid, dirtyFields } = formState;
+
   const navigate = useNavigate();
   const goHome = useCallback(
     () => navigate(SETTINGS_PATH + '#password', { replace: true }),
@@ -93,21 +101,21 @@ export const FormPassword = ({
       >
         <li data-testid="change-password-length">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.length}
           />
           <Localized id="pw-8-chars">At least 8 characters</Localized>
         </li>
         <li data-testid="change-password-email">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.notEmail}
           />
           <Localized id="pw-not-email">Not your email address</Localized>
         </li>
         <li data-testid="change-password-common">
           <ValidationIcon
-            isSet={formState.dirtyFields.newPassword}
+            isSet={dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.uncommon}
           />
           <Localized id="pw-commonly-used">
@@ -116,7 +124,7 @@ export const FormPassword = ({
         </li>
         <li data-testid="change-password-match">
           <ValidationIcon
-            isSet={formState.dirtyFields.confirmPassword}
+            isSet={dirtyFields.confirmPassword}
             hasError={errors.confirmPassword?.types?.validate}
           />
           <Localized id="pw-change-must-match">
@@ -156,7 +164,6 @@ export const FormPassword = ({
         {setCurrentPasswordErrorText && (
           <Localized id="pw-change-current-password" attrs={{ label: true }}>
             <InputPassword
-              name="oldPassword"
               label="Enter current password"
               className="mb-2"
               errorText={currentPasswordErrorText}
@@ -166,7 +173,7 @@ export const FormPassword = ({
                 }
                 trigger('oldPassword');
               }}
-              inputRef={register({
+              registration={register('oldPassword', {
                 required: true,
               })}
               prefixDataTestId="current-password"
@@ -176,7 +183,6 @@ export const FormPassword = ({
 
         <Localized id="pw-change-new-password" attrs={{ label: true }}>
           <InputPassword
-            name="newPassword"
             label="Enter new password"
             className="mb-2"
             errorText={newPasswordErrorText}
@@ -187,7 +193,7 @@ export const FormPassword = ({
               }
               trigger(['newPassword', 'confirmPassword']);
             }}
-            inputRef={register({
+            registration={register('newPassword', {
               required: true,
               validate: {
                 length: (value: string) => value.length > 7,
@@ -199,9 +205,7 @@ export const FormPassword = ({
                     '@fxa/vendored/common-password-list'
                   );
                   const input = value.toLowerCase();
-                  return (
-                    !isCommon(input) && !passwordValidator.isBanned(input)
-                  );
+                  return !isCommon(input) && !passwordValidator.isBanned(input);
                 },
               },
             })}
@@ -211,11 +215,10 @@ export const FormPassword = ({
 
         <Localized id="pw-change-confirm-password" attrs={{ label: true }}>
           <InputPassword
-            name="confirmPassword"
             label="Confirm new password"
             onChange={() => trigger(['newPassword', 'confirmPassword'])}
             onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
-            inputRef={register({
+            registration={register('confirmPassword', {
               required: true,
               validate: (value: string) => value === getValues().newPassword,
             })}
@@ -240,7 +243,7 @@ export const FormPassword = ({
             data-testid="save-password-button"
             type="submit"
             className="cta-primary cta-base-p mx-2 flex-1"
-            disabled={!formState.isDirty || !formState.isValid || loading}
+            disabled={!isDirty || !isValid || loading}
           >
             Save
           </button>

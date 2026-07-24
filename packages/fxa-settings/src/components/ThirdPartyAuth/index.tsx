@@ -12,7 +12,7 @@ import { ReactComponent as AppleLogoBoxBlack } from './apple-logo-cropped-black.
 import { ReactComponent as AppleLogoBoxWhite } from './apple-logo-cropped-white.svg';
 
 import { useConfig } from '../../models';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import { ReactElement } from 'react';
 import { useMetrics } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';

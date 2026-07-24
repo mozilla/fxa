@@ -216,11 +216,17 @@ const SignupContainer = ({
     ]
   );
 
+  // React 19 forbids calling navigate() during render.
+  useEffect(() => {
+    if (validationError || !email) {
+      navigateWithQuery('/');
+    }
+  }, [validationError, email, navigateWithQuery]);
+
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SignupSetPasswordPage?.splitLayout;
 
   if (validationError || !email) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

@@ -26,14 +26,13 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = attachedClients.reduce<Record<string, AttachedClient[]>>(
-    (acc, client) => {
-      const key = String(client.name);
-      acc[key] = acc[key] ? [...acc[key], client] : [client];
-      return acc;
-    },
-    {}
-  );
+  const groupedByName = attachedClients.reduce<
+    Record<string, AttachedClient[]>
+  >((acc, client) => {
+    const key = String(client.name);
+    acc[key] = acc[key] ? [...acc[key], client] : [client];
+    return acc;
+  }, {});
 
   // get a unique (by name) list and sort by time last accessed
   const sortedAndUniqueClients = Object.keys(groupedByName)
@@ -331,7 +330,9 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
               </Localized>
               <form
                 onChange={(event) => {
-                  setReason((event.target as HTMLInputElement).value);
+                  setReason(
+                    (event.target as unknown as HTMLInputElement).value
+                  );
                 }}
               >
                 <ul className="my-4 text-start">

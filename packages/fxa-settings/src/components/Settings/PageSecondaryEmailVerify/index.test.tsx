@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import {
   mockAppContext,
   mockSettingsContext,
@@ -164,19 +164,23 @@ describe('PageSecondaryEmailVerify', () => {
       { route: mockRoute }
     );
 
-    await act(async () => {
-      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
-        target: { value: '666666' },
-      });
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByTestId('verification-code-input-field'),
+      '666666'
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('secondary-email-verify-submit')).toBeEnabled();
     });
 
-    await act(async () =>
-      screen.getByTestId('secondary-email-verify-submit').click()
-    );
+    await user.click(screen.getByTestId('secondary-email-verify-submit'));
 
-    expect(screen.getByTestId('tooltip').textContent).toContain(
-      AuthUiErrors.INVALID_VERIFICATION_CODE.message
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('tooltip').textContent).toContain(
+        AuthUiErrors.INVALID_VERIFICATION_CODE.message
+      );
+    });
   });
 
   it('navigates to settings and shows a message on success', async () => {
@@ -195,15 +199,17 @@ describe('PageSecondaryEmailVerify', () => {
       { route: mockRoute }
     );
 
-    await act(async () => {
-      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
-        target: { value: '123456' },
-      });
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByTestId('verification-code-input-field'),
+      '123456'
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('secondary-email-verify-submit')).toBeEnabled();
     });
 
-    await act(async () =>
-      screen.getByTestId('secondary-email-verify-submit').click()
-    );
+    await user.click(screen.getByTestId('secondary-email-verify-submit'));
 
     expect(router.state.location.pathname).toEqual('/settings');
     expect(router.state.location.hash).toEqual('#secondary-email');

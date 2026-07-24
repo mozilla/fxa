@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import InputText from '../InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import { UseFormMethods } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface Country {
   id: number;
@@ -20,8 +20,10 @@ interface Country {
 export type InputPhoneNumberProps = {
   countries?: Country[];
   hasErrors?: boolean;
-  register: UseFormMethods['register'];
-  setValue: UseFormMethods['setValue'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: UseFormReturn<any>['register'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setValue: UseFormReturn<any>['setValue'];
   errorBannerId?: string;
 };
 
@@ -81,24 +83,40 @@ const InputPhoneNumber = ({
     sortedLocalizedCountries[0];
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
 
+  // Register phone number with validation. We override onChange below
+  // because handleInputChange formats the value before setting it.
+  const phoneRegistration = register('phoneNumber', {
+    required: true,
+    pattern: selectedCountry.validationPattern,
+  });
+
   const localizedLabel = ftlMsgResolver.getMsg(
     'input-phone-number-enter-number',
     'Enter phone number'
   );
 
+  // Set initial countryCode value for react-hook-form
+  React.useEffect(() => {
+    setValue('countryCode', selectedCountry.code);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCountry = sortedLocalizedCountries.find(
+    const newCountry = sortedLocalizedCountries.find(
       (country) => country.id === parseInt(event.target.value, 10)
     );
-    if (selectedCountry) {
-      setSelectedCountry(selectedCountry);
+    if (newCountry) {
+      setSelectedCountry(newCountry);
+      setValue('countryCode', newCountry.code);
     }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
     const formattedValue = formatPhoneNumber(inputValue);
-    setValue('phoneNumber', formattedValue);
+    setValue('phoneNumber', formattedValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   // Format the phone number as the user types - for easier review by the user
@@ -179,24 +197,20 @@ const InputPhoneNumber = ({
 
       {/* Because the country code may not be unique, the above `select`'s `value` must
        be by country ID. This hidden input allows us to access it in the form data. */}
-      <input
-        type="hidden"
-        name="countryCode"
-        value={selectedCountry.code}
-        ref={register()}
-      />
       <InputText
-        name="phoneNumber"
         type="tel"
         label={localizedLabel}
         required
         className="text-start w-full"
         autoComplete="off"
         spellCheck={false}
-        inputRef={register({
-          required: true,
-          pattern: selectedCountry.validationPattern,
-        })}
+        registration={{
+          ...phoneRegistration,
+          // Override onChange to no-op: handleInputChange manages the form value
+          // via setValue with formatting. Letting registration.onChange also run
+          // would cause a race condition (it validates the raw unformatted input).
+          onChange: async () => {},
+        }}
         {...{ hasErrors }}
         onChange={handleInputChange}
         aria-describedby={errorBannerId}

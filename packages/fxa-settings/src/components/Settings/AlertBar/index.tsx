@@ -20,7 +20,7 @@ import classNames from 'classnames';
  * If the content overflows, the text alignment is set to start and overflow-wrap is applied to ensure
  * the content is displayed properly without breaking the layout.
  *
- * @returns {JSX.Element | null} The AlertBar component or null if not visible.
+ * @returns {ReactElement | null} The AlertBar component or null if not visible.
  */
 export const AlertBar = () => {
   const { l10n } = useLocalization();

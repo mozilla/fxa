@@ -40,7 +40,7 @@ export const PageCreatePassword = () => {
   const handleMfaError = useMfaErrorHandler();
   usePageViewEvent('settings.create-password');
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -115,7 +115,7 @@ export const PageCreatePassword = () => {
         <FormPassword
           {...{
             formState,
-            errors,
+            errors: formState.errors,
             trigger,
             register,
             getValues,

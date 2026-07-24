@@ -55,7 +55,7 @@ const SigninPasskeyFallback = ({
     'Valid password required'
   );
 
-  const { handleSubmit, register, watch } = useForm<FormData>({
+  const { handleSubmit, register, watch, formState } = useForm<FormData>({
     mode: 'onTouched',
     criteriaMode: 'all',
     defaultValues: { password: '' },
@@ -157,15 +157,18 @@ const SigninPasskeyFallback = ({
           attrs={{ label: true }}
         >
           <InputPassword
-            name="password"
             label="Password"
             className="mb-6"
-            errorText={passwordTooltipErrorText}
+            errorText={
+              passwordTooltipErrorText || formState.errors.password?.message
+            }
             anchorPosition="start"
             tooltipPosition="bottom"
             autoFocus
             onChange={() => setPasswordTooltipErrorText('')}
-            inputRef={register()}
+            registration={register('password', {
+              required: localizedValidPasswordError,
+            })}
             prefixDataTestId="password"
           />
         </FtlMsg>

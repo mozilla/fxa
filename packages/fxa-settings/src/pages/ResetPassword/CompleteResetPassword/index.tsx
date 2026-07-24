@@ -52,7 +52,7 @@ const CompleteResetPassword = ({
 
   const showRecoveryKeyLink = !!(recoveryKeyExists && !hasConfirmedRecoveryKey);
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -111,7 +111,7 @@ const CompleteResetPassword = ({
         <FormPasswordWithInlineCriteria
           {...{
             email,
-            errors,
+            errors: formState.errors,
             formState,
             getValues,
             register,

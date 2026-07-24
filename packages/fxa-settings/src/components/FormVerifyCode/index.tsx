@@ -94,15 +94,18 @@ const FormVerifyCode = ({
     }
   };
 
-  const { handleSubmit, register, errors, watch } = useForm<FormData>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setValue,
+  } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       code: '',
     },
   });
-
-  const codeValue = watch('code');
 
   const localizedDefaultCodeRequiredMessage = ftlMsgResolver.getMsg(
     'form-verify-code-default-error',
@@ -137,21 +140,11 @@ const FormVerifyCode = ({
     }
   };
 
-  useEffect(() => {
-    if (codeValue && codeValue.length > 0) {
-      const isValid = new RegExp(formAttributes.pattern).test(codeValue);
-      setIsDisabled(!isValid);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [codeValue, formAttributes.pattern]);
-
   return (
     <form noValidate {...{ className }} onSubmit={handleSubmit(onSubmit)}>
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
-        name="code"
         type="text"
         inputMode={inputMode}
         label={localizedLabel}
@@ -159,6 +152,11 @@ const FormVerifyCode = ({
           if (inputMode === InputModeEnum.numeric) {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
           }
+          const value = e.target.value;
+          setValue('code', value);
+          const isValid =
+            value.length > 0 && new RegExp(formAttributes.pattern).test(value);
+          setIsDisabled(!isValid);
           if (setClearMessages) {
             setClearMessages(true);
           } else {
@@ -178,9 +176,10 @@ const FormVerifyCode = ({
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"
-        inputRef={register({
-          required: true,
-        })}
+        registration={{
+          ...register('code', { required: true }),
+          onChange: async () => {},
+        }}
       />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>

@@ -44,7 +44,7 @@ const FormChoice = ({
   formChoices,
   onSubmit,
   isSubmitting,
-                      cmsButton
+  cmsButton,
 }: FormChoiceProps) => {
   const { register, handleSubmit, watch } = useForm<FormChoiceData>();
   const selectedOption = watch('choice');
@@ -63,9 +63,8 @@ const FormChoice = ({
               className="input-radio"
               type="radio"
               id={choice.id}
-              name="choice"
               value={choice.value}
-              ref={register({ required: true })}
+              {...register('choice', { required: true })}
             />
             <label
               className={classNames(
