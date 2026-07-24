@@ -93,9 +93,13 @@ export function buildPaymentTerms(
   ];
 }
 
+const MOZILLA_ACCOUNTS_TOS_URL =
+  'https://www.mozilla.org/about/legal/terms/services/';
+const MOZILLA_ACCOUNTS_PRIVACY_URL =
+  'https://www.mozilla.org/privacy/mozilla-accounts/';
+
 export function buildFirefoxAccountsTerms(
-  showFxaLinks: boolean,
-  contentServerURL?: string
+  showFxaLinks: boolean
 ): GenericTermItem[] {
   if (!showFxaLinks) {
     return [];
@@ -109,13 +113,13 @@ export function buildFirefoxAccountsTerms(
       items: [
         {
           key: 'fxa-terms-1',
-          href: `${contentServerURL}/legal/terms`,
+          href: MOZILLA_ACCOUNTS_TOS_URL,
           text: 'Terms of Service',
           localizationId: 'next-terms',
         },
         {
           key: 'fxa-terms-2',
-          href: `${contentServerURL}/legal/privacy`,
+          href: MOZILLA_ACCOUNTS_PRIVACY_URL,
           text: 'Privacy Notice',
           localizationId: 'next-privacy',
         },

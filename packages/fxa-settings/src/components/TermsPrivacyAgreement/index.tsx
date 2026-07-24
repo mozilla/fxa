@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Link } from 'react-router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';
 
 export type TermsPrivacyAgreementProps = {
   legalTerms?: RelierLegalTerms | null;
 };
+
+const MOZILLA_ACCOUNTS_TOS_URL =
+  'https://www.mozilla.org/about/legal/terms/services/';
+const MOZILLA_ACCOUNTS_PRIVACY_URL =
+  'https://www.mozilla.org/privacy/mozilla-accounts/';
 
 const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
   const fontSizeClass =
@@ -72,26 +76,32 @@ const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
               id="terms-privacy-agreement-mozilla-2"
               elems={{
                 mozillaAccountsTos: (
-                  <Link className="link-grey" to="/legal/terms">
+                  <LinkExternal className="link-grey" href={MOZILLA_ACCOUNTS_TOS_URL}>
                     Terms of Service
-                  </Link>
+                  </LinkExternal>
                 ),
                 mozillaAccountsPrivacy: (
-                  <Link className="link-grey" to="/legal/privacy">
+                  <LinkExternal
+                    className="link-grey"
+                    href={MOZILLA_ACCOUNTS_PRIVACY_URL}
+                  >
                     Privacy Notice
-                  </Link>
+                  </LinkExternal>
                 ),
               }}
             >
               <li>
                 Mozilla Accounts:{' '}
-                <Link className="link-grey" to="/legal/terms">
+                <LinkExternal className="link-grey" href={MOZILLA_ACCOUNTS_TOS_URL}>
                   Terms of Service
-                </Link>{' '}
+                </LinkExternal>{' '}
                 and{' '}
-                <Link className="link-grey" to="/legal/privacy">
+                <LinkExternal
+                  className="link-grey"
+                  href={MOZILLA_ACCOUNTS_PRIVACY_URL}
+                >
                   Privacy Notice
-                </Link>
+                </LinkExternal>
               </li>
             </FtlMsg>
           </ul>
@@ -102,26 +112,32 @@ const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
           data-testid="terms-privacy-agreement-default"
           elems={{
             mozillaAccountsTos: (
-              <Link className="link-grey" to="/legal/terms">
+              <LinkExternal className="link-grey" href={MOZILLA_ACCOUNTS_TOS_URL}>
                 Terms of Service
-              </Link>
+              </LinkExternal>
             ),
             mozillaAccountsPrivacy: (
-              <Link className="link-grey" to="/legal/privacy">
+              <LinkExternal
+                className="link-grey"
+                href={MOZILLA_ACCOUNTS_PRIVACY_URL}
+              >
                 Privacy Notice
-              </Link>
+              </LinkExternal>
             ),
           }}
         >
           <p data-testid="terms-privacy-agreement-default">
             By proceeding, you agree to the{' '}
-            <Link className="link-grey" to="/legal/terms">
+            <LinkExternal className="link-grey" href={MOZILLA_ACCOUNTS_TOS_URL}>
               Terms of Service
-            </Link>{' '}
+            </LinkExternal>{' '}
             and{' '}
-            <Link className="link-grey" to="/legal/privacy">
+            <LinkExternal
+              className="link-grey"
+              href={MOZILLA_ACCOUNTS_PRIVACY_URL}
+            >
               Privacy Notice
-            </Link>
+            </LinkExternal>
             .
           </p>
         </FtlMsg>

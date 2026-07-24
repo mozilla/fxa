@@ -30,11 +30,17 @@ describe('Legal', () => {
     });
 
     expect(
-      screen.getByRole('link', { name: 'Terms of Service' })
-    ).toHaveAttribute('href', '/legal/terms');
+      screen.getByRole('link', { name: /Terms of Service/ })
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/services/'
+    );
     expect(
-      screen.getByRole('link', { name: 'Privacy Notice' })
-    ).toHaveAttribute('href', '/legal/privacy');
+      screen.getByRole('link', { name: /Privacy Notice/ })
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/privacy/mozilla-accounts/'
+    );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });

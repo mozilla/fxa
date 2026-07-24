@@ -39,8 +39,6 @@ module.exports = function (log, config, bounces, statsd) {
   const subscriptionAccountReminders =
     require('../subscription-account-reminders')(log, config);
 
-  const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
-
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
@@ -836,7 +834,6 @@ module.exports = function (log, config, bounces, statsd) {
             ...links,
             oneClickLink: links.oneClickLink,
             privacyUrl: links.privacyUrl,
-            termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
             supportUrl: links.supportUrl,
             supportLinkAttributes: links.supportLinkAttributes,
             reminderShortForm: true,
@@ -3899,12 +3896,6 @@ module.exports = function (log, config, bounces, statsd) {
     };
   });
 
-  Mailer.prototype._legalDocsRedirectUrl = function (url) {
-    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURIComponent(
-      url
-    )}`;
-  };
-
   Mailer.prototype._generateCmsLinks = async function (
     planId,
     acceptLanguage,
@@ -3933,13 +3924,13 @@ module.exports = function (log, config, bounces, statsd) {
 
     return {
       subscriptionPrivacyUrl: this._generateUTMLink(
-        commonContent.privacyNoticeDownloadUrl,
+        commonContent.privacyNoticeUrl,
         {},
         templateName,
         'subscription-privacy'
       ),
       subscriptionTermsUrl: this._generateUTMLink(
-        commonContent.termsOfServiceDownloadUrl,
+        commonContent.termsOfServiceUrl,
         {},
         templateName,
         'subscription-terms'
@@ -4014,13 +4005,9 @@ module.exports = function (log, config, bounces, statsd) {
           locales
         );
 
-        // the ToS and Privacy Notice URLs are actually not localized in the product config; the redirect endpoint on the payments server does that.  but we do need it in the urls object so we can overwrite the metadata ones with the Firestore ones.
-
         // eslint did not like ??=
         localizedConfigs['urls'] ?? (localizedConfigs['urls'] = {});
         const urlKeys = {
-          termsOfServiceDownloadURL: 'termsOfServiceDownload',
-          privacyNoticeDownloadURL: 'privacyNoticeDownload',
           cancellationSurveyUrl: 'cancellationSurvey',
         };
         Object.entries(urlKeys).forEach(([urlKey, configKey]) => {
@@ -4048,8 +4035,8 @@ module.exports = function (log, config, bounces, statsd) {
     };
 
     const {
-      termsOfServiceDownloadURL = this.subscriptionTermsUrl,
-      privacyNoticeDownloadURL = this.privacyUrl,
+      termsOfServiceURL = this.subscriptionTermsUrl,
+      privacyNoticeURL = this.privacyUrl,
       cancellationSurveyUrl,
     } = localizedUrls(message);
 
@@ -4169,21 +4156,17 @@ module.exports = function (log, config, bounces, statsd) {
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
-    links.subscriptionTermsUrl = this._legalDocsRedirectUrl(
-      this._generateUTMLink(
-        termsOfServiceDownloadURL,
-        {},
-        templateName,
-        'subscription-terms'
-      )
+    links.subscriptionTermsUrl = this._generateUTMLink(
+      termsOfServiceURL,
+      {},
+      templateName,
+      'subscription-terms'
     );
-    links.subscriptionPrivacyUrl = this._legalDocsRedirectUrl(
-      this._generateUTMLink(
-        privacyNoticeDownloadURL,
-        {},
-        templateName,
-        'subscription-privacy'
-      )
+    links.subscriptionPrivacyUrl = this._generateUTMLink(
+      privacyNoticeURL,
+      {},
+      templateName,
+      'subscription-privacy'
     );
 
     const subscriptionId =

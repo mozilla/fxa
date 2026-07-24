@@ -21,18 +21,18 @@ describe('TermsPrivacyAgreement', () => {
     it('renders default Mozilla Accounts ToS/PP only', () => {
       renderWithLocalizationProvider(<MemoryRouter><TermsPrivacyAgreement /></MemoryRouter>);
 
-      const linkElements: HTMLElement[] = screen.getAllByRole('link');
+      const termsLink = screen.getByRole('link', { name: /Terms of Service/ });
+      const privacyLink = screen.getByRole('link', { name: /Privacy Notice/ });
 
-      // Check to search for text that includes links
-      const container = screen.getByTestId('terms-privacy-agreement-default');
-      expect(
-        container.textContent?.includes(
-          'By proceeding, you agree to the Terms of Service and Privacy Notice.'
-        )
-      ).toBeTruthy();
-      expect(linkElements).toHaveLength(2);
-      expect(linkElements[0]).toHaveAttribute('href', '/legal/terms');
-      expect(linkElements[1]).toHaveAttribute('href', '/legal/privacy');
+      expect(termsLink).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/about/legal/terms/services/'
+      );
+      expect(privacyLink).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/privacy/mozilla-accounts/'
+      );
+      expect(screen.getAllByRole('link')).toHaveLength(2);
 
       // Should not show subscription services text
       expect(
@@ -78,8 +78,14 @@ describe('TermsPrivacyAgreement', () => {
         'href',
         'https://www.mozilla.org/privacy/subscription-services/'
       );
-      expect(linkElements[2]).toHaveAttribute('href', '/legal/terms');
-      expect(linkElements[3]).toHaveAttribute('href', '/legal/privacy');
+      expect(linkElements[2]).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/about/legal/terms/services/'
+      );
+      expect(linkElements[3]).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/privacy/mozilla-accounts/'
+      );
     });
 
     it('renders custom label correctly', () => {
@@ -179,8 +185,14 @@ describe('TermsPrivacyAgreement', () => {
 
       // Should render default Mozilla Accounts ToS/PP only
       expect(linkElements).toHaveLength(2);
-      expect(linkElements[0]).toHaveAttribute('href', '/legal/terms');
-      expect(linkElements[1]).toHaveAttribute('href', '/legal/privacy');
+      expect(linkElements[0]).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/about/legal/terms/services/'
+      );
+      expect(linkElements[1]).toHaveAttribute(
+        'href',
+        'https://www.mozilla.org/privacy/mozilla-accounts/'
+      );
     });
   });
 

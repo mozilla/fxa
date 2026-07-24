@@ -14,7 +14,6 @@ import {
   UpgradePurchaseDetails,
 } from '@fxa/payments/ui/server';
 import { CartState } from '@fxa/shared/db/mysql/account';
-import { config } from 'apps/payments/next/config';
 import { auth } from 'apps/payments/next/auth';
 import {
   UpgradeCartFromOfferingConfigIdMissingError,
@@ -116,7 +115,6 @@ export default async function UpgradeLayout({
               {...cart}
               {...purchaseDetails}
               {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-              contentServerUrl={config.contentServerUrl}
               showFXALinks={true}
             />
           </div>

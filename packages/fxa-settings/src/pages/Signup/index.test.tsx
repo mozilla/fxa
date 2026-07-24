@@ -147,14 +147,20 @@ describe('Signup page', () => {
       screen.getByRole('button', { name: /Continue with Apple/ })
     ).toBeVisible();
     const firefoxTermsLink: HTMLElement = screen.getByRole('link', {
-      name: 'Terms of Service',
+      name: /Terms of Service/,
     });
     const firefoxPrivacyLink: HTMLElement = screen.getByRole('link', {
-      name: 'Privacy Notice',
+      name: /Privacy Notice/,
     });
     // Checkboxes have their own test
-    expect(firefoxTermsLink).toHaveAttribute('href', '/legal/terms');
-    expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
+    expect(firefoxTermsLink).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/services/'
+    );
+    expect(firefoxPrivacyLink).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/privacy/mozilla-accounts/'
+    );
   });
 
   it('renders as expected when integration is sync', async () => {
