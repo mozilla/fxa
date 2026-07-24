@@ -1124,12 +1124,12 @@ passkey-registration-error-unexpected = Einrichtung des Zugangsschlüssels fehlg
 
 
 passkey-authentication-trouble-heading = Anmeldung mit Zugangsschlüssel fehlgeschlagen
-passkey-authentication-trouble-description = Versuchen Sie es erneut oder verwenden Sie eine andere Anmeldeoption.
+passkey-authentication-trouble-description = Versuchen Sie es erneut, oder verwenden Sie eine andere Anmeldeoption.
 passkey-authentication-trouble-link = Wie man Zugangsschlüssel verwendet
 passkey-authentication-error-not-allowed = Anmeldung mit Zugangsschlüssel fehlgeschlagen oder nicht verfügbar. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-authentication-error-not-allowed-existing = Die Passkey-Einrichtung ist bei diesem Gerät nicht verfügbar. Bitte versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-authentication-error-timeout = Zeitüberschreitung bei Zugangsschlüssel-Anfrage. Bitte versuchen Sie es erneut.
-passkey-authentication-error-timeout-v2 = Zeitüberschreitung bei der Passkey-Anmeldung. Erneut versuchen
+passkey-authentication-error-timeout-v2 = Zeitüberschreitung bei der Passkey-Anmeldung. Versuchen Sie es erneut.
 passkey-authentication-error-not-supported-v2 = Ihr Browser oder Gerät unterstützt keine Zugangsschlüssel.
 passkey-authentication-error-security = Zugangsschlüssel können auf dieser Seite nicht verwendet werden. Überprüfen Sie, ob Sie sich auf der korrekten sicheren Website befinden und versuchen Sie es erneut.
 passkey-authentication-error-invalid-state = Mit Ihrem Zugangsschlüssel ist etwas schiefgegangen. Versuchen Sie es erneut oder verwenden Sie eine andere Anmeldemethode.

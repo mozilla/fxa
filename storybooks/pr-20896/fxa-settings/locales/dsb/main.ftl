@@ -1139,9 +1139,13 @@ passkey-registration-error-constraint = Konfiguracija gronidłowego kluca njejo 
 passkey-registration-error-unexpected = Konfiguracija gronidłowego kluca njejo se raźiła. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 
 
+passkey-authentication-trouble-heading = Pśizjawjenje z gronidłowym klucom njejo móžne
+passkey-authentication-trouble-description = Wopytajśo hyšći raz abo wužywajśo drugu pśizjawjeńsku móžnosć.
+passkey-authentication-trouble-link = Kak se gronidłowe kluce wužywaju
 passkey-authentication-error-not-allowed = Pśizjawjenje z gronidłowym klucom njejo se raźiło abo njejo k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 passkey-authentication-error-not-allowed-existing = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 passkey-authentication-error-timeout = Pśekšocenje casa pśi napšašowanju gronidłowego kluca. Wopytajśo pšosym hyšći raz.
+passkey-authentication-error-timeout-v2 = Pśizjawjenje z gronidłowym klucom jo pśekšocył cas. Wopytajśo hyšći raz.
 passkey-authentication-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 passkey-authentication-error-security = Gronidłowe kluce njedaju se na toś tom boku wužywaś. Pśeglědajśo, lěc sćo na korektnem wěstem sedle a wopytajśo hyšći raz.
 passkey-authentication-error-invalid-state = Něco njejo se raźiło z wašym gronidłowym klucom. Wopytajśo hyšći raz abo wužywajśo drugu pśizjawjeńsku metodu.

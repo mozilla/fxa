@@ -1072,9 +1072,13 @@ passkey-registration-error-constraint = הגדרת מפתח הגישה אינה 
 passkey-registration-error-unexpected = הגדרת מפתח הגישה נכשלה. נא לנסות שוב או לבחור בשיטה אחרת.
 
 
+passkey-authentication-trouble-heading = לא ניתן היה להיכנס עם מפתח גישה
+passkey-authentication-trouble-description = נא לנסות שוב או להשתמש באפשרות כניסה אחרת.
+passkey-authentication-trouble-link = כיצד להשתמש במפתחות גישה
 passkey-authentication-error-not-allowed = הכניסה באמצעות מפתח הגישה נכשלה או שאינה זמינה. נא לנסות שוב או לבחור בשיטה אחרת.
 passkey-authentication-error-not-allowed-existing = הגדרת מפתח הגישה אינה זמינה עם מכשיר זה. נא לנסות שוב או לבחור בשיטה אחרת.
 passkey-authentication-error-timeout = תם הזמן שהוקצב לבקשת מפתח הגישה. נא לנסות שוב.
+passkey-authentication-error-timeout-v2 = תם הזמן שהוקצב לכניסה עם מפתח גישה. נא לנסות שוב.
 passkey-authentication-error-not-supported-v2 = הדפדפן או המכשיר שלך אינם תומכים במפתחות גישה (passkeys).
 passkey-authentication-error-security = לא ניתן להשתמש במפתחות גישה בדף זה. יש לוודא שהינך באתר המאובטח הנכון ולנסות שוב.
 passkey-authentication-error-invalid-state = משהו השתבש עם מפתח הגישה שלך. נא לנסות שוב או להשתמש בשיטת כניסה אחרת.

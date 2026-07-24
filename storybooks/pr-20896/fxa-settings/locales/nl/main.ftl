@@ -1125,9 +1125,13 @@ passkey-registration-error-constraint = Instellen van wachtwoordsleutel is niet 
 passkey-registration-error-unexpected = Instellen wachtwoordsleutel mislukt. Probeer het opnieuw of kies een andere methode.
 
 
+passkey-authentication-trouble-heading = Kan niet aanmelden met een wachtwoordsleutel
+passkey-authentication-trouble-description = Probeer het opnieuw of gebruik een andere aanmeldingsoptie.
+passkey-authentication-trouble-link = Wachtwoordsleutels gebruiken
 passkey-authentication-error-not-allowed = Aanmelding met wachtwoordsleutel is mislukt of niet beschikbaar. Probeer het opnieuw of kies een andere methode.
 passkey-authentication-error-not-allowed-existing = Instellen van wachtwoordsleutel is niet beschikbaar op dit apparaat. Probeer het opnieuw of kies een andere methode.
 passkey-authentication-error-timeout = Wachtwoordsleutelverzoek verlopen. Probeer het opnieuw.
+passkey-authentication-error-timeout-v2 = Wachttijd voor aanmelden met wachtwoordsleutel is verlopen. Probeer het opnieuw.
 passkey-authentication-error-not-supported-v2 = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
 passkey-authentication-error-security = Wachtwoordsleutels kunnen niet op deze pagina worden gebruikt. Controleer of u de juiste beveiligde website gebruikt en probeer het opnieuw.
 passkey-authentication-error-invalid-state = Er is iets misgegaan met uw wachtwoordsleutel. Probeer het opnieuw of gebruik een andere aanmeldingsmethode.
