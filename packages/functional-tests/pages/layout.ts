@@ -73,6 +73,39 @@ export abstract class BaseLayout {
     });
   }
 
+  /**
+   * Wait for a single `WebChannelMessageToChrome` event matching `command`
+   * and resolve with its `data` payload.
+   *
+   * Use this when the test controls the action that triggers the message
+   * (e.g. a button click) and can install the listener up front. This is
+   * preferred over `checkWebChannelMessage` whenever the message arrives
+   * after a known UI action and crosses an OAuth grant or other multi-step
+   * roundtrip, because there is no fixed sub-budget — the only timeout is
+   * the test's overall Playwright timeout.
+   *
+   * Use `checkWebChannelMessage` instead when the message can fire during
+   * page load, before the test has a chance to install a listener — the
+   * message in that case is read from sessionStorage where fxa-settings
+   * has already saved it.
+   */
+  async waitForWebChannelMessage(
+    command: FirefoxCommand
+  ): Promise<Record<string, unknown>> {
+    return this.page.evaluate(
+      (expected) =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          window.addEventListener('WebChannelMessageToChrome', (e: Event) => {
+            const detail = JSON.parse((e as CustomEvent).detail);
+            if (detail.message.command === expected) {
+              resolve(detail.message.data || {});
+            }
+          });
+        }),
+      command
+    );
+  }
+
   async checkWebChannelMessage(command: FirefoxCommand) {
     // Retry across navigations — a client-side redirect after page.goto
     // can destroy the execution context mid-evaluate.

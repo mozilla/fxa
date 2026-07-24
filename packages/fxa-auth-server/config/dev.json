@@ -334,7 +334,7 @@
         "name": "Fenix",
         "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
         "imageUri": "",
-        "redirectUri": "http://localhost:3030/oauth/success/a2270f727f45f648",
+        "redirectUri": "http://localhost:3030/oauth/success/a2270f727f45f648,urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel,urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
         "canGrant": true,
         "trusted": true,
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",

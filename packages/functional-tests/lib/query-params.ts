@@ -81,12 +81,15 @@ export const syncMobileOAuthFenixQueryParams = new URLSearchParams({
   service: 'sync',
 });
 
-export const vpnMobileOAuthQueryParams = new URLSearchParams({
+// Firefox-native VPN sign-in omits scope= and passes service=vpn; the
+// auth-server resolves the full scope set (apps/vpn + profile) server-side
+// per ADR 0049. No keys_jwk, so apps/oldsync is NOT appended (VPN must not
+// pull in Sync). Mirrors vpnDesktopOAuthQueryParamsNoScope below.
+export const vpnMobileOAuthQueryParamsNoScope = new URLSearchParams({
   ...Object.fromEntries(oauthWebchannelV1.entries()),
   client_id: 'a2270f727f45f648', // Fenix (Android)
   code_challenge_method: 'S256',
   code_challenge: '2oc_C4v1qHeefWAGu5LI5oDG1oX4FV_Itc148D8_oQI',
-  scope: VPN_SCOPE,
   state: 'fakestate',
   automatedBrowser: 'true',
   service: 'vpn',

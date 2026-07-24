@@ -18,7 +18,10 @@ export const TIMEOUTS = {
   ASYNC_SCRIPT: 15_000,
   SIGNED_IN_CHECK: 15_000,
   SUPPLICANT_ALLOW: 30_000,
-  AUTHORITY_COMPLETE: 15_000,
+  // Authority approve → supp /oauth/success crosses a channel-server roundtrip
+  // plus React Router navigation; under CI load 15s has been hit. 30s matches
+  // SUPPLICANT_ALLOW and still leaves headroom under the 120s test timeout.
+  AUTHORITY_COMPLETE: 30_000,
   POLL_INTERVAL: 500,
   POLL_INTERVAL_MAX: 2_000,
 } as const;

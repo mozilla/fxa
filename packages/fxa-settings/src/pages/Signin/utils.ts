@@ -358,13 +358,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     return { error: undefined };
   }
 
-  if (isWebChannelIntegration && navigationOptions.handleFxaLogin === true) {
-    // This _must_ be sent before fxaOAuthLogin for Desktop OAuth flow.
-    // Mobile doesn't care about this message (see FXA-10388)
-    sendFxaLogin(navigationOptions);
-  }
-
+  // Non-OAuth path: send Login then navigate.
   if (!isOAuth) {
+    if (isWebChannelIntegration && navigationOptions.handleFxaLogin === true) {
+      sendFxaLogin(navigationOptions);
+    }
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
@@ -378,15 +376,31 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     return { error: undefined };
   }
 
-  // Note that OAuth redirect can only be obtained when the session is verified,
-  // otherwise oauth/authorization endpoint throws an "unconfirmed session" error.
-  // The only exception to this is the type C unverified session noted above.
+  // OAuth path. Note that OAuth redirect can only be obtained when the session
+  // is verified, otherwise oauth/authorization endpoint throws an
+  // "unconfirmed session" error. The only exception to this is the type C
+  // unverified session noted above.
   if (isOAuth) {
+    // IMPORTANT: run /oauth/authorization (HTTP) BEFORE firing any web
+    // channel messages. firefox.fxaLogin/fxaOAuthLogin dispatch synchronously
+    // but the browser processes them asynchronously, and the browser's
+    // handler for fxaLogin can mutate session state in ways that race with
+    // an in-flight /oauth/authorization request, producing intermittent 401
+    // "Token not found" failures (most reproducibly seen when a second OAuth
+    // flow follows a first in the same browser context — e.g., the VPN
+    // integration test signing into Sync then VPN).
     const { to, locationState, oauthData, shouldHardNavigate, error } =
       await getOAuthNavigationTarget(navigationOptions);
 
     if (error) {
       return { error };
+    }
+
+    // Now that the OAuth code is in hand, fire the web channel messages.
+    // fxaLogin must still come before fxaOAuthLogin for the Desktop OAuth
+    // flow; mobile doesn't care about fxaLogin (see FXA-10388).
+    if (isWebChannelIntegration && navigationOptions.handleFxaLogin === true) {
+      sendFxaLogin(navigationOptions);
     }
     if (
       isOAuthNativeIntegration(integration) &&
