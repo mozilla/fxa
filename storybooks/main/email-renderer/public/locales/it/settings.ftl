@@ -1531,7 +1531,7 @@ passkey-authentication-error-not-allowed-existing = La configurazione della pass
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Richiesta passkey scaduta. Riprova.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = Timeout per l’accesso con passkey. Riprova.
+passkey-authentication-error-timeout-v2 = Tempo esaurito per l’accesso con passkey. Riprova.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Il tuo browser o dispositivo non supporta le passkey.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

@@ -940,8 +940,10 @@ passkey-rename-save-button = Ñongatu
 passkey-rename-cancel-button = Eheja
 passkey-rename-error-empty = Ehai peteĩ téra ko ñe’ẽ ñemíme g̃uarã
 passkey-rename-error-too-long = Pe téra oguerekova’erã michĩvérõ 256 tairenda.
+passkey-rename-error-invalid = Oñemoneĩ tai, papapy, kyta aty ha ta’ãngachu’i añónte.
 passkey-rename-error-duplicate = Oĩma ñe’ẽ ñemi ko térape ojehaipyréva
 passkey-rename-success = Ñe’ẽ ñemi mboherapyre
+passkey-rename-error = Iñapysẽ apañuái emboherajeývo upe ñe’ẽ ñemi jeikeha. Eha’ã jey ag̃ave.
 
 
 switch-turn-off = Pe’aite
@@ -1080,6 +1082,7 @@ auth-error-225 = Ñe’ẽ ñemi mbokuatiapyre
 auth-error-226 = Ojehupyty ñe’ẽ ñemi ru’ã
 auth-error-227 = Ndoikói pe ñe’ẽ ñemi ñemoneĩ
 auth-error-228 = Ndoikói pe ñe’ẽ ñemi ñembokuatia
+auth-error-233 = Ejapo hag̃ua ñe’ẽ ñemi jeikaha, emboheko mba’erechaha jokoha, PIN, kuãhũ térã tova jeikuaaha ne mba’e’okápe térã ñe’ẽ ñemi rekorosãrã. Ejapo rire, ehaʼã jey.
 auth-error-238 = Ndoikói ñe’ẽ ñemi raperã
 auth-error-239 = Rombyasy, ndaikatúikuri rombogue ne mba’ete. Eha’ã jey térã eñe’ẽ pytyvõhára ndive ndopáirõ apañuái.
 auth-error-999 = Jejavy eha’ãrõ’ỹva
@@ -1121,9 +1124,13 @@ passkey-registration-error-constraint = Ñe’ẽ ñemi jeikeha ñemboheko noĩr
 passkey-registration-error-unexpected = Ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey térã eiporavo ambue.
 
 
+passkey-authentication-trouble-heading = Ndaikatúi eike ñe’ẽ ñemi jeikaha ndive
+passkey-authentication-trouble-description = Eha’ẽ jey térã eiporu ambue mba’e eike hag̃ua.
+passkey-authentication-trouble-link = Mba’éicha eiporúta ñe’ẽ ñemi jeikaha
 passkey-authentication-error-not-allowed = Pe ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey ag̃ave térã eiporavo ambue mba’e.
 passkey-authentication-error-not-allowed-existing = Ñe’ẽ ñemi jeikeha ñemboheko noĩri ko mba’e’okápe. Ikatu eha’ã jey térã eiporavo ambue mba’e.
 passkey-authentication-error-timeout = Opáma ejerure hag̃ua ñemigua. Eha’ãjey ag̃ave.
+passkey-authentication-error-timeout-v2 = Opáma aravo eike hag̃ua ñe’ẽ ñemi jeikaha ndive. Eha’ã jey.
 passkey-authentication-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 passkey-authentication-error-security = Ndaikatúi eiporu ñe’ẽ ñemieta ko kuatiaroguepegua. Ehecha eĩha tenda hekorosãvape ha eha’ãjey.
 passkey-authentication-error-invalid-state = Oĩ osẽvaíva ne ñe’ẽ ñemi jeikehápe. Eha’ãjey térã eiporavo ambuéva eike hag̃ua.

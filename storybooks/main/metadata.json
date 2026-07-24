@@ -1,8 +1,8 @@
 {
-  "commit": "e513c27fe9f20dec7f1332b127cd14306db85e1a",
-  "summary": "Merge pull request #20875 from mozilla/FXA-14085",
-  "description": "feat(passkeys): request PRF at sign-in to record capability",
-  "timestamp": 1784850428000,
+  "commit": "2244ed70fc8eba2f70b1c0d500d762cf290cb6a7",
+  "summary": "Merge pull request #20918 from mozilla/FXA-14226-worktree",
+  "description": "fix(dau): Use new 'exclude_dau' option for signin flow Settings client_id access tokens",
+  "timestamp": 1784905517000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

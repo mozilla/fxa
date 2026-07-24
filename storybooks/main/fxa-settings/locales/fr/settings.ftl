@@ -1528,7 +1528,7 @@ passkey-registration-error-unexpected = La configuration de la clé d’accès a
 passkey-authentication-trouble-heading = Impossible de se connecter avec une clé d’accès
 # Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
 # passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
-passkey-authentication-trouble-description = Réessayez ou utilisez une autre option de connexion.
+passkey-authentication-trouble-description = Réessayez ou utilisez une autre méthode de connexion.
 # Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
 # using passkeys.
 passkey-authentication-trouble-link = Comment utiliser les clés d’accès
@@ -1539,7 +1539,7 @@ passkey-authentication-error-not-allowed-existing = La configuration d’une cl�
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Délai de requête de la clé d’accès dépassé. Veuillez réessayer.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = Délai de connexion par clé d’accès dépassé. Veuillez réessayer.
+passkey-authentication-error-timeout-v2 = La connexion avec la clé d’accès a expiré. Veuillez réessayer.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
