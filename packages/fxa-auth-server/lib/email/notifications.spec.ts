@@ -36,6 +36,8 @@ describe('lib/email/notifications:', () => {
       on: jest.fn(),
     };
     emailRecord = {
+      uid: '11111111111111111111111111111111',
+      email: 'unverified@example.com',
       emailVerified: false,
       createdAt: now - SIX_HOURS - 1,
     };
@@ -228,13 +230,13 @@ describe('lib/email/notifications:', () => {
       expect(log.info).toHaveBeenCalledTimes(4);
 
       expect(log.info).toHaveBeenNthCalledWith(3, 'accountDeleted', {
-        emailVerified: false,
-        createdAt: emailRecord.createdAt,
+        uid: emailRecord.uid,
+        email: emailRecord.email,
       });
 
       expect(log.info).toHaveBeenNthCalledWith(4, 'accountDeleted', {
-        emailVerified: false,
-        createdAt: emailRecord.createdAt,
+        uid: emailRecord.uid,
+        email: emailRecord.email,
       });
     });
 

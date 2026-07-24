@@ -107,11 +107,6 @@ export const createDB = (
         log,
         metrics
       );
-      if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
-        knex.on('query', (data) => {
-          console.dir(data);
-        });
-      }
       return new DB({ redis, knex, metrics });
     }
 
@@ -239,7 +234,7 @@ export const createDB = (
     // READ
 
     async checkPassword(uid: string, verifyHash: string) {
-      log.trace('DB.checkPassword', { uid, verifyHash });
+      log.trace('DB.checkPassword', { uid });
       let result;
       try {
         result = await Account.checkPassword(uid, verifyHash);
@@ -323,7 +318,7 @@ export const createDB = (
     }
 
     async keyFetchToken(id: string) {
-      log.trace('DB.keyFetchToken', { id });
+      log.trace('DB.keyFetchToken');
       const data = await RawKeyFetchToken.findByTokenId(id);
       if (!data) {
         this.metrics?.increment('db.keyFetchToken.retrieve', {
@@ -338,7 +333,7 @@ export const createDB = (
     }
 
     async keyFetchTokenWithVerificationStatus(id: string) {
-      log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
+      log.trace('DB.keyFetchTokenWithVerificationStatus');
       const data = await RawKeyFetchToken.findByTokenId(id, true);
       if (!data) {
         this.metrics?.increment(
@@ -355,7 +350,7 @@ export const createDB = (
     }
 
     async accountResetToken(id: string) {
-      log.trace('DB.accountResetToken', { id });
+      log.trace('DB.accountResetToken');
       const data = await RawAccountResetToken.findByTokenId(id);
       if (!data) {
         this.metrics?.increment('db.accountResetToken.retrieve', {
@@ -370,7 +365,7 @@ export const createDB = (
     }
 
     async passwordForgotToken(id: string) {
-      log.trace('DB.passwordForgotToken', { id });
+      log.trace('DB.passwordForgotToken');
       const data = await RawPasswordForgotToken.findByTokenId(id);
       if (!data) {
         this.metrics?.increment('db.passwordForgotToken.retrieve', {
@@ -385,7 +380,7 @@ export const createDB = (
     }
 
     async passwordChangeToken(id: string) {
-      log.trace('DB.passwordChangeToken', { id });
+      log.trace('DB.passwordChangeToken');
       const data = await RawPasswordChangeToken.findByTokenId(id);
       if (!data) {
         this.metrics?.increment('db.passwordChangeToken.retrieve', {
@@ -493,7 +488,7 @@ export const createDB = (
     }
 
     async sessionToken(id: string) {
-      log.trace('DB.sessionToken', { id });
+      log.trace('DB.sessionToken');
       const data = await RawSessionToken.findByTokenId(id);
       if (!data) {
         this.metrics?.increment('db.sessionToken.retrieve', {
@@ -719,7 +714,7 @@ export const createDB = (
     ) {
       const { id, uid } = token;
 
-      log.trace('DB.touchSessionToken', { id, uid });
+      log.trace('DB.touchSessionToken', { uid });
 
       if (!this.redis || !features.isLastAccessTimeEnabledForUser(uid)) {
         return;
@@ -773,7 +768,6 @@ export const createDB = (
 
       // Just for connection pool issue investigation. Make sure the last access time is set to something realistic.
       log.debug('DB.updateSessionToken', {
-        id,
         uid,
         lastAccessTime,
         lastAccessTimeEnabled,
@@ -917,7 +911,7 @@ export const createDB = (
     async deleteSessionToken(sessionToken: { id: string; uid: string }) {
       const { id, uid } = sessionToken;
 
-      log.trace('DB.deleteSessionToken', { id, uid });
+      log.trace('DB.deleteSessionToken', { uid });
 
       await this.deleteSessionTokenFromRedis(uid, id);
       this.metrics?.increment('db.sessionToken.delete');
@@ -926,7 +920,7 @@ export const createDB = (
 
     async deleteKeyFetchToken(keyFetchToken: { id: string; uid: string }) {
       const { id, uid } = keyFetchToken;
-      log.trace('DB.deleteKeyFetchToken', { id, uid });
+      log.trace('DB.deleteKeyFetchToken', { uid });
       this.metrics?.increment('db.keyFetchToken.delete');
       return RawKeyFetchToken.delete(id);
     }
@@ -936,7 +930,7 @@ export const createDB = (
       uid: string;
     }) {
       const { id, uid } = accountResetToken;
-      log.trace('DB.deleteAccountResetToken', { id, uid });
+      log.trace('DB.deleteAccountResetToken', { uid });
       this.metrics?.increment('db.accountResetToken.delete');
       return RawAccountResetToken.delete(id);
     }
@@ -946,7 +940,7 @@ export const createDB = (
       uid: string;
     }) {
       const { id, uid } = passwordForgotToken;
-      log.trace('DB.deletePasswordForgotToken', { id, uid });
+      log.trace('DB.deletePasswordForgotToken', { uid });
       this.metrics?.increment('db.passwordForgotToken.delete');
       return RawPasswordForgotToken.delete(id);
     }
@@ -956,7 +950,7 @@ export const createDB = (
       uid: string;
     }) {
       const { id, uid } = passwordChangeToken;
-      log.trace('DB.deletePasswordChangeToken', { id, uid });
+      log.trace('DB.deletePasswordChangeToken', { uid });
       this.metrics?.increment('db.passwordChangeToken.delete');
       return RawPasswordChangeToken.delete(id);
     }
@@ -1031,7 +1025,7 @@ export const createDB = (
       tokenId: string,
       verificationMethod: VerificationMethod | number
     ) {
-      log.trace('DB.verifyTokensWithMethod', { tokenId, verificationMethod });
+      log.trace('DB.verifyTokensWithMethod', { verificationMethod });
       this.metrics?.increment('db.verify.tokensWithMethod', {
         method: verificationMethodToString(verificationMethod),
       });
@@ -1043,7 +1037,6 @@ export const createDB = (
       verificationMethod: VerificationMethod | number
     ) {
       log.trace('DB.verifyPasswordForgotTokenWithMethod', {
-        tokenId,
         verificationMethod,
       });
 
@@ -1430,7 +1423,7 @@ export const createDB = (
     }
 
     async updateRecoveryCodes(uid: string, codes: string[]) {
-      log.trace('DB.updateRecoveryCodes', { uid, codes });
+      log.trace('DB.updateRecoveryCodes', { uid, count: codes.length });
 
       // Convert codes into hashes
       const hashes = await Promise.all(
