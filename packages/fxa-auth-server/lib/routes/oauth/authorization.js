@@ -13,9 +13,7 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
-const {
-  isFirstAuthorization,
-} = require('../../oauth/first-authorization');
+const { isFirstAuthorization } = require('../../oauth/first-authorization');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -254,9 +252,10 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     // Single atomic upsert for all scopes, one DB connection. A rejection
     // bubbles to authorizationHandler's catch, which emits
     // accountAuthorization.write_failed and keeps sign-in working.
-    await oauthDB.recordSignInConsents({
+    const scopeList = Array.from(scopesToConsent);
+    const result = await oauthDB.recordSignInConsents({
       uid: uidHex,
-      scopes: Array.from(scopesToConsent),
+      scopes: scopeList,
       service: serviceValue,
       clientId: clientIdHex,
       now,
@@ -265,10 +264,48 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     if (firstAuthorization) {
       req.app.firstAuthorization = true;
     }
-    statsd?.increment('accountAuthorization.recorded', {
+    // `recorded` now carries a `version` tag and its value is the row count
+    // (one per scope), so v1 and v2 write volume are the same metric split by
+    // tag (FXA-14202 / FXA-14169). v2 emits only what actually landed; a v2
+    // failure reuses the existing write_failed metric, and unseeded scopes are
+    // reported per-scope so they can be added before enabling readV2.
+    //
+    // I'm not entierly sure about this, going to revisit before merge.
+    const tags = {
       service: serviceValue || 'unset',
       access_type: grant.offline ? 'offline' : 'online',
+    };
+    statsd?.increment('accountAuthorization.recorded', scopeList.length, {
+      ...tags,
+      version: 'v1',
     });
+    if (result?.v2Written) {
+      statsd?.increment('accountAuthorization.recorded', result.v2Written, {
+        ...tags,
+        version: 'v2',
+      });
+    }
+    if (result?.v2Failed) {
+      statsd?.increment('accountAuthorization.write_failed', {
+        ...tags,
+        version: 'v2',
+      });
+    }
+    const missingScopes = result?.missingScopes ?? [];
+    if (missingScopes.length > 0) {
+      // Count only — scope strings are user-influenced and this fires for
+      // unseeded scopes, so they must not become metric tags (unbounded
+      // cardinality). The scope names go to the log for the seed list.
+      statsd?.increment(
+        'accountAuthorization.v2.missing_scopes',
+        missingScopes.length,
+        { service: tags.service }
+      );
+      log.warn('accountAuthorization.v2.missing_scopes', {
+        service: tags.service,
+        scopes: missingScopes,
+      });
+    }
   }
 
   async function authorizationHandler(req, payloadOverride) {

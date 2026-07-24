@@ -6,6 +6,7 @@ const encrypt = require('fxa-shared/auth/encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
+const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
 const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
@@ -234,10 +235,37 @@ const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
   'FROM accountAuthorizations WHERE uid=?';
 
+// accountAuthorizations_v2 shadow table (FXA-14169). Same rows as v1 but
+// `scope` is replaced by an integer `scopeId` FK to scopes(id). Written
+// alongside v1 behind the dualWriteV2 flag; read v2-first / v1-fallback behind
+// readV2. The upsert mirrors v1's GREATEST bump so a concurrent backfill can
+// never regress a fresher live-written row.
+const QUERY_ACCOUNT_CONSENT_V2_UPSERT_PREFIX =
+  'INSERT INTO accountAuthorizations_v2 ' +
+  '(uid, service, scopeId, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
+  'VALUES ';
+const QUERY_ACCOUNT_CONSENT_V2_UPSERT_SUFFIX =
+  ' ON DUPLICATE KEY UPDATE ' +
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+// Existence checks against v2. scope is resolved to scopeId by the caller
+// (via the scopes cache) before these run; all are PK left-prefixes on
+// (uid, service, scopeId, clientId).
+const QUERY_ACCOUNT_CONSENT_V2_FIND_SIGNIN =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND scopeId=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_SCOPE_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND scopeId=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_SERVICE_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_CLIENT_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND clientId=? LIMIT 1';
+
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
   'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
+// Bulk scope-string -> id resolution backing the scopes cache. The IN list is
+// built at call time from the uncached scopes.
+const QUERY_SCOPES_RESOLVE_IDS_PREFIX = 'SELECT id, scope FROM scopes WHERE scope IN (';
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
@@ -255,6 +283,30 @@ function resolveMetrics() {
 class MysqlStore extends MysqlOAuthShared {
   constructor(config) {
     super(config, undefined, resolveLogger(), resolveMetrics());
+  }
+
+  // Process-lifetime scope-string -> scopes.id cache for the
+  // accountAuthorizations v2 dual-write/read paths (FXA-14169). Created lazily
+  // on first use so the module-load singleton's constructor does no work; the
+  // scope rows themselves are resolved on-miss and cached from then on. When
+  // both v2 flags are off (the default), it is never created.
+  get _scopeIdCache() {
+    if (!this.__scopeIdCache) {
+      this.__scopeIdCache = new ScopeIdCache((scopes) =>
+        this._resolveScopeRows(scopes)
+      );
+    }
+    return this.__scopeIdCache;
+  }
+
+  // Bulk scope-string -> {scope, id} lookup for the scopes cache. Never called
+  // with an empty list (the cache short-circuits that).
+  _resolveScopeRows(scopes) {
+    const placeholders = scopes.map(() => '?').join(', ');
+    return this._read(
+      QUERY_SCOPES_RESOLVE_IDS_PREFIX + placeholders + ')',
+      scopes
+    );
   }
 
   async ping() {
@@ -667,9 +719,17 @@ class MysqlStore extends MysqlOAuthShared {
 
   // Upserts one consent row per scope in a single INSERT. `scopes` must be
   // non-empty; callers return early when there is nothing to record.
-  _upsertAccountConsents(uid, scopes, service, clientId, now) {
+  //
+  // When dualWriteV2 is set, also writes the row to accountAuthorizations_v2
+  // keyed by scopeId (resolve-only: scopes absent from the scopes table are
+  // skipped and returned in `missingScopes` for seeding — v1 above stays
+  // authoritative, so nothing is dropped). The v2 write is isolated in its own
+  // try/catch: a v2 failure never breaks the v1 write or its success signal.
+  //
+  // Returns { missingScopes, v2Written, v2Failed }.
+  async _upsertAccountConsents(uid, scopes, service, clientId, now, dualWriteV2) {
     if (!Array.isArray(scopes) || scopes.length === 0) {
-      return Promise.resolve();
+      return { missingScopes: [], v2Written: 0, v2Failed: false };
     }
     const uidBuf = buf(uid);
     const clientIdBuf = buf(clientId);
@@ -678,15 +738,72 @@ class MysqlStore extends MysqlOAuthShared {
     for (const scope of scopes) {
       params.push(uidBuf, scope, service, clientIdBuf, now, now);
     }
-    return this._write(
+    // v1 write — authoritative. A failure bubbles to the caller as today.
+    await this._write(
       QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX +
         tuples +
         QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX,
       params
     );
+
+    if (!dualWriteV2) {
+      return { missingScopes: [], v2Written: 0, v2Failed: false };
+    }
+
+    try {
+      const { resolved, missing } = await this._scopeIdCache.resolve(scopes);
+      if (resolved.size > 0) {
+        const v2Tuples = [];
+        const v2Params = [];
+        for (const scopeId of resolved.values()) {
+          v2Tuples.push('(?, ?, ?, ?, ?, ?)');
+          v2Params.push(uidBuf, service, scopeId, clientIdBuf, now, now);
+        }
+        await this._write(
+          QUERY_ACCOUNT_CONSENT_V2_UPSERT_PREFIX +
+            v2Tuples.join(', ') +
+            QUERY_ACCOUNT_CONSENT_V2_UPSERT_SUFFIX,
+          v2Params
+        );
+      }
+      return {
+        missingScopes: missing,
+        v2Written: resolved.size,
+        v2Failed: false,
+      };
+    } catch (err) {
+      // Swallow: v1 already landed and is authoritative. The caller reports
+      // the failure via metric so the migration can be monitored.
+      return { missingScopes: [], v2Written: 0, v2Failed: true };
+    }
   }
 
-  async _findAccountConsentForSignIn(uid, scope, service) {
+  // Resolve a single scope string to its scopes.id via the cache, or undefined
+  // if it isn't in the scopes table. Used by the v2 read paths.
+  async _resolveScopeId(scope) {
+    const { resolved } = await this._scopeIdCache.resolve([scope]);
+    return resolved.get(scope);
+  }
+
+  // Existence check for the sign-in consent row. When readV2 is set, checks
+  // accountAuthorizations_v2 first (v2-first / v1-fallback): a v2 hit returns
+  // early; otherwise fall through to v1, which stays authoritative until the
+  // backfill completes and cutover happens. An unresolvable scope can't be in
+  // v2, so it also falls through to v1.
+  async _findAccountConsentForSignIn(uid, scope, service, readV2 = false) {
+    if (readV2) {
+      const scopeId = await this._resolveScopeId(scope);
+      if (scopeId !== undefined) {
+        const v2 = await this._read(QUERY_ACCOUNT_CONSENT_V2_FIND_SIGNIN, [
+          buf(uid),
+          scopeId,
+          service,
+        ]);
+        if (v2.length > 0) {
+          return { found: true };
+        }
+      }
+    }
     const rows = await this._read(QUERY_ACCOUNT_CONSENT_FIND_SIGNIN, [
       buf(uid),
       scope,
@@ -697,8 +814,21 @@ class MysqlStore extends MysqlOAuthShared {
 
   // True iff a consent row exists for the exact (uid, scope, service).
   // Used by the exchange gate after the caller has resolved the
-  // requested scope to a service via config.
-  async _hasConsentForScope(uid, scope, service) {
+  // requested scope to a service via config. v2-first / v1-fallback when readV2.
+  async _hasConsentForScope(uid, scope, service, readV2 = false) {
+    if (readV2) {
+      const scopeId = await this._resolveScopeId(scope);
+      if (scopeId !== undefined) {
+        const v2 = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE_V2, [
+          buf(uid),
+          scopeId,
+          service,
+        ]);
+        if (v2.length > 0) {
+          return true;
+        }
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE, [
       buf(uid),
       scope,
@@ -709,7 +839,17 @@ class MysqlStore extends MysqlOAuthShared {
 
   // True iff the user has any consent row for this service (any scope/client).
   // Drives the browser-service grain of the first-authorization signal.
-  async _hasConsentForService(uid, service) {
+  // v2-first / v1-fallback when readV2.
+  async _hasConsentForService(uid, service, readV2 = false) {
+    if (readV2) {
+      const v2 = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE_V2, [
+        buf(uid),
+        service,
+      ]);
+      if (v2.length > 0) {
+        return true;
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE, [
       buf(uid),
       service,
@@ -719,7 +859,17 @@ class MysqlStore extends MysqlOAuthShared {
 
   // True iff the user has any consent row for this client (any scope/service).
   // Drives the web-RP grain of the first-authorization signal.
-  async _hasConsentForClient(uid, clientId) {
+  // v2-first / v1-fallback when readV2.
+  async _hasConsentForClient(uid, clientId, readV2 = false) {
+    if (readV2) {
+      const v2 = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT_V2, [
+        buf(uid),
+        buf(clientId),
+      ]);
+      if (v2.length > 0) {
+        return true;
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT, [
       buf(uid),
       buf(clientId),
