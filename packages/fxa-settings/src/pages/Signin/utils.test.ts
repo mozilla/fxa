@@ -352,7 +352,67 @@ describe('Signin utils', () => {
     });
 
     describe('email OTP resend before verification pages', () => {
-      it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method', async () => {
+      it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method and sendVerificationEmailFromClient is true', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          sendVerificationEmailFromClient: true,
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
+      it('resends the email OTP code when navigating to /confirm_signup_code with an EMAIL_OTP verification method and sendVerificationEmailFromClient is true', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: false,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_UP,
+          },
+          isServiceWithEmailVerification: true,
+          integration: createMockSigninOAuthIntegration(),
+          sendVerificationEmailFromClient: true,
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/confirm_signup_code',
+          expect.any(Object)
+        );
+      });
+
+      // Regression (FXA-14109): the password/unblock/reauth paths already send the
+      // OTP email server-side during their login call, so they leave
+      // sendVerificationEmailFromClient falsey and the client must not resend —
+      // otherwise dormant accounts receive two identical emails.
+      it('does not resend the email OTP code when navigating to /signin_token_code and sendVerificationEmailFromClient is falsey', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -370,16 +430,14 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
-          MOCK_SESSION_TOKEN
-        );
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith(
           '/signin_token_code',
           expect.any(Object)
         );
       });
 
-      it('resends the email OTP code when navigating to /confirm_signup_code with an EMAIL_OTP verification method', async () => {
+      it('does not resend the email OTP code when navigating to /confirm_signup_code and sendVerificationEmailFromClient is falsey', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -397,7 +455,7 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
@@ -416,6 +474,7 @@ describe('Signin utils', () => {
           },
           isServiceWithEmailVerification: true,
           integration: createMockSigninOAuthIntegration(),
+          sendVerificationEmailFromClient: true,
           authClient: { sessionResendVerifyCode },
         });
 
@@ -441,6 +500,7 @@ describe('Signin utils', () => {
           },
           isServiceWithEmailVerification: true,
           integration: createMockSigninOAuthIntegration(),
+          sendVerificationEmailFromClient: true,
           authClient: { sessionResendVerifyCode },
         });
 

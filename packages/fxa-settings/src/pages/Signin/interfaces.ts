@@ -293,6 +293,13 @@ export interface NavigationOptions {
   // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
   isPasskeySession?: boolean;
   accountHasTotp?: boolean;
+  // Only the cached-signin paths perform no server-side login (they just call
+  // `accountProfile`/`sessionStatus`), so the client must send the OTP email
+  // itself when navigating to the code screen. Every other path reaches
+  // `handleNavigation` after a server call (`signInWithAuthPW`, `verify_code`,
+  // `reauth`) that already sent it, so they must leave this falsey to avoid a
+  // duplicate email (FXA-14109).
+  sendVerificationEmailFromClient?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 

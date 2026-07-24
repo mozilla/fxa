@@ -141,6 +141,9 @@ describe('SigninCached', () => {
             handleFxaLogin: false,
             handleFxaOAuthLogin: false,
             supportsKeysOptionalLogin: false,
+            // Cached signin performs no server-side login, so it opts in to
+            // sending the OTP email client-side during navigation (FXA-14109).
+            sendVerificationEmailFromClient: true,
           })
         );
       });

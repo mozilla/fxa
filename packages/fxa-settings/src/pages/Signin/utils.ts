@@ -297,8 +297,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // (/signin_token_code for an unverified session, or /confirm_signup_code for an
     // unverified email) and we know their session isn't fully verified, then send them
     // an otp code. Sending here couples the email with the actual navigation action.
+    // Gated on `sendVerificationEmailFromClient` so only the cached-signin paths
+    // (which perform no server-side login) send here — the password/unblock/
+    // reauth paths already sent server-side during their login call, and resending
+    // here would deliver a duplicate email (FXA-14109).
     if (
-      (to?.includes('signin_token_code') || to?.includes('confirm_signup_code')) &&
+      navigationOptions.sendVerificationEmailFromClient &&
+      (to?.includes('signin_token_code') ||
+        to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
       navigationOptions.signinData.verificationMethod ===
         VerificationMethods.EMAIL_OTP
@@ -332,7 +338,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         return { error };
       }
       if (to) {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -368,7 +375,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({ navigate,
+      performNavigation({
+        navigate,
         to,
         locationState,
         shouldHardNavigate,
@@ -409,7 +417,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       if (to === '/post_verify/service_welcome') {
         navigate(to, { state: { origin: 'signin' }, replace: true });
       } else {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,

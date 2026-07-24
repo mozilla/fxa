@@ -120,6 +120,10 @@ const AuthorizationContainer = ({
           redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
           queryParams: location.search,
+          // prompt=none uses cachedSignIn (which performs no server-side login),
+          // so if this routes to the OTP code screen the email must be sent
+          // client-side during navigation (FXA-14109).
+          sendVerificationEmailFromClient: true,
           authClient,
         };
 
