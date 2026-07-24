@@ -69,7 +69,7 @@ import {
   StoredAccountData,
 } from '../../lib/storage-utils';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
-import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../lib/oauth';
+import { useSigninAvatar } from './useSigninAvatar';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
 
@@ -340,59 +340,7 @@ const SigninContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Avatar state - fetched directly from profile server
-  const [avatarData, setAvatarData] = useState<
-    { account: { avatar: { id: string; url: string } } } | undefined
-  >(undefined);
-  const [avatarLoading, setAvatarLoading] = useState(true);
-
-  // Fetch avatar on mount from profile server (requires OAuth token)
-  useEffect(() => {
-    if (
-      sessionToken &&
-      config?.servers?.profile?.url &&
-      config?.oauth?.clientId
-    ) {
-      // Get OAuth token with profile:avatar scope (required by profile server)
-      authClient
-        .createOAuthToken(sessionToken, config.oauth.clientId, {
-          scope: 'profile:avatar',
-          ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
-        })
-        .then(({ access_token }) => {
-          return fetch(`${config.servers.profile.url}/v1/avatar`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-        })
-        .then((response) => {
-          if (!response.ok) throw new Error('Failed to fetch avatar');
-          return response.json();
-        })
-        .then((data: { id: string; url: string; avatar?: string }) => {
-          setAvatarData({
-            account: {
-              avatar: {
-                id: data.id,
-                url: data.avatar || data.url,
-              },
-            },
-          });
-        })
-        .catch(() => {
-          // Avatar fetch failed, use default
-          setAvatarData(undefined);
-        })
-        .finally(() => {
-          setAvatarLoading(false);
-        });
-    } else {
-      setAvatarLoading(false);
-    }
-  }, [authClient, config, sessionToken]);
+  const { avatarData, avatarLoading } = useSigninAvatar(sessionToken);
 
   // For Firefox non-Sync flows, validate the cached session token before rendering.
   // This is because if users "sign out" from the browser menu, FxA doesn't know

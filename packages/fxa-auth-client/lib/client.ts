@@ -3224,6 +3224,7 @@ export default class AuthClient {
       access_type?: string;
       scope?: string;
       ttl?: number;
+      exclude_dau?: boolean;
     } = {},
     headers?: Headers
   ) {
@@ -3236,6 +3237,7 @@ export default class AuthClient {
         client_id: clientId,
         scope: options.scope,
         ttl: options.ttl,
+        exclude_dau: options.exclude_dau,
       },
       headers
     );
