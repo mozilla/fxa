@@ -43,14 +43,11 @@ describe('enqueue inactive account deletions script', () => {
     const diff = Math.abs(now.valueOf() - nowish.valueOf());
     expect(diff).toBeLessThanOrEqual(1000);
 
-    const startDateString = getOutputValue(outputLines, 'Start date');
-    expect(startDateString?.startsWith('2012-03-12')).toBe(true);
+    const batchSizeString = getOutputValue(outputLines, 'Batch size');
+    expect(batchSizeString).toBe('1000');
 
     const daysTilFirstEmailString = getOutputValue(outputLines, "Days 'til");
     expect(daysTilFirstEmailString).toBe('0');
-
-    const dbResultsLimitString = getOutputValue(outputLines, 'Per MySQL query');
-    expect(dbResultsLimitString).toBe('500000');
   });
 
   it('requires an BQ dataset id', async () => {
@@ -66,22 +63,19 @@ describe('enqueue inactive account deletions script', () => {
     await exec(cmd.join(' '), execOptions);
   });
 
-  it('requires the end date to be the same or later than the start date', async () => {
+  it('rejects a non-positive --batch-size', async () => {
     try {
       const cmd = [
         ...command,
-        '--end-date 2020-12-22',
-        '--start-date 2021-12-22',
+        '--batch-size 0',
         '--bq-dataset fxa-dev.inactives-testo',
       ];
       await exec(cmd.join(' '), execOptions);
-      throw new Error(
-        'Expected script to fail with end date before start date'
-      );
+      throw new Error('Expected script to fail with non-positive batch size');
     } catch (err: any) {
       expect(err.code).toBe(1);
       expect(err.stderr).toContain(
-        'The end date must be on the same day or later than the start date.'
+        '--batch-size must be a positive integer.'
       );
     }
   });
