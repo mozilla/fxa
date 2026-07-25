@@ -1128,9 +1128,13 @@ passkey-registration-error-constraint = Oppsett av passnøkkel er ikkje tilgjeng
 passkey-registration-error-unexpected = Mislykka oppsett av passnøkkel. Prøv igjen eller vel ein annan metode.
 
 
+passkey-authentication-trouble-heading = Klarte ikkje å logge inn med ein passnøkkel
+passkey-authentication-trouble-description = Prøv på nytt eller bruk ein annan påloggingsmetode.
+passkey-authentication-trouble-link = Slik brukar du passnøklar
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
 passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Prøv igjen eller vel ein annan metode.
 passkey-authentication-error-timeout = Førespurnaden om passnøkkel vart tidsavbroten. Prøv igjen.
+passkey-authentication-error-timeout-v2 = Tidsavbrot ved pålogging med passnøkkel. Prøv på nytt.
 passkey-authentication-error-not-supported-v2 = Nettlesaren eller eininga di støttar ikkje passnøklar.
 passkey-authentication-error-security = Passnøklar kan ikkje brukast på denne sida. Kontroller at du er på rett, sikker nettstad, og prøv igjen.
 passkey-authentication-error-invalid-state = Noko gjekk gale med passnøkkelen din. Prøv igjen eller bruk ein annan innloggingsmetode.

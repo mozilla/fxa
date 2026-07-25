@@ -317,7 +317,7 @@ postChangeRecoveryPhone-requested-device = Το ζητήσατε από το:
 postChangeTwoStepAuthentication-preview = Ο λογαριασμός σας προστατεύεται
 postChangeTwoStepAuthentication-subject = Η ταυτοποίηση δύο παραγόντων ενημερώθηκε
 postChangeTwoStepAuthentication-title = Η ταυτοποίηση δύο παραγόντων ενημερώθηκε
-postChangeTwoStepAuthentication-use-new-account = Από εδώ και στο εξής, θα πρέπει να χρησιμοποιείτε τη νέα καταχώρηση του { -product-mozilla-account(case: "gen", capitalization: "lower") } στην εφαρμογή ελέγχου ταυτότητας. Η παλαιότερη καταχώρηση δεν θα λειτουργεί πλέον και μπορείτε να την αφαιρέσετε.
+postChangeTwoStepAuthentication-use-new-account = Από εδώ και στο εξής, θα πρέπει να χρησιμοποιείτε τη νέα καταχώριση του { -product-mozilla-account(case: "gen", capitalization: "lower") } στην εφαρμογή ελέγχου ταυτότητας. Η παλαιότερη καταχώριση δεν θα λειτουργεί πλέον και μπορείτε να την αφαιρέσετε.
 # After the colon, there is a description of the device that the user used to enable two-step authentication
 postChangeTwoStepAuthentication-from-device = Το ζητήσατε από το:
 postChangeTwoStepAuthentication-action = Διαχείριση λογαριασμού

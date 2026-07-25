@@ -1546,7 +1546,7 @@ passkey-authentication-error-not-allowed-existing = Installation av lösenordsny
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Begäran om lösenordsnyckel har gått ut. Försök igen.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = Det tog för lång tid för lösenordsinloggning. Försök igen.
+passkey-authentication-error-timeout-v2 = Inloggning med lösenordsnyckel har gått ut. Försök igen.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Din webbläsare eller enhet stöder inte lösenordsnycklar.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
