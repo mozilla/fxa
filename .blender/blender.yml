@@ -1,0 +1,3 @@
+repo_name: "Firefox Accounts (mozilla/fxa)"
+node_version: "24"
+install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds"
