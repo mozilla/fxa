@@ -1530,12 +1530,24 @@ passkey-registration-error-unexpected = Instellen wachtwoordsleutel mislukt. Pro
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Kan niet aanmelden met een wachtwoordsleutel
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Probeer het opnieuw of gebruik een andere aanmeldingsoptie.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Wachtwoordsleutels gebruiken
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Aanmelding met wachtwoordsleutel is mislukt of niet beschikbaar. Probeer het opnieuw of kies een andere methode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Instellen van wachtwoordsleutel is niet beschikbaar op dit apparaat. Probeer het opnieuw of kies een andere methode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Wachtwoordsleutelverzoek verlopen. Probeer het opnieuw.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Wachttijd voor aanmelden met wachtwoordsleutel is verlopen. Probeer het opnieuw.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

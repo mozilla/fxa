@@ -1280,9 +1280,13 @@ passkey-registration-error-constraint = Nastavenie prístupového kľúča nie j
 passkey-registration-error-unexpected = Nastavenie prístupového kľúča zlyhalo. Skúste to znova alebo vyberte inú metódu.
 
 
+passkey-authentication-trouble-heading = Nepodarilo sa prihlásiť pomocou prístupového kľúča
+passkey-authentication-trouble-description = Skúste to znova alebo použite inú možnosť prihlásenia.
+passkey-authentication-trouble-link = Ako používať prístupové kľúče
 passkey-authentication-error-not-allowed = Prihlásenie pomocou prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
 passkey-authentication-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Skúste to znova alebo vyberte iný spôsob.
 passkey-authentication-error-timeout = Časový limit žiadosti o prístupový kľúč vypršal. Skúste to znova.
+passkey-authentication-error-timeout-v2 = Časový limit prihlásenia pomocou prístupového kľúča vypršal. Skúste to znova.
 passkey-authentication-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 passkey-authentication-error-security = Na tejto stránke nie je možné použiť prístupové kľúče. Skontrolujte, či ste na správnej zabezpečenej stránke a skúste to znova.
 passkey-authentication-error-invalid-state = Vyskytol sa problém s vaším prístupovým kľúčom. Skúste to znova alebo použite iný spôsob prihlásenia.
