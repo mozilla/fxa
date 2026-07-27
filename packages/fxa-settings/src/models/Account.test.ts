@@ -273,7 +273,7 @@ describe('Account', () => {
         approximateLastAccessTimeFormatted: null,
         location: {},
         os: null,
-        sessionTokenId: 'sid',
+        sessionTokenHandle: 'sid',
         refreshTokenId: null,
         scope: null,
       },
