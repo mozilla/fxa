@@ -1123,9 +1123,13 @@ passkey-registration-error-constraint = La configuración de la clave de acceso 
 passkey-registration-error-unexpected = Falló la configuración de la clave de acceso. Probá de nuevo o elegí otro método.
 
 
+passkey-authentication-trouble-heading = No se pudo iniciar sesión con una clave de acceso
+passkey-authentication-trouble-description = Probá de nuevo o usá otra opción de inicio de sesión.
+passkey-authentication-trouble-link = Cómo usar claves de acceso
 passkey-authentication-error-not-allowed = Falló el inicio de sesión con clave de acceso o no está disponible. Probá de nuevo o elegí otro método.
 passkey-authentication-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. Probá de nuevo o elegí otro método.
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para el pedido de clave de acceso. Probá de nuevo.
+passkey-authentication-error-timeout-v2 = Se agotó el tiempo de inicio de sesión con clave de acceso. Probá de nuevo.
 passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no soporta claves de acceso.
 passkey-authentication-error-security = No se pueden usar claves de acceso en esta página. Fíjate si estás en el sitio seguro correcto y probá de nuevo.
 passkey-authentication-error-invalid-state = Algo salió mal con tu clave de acceso. Probá de nuevo o usá otro método de inicio de sesión.

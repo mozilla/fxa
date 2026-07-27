@@ -1164,9 +1164,13 @@ passkey-registration-error-constraint = Установка ключа досту
 passkey-registration-error-unexpected = Не удалось установить ключ доступа. Попробуйте ещё раз или выберите другой метод.
 
 
+passkey-authentication-trouble-heading = Не удалось войти с помощью ключа доступа
+passkey-authentication-trouble-description = Попробуйте ещё раз или используйте другой способ входа.
+passkey-authentication-trouble-link = Как использовать ключи доступа
 passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 passkey-authentication-error-timeout = Время ожидания запроса ключа истекло. Повторите попытку.
+passkey-authentication-error-timeout-v2 = Время ожидания входа по ключу доступа истекло. Попробуйте снова.
 passkey-authentication-error-not-supported-v2 = Браузер или устройство не поддерживают ключ доступа.
 passkey-authentication-error-security = На этой странице нельзя использовать ключи доступа. Убедитесь, что вы находитесь на правильном защищённом сайте, и попробуйте снова.
 passkey-authentication-error-invalid-state = Что-то пошло не так с вашим ключом доступа. Попробуйте ещё раз или используйте другой способ входа.
