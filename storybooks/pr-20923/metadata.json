@@ -1,0 +1,12 @@
+{
+  "commit": "0338db38465c7617311658b4fac69e1a1be83c49",
+  "summary": "chore(deps-dev): bump postcss from 8.5.12 to 8.5.18",
+  "description": "Bumps [postcss](https://github.com/postcss/postcss) from 8.5.12 to 8.5.18.\n- [Release notes](https://github.com/postcss/postcss/releases)\n- [Changelog](https://github.com/postcss/postcss/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/postcss/postcss/compare/8.5.12...8.5.18)\n\n---\nupdated-dependencies:\n- dependency-name: postcss\n  dependency-version: 8.5.18\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1785163888000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
