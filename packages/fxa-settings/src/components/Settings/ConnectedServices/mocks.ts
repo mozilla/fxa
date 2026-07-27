@@ -6,7 +6,7 @@ export const DESKTOP_SYNC_MOCKS = [
   {
     clientId: 'a8c528140153d234',
     deviceId: 'baldjlkdsajflkas',
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
     isCurrentSession: false,
@@ -31,7 +31,7 @@ export const DESKTOP_SYNC_MOCKS = [
   {
     clientId: 'dsjflksajflkjlkhd74398984',
     deviceId: 'bf7c2ae1fa0ebd146f6478ac68bd8d63',
-    sessionTokenId:
+    sessionTokenHandle:
       '8ee9174a04f76d5ec5bf0c93bbd91b837796f067da408e58b5bd5d1fd914b45b',
     refreshTokenId: null,
     isCurrentSession: false,
@@ -56,7 +56,7 @@ export const DESKTOP_SYNC_MOCKS = [
   {
     clientId: 'a2270f727f45f648',
     deviceId: 'dsfjlksajfoiew',
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
     isCurrentSession: false,
@@ -88,7 +88,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'a8c528140153d1c6',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
     isCurrentSession: false,
@@ -113,7 +113,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: '802d56ef2a9af9fa',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
     isCurrentSession: false,
@@ -138,7 +138,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: '749818d3f2e7857f',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId: null,
     isCurrentSession: false,
     deviceType: null,
@@ -162,7 +162,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: '802d56ef2a9af9fa',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc83225',
     isCurrentSession: false,
@@ -187,7 +187,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: '9ebfe2c2f9ea3c58',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc16311',
     isCurrentSession: false,
@@ -212,7 +212,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'a4907de5fa9d78fc',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc84777',
     isCurrentSession: false,
@@ -237,7 +237,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: '720bc80adfa6988d',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc98833',
     isCurrentSession: false,
@@ -262,7 +262,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'c40f32fd2938f0b6',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc22222',
     isCurrentSession: false,
@@ -287,7 +287,7 @@ export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'c87d36d7fd9a1bcf',
     deviceId: null,
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397ccaa321',
     isCurrentSession: false,
@@ -315,7 +315,7 @@ const MOBILE_SYNC_SERVICE_MOCKS = [
   {
     clientId: 'e7ce535d93522896',
     deviceId: 'f84f1ae16db91422f8c808ce3c5f3a04',
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'b72fbbe94cd79b26c4ec0a8c3de237ca0c6beeea318874d041ade2c6c482c3a5',
     isCurrentSession: false,
@@ -340,7 +340,7 @@ const MOBILE_SYNC_SERVICE_MOCKS = [
   {
     clientId: '1b1a3e44c54fbb58',
     deviceId: 'a91cc4d7b8e4495fa3c6e2edf8c5132b',
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       'c4a8f3b2d1e6a9507f2c4e8b3d1a6f9072e5c8b4a3d7f1e6920b5c8a4d3f7e1',
     isCurrentSession: false,
@@ -369,7 +369,7 @@ const MOBILE_SYNC_SERVICE_MOCKS = [
   {
     clientId: '3c49430b43dfba77',
     deviceId: '9b16949ac8d5019ea08fdc0b82731a97',
-    sessionTokenId: null,
+    sessionTokenHandle: null,
     refreshTokenId:
       '081ada3fb68fc41c97a60358bf6443c13c55a2ea5a85b2cac0c4c2970e2d22f7',
     isCurrentSession: false,
@@ -405,7 +405,7 @@ export const MOCK_SERVICES_WITHOUT_MOBILE = [
 ];
 
 const BROWSER_SERVICE_BASE = {
-  sessionTokenId: null,
+  sessionTokenHandle: null,
   isCurrentSession: false,
   deviceType: 'mobile',
   createdTime: 1570100000000,

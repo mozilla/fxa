@@ -53,6 +53,14 @@ const convictConf = convict({
       },
     },
   },
+  sessionTokenHandle: {
+    key: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'HMAC key used to derive the opaque session-token handles returned in place of raw sessionTokenIds on the attached-clients and sessions endpoints. A raw sessionTokenId is a bearer credential, so it must never be emitted.',
+      env: 'SESSION_TOKEN_HANDLE_KEY',
+      format: String,
+    },
+  },
   // TODO: Remove this after we have synchronized login records to Firestore
   firestore: {
     credentials: {
@@ -3155,6 +3163,7 @@ if (convictConf.get('isProduction')) {
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
+    'sessionTokenHandle.key',
   ];
   for (const key of SECRET_SETTINGS) {
     if (convictConf.get(key) === convictConf.default(key)) {

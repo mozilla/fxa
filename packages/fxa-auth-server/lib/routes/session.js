@@ -15,6 +15,9 @@ const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
 const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
@@ -37,6 +40,7 @@ module.exports = function (
   statsd
 ) {
   const otpUtils = require('./utils/otp').default(db, statsd);
+  const sessionTokenHandleKey = config.sessionTokenHandle.key;
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -65,13 +69,13 @@ module.exports = function (
         validate: {
           payload: isA
             .object({
-              customSessionToken: isA
+              customSessionTokenHandle: isA
                 .string()
                 .min(64)
                 .max(64)
                 .regex(HEX_STRING)
                 .optional()
-                .description(DESCRIPTION.customSessionToken),
+                .description(DESCRIPTION.customSessionTokenHandle),
             })
             .allow(null),
         },
@@ -82,19 +86,30 @@ module.exports = function (
         let sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        if (request.payload && request.payload.customSessionToken) {
-          const customSessionToken = request.payload.customSessionToken;
+        if (request.payload && request.payload.customSessionTokenHandle) {
+          const handle = request.payload.customSessionTokenHandle;
 
-          const tokenData = await db.sessionToken(customSessionToken);
-          // NOTE: validate that the token belongs to the same user
-          if (tokenData && uid === tokenData.uid) {
-            sessionToken = {
-              id: customSessionToken,
-              uid,
-            };
-          } else {
+          // Resolve the opaque handle back to the caller's real sessionTokenId
+          // by scanning their own sessions (counts per user are small). A raw
+          // sessionTokenId is a bearer credential and is never accepted from a
+          // client; matching against the user's own sessions also guarantees
+          // the target belongs to them.
+          const sessions = await db.sessions(uid);
+          const match = sessions.find(
+            (session) =>
+              computeSessionTokenHandle(
+                sessionTokenHandleKey,
+                uid,
+                session.id
+              ) === handle
+          );
+          if (!match) {
             throw error.invalidToken('Invalid session token');
           }
+          sessionToken = {
+            id: match.id,
+            uid,
+          };
         }
 
         await db.deleteSessionToken(sessionToken);

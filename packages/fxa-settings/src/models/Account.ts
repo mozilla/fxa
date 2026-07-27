@@ -126,7 +126,7 @@ export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
       stateCode: c.location?.stateCode ?? null,
     },
     os: c.os,
-    sessionTokenId: c.sessionTokenId,
+    sessionTokenHandle: c.sessionTokenHandle,
     refreshTokenId: c.refreshTokenId,
     scope: c.scope,
   };
@@ -145,7 +145,7 @@ export interface AttachedClient {
   approximateLastAccessTimeFormatted: string | null;
   location: DeviceLocation;
   os: string | null;
-  sessionTokenId: string | null;
+  sessionTokenHandle: string | null;
   refreshTokenId: string | null;
   scope: string[] | null;
 }
@@ -1038,7 +1038,7 @@ export class Account implements AccountData {
       this.authClient.attachedClientDestroy(token, {
         clientId: client.clientId,
         deviceId: client.deviceId,
-        sessionTokenId: client.sessionTokenId,
+        sessionTokenHandle: client.sessionTokenHandle,
         refreshTokenId: client.refreshTokenId,
       })
     );
