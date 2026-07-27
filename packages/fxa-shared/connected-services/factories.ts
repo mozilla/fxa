@@ -127,6 +127,15 @@ export interface IConnectedServicesFactoryBindings extends IClientFormatter {
   deviceList: () => Promise<AttachedDevice[]>;
   oauthClients: () => Promise<AttachedOAuthClient[]>;
   sessions: () => Promise<AttachedSession[]>;
+
+  /**
+   * Maps a raw sessionTokenId to the opaque representation that is safe to
+   * expose to the caller. A raw sessionTokenId is a bearer credential (Hawk
+   * MACs are no longer verified), so the factory never returns it directly:
+   * every caller must supply this to declare how the id is opaqued (e.g. an
+   * HMAC handle for the auth-server, or a redaction marker for the admin panel).
+   */
+  serializeSessionTokenId: (sessionTokenId: string) => string;
 }
 
 /**
@@ -176,6 +185,13 @@ export class ConnectedServicesFactory {
       }
       if (client.name) {
         client.name = client.name.replace('Mac OS X', 'macOS');
+      }
+      // Opaque the raw sessionTokenId before it leaves the factory. Runs after
+      // mergeSessions has computed isCurrentSession from the raw id.
+      if (client.sessionTokenId) {
+        client.sessionTokenId = this.bindings.serializeSessionTokenId(
+          client.sessionTokenId
+        );
       }
     }
 

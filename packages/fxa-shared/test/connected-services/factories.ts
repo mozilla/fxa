@@ -117,6 +117,9 @@ describe('connected-services/factories', () => {
       async sessions() {
         return sessions;
       }
+      serializeSessionTokenId(sessionTokenId: string) {
+        return `handle-${sessionTokenId}`;
+      }
     }
 
     let deviceList: AttachedDevice[];
@@ -179,6 +182,13 @@ describe('connected-services/factories', () => {
       oauthClients[0].refresh_token_id = 'test2';
       const results = await factory.build('1234', 'en');
       assert.lengthOf(results, 3);
+    });
+
+    it('opaques the raw sessionTokenId via serializeSessionTokenId', async () => {
+      const results = await factory.build('1234', 'en');
+
+      assert.equal(results[0].sessionTokenId, 'handle-test');
+      Sinon.assert.calledWith(bStubbed.serializeSessionTokenId, 'test');
     });
 
     it('builds ConnectedServicesFactory with overlapping tokens', async () => {

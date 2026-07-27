@@ -74,7 +74,7 @@ export interface AttachedClient {
     stateCode?: string | null;
   };
   os: string | null;
-  sessionTokenId: string | null;
+  sessionTokenHandle: string | null;
   refreshTokenId: string | null;
   scope: string[] | null;
 }
@@ -1648,7 +1648,7 @@ export default class AuthClient {
   async sessionDestroy(
     sessionToken: hexstring,
     options: {
-      customSessionToken?: string;
+      customSessionTokenHandle?: string;
     } = {},
     headers?: Headers
   ) {
@@ -2385,7 +2385,7 @@ export default class AuthClient {
         clientId: clientInfo.clientId,
         deviceId: clientInfo.deviceId,
         refreshTokenId: clientInfo.refreshTokenId,
-        sessionTokenId: clientInfo.sessionTokenId,
+        sessionTokenHandle: clientInfo.sessionTokenHandle,
       },
       headers
     );

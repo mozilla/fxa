@@ -25,7 +25,7 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
       Depending on the type of client, it will have at least one and possibly several of the following properties:
 
       - \`clientId\`: The OAuth client_id of the connected application.
-      - \`sessionTokenId\`: The id of the \`sessionToken\` held by that client, if any.
+      - \`sessionTokenHandle\`: An opaque handle for the \`sessionToken\` held by that client, if any. The raw \`sessionTokenId\` is a bearer credential and is never returned.
       - \`refreshTokenId\`: The id of the OAuth \`refreshToken\` held by that client, if any.
       - \`deviceId\`: The id of the client's device record, if it has registered one.
 
