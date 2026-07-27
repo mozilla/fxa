@@ -1128,9 +1128,13 @@ passkey-registration-error-constraint = Le configuration del claves-contrasigno 
 passkey-registration-error-unexpected = Le configuration del clave-contrasigno falleva. Retenta o elige un altere methodo.
 
 
+passkey-authentication-trouble-heading = Impossibile acceder con un clave-contrasigno
+passkey-authentication-trouble-description = Retenta o usa un altere option de authentication.
+passkey-authentication-trouble-link = Como usar claves-contrasigno
 passkey-authentication-error-not-allowed = Le authentication con clave-contrasigno falleva o es indisponibile. Retenta o elige un altere methodo.
 passkey-authentication-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Retenta o elige un altere methodo.
 passkey-authentication-error-timeout = Le petition de clave-contrasigno exiva del tempore limite. Retenta.
+passkey-authentication-error-timeout-v2 = Authentication de clave-contrasigno foras tempore limite. Retenta.
 passkey-authentication-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
 passkey-authentication-error-security = Le claves-contrasigno non pote esser usate sur iste pagina. Verifica que tu es sur le sito secur correcte e retenta.
 passkey-authentication-error-invalid-state = Alco errate eveniva con tu clave-contrasigno. Retenta o usa un altere methodo de authentication.

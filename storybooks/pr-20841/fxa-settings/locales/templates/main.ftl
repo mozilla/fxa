@@ -1281,11 +1281,16 @@ passkey-registration-error-constraint = Passkey setup isn’t available with thi
 passkey-registration-error-unexpected = Passkey setup failed. Try again or choose another method.
 
 
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+passkey-authentication-trouble-link = How to use passkeys
+
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 
 passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 

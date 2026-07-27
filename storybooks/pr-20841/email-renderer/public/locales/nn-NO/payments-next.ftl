@@ -506,7 +506,7 @@ next-coupon-success-repeating = Planen din vert fornya automatisk etter { $coupo
 
 ## Select Tax Location
 
-select-tax-location-title = Plassering
+select-tax-location-title = Adresse
 select-tax-location-edit-button = Rediger
 select-tax-location-save-button = Lagre
 select-tax-location-continue-to-checkout-button = Hald fram til kassa
@@ -514,14 +514,14 @@ select-tax-location-country-code-label = Land
 select-tax-location-country-code-placeholder = Vel land
 select-tax-location-error-missing-country-code = Vel land
 #  $productName (String) - The name of the product to be downloaded, e.g. Mozilla VPN
-select-tax-location-product-not-available = { $productName } er ikkje tilgjengeleg på denne plasseringa.
+select-tax-location-product-not-available = { $productName } er ikkje tilgjengeleg i dette området.
 select-tax-location-postal-code-label = Postnummer
 select-tax-location-postal-code =
     .placeholder = Skriv inn postrnummer
 select-tax-location-error-missing-postal-code = Skriv inn postnummer
 select-tax-location-error-invalid-postal-code = Skriv inn eit gyldig postnummer
-select-tax-location-successfully-updated = Plasseringa di er oppdatert
-select-tax-location-error-location-not-updated = Klarte ikkje å oppdatere plasseringa di. Prøv på nytt.
+select-tax-location-successfully-updated = Posisjonen din er oppdatert.
+select-tax-location-error-location-not-updated = Klarte ikkje å oppdatere posisjonen din. Prøv på nytt.
 #  $currencyDisplayName (String) - The display name of a currency code, e.g. US Dollar
 select-tax-location-invalid-currency-change = Kontoen din vert fakturert i { $currencyDisplayName }. Vel eit land som brukar { $currencyDisplayName }.
 select-tax-location-invalid-currency-change-default = Vel eit land som passar med valutaen til dei aktive abonnementa dine.

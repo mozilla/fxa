@@ -1258,9 +1258,13 @@ passkey-registration-error-constraint = Nastavitev gesla ni na voljo za to napra
 passkey-registration-error-unexpected = Nastavitev gesla ni uspela. Poskusite znova ali izberite drugo metodo.
 
 
+passkey-authentication-trouble-heading = Prijava z geslom ni mogoča
+passkey-authentication-trouble-description = Poskusite znova ali uporabite drugo možnost prijave.
+passkey-authentication-trouble-link = Kako uporabljati gesla
 passkey-authentication-error-not-allowed = Prijava z geslom je spodletela ali pa je nedosegljiva. Poskusite znova ali izberite drugo metodo.
 passkey-authentication-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Poskusite znova ali izberite drug način.
 passkey-authentication-error-timeout = Časovna omejitev za zahtevanje gesla je potekla. Prosimo, poskusite znova.
+passkey-authentication-error-timeout-v2 = Čas za prijavo z geslom je potekel. Poskusite znova.
 passkey-authentication-error-not-supported-v2 = Vaš brskalnik ali naprava ne podpira ključev za dostop.
 passkey-authentication-error-security = Gesli na tej strani ni mogoče uporabiti. Preverite, ali ste na pravem varnem spletnem mestu, in poskusite znova.
 passkey-authentication-error-invalid-state = Prišlo je do napake z vašim geslom. Poskusite znova ali uporabite drug način prijave.

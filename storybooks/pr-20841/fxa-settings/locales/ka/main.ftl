@@ -1161,9 +1161,13 @@ passkey-registration-error-constraint = საშვები არაა მ�
 passkey-registration-error-unexpected = საშვის გამართვა ვერ მოხერხდა. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 
 
+passkey-authentication-trouble-heading = საშვით შესვლა ვერ ხერხდება
+passkey-authentication-trouble-description = ხელახლა სცადეთ ან გამოიყენეთ შესვლის სხვა ხერხი.
+passkey-authentication-trouble-link = როგორ გამოიყენება საშვები
 passkey-authentication-error-not-allowed = საშვით შესვლის გამართვა ვერ მოხერხდა ან მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 passkey-authentication-error-not-allowed-existing = საშვის გამართვა მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 passkey-authentication-error-timeout = საშვის მოთხოვნის ვადა ამოიწურა. გთხოვთ, კვლავ სცადოთ.
+passkey-authentication-error-timeout-v2 = საშვით შესვლის დრო ამოიწურა. სცადეთ ხელახლა.
 passkey-authentication-error-not-supported-v2 = თქვენს ბრაუზერსა თუ მოწყობილობაზე მხარდაუჭერელია საშვები.
 passkey-authentication-error-security = საშვების გამოყენება ვერ ხერხდება ამ გვერდზე. დარწმუნდით საიტის დაცულობაში და კვლავ სცადეთ.
 passkey-authentication-error-invalid-state = რაღაც ხარვეზი წარმოიშვა თქვენს საშვთან დაკავშირებით. სცადეთ ხელახლა ან გამოიყენეთ შესვლის სხვა გზა.

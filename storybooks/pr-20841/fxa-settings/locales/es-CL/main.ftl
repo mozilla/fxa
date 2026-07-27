@@ -1121,9 +1121,13 @@ passkey-registration-error-constraint = La configuración de la llave de acceso 
 passkey-registration-error-unexpected = La configuración de la llave de acceso falló. Vuelve a intentarlo o elige otro método.
 
 
+passkey-authentication-trouble-heading = No se pudo conectar con una llave de acceso
+passkey-authentication-trouble-description = Vuelve a intentarlo o utiliza otra opción para conectarte.
+passkey-authentication-trouble-link = Cómo usar las llaves de acceso
 passkey-authentication-error-not-allowed = La conexión mediante llave de acceso falló o no está disponible. Vuelve a intentarlo o elige otro método.
 passkey-authentication-error-not-allowed-existing = La configuración de la llave de acceso no está disponible en este dispositivo. Por favor, vuelve a intentarlo o elige otro método.
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para la solicitud de la llave de acceso. Por favor, vuelve a intentarlo.
+passkey-authentication-error-timeout-v2 = Tiempo agotado para conectarte con la llave de acceso. Vuelve a intentarlo.
 passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no admite llaves de acceso.
 passkey-authentication-error-security = No se pueden usar llaves de acceso en esta página. Comprueba que estás en el sitio seguro correcto y vuelve a intentarlo.
 passkey-authentication-error-invalid-state = Algo falló con tu llave de acceso. Vuelve a intentarlo o usa otro método de conexión.

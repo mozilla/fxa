@@ -1139,9 +1139,13 @@ passkey-registration-error-constraint = Konfiguracija hesłoweho kluča z tutym 
 passkey-registration-error-unexpected = Konfiguracija hesłoweho kluča njeje so poradźiła. Spytajće hišće raz abo wubjerće druhu metodu.
 
 
+passkey-authentication-trouble-heading = Přizjewjenje z hesłowym klučom njeje móžne
+passkey-authentication-trouble-description = Spytajće hišće raz abo wužiwajće druhu přizjewjensku móžnosć.
+passkey-authentication-trouble-link = Kak so hesłowe kluče wužiwaja
 passkey-authentication-error-not-allowed = Přizjewjenje z hesłowym klučom njeje so poradźiło abo njeje k dispoziciji. Spytajće hišće raz abo wubjerće druhu metodu.
 passkey-authentication-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Spytajće prošu hišće raz abo wubjerće druhu metodu.
 passkey-authentication-error-timeout = Překročenje časa při naprašowanju hesłoweho kluča. Spytajće prošu hišće raz.
+passkey-authentication-error-timeout-v2 = Přizjewjenje z hesłowym klučom je čas překročił. Spytajće hišće raz.
 passkey-authentication-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 passkey-authentication-error-security = Hesłowe kluče njedadźa so na tutej stronje wužiwać. Přepruwujće, hač sće na korektnym wěstym sydle a spytajće hišće raz.
 passkey-authentication-error-invalid-state = Něšto je so z wašim hesłowym klučom nimokuliło. Spytajće hišće raz abo wužiwajće druhu přizjewjensku metodu.

@@ -1,5 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
+app-something-went-wrong-heading = 오류가 발생하였습니다
+app-something-went-wrong-message = 문제에 대해 안내를 받았습니다. 페이지를 새로고침해서 다시 시도하세요.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = 오류 ID: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = 오류 세부 정보
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = 잘못된 요청: 유효하지 않은 쿼리 파라미터
 
