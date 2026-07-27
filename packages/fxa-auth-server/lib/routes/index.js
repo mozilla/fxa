@@ -111,7 +111,8 @@ module.exports = function (
     log,
     db,
     devicesImpl,
-    clientUtils
+    clientUtils,
+    config
   );
   const emails = require('./emails')(
     log,

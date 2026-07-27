@@ -40,6 +40,7 @@ describe('Config', () => {
         'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
         'production secret here'
       );
+      mockEnv('SESSION_TOKEN_HANDLE_KEY', 'production secret here');
       expect(() => {
         require('./index');
       }).not.toThrow();

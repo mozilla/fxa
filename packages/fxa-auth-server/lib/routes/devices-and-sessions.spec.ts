@@ -11,12 +11,19 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const mocks: any = require('../../test/mocks');
 const moment = require('moment');
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
+const SESSION_TOKEN_HANDLE_KEY = 'test session token handle key';
 
 function makeRoutes(options: any = {}) {
   const config = options.config || {};
   config.oauth = config.oauth || {};
+  config.sessionTokenHandle = config.sessionTokenHandle || {
+    key: SESSION_TOKEN_HANDLE_KEY,
+  };
   config.smtp = config.smtp || {};
   config.i18n = {
     supportedLanguages: ['en', 'fr'],
@@ -1909,7 +1916,11 @@ describe('/account/sessions', () => {
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
           deviceCallbackIsExpired: false,
-          id: '00000000000000000000000000000000',
+          sessionTokenHandle: computeSessionTokenHandle(
+            SESSION_TOKEN_HANDLE_KEY,
+            request.auth.credentials.uid,
+            tokenIds[0]
+          ),
           isCurrentDevice: true,
           isDevice: false,
           lastAccessTime: times[1],
@@ -1933,7 +1944,11 @@ describe('/account/sessions', () => {
           deviceCallbackPublicKey: null,
           deviceCallbackAuthKey: null,
           deviceCallbackIsExpired: false,
-          id: '11111111111111111111111111111111',
+          sessionTokenHandle: computeSessionTokenHandle(
+            SESSION_TOKEN_HANDLE_KEY,
+            request.auth.credentials.uid,
+            tokenIds[1]
+          ),
           isCurrentDevice: false,
           isDevice: true,
           lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
@@ -1963,7 +1978,11 @@ describe('/account/sessions', () => {
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
           deviceCallbackIsExpired: false,
-          id: '22222222222222222222222222222222',
+          sessionTokenHandle: computeSessionTokenHandle(
+            SESSION_TOKEN_HANDLE_KEY,
+            request.auth.credentials.uid,
+            tokenIds[2]
+          ),
           isCurrentDevice: false,
           isDevice: true,
           lastAccessTime: EARLIEST_SANE_TIMESTAMP,
@@ -1984,7 +2003,11 @@ describe('/account/sessions', () => {
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
           deviceCallbackIsExpired: false,
-          id: '33333333333333333333333333333333',
+          sessionTokenHandle: computeSessionTokenHandle(
+            SESSION_TOKEN_HANDLE_KEY,
+            request.auth.credentials.uid,
+            tokenIds[3]
+          ),
           isCurrentDevice: false,
           isDevice: true,
           lastAccessTime: 1,
@@ -2000,5 +2023,13 @@ describe('/account/sessions', () => {
         },
       ]);
     });
+  });
+
+  it('requires a verified session token', () => {
+    const route = getRoute(accountRoutes, '/account/sessions');
+    expect(route.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+    ]);
   });
 });

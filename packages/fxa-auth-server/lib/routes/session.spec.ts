@@ -14,6 +14,9 @@ const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 const { AppError: error } = require('@fxa/accounts/errors');
 const otplib = require('otplib');
 const gleanMock = mocks.mockGlean();
@@ -32,6 +35,9 @@ function makeRoutes(options: any = {}) {
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.smtp = config.smtp || {};
+  config.sessionTokenHandle = config.sessionTokenHandle || {
+    key: 'test-session-token-handle-key',
+  };
   const db = options.db || mocks.mockDB();
   const log = options.log || createMock<AuthLogger>();
   const mailer = options.mailer || mocks.mockMailer();
@@ -785,12 +791,14 @@ describe('/session/destroy', () => {
     });
   });
 
-  it('responds correctly when custom session is destroyed', () => {
-    db.sessionToken = jest.fn(() => {
-      return Promise.resolve({
-        uid: 'foo',
-      });
-    });
+  it('destroys the session the custom handle resolves to', () => {
+    const customTokenId = 'a'.repeat(64);
+    const handle = computeSessionTokenHandle(
+      'test-session-token-handle-key',
+      'foo',
+      customTokenId
+    );
+    db.sessions = jest.fn(() => Promise.resolve([{ id: customTokenId }]));
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org',
@@ -798,21 +806,21 @@ describe('/session/destroy', () => {
       },
       log: log,
       payload: {
-        customSessionToken: 'foo',
+        customSessionTokenHandle: handle,
       },
     });
 
     return runTest(route, request).then((res: any) => {
       expect(Object.keys(res).length).toBe(0);
+      expect(db.deleteSessionToken).toHaveBeenCalledWith({
+        id: customTokenId,
+        uid: 'foo',
+      });
     });
   });
 
-  it('throws on invalid session token', () => {
-    db.sessionToken = jest.fn(() => {
-      return Promise.resolve({
-        uid: 'diff-user',
-      });
-    });
+  it('throws when the handle matches none of the caller sessions', () => {
+    db.sessions = jest.fn(() => Promise.resolve([{ id: 'b'.repeat(64) }]));
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org',
@@ -820,7 +828,7 @@ describe('/session/destroy', () => {
       },
       log: log,
       payload: {
-        customSessionToken: 'foo',
+        customSessionTokenHandle: 'c'.repeat(64),
       },
     });
 

@@ -57,7 +57,11 @@ describe.each(testVersions)(
 
       let allClients = await client.attachedClients();
       expect(allClients.length).toBe(1);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
+      // The raw sessionTokenId is a bearer credential and must never be
+      // returned; clients get an opaque, non-replayable handle instead.
+      expect(allClients[0].sessionTokenId).toBeUndefined();
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
+      expect(allClients[0].sessionTokenHandle).not.toBe(mySessionTokenId);
       expect(allClients[0].deviceId).toBeNull();
       expect(allClients[0].lastAccessTimeFormatted).toBe('a few seconds ago');
 
@@ -65,7 +69,7 @@ describe.each(testVersions)(
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(1);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
       expect(allClients[0].deviceId).toBe(device.id);
       expect(allClients[0].name).toBe(deviceInfo.name);
 
@@ -82,8 +86,8 @@ describe.each(testVersions)(
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
-      expect(allClients[1].sessionTokenId).toBeNull();
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
+      expect(allClients[1].sessionTokenHandle).toBeNull();
       expect(allClients[1].refreshTokenId).toBe(refreshTokenId);
       expect(allClients[1].lastAccessTimeFormatted).toBe('a few seconds ago');
       expect(allClients[1].name).toBe('Android Components Reference Browser');
@@ -97,7 +101,7 @@ describe.each(testVersions)(
       expect(allClients.length).toBe(2);
       const one = allClients.findIndex((c: any) => c.name === 'test device');
       const zero = (one + 1) % allClients.length;
-      expect(allClients[zero].sessionTokenId).toBe(mySessionTokenId);
+      expect(allClients[zero].sessionTokenHandle).toBeTruthy();
       expect(allClients[zero].deviceId).toBe(device.id);
       expect(allClients[one].refreshTokenId).toBe(refreshTokenId);
       expect(allClients[one].deviceId).toBe(device2.id);
@@ -124,32 +128,33 @@ describe.each(testVersions)(
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(1);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
+      expect(allClients[0].sessionTokenHandle).not.toBe(mySessionTokenId);
     });
 
-    it('correctly deletes by sessionTokenId', async () => {
+    it('correctly deletes by sessionTokenHandle', async () => {
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
         server.publicUrl, email, password, server.mailbox, testOptions
       );
-      const mySessionTokenId = (
-        await tokens.SessionToken.fromHex(client.sessionToken)
-      ).id;
 
-      const client2 = await Client.login(server.publicUrl, email, password, testOptions);
-      const otherSessionTokenId = (
-        await tokens.SessionToken.fromHex(client2.sessionToken)
-      ).id;
+      await Client.login(server.publicUrl, email, password, testOptions);
 
       let allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
 
-      await client.destroyAttachedClient({ sessionTokenId: otherSessionTokenId });
+      // Resolve the other session by its opaque handle, as Settings does.
+      const otherClient = allClients.find((c: any) => !c.isCurrentSession);
+      expect(otherClient.sessionTokenHandle).toBeTruthy();
+
+      await client.destroyAttachedClient({
+        sessionTokenHandle: otherClient.sessionTokenHandle,
+      });
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(1);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
+      expect(allClients[0].isCurrentSession).toBe(true);
     });
 
     it('correctly deletes by refreshTokenId', async () => {
@@ -183,7 +188,8 @@ describe.each(testVersions)(
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(1);
-      expect(allClients[0].sessionTokenId).toBe(mySessionTokenId);
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
+      expect(allClients[0].sessionTokenHandle).not.toBe(mySessionTokenId);
       expect(allClients[0].refreshTokenId).toBeNull();
     });
 

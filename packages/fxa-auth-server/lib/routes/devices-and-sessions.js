@@ -13,6 +13,9 @@ const fs = require('fs');
 const isA = require('joi');
 const path = require('path');
 const validators = require('./validators');
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 
 const DEVICES_AND_SERVICES_DOCS =
   require('../../docs/swagger/devices-and-sessions-api').default;
@@ -41,6 +44,7 @@ module.exports = (
   clientUtils,
   redis
 ) => {
+  const sessionTokenHandleKey = config.sessionTokenHandle.key;
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(
@@ -724,15 +728,15 @@ module.exports = (
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_GET,
         auth: {
           strategies: [
-            'sessionTokenBearer',
-            'sessionToken',
+            'verifiedSessionTokenBearer',
+            'verifiedSessionToken',
             // no refreshToken access here
           ],
         },
         response: {
           schema: isA.array().items(
             isA.object({
-              id: isA.string().regex(HEX_STRING).required(),
+              sessionTokenHandle: isA.string().regex(HEX_STRING).required(),
               lastAccessTime: isA.number().min(0).required().allow(null),
               lastAccessTimeFormatted: isA.string().optional().allow(''),
               approximateLastAccessTime: isA.number().min(0).optional(),
@@ -808,7 +812,11 @@ module.exports = (
             deviceCallbackPublicKey: session.deviceCallbackPublicKey,
             deviceCallbackAuthKey: session.deviceCallbackAuthKey,
             deviceCallbackIsExpired: !!session.deviceCallbackIsExpired,
-            id: session.id,
+            sessionTokenHandle: computeSessionTokenHandle(
+              sessionTokenHandleKey,
+              uid,
+              session.id
+            ),
             isCurrentDevice: session.id === sessionToken.id,
             isDevice,
             lastAccessTime: session.lastAccessTime,

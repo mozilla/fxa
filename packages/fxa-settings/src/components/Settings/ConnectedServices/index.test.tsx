@@ -631,7 +631,7 @@ describe('Connected Services', () => {
   describe('scope-based sub row', () => {
     const baseMockClient = {
       deviceId: null,
-      sessionTokenId: null,
+      sessionTokenHandle: null,
       refreshTokenId: 'abc123',
       isCurrentSession: false,
       deviceType: null,

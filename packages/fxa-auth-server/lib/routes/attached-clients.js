@@ -16,8 +16,12 @@ const DEVICES_AND_SESSIONS_DOC =
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 
-module.exports = (log, db, devices, clientUtils) => {
+module.exports = (log, db, devices, clientUtils, config) => {
+  const sessionTokenHandleKey = config.sessionTokenHandle.key;
   return [
     {
       method: 'GET',
@@ -40,7 +44,7 @@ module.exports = (log, db, devices, clientUtils) => {
             isA.object({
               clientId: isA.string().regex(HEX_STRING).allow(null).required(),
               deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-              sessionTokenId: isA
+              sessionTokenHandle: isA
                 .string()
                 .regex(HEX_STRING)
                 .allow(null)
@@ -112,8 +116,23 @@ module.exports = (log, db, devices, clientUtils) => {
           sessions: async () => {
             return await db.sessions(uid);
           },
+          // The factory opaques the raw sessionTokenId (a bearer credential)
+          // into a uid-bound handle before it leaves the builder. The destroy
+          // endpoint can resolve this handle back to the real session.
+          serializeSessionTokenId: (sessionTokenId) =>
+            computeSessionTokenHandle(sessionTokenHandleKey, uid, sessionTokenId),
         });
-        return await factory.build(id, request.app.acceptLanguage);
+        const clients = await factory.build(id, request.app.acceptLanguage);
+
+        // The builder already opaqued the raw id into a handle, but still
+        // exposes it under the factory's `sessionTokenId` field; rename it to
+        // `sessionTokenHandle` here so the raw id name never appears on the wire.
+        return clients.map(
+          ({ sessionTokenId: sessionTokenHandle, ...client }) => ({
+            ...client,
+            sessionTokenHandle,
+          })
+        );
       },
     },
     {
@@ -159,6 +178,14 @@ module.exports = (log, db, devices, clientUtils) => {
           sessions: async () => {
             return Promise.resolve([]); // not needed for this endpoint, but required by factory
           },
+          // No sessions are listed here, but the binding is required; opaque
+          // the id the same way in case that ever changes.
+          serializeSessionTokenId: (sessionTokenId) =>
+            computeSessionTokenHandle(
+              sessionTokenHandleKey,
+              request.auth.credentials.uid,
+              sessionTokenId
+            ),
         });
 
         const clients = await factory.build(
@@ -185,7 +212,7 @@ module.exports = (log, db, devices, clientUtils) => {
           payload: isA
             .object({
               clientId: validators.clientId.allow(null).optional(),
-              sessionTokenId: isA
+              sessionTokenHandle: isA
                 .string()
                 .regex(HEX_STRING)
                 .allow(null)
@@ -193,7 +220,7 @@ module.exports = (log, db, devices, clientUtils) => {
               refreshTokenId: validators.refreshToken.allow(null).optional(),
               deviceId: DEVICES_SCHEMA.id.allow(null).optional(),
             })
-            .or('clientId', 'sessionTokenId', 'refreshTokenId', 'deviceId')
+            .or('clientId', 'sessionTokenHandle', 'refreshTokenId', 'deviceId')
             .with('refreshTokenId', ['clientId']),
         },
         response: {
@@ -213,13 +240,19 @@ module.exports = (log, db, devices, clientUtils) => {
             request,
             payload.deviceId
           );
-          if (
-            payload.sessionTokenId &&
-            destroyedDevice.sessionTokenId !== payload.sessionTokenId
-          ) {
-            throw error.invalidRequestParameter(
-              'sessionTokenId did not match device record'
-            );
+          if (payload.sessionTokenHandle) {
+            const deviceHandle = destroyedDevice.sessionTokenId
+              ? computeSessionTokenHandle(
+                  sessionTokenHandleKey,
+                  credentials.uid,
+                  destroyedDevice.sessionTokenId
+                )
+              : null;
+            if (deviceHandle !== payload.sessionTokenHandle) {
+              throw error.invalidRequestParameter(
+                'sessionTokenHandle did not match device record'
+              );
+            }
           }
           if (
             payload.refreshTokenId &&
@@ -231,9 +264,9 @@ module.exports = (log, db, devices, clientUtils) => {
           }
         } else if (payload.refreshTokenId) {
           // We've got device-less refreshToken. There should be no sessionToken.
-          if (payload.sessionTokenId) {
+          if (payload.sessionTokenHandle) {
             throw error.invalidRequestParameter(
-              'sessionTokenId cannot be present for non-device OAuth client'
+              'sessionTokenHandle cannot be present for non-device OAuth client'
             );
           }
           // If we find the refresh_token_id doesn't exist, swallow the error.
@@ -252,21 +285,35 @@ module.exports = (log, db, devices, clientUtils) => {
           }
         } else if (payload.clientId) {
           // We've got an OAuth client that isn't using refresh tokens. There should be no sessionToken.
-          if (payload.sessionTokenId) {
+          if (payload.sessionTokenHandle) {
             throw error.invalidRequestParameter(
-              'sessionTokenId cannot be present for non-device OAuth client'
+              'sessionTokenHandle cannot be present for non-device OAuth client'
             );
           }
           await authorizedClients.destroy(payload.clientId, credentials.uid);
-        } else if (payload.sessionTokenId) {
-          // We've got a plain web session on our hands.
-          // Need to check that it actually belongs to this user, unless it's the current session.
-          if (payload.sessionTokenId === credentials.id) {
+        } else if (payload.sessionTokenHandle) {
+          // We've got a plain web session on our hands. Resolve the opaque
+          // handle back to the real sessionTokenId by scanning the caller's own
+          // sessions (a bounded set) and matching on the recomputed handle. A
+          // handle that matches none of them is unknown/stale.
+          const sessions = await db.sessions(credentials.uid);
+          const match = sessions.find(
+            (session) =>
+              computeSessionTokenHandle(
+                sessionTokenHandleKey,
+                credentials.uid,
+                session.id
+              ) === payload.sessionTokenHandle
+          );
+          if (!match) {
+            throw error.invalidRequestParameter('sessionTokenHandle');
+          }
+          if (match.id === credentials.id) {
             await db.deleteSessionToken(credentials);
           } else {
-            const sessionToken = await db.sessionToken(payload.sessionTokenId);
+            const sessionToken = await db.sessionToken(match.id);
             if (!sessionToken || sessionToken.uid !== credentials.uid) {
-              throw error.invalidRequestParameter('sessionTokenId');
+              throw error.invalidRequestParameter('sessionTokenHandle');
             }
             await db.deleteSessionToken(sessionToken);
           }

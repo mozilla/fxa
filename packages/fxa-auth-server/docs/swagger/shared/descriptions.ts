@@ -67,7 +67,8 @@ const DESCRIPTIONS = {
   currentPeriodStart: 'This is the start date of the current billing cycle.',
   customerId:
     'A unique identifier for the Stripe/PayPal [customer](https://stripe.com/docs/api/customers/object).',
-  customSessionToken: 'Custom session token id to destroy.',
+  customSessionTokenHandle:
+    'Opaque handle (from the sessions list) of the session token to destroy.',
   duration:
     'Time interval in milliseconds until the certificate will expire, up to a maximum of 24 hours.',
   email: 'The primary email for this account.',

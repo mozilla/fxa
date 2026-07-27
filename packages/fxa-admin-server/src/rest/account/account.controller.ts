@@ -1029,12 +1029,14 @@ export class AccountController {
           }
         );
       },
+      // The admin panel never needs the raw sessionTokenId; redact it at the
+      // source so it cannot leak into the response.
+      serializeSessionTokenId: () => '[REDACTED]',
     });
 
     return (await factory.build('', 'en'))
       .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
       .map((x) => {
-        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
         if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
         return x;
       });

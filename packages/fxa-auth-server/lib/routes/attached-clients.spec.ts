@@ -9,8 +9,12 @@ import { AuthLogger } from '../types';
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
+const {
+  computeSessionTokenHandle,
+} = require('./utils/session-token-handle');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
+const SESSION_TOKEN_HANDLE_KEY = 'test session token handle key';
 
 const mockAuthorizedClients: any = {
   destroy: jest.fn(() => Promise.resolve()),
@@ -35,6 +39,9 @@ function makeRoutes(options: any = {}) {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
   };
   config.publicUrl = 'https://public.url';
+  config.sessionTokenHandle = config.sessionTokenHandle || {
+    key: SESSION_TOKEN_HANDLE_KEY,
+  };
 
   const log = options.log || createMock<AuthLogger>();
   const db = options.db || mocks.mockDB();
@@ -42,7 +49,7 @@ function makeRoutes(options: any = {}) {
   const devices = options.devices || require('../devices')(log, db, push);
   const clientUtils =
     options.clientUtils || require('./utils/clients')(log, config);
-  return require('./attached-clients')(log, db, devices, clientUtils);
+  return require('./attached-clients')(log, db, devices, clientUtils, config);
 }
 
 function newId(size = 32) {
@@ -199,7 +206,11 @@ describe('/account/attached_clients', () => {
     expect(result[0]).toEqual({
       clientId: null,
       deviceId: DEVICES[0].id,
-      sessionTokenId: SESSIONS[1].id,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        SESSIONS[1].id
+      ),
       refreshTokenId: null,
       isCurrentSession: false,
       deviceType: 'desktop',
@@ -216,7 +227,7 @@ describe('/account/attached_clients', () => {
     expect(result[1]).toEqual({
       clientId: OAUTH_CLIENTS[2].client_id,
       deviceId: DEVICES[1].id,
-      sessionTokenId: null,
+      sessionTokenHandle: null,
       refreshTokenId: OAUTH_CLIENTS[2].refresh_token_id,
       isCurrentSession: false,
       deviceType: 'desktop',
@@ -233,7 +244,11 @@ describe('/account/attached_clients', () => {
     expect(result[2]).toEqual({
       clientId: OAUTH_CLIENTS[3].client_id,
       deviceId: DEVICES[2].id,
-      sessionTokenId: SESSIONS[2].id,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        SESSIONS[2].id
+      ),
       refreshTokenId: OAUTH_CLIENTS[3].refresh_token_id,
       isCurrentSession: false,
       deviceType: 'mobile',
@@ -250,7 +265,7 @@ describe('/account/attached_clients', () => {
     expect(result[3]).toEqual({
       clientId: OAUTH_CLIENTS[0].client_id,
       deviceId: null,
-      sessionTokenId: null,
+      sessionTokenHandle: null,
       refreshTokenId: null,
       isCurrentSession: false,
       deviceType: null,
@@ -267,7 +282,7 @@ describe('/account/attached_clients', () => {
     expect(result[4]).toEqual({
       clientId: OAUTH_CLIENTS[1].client_id,
       deviceId: null,
-      sessionTokenId: null,
+      sessionTokenHandle: null,
       refreshTokenId: OAUTH_CLIENTS[1].refresh_token_id,
       isCurrentSession: false,
       deviceType: null,
@@ -284,7 +299,11 @@ describe('/account/attached_clients', () => {
     expect(result[5]).toEqual({
       clientId: null,
       deviceId: null,
-      sessionTokenId: SESSIONS[0].id,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        SESSIONS[0].id
+      ),
       refreshTokenId: null,
       isCurrentSession: true,
       deviceType: null,
@@ -337,7 +356,11 @@ describe('/account/attached_clients', () => {
     expect(result[0]).toEqual({
       clientId: null,
       deviceId: DEVICES[0].id,
-      sessionTokenId: SESSIONS[0].id,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        SESSIONS[0].id
+      ),
       refreshTokenId: null,
       isCurrentSession: true,
       deviceType: 'desktop',
@@ -457,11 +480,15 @@ describe('/account/attached_client/destroy', () => {
     expect(db.deleteSessionToken).toHaveBeenCalledTimes(0);
   });
 
-  it('checks that sessionTokenId matches device record, if given', async () => {
+  it('checks that sessionTokenHandle matches device record, if given', async () => {
     const deviceId = newId();
     request.payload = {
       deviceId,
-      sessionTokenId: newId(),
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        newId()
+      ),
     };
     devices.destroy = jest.fn(async () => {
       return {
@@ -481,14 +508,21 @@ describe('/account/attached_client/destroy', () => {
 
   it('checks that refreshTokenId matches device record, if given', async () => {
     const deviceId = newId();
+    const sessionTokenId = newId();
     request.payload = {
       deviceId,
-      sessionTokenId: newId(),
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        sessionTokenId
+      ),
       refreshTokenId: newId(),
     };
+    // sessionTokenHandle matches the device's session, so the refreshTokenId
+    // mismatch is what must be rejected.
     devices.destroy = jest.fn(async () => {
       return {
-        sessionTokenId: request.payload.sessionTokenId,
+        sessionTokenId,
         refreshTokenId: newId(),
       };
     });
@@ -517,13 +551,17 @@ describe('/account/attached_client/destroy', () => {
     expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
-  it('wont accept refreshTokenId and sessionTokenId without deviceId', async () => {
+  it('wont accept refreshTokenId and sessionTokenHandle without deviceId', async () => {
     const clientId = newId(16);
     const refreshTokenId = newId();
     request.payload = {
       clientId,
       refreshTokenId,
-      sessionTokenId: newId(),
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        newId()
+      ),
     };
 
     await expect(route(request)).rejects.toMatchObject({
@@ -547,11 +585,15 @@ describe('/account/attached_client/destroy', () => {
     expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
-  it('wont accept clientId and sessionTokenId without deviceId', async () => {
+  it('wont accept clientId and sessionTokenHandle without deviceId', async () => {
     const clientId = newId(16);
     request.payload = {
       clientId,
-      sessionTokenId: newId(),
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        newId()
+      ),
     };
 
     await expect(route(request)).rejects.toMatchObject({
@@ -562,12 +604,19 @@ describe('/account/attached_client/destroy', () => {
     expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
-  it('can destroy by sessionTokenId when given the current session', async () => {
+  it('can destroy by sessionTokenHandle when given the current session', async () => {
     const sessionTokenId = newId(16);
-    request.payload = {
-      sessionTokenId,
-    };
     request.auth.credentials.id = sessionTokenId;
+    request.payload = {
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        sessionTokenId
+      ),
+    };
+    db.sessions = jest.fn(async () => {
+      return [{ id: sessionTokenId, uid }];
+    });
 
     const res = await route(request);
     expect(res).toEqual({});
@@ -580,11 +629,18 @@ describe('/account/attached_client/destroy', () => {
     );
   });
 
-  it('can destroy by sessionTokenId when given a different session', async () => {
+  it('can destroy by sessionTokenHandle when given a different session', async () => {
     const sessionTokenId = newId(16);
     request.payload = {
-      sessionTokenId,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        sessionTokenId
+      ),
     };
+    db.sessions = jest.fn(async () => {
+      return [{ id: sessionTokenId, uid }];
+    });
     db.sessionToken = jest.fn(async () => {
       return { id: sessionTokenId, uid };
     });
@@ -602,13 +658,17 @@ describe('/account/attached_client/destroy', () => {
     });
   });
 
-  it('errors if the sessionToken does not belong to the current user', async () => {
-    const sessionTokenId = newId(16);
+  it('rejects an unknown or stale sessionTokenHandle', async () => {
     request.payload = {
-      sessionTokenId,
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        newId(16)
+      ),
     };
-    db.sessionToken = jest.fn(async () => {
-      return { uid: newId() };
+    // The caller's own sessions do not include the handle's session.
+    db.sessions = jest.fn(async () => {
+      return [{ id: newId(16), uid }];
     });
 
     await expect(route(request)).rejects.toMatchObject({
@@ -616,6 +676,29 @@ describe('/account/attached_client/destroy', () => {
     });
 
     expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.sessionToken).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
+  });
+
+  it('rejects when the resolved session no longer exists', async () => {
+    const sessionTokenId = newId(16);
+    request.payload = {
+      sessionTokenHandle: computeSessionTokenHandle(
+        SESSION_TOKEN_HANDLE_KEY,
+        uid,
+        sessionTokenId
+      ),
+    };
+    db.sessions = jest.fn(async () => {
+      return [{ id: sessionTokenId, uid }];
+    });
+    // Session was deleted between listing and fetch (race).
+    db.sessionToken = jest.fn(async () => null);
+
+    await expect(route(request)).rejects.toMatchObject({
+      errno: error.ERRNO.INVALID_PARAMETER,
+    });
+
     expect(db.sessionToken).toHaveBeenCalledTimes(1);
     expect(db.sessionToken).toHaveBeenCalledWith(sessionTokenId);
     expect(db.deleteSessionToken).not.toHaveBeenCalled();

@@ -97,12 +97,12 @@ describe.each(testVersions)(
 
       const allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
-      expect(allClients[0].sessionTokenId).toBeTruthy();
+      expect(allClients[0].sessionTokenHandle).toBeTruthy();
       expect(allClients[0].name).toBe(OAUTH_CLIENT_NAME);
-      expect(allClients[1].sessionTokenId).toBeTruthy();
+      expect(allClients[1].sessionTokenHandle).toBeTruthy();
       expect(allClients[0].isCurrentSession).toBe(false);
       expect(allClients[1].isCurrentSession).toBe(true);
-      expect(allClients[0].sessionTokenId).not.toBe(allClients[1].sessionTokenId);
+      expect(allClients[0].sessionTokenHandle).not.toBe(allClients[1].sessionTokenHandle);
     });
 
     it('rejects invalid sessionToken', async () => {
