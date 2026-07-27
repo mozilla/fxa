@@ -1533,12 +1533,24 @@ passkey-registration-error-unexpected = Не удалось установить
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Не удалось войти с помощью ключа доступа
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Попробуйте ещё раз или используйте другой способ входа.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Как использовать ключи доступа
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Время ожидания запроса ключа истекло. Повторите попытку.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Время ожидания входа по ключу доступа истекло. Попробуйте снова.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Браузер или устройство не поддерживают ключ доступа.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

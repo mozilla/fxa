@@ -1463,6 +1463,7 @@ auth-error-225 = Το κλειδί πρόσβασης έχει ήδη καταχ
 auth-error-226 = Έχετε φτάσει το όριο κλειδιών πρόσβασης
 auth-error-227 = Αποτυχία ταυτοποίησης με κλειδί πρόσβασης
 auth-error-228 = Αποτυχία καταχώρισης κλειδιού πρόσβασης
+auth-error-233 = Για να δημιουργήσετε ένα κλειδί πρόσβασης, ορίστε ένα κλείδωμα οθόνης, PIN, δακτυλικό αποτύπωμα ή αναγνώριση προσώπου στη συσκευή ή το κλειδί ασφαλείας σας. Έπειτα, δοκιμάστε ξανά.
 auth-error-238 = Αποτυχία ελέγχου κλειδιού πρόσβασης
 auth-error-239 = Δυστυχώς, δεν ήταν δυνατή η διαγραφή του λογαριασμού σας. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει.
 auth-error-999 = Μη αναμενόμενο σφάλμα
@@ -1530,12 +1531,24 @@ passkey-registration-error-unexpected = Η ρύθμιση του κλειδιο�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Αδυναμία σύνδεσης με κλειδί πρόσβασης
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Δοκιμάστε ξανά ή χρησιμοποιήστε κάποια άλλη επιλογή σύνδεσης.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Τρόπος χρήσης των κλειδιών πρόσβασης
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Η σύνδεση με κλειδί πρόσβασης απέτυχε ή δεν είναι διαθέσιμη. Δοκιμάστε ξανά ή επιλέξτε άλλη μέθοδο.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Η ρύθμιση του κλειδιού πρόσβασης δεν είναι διαθέσιμη με αυτήν τη συσκευή. Δοκιμάστε ξανά ή επιλέξτε μια άλλη μέθοδο.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Το χρονικό όριο του αιτήματος κλειδιού πρόσβασης έληξε. Δοκιμάστε ξανά.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Το χρονικό όριο σύνδεσης με κλειδί πρόσβασης έληξε. Δοκιμάστε ξανά.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Το πρόγραμμα περιήγησης ή η συσκευή σας δεν υποστηρίζει κλειδιά πρόσβασης.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

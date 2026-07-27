@@ -1,8 +1,8 @@
 {
-  "commit": "34e45a391cbf961919ebdce5c849b91f690131e3",
-  "summary": "Merge pull request #20892 from mozilla/blender-setup",
-  "description": "Add BLEnder config",
-  "timestamp": 1784940991000,
+  "commit": "ea296fd6814bfc1fd801e2bb35a11ffbe4f173a8",
+  "summary": "Merge pull request #20922 from mozilla/inbox-code-watcher",
+  "description": "feat(auth-server): copy local email codes to the clipboard",
+  "timestamp": 1785169102000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
