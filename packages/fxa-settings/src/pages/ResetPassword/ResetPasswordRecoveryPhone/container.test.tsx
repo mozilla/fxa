@@ -61,6 +61,7 @@ jest.mock('.', () => (props: any) => {
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 async function renderComponent() {

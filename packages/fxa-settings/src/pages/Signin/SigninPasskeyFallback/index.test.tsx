@@ -34,7 +34,9 @@ describe('SigninPasskeyFallback', () => {
       'user@example.com'
     );
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByTestId('continue-button')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue' })
+    ).toBeInTheDocument();
   });
 
   it('calls onContinue with the entered password', async () => {
@@ -44,7 +46,7 @@ describe('SigninPasskeyFallback', () => {
       <SigninPasskeyFallback email="user@example.com" onContinue={onContinue} />
     );
     await user.type(screen.getByLabelText('Password'), 'hunter2-the-sequel');
-    await user.click(screen.getByTestId('continue-button'));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onContinue).toHaveBeenCalledWith('hunter2-the-sequel');
   });
 
@@ -53,8 +55,10 @@ describe('SigninPasskeyFallback', () => {
       errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
       localizedErrorMessage: 'Incorrect password',
     };
-    const passwordField = () => screen.getByTestId('password-input-field');
-    const continueButton = () => screen.getByTestId('continue-button');
+    const passwordField = () =>
+      screen.getByTestId('signin-passkey-fallback-password-input-field');
+    const continueButton = () =>
+      screen.getByRole('button', { name: 'Continue' });
 
     it('shows a validation tooltip and does not call onContinue when submitted empty', async () => {
       const user = userEvent.setup();
@@ -163,6 +167,70 @@ describe('SigninPasskeyFallback', () => {
     });
   });
 
+  describe('forgot password link (after exhausting attempts)', () => {
+    const passwordField = () =>
+      screen.getByTestId('signin-passkey-fallback-password-input-field');
+    const continueButton = () =>
+      screen.getByRole('button', { name: 'Continue' });
+    const forgotLink = () =>
+      screen.queryByRole('link', { name: 'Forgot password?' });
+
+    it('is hidden until a throttling error occurs', () => {
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={jest.fn().mockResolvedValue(undefined)}
+        />
+      );
+      expect(forgotLink()).not.toBeInTheDocument();
+    });
+
+    it('appears after a throttling error and links to the reset flow', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue({
+        errno: AuthUiErrors.THROTTLED.errno,
+        localizedErrorMessage: 'Too many attempts',
+      });
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+
+      await user.type(passwordField(), 'some-password');
+      await user.click(continueButton());
+
+      const link = await screen.findByRole('link', {
+        name: 'Forgot password?',
+      });
+      expect(link).toHaveAttribute(
+        'href',
+        expect.stringContaining('/reset_password')
+      );
+    });
+
+    it('does not appear for a non-throttling error', async () => {
+      const user = userEvent.setup();
+      const onContinue = jest.fn().mockResolvedValue({
+        errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
+        localizedErrorMessage: 'Something went wrong',
+      });
+      renderWithRouter(
+        <SigninPasskeyFallback
+          email="user@example.com"
+          onContinue={onContinue}
+        />
+      );
+
+      await user.type(passwordField(), 'some-password');
+      await user.click(continueButton());
+      await screen.findByRole('alert');
+
+      expect(forgotLink()).not.toBeInTheDocument();
+    });
+  });
+
   describe('Glean events', () => {
     it('fires view with the default surface reason on mount', () => {
       renderWithRouter(<SigninPasskeyFallback email="user@example.com" />);
@@ -218,7 +286,7 @@ describe('SigninPasskeyFallback', () => {
         />
       );
       await user.type(screen.getByLabelText('Password'), 'shhh');
-      await user.click(screen.getByTestId('continue-button'));
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
       expect(GleanMetrics.passkeyEnterPassword.submit).toHaveBeenCalledWith({
         event: { reason: 'emailfirst' },
       });

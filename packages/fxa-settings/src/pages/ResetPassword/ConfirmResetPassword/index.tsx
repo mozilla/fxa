@@ -27,6 +27,7 @@ const ConfirmResetPassword = ({
   resendErrorMessage,
   verifyCode,
   integration,
+  showPasskeyOption,
 }: ConfirmResetPasswordProps) => {
   useEffect(() => {
     GleanMetrics.passwordReset.emailConfirmationView();
@@ -41,10 +42,6 @@ const ConfirmResetPassword = ({
   const hasResendError = !!(
     resendStatus === ResendStatus.error && resendErrorMessage
   );
-
-  const signinClickHandler = () => {
-    GleanMetrics.passwordReset.emailConfirmationSignin();
-  };
 
   return (
     <AppLayout>
@@ -95,7 +92,10 @@ const ConfirmResetPassword = ({
         }}
         className="my-6"
       />
-      <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
+      <LinkRememberPassword
+        entrypoint="confirm_reset_password"
+        {...{ email, showPasskeyOption }}
+      />
       <div className="flex justify-between mt-5 text-sm">
         <FtlMsg id="confirm-reset-password-otp-resend-code-button">
           <button type="button" className="link-blue" onClick={resendCode}>

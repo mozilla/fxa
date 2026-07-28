@@ -21,6 +21,9 @@ jest.mock('../../../lib/glean', () => ({
   passwordReset: {
     recoveryKeyView: jest.fn(),
     recoveryKeySubmit: jest.fn(),
+    recoveryKeyCannotFind: jest.fn(),
+    rememberPasswordLinkView: jest.fn(),
+    rememberPasswordLinkClick: jest.fn(),
   },
 }));
 
@@ -55,6 +58,18 @@ describe('AccountRecoveryConfirmKey', () => {
     );
 
     expect(screen.getByText('This is a hint')).toBeVisible();
+  });
+
+  // Exhaustive passkey-vs-standard wording is covered in
+  // LinkRememberPassword/index.test.tsx; here we only assert the footer is wired
+  // into the page and showPasskeyOption reaches it.
+  it('threads showPasskeyOption through to the sign-in footer', () => {
+    renderWithLocalizationProvider(<Subject showPasskeyOption />);
+
+    expect(
+      screen.getByText('Have a passkey or remember your password?')
+    ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
   describe('submit', () => {

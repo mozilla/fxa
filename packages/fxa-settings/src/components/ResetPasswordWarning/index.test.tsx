@@ -24,7 +24,7 @@ describe('ResetPasswordWarning component', () => {
     ).toBeVisible();
 
     expect(
-      screen.getByText('Your browser data may not be recovered')
+      screen.getByText('Review sign-in options to keep browser data')
     ).toBeVisible();
 
     expect(screen.getByRole('img', { name: 'Collapse warning' })).toBeVisible();
@@ -34,36 +34,34 @@ describe('ResetPasswordWarning component', () => {
     ).not.toBeInTheDocument();
 
     expect(
-      screen.getByText('Have any device where you previously signed in?')
+      screen.getByText('Still signed in on another device?')
     ).toBeVisible();
 
     expect(
       screen.getByText(
-        'Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.'
+        'Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.'
       )
     ).toBeVisible();
 
     expect(
-      screen.getByText(
-        'Have a new device but don’t have access to any of your previous ones?'
-      )
+      screen.getByText('Using a new device but can’t access your old ones?')
     ).toBeVisible();
 
     expect(
       screen.getByText(
-        'We’re sorry, but your encrypted browser data on Firefox servers can’t be recovered.'
+        'After you reset your password, encrypted browser data on Firefox servers won’t be available on this device.'
       )
     ).toBeVisible();
 
     expect(
       screen.getByRole('link', {
-        name: 'Learn more about restoring account data',
+        name: 'Learn how to restore browser data from a signed-in device',
       })
     ).toBeVisible();
 
     expect(screen.getByRole('link')).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/kb/how-reset-your-password-without-account-recovery-keys-access-data'
+      'https://support.mozilla.org/en-US/kb/how-change-or-reset-your-mozilla-account-password'
     );
   });
 
@@ -77,7 +75,7 @@ describe('ResetPasswordWarning component', () => {
     expect(screen.getByText('Have an account recovery key?')).toBeVisible();
     expect(
       screen.getByRole('link', {
-        name: 'Use it now to reset your password and keep your data',
+        name: 'Use it to reset your password and keep your browser data',
       })
     ).toBeVisible();
   });
@@ -109,13 +107,13 @@ describe('ResetPasswordWarning component', () => {
     ).toBeVisible();
 
     expect(
-      screen.getByText('Your browser data may not be recovered')
+      screen.getByText('Review sign-in options to keep browser data')
     ).toBeVisible();
 
     expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
 
     expect(
-      screen.queryByText('Have any device where you previously signed in?')
+      screen.queryByText('Still signed in on another device?')
     ).not.toBeVisible();
   });
 
@@ -170,13 +168,13 @@ describe('ResetPasswordWarning component', () => {
     ).toBeVisible();
 
     expect(
-      screen.getByText('Your browser data may not be recovered')
+      screen.getByText('Review sign-in options to keep browser data')
     ).toBeVisible();
 
     expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
 
     expect(
-      screen.getByText('Have any device where you previously signed in?')
+      screen.getByText('Still signed in on another device?')
     ).not.toBeVisible();
   });
 });

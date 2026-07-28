@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Integration, OAuthIntegration } from '../../../models';
+import { PasskeyResetSignals } from '../interfaces';
 
 export interface CompleteResetPasswordFormData {
   newPassword: string;
@@ -20,7 +21,7 @@ export type CompleteResetPasswordLocationState = {
   kB?: string;
   recoveryKeyExists?: boolean;
   recoveryKeyId?: string;
-};
+} & PasskeyResetSignals;
 
 export type CompleteResetPasswordOAuthIntegration = Pick<
   OAuthIntegration,
@@ -43,6 +44,7 @@ export interface CompleteResetPasswordProps {
   hasConfirmedRecoveryKey?: boolean;
   estimatedSyncDeviceCount?: number;
   recoveryKeyExists?: boolean;
+  showPasskeyOption?: boolean;
   integration: Integration;
 }
 

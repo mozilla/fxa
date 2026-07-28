@@ -11,7 +11,14 @@ import { MOCK_EMAIL } from '../../mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
-  default: { passwordReset: { view: jest.fn(), submit: jest.fn() } },
+  default: {
+    passwordReset: {
+      view: jest.fn(),
+      submit: jest.fn(),
+      rememberPasswordLinkView: jest.fn(),
+      rememberPasswordLinkClick: jest.fn(),
+    },
+  },
 }));
 
 const mockRequestResetPasswordCode = jest.fn((email: string) =>
@@ -42,6 +49,22 @@ describe('ResetPassword', () => {
       renderWithLocalizationProvider(<Subject />);
       await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
       expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires the remember-password footer impression once across re-renders', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+      await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
+
+      // Typing and a failed submit re-render the page; the footer must stay
+      // mounted rather than re-fire its view impression on each re-render.
+      await user.type(screen.getByRole('textbox'), 'not-an-email');
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Valid email required')).toBeVisible();
+
+      expect(
+        GleanMetrics.passwordReset.rememberPasswordLinkView
+      ).toHaveBeenCalledTimes(1);
     });
   });
 

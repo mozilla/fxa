@@ -26,6 +26,7 @@ export const stringEventPropertyNames = [
 export const stringEventExtraPropertyNames = [
   'mobile_device_count',
   'supported',
+  'has_passkey_option',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
@@ -164,6 +165,9 @@ export const eventsMap = {
 
     backupChoiceView: 'password_reset_backup_choice_view',
     backupChoiceSubmit: 'password_reset_backup_choice_submit',
+
+    rememberPasswordLinkView: 'password_reset_remember_password_link_view',
+    rememberPasswordLinkClick: 'password_reset_remember_password_link_click',
   },
 
   thirdPartyAuth: {

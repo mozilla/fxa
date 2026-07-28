@@ -133,12 +133,12 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get dataLossWarning() {
-    return this.page.getByText('Your browser data may not be recovered');
+    return this.page.getByText('Review sign-in options to keep browser data');
   }
 
   get resetPasswordWithRecoveryKey() {
     return this.page.getByRole('link', {
-      name: 'Reset your password and keep your data',
+      name: 'Use it to reset your password and keep your browser data',
     });
   }
 

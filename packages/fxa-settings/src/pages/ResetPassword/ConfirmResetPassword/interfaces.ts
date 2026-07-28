@@ -27,4 +27,5 @@ export type ConfirmResetPasswordProps = {
   resendErrorMessage: string;
   verifyCode: (code: string) => Promise<void>;
   integration: ResetPasswordIntegration;
+  showPasskeyOption?: boolean;
 };

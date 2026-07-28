@@ -186,9 +186,12 @@ describe('SigninPasskeyFallback container', () => {
 
   describe('onContinue', () => {
     function submitPassword(getByTestId: (id: string) => HTMLElement) {
-      fireEvent.change(getByTestId('password-input-field'), {
-        target: { value: 'pa55word' },
-      });
+      fireEvent.change(
+        getByTestId('signin-passkey-fallback-password-input-field'),
+        {
+          target: { value: 'pa55word' },
+        }
+      );
       fireEvent.click(getByTestId('continue-button'));
     }
 
@@ -322,9 +325,12 @@ describe('SigninPasskeyFallback container', () => {
 
   describe('Glean events', () => {
     function submitPassword(getByTestId: (id: string) => HTMLElement) {
-      fireEvent.change(getByTestId('password-input-field'), {
-        target: { value: 'pa55word' },
-      });
+      fireEvent.change(
+        getByTestId('signin-passkey-fallback-password-input-field'),
+        {
+          target: { value: 'pa55word' },
+        }
+      );
       fireEvent.click(getByTestId('continue-button'));
     }
 

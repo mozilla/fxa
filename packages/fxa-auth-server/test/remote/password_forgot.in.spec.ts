@@ -113,6 +113,30 @@ describe.each(testVersions)(
       expect(client.kB.length).toBe(64);
     });
 
+    it('verify_otp reports hasPasskey=false for an account without a passkey', async () => {
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+
+      const client = await Client.createAndVerify(
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+
+      await client.forgotPassword();
+      const emailData = await server.mailbox.waitForEmail(email);
+      const code = emailData.headers['x-password-forgot-otp'];
+
+      const result = await client.verifyPasswordForgotOtp(
+        code as string,
+        testOptions
+      );
+
+      expect(result.hasPasskey).toBe(false);
+    });
+
     it('forgot password limits verify attempts', async () => {
       const email = server.uniqueEmail();
       const password = 'hothamburger';

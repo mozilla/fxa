@@ -11,12 +11,15 @@ import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import Banner from '../../../components/Banner';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
 export type ConfirmTotpResetPasswordProps = {
   verifyCode: (code: string) => Promise<void>;
   codeErrorMessage: string;
   setCodeErrorMessage: Dispatch<SetStateAction<string>>;
   onTroubleWithCode: () => void;
+  email?: string;
+  showPasskeyOption?: boolean;
 };
 
 const ConfirmTotpResetPassword = ({
@@ -24,6 +27,8 @@ const ConfirmTotpResetPassword = ({
   codeErrorMessage,
   setCodeErrorMessage,
   onTroubleWithCode,
+  email,
+  showPasskeyOption,
 }: ConfirmTotpResetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
@@ -104,6 +109,11 @@ const ConfirmTotpResetPassword = ({
           </FtlMsg>
         </button>
       </div>
+
+      <LinkRememberPassword
+        entrypoint="confirm_totp_reset_password"
+        {...{ email, showPasskeyOption }}
+      />
     </AppLayout>
   );
 };

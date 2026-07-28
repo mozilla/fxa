@@ -4,17 +4,21 @@
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmBackupCodeResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 const ConfirmBackupCodeResetPasswordContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration }) => {
+}: {
+  integration: ResetPasswordIntegration;
+}) => {
   const authClient = useAuthClient();
+  const config = useConfig();
   const location = useLocation();
 
   const {
@@ -25,10 +29,17 @@ const ConfirmBackupCodeResetPasswordContainer = ({
     recoveryKeyExists,
     estimatedSyncDeviceCount,
     uid,
+    hasPasskey,
   } = location.state as CompleteResetPasswordLocationState;
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    hasPasskey,
+    serviceRequiresKeys: integration.isSync(),
+    requireHasPasskey: true,
+  });
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
@@ -42,6 +53,7 @@ const ConfirmBackupCodeResetPasswordContainer = ({
         recoveryKeyExists,
         token,
         uid,
+        hasPasskey,
       },
       replace: true,
     });
@@ -67,6 +79,8 @@ const ConfirmBackupCodeResetPasswordContainer = ({
         codeErrorMessage,
         setCodeErrorMessage,
         integration,
+        email,
+        showPasskeyOption,
       }}
     />
   );

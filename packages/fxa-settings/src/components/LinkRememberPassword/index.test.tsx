@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -11,12 +11,15 @@ import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
 import { MemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../models/mocks';
+import GleanMetrics from '../../lib/glean';
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
     passwordReset: {
       emailConfirmationSignin: jest.fn(),
+      rememberPasswordLinkView: jest.fn(),
+      rememberPasswordLinkClick: jest.fn(),
     },
   },
 }));
@@ -29,9 +32,13 @@ const INITIAL_ROUTE = {
 const Subject = ({
   email = MOCK_EMAIL,
   clickHandler,
+  showPasskeyOption,
+  entrypoint = 'reset_password',
 }: Partial<LinkRememberPasswordProps>) => (
   <MemoryRouter initialEntries={[INITIAL_ROUTE]}>
-    <LinkRememberPassword {...{ email, clickHandler }} />
+    <LinkRememberPassword
+      {...{ email, clickHandler, showPasskeyOption, entrypoint }}
+    />
   </MemoryRouter>
 );
 
@@ -53,6 +60,27 @@ describe('LinkRememberPassword', () => {
     expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
+  it('renders the passkey wording when showPasskeyOption is true', () => {
+    renderWithLocalizationProvider(<Subject showPasskeyOption />);
+
+    expect(
+      screen.getByText('Have a passkey or remember your password?')
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Remember your password?')
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
+  });
+
+  it('renders the standard wording when showPasskeyOption is false', () => {
+    renderWithLocalizationProvider(<Subject showPasskeyOption={false} />);
+
+    expect(screen.getByText('Remember your password?')).toBeVisible();
+    expect(
+      screen.queryByText('Have a passkey or remember your password?')
+    ).not.toBeInTheDocument();
+  });
+
   it('links to index and appends parameters', async () => {
     renderWithLocalizationProvider(<Subject />);
 
@@ -69,10 +97,36 @@ describe('LinkRememberPassword', () => {
 
     renderWithLocalizationProvider(<Subject clickHandler={mockClickHandler} />);
 
-    await waitFor(() =>
-      user.click(screen.getByRole('link', { name: /^Sign in/ }))
+    await user.click(screen.getByRole('link', { name: /^Sign in/ }));
+
+    expect(mockClickHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('records a rememberPasswordLinkView impression on mount with the passkey flag', () => {
+    renderWithLocalizationProvider(
+      <Subject showPasskeyOption entrypoint="confirm_reset_password" />
     );
 
+    expect(
+      GleanMetrics.passwordReset.rememberPasswordLinkView
+    ).toHaveBeenCalledWith({
+      event: { has_passkey_option: 'true', reason: 'confirm_reset_password' },
+    });
+  });
+
+  it('records rememberPasswordLinkClick and calls clickHandler on Sign in click', async () => {
+    const mockClickHandler = jest.fn();
+    const user = userEvent.setup();
+
+    renderWithLocalizationProvider(<Subject clickHandler={mockClickHandler} />);
+
+    await user.click(screen.getByRole('link', { name: 'Sign in' }));
+
+    expect(
+      GleanMetrics.passwordReset.rememberPasswordLinkClick
+    ).toHaveBeenCalledWith({
+      event: { has_passkey_option: 'false', reason: 'reset_password' },
+    });
     expect(mockClickHandler).toHaveBeenCalledTimes(1);
   });
 
@@ -80,7 +134,7 @@ describe('LinkRememberPassword', () => {
     it('updates location with expected state when the link is clicked', async () => {
       // Render the component within a router for testing navigation.
       const { router } = renderWithRouter(
-        <LinkRememberPassword email={MOCK_EMAIL} />,
+        <LinkRememberPassword email={MOCK_EMAIL} entrypoint="reset_password" />,
         { route: INITIAL_ROUTE }
       );
 
@@ -95,7 +149,7 @@ describe('LinkRememberPassword', () => {
       );
 
       const user = userEvent.setup();
-      await waitFor(() => user.click(rememberPasswordLink));
+      await user.click(rememberPasswordLink);
 
       // Check that the pathname is updated if the link has a destination change.
       expect(router.state.location.pathname).toStrictEqual('/');

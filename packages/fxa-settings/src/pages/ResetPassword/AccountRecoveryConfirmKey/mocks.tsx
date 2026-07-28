@@ -13,6 +13,7 @@ export const Subject = ({
   recoveryKeyHint = '',
   success = true,
   verifyRecoveryKey,
+  showPasskeyOption = false,
 }: Partial<AccountRecoveryConfirmKeyProps> & { success?: boolean }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
@@ -43,6 +44,7 @@ export const Subject = ({
           setIsSubmitDisabled,
           token,
           uid,
+          showPasskeyOption,
         }}
       />
     </MemoryRouter>
