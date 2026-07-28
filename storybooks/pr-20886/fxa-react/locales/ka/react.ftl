@@ -1,5 +1,11 @@
 ## FxA React - Strings shared between multiple FxA products for application error dialog
 
+app-something-went-wrong-heading = რაღაც ხარვეზი წარმოიქმნა
+app-something-went-wrong-message = უკვე გვაცნობეს ამ ხარვეზის შესახებ. განაახლეთ გვერდი, რომ ხელახლა სცადოთ.
+# $errorId (String) - Unique identifier for the error report, used to look it up in our monitoring system
+app-error-id = შეცდომის ID: { $errorId }
+# Expandable toggle that reveals technical details about the error
+app-error-details-summary = შეცდომის შესახებ
 # Specific handling for issues when bad or missing query parameters are detected
 app-query-parameter-err-heading = არასწორი მოთხოვნა: გამოძახების უმართებულო პარამეტრები
 

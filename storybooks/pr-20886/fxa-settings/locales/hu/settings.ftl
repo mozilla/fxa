@@ -1466,7 +1466,7 @@ auth-error-225 = A jelkulcs már regisztrálva van
 auth-error-226 = A jelkulcsok korlátja elérve
 auth-error-227 = A jelkulcsos hitelesítés sikertelen
 auth-error-228 = A jelkulcs regisztrációja sikertelen
-auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy a biztonsági kulcsot. Ezután próbálja újra.
+auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
 auth-error-999 = Nem várt hiba
@@ -1534,12 +1534,24 @@ passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Pr�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = A jelkulcsok használata
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = A jelkulcskérés túllépte az időkorlátot. Próbálja újra.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = A jelkulcsos bejelentkezés túllépte az időkorlátot. Próbálja újra.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

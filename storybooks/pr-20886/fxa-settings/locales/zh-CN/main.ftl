@@ -139,6 +139,9 @@ device-info-browser-os = { $genericOSName } 上的 { $browserName }
 device-info-ip-address = IP 地址：{ $ipAddress }
 
 
+firefox-promo-banner-mobile-description = 在您的各种设备间同步标签页、书签和密码。所有内容都被安全地加密。
+firefox-promo-banner-switch-heading = 切换够方便，上手更轻松。
+firefox-promo-banner-switch-description = 当您切换到 { -brand-firefox } 时，可以直接带上您之前的书签、密码、历史记录等数据，到手即用，无缝衔接。
 firefox-promo-banner-switch-cta = 换用 { -brand-firefox }
 
 

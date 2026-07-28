@@ -1,10 +1,9 @@
 {
-  "commit": "1c812bc6cb72c530539ead51e8e191b6817b80b6",
-  "summary": "chore(auth): questions about zero subscrption scenarios",
+  "commit": "028ac7443a7ec66acdde6b31204bc0dc1e68b3a8",
+  "summary": "chore(auth): Add capabilities logs and metrics",
   "description": "",
-  "timestamp": 1784316680000,
+  "timestamp": 1785261461000,
   "storybooks": [
-    "email-renderer",
     "fxa-react",
     "fxa-settings"
   ],

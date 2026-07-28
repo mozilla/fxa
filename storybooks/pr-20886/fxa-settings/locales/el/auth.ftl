@@ -425,7 +425,7 @@ subscriptionRenewalReminder-content-closing = Με εκτίμηση,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionRenewalReminder-content-signature = Η ομάδα του { $productName }
-subscriptionReplaced-subject = Η συνδρομή σας έχει ενημερωθεί στα πλαίσια της αναβάθμισής σας
+subscriptionReplaced-subject = Η συνδρομή σας έχει ενημερωθεί στο πλαίσιο της αναβάθμισής σας
 subscriptionReplaced-title = Η συνδρομή σας έχει ενημερωθεί
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReplaced-content-replaced = Η μεμονωμένη συνδρομή σας στο { $productName } έχει αντικατασταθεί και περιλαμβάνεται στο νέο πακέτο σας.

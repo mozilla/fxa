@@ -1129,9 +1129,13 @@ passkey-registration-error-constraint = It ynstellen fan in wachtwurdkaai is net
 passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. Probearje it opnij of kies in oare metoade.
 
 
+passkey-authentication-trouble-heading = Kin net oanmelde mei in wachtwurdkaai
+passkey-authentication-trouble-description = Probearje it opnij of brûk in oare oanmeldingsopsje.
+passkey-authentication-trouble-link = Wachtwurdkaaien brûke
 passkey-authentication-error-not-allowed = Oanmelding mei wachtwurdkaai mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 passkey-authentication-error-not-allowed-existing = It ynstellen fan in wachtwurdkaai is net beskikber op dit apparaat. Probearje it opnij of kies in oare metoade.
 passkey-authentication-error-timeout = Wachtwurdkaaifersyk ferrûn. Probearje it opnij.
+passkey-authentication-error-timeout-v2 = Wachttiid foar oanmelden mei wachtwurdkaai is ferrûn. Probearje it opnij.
 passkey-authentication-error-not-supported-v2 = Jo browser of apparaat stipet gjin wachtwurdkaaien.
 passkey-authentication-error-security = Wachtwurdkaaien kinne net op dizze side brûkt wurde. Kontrolearje oft jo op de krekte befeilige website binne en probearje it opnij.
 passkey-authentication-error-invalid-state = Der is wat misgien mei jo wachtwurdkaai. Probearje it opnij of brûk in oare oanmeldingsmetoade.
@@ -1461,8 +1465,8 @@ signin-passwordless-code-heading = Fier befêstigingskoade yn
 signin-passwordless-code-subheading = Oanmelden duorret mar ien stap as jo dizze koade brûke.
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Fier binnen { $expirationTime } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
-       *[other] Fier binnen { $expirationTime } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+        [one] Fier binnen { $expirationMinutes } minút de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
+       *[other] Fier binnen { $expirationMinutes } minuten de koade yn dy’t nei <email>{ $email }</email> ferstjoerd is.
     }
 signin-passwordless-code-input-label-v2 = Fier 6-siferige koade yn
 signin-passwordless-code-confirm-button = Befêstigje

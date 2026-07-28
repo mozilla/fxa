@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Код
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Түзету
 error-icon-aria-label =
     .aria-label = Қате
 # Used as information icon for informative messaging
@@ -1255,6 +1258,18 @@ passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
 passkey-delete-error = Рұқсат кілтіңізді өшіру кезінде қате орын алды. Бірнеше минуттан кейін қайталап көріңіз.
+passkey-sub-row-rename-title = Рұқсат кілтінің атын өзгерту
+passkey-rename-modal-heading = Рұқсат кілтінің атын өзгерту
+passkey-rename-modal-description = Бұл рұқсат кілті үшін жаңа атын енгізіңіз.
+passkey-rename-input-label = Рұқсат кілтінің аты
+passkey-rename-save-button = Сақтау
+passkey-rename-cancel-button = Бас тарту
+passkey-rename-error-empty = Бұл рұқсат кілті үшін атын енгізіңіз
+passkey-rename-error-too-long = Атау 256 таңбадан аз болуы керек.
+passkey-rename-error-invalid = Тек әріптер, сандар, тыныс белгілері және символдарға рұқсат етіледі.
+passkey-rename-error-duplicate = Осылай аталатын рұқсат кілті бар болып тұр.
+passkey-rename-success = Рұқсат кілтінің аты өзгертілді
+passkey-rename-error = Рұқсат кілтінің атын өзгерту кезінде қате орын алды. Бірнеше минуттан кейін қайталап көріңіз.
 
 ## Switch component
 
@@ -1448,6 +1463,7 @@ auth-error-225 = Рұқсат кілті әлдеқашан тіркелген
 auth-error-226 = Рұқсат кілті шегіне жетті
 auth-error-227 = Рұқсат кілтінің аутентификациясы сәтсіз аяқталды
 auth-error-228 = Рұқсат кілтін тіркеу сәтсіз аяқталды
+auth-error-233 = Рұқсат кілтін жасау үшін құрылғыңызда немесе қауіпсіздік кілтінде экран құлпын, PIN кодын, саусақ ізін немесе бетті тануды орнатыңыз. Содан кейін қайталап көріңіз.
 auth-error-238 = Рұқсат кілтін тексеру сәтсіз аяқталды
 auth-error-239 = Кешіріңіз, тіркелгіңізді өшіру мүмкін болмады. Қайталап көріңіз немесе, мәселе шешілмесе, қолдау қызметіне хабарласыңыз.
 auth-error-999 = Күтпеген қате
@@ -1515,12 +1531,24 @@ passkey-registration-error-unexpected = Рұқсат кілтін баптау �
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Рұқсат кілтімен кіру мүмкін болмады
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Қайталап көріңіз немесе басқа кіру опциясын пайдаланыңыз.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Рұқсат кілттерді қалай пайдалануға болады
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Рұқсат кілтімен кіру сәтсіз аяқталды немесе қолжетімді емес. Қайталап көріңіз немесе басқа әдісті таңдаңыз.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Бұл құрылғыда рұқсат кілттерін баптау мүмкін емес. Қайталап көріңіз немесе баста тәсілді қолданып көріңіз.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Рұқсат кілті сұрауының уақыты аяқталды. Қайталап көріңіз.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Рұқсат кілтімен кіру уақыты аяқталды. Қайталап көріңіз.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Браузеріңіз немесе құрылғыңыз рұқсат кілттерін қолдамайды.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

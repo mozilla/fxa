@@ -1488,12 +1488,24 @@ passkey-registration-error-unexpected = Passkey 設定失敗，請再試一次�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = 無法使用 Passkey 登入
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = 請再試一次，或改用其他方式登入。
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = 如何使用 Passkey
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Passkey 登入失敗或無法使用，請再試一次或改用其他方式。
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = 無法於此裝置設定 Passkey，請重試或改用其他方式。
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey 請求逾時，請再試一次。
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Passkey 登入逾時，請重試。
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = 您的瀏覽器或裝置不支援 Passkey。
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1654,7 +1666,7 @@ pair-auth-complete-manage-devices-link = 管理裝置
 pair-auth-complete-send-tab-heading = 已經準備就緒，可以傳送分頁
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
-pair-auth-complete-send-tab-device-connected = 已連結 %(deviceOS)s 上的 %(deviceFamily)s。
+pair-auth-complete-send-tab-device-connected = 已連結 { $deviceOS } 上的 { $deviceFamily }。
 pair-auth-complete-send-tab-benefits = 您可在不同裝置間，自由且即時地傳送開啟分頁、密碼與書籤。
 
 ## AuthTotp page

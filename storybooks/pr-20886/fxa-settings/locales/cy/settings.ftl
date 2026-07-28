@@ -1278,18 +1278,18 @@ passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
 passkey-delete-error = Bu problem wrth ddileu'ch cyfrinallwedd. Ceisiwch eto mewn ychydig funudau.
-passkey-sub-row-rename-title = Ailenwi'r cyfrinair
-passkey-rename-modal-heading = Ailenwi'r cyfrinair
-passkey-rename-modal-description = Rhowch enw newydd ar gyfer y cyfrinair hwn.
-passkey-rename-input-label = Enw paskey
+passkey-sub-row-rename-title = Ailenwi'r cyfrinallwedd
+passkey-rename-modal-heading = Ailenwi'r cyfrinallwedd
+passkey-rename-modal-description = Rhowch enw newydd ar gyfer y cyfrinallwedd hwn.
+passkey-rename-input-label = Enw cyfrinallwedd
 passkey-rename-save-button = Cadw
 passkey-rename-cancel-button = Diddymu
-passkey-rename-error-empty = Rhowch enw ar gyfer y cyfrinair hwn
+passkey-rename-error-empty = Rhowch enw ar gyfer y cyfrinallwedd hwn
 passkey-rename-error-too-long = Rhaid i'r enw gynnwys llai na 256 nod.
-passkey-rename-error-invalid = Dim ond llythrennau, rhifau, atalnodau a symbolau a ganiateir.
-passkey-rename-error-duplicate = Mae allwedd allwedd gyda'r enw hwn eisoes yn bodoli
-passkey-rename-success = Ailenwyd y tocyn
-passkey-rename-error = Bu problem wrth ailenwi'ch cyfrinair. Ceisiwch eto mewn ychydig funudau.
+passkey-rename-error-invalid = Dim ond llythrennau, rhifau, atalnodau a symbolau sy'n cael eu caniatáu.
+passkey-rename-error-duplicate = Mae cyfrinallwedd gyda'r enw hwn eisoes yn bodoli
+passkey-rename-success = Cyfrinallwedd wedi'i ailenwi
+passkey-rename-error = Bu problem wrth ailenwi'ch cyfrinallwedd. Ceisiwch eto mewn ychydig funudau.
 
 ## Switch component
 
@@ -1484,7 +1484,7 @@ auth-error-225 = Cyfrinallwedd eisoes wedi'i gofrestru
 auth-error-226 = Wedi cyrraedd terfyn y cyfrinallwedd
 auth-error-227 = Wedi methu dilysu'r cyfrinallwedd
 auth-error-228 = Wedi methu cofrestri'r cyfrinallwedd
-auth-error-233 = I greu cyfrinair, gosodwch glo sgrin, PIN, olion bysedd, neu adnabyddiaeth wyneb ar eich dyfais neu allwedd ddiogelwch. Yna ceisiwch eto.
+auth-error-233 = I greu cyfrinallwedd, gosodwch glo sgrin, PIN, ôl bys, neu adnabod wyneb ar eich dyfais neu allwedd ddiogelwch. Yna ceisiwch eto.
 auth-error-238 = Methodd her y cyfrinallwedd
 auth-error-239 = Ymddiheuriadau, doedd dim modd i ni allu dileu eich cyfrif. Ceisiwch eto, neu cysylltwch â'r tîm cymorth os yw'r broblem yn parhau.
 auth-error-999 = Gwall anhysbys
@@ -1552,12 +1552,24 @@ passkey-registration-error-unexpected = Wedi methu gosod y cyfrinallwedd. Ceisiw
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Methu mewngofnodi gyda chyfrinallwedd
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Ceisiwch eto neu ddefnyddio dewis mewngofnodi arall.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Sut i ddefnyddio cyfrinallweddi
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Wedi methu mewngofnodi gyda'r cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Ceisiwch eto neu dewiswch ddull arall.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Daeth y terfyn amser ar y cais am gyfrinallwedd. Ceisiwch eto.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Daeth terfyn amser ar gyfer mewngofnodi gyda'r cyfrinallwedd. Ceisiwch eto.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Dyw eich porwr neu ddyfais ddim yn cefnogi cyfrinallweddi.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

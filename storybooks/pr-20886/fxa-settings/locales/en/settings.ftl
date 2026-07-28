@@ -311,6 +311,10 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 
@@ -1404,6 +1408,19 @@ passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
+
 ##
 
 ## Switch component
@@ -1681,6 +1698,17 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = How to use passkeys
+
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 
@@ -1689,6 +1717,8 @@ passkey-authentication-error-not-allowed-existing = Passkey setup isn’t availa
 
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.

@@ -942,7 +942,7 @@ passkey-rename-save-button = Lagre
 passkey-rename-cancel-button = Avbryt
 passkey-rename-error-empty = Skriv inn et navn for denne passnøkkelen.
 passkey-rename-error-too-long = Navnet må inneholde færre enn 256 tegn.
-passkey-rename-error-invalid = Bare bokstaver, tall, skilletegn og symboler er tillatt.
+passkey-rename-error-invalid = Bare bokstaver, tall, tegnsetting og symboler er tillatt.
 passkey-rename-error-duplicate = En passnøkkel med dette navnet finnes allerede
 passkey-rename-success = Passnøkkel omdøpt
 passkey-rename-error = Det oppstod et problem med å endre navn på passnøkkelen din. Prøv igjen om noen minutter.
@@ -1116,9 +1116,13 @@ passkey-registration-error-constraint = Oppsett av passnøkkel er ikke tilgjenge
 passkey-registration-error-unexpected = Oppsett av passnøkkel mislyktes. Prøv igjen eller velg en annen metode.
 
 
+passkey-authentication-trouble-heading = Kunne ikke logge inn med en passnøkkel
+passkey-authentication-trouble-description = Prøv på nytt eller bruk en annen påloggingsmetode.
+passkey-authentication-trouble-link = Slik bruker du passnøkler
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislyktes eller er ikke tilgjengelig. Prøv igjen eller velg en annen metode.
 passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Prøv igjen eller velg en annen metode.
 passkey-authentication-error-timeout = Forespørselen om passnøkkel ble tidsavbrutt. Prøv igjen.
+passkey-authentication-error-timeout-v2 = Tidsavbrudd ved pålogging med passnøkkel. Prøv på nytt.
 passkey-authentication-error-not-supported-v2 = Nettleseren eller enheten din støtter ikke passnøkler.
 passkey-authentication-error-security = Passnøkler kan ikke brukes på denne siden. Kontroller at du er på riktig sikkert nettsted og prøv igjen.
 passkey-authentication-error-invalid-state = Noe gikk galt med passnøkkelen din. Prøv igjen eller bruk en annen innloggingsmetode.

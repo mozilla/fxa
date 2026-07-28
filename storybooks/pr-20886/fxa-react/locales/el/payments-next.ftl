@@ -702,11 +702,11 @@ metadata-description-default = Η σελίδα που ζητήσατε δεν β
 ## Coupon Error Messages
 
 next-coupon-error-cannot-redeem = Δεν είναι δυνατή η εξαργύρωση του κωδικού που πληκτρολογήσατε· ο λογαριασμός σας διαθέτει προηγούμενη συνδρομή σε κάποια από τις υπηρεσίες μας.
-next-coupon-error-expired = Ο κωδικός που καταχωρήσατε έχει λήξει.
+next-coupon-error-expired = Ο κωδικός που καταχωρίσατε έχει λήξει.
 next-coupon-error-generic = Προέκυψε σφάλμα κατά την επεξεργασία του κωδικού. Δοκιμάστε ξανά.
-next-coupon-error-invalid = Ο κωδικός που καταχωρήσατε δεν είναι έγκυρος.
+next-coupon-error-invalid = Ο κωδικός που καταχωρίσατε δεν είναι έγκυρος.
 # "Limit" refers to the maximum number of times a coupon can be redeemed.
-next-coupon-error-limit-reached = Ο κωδικός που καταχωρήσατε έχει φτάσει το όριό του.
+next-coupon-error-limit-reached = Ο κωδικός που καταχωρίσατε έχει φτάσει το όριό του.
 
 ## Stay Subscribed Error Messages
 

@@ -1083,9 +1083,13 @@ passkey-registration-error-constraint = 無法於此裝置設定 Passkey，請�
 passkey-registration-error-unexpected = Passkey 設定失敗，請再試一次或改用其他方式。
 
 
+passkey-authentication-trouble-heading = 無法使用 Passkey 登入
+passkey-authentication-trouble-description = 請再試一次，或改用其他方式登入。
+passkey-authentication-trouble-link = 如何使用 Passkey
 passkey-authentication-error-not-allowed = Passkey 登入失敗或無法使用，請再試一次或改用其他方式。
 passkey-authentication-error-not-allowed-existing = 無法於此裝置設定 Passkey，請重試或改用其他方式。
 passkey-authentication-error-timeout = Passkey 請求逾時，請再試一次。
+passkey-authentication-error-timeout-v2 = Passkey 登入逾時，請重試。
 passkey-authentication-error-not-supported-v2 = 您的瀏覽器或裝置不支援 Passkey。
 passkey-authentication-error-security = 無法於此頁面使用 Passkey，請確認目前是否位於正確的安全網站後再試一次。
 passkey-authentication-error-invalid-state = 您的 Passkey 怪怪的，請再試一次或改用其他方式登入。
@@ -1180,7 +1184,7 @@ pair-auth-complete-manage-devices-link = 管理裝置
 
 
 pair-auth-complete-send-tab-heading = 已經準備就緒，可以傳送分頁
-pair-auth-complete-send-tab-device-connected = 已連結 %(deviceOS)s 上的 %(deviceFamily)s。
+pair-auth-complete-send-tab-device-connected = 已連結 { $deviceOS } 上的 { $deviceFamily }。
 pair-auth-complete-send-tab-benefits = 您可在不同裝置間，自由且即時地傳送開啟分頁、密碼與書籤。
 
 

@@ -159,6 +159,17 @@ device-info-browser-os = { $browserName } სისტემაზე { $generic
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-მისამართი: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = გადმოწერეთ { -brand-firefox } სადაც არ უნდა იყოთ
+firefox-promo-banner-mobile-description = დაასინქრონეთ ჩანართები, სანიშნები და პაროლები თქვენს მოწყობილობებზე. ამასთანავე, ყველაფერი უსაფრთხოდ დარჩება დაშიფრული.
+firefox-promo-banner-mobile-cta = მოწყობილობის დაკავშირება
+firefox-promo-banner-switch-heading = სწრაფი გადართვა. იოლი გამართვა.
+firefox-promo-banner-switch-description = როცა { -brand-firefox }-ზე გადახვალთ, შეგეძლებათ თან წაიყოლოთ თქვენი სანიშნები, პაროლები, ისტორია და სხვ., რომ შეუფერხებლად დაიწყოთ გვერდების მონახულება.
+firefox-promo-banner-switch-cta = გადასვლა { -brand-firefox }-ზე
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -262,6 +273,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = კოდი
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = ჩასწორება
 error-icon-aria-label =
     .aria-label = შეცდომა
 # Used as information icon for informative messaging
@@ -355,6 +369,8 @@ input-phone-number-country-united-states = შეერთებული შტ
 input-phone-number-country-canada = კანადა
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = უკან
+# Generic error shown when the legal document fails to load
+app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 ## LinkDamaged component
 
@@ -1237,10 +1253,23 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
+passkey-delete-modal-content-v2 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე სხვა გზით შესვლა (პაროლით, სხვა საშვით ან მიბმული ანგარიშით).
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
 passkey-delete-error = ხარვეზი წარმოიშვა პროფილის საშვის წაშლისას. კვლავ სცადეთ რამდენიმე წუთში.
+passkey-sub-row-rename-title = საშვის გადარქმევა
+passkey-rename-modal-heading = საშვის გადარქმევა
+passkey-rename-modal-description = მიუთითეთ ახალი სახელი ამ საშვისთვის.
+passkey-rename-input-label = საშვის სახელი
+passkey-rename-save-button = შენახვა
+passkey-rename-cancel-button = გაუქმება
+passkey-rename-error-empty = მიუთითეთ სახელი ამ საშვისთვის
+passkey-rename-error-too-long = სახელი უნდა შედგებოდეს არაუმეტეს 256 ასონიშნისგან.
+passkey-rename-error-invalid = მისაღებია მხოლოდ ასოები, ციფრები, სასვენი ნიშნები და სიმბოლოები.
+passkey-rename-error-duplicate = საშვი ამ სახელით უკვე არსებობს
+passkey-rename-success = საშვი გადარქმეულია
+passkey-rename-error = ხარვეზი წარმოიშვა საშვის გადარქმევისას. კვლავ სცადეთ რამდენიმე წუთში.
 
 ## Switch component
 
@@ -1433,6 +1462,7 @@ auth-error-225 = საშვი უკვე აღნუსხულია
 auth-error-226 = საშვის ზღვარი მიღწეულია
 auth-error-227 = საშვის დამოწმება ვერ მოხერხდა
 auth-error-228 = საშვის აღნუსხვა ვერ მოხერხდა
+auth-error-233 = საშვის შესაქმნელად დააყენეთ ეკრანის ჩამკეტი, PIN-კოდი, თითის ანაბეჭდი ან სახის ამომცნობი თქვენს მოწყობილობასა თუ უსაფრთხოების გასაღებზე. შემდეგ სცადეთ ხელახლა.
 auth-error-238 = საშვის შემოწმება ვერ მოხერხდა
 auth-error-239 = სამწუხაროდ, თქვენი ანგარიშის წაშლა ვერ მოხერხდა. გთხოვთ, კვლავ სცადოთ ან დაუკავშირდეთ მხარდაჭერის გუნდს, თუ ხარვეზი გამეორდება.
 auth-error-999 = მოულოდნელი შეცდომა
@@ -1474,10 +1504,19 @@ passkey-registration-error-not-allowed = საშვის გამართ�
 passkey-registration-error-not-allowed-existing = საშვის გამართვა მიუწვდომელია ამ მოწყობილობაზე. ან მოწყობილობა უკვე აღრიცხულია ან გამართვა შეწყვეტილია.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = საშვის გამართვა გაუქმებულია. სცადეთ ხელახლა.
+passkey-registration-canceled-v2 = საშვის გამართვა გაუქმდა ან დრო ამოიწურა.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = ვრცლად
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = თქვენს ბრაუზერსა თუ მოწყობილობაზე მხარდაუჭერელია საშვები.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = ვრცლად
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = საშვის დაყენება ვერ დასრულდა. სცადეთ სხვა გზა ან მოწყობილობა.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = ვრცლად
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = საშვების გამართვა ვერ ხერხდება ამ გვერდზე. გამოიყენეთ დაცული საიტი და ხელახლა სცადეთ.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1491,12 +1530,24 @@ passkey-registration-error-unexpected = საშვის გამართვ
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = საშვით შესვლა ვერ ხერხდება
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = ხელახლა სცადეთ ან გამოიყენეთ შესვლის სხვა ხერხი.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = როგორ გამოიყენება საშვები
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = საშვით შესვლის გამართვა ვერ მოხერხდა ან მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = საშვის გამართვა მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = საშვის მოთხოვნის ვადა ამოიწურა. გთხოვთ, კვლავ სცადოთ.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = საშვით შესვლის დრო ამოიწურა. სცადეთ ხელახლა.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = თქვენს ბრაუზერსა თუ მოწყობილობაზე მხარდაუჭერელია საშვები.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

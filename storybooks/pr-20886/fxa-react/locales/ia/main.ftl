@@ -37,7 +37,7 @@
 
 app-something-went-wrong-heading = Alco errate eveniva
 app-something-went-wrong-message = Nos ha essite notificate del problema. Actualisar le pagina pro retentar.
-app-error-id = ID de error: { $error }
+app-error-id = ID de error: { $errorId }
 app-error-details-summary = Detalios del error
 app-query-parameter-err-heading = Mal requesta: parametros de consulta non valide
 
