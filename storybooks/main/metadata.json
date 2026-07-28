@@ -1,8 +1,8 @@
 {
-  "commit": "d3c22599248128ab1e7f68e91c40b8c2e855cc51",
-  "summary": "Merge pull request #20924 from mozilla/FXA-14251-fix-nightly-unit-test-firestore-leak",
-  "description": "fix(auth-server): stop converter.spec leaking a real Firestore client",
-  "timestamp": 1785250968000,
+  "commit": "23e4512f328d231c7a72e823f5183b361c88697e",
+  "summary": "Merge pull request #20928 from mozilla/merge-updates",
+  "description": "Merge updates",
+  "timestamp": 1785258400000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
