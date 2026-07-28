@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailNormalization } from './email-normalization';
+import {
+  EmailNormalization,
+  escapeLikePattern,
+} from './email-normalization';
 
 describe('EmailNormalization', () => {
   it('trims and lowercases the email before processing', () => {
@@ -93,5 +96,23 @@ describe('EmailNormalization', () => {
     );
 
     expect(result).toBe('foo.bar@example.com');
+  });
+});
+
+describe('escapeLikePattern', () => {
+  it.each([
+    { input: '%', expected: '\\%' },
+    { input: '_', expected: '\\_' },
+    { input: '\\', expected: '\\\\' },
+  ])('escapes $input for a literal LIKE match', ({ input, expected }) => {
+    expect(escapeLikePattern(input)).toBe(expected);
+  });
+
+  it('escapes every wildcard in a mixed string', () => {
+    expect(escapeLikePattern('a%b_c\\d')).toBe('a\\%b\\_c\\\\d');
+  });
+
+  it('leaves input without wildcards unchanged', () => {
+    expect(escapeLikePattern('user@example.com')).toBe('user@example.com');
   });
 });

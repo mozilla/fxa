@@ -174,6 +174,20 @@ describe('oauth/scopes:', () => {
         );
       });
     });
+
+    it('rejects short-name scopes with too many colon components', () => {
+      const source = new Array(64).fill('a').join(':');
+      assert.throws(
+        () => scopes.fromString(source),
+        Error,
+        /^Invalid scope value/
+      );
+    });
+
+    it('accepts short-name scopes at the component-count limit', () => {
+      const source = new Array(32).fill('a').join(':');
+      assert.doesNotThrow(() => scopes.fromString(source));
+    });
   });
 
   describe('scope filtering', () => {

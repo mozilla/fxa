@@ -1553,7 +1553,7 @@ const convictConf = convict({
       },
     },
     localRedirects: {
-      doc: 'When true, `localhost` and `localhost` always are legal redirects.',
+      doc: 'When true, `localhost`, `127.0.0.1`, and `[::1]` are always legal redirects.',
       default: false,
       env: 'FXA_OAUTH_LOCAL_REDIRECTS',
     },

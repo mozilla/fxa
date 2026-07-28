@@ -128,6 +128,7 @@ describe('/linked_account', () => {
       const mockGoogleUser = {
         sub: '123123123',
         email: `${Math.random()}@gmail.com`,
+        email_verified: true,
       };
 
       beforeEach(async () => {
@@ -439,6 +440,65 @@ describe('/linked_account', () => {
         expect(result.sessionToken).toBeTruthy();
         expect(result.verificationMethod).toBe('totp-2fa');
       });
+
+      // Builds a login route whose Google id_token decodes to `payload`, so a
+      // test can drive the email_verified gate with an arbitrary claim shape.
+      const makeGoogleRoute = (payload: any) => {
+        const OAuth2ClientMock = class OAuth2Client {
+          verifyIdToken() {
+            return { getPayload: () => payload };
+          }
+        };
+        return getRoute(
+          makeRoutes(
+            {
+              config: { googleAuthConfig: { clientId: 'OooOoo' } },
+              db: mockDB,
+              log: mockLog,
+              mailer: mockMailer,
+              statsd,
+            },
+            { 'google-auth-library': { OAuth2Client: OAuth2ClientMock } }
+          ),
+          '/linked_account/login'
+        );
+      };
+
+      it('rejects the auto-link when google email_verified is false', async () => {
+        route = makeGoogleRoute({ ...mockGoogleUser, email_verified: false });
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('rejects the auto-link when google email_verified is absent', async () => {
+        route = makeGoogleRoute({
+          sub: mockGoogleUser.sub,
+          email: mockGoogleUser.email,
+        });
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('creates a new account when google email_verified is true and no FxA account exists', async () => {
+        mockDB.accountRecord = jest.fn(() =>
+          Promise.reject(error.unknownAccount(mockGoogleUser.email))
+        );
+        route = makeGoogleRoute({ ...mockGoogleUser, email_verified: true });
+
+        const result: any = await runTest(route, mockRequest);
+
+        expect(mockDB.createAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        expect(result.uid).toBe(UID);
+      });
     });
 
     describe('apple auth', () => {
@@ -446,6 +506,13 @@ describe('/linked_account', () => {
         sub: 'OooOoo',
         email: 'bloop@mozilla.com',
       };
+
+      // Apple's id_token is now signature-verified via getApplePublicKey +
+      // validateSecurityToken. These mocks stand in for the JWKS fetch and
+      // verification so tests can drive the returned claims (email_verified,
+      // or a verification failure) without a real Apple-signed token.
+      let appleGetPublicKey: jest.Mock;
+      let appleValidateToken: jest.Mock;
 
       const privateKey = `-----BEGIN PRIVATE KEY-----
       MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgiyvo0X+VQ0yIrOaN
@@ -455,6 +522,7 @@ describe('/linked_account', () => {
 
       beforeEach(async () => {
         mockLog = createMock<AuthLogger>();
+        statsd = createMock<StatsD>();
         mockDB = mocks.mockDB({
           email: mockAppleUser.email,
           uid: UID,
@@ -486,13 +554,30 @@ describe('/linked_account', () => {
           }),
         } as unknown as Response);
 
+        appleGetPublicKey = jest.fn().mockResolvedValue({ pem: 'apple-pem' });
+        appleValidateToken = jest.fn().mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+          email_verified: 'true',
+          name: 'John Doe',
+        });
+
         route = getRoute(
-          makeRoutes({
-            config: mockConfig,
-            db: mockDB,
-            log: mockLog,
-            mailer: mockMailer,
-          }),
+          makeRoutes(
+            {
+              config: mockConfig,
+              db: mockDB,
+              log: mockLog,
+              mailer: mockMailer,
+              statsd,
+            },
+            {
+              './utils/third-party-events': {
+                getApplePublicKey: appleGetPublicKey,
+                validateSecurityToken: appleValidateToken,
+              },
+            }
+          ),
           '/linked_account/login'
         );
         glean.registration.complete.mockClear();
@@ -674,6 +759,109 @@ describe('/linked_account', () => {
           (call: any[]) => call[0]
         );
         expect(notifyEvents).toEqual(['login']);
+      });
+
+      it('accepts the auto-link when apple email_verified is the string "true"', async () => {
+        appleValidateToken.mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+          email_verified: 'true',
+        });
+
+        const result: any = await runTest(route, mockRequest);
+
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        expect(result.uid).toBe(UID);
+      });
+
+      it('rejects the auto-link when apple email_verified is false', async () => {
+        appleValidateToken.mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+          email_verified: false,
+        });
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('rejects the auto-link when apple email_verified is absent', async () => {
+        appleValidateToken.mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+        });
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('blocks new account creation when apple email_verified is not truthy', async () => {
+        mockDB.accountRecord = jest.fn(() =>
+          Promise.reject(error.unknownAccount(mockAppleUser.email))
+        );
+        appleValidateToken.mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+          email_verified: false,
+        });
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('rejects the login when apple id_token signature verification fails', async () => {
+        // validateSecurityToken returns undefined on any verification failure
+        // (bad signature, wrong aud/iss, unsigned) — the login must not proceed.
+        appleValidateToken.mockResolvedValue(undefined);
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+        });
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+      });
+
+      it('verifies the apple id_token against apple public keys with the configured audience', async () => {
+        await runTest(route, mockRequest);
+
+        expect(appleGetPublicKey).toHaveBeenCalledTimes(1);
+        expect(appleValidateToken).toHaveBeenCalledWith(
+          expect.any(String),
+          ['OooOoo'],
+          'apple-pem',
+          'https://appleid.apple.com',
+          statsd
+        );
+      });
+
+      it('still logs in an already-linked apple account when email_verified is absent', async () => {
+        mockDB.getLinkedAccount = jest.fn(() =>
+          Promise.resolve({ id: mockAppleUser.sub, uid: UID })
+        );
+        appleValidateToken.mockResolvedValue({
+          sub: mockAppleUser.sub,
+          email: mockAppleUser.email,
+        });
+
+        const result: any = await runTest(route, mockRequest);
+
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        expect(result.uid).toBe(UID);
       });
     });
   });

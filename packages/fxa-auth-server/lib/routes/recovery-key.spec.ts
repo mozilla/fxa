@@ -742,6 +742,19 @@ describe('DELETE /recoveryKey', () => {
 });
 
 describe('POST /recoveryKey/hint', () => {
+  beforeEach(() => {
+    glean = mocks.mockGlean();
+    fxaMailer = installMockFxaMailer();
+  });
+
+  it('requires a verified session token', () => {
+    const hintRoute = getRoute(makeRoutes({}), '/recoveryKey/hint', 'POST');
+    expect(hintRoute.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+    ]);
+  });
+
   describe('should fail for unknown recovery key', () => {
     beforeEach(async () => {
       const requestOptions = {

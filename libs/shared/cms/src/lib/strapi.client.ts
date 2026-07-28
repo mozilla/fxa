@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as crypto from 'crypto';
 import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
@@ -13,6 +12,7 @@ import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
 import * as Sentry from '@sentry/node';
 
+import { bufferEqualsConstantTime } from '@fxa/shared/crypto';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import {
   CacheFirstStrategy,
@@ -195,17 +195,7 @@ export class StrapiClient {
     if (!secret) {
       return false;
     }
-    if (!authorization?.startsWith('Bearer ')) {
-      return false;
-    }
-    const expected = `Bearer ${secret}`;
-    const authBuf = Buffer.from(authorization);
-    const expectedBuf = Buffer.from(expected);
-    // timingSafeEqual throws on unequal-length inputs; header length isn't secret.
-    if (authBuf.length !== expectedBuf.length) {
-      return false;
-    }
-    return crypto.timingSafeEqual(authBuf, expectedBuf);
+    return bufferEqualsConstantTime(authorization, `Bearer ${secret}`);
   }
 
   private async getLocales(): Promise<string[]> {

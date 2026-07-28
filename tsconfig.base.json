@@ -96,6 +96,7 @@
       "@fxa/shared/cloud-tasks": ["./libs/shared/cloud-tasks/src/index.ts"],
       "@fxa/shared/cms": ["./libs/shared/cms/src/index.ts"],
       "@fxa/shared/cms/testing": ["./libs/shared/cms/src/testing.ts"],
+      "@fxa/shared/crypto": ["./libs/shared/crypto/src/index.ts"],
       "@fxa/shared/db/firestore": ["./libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "./libs/shared/db/mysql/account/src/index.ts"
