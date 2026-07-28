@@ -6,8 +6,20 @@ import * as Sentry from '@sentry/node';
 import { RateLimitBqWriter, BqWriterConfig } from './bq-writer';
 import { RateLimitCheckEvent } from './models';
 
+const mockCallLog: string[] = [];
+
 jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
+  captureException: jest.fn(() => {
+    mockCallLog.push('captureException');
+  }),
+  withIsolationScope: jest.fn(
+    (callback: (scope: { clear(): void }) => Promise<void>) => {
+      mockCallLog.push('scope:enter');
+      return callback({
+        clear: () => mockCallLog.push('scope:clear'),
+      }).finally(() => mockCallLog.push('scope:exit'));
+    }
+  ),
 }));
 
 describe('RateLimitBqWriter', () => {
@@ -29,9 +41,13 @@ describe('RateLimitBqWriter', () => {
   });
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    mockCallLog.length = 0;
     jest.useFakeTimers();
     mockTable = {
-      insert: jest.fn().mockResolvedValue(undefined),
+      insert: jest.fn().mockImplementation(async () => {
+        mockCallLog.push('insert');
+      }),
     };
     config = {
       projectId: 'test-project',
@@ -120,6 +136,86 @@ describe('RateLimitBqWriter', () => {
 
     expect(mockTable.insert).toHaveBeenCalledWith([
       expect.objectContaining({ action: 'remaining' }),
+    ]);
+  });
+
+  it('inserts inside a freshly cleared isolation scope', async () => {
+    writer.write(createEvent());
+
+    await writer.flush();
+
+    expect(mockCallLog).toEqual([
+      'scope:enter',
+      'scope:clear',
+      'insert',
+      'scope:exit',
+    ]);
+  });
+
+  it('reports insert failures from inside the isolation scope', async () => {
+    mockTable.insert.mockImplementation(async () => {
+      mockCallLog.push('insert');
+      throw new Error('BQ unavailable');
+    });
+    writer.write(createEvent());
+
+    await writer.flush();
+
+    expect(mockCallLog).toEqual([
+      'scope:enter',
+      'scope:clear',
+      'insert',
+      'captureException',
+      'scope:exit',
+    ]);
+  });
+
+  it('never has two inserts in flight at once', async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+    mockTable.insert.mockImplementation(async () => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      // Yield twice so an unserialized second insert would overlap this one.
+      await Promise.resolve();
+      await Promise.resolve();
+      inFlight -= 1;
+    });
+
+    writer.write(createEvent({ action: 'first' }));
+    const firstFlush = writer.flush();
+    writer.write(createEvent({ action: 'second' }));
+    const secondFlush = writer.flush();
+    await Promise.all([firstFlush, secondFlush]);
+
+    expect(maxInFlight).toBe(1);
+  });
+
+  it('sends events buffered during an in-flight insert on the next flush', async () => {
+    let releaseFirstInsert!: () => void;
+    mockTable.insert.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          releaseFirstInsert = resolve;
+        })
+    );
+
+    writer.write(createEvent({ action: 'first' }));
+    const firstFlush = writer.flush();
+    // Let the chained flush start; the first insert is now pending.
+    await Promise.resolve();
+
+    writer.write(createEvent({ action: 'second' }));
+    const secondFlush = writer.flush();
+
+    releaseFirstInsert();
+    await Promise.all([firstFlush, secondFlush]);
+
+    expect(mockTable.insert).toHaveBeenNthCalledWith(1, [
+      expect.objectContaining({ action: 'first' }),
+    ]);
+    expect(mockTable.insert).toHaveBeenNthCalledWith(2, [
+      expect.objectContaining({ action: 'second' }),
     ]);
   });
 
