@@ -284,7 +284,7 @@ export class InvoiceManager {
     let paypalCharge: ChargeResponse;
     try {
       // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
-      this.safeFinalizeWithoutAutoAdvance(invoice.id);
+      await this.safeFinalizeWithoutAutoAdvance(invoice.id);
       paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
