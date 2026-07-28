@@ -49,6 +49,7 @@ export enum AdminPanelFeature {
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
   RateLimiting = 'RateLimiting',
   DeleteRecoveryPhone = 'DeleteRecoveryPhone',
+  RemovePasskeys = 'RemovePasskeys',
   EmailBlocklist = 'EmailBlocklist',
   ManageWafTokens = 'ManageWafTokens',
   DomainBlocklist = 'DomainBlocklist',
@@ -213,6 +214,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DeleteRecoveryPhone]: {
     name: 'Delete Recovery Phone',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.RemovePasskeys]: {
+    name: 'Remove Passkeys',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.EmailBlocklist]: {

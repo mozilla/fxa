@@ -29,19 +29,26 @@ import {
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountDeleteStatus, AccountResetStatus } from '../../types';
+import { uuidTransformer } from '../../database/transformers';
 import { AccountController } from './account.controller';
+
+// AccountController imports SentryTraced from @sentry/nestjs, whose module init
+// does not run under Jest; stub the decorator to a no-op.
+jest.mock('@sentry/nestjs', () => ({ SentryTraced: () => () => undefined }));
 
 describe('AccountController', () => {
   let controller: AccountController;
   let eventLogging: DeepMocked<EventLoggingService>;
   let emailService: DeepMocked<EmailService>;
   let cloudTask: DeepMocked<CloudTasks>;
+  let notifier: DeepMocked<NotifierService>;
 
-  // The account-lookup query builder. `first` (email locator) and `findOne`
-  // (uid locator) are the terminal calls that decide whether an account was
-  // found; the `givenAccount` helper below points both at a test-defined value.
-  // Chain methods return `this`, so they can't be typed against the builder
-  // without a circular reference — plain jest.Mocks keep it simple.
+  // The account-lookup query builder (resetAccounts/deleteAccounts). `first`
+  // (email locator) and `findOne` (uid locator) are the terminal calls that
+  // decide whether an account was found; the `givenAccount` helper below points
+  // both at a test-defined value. Chain methods return `this`, so they can't be
+  // typed against the builder without a circular reference — plain jest.Mocks
+  // keep it simple.
   let accountQuery: {
     select: jest.Mock;
     innerJoin: jest.Mock;
@@ -50,7 +57,20 @@ describe('AccountController', () => {
     first: jest.Mock;
   };
 
+  // The passkeys-table query mock (removePasskeys/removePasskey). db.knex
+  // returns it, and it is awaited directly (no terminal call), so it is
+  // thenable and resolves to `passkeyDeleteCount`.
+  let knexMock: jest.Mock;
+  let passkeyQuery: {
+    delete: jest.Mock;
+    where: jest.Mock;
+    andWhere: jest.Mock;
+    then: jest.Mock;
+  };
+  let passkeyDeleteCount: number;
+
   const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+  const MOCK_CREDENTIAL_ID = 'AQIDBAUGBwgJCg';
   const EMAIL_LOCATOR = 'user@example.com';
   const NO_ACCOUNT_LOCATOR = 'nobody@example.com';
   const MOCK_USER = 'admin@mozilla.com';
@@ -71,6 +91,7 @@ describe('AccountController', () => {
     eventLogging = createMock<EventLoggingService>();
     emailService = createMock<EmailService>();
     cloudTask = createMock<CloudTasks>();
+    notifier = createMock<NotifierService>();
 
     accountQuery = {
       select: jest.fn().mockReturnThis(),
@@ -81,8 +102,21 @@ describe('AccountController', () => {
     };
     givenAccount(undefined); // default: no account found
 
+    // Passkey deletes go through db.knex('passkeys'); default to a hit.
+    passkeyDeleteCount = 2;
+    passkeyQuery = {
+      delete: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      then: jest.fn((resolve) =>
+        Promise.resolve(passkeyDeleteCount).then(resolve)
+      ),
+    };
+    knexMock = jest.fn().mockReturnValue(passkeyQuery);
+
     const db = createMock<DatabaseService>({
       account: { query: jest.fn().mockReturnValue(accountQuery) } as any,
+      knex: knexMock as any,
     });
 
     const stub = (provide: any): Provider => ({ provide, useValue: {} });
@@ -93,6 +127,7 @@ describe('AccountController', () => {
         { provide: EventLoggingService, useValue: eventLogging },
         { provide: EmailService, useValue: emailService },
         { provide: CloudTasksService, useValue: cloudTask },
+        { provide: NotifierService, useValue: notifier },
         { provide: MozLoggerService, useValue: createMock<MozLoggerService>() },
         { provide: DatabaseService, useValue: db },
         {
@@ -102,7 +137,6 @@ describe('AccountController', () => {
         stub(CartManager),
         stub(SubscriptionsService),
         stub(BasketService),
-        stub(NotifierService),
         stub(FirestoreService),
         stub(ProfileClient),
         stub(FidoMdsService),
@@ -260,6 +294,85 @@ describe('AccountController', () => {
           },
         ]);
       });
+    });
+  });
+
+  describe('removePasskeys', () => {
+    it('deletes from the passkeys table scoped to the given uid', async () => {
+      await controller.removePasskeys(MOCK_UID);
+      expect(knexMock).toHaveBeenCalledWith('passkeys');
+      expect(passkeyQuery.delete).toHaveBeenCalled();
+      expect(passkeyQuery.where).toHaveBeenCalledWith(
+        'uid',
+        uuidTransformer.to(MOCK_UID)
+      );
+    });
+
+    it('returns true when passkeys were removed', async () => {
+      expect(await controller.removePasskeys(MOCK_UID)).toBe(true);
+    });
+
+    it('logs a remove-passkeys event', async () => {
+      await controller.removePasskeys(MOCK_UID);
+      expect(eventLogging.onEvent).toHaveBeenCalledWith(
+        EventNames.RemovePasskeys
+      );
+    });
+
+    it('emits a profileDataChange notification when passkeys were removed', async () => {
+      await controller.removePasskeys(MOCK_UID);
+      expect(notifier.send).toHaveBeenCalledWith({
+        event: 'profileDataChange',
+        data: { ts: expect.any(Number), uid: MOCK_UID },
+      });
+    });
+
+    it('returns false when the account has no passkeys', async () => {
+      passkeyDeleteCount = 0;
+      expect(await controller.removePasskeys(MOCK_UID)).toBe(false);
+    });
+
+    it('does not notify when the account has no passkeys', async () => {
+      passkeyDeleteCount = 0;
+      await controller.removePasskeys(MOCK_UID);
+      expect(notifier.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removePasskey', () => {
+    it('deletes a single passkey scoped to uid and credentialId', async () => {
+      await controller.removePasskey(MOCK_UID, MOCK_CREDENTIAL_ID);
+      expect(knexMock).toHaveBeenCalledWith('passkeys');
+      expect(passkeyQuery.where).toHaveBeenCalledWith(
+        'uid',
+        uuidTransformer.to(MOCK_UID)
+      );
+      expect(passkeyQuery.andWhere).toHaveBeenCalledWith(
+        'credentialId',
+        Buffer.from(MOCK_CREDENTIAL_ID, 'base64url')
+      );
+    });
+
+    it('returns true when the passkey was removed', async () => {
+      expect(await controller.removePasskey(MOCK_UID, MOCK_CREDENTIAL_ID)).toBe(
+        true
+      );
+    });
+
+    it('notifies when the passkey was removed', async () => {
+      await controller.removePasskey(MOCK_UID, MOCK_CREDENTIAL_ID);
+      expect(notifier.send).toHaveBeenCalledWith({
+        event: 'profileDataChange',
+        data: { ts: expect.any(Number), uid: MOCK_UID },
+      });
+    });
+
+    it('returns false and skips notification when no matching passkey exists', async () => {
+      passkeyDeleteCount = 0;
+      expect(await controller.removePasskey(MOCK_UID, MOCK_CREDENTIAL_ID)).toBe(
+        false
+      );
+      expect(notifier.send).not.toHaveBeenCalled();
     });
   });
 });

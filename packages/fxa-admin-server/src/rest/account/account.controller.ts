@@ -114,11 +114,12 @@ const RECOVERYKEY_COLUMNS = [
 const RECOVERYPHONES_COLUMNS = ['phoneNumber'];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
-// credentialId, publicKey, signCount, and backupEligible are intentionally
-// excluded from the admin view because they expose sensitive cryptographic
-// material.
+// Columns exposed to the admin panel. credentialId lets a single
+// passkey be targeted for removal; other credential fields are
+// intentionally excluded.
 const PASSKEY_COLUMNS = [
   'name',
+  'credentialId',
   'createdAt',
   'lastUsedAt',
   'aaguid',
@@ -394,6 +395,64 @@ export class AccountController {
           uid,
         },
       });
+    }
+
+    return deleted;
+  }
+
+  /**
+   * Fires the profileDataChange notification after a passkey removal so
+   * downstream profile caches are invalidated.
+   */
+  private async notifyPasskeyRemoved(uid: string) {
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
+
+  @Features(AdminPanelFeature.RemovePasskeys)
+  @AuditLog()
+  @Post('remove-passkeys')
+  public async removePasskeys(@Body('uid') uid: string): Promise<boolean> {
+    this.eventLogging.onEvent(EventNames.RemovePasskeys);
+
+    const rowsDeleted = await this.db
+      .knex('passkeys')
+      .delete()
+      .where('uid', uuidTransformer.to(uid));
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      await this.notifyPasskeyRemoved(uid);
+    }
+
+    return deleted;
+  }
+
+  @Features(AdminPanelFeature.RemovePasskeys)
+  @AuditLog()
+  @Post('remove-passkey')
+  public async removePasskey(
+    @Body('uid') uid: string,
+    @Body('credentialId') credentialId: string
+  ): Promise<boolean> {
+    this.eventLogging.onEvent(EventNames.RemovePasskeys);
+
+    const rowsDeleted = await this.db
+      .knex('passkeys')
+      .delete()
+      .where('uid', uuidTransformer.to(uid))
+      .andWhere('credentialId', Buffer.from(credentialId, 'base64url'));
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      await this.notifyPasskeyRemoved(uid);
     }
 
     return deleted;
@@ -903,6 +962,7 @@ export class AccountController {
       rows.map(
         async (row: {
           name: string;
+          credentialId: Buffer;
           createdAt: number;
           lastUsedAt: number | null;
           aaguid: Buffer;
@@ -917,7 +977,12 @@ export class AccountController {
             : await this.mds.getAuthenticatorName(
                 bufferToUuidString(row.aaguid)
               );
-          return { ...row, aaguid, authenticatorName };
+          return {
+            ...row,
+            credentialId: row.credentialId.toString('base64url'),
+            aaguid,
+            authenticatorName,
+          };
         }
       )
     );

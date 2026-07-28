@@ -17,6 +17,7 @@ export enum EventNames {
   DeleteRecoveryPhone = 'delete-recovery-phone',
   DeleteAccounts = 'delete-accounts',
   ResetAccounts = 'reset-accounts',
+  RemovePasskeys = 'remove-passkeys',
 }
 
 /**
