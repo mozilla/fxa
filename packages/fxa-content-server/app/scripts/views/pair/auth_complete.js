@@ -11,6 +11,7 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 import WebChannel from '../../lib/channels/web';
 import Constants from '../../lib/constants';
 import FormView from '../form';
+import GleanMetrics from '../../lib/glean';
 
 class PairAuthCompleteView extends FormView {
   template = Template;
@@ -38,6 +39,13 @@ class PairAuthCompleteView extends FormView {
 
   beforeRender() {
     return this.invokeBrokerMethod('afterPairAuthComplete');
+  }
+
+  logView() {
+    // The user only reaches this view once both the desktop has approved and
+    // the mobile device has confirmed, so it is the pairing success signal.
+    GleanMetrics.cadPair.success();
+    return FormView.prototype.logView.call(this);
   }
 
   setInitialContext(context) {

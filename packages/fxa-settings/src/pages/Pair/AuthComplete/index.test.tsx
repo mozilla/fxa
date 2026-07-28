@@ -10,11 +10,17 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
 import { MemoryRouter } from 'react-router';
+import GleanMetrics from '../../../lib/glean';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { cadPair: { success: jest.fn() } },
 }));
 
 const MOCK_CHANNEL_ID = 'test-channel-id';
@@ -30,6 +36,10 @@ jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
 }));
 
 describe('AuthComplete page', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   // TODO: enable l10n tests when FXA-6461 is resolved (handle embedded tags)
   // let bundle: FluentBundle;
   // beforeAll(async () => {
@@ -80,6 +90,19 @@ describe('AuthComplete page', () => {
     );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  it('emits the cad_pair_success Glean event once on render', () => {
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <AuthComplete
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          supportsFirefoxView
+        />
+      </MemoryRouter>
+    );
+
+    expect(GleanMetrics.cadPair.success).toHaveBeenCalledTimes(1);
   });
 
   describe('with PairingAuthorityIntegration', () => {

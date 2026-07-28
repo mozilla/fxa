@@ -11,6 +11,7 @@ import * as cadFirefox from './cadFirefox';
 import * as cadMobilePair from './cadMobilePair';
 import * as cadRedirectMobile from './cadRedirectMobile';
 import * as cadMobilePairUseApp from './cadMobilePairUseApp';
+import * as cadPair from './cadPair';
 import * as cad from './cad';
 import * as cadRedirectDesktop from './cadRedirectDesktop';
 import * as email from './email';
@@ -288,6 +289,9 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
       break;
+    case 'cad_pair_success':
+      cadPair.success.record();
+      break;
     case 'cad_view':
       cad.view.record();
       break;
@@ -476,6 +480,9 @@ export const GleanMetrics = {
   },
   cadMobilePairUseAppView: {
     view: createEventFn('cad_mobile_pair_use_app_view'),
+  },
+  cadPair: {
+    success: createEventFn('cad_pair_success'),
   },
   cadApproveDevice: {
     view: createEventFn('cad_approve_device_view'),

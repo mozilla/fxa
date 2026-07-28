@@ -204,6 +204,10 @@ export const eventsMap = {
     view: 'cad_mobile_pair_use_app_view',
   },
 
+  cadPair: {
+    success: 'cad_pair_success',
+  },
+
   cadApproveDevice: {
     view: 'cad_approve_device_view',
     submit: 'cad_approve_device_submit',

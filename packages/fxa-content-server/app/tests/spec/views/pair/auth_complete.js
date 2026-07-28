@@ -4,6 +4,7 @@
 
 import { assert } from 'chai';
 import AuthorityBroker from 'models/auth_brokers/pairing/authority';
+import GleanMetrics from '../../../../scripts/lib/glean';
 import Session from 'lib/session';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -120,6 +121,23 @@ describe('views/pair/auth_complete', () => {
           'Device connected'
         );
       });
+    });
+  });
+
+  describe('glean metrics', () => {
+    let successEventStub;
+
+    beforeEach(() => {
+      successEventStub = sinon.stub(GleanMetrics.cadPair, 'success');
+    });
+
+    afterEach(() => {
+      successEventStub.restore();
+    });
+
+    it('logs a pairing success Glean metrics event', () => {
+      view.logView();
+      sinon.assert.calledOnce(successEventStub);
     });
   });
 });

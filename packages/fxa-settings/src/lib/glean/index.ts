@@ -29,6 +29,7 @@ import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
+import * as cadPair from 'fxa-shared/metrics/glean/web/cadPair';
 import * as cadRedirectDesktop from 'fxa-shared/metrics/glean/web/cadRedirectDesktop';
 import * as cadRedirectMobile from 'fxa-shared/metrics/glean/web/cadRedirectMobile';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
@@ -531,6 +532,9 @@ const recordEventMetric = (
       break;
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
+      break;
+    case 'cad_pair_success':
+      cadPair.success.record();
       break;
     case 'cad_redirect_desktop_view':
       cadRedirectDesktop.view.record();

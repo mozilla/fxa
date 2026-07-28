@@ -16,6 +16,7 @@ import { Integration, useFtlMsgResolver } from '../../../models';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { firefox, FirefoxCommand } from '../../../lib/channels/firefox';
 import { isSendTabEntrypoint } from '../../../lib/utilities';
+import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'pair.auth.complete';
 
@@ -37,6 +38,11 @@ const AuthComplete = ({
   integration,
 }: AuthCompleteProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  // Reaching this screen requires both desktop approval and mobile
+  // confirmation, so it is the end-to-end pairing success signal.
+  useEffect(() => {
+    GleanMetrics.cadPair.success();
+  }, []);
   const ftlMsgResolver = useFtlMsgResolver();
   const authorityIntegration =
     integration instanceof PairingAuthorityIntegration
