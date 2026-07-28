@@ -1,0 +1,14 @@
+<% const { uaBrowser, uaOS, uaOSVersion } = device; %>
+  <% if (uaBrowser) { %>
+    <% if (uaOS) { %>
+      <% if (uaOSVersion) { %>
+        device-all = "<%- `${uaBrowser} on ${uaOS} ${uaOSVersion}` %>"
+      <% } else { %>
+        device-browser-os = "<%- `${uaBrowser} on ${uaOS}` %>"
+      <% } %>
+    <% } else { %>
+      <%- uaBrowser %>
+    <% } %>
+  <% } else { %>
+    <%- uaOS %><% if (uaOSVersion) { %> <%- uaOSVersion %><% } %>
+<% } %>
