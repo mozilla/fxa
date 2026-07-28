@@ -1,0 +1,11 @@
+{
+  "commit": "87cc2d0081dad79a0e4255544adae4044b83bf4d",
+  "summary": "fix(auth): use constant-time comparison for password verify-hash check",
+  "description": "Compares verify hashes with a constant-time check so timing does not leak\nhow many leading characters matched, and rejects non-hex or odd-length\ninput before decoding so truncation cannot make two different strings\ncompare equal.\n\n(cherry picked from commit 0f44fb65be4fec32002047d3727da8e36d1b6e27)",
+  "timestamp": 1785257588000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
