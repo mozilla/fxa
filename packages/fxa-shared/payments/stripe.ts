@@ -221,6 +221,9 @@ export abstract class StripeHelper {
 
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
+      this.statsd.increment('subscriptions.stripe_helper.fetch_customer', {
+        outcome: 'no_account_customer',
+      });
       return;
     }
 
@@ -233,6 +236,15 @@ export abstract class StripeHelper {
     );
 
     if (customer.deleted) {
+      // Destructive and rare: we drop the accountCustomer mapping, which makes
+      // every later fetch return early with `no_account_customer` above.
+      this.statsd.increment('subscriptions.stripe_helper.fetch_customer', {
+        outcome: 'customer_deleted',
+      });
+      this.log.warn('stripeHelper.fetchCustomer.customerDeleted', {
+        uid,
+        stripeCustomerId,
+      });
       await deleteAccountCustomer(uid);
       return;
     }
@@ -240,6 +252,7 @@ export abstract class StripeHelper {
     // If the customer has subscriptions and no currency, we must have a stale
     // customer record. Let's update it.
     if (customer.subscriptions?.data.length && !customer.currency) {
+      const subscriptionCountBeforeRefetch = customer.subscriptions.data.length;
       await this.stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
       // Retrieve the customer again.
        // DS: This can fail without error resutling in 0 subscriptions!
@@ -247,6 +260,31 @@ export abstract class StripeHelper {
         stripeCustomerId,
         CUSTOMER_RESOURCE
       );
+
+      // Note the second expandResource intentionally drops `statusFilter`, and
+      // the result is not re-checked for `deleted`. Both can shrink the
+      // subscription list relative to what we had a moment ago, so compare the
+      // counts across the re-fetch instead of assuming it can only improve.
+      const subscriptionCountAfterRefetch =
+        customer.subscriptions?.data.length ?? 0;
+      this.statsd.increment(
+        'subscriptions.stripe_helper.stale_customer_refetch',
+        {
+          lost_subscriptions: `${
+            subscriptionCountAfterRefetch < subscriptionCountBeforeRefetch
+          }`,
+          deleted: `${!!customer.deleted}`,
+        }
+      );
+      if (subscriptionCountAfterRefetch < subscriptionCountBeforeRefetch) {
+        this.log.warn('stripeHelper.fetchCustomer.refetchLostSubscriptions', {
+          uid,
+          stripeCustomerId,
+          subscriptionCountBeforeRefetch,
+          subscriptionCountAfterRefetch,
+          deleted: !!customer.deleted,
+        });
+      }
     }
 
     // Since the uid is just metadata and it isn't required when creating a new
@@ -286,10 +324,23 @@ export abstract class StripeHelper {
         { expand: ['tax'] }
       );
       if (customerWithTax.deleted) {
+        this.statsd.increment('subscriptions.stripe_helper.fetch_customer', {
+          outcome: 'customer_deleted_on_tax_expand',
+        });
         return;
       }
       customer.tax = customerWithTax.tax;
     }
+
+    // The successful outcome. `zero_subscriptions` combined with
+    // `has_uid_metadata: false` is the fingerprint of a customer whose
+    // subscriptions were stripped by the missing-uid branch in
+    // StripeFirestore.legacyFetchAndInsertCustomer.
+    this.statsd.increment('subscriptions.stripe_helper.fetch_customer', {
+      outcome: 'customer',
+      zero_subscriptions: `${(customer.subscriptions?.data.length ?? 0) === 0}`,
+      has_uid_metadata: `${!!customer.metadata?.userid}`,
+    });
 
     return customer;
   }
@@ -516,14 +567,34 @@ export abstract class StripeHelper {
         //     What can trigger this state?
         if (customer?.deleted) {
           // There are no subscriptions for deleted customers on the customer object.
+          this.statsd.increment('subscriptions.stripe_helper.expand_customer', {
+            outcome: 'deleted',
+          });
+          this.log.warn('stripeHelper.expandResource.customerDeleted', {
+            stripeCustomerId: resource,
+          });
           // @ts-ignore
           return customer;
         }
+        const hasUidMetadata = !!(customer as Stripe.Customer)?.metadata
+          ?.userid;
         const subscriptions =
           await this.stripeFirestore.retrieveCustomerSubscriptions(
             resource,
             statusFilter
           );
+        this.statsd.increment('subscriptions.stripe_helper.expand_customer', {
+          outcome: 'ok',
+          zero_subscriptions: `${subscriptions.length === 0}`,
+          has_uid_metadata: `${hasUidMetadata}`,
+          status_filtered: `${!!statusFilter}`,
+        });
+        if (!hasUidMetadata) {
+          this.log.warn('stripeHelper.expandResource.customerMissingUid', {
+            stripeCustomerId: resource,
+            subscriptionCount: subscriptions.length,
+          });
+        }
         (customer as any).subscriptions = {
           data: subscriptions as any,
           has_more: false,

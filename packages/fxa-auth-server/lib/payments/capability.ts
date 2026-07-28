@@ -10,6 +10,7 @@ import {
   SubscriptionChangeEligibility,
   SubscriptionEligibilityResult,
 } from 'fxa-shared/subscriptions/types';
+import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
@@ -54,6 +55,7 @@ function allCapabilities(capabilityMap: ClientIdCapabilityMap): string[] {
  */
 export class CapabilityService {
   private log: AuthLogger;
+  private statsd?: StatsD;
   private appleIap?: AppleIAP;
   private playBilling?: PlayBilling;
   private stripeHelper: StripeHelper;
@@ -91,6 +93,7 @@ export class CapabilityService {
     }
 
     this.log = Container.get(AuthLogger);
+    this.statsd = Container.has(StatsD) ? Container.get(StatsD) : undefined;
 
     // Register the event handlers for capability changes.
     authEvents.on(
@@ -251,13 +254,22 @@ export class CapabilityService {
       this.fetchSubscribedPricesFromPlay(uid),
       this.fetchSubscribedPricesFromAppStore(uid),
     ]);
-    return [
+    const priceIds = [
       ...new Set([
         ...subscribedStripePrices,
         ...subscribedPlayPrices,
         ...subscribedAppStorePrices,
       ]),
     ];
+
+    this.statsd?.increment('subscriptions.capability.subscribed_price_ids', {
+      stripe: `${subscribedStripePrices.length > 0}`,
+      play: `${subscribedPlayPrices.length > 0}`,
+      app_store: `${subscribedAppStorePrices.length > 0}`,
+      empty: `${priceIds.length === 0}`,
+    });
+
+    return priceIds;
   }
 
   async allAbbrevPlansByPlanId(): Promise<Record<string, AbbrevPlan>> {
@@ -555,6 +567,24 @@ export class CapabilityService {
         capabilities: removedCapabilities,
       });
     }
+
+    this.statsd?.increment('subscriptions.capability.price_id_diff', {
+      added: `${newCapabilities.length > 0}`,
+      removed: `${removedCapabilities.length > 0}`,
+      has_remaining_capabilities: `${currentCapabilities.length > 0}`,
+      current_price_ids_empty: `${currentPriceIds.length === 0}`,
+    });
+
+    if (removedCapabilities.length > 0) {
+      this.log.info('capability.processPriceIdDiff.removed', {
+        uid,
+        priorPriceIds,
+        currentPriceIds,
+        removedCapabilities,
+        remainingCapabilities: currentCapabilities,
+      });
+    }
+
     return {
       newCapabilities,
       removedCapabilities,
@@ -571,6 +601,9 @@ export class CapabilityService {
     eventCreatedAt?: number;
   }) {
     const { uid, capabilities, request, eventCreatedAt } = options;
+    this.statsd?.increment('subscriptions.capability.broadcast', {
+      is_active: 'true',
+    });
     this.log.notifyAttachedServices(
       'subscription:update',
       request ?? ({} as AuthRequest),
@@ -594,6 +627,13 @@ export class CapabilityService {
     eventCreatedAt?: number;
   }) {
     const { uid, capabilities, request, eventCreatedAt } = options;
+    this.statsd?.increment('subscriptions.capability.broadcast', {
+      is_active: 'false',
+    });
+    this.log.info('capability.broadcastCapabilitiesRemoved', {
+      uid,
+      capabilities,
+    });
     this.log.notifyAttachedServices(
       'subscription:update',
       request ?? ({} as AuthRequest),
@@ -666,10 +706,17 @@ export class CapabilityService {
           uid,
           err,
         });
+      } else {
+        this.log.warn('capability.fetchSubscribedPricesFromPlay.failed', {
+          uid,
+          errorName: err.name,
+          errorMessage: err.message,
+        });
       }
-      // DS: This definitely silently fails.
-      //     Are we sure we aren't dealing with play store subscriptions here?
-      //     IUC, these were mobile users who had apps isntalled on their phone.
+      this.statsd?.increment('subscriptions.capability.fetch_prices.failed', {
+        source: 'play',
+        error: err.name ?? 'unknown',
+      });
       return [];
     }
   }
@@ -697,10 +744,17 @@ export class CapabilityService {
           uid,
           err,
         });
+      } else {
+        this.log.warn('capability.fetchSubscribedPricesFromAppStore.failed', {
+          uid,
+          errorName: err.name,
+          errorMessage: err.message,
+        });
       }
-      // DS: This definitely swallows any transient error. I'll look for logs around this...
-      //     Are we sure we aren't dealing with app store subscriptions here?
-      //     IUC, these were mobile users who had apps isntalled on their phone.
+      this.statsd?.increment('subscriptions.capability.fetch_prices.failed', {
+        source: 'app_store',
+        error: err.name ?? 'unknown',
+      });
       return [];
     }
   }
@@ -712,20 +766,46 @@ export class CapabilityService {
     uid: string
   ): Promise<string[]> {
 
-    // DS: If this silently fails, we are in trouble. Keep traversing this path.
-    const customer = await this.stripeHelper.fetchCustomer(uid, [
-      'subscriptions',
-    ]);
+    let customer: Stripe.Customer | void;
+    try {
+      customer = await this.stripeHelper.fetchCustomer(uid, ['subscriptions']);
+    } catch (err) {
+      this.statsd?.increment('subscriptions.capability.fetch_prices.failed', {
+        source: 'stripe',
+        error: err.name ?? 'unknown',
+      });
+      throw err;
+    }
+
     const subscriptions = customer?.subscriptions?.data;
     if (!subscriptions) {
+      this.statsd?.increment('subscriptions.capability.stripe_prices', {
+        outcome: customer ? 'no_subscriptions_field' : 'no_customer',
+      });
       return [];
     }
 
-    // DS: Did we check the subscription status of the affected customers?
     const subscribedPrices = subscriptions
       .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
       .flatMap((sub) => sub.items.data)
       .map(({ price: { id: priceId } }) => priceId as string);
+
+    this.statsd?.increment('subscriptions.capability.stripe_prices', {
+      outcome:
+        subscribedPrices.length > 0
+          ? 'active'
+          : subscriptions.length === 0
+            ? 'zero_subscriptions'
+            : 'all_inactive',
+    });
+
+    if (subscribedPrices.length === 0 && subscriptions.length > 0) {
+      this.log.info('capability.fetchSubscribedPricesFromStripe.allInactive', {
+        uid,
+        statuses: subscriptions.map((sub) => sub.status),
+      });
+    }
+
     return subscribedPrices;
   }
 

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError, BaseMultiError } from '@fxa/shared/error';
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import { StatsD } from 'hot-shots';
+import { ILogger } from 'fxa-shared/log';
 import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 
@@ -87,9 +89,19 @@ export class StripeFirestore extends StripeFirestoreBase {
     firestore: Firestore,
     customerCollectionDbRef: CollectionReference,
     stripe: Stripe,
-    prefix: string
+    prefix: string,
+    statsd?: StatsD,
+    log?: ILogger
   ) {
-    super(firestore, customerCollectionDbRef, stripe, prefix);
+    super(
+      firestore,
+      customerCollectionDbRef,
+      stripe,
+      prefix,
+      undefined,
+      statsd,
+      log
+    );
   }
 
   /**
