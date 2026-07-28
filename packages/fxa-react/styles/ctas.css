@@ -117,9 +117,9 @@
     @apply rounded inline-block text-center border font-header box-border transition-standard text-white;
 
     /* Blue fallbacks */
-    --cta-bg: theme(colors.blue.500);
-    --cta-border: theme(colors.blue.600);
-    --cta-active: theme(colors.blue.800);
+    --cta-bg: var(--color-blue-500);
+    --cta-border: var(--color-blue-600);
+    --cta-active: var(--color-blue-800);
     --cta-disabled: rgb(59 130 246 / 0.4); /* blue-500/40 */
     --cta-focus-outline: var(--cta-border);
 

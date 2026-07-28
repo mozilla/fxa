@@ -6,6 +6,11 @@ import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
 
+// Palette values are now cssVarColor() functions (see fxa-react tailwind config);
+// call them to get the underlying `var(--…)` reference for display + swatch.
+const resolveColor = (value: unknown): string =>
+  typeof value === 'function' ? value() : (value as string);
+
 const Swatch = ({
   color,
   hex,
@@ -117,15 +122,19 @@ const Colors = ({ config }) => {
           <h2 className="pr-5 font-bold w-full">
             {name.charAt(0).toUpperCase() + name.slice(1)}
           </h2>
-          {typeof twColors[name] === 'string' ? (
-            <Swatch color={name} hex={twColors[name]} />
-          ) : (
+          {typeof twColors[name] === 'object' ? (
             Object.keys(twColors[name]).map((shade) => (
               <Swatch
-                {...{ color: name, hex: twColors[name][shade], shade }}
+                {...{
+                  color: name,
+                  hex: resolveColor(twColors[name][shade]),
+                  shade,
+                }}
                 key={shade}
               />
             ))
+          ) : (
+            <Swatch color={name} hex={resolveColor(twColors[name])} />
           )}
         </div>
       ))}

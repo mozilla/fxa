@@ -6,6 +6,10 @@
   This file gathers all stylesheets in fxa-react, so that they can easily
   be imported in other packages that don't want to import tailwind.css.
 */
+/* Design tokens must load first so the var(--…) the Tailwind config references
+ * resolve. Generated build output (libs/shared/design-tokens); consumers must
+ * `dependsOn: ["shared-design-tokens:build"]`. */
+@import '../../../libs/shared/design-tokens/generated/nova-tokens.css';
 @import './animations.css';
 @import './links.css';
 @import './portal.css';
