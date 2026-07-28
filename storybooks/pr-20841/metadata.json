@@ -1,8 +1,8 @@
 {
-  "commit": "7846afb4293dde5e92bffdcf35cbcf7977cd9ad9",
-  "summary": "Extra eyes - to pass passkeys functional tests",
+  "commit": "507da4b4cbf5e4f075e9fb797bc1b9b47ea4a086",
+  "summary": "Extra eyes would be appreciated",
   "description": "",
-  "timestamp": 1785264593000,
+  "timestamp": 1785267881000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
