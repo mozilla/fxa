@@ -320,10 +320,14 @@ async function create(
 
     if (request.headers.authorization) {
       // Log some helpful details for debugging authentication problems.
+      const authHeader = request.headers.authorization;
+      const separatorIndex = authHeader.indexOf(' ');
       log.trace('server.onPreAuth', {
         rid: request.id,
         path: request.path,
-        auth: request.headers.authorization,
+        // Scheme only (e.g. "Hawk"/"Bearer"); a scheme-less header is redacted so
+        // a bare token can't leak into logs.
+        auth: separatorIndex > 0 ? authHeader.slice(0, separatorIndex) : '[redacted]',
         type: request.headers['content-type'] || '',
       });
     }

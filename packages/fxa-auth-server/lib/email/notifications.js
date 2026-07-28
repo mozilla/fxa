@@ -58,7 +58,10 @@ module.exports = (log, error) => {
                   ReasonForDeletion.EmailBounce
                 );
 
-                log.info('accountDeleted', { ...emailRecord });
+                log.info('accountDeleted', {
+                  uid: emailRecord.uid,
+                  email: emailRecord.email,
+                });
               }
             }
           })

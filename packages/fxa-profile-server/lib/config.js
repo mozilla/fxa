@@ -357,6 +357,7 @@ const conf = convict({
     doc: 'Secret for server-to-server bearer token auth',
     env: 'AUTH_SECRET_BEARER_TOKEN',
     format: 'String',
+    sensitive: true,
   },
   tracing: tracingConfig,
 });
@@ -390,9 +391,27 @@ var options = {
 
 conf.validate(options);
 
+// Recursively replace values of fields flagged `sensitive: true` in the schema
+// so secrets (DB/Redis passwords, bearer token) never reach the startup log.
+function maskSensitive(properties, schemaProps) {
+  if (!properties || !schemaProps) {
+    return;
+  }
+  for (const key of Object.keys(schemaProps)) {
+    const child = schemaProps[key];
+    if (child._cvtProperties) {
+      maskSensitive(properties[key], child._cvtProperties);
+    } else if (child.sensitive === true && key in properties) {
+      properties[key] = '[Sensitive]';
+    }
+  }
+}
+
 conf.toString = function () {
+  const properties = conf.getProperties();
+  maskSensitive(properties, conf.getSchema()._cvtProperties);
   // RegExp instances serialise to empty objects, display regex strings instead.
-  return JSON.stringify(conf.getProperties(), (k, v) =>
+  return JSON.stringify(properties, (k, v) =>
     v && v.constructor === RegExp ? v.toString() : v
   );
 };
