@@ -1,0 +1,11 @@
+{
+  "commit": "d8c4653db241244b8cdf8be24da8f2cdcbf20af3",
+  "summary": "fix(payments-next): [ccsec f020] PayPal charge races invoice finalization due to missing await Because:",
+  "description": "* safeFinalizeWithoutAutoAdvance was being called without await,  so the PayPal charge ran concurrently with finalization instead of after it. Customers could be debited while finalization failed , and the rejection escaped the catch as an unhandled rejection.\n\nThis commit:\n\n* Awaits safeFinalizeWithoutAutoAdvance so a finalization failure propagates to the existing catch and aborts before chargeCustomer.\n\nCloses #[PAY-3833](https://mozilla-hub.atlassian.net/browse/PAY-3833)",
+  "timestamp": 1785258347000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
