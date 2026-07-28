@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ReactUtils from 'fxa-react/lib/utils';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -238,6 +238,83 @@ describe('SigninPasswordlessCode page', () => {
       (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
       renderWithPasskeyFlags({ isSignup: false, hasPasskey: true });
       expect(passkeyButton()).not.toBeInTheDocument();
+    });
+  });
+
+  describe('passkey / OTP form-lock', () => {
+    const renderWithPasskey = (
+      props: Partial<SigninPasswordlessCodeProps> & { isSignup?: boolean } = {}
+    ) => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+      const context = mockAppContext({ authClient: mockAuthClient });
+      if (context.config) {
+        context.config.featureFlags = {
+          ...context.config.featureFlags,
+          passkeysEnabled: true,
+          passkeyAuthenticationEnabled: true,
+        };
+      }
+      renderWithLocalizationProvider(
+        <AppContext.Provider value={context}>
+          <Subject
+            integration={createMockSigninWebIntegration()}
+            hasPasskey={true}
+            isSignup={false}
+            {...props}
+          />
+        </AppContext.Provider>
+      );
+    };
+    const passkeyButton = () =>
+      screen.getByRole('button', { name: 'Sign in with passkey' });
+
+    it('disables the passkey button and resend while an OTP code is being verified', async () => {
+      let resolveConfirm: (value: unknown) => void = () => {};
+      mockAuthClient.passwordlessConfirmCode = jest.fn().mockReturnValue(
+        new Promise((resolve) => {
+          resolveConfirm = resolve;
+        })
+      );
+      const user = userEvent.setup();
+      renderWithPasskey();
+
+      await user.type(
+        screen.getByLabelText('Enter 6-digit code'),
+        MOCK_PASSWORDLESS_CODE
+      );
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      expect(passkeyButton()).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: 'Email new code.' })
+      ).toBeDisabled();
+
+      // Settle the pending submission so the test leaves no dangling act.
+      await act(async () => {
+        resolveConfirm({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          verified: true,
+          authAt: 1,
+        });
+      });
+    });
+
+    it('re-enables the passkey button after a failed OTP submission (finally releases the lock)', async () => {
+      mockAuthClient.passwordlessConfirmCode = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.INVALID_VERIFICATION_CODE);
+      const user = userEvent.setup();
+      renderWithPasskey();
+
+      await user.type(
+        screen.getByLabelText('Enter 6-digit code'),
+        MOCK_PASSWORDLESS_CODE
+      );
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await screen.findByTestId('tooltip');
+      expect(passkeyButton()).toBeEnabled();
     });
   });
 

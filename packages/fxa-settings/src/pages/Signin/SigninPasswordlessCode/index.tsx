@@ -113,6 +113,10 @@ const SigninPasswordlessCode = ({
   const [resendCountdown, setResendCountdown] = useState<number>(
     resendCountdownSeconds
   );
+  // Tracks the OTP submission so the passkey option can be locked while a code
+  // is being verified (FormVerifyCode owns its own submit state, so mirror it
+  // here via the verifyCode wrapper below).
+  const [otpSubmitting, setOtpSubmitting] = useState<boolean>(false);
   const throttle = useThrottle();
 
   const gleanOtp = isSignup
@@ -480,6 +484,21 @@ const SigninPasswordlessCode = ({
     }
   };
 
+  // Wraps onSubmit so the surface can observe OTP submission without reaching
+  // into FormVerifyCode's internal submit state.
+  const handleVerifyCode = async (code: string) => {
+    setOtpSubmitting(true);
+    try {
+      await onSubmit(code);
+    } finally {
+      setOtpSubmitting(false);
+    }
+  };
+
+  // While a submit or passkey ceremony is in flight, disable the other sign-in
+  // options so a competing attempt can't race the one already running.
+  const authInProgress = otpSubmitting || passkey.isLoading;
+
   const cmsInfo = integration?.getCmsInfo();
   //TODO: Signup/SigninPasswordlessCodePage to be added as part of FXA-13020
   const {
@@ -519,7 +538,10 @@ const SigninPasswordlessCode = ({
   };
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-passwordless-code-heading"
@@ -593,7 +615,7 @@ const SigninPasswordlessCode = ({
         {...{
           formAttributes,
           viewName,
-          verifyCode: onSubmit,
+          verifyCode: handleVerifyCode,
           localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
@@ -609,6 +631,7 @@ const SigninPasswordlessCode = ({
           },
           className: `flex flex-col gap-4 mt-6 ${showPasskeySignin ? 'mb-2' : 'mb-6'}`,
           isThrottled: throttle.isThrottled,
+          disabled: authInProgress,
         }}
       />
 
@@ -637,7 +660,9 @@ const SigninPasswordlessCode = ({
             <button
               className="link-blue"
               onClick={handleResendCode}
-              disabled={resendCodeLoading || throttle.isThrottled}
+              disabled={
+                resendCodeLoading || throttle.isThrottled || authInProgress
+              }
             >
               Email new code.
             </button>
@@ -654,6 +679,7 @@ const SigninPasswordlessCode = ({
             onClick: passkey.onClick,
           }}
           errorBanner={passkey.errorBanner}
+          disabled={authInProgress}
           {...{ viewName, flowQueryParams }}
         />
       )}

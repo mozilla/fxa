@@ -97,8 +97,15 @@ const SigninAlternativeAuthOptions = ({
     GleanMetrics.login.alternativeAuthView();
   }, []);
 
+  // The passkey ceremony is the only in-flight sign-in method here (third-party
+  // auth just redirects); lock the options while it runs.
+  const authInProgress = passkey.isLoading;
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -149,6 +156,7 @@ const SigninAlternativeAuthOptions = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={authInProgress}
         {...{ viewName, flowQueryParams }}
       />
 

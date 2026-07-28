@@ -145,6 +145,33 @@ describe('ThirdPartyAuthComponent', () => {
     });
   });
 
+  it('disables both provider buttons when disabled is true', async () => {
+    renderWith({
+      onContinueWithApple,
+      onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
+      disabled: true,
+    });
+
+    expect(await screen.findByLabelText('Continue with Google')).toBeDisabled();
+    expect(screen.getByLabelText('Continue with Apple')).toBeDisabled();
+  });
+
+  it('does not start a provider flow when a disabled button is clicked', async () => {
+    const user = userEvent.setup();
+    renderWith({
+      onContinueWithApple,
+      onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
+      disabled: true,
+    });
+
+    await user.click(await screen.findByLabelText('Continue with Google'));
+
+    expect(onContinueWithGoogle).not.toHaveBeenCalled();
+    expect(hardNavigateSpy).not.toHaveBeenCalled();
+  });
+
   it('buttons match snapshot', async () => {
     renderWith({
       enabled: true,
