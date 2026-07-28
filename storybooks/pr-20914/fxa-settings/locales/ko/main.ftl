@@ -39,6 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = 오류가 발생하였습니다
+app-something-went-wrong-message = 문제에 대해 안내를 받았습니다. 페이지를 새로고침해서 다시 시도하세요.
+app-error-id = 오류 ID: { $errorId }
+app-error-details-summary = 오류 세부 정보
 app-query-parameter-err-heading = 잘못된 요청: 유효하지 않은 쿼리 파라미터
 
 

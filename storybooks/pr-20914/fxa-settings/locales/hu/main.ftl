@@ -1166,9 +1166,13 @@ passkey-registration-error-constraint = A jelkulcsbeállítás nem érhető el e
 passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Próbálja újra, vagy válasszon másik módszert.
 
 
+passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
+passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
+passkey-authentication-trouble-link = A jelkulcsok használata
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 passkey-authentication-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
 passkey-authentication-error-timeout = A jelkulcskérés túllépte az időkorlátot. Próbálja újra.
+passkey-authentication-error-timeout-v2 = A jelkulcsos bejelentkezés túllépte az időkorlátot. Próbálja újra.
 passkey-authentication-error-not-supported-v2 = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
 passkey-authentication-error-security = Ezen az oldalon nem használhatók jelkulcsok. Ellenőrizze, hogy a megfelelő biztonságos webhelyen jár-e, és próbálja újra.
 passkey-authentication-error-invalid-state = Hiba történt a jelkulcsával. Próbálja újra, vagy használjon másik bejelentkezési módszert.

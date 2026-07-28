@@ -1129,9 +1129,13 @@ passkey-registration-error-constraint = It ynstellen fan in wachtwurdkaai is net
 passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. Probearje it opnij of kies in oare metoade.
 
 
+passkey-authentication-trouble-heading = Kin net oanmelde mei in wachtwurdkaai
+passkey-authentication-trouble-description = Probearje it opnij of brûk in oare oanmeldingsopsje.
+passkey-authentication-trouble-link = Wachtwurdkaaien brûke
 passkey-authentication-error-not-allowed = Oanmelding mei wachtwurdkaai mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 passkey-authentication-error-not-allowed-existing = It ynstellen fan in wachtwurdkaai is net beskikber op dit apparaat. Probearje it opnij of kies in oare metoade.
 passkey-authentication-error-timeout = Wachtwurdkaaifersyk ferrûn. Probearje it opnij.
+passkey-authentication-error-timeout-v2 = Wachttiid foar oanmelden mei wachtwurdkaai is ferrûn. Probearje it opnij.
 passkey-authentication-error-not-supported-v2 = Jo browser of apparaat stipet gjin wachtwurdkaaien.
 passkey-authentication-error-security = Wachtwurdkaaien kinne net op dizze side brûkt wurde. Kontrolearje oft jo op de krekte befeilige website binne en probearje it opnij.
 passkey-authentication-error-invalid-state = Der is wat misgien mei jo wachtwurdkaai. Probearje it opnij of brûk in oare oanmeldingsmetoade.

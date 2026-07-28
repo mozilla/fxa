@@ -1528,12 +1528,24 @@ passkey-registration-error-unexpected = Falló la configuración de la clave de 
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = No se pudo iniciar sesión con una clave de acceso
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Probá de nuevo o usá otra opción de inicio de sesión.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Cómo usar claves de acceso
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Falló el inicio de sesión con clave de acceso o no está disponible. Probá de nuevo o elegí otro método.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. Probá de nuevo o elegí otro método.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para el pedido de clave de acceso. Probá de nuevo.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Se agotó el tiempo de inicio de sesión con clave de acceso. Probá de nuevo.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no soporta claves de acceso.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

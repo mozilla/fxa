@@ -1517,12 +1517,24 @@ passkey-registration-error-unexpected = Oppsett av passnøkkel mislyktes. Prøv 
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Kunne ikke logge inn med en passnøkkel
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Prøv på nytt eller bruk en annen påloggingsmetode.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Slik bruker du passnøkler
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislyktes eller er ikke tilgjengelig. Prøv igjen eller velg en annen metode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Prøv igjen eller velg en annen metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Forespørselen om passnøkkel ble tidsavbrutt. Prøv igjen.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Tidsavbrudd ved pålogging med passnøkkel. Prøv på nytt.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Nettleseren eller enheten din støtter ikke passnøkler.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
