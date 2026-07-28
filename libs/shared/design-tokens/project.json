@@ -1,0 +1,26 @@
+{
+  "name": "shared-design-tokens",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/design-tokens/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/generated"],
+      "inputs": ["{projectRoot}/src/vendor/**", "{projectRoot}/src/**/*.mjs"],
+      "cache": true,
+      "options": {
+        "cwd": "libs/shared/design-tokens",
+        "command": "node src/generate.mjs"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/design-tokens/**/*.mjs"]
+      }
+    }
+  }
+}
