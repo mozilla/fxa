@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Programar
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Error
 # Used as information icon for informative messaging
@@ -1251,6 +1254,18 @@ passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar llave de acceso
 passkey-delete-success = Llave de acceso eliminada
 passkey-delete-error = Hubo un problema al eliminar tu llave de acceso. Vuelve a intentarlo en unos minutos.
+passkey-sub-row-rename-title = Renombrar llave de acceso
+passkey-rename-modal-heading = Renombrar llave de acceso
+passkey-rename-modal-description = Ingresa un nuevo nombre para esta llave de acceso.
+passkey-rename-input-label = Nombre de la llave de acceso
+passkey-rename-save-button = Guardar
+passkey-rename-cancel-button = Cancelar
+passkey-rename-error-empty = Ingresa un nombre para esta llave de acceso.
+passkey-rename-error-too-long = El nombre debe contener menos de 255 caracteres.
+passkey-rename-error-invalid = Solo se permiten letras, números, signos de puntuación y símbolos.
+passkey-rename-error-duplicate = Ya existe una llave de acceso con ese nombre
+passkey-rename-success = Llave de acceso renombrada
+passkey-rename-error = Hubo un problema al renombrar tu llave de acceso. Vuelve a intentarlo en unos minutos.
 
 ## Switch component
 
@@ -1443,6 +1458,7 @@ auth-error-225 = Llave de acceso ya registrada
 auth-error-226 = Se alcanzó el límite de llaves de acceso
 auth-error-227 = Falló la autenticación de la llave de acceso
 auth-error-228 = Falló el registro de la llave de acceso
+auth-error-233 = Para crear una llave de acceso, configura un bloqueo de pantalla, un PIN, la huella digital o el reconocimiento facial en tu dispositivo o llave de seguridad. Luego, vuelve a intentarlo.
 auth-error-238 = Falló el desafío de la llave de acceso
 auth-error-239 = Lo sentimos, no pudimos borrar tu cuenta. Por favor, vuelve a intentarlo o contacta al soporte si el problema persiste.
 auth-error-999 = Error inesperado
@@ -1510,12 +1526,24 @@ passkey-registration-error-unexpected = La configuración de la llave de acceso 
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = No se pudo conectar con una llave de acceso
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Vuelve a intentarlo o utiliza otra opción para conectarte.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Cómo usar las llaves de acceso
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = La conexión mediante llave de acceso falló o no está disponible. Vuelve a intentarlo o elige otro método.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = La configuración de la llave de acceso no está disponible en este dispositivo. Por favor, vuelve a intentarlo o elige otro método.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para la solicitud de la llave de acceso. Por favor, vuelve a intentarlo.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Tiempo agotado para conectarte con la llave de acceso. Vuelve a intentarlo.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no admite llaves de acceso.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

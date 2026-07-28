@@ -94,6 +94,10 @@ recovery-key-pdf-support = Lue lisää tilin palautusavaimesta
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
 
+button-passkey-signin = Kirjaudu sisään todentamisavaimella
+button-passkey-signin-loading = Kirjaudutaan turvallisesti…
+
+
 choose-newsletters-prompt-2 = Lisää { -brand-mozilla }lta:
 choose-newsletters-option-latest-news =
     .label = Vastaanota viimeisimmät uutiset ja tuotepäivitykset
@@ -145,6 +149,14 @@ device-info-block-location-country = { $country } (arvio)
 device-info-block-location-unknown = Tuntematon sijainti
 device-info-browser-os = { $browserName } alustalla { $genericOSName }
 device-info-ip-address = IP-osoite: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Hanki { -brand-firefox } missä tahansa oletkin
+firefox-promo-banner-mobile-description = Synkronoi välilehdet, kirjanmerkit ja salasanat laitteidesi välillä. Lisäksi kaikki pysyy turvallisesti salattuna.
+firefox-promo-banner-mobile-cta = Yhdistä laite
+firefox-promo-banner-switch-heading = Nopea vaihtaa. Helppo asettua aloilleen.
+firefox-promo-banner-switch-description = Kun vaihdat { -brand-firefox }iin, voit ottaa mukaan kirjanmerkit, salasanat, historian ja paljon muuta, jotta voit aloittaa selaamisen ilman ajanhukkaa.
+firefox-promo-banner-switch-cta = Vaihda { -brand-firefox }iin
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -218,6 +230,8 @@ usa-flag-icon-aria-label =
     .aria-label = Yhdysvaltain lippu
 icon-loading-arrow-aria-label =
     .aria-label = Ladataan
+icon-passkey-aria-label =
+    .aria-label = Todentamisavain
 
 
 hearts-broken-image-aria-label =
@@ -421,6 +435,9 @@ cs-disconnect-lost-advice-content-3 = Koska laitteesi katosi tai varastettiin, s
 cs-disconnect-suspicious-advice-heading = Yhteys epäilyttävään laitteeseen on katkaistu
 cs-disconnect-suspicious-advice-content-2 = Jos irrotettu laite todellakin on epäilyttävä, sinun tulisi vaihtaa { -product-mozilla-account }n salasana tilin asetuksissa. Sinun kannattaa vaihtaa myös muut salasanat, jotka olet tallentanut { -brand-firefox }iin kirjoittamalla osoitepalkkiin about:logins.
 cs-sign-out-button = Kirjaudu ulos
+
+
+cs-scope-firefox-vpn = { -brand-firefox }in sisäänrakennettu VPN
 
 
 dc-heading = Tietojen keruu ja käyttö
@@ -668,7 +685,12 @@ display-name-update-error-2 = Näyttönimeäsi päivitettäessä tapahtui virhe
 display-name-success-alert-2 = Näyttönimi päivitetty
 
 
+page-passkey-add-creating-heading = Luodaan todentamisavainta…
 page-passkey-add-cancel = Peruuta
+
+
+page-passkey-add-success = Todentamisavain luotu
+page-passkey-add-error-system-v2 = Todentamisavaimen luomisessa oli ongelma. Yritä myöhemmin uudelleen.
 
 
 recent-activity-title = Viimeaikaiset tilitapahtumat
@@ -697,6 +719,11 @@ recent-activity-account-secondary-email-removed = Toissijainen sähköpostiosoit
 recent-activity-account-emails-swapped = Ensisijainen ja toissijainen sähköpostiosoite vaihdettu
 recent-activity-session-destroy = Kirjauduttu ulos istunnosta
 recent-activity-must-reset-password = Salasanan nollaus vaaditaan
+recent-activity-account-passkey-registration-success = Todentamisavain lisätty
+recent-activity-account-passkey-registration-failure = Todentamisavaimen rekisteröinti epäonnistui
+recent-activity-account-passkey-removed = Todentamisavain poistettu
+recent-activity-account-passkey-authentication-success = Kirjautuminen todennusavaimella onnistui
+recent-activity-account-passkey-authentication-failure = Kirjautuminen todennusavaimella epäonnistui
 recent-activity-unknown = Muuta toimintaa tilillä
 
 
@@ -734,6 +761,7 @@ verify-secondary-email-cancel-button = Peruuta
 verify-secondary-email-verify-button-2 = Vahvista
 verify-secondary-email-please-enter-code-2 = Syötä osoitteeseen <strong>{ $email }</strong> lähetetty vahvistuskoodi viiden minuutin kuluessa.
 verify-secondary-email-success-alert-2 = { $email } lisätty onnistuneesti
+verify-secondary-email-resend-code-button = Lähetä vahvistuskoodi uudelleen
 
 
 delete-account-link = Poista tili
@@ -787,7 +815,11 @@ tfa-row-backup-phone-delete-button = Poista
 tfa-row-backup-phone-delete-title-v2 = Poista palauttamisen puhelinnumero
 passkey-sub-row-created-date = Luotu: { $createdDate }
 passkey-sub-row-last-used-date = Viimeksi käytetty: { $lastUsedDate }
+passkey-sub-row-delete-title = Poista todentamisavain
+passkey-delete-modal-heading = Poistetaanko todennusavain?
 passkey-delete-modal-cancel-button = Peruuta
+passkey-delete-modal-confirm-button = Poista todentamisavain
+passkey-delete-success = Todentamisavain poistettu
 
 
 switch-turn-off = Poista käytöstä
@@ -803,6 +835,7 @@ row-defaults-action-disable = Poista käytöstä
 row-defaults-status = Ei mitään
 
 
+passkey-row-header = Todentamisavaimet
 passkey-row-enabled = Käytössä
 passkey-row-not-set = Ei asetettu
 passkey-row-action-create = Luo
@@ -904,6 +937,9 @@ auth-error-206 = Salasanaa ei voi luoda, salasana on jo asetettu
 auth-error-214 = Palauttamisen puhelinnumero on jo olemassa
 auth-error-215 = Palauttamisen puhelinnumeroa ei ole olemassa
 auth-error-216 = Tekstiviestien raja saavutettu
+auth-error-224 = Todentamisavainta ei löytynyt
+auth-error-225 = Todentamisavain on jo rekisteröity
+auth-error-228 = Todentamisavaimen rekisteröinti epäonnistui
 auth-error-999 = Odottamaton virhe
 auth-error-1001 = Kirjautumisyritys peruttu
 auth-error-1002 = Istunto vanhentui. Kirjaudu sisään uudelleen.
@@ -924,11 +960,16 @@ oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelle
 
 
 
+passkey-registration-error-timeout = Todentamisavaimen määritys peruttiin. Yritä uudelleen.
 passkey-registration-canceled-link = Lue lisää
+passkey-registration-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
 passkey-registration-error-not-supported-link = Lue lisää
 passkey-registration-error-could-not-complete-link = Lue lisää
 
 
+passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
+passkey-authentication-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
+passkey-authentication-error-not-found = Todentamisavainta ei tunnistettu. Käytä toista kirjautumistapaa.
 
 
 connect-another-device-signed-in-header = Olet kirjautunut { -brand-firefox }iin
@@ -1043,6 +1084,8 @@ pair-get-started-button = Aloita
 pair-qr-code-aria-label = QR-koodi
 
 
+pair-choice-subheader = Synkronoi { -brand-firefox }-kokemuksesi
+pair-choice-description = Tarkastele tallennettuja salasanoja, välilehtiä, selaushistoriaa ja muuta – kaikilla laitteillasi.
 pair-choice-legend = Jatka valitsemalla vaihtoehto:
 pair-choice-has-mobile-title = Minulla on jo { -brand-firefox } mobiililaitteille
 pair-choice-needs-mobile-title = Minulla ei ole { -brand-firefox }ia mobiililaitteille
@@ -1053,6 +1096,7 @@ pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
 
 
 pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
+pair-continue-to-sync-button = Jatka synkronointiin
 
 
 pair-success-header-2 = Laite yhdistetty
@@ -1069,6 +1113,7 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
+pair-unsupported-oops-header = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
 pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
 pair-unsupported-learn-more-link-v2 = Lue lisää
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
@@ -1083,6 +1128,9 @@ service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 
 
 set-password-heading-v2 = Luo salasana synkronointia varten
+
+
+set-password-passwordless-info = Tämä salasana salaa synkronoidut tietosi ja pitää ne turvassa.
 
 
 third-party-auth-callback-message = Odota, sinut ohjataan valtuutettuun sovellukseen.
@@ -1197,6 +1245,7 @@ back = Edellinen
 
 signin-passkey-fallback-header = Viimeistele kirjautuminen
 signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
+signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasanasi, kun käytät tätä todentamisavainta.
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
 
@@ -1208,6 +1257,11 @@ signin-passwordless-code-input-label-v2 = Kirjoita 6-numeroinen koodi
 signin-passwordless-code-confirm-button = Vahvista
 signin-passwordless-code-required-error = Vahvistuskoodi vaaditaan
 signin-passwordless-code-expired = Vanheniko koodi?
+signin-passwordless-code-resend-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 signin-passwordless-code-resend-link = Lähetä uusi koodi sähköpostiin.
 signin-passwordless-code-resend-error = Jokin meni pieleen. Uutta koodia ei voitu lähettää.
 signin-passwordless-code-other-account-link = Käytä toista tiliä
@@ -1259,6 +1313,11 @@ signin-token-code-input-label-v2 = Kirjoita 6-numeroinen koodi
 signin-token-code-confirm-button = Vahvista
 signin-token-code-code-expired = Vanheniko koodi?
 signin-token-code-resend-code-link = Lähetä uusi koodi sähköpostiin.
+signin-token-code-resend-code-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 signin-token-code-required-error = Vahvistuskoodi vaaditaan
 signin-token-code-resend-error = Jokin meni pieleen. Uutta koodia ei voitu lähettää.
 
@@ -1295,6 +1354,11 @@ confirm-signup-code-confirm-button = Vahvista
 confirm-signup-code-sync-button = Aloita synkronointi
 confirm-signup-code-code-expired = Vanheniko koodi?
 confirm-signup-code-resend-code-link = Lähetä uusi koodi sähköpostiin.
+confirm-signup-code-resend-code-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 confirm-signup-code-success-alert = Tilin vahvistaminen onnistui
 confirm-signup-code-is-required-error = Vahvistuskoodi vaaditaan
 

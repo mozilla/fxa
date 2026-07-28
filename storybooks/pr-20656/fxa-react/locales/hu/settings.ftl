@@ -161,11 +161,11 @@ device-info-ip-address = IP-cím: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
-firefox-promo-banner-mobile-heading = { -brand-firefox }, bárhol is legyen
+firefox-promo-banner-mobile-heading = Szerezze be a { -brand-firefox }ot, bárhol is legyen
 firefox-promo-banner-mobile-description = Szinkronizálja lapjait, könyvjelzőit és jelszavait az eszközei között. Ráadásul minden biztonságosan titkosítva marad.
 firefox-promo-banner-mobile-cta = Csatlakoztasson egy eszközt
-firefox-promo-banner-switch-heading = Gyors váltás. Könnyű beilleszkedni.
-firefox-promo-banner-switch-description = Ha erre vált: { -brand-firefox }, akkor elhozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeket, így zökkenőmentesen elkezdheti a böngészést.
+firefox-promo-banner-switch-heading = Gyors váltás. Könnyű belakás.
+firefox-promo-banner-switch-description = Ha a { -brand-firefox }ra vált, akkor hozhatja a könyvjelzőit, jelszavait, előzményeit és egyebeit, így zökkenőmentesen folytathatja a böngészést.
 firefox-promo-banner-switch-cta = Váltás erre: { -brand-firefox }
 
 ## FormPasswordInlineCriteria
@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Szerkesztés
 error-icon-aria-label =
     .aria-label = Hiba
 # Used as information icon for informative messaging
@@ -1257,6 +1260,18 @@ passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
 passkey-delete-error = Hiba történt a jelkulcs törlésekor. Próbálja újra néhány perc múlva.
+passkey-sub-row-rename-title = Jelkulcs átnevezése
+passkey-rename-modal-heading = Jelkulcs átnevezése
+passkey-rename-modal-description = Adjon meg egy új nevet ennek a jelkulcsnak.
+passkey-rename-input-label = Jelkulcs neve
+passkey-rename-save-button = Mentés
+passkey-rename-cancel-button = Mégse
+passkey-rename-error-empty = Adjon meg egy nevet ennek a jelkulcsnak
+passkey-rename-error-too-long = A névnek 256 karakternél rövidebbnek kell lennie.
+passkey-rename-error-invalid = Csak betűk, számok, írásjelek és szimbólumok engedélyezettek.
+passkey-rename-error-duplicate = Már létezik ilyen nevű jelkulcs
+passkey-rename-success = Jelszó átnevezve
+passkey-rename-error = Hiba történt a jelkulcs átnevezésekor. Próbálja újra néhány perc múlva.
 
 ## Switch component
 
@@ -1451,6 +1466,7 @@ auth-error-225 = A jelkulcs már regisztrálva van
 auth-error-226 = A jelkulcsok korlátja elérve
 auth-error-227 = A jelkulcsos hitelesítés sikertelen
 auth-error-228 = A jelkulcs regisztrációja sikertelen
+auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
 auth-error-999 = Nem várt hiba
@@ -1518,12 +1534,24 @@ passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Pr�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = A jelkulcsok használata
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = A jelkulcskérés túllépte az időkorlátot. Próbálja újra.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = A jelkulcsos bejelentkezés túllépte az időkorlátot. Próbálja újra.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = A böngészője vagy az eszköze nem támogatja a jelkulcsokat.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

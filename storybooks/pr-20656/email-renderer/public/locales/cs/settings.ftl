@@ -164,12 +164,12 @@ device-info-ip-address = IP adresa: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
-firefox-promo-banner-mobile-heading = Získejte { -brand-firefox }, ať jste kdekoliv
-firefox-promo-banner-mobile-description = Synchronizujte své panely, záložky a hesla mezi svými zařízeními. Navíc zůstává vše bezpečně zašifrováno.
+firefox-promo-banner-mobile-heading = Mějte { -brand-firefox(case: "acc") } s sebou kdekoliv se nacházíte
+firefox-promo-banner-mobile-description = Synchronizujte si panely, záložky a hesla napříč všemi svými zařízeními. Navíc je vše bezpečně zašifrováno.
 firefox-promo-banner-mobile-cta = Připojit zařízení
-firefox-promo-banner-switch-heading = Rychlé přepínání. Snadné zabydlení.
-firefox-promo-banner-switch-description = Po přechodu na { -brand-firefox } si můžete přenést své záložky, hesla, historii i další věci, takže můžete brouzdat bez omezení.
-firefox-promo-banner-switch-cta = Přepnout na { -brand-firefox }
+firefox-promo-banner-switch-heading = Rychlé přepnutí. Snadné zapojení.
+firefox-promo-banner-switch-description = Když přejdete na { -brand-firefox }, můžete si přenést své záložky, hesla, historii a další údaje, abyste mohli pokračovat v prohlížení webu bez problémů.
+firefox-promo-banner-switch-cta = Přejít na { -brand-firefox(case: "acc") }
 
 ## FormPasswordInlineCriteria
 
@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Upravit
 error-icon-aria-label =
     .aria-label = Chyba
 # Used as information icon for informative messaging
@@ -1256,11 +1259,23 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content-v2 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení bude potřeba použít jinou metodu (heslo, jiné heslo nebo propojený účet).
+passkey-delete-modal-content-v2 = Tento přístupový klíč bude z vašeho účtu odstraněn. Budete se muset přihlásit jiným způsobem (heslem, jiným přístupovým klíčem nebo propojeným účtem).
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
 passkey-delete-error = Váš přístupový kód se nepodařilo smazat. Zkuste to znovu za několik minut.
+passkey-sub-row-rename-title = Přejmenovat přístupový klíč
+passkey-rename-modal-heading = Přejmenovat přístupový klíč
+passkey-rename-modal-description = Zadejte nový název pro tento přístupový klíč.
+passkey-rename-input-label = Název přístupového klíče
+passkey-rename-save-button = Uložit
+passkey-rename-cancel-button = Zrušit
+passkey-rename-error-empty = Zadejte název pro tento přístupový klíč
+passkey-rename-error-too-long = Název musí obsahovat méně než 256 znaků.
+passkey-rename-error-invalid = Jsou povolena pouze písmena, čísla, interpunkční znaménka a symboly.
+passkey-rename-error-duplicate = Přístupový klíč s tímto názvem už existuje
+passkey-rename-success = Přístupový klíč byl přejmenován
+passkey-rename-error = Při přejmenování vašeho přístupového klíče došlo k problému. Zkuste to znovu za pár minut.
 
 ## Switch component
 
@@ -1450,6 +1465,7 @@ auth-error-225 = Přístupový klíč je již zaregistrován
 auth-error-226 = Dosažen limit přístupových klíčů
 auth-error-227 = Ověření přístupovým klíčem selhalo
 auth-error-228 = Registrace přístupového klíče selhala
+auth-error-233 = Chcete-li vytvořit přístupový klíč, nastavte na svém zařízení nebo bezpečnostním klíči zámek obrazovky, PIN, otisk prstu nebo rozpoznávání obličeje. Poté to zkuste znovu.
 auth-error-238 = Ověření pomocí přístupového klíče se nezdařilo
 auth-error-239 = Je nám líto, ale váš účet se nepodařilo smazat. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává.
 auth-error-999 = Neočekávaná chyba
@@ -1517,12 +1533,24 @@ passkey-registration-error-unexpected = Nastavení přístupového klíče selha
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Přihlášení pomocí přístupového klíče se nezdařilo
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Zkuste to znovu nebo použijte jinou možnost přihlášení.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Jak používat přístupové klíče
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Přihlášení pomocí přístupového klíče selhalo nebo je nedostupné. Zkuste to znovu nebo zvolte jiný způsob.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Nastavení přístupového klíče není u tohoto zařízení k dispozici. Zkuste to prosím znovu nebo zvolte jinou metodu.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Vypršel časový limit požadavku na přístupový klíč. Zkuste to prosím znovu.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Vypršel čas přihlášení pomocí hesla. Zkuste to znovu.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

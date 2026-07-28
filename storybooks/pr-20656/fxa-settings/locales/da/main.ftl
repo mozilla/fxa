@@ -35,6 +35,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Noget gik galt
+app-something-went-wrong-message = Vi er blevet underrettet om problemet. Opdater siden for at prøve igen.
+app-error-id = Fejl-ID: { $errorId }
+app-error-details-summary = Detaljer om fejl
 app-query-parameter-err-heading = Forkert forespørgsel: Ugyldige søgeparametre
 
 
@@ -147,6 +151,14 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } uanset hvor du er
+firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Alt sikkert bliver sikkert krypteret.
+firefox-promo-banner-mobile-cta = Opret forbindelse til en enhed
+firefox-promo-banner-switch-heading = Hurtig at skifte. Nem at vænne sig til.
+firefox-promo-banner-switch-description = Når du skifter til { -brand-firefox }, kan du medbringe dine bogmærker, adgangskoder, historik og mere, så du kan komme i gang med at browse uden at gå glip af noget.
+firefox-promo-banner-switch-cta = skift til { -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Adgangskode
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -215,6 +227,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Succes
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktiveret
+chevron-right-icon-aria-label =
+    .aria-label = Dobbeltvinkel til højre
 close-icon-aria-label =
     .aria-label = Luk besked
 code-icon-aria-label =
@@ -288,6 +302,7 @@ input-phone-number-enter-number = Indtast telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 legal-back-button = Tilbage
+app-general-err-message = Noget gik galt. Prøv igen senere.
 
 
 reset-pwd-link-damaged-header = Link til nulstilling af adgangskode beskadiget
@@ -444,6 +459,9 @@ cs-disconnect-lost-advice-content-3 = Da din enhed er mistet eller stjålet, ska
 cs-disconnect-suspicious-advice-heading = Afbrudt forbindelsen til mistænkelig enhed
 cs-disconnect-suspicious-advice-content-2 = Hvis den frakoblede enhed virkelig er mistænkelig, skal du ændre adgangskoden til din { -product-mozilla-account } i dine kontoindstillinger for at beskytte dine data. Du skal også ændre de andre adgangskoder, du har gemt i { -brand-firefox }, ved at skrive about:logins i adressefeltet.
 cs-sign-out-button = Log ud
+
+
+cs-scope-firefox-vpn = Den indbyggede VPN i { -brand-firefox }
 
 
 dc-heading = Dataindsamling og -brug
@@ -742,6 +760,7 @@ page-passkey-add-cancel = Annuller
 
 
 page-passkey-add-success = Adgangsnøgle oprettet
+page-passkey-add-error-system-v2 = Der opstod et problem med at oprette din adgangsnøgle. Prøv igen senere.
 
 
 recent-activity-title = Seneste kontoaktivitet
@@ -780,6 +799,26 @@ recent-activity-account-recovery-codes-signin-complete = Login med genoprettelse
 recent-activity-password-reset-otp-sent = Bekræftelseskode til nulstilling af adgangskode sendt
 recent-activity-password-reset-otp-verified = Bekræftelseskode til nulstilling af adgangskode bekræftet
 recent-activity-must-reset-password = Nulstilling af adgangskode påkrævet
+recent-activity-account-recovery-phone-replace-complete = Telefonnummer til genoprettelse udskiftet
+recent-activity-account-recovery-phone-replace-failure = Udskiftning af telefonnummer til genoprettelse mislykkedes
+recent-activity-account-two-factor-replace-success = Totrinsgodkendelse udskiftet
+recent-activity-account-two-factor-replace-failure = Udskiftning af totrinsgodkendelse mislykkedes
+recent-activity-account-recovery-phone-setup-failed = Opsætning af telefonnummer til genoprettelse mislykkedes
+recent-activity-account-recovery-phone-reset-password-complete = Nulstilling af adgangskode med telefonnummer til gendannelse fuldført
+recent-activity-account-recovery-phone-reset-password-failed = Nulstilling af adgangskode med telefonnummer til gendannelse mislykkedes
+recent-activity-account-mfa-otp-sent = Anmodet om godkendelse af kontoændring
+recent-activity-account-mfa-otp-verified = Ændring af konto godkendt
+recent-activity-account-mfa-otp-failed = Godkendelse af kontoændring mislykkedes
+recent-activity-account-passkey-registration-success = Adgangsnøgle tilføjet
+recent-activity-account-passkey-registration-failure = Registrering af adgangsnøgle mislykkedes
+recent-activity-account-passkey-removed = Adgangsnøgle fjernet
+recent-activity-account-passkey-authentication-success = Log-in med adgangsnøgle fuldført
+recent-activity-account-passkey-authentication-failure = Log-ind med adgangsnøgle mislykkedes
+recent-activity-account-passwordless-login-otp-sent = Adgangskodefri login-kode sendt
+recent-activity-account-passwordless-login-otp-failed = Adgangskodefri login-kode mislykkedes
+recent-activity-account-passwordless-login-otp-verified = Adgangskodefri login-kode bekræftet
+recent-activity-account-passwordless-registration-complete = Adgangskodefri registrering af konto fuldført
+recent-activity-account-recovery-codes-set = Genoprettelseskoder angivet
 recent-activity-unknown = Anden kontoaktivitet
 
 
@@ -886,6 +925,7 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
+passkey-delete-modal-content-v2 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en anden metode (adgangskode, en anden adgangsnøgle eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1029,6 +1069,7 @@ auth-error-226 = Grænsen for adgangsnøgle nået
 auth-error-227 = Godkendelse med adgangsnøgle mislykkedes
 auth-error-228 = Registrering af adgangsnøgle mislykkedes
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
+auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
 auth-error-999 = Uventet fejl
 auth-error-1001 = Login-forsøg annulleret
 auth-error-1002 = Sessionen udløb. Log ind for at fortsætte.
@@ -1055,6 +1096,12 @@ oauth-error-1000 = Noget gik galt. Luk dette faneblad og prøv igen.
 passkey-registration-error-not-allowed = Opsætning af adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
 passkey-registration-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Enten er enheden allerede registreret, eller også blev opsætningsprocessen annulleret.
 passkey-registration-error-timeout = Opsætning af adgangsnøgle blev annulleret. Prøv igen.
+passkey-registration-canceled-v2 = Tidsfristen for opsætning af adgangsnøgle udløb eller opsætningen blev annulleret.
+passkey-registration-canceled-link = Læs mere
+passkey-registration-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
+passkey-registration-error-not-supported-link = Læs mere
+passkey-registration-error-could-not-complete = Opsætning af adgangsnøgle kunne ikke fuldføres. Prøv en anden metode eller enhed.
+passkey-registration-error-could-not-complete-link = Læs mere
 passkey-registration-error-security = Adgangsnøgler kan ikke opsættes på denne side. Brug det sikre websted, og prøv igen.
 passkey-registration-error-invalid-state = Denne adgangsnøgle er allerede registreret. Brug den til at logge ind eller tilføj en anden adgangsnøgle.
 passkey-registration-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden metode.
@@ -1065,10 +1112,12 @@ passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes.
 passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
 passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
+passkey-authentication-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
 passkey-authentication-error-security = Adgangsnøgler kan ikke bruges på denne side. Kontroller, at du er på det korrekte sikre websted, og prøv igen.
 passkey-authentication-error-invalid-state = Noget gik galt med din adgangsnøgle. Prøv igen, eller brug en anden loginmetode.
 passkey-authentication-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden loginmetode.
 passkey-authentication-error-unexpected = Noget gik galt. Prøv igen, eller vælg en anden loginmetode.
+passkey-authentication-error-not-found = Adgangsnøglen genkendes ikke. Brug en anden login-metode.
 
 
 connect-another-device-signed-in-header = Du er logget ind på { -brand-firefox }

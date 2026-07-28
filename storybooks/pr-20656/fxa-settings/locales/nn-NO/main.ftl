@@ -237,6 +237,8 @@ close-icon-aria-label =
     .aria-label = Lat att melding
 code-icon-aria-label =
     .aria-label = Kode
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Feil
 info-icon-aria-label =
@@ -418,7 +420,7 @@ bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = { -brand-firefox }-nettlesaren for datamaskiner
-bento-menu-firefox-mobile = { -brand-firefox }-nettlesar for mobil
+bento-menu-firefox-mobile = { -brand-firefox }-nettlesaren for mobil
 bento-menu-made-by-mozilla = Laga av { -brand-mozilla }
 
 
@@ -934,6 +936,18 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
 passkey-delete-error = Det oppstod eit problem med å slette passnøkkelen din. Prøv igjen om nokre minutt.
+passkey-sub-row-rename-title = Byt namn på passnøkkel
+passkey-rename-modal-heading = Byt namn på passnøkkel
+passkey-rename-modal-description = Skriv inn eit nytt namn for denne passnøkkelen
+passkey-rename-input-label = Passnøkkelnamn
+passkey-rename-save-button = Lagre
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Skriv inn eit namn for denne passnøkkelen
+passkey-rename-error-too-long = Namnet må innehalde færre enn 256 teikn.
+passkey-rename-error-invalid = Berre bokstavar, tal, teiknsetting og symbol er lov.
+passkey-rename-error-duplicate = Ein passnøkkel med dette namnet finst allereie
+passkey-rename-success = Passnøkkel har fått nytt namn
+passkey-rename-error = Det oppstod eit problem med å endre namn på passnøkkelen din. Prøv igjen om nokre minutt.
 
 
 switch-turn-off = Slå av
@@ -1072,6 +1086,7 @@ auth-error-225 = Passnøkkelen er allereie registrert
 auth-error-226 = Passnøkkelgrensa er nådd
 auth-error-227 = Mislykka passnøkkelautentisering
 auth-error-228 = Mislykka registrering av passnøkkel
+auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
 auth-error-999 = Uventa feil
@@ -1113,9 +1128,13 @@ passkey-registration-error-constraint = Oppsett av passnøkkel er ikkje tilgjeng
 passkey-registration-error-unexpected = Mislykka oppsett av passnøkkel. Prøv igjen eller vel ein annan metode.
 
 
+passkey-authentication-trouble-heading = Klarte ikkje å logge inn med ein passnøkkel
+passkey-authentication-trouble-description = Prøv på nytt eller bruk ein annan påloggingsmetode.
+passkey-authentication-trouble-link = Slik brukar du passnøklar
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
 passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Prøv igjen eller vel ein annan metode.
 passkey-authentication-error-timeout = Førespurnaden om passnøkkel vart tidsavbroten. Prøv igjen.
+passkey-authentication-error-timeout-v2 = Tidsavbrot ved pålogging med passnøkkel. Prøv på nytt.
 passkey-authentication-error-not-supported-v2 = Nettlesaren eller eininga di støttar ikkje passnøklar.
 passkey-authentication-error-security = Passnøklar kan ikkje brukast på denne sida. Kontroller at du er på rett, sikker nettstad, og prøv igjen.
 passkey-authentication-error-invalid-state = Noko gjekk gale med passnøkkelen din. Prøv igjen eller bruk ein annan innloggingsmetode.

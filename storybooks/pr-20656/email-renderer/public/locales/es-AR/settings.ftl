@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Código
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Error
 # Used as information icon for informative messaging
@@ -1251,6 +1254,18 @@ passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada
 passkey-delete-error = Hubo un problema borrando tu clave de acceso. Probá de nuevo en unos minutos.
+passkey-sub-row-rename-title = Renombrar clave de acceso
+passkey-rename-modal-heading = Renombrar clave de acceso
+passkey-rename-modal-description = Ingresá un nuevo nombre para esta clave de acceso.
+passkey-rename-input-label = Nombre de la clave de acceso
+passkey-rename-save-button = Guardar
+passkey-rename-cancel-button = Cancelar
+passkey-rename-error-empty = Ingresá un nombre para esta clave de acceso
+passkey-rename-error-too-long = El nombre debe contener menos de 256 caracteres.
+passkey-rename-error-invalid = Solo se permiten letras, números, signos de puntuación y símbolos.
+passkey-rename-error-duplicate = Ya existe una clave de acceso con este nombre
+passkey-rename-success = Clave de acceso renombrada
+passkey-rename-error = Hubo un problema renombrando la clave de acceso. Probá de nuevo en unos minutos.
 
 ## Switch component
 
@@ -1445,6 +1460,7 @@ auth-error-225 = Clave de acceso ya registrada
 auth-error-226 = Se alcanzó el límite de claves de acceso
 auth-error-227 = Falló la autenticación de clave de acceso
 auth-error-228 = Falló el registro de la clave de acceso
+auth-error-233 = Para crear una clave de acceso, configurá un bloqueo de pantalla, PIN, huella digital o reconocimiento facial en tu dispositivo o clave de seguridad. Después de hacerlo, probá de nuevo.
 auth-error-238 = Falló la verificación de la clave de acceso
 auth-error-239 = Lo sentimos, no pudimos borrar tu cuenta. Probá de nuevo o contactá a soporte si el problema persiste.
 auth-error-999 = Error inesperado
@@ -1512,12 +1528,24 @@ passkey-registration-error-unexpected = Falló la configuración de la clave de 
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = No se pudo iniciar sesión con una clave de acceso
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Probá de nuevo o usá otra opción de inicio de sesión.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Cómo usar claves de acceso
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Falló el inicio de sesión con clave de acceso o no está disponible. Probá de nuevo o elegí otro método.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. Probá de nuevo o elegí otro método.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Se agotó el tiempo de espera para el pedido de clave de acceso. Probá de nuevo.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Se agotó el tiempo de inicio de sesión con clave de acceso. Probá de nuevo.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Tu navegador o dispositivo no soporta claves de acceso.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

@@ -434,7 +434,7 @@ next-new-user-subscribe-product-assurance = 이메일은 오직 계정을 만드
 
 ## $productName (String) - The name of the subscribed product.
 
-resubscribe-dialog-title = { $name } 사용을 계속 하시겠습니까?
+resubscribe-dialog-title = { $productName } 사용을 계속 하시겠습니까?
 subscription-content-button-resubscribe = 재구독
     .aria-label = { $productName } 재구독
 resubscribe-success-dialog-title = 감사합니다! 모두 준비되었습니다.

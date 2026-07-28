@@ -322,7 +322,7 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Něco se pokazilo
-app-something-went-wrong-message = Na problém jsme byli upozorněni. Obnovte stránku a zkuste to znovu.
+app-something-went-wrong-message = O tomto problému jsme byli informováni. Obnovte stránku a zkuste to znovu.
 app-error-id = ID chyby: { $errorId }
 app-error-details-summary = Podrobnosti o chybě
 app-query-parameter-err-heading = Špatný požadavek: neplatné parametry v dotazu

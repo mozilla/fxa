@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Wobźěłaś
 error-icon-aria-label =
     .aria-label = Zmólka
 # Used as information icon for informative messaging
@@ -1265,6 +1268,18 @@ passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
 passkey-delete-error = Pśi lašowanju wašogo gronidłowego kluca jo problem nastał. Wopytajśo za mało minutow hyšći raz.
+passkey-sub-row-rename-title = Gronidłowy kluc pśemjeniś
+passkey-rename-modal-heading = Gronidłowy kluc pśemjeniś
+passkey-rename-modal-description = Zapódajśo nowe mě za toś ten gronidłowy kluc.
+passkey-rename-input-label = Mě gronidłowego kluca
+passkey-rename-save-button = Składowaś
+passkey-rename-cancel-button = Pśetergnuś
+passkey-rename-error-empty = Zapódajśo mě za toś ten gronidłowy kluc
+passkey-rename-error-too-long = Mě musy mjenjej ako 256 znamuškow wopśimowaś.
+passkey-rename-error-invalid = Jano pismiki, licby, interpunkciske znamuška a symbole su dowólone.
+passkey-rename-error-duplicate = Gronidłowy kluc z toś tym mjenim južo esistěrujo
+passkey-rename-success = Gronidłowy kluc jo se pśemjenił
+passkey-rename-error = Pśi pśemjenowanju wašogo gronidłowego kluca jo problem nastał. Wopytajśo za mało minutow hyšći raz.
 
 ## Switch component
 
@@ -1461,6 +1476,7 @@ auth-error-225 = Gronidłowy kluc jo južo zregistrěrowany
 auth-error-226 = Limit za gronidłowy kluc dojśpity
 auth-error-227 = Awtentifikacija gronidłowego kluca njejo se raźiła
 auth-error-228 = Registracija gronidłowego kluca njejo se raźiła
+auth-error-233 = Aby gronidłowy kluc napórał, konfigurěrujśo zawěru wobrazowki, PIN, palcowy wótśišć abo woblicowe spóznaśe na swójom rěźe abo wěstotnem klucu. Wopytajśo pón hyšći raz.
 auth-error-238 = Pśeglědanje gronidłowego kluca njejo se raźiło
 auth-error-239 = Bóžko njejsmy mógli wašo konto wulašowaś. Pšosym wopytajśo hyšći raz abo stajśo se z teamom pomocy do zwiska, jolic problem dalej eksistěrujo.
 auth-error-999 = Njewótcakowana zmólka
@@ -1528,12 +1544,24 @@ passkey-registration-error-unexpected = Konfiguracija gronidłowego kluca njejo 
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Pśizjawjenje z gronidłowym klucom njejo móžne
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Wopytajśo hyšći raz abo wužywajśo drugu pśizjawjeńsku móžnosć.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Kak se gronidłowe kluce wužywaju
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Pśizjawjenje z gronidłowym klucom njejo se raźiło abo njejo k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Pśekšocenje casa pśi napšašowanju gronidłowego kluca. Wopytajśo pšosym hyšći raz.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Pśizjawjenje z gronidłowym klucom jo pśekšocył cas. Wopytajśo hyšći raz.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Waš wobglědowak abo rěd gronidłowy kluce njepódpěra.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

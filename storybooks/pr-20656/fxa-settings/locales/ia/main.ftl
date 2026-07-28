@@ -37,7 +37,7 @@
 
 app-something-went-wrong-heading = Alco errate eveniva
 app-something-went-wrong-message = Nos ha essite notificate del problema. Actualisar le pagina pro retentar.
-app-error-id = ID de error: { $error }
+app-error-id = ID de error: { $errorId }
 app-error-details-summary = Detalios del error
 app-query-parameter-err-heading = Mal requesta: parametros de consulta non valide
 
@@ -233,6 +233,8 @@ close-icon-aria-label =
     .aria-label = Clauder message
 code-icon-aria-label =
     .aria-label = Codice
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Error
 info-icon-aria-label =
@@ -932,6 +934,18 @@ passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
 passkey-delete-error = Il habeva un problema a deler tu clave-contrasigno. Retenta in alcun minutas.
+passkey-sub-row-rename-title = Renominar clave-contrasigno
+passkey-rename-modal-heading = Renominar clave-contrasigno
+passkey-rename-modal-description = Insere un nove nomine pro iste clave-contrasigno.
+passkey-rename-input-label = Nomine del clave-contrasigno
+passkey-rename-save-button = Salvar
+passkey-rename-cancel-button = Cancellar
+passkey-rename-error-empty = Insere un nomine pro iste clave-contrasigno.
+passkey-rename-error-too-long = Le nomine debe continer minus que 255 characteres.
+passkey-rename-error-invalid = Solo litteras, numeros, signos de punctuation e symbolos es permittite.
+passkey-rename-error-duplicate = Un clave-contrasigno con iste nomine jam existe.
+passkey-rename-success = Clave-contrasigno renominate
+passkey-rename-error = Il habeva un problema a renominar tu clave-contrasigno. Retenta in alcun minutas.
 
 
 switch-turn-off = Disactivar
@@ -1072,6 +1086,7 @@ auth-error-225 = Clave-contrasigno jam registrate
 auth-error-226 = Limite de claves-contrasigno attingite
 auth-error-227 = Authentication de clave-contrasigno fallite
 auth-error-228 = Registration de clave-contrasigno fallite
+auth-error-233 = Pro crear un clave-contrasigno, configura un blocada de schermo, PIN, dactylogramma, o recognition de facie sur tu apparato o clave de securitate. Pois retenta.
 auth-error-238 = Verification de clave-contrasigno fallite
 auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
 auth-error-999 = Error inexpectate
@@ -1113,9 +1128,13 @@ passkey-registration-error-constraint = Le configuration del claves-contrasigno 
 passkey-registration-error-unexpected = Le configuration del clave-contrasigno falleva. Retenta o elige un altere methodo.
 
 
+passkey-authentication-trouble-heading = Impossibile acceder con un clave-contrasigno
+passkey-authentication-trouble-description = Retenta o usa un altere option de authentication.
+passkey-authentication-trouble-link = Como usar claves-contrasigno
 passkey-authentication-error-not-allowed = Le authentication con clave-contrasigno falleva o es indisponibile. Retenta o elige un altere methodo.
 passkey-authentication-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Retenta o elige un altere methodo.
 passkey-authentication-error-timeout = Le petition de clave-contrasigno exiva del tempore limite. Retenta.
+passkey-authentication-error-timeout-v2 = Authentication de clave-contrasigno foras tempore limite. Retenta.
 passkey-authentication-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
 passkey-authentication-error-security = Le claves-contrasigno non pote esser usate sur iste pagina. Verifica que tu es sur le sito secur correcte e retenta.
 passkey-authentication-error-invalid-state = Alco errate eveniva con tu clave-contrasigno. Retenta o usa un altere methodo de authentication.

@@ -439,7 +439,7 @@ verifyLogin-subject-2 = Confirmar inicio de sesión
 verifyLogin-action = Confirmar inicio de sesión
 # Variables:
 #  $code (String) - The confirmation code for sign-in
-verifyLoginCode-subject-line-3 = Usa { $unblockCode } para iniciar sesión
+verifyLoginCode-subject-line-3 = Usa { $code } para iniciar sesión
 verifyLoginCode-preview = Este código caduca en 5 minutos.
 # Variables:
 #  $serviceName (String) - A service the user hasn't signed into before (e.g. Firefox)

@@ -458,7 +458,7 @@ next-new-user-subscribe-product-assurance = E-postanızı yalnızca hesabınız�
 
 ## $productName (String) - The name of the subscribed product.
 
-resubscribe-dialog-title = { $name } ürününü kullanmaya devam etmek ister misiniz?
+resubscribe-dialog-title = { $productName } ürününü kullanmaya devam etmek ister misiniz?
 resubscribe-success-dialog-title = Teşekkürler! Artık hazırsınız.
 
 ## $billOnDate (Date) - The billing date of the current invoice (e.g., September 8, 2025)

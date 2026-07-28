@@ -20,6 +20,9 @@ next-payment-method-first-approve = Først skal du godkende dit abonnement
 
 ## Error page
 
+error-page-account-not-found-heading = Konto ikke fundet
+error-page-account-not-found-message = Den konto, der er knyttet til din session, findes ikke. Brug venligst en anden konto, eller opret en ny for at abonnere.
+error-page-account-not-found-continue-button = Fortsæt
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Vælg dit land og indtast dit postnummer <p>for at fortsætte til betalingen af { $productName }</p>
 location-banner-info = Vi kunne ikke fastslå din position automatisk
@@ -253,7 +256,7 @@ next-payment-confirm-with-legal-links-static-3 = Jeg giver hermed tilladelse til
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = En betalingsmetode er påkrævet for at starte din gratis prøveperiode. Du vil ikke blive opkrævet før { $endDate }.
-checkbox-confirm-free-trial-with-legal-links = Jeg giver hermed tilladelse til, at { -brand-mozilla } kan trække det viste beløb med min angivne betalingsmetode, efter den gratis prøveperiode slutter, i overensstemmelse med <termsOfServiceLink>tjenestevilkårene</termsOfServiceLink> og <privacyNoticeLink>privatlivserklæringen</privacyNoticeLink>, indtil jeg opsiger mit abonnement.
+checkbox-confirm-free-trial-with-legal-links = Jeg giver hermed tilladelse til, at { -brand-mozilla } kan trække det viste beløb med min angivne betalingsmetode, efter den gratis prøveperiode slutter den { $endDate }, i overensstemmelse med <termsOfServiceLink>tjenestevilkårene</termsOfServiceLink> og <privacyNoticeLink>privatlivserklæringen</privacyNoticeLink>, indtil jeg opsiger mit abonnement.
 next-payment-confirm-checkbox-error = Du skal fuldføre dette, før du går videre
 
 ## Checkout Form

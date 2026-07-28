@@ -385,6 +385,8 @@ close-icon-aria-label =
     .aria-label = Zavrieť správu
 code-icon-aria-label =
     .aria-label = Kód
+edit-icon-aria-label =
+    .aria-label = Upraviť
 error-icon-aria-label =
     .aria-label = Chyba
 info-icon-aria-label =
@@ -1086,6 +1088,18 @@ passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
 passkey-delete-error = Pri odstraňovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
+passkey-sub-row-rename-title = Premenovať prístupový kľúč
+passkey-rename-modal-heading = Premenovať prístupový kľúč
+passkey-rename-modal-description = Zadajte nový názov pre tento prístupový kľúč.
+passkey-rename-input-label = Názov prístupového kľúča
+passkey-rename-save-button = Uložiť
+passkey-rename-cancel-button = Zrušiť
+passkey-rename-error-empty = Zadajte názov pre tento prístupový kľúč
+passkey-rename-error-too-long = Názov musí obsahovať menej ako 256 znakov.
+passkey-rename-error-invalid = Povolené sú iba písmená, čísla, interpunkčné znamienka a symboly.
+passkey-rename-error-duplicate = Prístupový kľúč s týmto názvom už existuje
+passkey-rename-success = Prístupový kľúč premenovaný
+passkey-rename-error = Pri premenovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
 
 
 switch-turn-off = Vypnúť
@@ -1224,6 +1238,7 @@ auth-error-225 = Prístupový kľúč je už zaregistrovaný
 auth-error-226 = Dosiahnutý limit prístupových kľúčov
 auth-error-227 = Overenie pomocou prístupového kľúča zlyhalo
 auth-error-228 = Registrácia prístupového kľúča zlyhala
+auth-error-233 = Ak chcete vytvoriť prístupový kľúč, nastavte si na zariadení alebo bezpečnostnom kľúči zámok obrazovky, PIN kód, odtlačok prsta alebo rozpoznávanie tváre. Potom to skúste znova.
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
 auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
 auth-error-999 = Neočakávaná chyba
@@ -1265,9 +1280,13 @@ passkey-registration-error-constraint = Nastavenie prístupového kľúča nie j
 passkey-registration-error-unexpected = Nastavenie prístupového kľúča zlyhalo. Skúste to znova alebo vyberte inú metódu.
 
 
+passkey-authentication-trouble-heading = Nepodarilo sa prihlásiť pomocou prístupového kľúča
+passkey-authentication-trouble-description = Skúste to znova alebo použite inú možnosť prihlásenia.
+passkey-authentication-trouble-link = Ako používať prístupové kľúče
 passkey-authentication-error-not-allowed = Prihlásenie pomocou prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
 passkey-authentication-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Skúste to znova alebo vyberte iný spôsob.
 passkey-authentication-error-timeout = Časový limit žiadosti o prístupový kľúč vypršal. Skúste to znova.
+passkey-authentication-error-timeout-v2 = Časový limit prihlásenia pomocou prístupového kľúča vypršal. Skúste to znova.
 passkey-authentication-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 passkey-authentication-error-security = Na tejto stránke nie je možné použiť prístupové kľúče. Skontrolujte, či ste na správnej zabezpečenej stránke a skúste to znova.
 passkey-authentication-error-invalid-state = Vyskytol sa problém s vaším prístupovým kľúčom. Skúste to znova alebo použite iný spôsob prihlásenia.
@@ -1349,7 +1368,7 @@ legal-privacy-heading = Vyhlásenie o ochrane osobných údajov
 legal-terms-heading = Podmienky používania služby
 
 
-pair-auth-allow-heading-text = Prihlásili ste sa do { -product-firefox(case: "gen") }?
+pair-auth-allow-heading-text = Prihlásili ste sa do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Áno, schváliť zariadenie
 pair-auth-allow-refuse-device-link = Ak ste to neboli vy, <a>zmeňte si heslo</a>
 

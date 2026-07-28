@@ -20,6 +20,7 @@ next-payment-method-first-approve = Primeiro você precisa aprovar sua assinatur
 
 ## Error page
 
+error-page-account-not-found-continue-button = Continuar
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Selecione seu país e digite o código postal <p>para continuar o pagamento do { $productName }</p>
 location-banner-info = Não conseguimos detectar sua localização automaticamente
@@ -110,6 +111,10 @@ next-payment-confirmation-cc-card-ending-in = Cartão com final { $last4 }
 not-found-title-subscriptions = Assinatura não encontrada
 not-found-description-subscriptions = Não foi possível encontrar sua assinatura. Tente novamente ou entre em contato com o suporte.
 not-found-button-back-to-subscriptions = Voltar para assinaturas
+
+## Loyalty discount - Not found page
+
+not-found-loyalty-discount-title = Página não encontrada
 
 ## Page - Subscription Management
 

@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Code
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Bewerken
 error-icon-aria-label =
     .aria-label = Fout
 # Used as information icon for informative messaging
@@ -1253,6 +1256,18 @@ passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd
 passkey-delete-error = Er is een probleem opgetreden bij het verwijderen van uw wachtwoordsleutel. Probeer het over een paar minuten opnieuw.
+passkey-sub-row-rename-title = Wachtwoordsleutel hernoemen
+passkey-rename-modal-heading = Wachtwoordsleutel hernoemen
+passkey-rename-modal-description = Voer een nieuwe naam voor deze wachtwoordsleutel in.
+passkey-rename-input-label = Wachtwoordsleutelnaam
+passkey-rename-save-button = Opslaan
+passkey-rename-cancel-button = Annuleren
+passkey-rename-error-empty = Voer een naam voor deze wachtwoordsleutel in
+passkey-rename-error-too-long = De naam moet minder dan 256 tekens bevatten.
+passkey-rename-error-invalid = Alleen letters, cijfers, leestekens en symbolen zijn toegestaan.
+passkey-rename-error-duplicate = Er bestaat al een wachtwoordsleutel met deze naam
+passkey-rename-success = Wachtwoordsleutel hernoemd
+passkey-rename-error = Er is een probleem opgetreden bij het hernoemen van uw wachtwoordsleutel. Probeer het over een paar minuten opnieuw.
 
 ## Switch component
 
@@ -1447,6 +1462,7 @@ auth-error-225 = Wachtwoordsleutel al geregistreerd
 auth-error-226 = Wachtwoordsleutellimiet bereikt
 auth-error-227 = Wachtwoordsleutelauthenticatie mislukt
 auth-error-228 = Registratie wachtwoordsleutel mislukt
+auth-error-233 = Stel een schermvergrendeling, pincode, vingerafdruk of gezichtsherkenning op uw apparaat of beveiligingssleutel in om een wachtwoordsleutel aan te maken. Probeer het daarna opnieuw.
 auth-error-238 = Wachtwoordsleutel-uitdaging mislukt
 auth-error-239 = Sorry, we konden uw account niet verwijderen. Probeer het opnieuw, of neem contact op met de ondersteuningsafdeling als het probleem aanhoudt.
 auth-error-999 = Onverwachte fout
@@ -1514,12 +1530,24 @@ passkey-registration-error-unexpected = Instellen wachtwoordsleutel mislukt. Pro
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Kan niet aanmelden met een wachtwoordsleutel
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Probeer het opnieuw of gebruik een andere aanmeldingsoptie.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Wachtwoordsleutels gebruiken
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Aanmelding met wachtwoordsleutel is mislukt of niet beschikbaar. Probeer het opnieuw of kies een andere methode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Instellen van wachtwoordsleutel is niet beschikbaar op dit apparaat. Probeer het opnieuw of kies een andere methode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Wachtwoordsleutelverzoek verlopen. Probeer het opnieuw.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Wachttijd voor aanmelden met wachtwoordsleutel is verlopen. Probeer het opnieuw.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Uw browser of apparaat ondersteunt geen wachtwoordsleutels.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

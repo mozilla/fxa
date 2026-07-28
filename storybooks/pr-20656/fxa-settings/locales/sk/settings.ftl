@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kód
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Upraviť
 error-icon-aria-label =
     .aria-label = Chyba
 # Used as information icon for informative messaging
@@ -1263,6 +1266,18 @@ passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
 passkey-delete-error = Pri odstraňovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
+passkey-sub-row-rename-title = Premenovať prístupový kľúč
+passkey-rename-modal-heading = Premenovať prístupový kľúč
+passkey-rename-modal-description = Zadajte nový názov pre tento prístupový kľúč.
+passkey-rename-input-label = Názov prístupového kľúča
+passkey-rename-save-button = Uložiť
+passkey-rename-cancel-button = Zrušiť
+passkey-rename-error-empty = Zadajte názov pre tento prístupový kľúč
+passkey-rename-error-too-long = Názov musí obsahovať menej ako 256 znakov.
+passkey-rename-error-invalid = Povolené sú iba písmená, čísla, interpunkčné znamienka a symboly.
+passkey-rename-error-duplicate = Prístupový kľúč s týmto názvom už existuje
+passkey-rename-success = Prístupový kľúč premenovaný
+passkey-rename-error = Pri premenovaní vášho prístupového kľúča sa vyskytol problém. Skúste to znova o niekoľko minút.
 
 ## Switch component
 
@@ -1456,6 +1471,7 @@ auth-error-225 = Prístupový kľúč je už zaregistrovaný
 auth-error-226 = Dosiahnutý limit prístupových kľúčov
 auth-error-227 = Overenie pomocou prístupového kľúča zlyhalo
 auth-error-228 = Registrácia prístupového kľúča zlyhala
+auth-error-233 = Ak chcete vytvoriť prístupový kľúč, nastavte si na zariadení alebo bezpečnostnom kľúči zámok obrazovky, PIN kód, odtlačok prsta alebo rozpoznávanie tváre. Potom to skúste znova.
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
 auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
 auth-error-999 = Neočakávaná chyba
@@ -1523,12 +1539,24 @@ passkey-registration-error-unexpected = Nastavenie prístupového kľúča zlyha
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Nepodarilo sa prihlásiť pomocou prístupového kľúča
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Skúste to znova alebo použite inú možnosť prihlásenia.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Ako používať prístupové kľúče
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Prihlásenie pomocou prístupového kľúča zlyhalo alebo nie je k dispozícii. Skúste to znova alebo vyberte inú metódu.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Nastavenie prístupového kľúča nie je s týmto zariadením k dispozícii. Skúste to znova alebo vyberte iný spôsob.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Časový limit žiadosti o prístupový kľúč vypršal. Skúste to znova.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Časový limit prihlásenia pomocou prístupového kľúča vypršal. Skúste to znova.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Váš prehliadač alebo zariadenie nepodporuje prístupové kľúče.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1663,7 +1691,7 @@ legal-terms-heading = Podmienky používania služby
 
 ## AuthAllow page - Part of the device pairing flow
 
-pair-auth-allow-heading-text = Prihlásili ste sa do { -product-firefox(case: "gen") }?
+pair-auth-allow-heading-text = Prihlásili ste sa do { -brand-firefox(case: "gen") }?
 # Submit button to confirm that the user initiated the device pairing
 # and that they approve of the new device being added to their account
 pair-auth-allow-confirm-button = Áno, schváliť zariadenie

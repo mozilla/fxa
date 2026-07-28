@@ -283,6 +283,9 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 
@@ -373,6 +376,7 @@ link-expired-new-link-button = Receive new link
 
 
 remember-password-text = Remember your password?
+remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
@@ -450,14 +454,17 @@ password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
 
-password-reset-data-may-not-be-recovered = Your browser data may not be recovered
-password-reset-previously-signed-in-device-2 = Have any device where you previously signed in?
-password-reset-data-may-be-saved-locally-2 = Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.
-password-reset-no-old-device-2 = Have a new device but don’t have access to any of your previous ones?
-password-reset-encrypted-data-cannot-be-recovered-2 = We’re sorry, but your encrypted browser data on { -brand-firefox } servers can’t be recovered.
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 
 password-reset-warning-have-key = Have an account recovery key?
-password-reset-warning-use-key-link = Use it now to reset your password and keep your data
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 
 alert-bar-close-message = Close message
@@ -1072,6 +1079,19 @@ passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
+
 
 
 switch-turn-off = Turn off
@@ -1212,6 +1232,7 @@ auth-error-225 = Passkey already registered
 auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
+auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
@@ -1264,11 +1285,16 @@ passkey-registration-error-constraint = Passkey setup isn’t available with thi
 passkey-registration-error-unexpected = Passkey setup failed. Try again or choose another method.
 
 
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+passkey-authentication-trouble-link = How to use passkeys
+
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 
 passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 
@@ -1533,8 +1559,7 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-2 = We’ll ask for a couple of things only you know to keep your account
-          safe.
+password-reset-body-3 = Resetting your password may affect synced browser data.
 
 password-reset-email-input =
   .label = Enter your email
@@ -1640,6 +1665,7 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?
 
 
 

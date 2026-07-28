@@ -36,7 +36,8 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Oĩ mba’e osẽvaíva
-app-error-id = ID jejavy: { $error }
+app-something-went-wrong-message = Roñemomarandu apañuái. Embopyahu pe kuatiarogue eiporu jey hag̃ua.
+app-error-id = ID jejavy: { $errorId }
 app-error-details-summary = Mba’emimi jejavygua
 app-query-parameter-err-heading = Mba’ejerure oiko’ỹva: Ñeporandu ndoikóiva
 
@@ -151,7 +152,10 @@ device-info-ip-address = IP kundaharape: { $ipAddress }
 
 
 firefox-promo-banner-mobile-heading = Emohenda { -brand-firefox } peteĩva mba’e’okápe
+firefox-promo-banner-mobile-description = Embojuehepa ne rendayke, techaukaha ha ñe’ẽñemi opaite ne mba’e’okápe. Avei, ipapapypa tekorosãme.
 firefox-promo-banner-mobile-cta = Embojuaju ba’e’oka
+firefox-promo-banner-switch-heading = Pya’e iñambue. Ndahasýi imohenda.
+firefox-promo-banner-switch-description = Emoambuévo { -brand-firefox }-pe, eguerukuaa nde rechaukaha, ñe’ẽñemi, tembiasakue ha hetave mba’e ikatu hag̃uáicha eñepyrũ eikundaha apañuai’ỹre.
 firefox-promo-banner-switch-cta = Eguerova { -brand-firefox }-pe
 
 
@@ -229,6 +233,8 @@ close-icon-aria-label =
     .aria-label = Emboty ñe’ẽmondo
 code-icon-aria-label =
     .aria-label = Ayvu
+edit-icon-aria-label =
+    .aria-label = Mbosako’i
 error-icon-aria-label =
     .aria-label = Javy
 info-icon-aria-label =
@@ -921,10 +927,23 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
+passkey-delete-modal-content-v2 = Ko ñe’ẽñemi jeikerã reheguáva oñembogueva’erã nde mba’etégui. Eikeva’erã ambueháicha (ñe’ẽñemi, ambue mba’e jeikerã térã mba’ete heseguáva).
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
 passkey-delete-error = Iñapysẽ apañuái emboguévo ne ñe’ẽ ñemi jeikeha. Eha’ã jey ag̃amieve.
+passkey-sub-row-rename-title = Emboherajey ñe’ẽ ñemi jeikeha
+passkey-rename-modal-heading = Emboherajey ñe’ẽ ñemi jeikeha
+passkey-rename-modal-description = Ehai téra ko ñe’ẽ ñemi jeikerãme g̃uarã.
+passkey-rename-input-label = Ñe’ẽ ñemi jeikeha réra
+passkey-rename-save-button = Ñongatu
+passkey-rename-cancel-button = Eheja
+passkey-rename-error-empty = Ehai peteĩ téra ko ñe’ẽ ñemíme g̃uarã
+passkey-rename-error-too-long = Pe téra oguerekova’erã michĩvérõ 256 tairenda.
+passkey-rename-error-invalid = Oñemoneĩ tai, papapy, kyta aty ha ta’ãngachu’i añónte.
+passkey-rename-error-duplicate = Oĩma ñe’ẽ ñemi ko térape ojehaipyréva
+passkey-rename-success = Ñe’ẽ ñemi mboherapyre
+passkey-rename-error = Iñapysẽ apañuái emboherajeývo upe ñe’ẽ ñemi jeikeha. Eha’ã jey ag̃ave.
 
 
 switch-turn-off = Pe’aite
@@ -1063,6 +1082,7 @@ auth-error-225 = Ñe’ẽ ñemi mbokuatiapyre
 auth-error-226 = Ojehupyty ñe’ẽ ñemi ru’ã
 auth-error-227 = Ndoikói pe ñe’ẽ ñemi ñemoneĩ
 auth-error-228 = Ndoikói pe ñe’ẽ ñemi ñembokuatia
+auth-error-233 = Ejapo hag̃ua ñe’ẽ ñemi jeikaha, emboheko mba’erechaha jokoha, PIN, kuãhũ térã tova jeikuaaha ne mba’e’okápe térã ñe’ẽ ñemi rekorosãrã. Ejapo rire, ehaʼã jey.
 auth-error-238 = Ndoikói ñe’ẽ ñemi raperã
 auth-error-239 = Rombyasy, ndaikatúikuri rombogue ne mba’ete. Eha’ã jey térã eñe’ẽ pytyvõhára ndive ndopáirõ apañuái.
 auth-error-999 = Jejavy eha’ãrõ’ỹva
@@ -1095,6 +1115,7 @@ passkey-registration-canceled-v2 = Ñe’ẽ ñemi jeikeha ñemboheko ijaravopa 
 passkey-registration-canceled-link = Eikuaave
 passkey-registration-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 passkey-registration-error-not-supported-link = Eikuaave
+passkey-registration-error-could-not-complete = Ñe’ẽñemi jeikerã ñemboheko nahu’ãporãi. Eiporu ayvu térã ambue mba’e’oka.
 passkey-registration-error-could-not-complete-link = Eikuaave
 passkey-registration-error-security = Ndaikatúi emboheko ñe’ẽ ñemi ko kuatiaroguepegua. Eiporu tenda hekorosãva ha eha’ãjey.
 passkey-registration-error-invalid-state = Ko ñemigua oñemboheraguapýma. Eiporu eike hag̃ua térã embojuaju ñemigua ambuéva.
@@ -1103,9 +1124,13 @@ passkey-registration-error-constraint = Ñe’ẽ ñemi jeikeha ñemboheko noĩr
 passkey-registration-error-unexpected = Ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey térã eiporavo ambue.
 
 
+passkey-authentication-trouble-heading = Ndaikatúi eike ñe’ẽ ñemi jeikaha ndive
+passkey-authentication-trouble-description = Eha’ẽ jey térã eiporu ambue mba’e eike hag̃ua.
+passkey-authentication-trouble-link = Mba’éicha eiporúta ñe’ẽ ñemi jeikaha
 passkey-authentication-error-not-allowed = Pe ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey ag̃ave térã eiporavo ambue mba’e.
 passkey-authentication-error-not-allowed-existing = Ñe’ẽ ñemi jeikeha ñemboheko noĩri ko mba’e’okápe. Ikatu eha’ã jey térã eiporavo ambue mba’e.
 passkey-authentication-error-timeout = Opáma ejerure hag̃ua ñemigua. Eha’ãjey ag̃ave.
+passkey-authentication-error-timeout-v2 = Opáma aravo eike hag̃ua ñe’ẽ ñemi jeikaha ndive. Eha’ã jey.
 passkey-authentication-error-not-supported-v2 = Ne kundahára térã mba’e’oka ndaipu’akái ñe’ẽ ñemíme.
 passkey-authentication-error-security = Ndaikatúi eiporu ñe’ẽ ñemieta ko kuatiaroguepegua. Ehecha eĩha tenda hekorosãvape ha eha’ãjey.
 passkey-authentication-error-invalid-state = Oĩ osẽvaíva ne ñe’ẽ ñemi jeikehápe. Eha’ãjey térã eiporavo ambuéva eike hag̃ua.
@@ -1438,8 +1463,8 @@ signin-passwordless-code-heading = Emoinge ayvu ñemoneĩrã
 signin-passwordless-code-subheading = Eike hag̃ua eikotevẽ jeku’e’i eiporúvo ko ayvu.
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationTime } aravo’ieta pa’ũme.
-       *[other] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationTime } aravo’ietaite pa’ũme.
+        [one] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationMinutes } aravo’ieta pa’ũme.
+       *[other] Ehai ayvu ohóva <email>{ $email }</email>-pe { $expirationMinutes } aravo’ietaite pa’ũme.
     }
 signin-passwordless-code-input-label-v2 = Emoinge ayvu 6 taíva
 signin-passwordless-code-confirm-button = Ñemoneĩ

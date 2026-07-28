@@ -66,6 +66,15 @@ recovery-key-pdf-support = Lue lisää tilin palautusavaimesta
 # Error message displayed in an alert bar if the PDF download failed.
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
+## ButtonPasskeySignin
+
+button-passkey-signin = Kirjaudu sisään todentamisavaimella
+# This is a loading state indicating that we are waiting for the user to
+# interact with their authenticator to approve the sign-in. They should see a
+# device prompt/pop-up with authentication options (or message indicating that
+# no passkeys are available).
+button-passkey-signin-loading = Kirjaudutaan turvallisesti…
+
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
 
@@ -147,6 +156,17 @@ device-info-browser-os = { $browserName } alustalla { $genericOSName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-osoite: { $ipAddress }
+
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Hanki { -brand-firefox } missä tahansa oletkin
+firefox-promo-banner-mobile-description = Synkronoi välilehdet, kirjanmerkit ja salasanat laitteidesi välillä. Lisäksi kaikki pysyy turvallisesti salattuna.
+firefox-promo-banner-mobile-cta = Yhdistä laite
+firefox-promo-banner-switch-heading = Nopea vaihtaa. Helppo asettua aloilleen.
+firefox-promo-banner-switch-description = Kun vaihdat { -brand-firefox }iin, voit ottaa mukaan kirjanmerkit, salasanat, historian ja paljon muuta, jotta voit aloittaa selaamisen ilman ajanhukkaa.
+firefox-promo-banner-switch-cta = Vaihda { -brand-firefox }iin
 
 ## FormPasswordInlineCriteria
 
@@ -248,6 +268,9 @@ usa-flag-icon-aria-label =
 # Used for loading arrow icon
 icon-loading-arrow-aria-label =
     .aria-label = Ladataan
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = Todentamisavain
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -545,6 +568,15 @@ cs-disconnect-lost-advice-content-3 = Koska laitteesi katosi tai varastettiin, s
 cs-disconnect-suspicious-advice-heading = Yhteys epäilyttävään laitteeseen on katkaistu
 cs-disconnect-suspicious-advice-content-2 = Jos irrotettu laite todellakin on epäilyttävä, sinun tulisi vaihtaa { -product-mozilla-account }n salasana tilin asetuksissa. Sinun kannattaa vaihtaa myös muut salasanat, jotka olet tallentanut { -brand-firefox }iin kirjoittamalla osoitepalkkiin about:logins.
 cs-sign-out-button = Kirjaudu ulos
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }in sisäänrakennettu VPN
 
 ## Data collection section
 
@@ -865,7 +897,13 @@ display-name-success-alert-2 = Näyttönimi päivitetty
 
 ## PagePasskeyAdd - Loading page shown during passkey creation
 
+page-passkey-add-creating-heading = Luodaan todentamisavainta…
 page-passkey-add-cancel = Peruuta
+
+## Success / Error messages (shown in alert bar after returning to settings)
+
+page-passkey-add-success = Todentamisavain luotu
+page-passkey-add-error-system-v2 = Todentamisavaimen luomisessa oli ongelma. Yritä myöhemmin uudelleen.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -899,6 +937,11 @@ recent-activity-account-secondary-email-removed = Toissijainen sähköpostiosoit
 recent-activity-account-emails-swapped = Ensisijainen ja toissijainen sähköpostiosoite vaihdettu
 recent-activity-session-destroy = Kirjauduttu ulos istunnosta
 recent-activity-must-reset-password = Salasanan nollaus vaaditaan
+recent-activity-account-passkey-registration-success = Todentamisavain lisätty
+recent-activity-account-passkey-registration-failure = Todentamisavaimen rekisteröinti epäonnistui
+recent-activity-account-passkey-removed = Todentamisavain poistettu
+recent-activity-account-passkey-authentication-success = Kirjautuminen todennusavaimella onnistui
+recent-activity-account-passkey-authentication-failure = Kirjautuminen todennusavaimella epäonnistui
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Muuta toimintaa tilillä
 
@@ -956,6 +999,7 @@ verify-secondary-email-please-enter-code-2 = Syötä osoitteeseen <strong>{ $ema
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
 verify-secondary-email-success-alert-2 = { $email } lisätty onnistuneesti
+verify-secondary-email-resend-code-button = Lähetä vahvistuskoodi uudelleen
 
 ##
 
@@ -1045,7 +1089,11 @@ passkey-sub-row-created-date = Luotu: { $createdDate }
 # Variables:
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = Viimeksi käytetty: { $lastUsedDate }
+passkey-sub-row-delete-title = Poista todentamisavain
+passkey-delete-modal-heading = Poistetaanko todennusavain?
 passkey-delete-modal-cancel-button = Peruuta
+passkey-delete-modal-confirm-button = Poista todentamisavain
+passkey-delete-success = Todentamisavain poistettu
 
 ## Switch component
 
@@ -1067,6 +1115,7 @@ row-defaults-status = Ei mitään
 
 ## UnitRowPasskey
 
+passkey-row-header = Todentamisavaimet
 passkey-row-enabled = Käytössä
 passkey-row-not-set = Ei asetettu
 passkey-row-action-create = Luo
@@ -1204,6 +1253,9 @@ auth-error-206 = Salasanaa ei voi luoda, salasana on jo asetettu
 auth-error-214 = Palauttamisen puhelinnumero on jo olemassa
 auth-error-215 = Palauttamisen puhelinnumeroa ei ole olemassa
 auth-error-216 = Tekstiviestien raja saavutettu
+auth-error-224 = Todentamisavainta ei löytynyt
+auth-error-225 = Todentamisavain on jo rekisteröity
+auth-error-228 = Todentamisavaimen rekisteröinti epäonnistui
 auth-error-999 = Odottamaton virhe
 auth-error-1001 = Kirjautumisyritys peruttu
 auth-error-1002 = Istunto vanhentui. Kirjaudu sisään uudelleen.
@@ -1232,8 +1284,12 @@ oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelle
 
 # Registration errors
 
+# The ceremony timed out before the user responded
+passkey-registration-error-timeout = Todentamisavaimen määritys peruttiin. Yritä uudelleen.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
 passkey-registration-canceled-link = Lue lisää
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Lue lisää
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
@@ -1241,6 +1297,14 @@ passkey-registration-error-could-not-complete-link = Lue lisää
 
 # Authentication errors
 
+# The ceremony timed out before the user responded
+passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
+# Browser or platform does not support passkeys
+passkey-authentication-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Todentamisavainta ei tunnistettu. Käytä toista kirjautumistapaa.
 
 ## Connect Another Device page
 
@@ -1436,6 +1500,10 @@ pair-qr-code-aria-label = QR-koodi
 
 ## Choice screen — "Do you have Firefox for mobile?"
 
+# Subheader shown on the choice screen
+pair-choice-subheader = Synkronoi { -brand-firefox }-kokemuksesi
+# Description shown on the choice screen
+pair-choice-description = Tarkastele tallennettuja salasanoja, välilehtiä, selaushistoriaa ja muuta – kaikilla laitteillasi.
 # Legend for the radio button fieldset
 pair-choice-legend = Jatka valitsemalla vaihtoehto:
 # Radio option: user already has Firefox for mobile — title
@@ -1455,6 +1523,8 @@ pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
 
 # Subheader for the download screen
 pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
+# Button on the download screen that opens about:preferences for pairing
+pair-continue-to-sync-button = Jatka synkronointiin
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
@@ -1483,6 +1553,8 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
+# Shown as heading when a desktop user visits from a non-Firefox browser
+pair-unsupported-oops-header = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
 # Shown inline on mobile non-Firefox browsers before the download link
 pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
@@ -1507,6 +1579,11 @@ service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 # password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Luo salasana synkronointia varten
+
+## SetPassword page for passwordless flow
+## Users who signed in via passwordless OTP and need to create a password for Sync
+
+set-password-passwordless-info = Tämä salasana salaa synkronoidut tietosi ja pitää ne turvassa.
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -1679,6 +1756,7 @@ back = Edellinen
 
 signin-passkey-fallback-header = Viimeistele kirjautuminen
 signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
+signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasanasi, kun käytät tätä todentamisavainta.
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
 
@@ -1695,6 +1773,12 @@ signin-passwordless-code-input-label-v2 = Kirjoita 6-numeroinen koodi
 signin-passwordless-code-confirm-button = Vahvista
 signin-passwordless-code-required-error = Vahvistuskoodi vaaditaan
 signin-passwordless-code-expired = Vanheniko koodi?
+# { $seconds } - countdown timer showing seconds until user can request a new code
+signin-passwordless-code-resend-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 signin-passwordless-code-resend-link = Lähetä uusi koodi sähköpostiin.
 signin-passwordless-code-resend-error = Jokin meni pieleen. Uutta koodia ei voitu lähettää.
 signin-passwordless-code-other-account-link = Käytä toista tiliä
@@ -1781,6 +1865,13 @@ signin-token-code-confirm-button = Vahvista
 signin-token-code-code-expired = Vanheniko koodi?
 # Link to resend a new code to the user's email.
 signin-token-code-resend-code-link = Lähetä uusi koodi sähköpostiin.
+# Countdown message shown when user must wait before resending code
+# { $seconds } represents the number of seconds remaining
+signin-token-code-resend-code-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 # Error displayed in a tooltip when the form is submitted without a code
 signin-token-code-required-error = Vahvistuskoodi vaaditaan
 signin-token-code-resend-error = Jokin meni pieleen. Uutta koodia ei voitu lähettää.
@@ -1837,6 +1928,13 @@ confirm-signup-code-sync-button = Aloita synkronointi
 confirm-signup-code-code-expired = Vanheniko koodi?
 # Link to resend a new code to the user's email.
 confirm-signup-code-resend-code-link = Lähetä uusi koodi sähköpostiin.
+# Countdown message shown when user must wait before resending code
+# { $seconds } represents the number of seconds remaining
+confirm-signup-code-resend-code-countdown =
+    { $seconds ->
+        [one] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+       *[other] Lähetä uusi koodi sähköpostitse { $seconds } sekunnin kuluttua
+    }
 confirm-signup-code-success-alert = Tilin vahvistaminen onnistui
 # Error displayed in tooltip.
 confirm-signup-code-is-required-error = Vahvistuskoodi vaaditaan

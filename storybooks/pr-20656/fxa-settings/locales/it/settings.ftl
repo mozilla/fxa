@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Codice
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Modifica
 error-icon-aria-label =
     .aria-label = Errore
 # Used as information icon for informative messaging
@@ -1249,6 +1252,18 @@ passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata
 passkey-delete-error = Si è verificato un problema durante l’eliminazione della passkey. Riprova tra qualche minuto.
+passkey-sub-row-rename-title = Rinomina passkey
+passkey-rename-modal-heading = Rinomina passkey
+passkey-rename-modal-description = Inserire un nuovo nome per questa passkey.
+passkey-rename-input-label = Nome passkey
+passkey-rename-save-button = Salva
+passkey-rename-cancel-button = Annulla
+passkey-rename-error-empty = Inserire un nome per questa passkey
+passkey-rename-error-too-long = Il nome deve contenere meno di 256 caratteri.
+passkey-rename-error-invalid = Sono consentiti solo lettere, numeri, segni di punteggiatura e simboli.
+passkey-rename-error-duplicate = Esiste già una passkey con questo nome
+passkey-rename-success = Passkey rinominata
+passkey-rename-error = Si è verificato un errore durante la modifica del nome della passkey. Riprova tra qualche minuto.
 
 ## Switch component
 
@@ -1431,6 +1446,7 @@ auth-error-225 = Passkey già registrata
 auth-error-226 = Raggiunto il limite di passkey
 auth-error-227 = Autenticazione con passkey non riuscita
 auth-error-228 = Registrazione passkey non riuscita
+auth-error-233 = Per creare una passkey, configura un blocco schermo, un PIN, l’impronta digitale, il riconoscimento facciale sul tuo dispositivo, o una chiave di sicurezza. Poi riprova.
 auth-error-238 = Verifica passkey non riuscita
 auth-error-239 = Ci dispiace, non siamo riusciti a eliminare il tuo account. Riprova oppure contatta l’assistenza se il problema persiste.
 auth-error-999 = Errore imprevisto
@@ -1498,12 +1514,24 @@ passkey-registration-error-unexpected = Configurazione passkey non riuscita. Rip
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Impossibile accedere con una passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Riprova o utilizza un’altra opzione di accesso.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Come utilizzare le passkey
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Accesso con passkey non riuscito o non disponibile. Riprova o scegli un altro metodo.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = La configurazione della passkey non è possibile con questo dispositivo. Prova di nuovo oppure seleziona un metodo alternativo.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Richiesta passkey scaduta. Riprova.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Tempo esaurito per l’accesso con passkey. Riprova.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Il tuo browser o dispositivo non supporta le passkey.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

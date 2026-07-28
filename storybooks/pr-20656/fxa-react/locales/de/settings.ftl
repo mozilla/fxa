@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Code
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Bearbeiten
 error-icon-aria-label =
     .aria-label = Fehler
 # Used as information icon for informative messaging
@@ -1251,6 +1254,18 @@ passkey-delete-modal-cancel-button = Abbrechen
 passkey-delete-modal-confirm-button = Zugangsschlüssel löschen
 passkey-delete-success = Zugangsschlüssel gelöscht
 passkey-delete-error = Beim Löschen Ihres Zugangsschlüssels ist ein Problem aufgetreten. Versuchen Sie es in ein paar Minuten erneut.
+passkey-sub-row-rename-title = Zugangsschlüssel umbenennen
+passkey-rename-modal-heading = Zugangsschlüssel umbenennen
+passkey-rename-modal-description = Geben Sie einen neuen Namen für diesen Zugangsschlüssel ein.
+passkey-rename-input-label = Name des Zugangsschlüssels
+passkey-rename-save-button = Speichern
+passkey-rename-cancel-button = Abbrechen
+passkey-rename-error-empty = Geben Sie einen Namen für diesen Zugangsschlüssel ein
+passkey-rename-error-too-long = Der Name darf maximal 256 Zeichen enthalten.
+passkey-rename-error-invalid = Nur Buchstaben, Zahlen, Satzzeichen und Symbole sind erlaubt.
+passkey-rename-error-duplicate = Ein Zugangsschlüssel mit diesem Namen existiert bereits
+passkey-rename-success = Zugangsschlüssel umbenannt
+passkey-rename-error = Beim Umbenennen Ihres Zugangsschlüssels ist ein Fehler aufgetreten. Versuchen Sie es in ein paar Minuten erneut.
 
 ## Switch component
 
@@ -1445,6 +1460,7 @@ auth-error-225 = Zugangsschlüssel bereits registriert
 auth-error-226 = Obergrenze für Zugangsschlüssel erreicht
 auth-error-227 = Authentifizierung mit Zugangsschlüssel fehlgeschlagen
 auth-error-228 = Registrierung des Zugangsschlüssels fehlgeschlagen
+auth-error-233 = Um einen Zugangsschlüssel zu erstellen, richten Sie eine Display-Sperre, eine PIN, einen Fingerabdruck oder eine Gesichtserkennung auf Ihrem Gerät oder Sicherheitsschlüssel ein. Versuchen Sie es dann erneut.
 auth-error-238 = Verifizierung des Zugangsschlüssels fehlgeschlagen
 auth-error-239 = Leider konnten wir Ihr Konto nicht löschen. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, wenn das Problem weiterhin besteht.
 auth-error-999 = Unerwarteter Fehler
@@ -1512,12 +1528,24 @@ passkey-registration-error-unexpected = Einrichtung des Zugangsschlüssels fehlg
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Anmeldung mit Zugangsschlüssel fehlgeschlagen
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Versuchen Sie es erneut, oder verwenden Sie eine andere Anmeldeoption.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Wie man Zugangsschlüssel verwendet
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Anmeldung mit Zugangsschlüssel fehlgeschlagen oder nicht verfügbar. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Die Passkey-Einrichtung ist bei diesem Gerät nicht verfügbar. Bitte versuchen Sie es erneut oder wählen Sie eine andere Methode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Zeitüberschreitung bei Zugangsschlüssel-Anfrage. Bitte versuchen Sie es erneut.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Zeitüberschreitung bei der Passkey-Anmeldung. Versuchen Sie es erneut.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Ihr Browser oder Gerät unterstützt keine Zugangsschlüssel.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

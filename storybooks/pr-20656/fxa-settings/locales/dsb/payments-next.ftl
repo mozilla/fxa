@@ -261,7 +261,7 @@ next-payment-confirm-with-legal-links-static-3 = Awtorizěrujom { -brand-mozilla
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = Trjebaśo płaśeńsku metodu, aby swój dermotnu testowu wersiju startował. Njewobśěžyjośo se do { $endDate }.
-checkbox-confirm-free-trial-with-legal-links = Awtorizěrujom { -brand-mozilla } pó <termsOfServiceLink>płaśeńskich wuměnjenjach</termsOfServiceLink> a <privacyNoticeLink>wuzjawjenju wó šćiśe datow</privacyNoticeLink> swóju płaśeńsku metodu wobśěžyś, za tym až dermotny testowy cas jo se skóńcył { $endDate }, daniž swój abonement njewupowěźejom.
+checkbox-confirm-free-trial-with-legal-links = Awtorizěrujom { -brand-mozilla } pó <termsOfServiceLink>płaśeńskich wuměnjenjach</termsOfServiceLink> a <privacyNoticeLink>wuzjawjenju wó šćiśe datow</privacyNoticeLink> swóju płaśeńsku metodu wobśěžyś, za tym až dermotny testowy cas jo se skóńcył dnja { $endDate }, daniž swój abonement njewupowěźejom.
 next-payment-confirm-checkbox-error = Musyśo to dokóncyś, nježli až móžośo pókšacowaś
 
 ## Checkout Form

@@ -157,6 +157,17 @@ device-info-browser-os = { $browserName } på { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresse: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Få { -brand-firefox } uanset hvor du er
+firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Alt sikkert bliver sikkert krypteret.
+firefox-promo-banner-mobile-cta = Opret forbindelse til en enhed
+firefox-promo-banner-switch-heading = Hurtig at skifte. Nem at vænne sig til.
+firefox-promo-banner-switch-description = Når du skifter til { -brand-firefox }, kan du medbringe dine bogmærker, adgangskoder, historik og mere, så du kan komme i gang med at browse uden at gå glip af noget.
+firefox-promo-banner-switch-cta = skift til { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -251,6 +262,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Aktiveret
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Dobbeltvinkel til højre
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Luk besked
@@ -350,6 +364,8 @@ input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Tilbage
+# Generic error shown when the legal document fails to load
+app-general-err-message = Noget gik galt. Prøv igen senere.
 
 ## LinkDamaged component
 
@@ -582,6 +598,15 @@ cs-disconnect-lost-advice-content-3 = Da din enhed er mistet eller stjålet, ska
 cs-disconnect-suspicious-advice-heading = Afbrudt forbindelsen til mistænkelig enhed
 cs-disconnect-suspicious-advice-content-2 = Hvis den frakoblede enhed virkelig er mistænkelig, skal du ændre adgangskoden til din { -product-mozilla-account } i dine kontoindstillinger for at beskytte dine data. Du skal også ændre de andre adgangskoder, du har gemt i { -brand-firefox }, ved at skrive about:logins i adressefeltet.
 cs-sign-out-button = Log ud
+
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = Den indbyggede VPN i { -brand-firefox }
 
 ## Data collection section
 
@@ -984,6 +1009,7 @@ page-passkey-add-cancel = Annuller
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Adgangsnøgle oprettet
+page-passkey-add-error-system-v2 = Der opstod et problem med at oprette din adgangsnøgle. Prøv igen senere.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1027,6 +1053,29 @@ recent-activity-account-recovery-codes-signin-complete = Login med genoprettelse
 recent-activity-password-reset-otp-sent = Bekræftelseskode til nulstilling af adgangskode sendt
 recent-activity-password-reset-otp-verified = Bekræftelseskode til nulstilling af adgangskode bekræftet
 recent-activity-must-reset-password = Nulstilling af adgangskode påkrævet
+recent-activity-account-recovery-phone-replace-complete = Telefonnummer til genoprettelse udskiftet
+recent-activity-account-recovery-phone-replace-failure = Udskiftning af telefonnummer til genoprettelse mislykkedes
+recent-activity-account-two-factor-replace-success = Totrinsgodkendelse udskiftet
+recent-activity-account-two-factor-replace-failure = Udskiftning af totrinsgodkendelse mislykkedes
+recent-activity-account-recovery-phone-setup-failed = Opsætning af telefonnummer til genoprettelse mislykkedes
+recent-activity-account-recovery-phone-reset-password-complete = Nulstilling af adgangskode med telefonnummer til gendannelse fuldført
+recent-activity-account-recovery-phone-reset-password-failed = Nulstilling af adgangskode med telefonnummer til gendannelse mislykkedes
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = Anmodet om godkendelse af kontoændring
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = Ændring af konto godkendt
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = Godkendelse af kontoændring mislykkedes
+recent-activity-account-passkey-registration-success = Adgangsnøgle tilføjet
+recent-activity-account-passkey-registration-failure = Registrering af adgangsnøgle mislykkedes
+recent-activity-account-passkey-removed = Adgangsnøgle fjernet
+recent-activity-account-passkey-authentication-success = Log-in med adgangsnøgle fuldført
+recent-activity-account-passkey-authentication-failure = Log-ind med adgangsnøgle mislykkedes
+recent-activity-account-passwordless-login-otp-sent = Adgangskodefri login-kode sendt
+recent-activity-account-passwordless-login-otp-failed = Adgangskodefri login-kode mislykkedes
+recent-activity-account-passwordless-login-otp-verified = Adgangskodefri login-kode bekræftet
+recent-activity-account-passwordless-registration-complete = Adgangskodefri registrering af konto fuldført
+recent-activity-account-recovery-codes-set = Genoprettelseskoder angivet
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Anden kontoaktivitet
 
@@ -1199,6 +1248,7 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
+passkey-delete-modal-content-v2 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en anden metode (adgangskode, en anden adgangsnøgle eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1397,6 +1447,7 @@ auth-error-226 = Grænsen for adgangsnøgle nået
 auth-error-227 = Godkendelse med adgangsnøgle mislykkedes
 auth-error-228 = Registrering af adgangsnøgle mislykkedes
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
+auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
 auth-error-999 = Uventet fejl
 auth-error-1001 = Login-forsøg annulleret
 auth-error-1002 = Sessionen udløb. Log ind for at fortsætte.
@@ -1436,6 +1487,19 @@ passkey-registration-error-not-allowed = Opsætning af adgangsnøgle mislykkedes
 passkey-registration-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Enten er enheden allerede registreret, eller også blev opsætningsprocessen annulleret.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Opsætning af adgangsnøgle blev annulleret. Prøv igen.
+passkey-registration-canceled-v2 = Tidsfristen for opsætning af adgangsnøgle udløb eller opsætningen blev annulleret.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Læs mere
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Læs mere
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Opsætning af adgangsnøgle kunne ikke fuldføres. Prøv en anden metode eller enhed.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Læs mere
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = Adgangsnøgler kan ikke opsættes på denne side. Brug det sikre websted, og prøv igen.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1455,6 +1519,8 @@ passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes
 passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
+# Browser or platform does not support passkeys
+passkey-authentication-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Adgangsnøgler kan ikke bruges på denne side. Kontroller, at du er på det korrekte sikre websted, og prøv igen.
 # Unexpected credential state during authentication
@@ -1463,6 +1529,10 @@ passkey-authentication-error-invalid-state = Noget gik galt med din adgangsnøgl
 passkey-authentication-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden loginmetode.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = Noget gik galt. Prøv igen, eller vælg en anden loginmetode.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = Adgangsnøglen genkendes ikke. Brug en anden login-metode.
 
 ## Connect Another Device page
 

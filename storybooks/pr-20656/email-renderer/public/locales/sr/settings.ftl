@@ -2027,7 +2027,7 @@ signin-passwordless-code-required-error = Потребан је код за по
 signin-passwordless-code-expired = Код је истекао?
 # { $seconds } - countdown timer showing seconds until user can request a new code
 signin-passwordless-code-resend-countdown =
-    { $count ->
+    { $seconds ->
         [one] Пошаљи нови код е-поштом за { $seconds } секунду
         [few] Пошаљи нови код е-поштом за { $seconds } секунде
        *[other] Пошаљи нови код е-поштом за { $seconds } секунди
@@ -2221,7 +2221,7 @@ confirm-signup-code-resend-code-link = Пошаљи нови е-поштом.
 # Countdown message shown when user must wait before resending code
 # { $seconds } represents the number of seconds remaining
 confirm-signup-code-resend-code-countdown =
-    { $count ->
+    { $seconds ->
         [one] Пошаљи нови код е-поштом за { $seconds } секунду
         [few] Пошаљи нови код е-поштом за { $seconds } секунде
        *[other] Пошаљи нови код е-поштом за { $seconds } секунди

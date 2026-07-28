@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Koda
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Uredi
 error-icon-aria-label =
     .aria-label = Napaka
 # Used as information icon for informative messaging
@@ -1265,6 +1268,18 @@ passkey-delete-modal-cancel-button = Prekliči
 passkey-delete-modal-confirm-button = Izbriši ključ za dostop
 passkey-delete-success = Ključ za dostop izbrisan
 passkey-delete-error = Pri brisanju ključa za dostop je prišlo do težave. Poskusite znova čez nekaj minut.
+passkey-sub-row-rename-title = Preimenuj geslo
+passkey-rename-modal-heading = Preimenuj geslo
+passkey-rename-modal-description = Vnesite novo ime za to geslo.
+passkey-rename-input-label = Ime gesla
+passkey-rename-save-button = Shrani
+passkey-rename-cancel-button = Prekliči
+passkey-rename-error-empty = Vnesite ime za to geslo
+passkey-rename-error-too-long = Ime mora vsebovati manj kot 256 znakov.
+passkey-rename-error-invalid = Dovoljene so samo črke, številke, ločila in simboli.
+passkey-rename-error-duplicate = Geslo s tem imenom že obstaja
+passkey-rename-success = Geslo preimenovano
+passkey-rename-error = Pri preimenovanju gesla je prišlo do težave. Poskusite znova čez nekaj minut.
 
 ## Switch component
 
@@ -1461,6 +1476,7 @@ auth-error-225 = Ključ za dostop je že registriran
 auth-error-226 = Dosežena je omejitev ključev za dostop
 auth-error-227 = Overjanje s ključem za dostop ni uspelo
 auth-error-228 = Registracija ključa za dostop ni uspela
+auth-error-233 = Če želite ustvariti geslo, nastavite zaklepanje zaslona, PIN, prstni odtis ali prepoznavanje obraza v napravi ali varnostni ključ. Nato poskusite znova.
 auth-error-238 = Izziv gesla je spodletel
 auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če se težava ponovi.
 auth-error-999 = Nepričakovana napaka
@@ -1526,12 +1542,24 @@ passkey-registration-error-unexpected = Nastavitev gesla ni uspela. Poskusite zn
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Prijava z geslom ni mogoča
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Poskusite znova ali uporabite drugo možnost prijave.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Kako uporabljati gesla
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Prijava z geslom je spodletela ali pa je nedosegljiva. Poskusite znova ali izberite drugo metodo.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Poskusite znova ali izberite drug način.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Časovna omejitev za zahtevanje gesla je potekla. Prosimo, poskusite znova.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Čas za prijavo z geslom je potekel. Poskusite znova.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Vaš brskalnik ali naprava ne podpira ključev za dostop.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

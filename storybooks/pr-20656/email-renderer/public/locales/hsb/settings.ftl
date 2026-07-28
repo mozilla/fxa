@@ -277,6 +277,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Wobdźěłać
 error-icon-aria-label =
     .aria-label = Zmylk
 # Used as information icon for informative messaging
@@ -1265,6 +1268,18 @@ passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
 passkey-delete-error = Při zhašenju wašeho hesłoweho kluča je problem nastał. Spytajće za mało mjeńšin hišće raz.
+passkey-sub-row-rename-title = Hesłowy kluč přemjenować
+passkey-rename-modal-heading = Hesłowy kluč přemjenować
+passkey-rename-modal-description = Zapodajće nowe mjeno za tutón hesłowy kluč.
+passkey-rename-input-label = Mjeno hesłoweho kluča
+passkey-rename-save-button = Składować
+passkey-rename-cancel-button = Přetorhnyć
+passkey-rename-error-empty = Zapodajće mjeno za tutón hesłowy kluč
+passkey-rename-error-too-long = Mjeno dyrbi mjenje hač 256 znamješkow wobsahować.
+passkey-rename-error-invalid = Jenož pismiki, ličby, interpunkciske znamješka a symbole su dowolene.
+passkey-rename-error-duplicate = Hesłowy kluč z tym mjenom hižo eksistuje
+passkey-rename-success = Hesłowy kluč je so přemjenował
+passkey-rename-error = Při přemjenowanju wašeho hesłoweho kluča je problem nastał. Spytajće za mało mjeńšin hišće raz.
 
 ## Switch component
 
@@ -1461,6 +1476,7 @@ auth-error-225 = Hesłowy kluč je hižo zregistrowany
 auth-error-226 = Limit za hesłowy kluč docpěty
 auth-error-227 = Awtentifikacija hesłoweho kluča njeje so poradźiła
 auth-error-228 = Registracija hesłoweho kluča njeje so poradźiła
+auth-error-233 = Zo byšće hesłowy kluč wutworił, konfigurujće zawěru wobrazowki, PIN, porstowy wotćišć abo wobličowe spóznaće na swojim graće abo wěstotnym kluču. Spytajće potom hišće raz.
 auth-error-238 = Přepruwowanje hesłoweho kluča njeje so poradźiło
 auth-error-239 = Bohužel njemóžachmy waše konto zhašeć. Prošu spytajće hišće raz abo stajće so z teamom pomocy do zwiska, jeli problem dale eksistuje.
 auth-error-999 = Njewočakowany zmylk
@@ -1528,12 +1544,24 @@ passkey-registration-error-unexpected = Konfiguracija hesłoweho kluča njeje so
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Přizjewjenje z hesłowym klučom njeje móžne
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Spytajće hišće raz abo wužiwajće druhu přizjewjensku móžnosć.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Kak so hesłowe kluče wužiwaja
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Přizjewjenje z hesłowym klučom njeje so poradźiło abo njeje k dispoziciji. Spytajće hišće raz abo wubjerće druhu metodu.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Spytajće prošu hišće raz abo wubjerće druhu metodu.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Překročenje časa při naprašowanju hesłoweho kluča. Spytajće prošu hišće raz.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Přizjewjenje z hesłowym klučom je čas překročił. Spytajće hišće raz.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Waš wobhladowak abo grat hesłowe kluče njepodpěruje.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

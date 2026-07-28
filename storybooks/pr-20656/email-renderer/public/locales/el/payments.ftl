@@ -16,9 +16,9 @@ coupon-submit = Εφαρμογή
 coupon-remove = Αφαίρεση
 coupon-error = Ο κωδικός που καταχωρίσατε δεν είναι έγκυρος ή έχει λήξει.
 coupon-error-generic = Προέκυψε σφάλμα κατά την επεξεργασία του κωδικού. Δοκιμάστε ξανά.
-coupon-error-expired = Ο κωδικός που καταχωρήσατε έληξε.
-coupon-error-limit-reached = Ο κωδικός που καταχωρήσατε έφτασε στο όριο του.
-coupon-error-invalid = Ο κωδικός που καταχωρήσατε δεν είναι έγκυρος.
+coupon-error-expired = Ο κωδικός που καταχωρίσατε έληξε.
+coupon-error-limit-reached = Ο κωδικός που καταχωρίσατε έφτασε στο όριο του.
+coupon-error-invalid = Ο κωδικός που καταχωρίσατε δεν είναι έγκυρος.
 # $couponDurationDate (Date) - The date at which the coupon is no longer valid, and the subscription is billed the list price.
 coupon-enter-code =
     .placeholder = Εισαγωγή κωδικού

@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Código
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Erro
 # Used as information icon for informative messaging
@@ -1251,6 +1254,18 @@ passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar chave de acesso
 passkey-delete-success = Chave eliminada
 passkey-delete-error = Ocorreu um problema ao eliminar a sua chave. Tente novamente dentro de alguns minutos.
+passkey-sub-row-rename-title = Renomear chave de acesso
+passkey-rename-modal-heading = Renomear chave de acesso
+passkey-rename-modal-description = Digite um novo nome para esta chave.
+passkey-rename-input-label = Nome da chave
+passkey-rename-save-button = Guardar
+passkey-rename-cancel-button = Cancelar
+passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
+passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
+passkey-rename-error-duplicate = Já existe uma chave com este nome
+passkey-rename-success = Chave de acesso renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
 
 ## Switch component
 
@@ -1443,6 +1458,7 @@ auth-error-225 = Palavra-passe já registada
 auth-error-226 = Limite de palavras-passe atingido
 auth-error-227 = Falha na autenticação da palavra-passe
 auth-error-228 = O registo da chave falhou
+auth-error-233 = Para criar uma chave de acesso, configure um bloqueio de ecrã, PIN, impressão digital ou reconhecimento de face no seu dispositivo ou chave de segurança. Depois, tente novamente.
 auth-error-238 = O desafio da chave de acesso falhou
 auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor, tente novamente ou contacte o suporte se o problema continuar.
 auth-error-999 = Erro inesperado
@@ -1510,12 +1526,24 @@ passkey-registration-error-unexpected = A configuração da chave de acesso falh
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave de acesso
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Tente novamente ou utilize outra opção de início de sessão.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Como utilizar chaves de acesso
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = A autenticação com a chave de acesso falhou ou está indisponível. Tente novamente ou escolha outro método.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Por favor, tente novamente ou escolha outro método.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = O pedido de chave expirou. Por favor, tente novamente.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = O início de sessão com a chave expirou. Tente novamente.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
