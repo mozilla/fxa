@@ -6,6 +6,10 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Nova design tokens — defines the var(--…) the shared Tailwind config references.
+ * admin-panel doesn't import fxa-react/styles, so it needs the tokens directly. */
+@import '../../../../libs/shared/design-tokens/generated/nova-tokens.css';
+
 @import './tables';
 
 .icon-dark path {

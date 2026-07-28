@@ -114,6 +114,9 @@
         "dependsOn": [
           "^build"
         ]
+      },
+      "build-css": {
+        "dependsOn": ["shared-design-tokens:build"]
       }
     }
   }
