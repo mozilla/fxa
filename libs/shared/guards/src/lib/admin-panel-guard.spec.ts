@@ -151,6 +151,18 @@ describe('support agents', () => {
           AdminPanelGroup.SupportAgentStage
         )
       ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.RemovePasskeys,
+          AdminPanelGroup.AdminProd
+        )
+      ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.RemovePasskeys,
+          AdminPanelGroup.AdminStage
+        )
+      ).true;
     });
 
     it('looks up group', () => {
@@ -246,6 +258,12 @@ describe('support agents', () => {
       expect(
         guard.allow(
           AdminPanelFeature.DeleteRecoveryPhone,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).false;
+      expect(
+        guard.allow(
+          AdminPanelFeature.RemovePasskeys,
           AdminPanelGroup.SupportAgentStage
         )
       ).false;
