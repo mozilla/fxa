@@ -271,6 +271,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'PASSWORDLESS_SIGNUP_ENABLED',
     },
+    novaDesignSystem: {
+      default: false,
+      doc: 'Enables the Nova design-system refresh; sets data-theme="nova" on the settings shell',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_NOVA_DESIGN_SYSTEM',
+    },
   },
   passkeys: {
     maxPerUser: {

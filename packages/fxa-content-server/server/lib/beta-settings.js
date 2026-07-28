@@ -143,6 +143,7 @@ const settingsConfig = {
       'featureFlags.passkeyAuthenticationEnabled'
     ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
+    novaDesignSystem: config.get('featureFlags.novaDesignSystem'),
   },
   darkMode: {
     enabled: config.get('darkMode.enabled'),
@@ -241,6 +242,7 @@ function modifyProxyRes(proxyRes, req, res) {
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
       html = swapBetaMeta(html, {
         __SERVER_CONFIG__: settingsConfig,
+        __NOVA_THEME__: settingsConfig.featureFlags.novaDesignSystem ? 'nova' : '',
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),
@@ -290,6 +292,7 @@ const modifySettingsStatic = function (req, res) {
   return res.send(
     swapBetaMeta(indexFile, {
       __SERVER_CONFIG__: settingsConfig,
+      __NOVA_THEME__: settingsConfig.featureFlags.novaDesignSystem ? 'nova' : '',
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
       ...resolvePreConnectDirectives(settingsConfig),
