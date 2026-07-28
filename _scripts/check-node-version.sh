@@ -20,7 +20,7 @@ fi
 # Use the repo's installed semver if available; fall back to a bare major check
 # so this script still works before `yarn install` has run.
 if [[ -d "$REPO_ROOT/node_modules/semver" ]]; then
-  COMPAT=$(node -e "const s = require('$REPO_ROOT/node_modules/semver'); console.log(s.satisfies('$CURRENT_NODE_VERSION', s.validRange('$REQUIRED_NODE_VERSION') || s.coerce('$REQUIRED_NODE_VERSION')))")
+  COMPAT=$(node -e "const s = require('$REPO_ROOT/node_modules/semver'); console.log(s.satisfies('$CURRENT_NODE_VERSION', '^$REQUIRED_NODE_VERSION'))")
 else
   REQUIRED_MAJOR=$(echo "$REQUIRED_NODE_VERSION" | cut -d. -f1)
   CURRENT_MAJOR=$(echo "$CURRENT_NODE_VERSION" | cut -d. -f1)
