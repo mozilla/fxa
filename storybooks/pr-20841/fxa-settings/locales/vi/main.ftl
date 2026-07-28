@@ -1098,9 +1098,13 @@ passkey-registration-error-constraint = Thiết lập passkey không khả dụn
 passkey-registration-error-unexpected = Thiết lập passkey không thành công. Vui lòng thử lại hoặc chọn phương pháp khác.
 
 
+passkey-authentication-trouble-heading = Không thể đăng nhập bằng passkey
+passkey-authentication-trouble-description = Hãy thử lại hoặc sử dụng tùy chọn đăng nhập khác.
+passkey-authentication-trouble-link = Cách sử dụng passkey
 passkey-authentication-error-not-allowed = Đăng nhập bằng passkey không thành công hoặc không khả dụng. Vui lòng thử lại hoặc chọn phương thức khác.
 passkey-authentication-error-not-allowed-existing = Thiết lập passkey không khả dụng với thiết bị này. Vui lòng thử lại hoặc chọn phương pháp khác.
 passkey-authentication-error-timeout = Yêu cầu passkey đã hết hạn. Vui lòng thử lại.
+passkey-authentication-error-timeout-v2 = Đăng nhập bằng passkey đã hết hạn. Vui lòng thử lại.
 passkey-authentication-error-not-supported-v2 = Trình duyệt hoặc thiết bị của bạn không hỗ trợ passkey.
 passkey-authentication-error-security = Không thể sử dụng passkey trên trang này. Hãy kiểm tra xem bạn đã truy cập đúng trang web an toàn chưa và thử lại.
 passkey-authentication-error-invalid-state = Đã xảy ra lỗi với passkey của bạn. Vui lòng thử lại hoặc sử dụng phương thức đăng nhập khác.
