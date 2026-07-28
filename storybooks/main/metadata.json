@@ -1,8 +1,8 @@
 {
-  "commit": "ea296fd6814bfc1fd801e2bb35a11ffbe4f173a8",
-  "summary": "Merge pull request #20922 from mozilla/inbox-code-watcher",
-  "description": "feat(auth-server): copy local email codes to the clipboard",
-  "timestamp": 1785169102000,
+  "commit": "d3c22599248128ab1e7f68e91c40b8c2e855cc51",
+  "summary": "Merge pull request #20924 from mozilla/FXA-14251-fix-nightly-unit-test-firestore-leak",
+  "description": "fix(auth-server): stop converter.spec leaking a real Firestore client",
+  "timestamp": 1785250968000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
