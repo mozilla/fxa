@@ -1,8 +1,8 @@
 {
-  "commit": "23e4512f328d231c7a72e823f5183b361c88697e",
-  "summary": "Merge pull request #20928 from mozilla/merge-updates",
-  "description": "Merge updates",
-  "timestamp": 1785258400000,
+  "commit": "7aa4875fb14f09e9cae8812d7633f75abcc9e0d0",
+  "summary": "Merge pull request #20916 from mozilla/fix-logs",
+  "description": "fix(logging): cleanup debug logs",
+  "timestamp": 1785260375000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
