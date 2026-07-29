@@ -1100,15 +1100,40 @@ workflows:
       # but still allow them to be run on demand.
       # No `requires` on this job so it can be approved as soon as a PR
       # is opened.
+      # Skipped on filtered branches; those auto-run the functional tests.
+      # This allows auto-merge for bot dependency PRs,
+      # and allows devs to auto-run when branches definitely need func tests.
       - approve-functional-tests:
           name: Approve Functional Tests (PR)
           type: approval
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                - /^func\/.*/
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
           requires:
             - Build (PR)
             - Approve Functional Tests (PR)
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                - /^func\/.*/
+      # Auto-run functional tests (no manual approval) on filtered branches,
+      # so the check reaches a real conclusion instead of hanging pending.
+      - playwright-functional-tests:
+          name: Firefox Functional Tests - Playwright (auto)
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
+          filters:
+            branches:
+              only:
+                - /^dependabot\/.*/
+                - /^func\/.*/
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
@@ -1121,6 +1146,8 @@ workflows:
             - Integration Test - Servers - Auth (PR)
             - Integration Test - Servers - Auth Scripts (PR)
             - Integration Test - Libraries (PR)
+            # Surface auto-run functional-test failures on bot branches.
+            - Firefox Functional Tests - Playwright (auto)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
