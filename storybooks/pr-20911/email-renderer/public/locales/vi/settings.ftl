@@ -1503,12 +1503,24 @@ passkey-registration-error-unexpected = Thiết lập passkey không thành côn
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Không thể đăng nhập bằng passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Hãy thử lại hoặc sử dụng tùy chọn đăng nhập khác.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Cách sử dụng passkey
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Đăng nhập bằng passkey không thành công hoặc không khả dụng. Vui lòng thử lại hoặc chọn phương thức khác.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Thiết lập passkey không khả dụng với thiết bị này. Vui lòng thử lại hoặc chọn phương pháp khác.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Yêu cầu passkey đã hết hạn. Vui lòng thử lại.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Đăng nhập bằng passkey đã hết hạn. Vui lòng thử lại.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Trình duyệt hoặc thiết bị của bạn không hỗ trợ passkey.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
