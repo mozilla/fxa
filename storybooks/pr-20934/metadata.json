@@ -1,0 +1,11 @@
+{
+  "commit": "18bef433ddee3122ab3a86c85ae540d3af0a45ce",
+  "summary": "feat(metrics): add cad_pair_success Glean event",
+  "description": "Because:\n - No analytics event marks the end of the desktop-to-mobile pairing flow,\n   so successful pairings cannot be distinguished from drop-offs earlier in\n   the funnel.\n\nThis commit:\n - Adds a cad_pair.success Glean UI event, emitted when the \"Device\n   connected\" screen is displayed. Both pairing state machines only reach\n   that screen after the desktop approves AND the mobile device confirms,\n   making it an end-to-end success signal rather than a per-side intent\n   like cad_approve_device.submit or cad_mobile_pair.submit.\n - Emits it from the Backbone and React implementations of the screen,\n   since the pair routes are still split behind showReactApp.pairRoutes.\n\nCloses #FXA-12945",
+  "timestamp": 1785268187000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
