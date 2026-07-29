@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import { StatsD } from 'hot-shots';
+import { ILogger } from '../log';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '../subscriptions/stripe';
 import { Stripe } from 'stripe';
 
@@ -63,12 +65,20 @@ export class StripeFirestore {
   protected invoiceCollection: string;
   protected paymentMethodCollection: string;
 
+  /**
+   * @param statsd - Optional. Several methods here degrade to a partial result
+   *                 rather than throwing (see `ignoreErrors`); without metrics
+   *                 those paths are invisible.
+   * @param log - Optional, for the same reason.
+   */
   constructor(
     protected firestore: Firestore,
     protected customerCollectionDbRef: CollectionReference,
     protected stripe: Stripe,
     prefix: string,
-    protected MAX_RETRY_ATTEMPTS: number = 5
+    protected MAX_RETRY_ATTEMPTS: number = 5,
+    protected statsd?: StatsD,
+    protected log?: ILogger
   ) {
     this.subscriptionCollection = `${prefix}subscriptions`;
     this.invoiceCollection = `${prefix}invoices`;
@@ -87,8 +97,25 @@ export class StripeFirestore {
       return customer;
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
+        this.statsd?.increment(
+          'subscriptions.stripe_firestore.retrieve_and_fetch_customer',
+          { outcome: 'firestore_miss', ignore_errors: `${ignoreErrors}` }
+        );
+        this.log?.info(
+          'stripeFirestore.retrieveAndFetchCustomer.firestoreMiss',
+          { customerId, ignoreErrors }
+        );
+        // DS: If the customer wasn't found in that first query. Looks like it falls back here, and failures are 'ignored' for the code path being traced.
+        //     The ignored failures don't seem to transient, but they do look like unexpected states or something. More info / investigaiton would be good.
+        //     - Why would this case happen?
+        //     - Maybe this is no longer a thing that actually happens?
+        //     - What are the side effects of 'ignoreErrors'?
+        //     - Are there scenarios where we could 'transient' data states?
         return this.legacyFetchAndInsertCustomer(customerId, ignoreErrors);
       }
+      this.statsd?.increment(
+        'subscriptions.stripe_firestore.retrieve_and_fetch_customer.error',
+      );
       throw err;
     }
   }
@@ -269,10 +296,25 @@ export class StripeFirestore {
     const customerWithSubscriptions = await this.stripe.customers.retrieve(customerId, {
       expand: ["subscriptions"]
     });
+
+    // DS: Same qeustion as before, what triggers this state?
     if (customerWithSubscriptions.deleted) {
       if (ignoreErrors) {
+        this.statsd?.increment(
+          'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+          { outcome: 'deleted_ignored' }
+        );
+        this.log?.warn(
+          'stripeFirestore.legacyFetchAndInsertCustomer.deletedIgnored',
+          { customerId }
+        );
+        // DS: Potentail case where 0 subscriptions could be returned?
         return customerWithSubscriptions;
       }
+      this.statsd?.increment(
+        'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+        { outcome: 'deleted_thrown' }
+      );
       throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} was deleted`,
         FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
@@ -280,12 +322,31 @@ export class StripeFirestore {
       );
     }
 
+    // DS: What is this exactly?
     const customerWithSubscriptionsUid = customerWithSubscriptions.metadata.userid;
     if (!customerWithSubscriptionsUid) {
       if (ignoreErrors) {
+        const droppedSubscriptionCount =
+          customerWithSubscriptions.subscriptions?.data.length ?? 0;
+        this.statsd?.increment(
+          'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+          {
+            outcome: 'missing_uid_ignored',
+            dropped_subscriptions: `${droppedSubscriptionCount > 0}`,
+          }
+        );
+        this.log?.info(
+          'stripeFirestore.legacyFetchAndInsertCustomer.missingUidIgnored',
+          { customerId, droppedSubscriptionCount }
+        );
+        // DS: Is this suspicious? IUC, this would result in 0 subscriptions being returned.
         delete customerWithSubscriptions.subscriptions;
         return customerWithSubscriptions;
       }
+      this.statsd?.increment(
+        'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+        { outcome: 'missing_uid_thrown' }
+      );
       throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} has no uid`,
         FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
@@ -319,6 +380,14 @@ export class StripeFirestore {
       ]);
       if (customer.deleted) {
         if (ignoreErrors) {
+          this.statsd?.increment(
+            'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+            { outcome: 'deleted_in_transaction_ignored' }
+          );
+          this.log?.warn(
+            'stripeFirestore.legacyFetchAndInsertCustomer.deletedInTransactionIgnored',
+            { customerId }
+          );
           return customer;
         }
         throw new FirestoreStripeErrorBuilder(
@@ -331,6 +400,22 @@ export class StripeFirestore {
       const uid = customer.metadata.userid;
       if (!uid) {
         if (ignoreErrors) {
+          this.statsd?.increment(
+            'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+            {
+              outcome: 'missing_uid_in_transaction_ignored',
+              dropped_subscriptions: `${(subscriptions?.length ?? 0) > 0}`,
+            }
+          );
+          this.log?.warn(
+            'stripeFirestore.legacyFetchAndInsertCustomer.missingUidInTransactionIgnored',
+            {
+              customerId,
+              unwrittenSubscriptionCount: subscriptions?.length ?? 0,
+            }
+          );
+          // DS: IUC, this would also result in 0 subscriptions being returned, because we'd exit
+          //     before subscriptions are populated below?
           return customer;
         }
         throw new FirestoreStripeErrorBuilder(
@@ -345,6 +430,7 @@ export class StripeFirestore {
         toFirestoreObject(customer)
       );
       if (subscriptions) {
+        // DS: Does this update the subscriptions for the customer's collection and also the customer object?
         for (const subscription of subscriptions) {
           tx.set(
             this.customerCollectionDbRef
@@ -355,6 +441,14 @@ export class StripeFirestore {
           );
         }
       }
+
+      this.statsd?.increment(
+        'subscriptions.stripe_firestore.legacy_fetch_and_insert_customer',
+        {
+          outcome: 'inserted',
+          wrote_subscriptions: `${(subscriptions?.length ?? 0) > 0}`,
+        }
+      );
 
       return customer;
     });
@@ -582,7 +676,7 @@ export class StripeFirestore {
           .collection(this.paymentMethodCollection)
           .doc(paymentMethod.id)
       );
-      
+
       const storedEventTime: number | undefined = storedPaymentMethod.data()?.stripeEventCreatedTime;
       // stripeEventCreatedTime can be missing since we didn't previously write this value
       if (eventTime && storedEventTime && storedEventTime >= eventTime) {
@@ -624,16 +718,42 @@ export class StripeFirestore {
         .doc(options.uid)
         .get();
       if (customerSnap.exists) {
+        this.statsd?.increment(
+          'subscriptions.stripe_firestore.retrieve_customer',
+          { lookup: 'uid', outcome: 'hit' }
+        );
         return customerSnap.data() as Stripe.Customer;
       }
     } else if (options.customerId) {
+      // DS: Why are these call snap? Is this eventual or gauranteed consistency?
+      //     Probably not important for this investigation, more just curious...
       const customerSnap = await this.customerCollectionDbRef
         .where('id', '==', options.customerId)
         .get();
       if (!customerSnap.empty) {
+        // A query (not a doc read) can match more than one document; if it ever
+        // does we silently take the first, so surface that here.
+        this.statsd?.increment(
+          'subscriptions.stripe_firestore.retrieve_customer',
+          {
+            lookup: 'customer_id',
+            outcome: 'hit',
+            multiple_matches: `${customerSnap.size > 1}`,
+          }
+        );
+        if (customerSnap.size > 1) {
+          this.log?.warn('stripeFirestore.retrieveCustomer.multipleMatches', {
+            customerId: options.customerId,
+            matchCount: customerSnap.size,
+          });
+        }
         return customerSnap.docs[0].data() as Stripe.Customer;
       }
     }
+    this.statsd?.increment('subscriptions.stripe_firestore.retrieve_customer', {
+      lookup: options.uid ? 'uid' : 'customer_id',
+      outcome: 'miss',
+    });
     throw new FirestoreStripeErrorBuilder(
       `Customer ${options.customerId || options.uid} was not found`,
       FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
@@ -666,9 +786,25 @@ export class StripeFirestore {
     const subscriptionSnap = await customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
       .get();
-    return subscriptionSnap.docs
-      .map((doc) => doc.data() as Stripe.Subscription)
-      .filter((sub) => statusFilter.includes(sub.status));
+    const subscriptions = subscriptionSnap.docs.map(
+      (doc) => doc.data() as Stripe.Subscription
+    );
+    const filtered = subscriptions.filter((sub) =>
+      statusFilter.includes(sub.status)
+    );
+    this.statsd?.increment(
+      'subscriptions.stripe_firestore.retrieve_customer_subscriptions',
+      {
+        outcome:
+          filtered.length > 0
+            ? 'has_subscriptions'
+            : subscriptions.length === 0
+              ? 'none_stored'
+              : 'all_filtered_out',
+      }
+    );
+
+    return filtered;
   }
 
   /**

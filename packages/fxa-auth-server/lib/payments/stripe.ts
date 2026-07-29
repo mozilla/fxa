@@ -251,7 +251,9 @@ export class StripeHelper extends StripeHelperBase {
       this.firestore,
       customerCollectionDbRef,
       this.stripe,
-      firestore_prefix
+      firestore_prefix,
+      statsd,
+      log
     );
 
     if (config.subscriptions.productConfigsFirestore.enabled === true) {
