@@ -1122,6 +1122,8 @@ workflows:
               ignore:
                 - /^dependabot\/.*/
                 - /^func\/.*/
+      # TEMPORARY: no-op comment to trigger CI on a non-filtered branch and
+      # verify the manual approval gate still appears. Do not merge.
       # Auto-run functional tests (no manual approval) on filtered branches,
       # so the check reaches a real conclusion instead of hanging pending.
       - playwright-functional-tests:
