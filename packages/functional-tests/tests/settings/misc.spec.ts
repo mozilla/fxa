@@ -18,9 +18,14 @@ test.describe('severity-1 #smoke', () => {
     await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
-    const helpPage = await settings.clickHelp();
 
-    expect(helpPage.url()).toContain('https://support.mozilla.org');
+    // Assert the href rather than opening the link. support.mozilla.org is
+    // behind Fastly, which rate limits CI egress IPs with a 429 and a 600s
+    // retry-after, and the error response never fires a 'load' event.
+    await expect(settings.helpLink).toHaveAttribute(
+      'href',
+      /^https:\/\/support\.mozilla\.org/
+    );
   });
 });
 

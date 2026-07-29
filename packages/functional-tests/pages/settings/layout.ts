@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { BaseLayout } from '../layout';
 
 export abstract class SettingsLayout extends BaseLayout {
@@ -74,14 +74,6 @@ export abstract class SettingsLayout extends BaseLayout {
 
   clickChangePassword() {
     return this.page.locator('[data-testid=password-unit-row-route]').click();
-  }
-
-  async clickHelp(): Promise<Page> {
-    const pagePromise = this.page.context().waitForEvent('page');
-    await this.helpLink.click();
-    const newPage = await pagePromise;
-    await newPage.waitForLoadState();
-    return newPage;
   }
 
   async signOut() {
