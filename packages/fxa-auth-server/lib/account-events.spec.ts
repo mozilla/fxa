@@ -91,7 +91,8 @@ describe('Account Events', () => {
       );
       expect(statsd.increment).toHaveBeenCalledTimes(1);
       expect(statsd.increment).toHaveBeenCalledWith(
-        'accountEvents.recordEmailEvent.write'
+        'accountEvents.recordEmailEvent.write',
+        { template: 'verifyLoginCode' }
       );
     });
 
