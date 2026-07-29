@@ -1,8 +1,8 @@
 {
-  "commit": "33a3d737755d141b7cfcd0c6e1c189d0dbe5a4b2",
-  "summary": "Merge pull request #20938 from mozilla/fix-ios-continue-with-ff",
-  "description": "bug(settings): Continue with firefox in POC was always directing to app store",
-  "timestamp": 1785343355000,
+  "commit": "289b8843c9e3ca11dea75450613df206893dd455",
+  "summary": "Merge pull request #20936 from mozilla/nightly_payments",
+  "description": "fix(payments): Flaky functional test",
+  "timestamp": 1785343796000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
