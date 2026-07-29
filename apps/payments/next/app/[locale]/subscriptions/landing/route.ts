@@ -64,5 +64,11 @@ export async function GET(
     logger.error('Failed to sign in', { error });
   }
 
-  redirect(redirectUrl ?? redirectToUrl.href);
+  // When signIn fails, redirect to the content server for a full login
+  // instead of back to the manage page — that would create a redirect loop
+  // (manage detects no session → landing → signIn fails → manage → …).
+  redirect(
+    redirectUrl ??
+      `${config.contentServerUrl}/subscriptions${request.nextUrl.search}`
+  );
 }
