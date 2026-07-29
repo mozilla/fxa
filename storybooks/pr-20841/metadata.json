@@ -1,8 +1,8 @@
 {
-  "commit": "3cc48d6db8d4a42aca6dc2bb7990dd96c0044ba2",
-  "summary": "Extra eyes would be appreciated",
+  "commit": "6cb0d27c02cdb86ef0522cf3488c341de37b297e",
+  "summary": "fix functional tests",
   "description": "",
-  "timestamp": 1785271601000,
+  "timestamp": 1785334687000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
