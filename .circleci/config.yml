@@ -1148,6 +1148,10 @@ workflows:
             - Integration Test - Servers - Auth (PR)
             - Integration Test - Servers - Auth Scripts (PR)
             - Integration Test - Libraries (PR)
+            # TEMPORARY EXPERIMENT: this job is filtered out on non-filtered
+            # branches. Does the workflow error at creation, or does this job
+            # sit blocked forever? Do not merge.
+            - Firefox Functional Tests - Playwright (auto)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
