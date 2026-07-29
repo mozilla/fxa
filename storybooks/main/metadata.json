@@ -1,8 +1,8 @@
 {
-  "commit": "fa34da07de3138ea60d60222d729aedf73075c01",
-  "summary": "Merge pull request #20925 from mozilla/FXA-14252",
-  "description": "bug(auth): Fix polluted sentry bread crumbs",
-  "timestamp": 1785285519000,
+  "commit": "47de488fcef58c9e2fe18ef56b5949aa239ce5a8",
+  "summary": "Merge pull request #20891 from mozilla/FXA-14094",
+  "description": "feat(oauth): dual-write accountAuthorizations to a scopeId v2 table behind flags",
+  "timestamp": 1785336691000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
