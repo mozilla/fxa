@@ -572,6 +572,16 @@ async function run(config) {
         });
       }
 
+      // Drain before statsd closes — a failed flush increments a statsd metric.
+      try {
+        await bqWriter?.shutdown();
+      } catch (e) {
+        log.warn('shutdown', {
+          message:
+            'Rate limit BQ writer did not shut down cleanly. ' + e.message,
+        });
+      }
+
       try {
         statsd.close();
       } catch (e) {
