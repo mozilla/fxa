@@ -1,8 +1,8 @@
 {
-  "commit": "dafd082056de77d203649399e182df92405677ac",
-  "summary": "Merge pull request #20921 from mozilla/FXA-14159-worktree",
-  "description": "fix(auth): Exclude unauthorized Desktop VPN access tokens from DAU",
-  "timestamp": 1785345818000,
+  "commit": "6c778ff628678eff19fcc5bf547d7d0278579610",
+  "summary": "Merge pull request #20937 from mozilla/fix-playwright",
+  "description": "fix(functional-tests): assert help link href instead of opening it",
+  "timestamp": 1785345981000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
