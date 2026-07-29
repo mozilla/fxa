@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kode
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Feil
 # Used as information icon for informative messaging
@@ -536,7 +539,7 @@ bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = { -brand-firefox }-nettlesaren for datamaskiner
-bento-menu-firefox-mobile = { -brand-firefox }-nettlesar for mobil
+bento-menu-firefox-mobile = { -brand-firefox }-nettlesaren for mobil
 bento-menu-made-by-mozilla = Laga av { -brand-mozilla }
 
 ## Connect another device promo
@@ -1253,6 +1256,18 @@ passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
 passkey-delete-error = Det oppstod eit problem med å slette passnøkkelen din. Prøv igjen om nokre minutt.
+passkey-sub-row-rename-title = Byt namn på passnøkkel
+passkey-rename-modal-heading = Byt namn på passnøkkel
+passkey-rename-modal-description = Skriv inn eit nytt namn for denne passnøkkelen
+passkey-rename-input-label = Passnøkkelnamn
+passkey-rename-save-button = Lagre
+passkey-rename-cancel-button = Avbryt
+passkey-rename-error-empty = Skriv inn eit namn for denne passnøkkelen
+passkey-rename-error-too-long = Namnet må innehalde færre enn 256 teikn.
+passkey-rename-error-invalid = Berre bokstavar, tal, teiknsetting og symbol er lov.
+passkey-rename-error-duplicate = Ein passnøkkel med dette namnet finst allereie
+passkey-rename-success = Passnøkkel har fått nytt namn
+passkey-rename-error = Det oppstod eit problem med å endre namn på passnøkkelen din. Prøv igjen om nokre minutt.
 
 ## Switch component
 
@@ -1446,6 +1461,7 @@ auth-error-225 = Passnøkkelen er allereie registrert
 auth-error-226 = Passnøkkelgrensa er nådd
 auth-error-227 = Mislykka passnøkkelautentisering
 auth-error-228 = Mislykka registrering av passnøkkel
+auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
 auth-error-999 = Uventa feil
@@ -1513,12 +1529,24 @@ passkey-registration-error-unexpected = Mislykka oppsett av passnøkkel. Prøv i
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Klarte ikkje å logge inn med ein passnøkkel
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Prøv på nytt eller bruk ein annan påloggingsmetode.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Slik brukar du passnøklar
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Innlogging med passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Prøv igjen eller vel ein annan metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Førespurnaden om passnøkkel vart tidsavbroten. Prøv igjen.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Tidsavbrot ved pålogging med passnøkkel. Prøv på nytt.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Nettlesaren eller eininga di støttar ikkje passnøklar.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

@@ -311,6 +311,10 @@ close-icon-aria-label =
 code-icon-aria-label =
     .aria-label = Code
 
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Edit
+
 error-icon-aria-label =
     .aria-label = Error
 
@@ -439,6 +443,8 @@ link-expired-new-link-button = Receive new link
 
 # immediately before remember-password-signin-link
 remember-password-text = Remember your password?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Have a passkey or remember your password?
 # link navigates to the sign in page
 remember-password-signin-link = Sign in
 
@@ -554,20 +560,25 @@ flow-recovery-key-hint-char-limit-error = The hint must contain fewer than 255 c
 flow-recovery-key-hint-unsafe-char-error = The hint cannot contain unsafe unicode characters. Only letters, numbers, punctuation marks and symbols are allowed.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
 
-password-reset-data-may-not-be-recovered = Your browser data may not be recovered
-password-reset-previously-signed-in-device-2 = Have any device where you previously signed in?
-password-reset-data-may-be-saved-locally-2 = Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.
-password-reset-no-old-device-2 = Have a new device but don’t have access to any of your previous ones?
-password-reset-encrypted-data-cannot-be-recovered-2 = We’re sorry, but your encrypted browser data on { -brand-firefox } servers can’t be recovered.
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 
 password-reset-warning-have-key = Have an account recovery key?
-password-reset-warning-use-key-link = Use it now to reset your password and keep your data
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 ## Alert Bar
 
@@ -1404,6 +1415,19 @@ passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
+
 ##
 
 ## Switch component
@@ -1681,6 +1705,17 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = How to use passkeys
+
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 
@@ -1689,6 +1724,8 @@ passkey-authentication-error-not-allowed-existing = Passkey setup isn’t availa
 
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
@@ -2127,8 +2164,7 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-2 = We’ll ask for a couple of things only you know to keep your account
-          safe.
+password-reset-body-3 = Resetting your password may affect synced browser data.
 
 password-reset-email-input =
   .label = Enter your email
@@ -2271,6 +2307,7 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

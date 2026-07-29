@@ -247,6 +247,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = קוד
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = עריכה
 error-icon-aria-label =
     .aria-label = שגיאה
 # Used as information icon for informative messaging
@@ -1178,7 +1181,7 @@ tfa-row-backup-phone-sim-swap-risk-link = מידע נוסף על סיכון בה
 # This is a string that shows when the user's passkey was created.
 # Variables:
 #   $createdDate (String) - a localized date string
-passkey-sub-row-created-date = תאריך יצירה:
+passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 # This is a string that shows when the user's passkey was last used.
 # Variables:
 #   $lastUsedDate (String) - a localized date string
@@ -1189,6 +1192,18 @@ passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
 passkey-delete-error = הייתה בעיה במחיקת מפתח הגישה שלך. נא לנסות שוב בעוד מספר דקות.
+passkey-sub-row-rename-title = שינוי שם מפתח גישה
+passkey-rename-modal-heading = שינוי שם מפתח גישה
+passkey-rename-modal-description = נא להכניס שם חדש עבור מפתח גישה זה.
+passkey-rename-input-label = שם מפתח גישה
+passkey-rename-save-button = שמירה
+passkey-rename-cancel-button = ביטול
+passkey-rename-error-empty = נא להכניס שם עבור מפתח גישה זה
+passkey-rename-error-too-long = השם חייב להכיל פחות מ־256 תווים.
+passkey-rename-error-invalid = מותר להשתמש רק באותיות, מספרים, סימני פיסוק וסמלים.
+passkey-rename-error-duplicate = מפתח גישה עם שם זה כבר קיים.
+passkey-rename-success = שונה השם של מפתח גישה
+passkey-rename-error = הייתה בעיה בשינוי השם של מפתח הגישה שלך. נא לנסות שוב בעוד מספר דקות.
 
 ## Switch component
 
@@ -1368,6 +1383,7 @@ auth-error-225 = מפתח הגישה כבר רשום
 auth-error-226 = הגעת למכסת מפתחות הגישה
 auth-error-227 = אימות מפתח הגישה נכשל
 auth-error-228 = רישום מפתח הגישה נכשל
+auth-error-233 = כדי ליצור מפתח גישה, יש להגדיר נעילת מסך, קוד סודי, טביעת אצבע או זיהוי פנים במכשיר או במפתח האבטחה שלך, ולאחר מכן לנסות שוב.
 auth-error-238 = אתגר מפתח הגישה נכשל
 auth-error-239 = לא הצלחנו למחוק את החשבון שלך, עמך הסליחה. נא לנסות שוב, או ליצור קשר עם התמיכה אם הבעיה נמשכת.
 auth-error-999 = שגיאה בלתי צפויה
@@ -1434,12 +1450,24 @@ passkey-registration-error-unexpected = הגדרת מפתח הגישה נכשל�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = לא ניתן היה להיכנס עם מפתח גישה
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = נא לנסות שוב או להשתמש באפשרות כניסה אחרת.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = כיצד להשתמש במפתחות גישה
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = הכניסה באמצעות מפתח הגישה נכשלה או שאינה זמינה. נא לנסות שוב או לבחור בשיטה אחרת.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = הגדרת מפתח הגישה אינה זמינה עם מכשיר זה. נא לנסות שוב או לבחור בשיטה אחרת.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = תם הזמן שהוקצב לבקשת מפתח הגישה. נא לנסות שוב.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = תם הזמן שהוקצב לכניסה עם מפתח גישה. נא לנסות שוב.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = הדפדפן או המכשיר שלך אינם תומכים במפתחות גישה (passkeys).
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

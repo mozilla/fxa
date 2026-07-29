@@ -39,6 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = 오류가 발생하였습니다
+app-something-went-wrong-message = 문제에 대해 안내를 받았습니다. 페이지를 새로고침해서 다시 시도하세요.
+app-error-id = 오류 ID: { $errorId }
+app-error-details-summary = 오류 세부 정보
 app-query-parameter-err-heading = 잘못된 요청: 유효하지 않은 쿼리 파라미터
 
 
@@ -216,6 +220,8 @@ close-icon-aria-label =
     .aria-label = 메시지 닫기
 code-icon-aria-label =
     .aria-label = 코드
+edit-icon-aria-label =
+    .aria-label = 편집
 error-icon-aria-label =
     .aria-label = 오류
 info-icon-aria-label =
@@ -873,6 +879,18 @@ passkey-delete-modal-cancel-button = 취소
 passkey-delete-modal-confirm-button = 패스키 삭제
 passkey-delete-success = 패스키 삭제됨
 passkey-delete-error = 패스키를 삭제하는 데 문제가 발생했습니다. 몇 분 후 다시 시도하세요.
+passkey-sub-row-rename-title = 패스키 이름 변경
+passkey-rename-modal-heading = 패스키 이름 변경
+passkey-rename-modal-description = 이 패스키의 새 이름을 입력하세요.
+passkey-rename-input-label = 패스키 이름
+passkey-rename-save-button = 저장
+passkey-rename-cancel-button = 취소
+passkey-rename-error-empty = 이 패스키 이름을 입력하세요.
+passkey-rename-error-too-long = 이름은 256자 미만이어야 합니다.
+passkey-rename-error-invalid = 문자나 숫자, 구두점, 기호만 사용할 수 있습니다.
+passkey-rename-error-duplicate = 해당 이름을 가진 패스키가 이미 존재합니다.
+passkey-rename-success = 패스키 이름 변경됨
+passkey-rename-error = 패스키 이름을 변경하는 데 문제가 발생했습니다. 몇 분 후 다시 시도하세요.
 
 
 switch-turn-off = 끄기
@@ -1008,6 +1026,7 @@ auth-error-225 = 패스키가 이미 등록됨
 auth-error-226 = 패스키 제한에 도달
 auth-error-227 = 패스키 인증 실패
 auth-error-228 = 패스키 등록 실패
+auth-error-233 = 패스 키를 만드려면 기기에서 화면 잠금이나 PIN, 지문, 얼굴 인식, 보안 키를 설정하고 다시 시도하세요.
 auth-error-238 = 패스키 질문 실패
 auth-error-999 = 알 수 없는 오류
 auth-error-1001 = 로그인 시도 취소됨

@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Cod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editează
 error-icon-aria-label =
     .aria-label = Eroare
 # Used as information icon for informative messaging
@@ -368,7 +371,7 @@ input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Înapoi
 # Generic error shown when the legal document fails to load
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci mai târziu.
+app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 
 ## LinkDamaged component
 
@@ -1259,6 +1262,18 @@ passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
 passkey-delete-error = A apărut o problemă la ștergerea cheii. Încearcă din nou peste câteva minute.
+passkey-sub-row-rename-title = Redenumește cheia de acces
+passkey-rename-modal-heading = Redenumește cheia de acces
+passkey-rename-modal-description = Introdu o denumire nouă pentru această cheie de acces.
+passkey-rename-input-label = Denumire cheie de acces
+passkey-rename-save-button = Salvează
+passkey-rename-cancel-button = Anulează
+passkey-rename-error-empty = Introdu o denumire pentru această cheie de acces
+passkey-rename-error-too-long = Denumirea trebuie să aibă mai puțin de 256 de caractere.
+passkey-rename-error-invalid = Sunt permise numai litere, cifre, semne de punctuație și simboluri.
+passkey-rename-error-duplicate = Există deja o cheie de acces cu această denumire
+passkey-rename-success = Cheia de acces a fost redenumită
+passkey-rename-error = A apărut o problemă la redenumirea cheii de acces. Încearcă din  nou în câteva minute.
 
 ## Switch component
 
@@ -1454,6 +1469,7 @@ auth-error-225 = Cheia de acces este deja înregistrată
 auth-error-226 = S-a atins limita de chei de acces
 auth-error-227 = Autentificarea cu cheie de acces a eșuat
 auth-error-228 = Înregistrarea cheii de acces a eșuat
+auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
 auth-error-999 = Eroare neașteptată
@@ -1600,7 +1616,7 @@ index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai
 
 ## InlineRecoveryKeySetup page component
 
-inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci mai târziu.
+inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
 inline-recovery-key-setup-recovery-created = Cheia de recuperare a contului a fost creată
 inline-recovery-key-setup-download-header = Securizează-ți contul
 inline-recovery-key-setup-download-subheader = Descarcă și salveaz-o acum
@@ -1962,9 +1978,9 @@ password-reset-recovery-method-code = Coduri de autentificare de rezervă
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $count } cod rămas
-        [few] { $count } coduri rămase
-       *[other] { $count } de coduri rămase
+        [one] { $numBackupCodes } cod rămas
+        [few] { $numBackupCodes } coduri rămase
+       *[other] { $numBackupCodes } de coduri rămase
     }
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
@@ -1987,7 +2003,7 @@ reset-password-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 reset-password-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 reset-password-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
 # Follows the error message (e.g, "There was a problem sending a code")
-reset-password-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+reset-password-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 reset-password-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 reset-password-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 reset-password-with-recovery-key-verified-page-title = Parolă resetată cu succes
@@ -2155,7 +2171,7 @@ signin-recovery-code-required-error = Necesită cod de autentificare de rezervă
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = A apărut o problemă la trimiterea unui cod către numărul tău de telefon de recuperare
-signin-recovery-code-use-phone-failure-description = Te rugăm să încerci mai târziu.
+signin-recovery-code-use-phone-failure-description = Te rugăm să încerci din nou mai târziu.
 
 ## SigninRecoveryPhone page
 
@@ -2174,7 +2190,7 @@ signin-recovery-phone-locked-out-link = Ți-ai blocat accesul la cont?
 signin-recovery-phone-send-code-error-heading = A apărut o problemă la trimiterea unui cod
 signin-recovery-phone-code-verification-error-heading = A apărut o problemă la verificarea codului
 # Follows the error message (e.g, "There was a problem sending a code")
-signin-recovery-phone-general-error-description = Te rugăm să încerci mai târziu.
+signin-recovery-phone-general-error-description = Te rugăm să încerci din nou mai târziu.
 signin-recovery-phone-invalid-code-error-description = Codul este nevalid sau expirat.
 signin-recovery-phone-invalid-code-error-link = Folosești în schimb coduri de autentificare de rezervă?
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.

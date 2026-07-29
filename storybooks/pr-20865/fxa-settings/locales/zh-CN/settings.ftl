@@ -145,6 +145,15 @@ device-info-browser-os = { $genericOSName } 上的 { $browserName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 地址：{ $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-description = 在您的各种设备间同步标签页、书签和密码。所有内容都被安全地加密。
+firefox-promo-banner-switch-heading = 切换够方便，上手更轻松。
+firefox-promo-banner-switch-description = 当您切换到 { -brand-firefox } 时，可以直接带上您之前的书签、密码、历史记录等数据，到手即用，无缝衔接。
+firefox-promo-banner-switch-cta = 换用 { -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1211,6 +1220,7 @@ passkey-sub-row-created-date = 创建时间：{ $createdDate }
 passkey-sub-row-last-used-date = 上次使用：{ $lastUsedDate }
 passkey-sub-row-delete-title = 删除通行密钥
 passkey-delete-modal-heading = 确定要删除通行密钥吗？
+passkey-delete-modal-content-v2 = 此通行密钥将从您的账户移除，以后将需要使用其他方式（例如密码、其他通行密钥，或已关联账户）登录。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 删除通行密钥
 passkey-delete-success = 通行密钥已删除

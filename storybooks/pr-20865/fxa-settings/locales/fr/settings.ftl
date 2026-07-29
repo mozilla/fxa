@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Code
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Modifier
 error-icon-aria-label =
     .aria-label = Erreur
 # Used as information icon for informative messaging
@@ -1249,6 +1252,18 @@ passkey-delete-modal-cancel-button = Annuler
 passkey-delete-modal-confirm-button = Supprimer la clé d’accès
 passkey-delete-success = Clé d’accès supprimée
 passkey-delete-error = Un problème est survenu lors de la suppression de votre clé d’accès. Réessayez dans quelques minutes.
+passkey-sub-row-rename-title = Renommer la clé d’accès
+passkey-rename-modal-heading = Renommer la clé d’accès
+passkey-rename-modal-description = Saisissez un nouveau nom pour cette clé d’accès.
+passkey-rename-input-label = Nom de la clé
+passkey-rename-save-button = Enregistrer
+passkey-rename-cancel-button = Annuler
+passkey-rename-error-empty = Saisissez un nom pour cette clé d’accès
+passkey-rename-error-too-long = Le nom doit contenir moins de 256 caractères.
+passkey-rename-error-invalid = Seuls les lettres, les nombres, les signes de ponctuation et les symboles sont autorisés.
+passkey-rename-error-duplicate = Une clé d’accès portant ce nom existe déjà
+passkey-rename-success = Clé d’accès renommée
+passkey-rename-error = Un problème est survenu lors du changement de nom de votre clé d’accès. Réessayez dans quelques minutes.
 
 ## Switch component
 
@@ -1439,6 +1454,7 @@ auth-error-225 = La clé d’accès est déjà enregistrée
 auth-error-226 = Limite de clés d’accès atteinte
 auth-error-227 = Échec de l’authentification par clé d’accès
 auth-error-228 = Échec de l’enregistrement de la clé d’accès
+auth-error-233 = Pour créer une clé d’accès, configurez le verrouillage de l’écran, un code PIN, une empreinte digitale, la reconnaissance faciale sur votre appareil ou une clé de sécurité. Réessayez ensuite.
 auth-error-238 = Échec de la vérification de la clé d’accès
 auth-error-239 = Désolé, nous n’avons pas pu supprimer votre compte. Veuillez essayer à nouveau, ou contacter l’assistance si le problème persiste.
 auth-error-999 = Erreur inattendue
@@ -1506,12 +1522,24 @@ passkey-registration-error-unexpected = La configuration de la clé d’accès a
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Impossible de se connecter avec une clé d’accès
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Réessayez ou utilisez une autre méthode de connexion.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Comment utiliser les clés d’accès
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = La connexion par clé d’accès a échoué ou n’est pas disponible. Réessayez ou choisissez une autre méthode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = La configuration d’une clé d’accès n’est pas possible avec cet appareil. Veuillez réessayer ou choisir une autre méthode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Délai de requête de la clé d’accès dépassé. Veuillez réessayer.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = La connexion avec la clé d’accès a expiré. Veuillez réessayer.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Votre navigateur ou votre appareil ne prend pas en charge les clés d’accès.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

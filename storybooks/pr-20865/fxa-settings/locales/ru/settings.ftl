@@ -274,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Код
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Изменить
 error-icon-aria-label =
     .aria-label = Ошибка
 # Used as information icon for informative messaging
@@ -1257,6 +1260,18 @@ passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён
 passkey-delete-error = При удалении вашего ключа доступа произошла ошибка. Попробуйте снова через несколько минут.
+passkey-sub-row-rename-title = Переименовать ключ доступа
+passkey-rename-modal-heading = Переименовать ключ доступа
+passkey-rename-modal-description = Введите новое имя для этого ключа доступа.
+passkey-rename-input-label = Имя ключа доступа
+passkey-rename-save-button = Сохранить
+passkey-rename-cancel-button = Отмена
+passkey-rename-error-empty = Введите имя для этого ключа доступа
+passkey-rename-error-too-long = Имя должно содержать менее 256 символов.
+passkey-rename-error-invalid = Допускаются только буквы, цифры, знаки препинания и символы.
+passkey-rename-error-duplicate = Ключ доступа с таким именем уже существует
+passkey-rename-success = Ключ доступа переименован
+passkey-rename-error = При переименовании вашего ключа доступа возникла проблема. Попробуйте снова через несколько минут.
 
 ## Switch component
 
@@ -1450,6 +1465,7 @@ auth-error-225 = Ключ доступа уже зарегистрирован
 auth-error-226 = Достигнут предел ключей доступа
 auth-error-227 = Аутентификация по ключу доступа не удалась
 auth-error-228 = Регистрация ключа доступа не удалась
+auth-error-233 = Чтобы создать ключ доступа, настройте блокировку экрана, PIN-код, отпечаток пальца или распознавание лица на вашем устройстве или ключе безопасности. Затем попробуйте снова.
 auth-error-238 = Проверка ключа доступа не удалась
 auth-error-239 = Извините, мы не смогли удалить ваш аккаунт. Пожалуйста, попробуйте ещё раз или обратитесь в службу поддержки, если проблема не будет устранена.
 auth-error-999 = Непредвиденная ошибка
@@ -1517,12 +1533,24 @@ passkey-registration-error-unexpected = Не удалось установить
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Не удалось войти с помощью ключа доступа
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Попробуйте ещё раз или используйте другой способ входа.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Как использовать ключи доступа
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Время ожидания запроса ключа истекло. Повторите попытку.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Время ожидания входа по ключу доступа истекло. Попробуйте снова.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Браузер или устройство не поддерживают ключ доступа.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

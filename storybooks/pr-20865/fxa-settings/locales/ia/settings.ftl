@@ -271,6 +271,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Codice
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Error
 # Used as information icon for informative messaging
@@ -1255,6 +1258,18 @@ passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
 passkey-delete-error = Il habeva un problema a deler tu clave-contrasigno. Retenta in alcun minutas.
+passkey-sub-row-rename-title = Renominar clave-contrasigno
+passkey-rename-modal-heading = Renominar clave-contrasigno
+passkey-rename-modal-description = Insere un nove nomine pro iste clave-contrasigno.
+passkey-rename-input-label = Nomine del clave-contrasigno
+passkey-rename-save-button = Salvar
+passkey-rename-cancel-button = Cancellar
+passkey-rename-error-empty = Insere un nomine pro iste clave-contrasigno.
+passkey-rename-error-too-long = Le nomine debe continer minus que 255 characteres.
+passkey-rename-error-invalid = Solo litteras, numeros, signos de punctuation e symbolos es permittite.
+passkey-rename-error-duplicate = Un clave-contrasigno con iste nomine jam existe.
+passkey-rename-success = Clave-contrasigno renominate
+passkey-rename-error = Il habeva un problema a renominar tu clave-contrasigno. Retenta in alcun minutas.
 
 ## Switch component
 
@@ -1450,6 +1465,7 @@ auth-error-225 = Clave-contrasigno jam registrate
 auth-error-226 = Limite de claves-contrasigno attingite
 auth-error-227 = Authentication de clave-contrasigno fallite
 auth-error-228 = Registration de clave-contrasigno fallite
+auth-error-233 = Pro crear un clave-contrasigno, configura un blocada de schermo, PIN, dactylogramma, o recognition de facie sur tu apparato o clave de securitate. Pois retenta.
 auth-error-238 = Verification de clave-contrasigno fallite
 auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
 auth-error-999 = Error inexpectate
@@ -1517,12 +1533,24 @@ passkey-registration-error-unexpected = Le configuration del clave-contrasigno f
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Impossibile acceder con un clave-contrasigno
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Retenta o usa un altere option de authentication.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Como usar claves-contrasigno
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Le authentication con clave-contrasigno falleva o es indisponibile. Retenta o elige un altere methodo.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Retenta o elige un altere methodo.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Le petition de clave-contrasigno exiva del tempore limite. Retenta.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Authentication de clave-contrasigno foras tempore limite. Retenta.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Tu navigator o apparato non supporta clave-contrasigno
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

@@ -259,6 +259,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = 驗證碼
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = 編輯
 error-icon-aria-label =
     .aria-label = 錯誤
 # Used as information icon for informative messaging
@@ -1218,13 +1221,25 @@ passkey-sub-row-created-date = 建立於：{ $createdDate }
 # Variables:
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = 最後使用於：{ $lastUsedDate }
-passkey-sub-row-delete-title = 刪除 passkey
-passkey-delete-modal-heading = 要刪除您的 passkey 嗎？
+passkey-sub-row-delete-title = 刪除 Passkey
+passkey-delete-modal-heading = 要刪除您的 Passkey 嗎？
 passkey-delete-modal-content-v2 = 將從您的帳號中移除這把 Passkey。您必須使用其他方式（密碼、另一把 Passkey 或連結的帳號）登入。
 passkey-delete-modal-cancel-button = 取消
-passkey-delete-modal-confirm-button = 刪除 passkey
-passkey-delete-success = 已刪除 passkey
-passkey-delete-error = 刪除您的 passkey 時遇到問題，請稍候幾分鐘再試一次。
+passkey-delete-modal-confirm-button = 刪除 Passkey
+passkey-delete-success = 已刪除 Passkey
+passkey-delete-error = 刪除您的 Passkey 時遇到問題，請稍候幾分鐘再試一次。
+passkey-sub-row-rename-title = 重新命名 Passkey
+passkey-rename-modal-heading = 重新命名 Passkey
+passkey-rename-modal-description = 請輸入這把 Passkey 的新名稱。
+passkey-rename-input-label = Passkey 名稱
+passkey-rename-save-button = 儲存
+passkey-rename-cancel-button = 取消
+passkey-rename-error-empty = 請輸入這把 Passkey 的名稱
+passkey-rename-error-too-long = 名稱不可超過 256 個字元。
+passkey-rename-error-invalid = 只接受英文字母、數字、標點符號。
+passkey-rename-error-duplicate = 已有一把使用此名稱的 Passkey
+passkey-rename-success = 已重新命名 Passkey
+passkey-rename-error = 重新命名您的 Passkey 時遇到問題，請稍候幾分鐘再試一次。
 
 ## Switch component
 
@@ -1405,6 +1420,7 @@ auth-error-225 = Passkey 已經註冊
 auth-error-226 = 已達 Passkey 限制
 auth-error-227 = Passkey 驗證失敗
 auth-error-228 = Passkey 註冊失敗
+auth-error-233 = 要建立 Passkey，請先在您的裝置或安全金鑰設定 PIN 碼、指紋或臉孔辨識等螢幕鎖定方式，然後再試一次。
 auth-error-238 = Passkey 挑戰失敗
 auth-error-239 = 抱歉，我們無法刪除您的帳號。請再試一次，若問題持續存在請聯絡技術支援團隊。
 auth-error-999 = 未預期的錯誤
@@ -1472,12 +1488,24 @@ passkey-registration-error-unexpected = Passkey 設定失敗，請再試一次�
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = 無法使用 Passkey 登入
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = 請再試一次，或改用其他方式登入。
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = 如何使用 Passkey
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Passkey 登入失敗或無法使用，請再試一次或改用其他方式。
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = 無法於此裝置設定 Passkey，請重試或改用其他方式。
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey 請求逾時，請再試一次。
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Passkey 登入逾時，請重試。
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = 您的瀏覽器或裝置不支援 Passkey。
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1638,7 +1666,7 @@ pair-auth-complete-manage-devices-link = 管理裝置
 pair-auth-complete-send-tab-heading = 已經準備就緒，可以傳送分頁
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
-pair-auth-complete-send-tab-device-connected = 已連結 %(deviceOS)s 上的 %(deviceFamily)s。
+pair-auth-complete-send-tab-device-connected = 已連結 { $deviceOS } 上的 { $deviceFamily }。
 pair-auth-complete-send-tab-benefits = 您可在不同裝置間，自由且即時地傳送開啟分頁、密碼與書籤。
 
 ## AuthTotp page
