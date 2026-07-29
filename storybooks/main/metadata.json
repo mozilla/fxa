@@ -1,8 +1,8 @@
 {
-  "commit": "85865516fd51c168a9632762ad7eeb47a6d3fcdb",
-  "summary": "Merge pull request #20886 from mozilla/zero-subs-investigation",
-  "description": "chore(auth): questions about zero subscrption scenarios",
-  "timestamp": 1785345660000,
+  "commit": "44667f2195ae87885b0a4877de8f28782b065734",
+  "summary": "Merge pull request #20906 from mozilla/FXA-14223",
+  "description": "bug(auth-client): fix \"Incorrect email case\" on password checks",
+  "timestamp": 1785345696000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
