@@ -137,6 +137,54 @@ describe('accountAuthorizations repository', () => {
     expect(await db.listAccountConsentsByUid(id)).toHaveLength(2);
   });
 
+  describe('hasConsentForScopeAndClient (VPN-in-Desktop DAU bandaid)', () => {
+    it('returns true for the exact (uid, scope, service, clientId)', async () => {
+      const id = track(newUid());
+      await seed({
+        uid: id,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId: DESKTOP,
+      });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(true);
+    });
+
+    it('returns false when only the clientId differs', async () => {
+      const id = track(newUid());
+      // VPN authorized on another client (e.g. iOS) must not count as Desktop.
+      await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', clientId: IOS });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(false);
+    });
+
+    it('returns false when the scope differs', async () => {
+      const id = track(newUid());
+      await seed({
+        uid: id,
+        scope: OLDSYNC_SCOPE,
+        service: 'vpn',
+        clientId: DESKTOP,
+      });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(false);
+    });
+
+    it('returns false for a uid with no consent rows', async () => {
+      expect(
+        await db.hasConsentForScopeAndClient(
+          newUid(),
+          VPN_SCOPE,
+          'vpn',
+          DESKTOP
+        )
+      ).toBe(false);
+    });
+  });
+
   it('records one row per scope from a single multi-scope upsert', async () => {
     const id = track(newUid());
     const now = Date.now();
