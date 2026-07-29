@@ -1,8 +1,8 @@
 {
-  "commit": "5bbbef1e2a56bce68c015794557958b19eb4b5e0",
-  "summary": "Merge pull request #20847 from mozilla/polish-record-template-in-metric",
-  "description": "chore(auth): Record email template in statsd metric",
-  "timestamp": 1785283563000,
+  "commit": "fa34da07de3138ea60d60222d729aedf73075c01",
+  "summary": "Merge pull request #20925 from mozilla/FXA-14252",
+  "description": "bug(auth): Fix polluted sentry bread crumbs",
+  "timestamp": 1785285519000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
