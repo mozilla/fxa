@@ -408,6 +408,11 @@ class CustomsClient {
     }
 
     const opts = toOpts(request?.app?.clientAddress, email);
+    // A self-serve success may only clear counters attributable to that
+    // principal. Drop the raw ip (shared across everyone behind a NAT/VPN) so it
+    // cannot wipe ip-keyed anti-spray counters for other users. ip_email is
+    // derived inside toOpts and survives.
+    delete opts.ip;
     await this.rateLimit.unblock(opts);
   }
   // #endregion
