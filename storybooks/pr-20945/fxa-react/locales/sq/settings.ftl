@@ -467,18 +467,13 @@ flow-recovery-key-hint-char-limit-error = Ndihmëza duhet të përmbajë më pak
 flow-recovery-key-hint-unsafe-char-error = Ndihmëza s’mund të përmbajë shenja unikod jo të parrezik. Lejohen vetëm shkronja, numra, shenja pikësimi dhe simbole.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Sinjalizim
 password-reset-chevron-expanded = Tkurre sinjalizimin
 password-reset-chevron-collapsed = Zgjeroje sinjalizimin
-password-reset-data-may-not-be-recovered = Të dhënat e shfletuesit tuaj mund të mos rikthehen dot
-password-reset-previously-signed-in-device-2 = Keni ndonjë pajisje ku keni bërë hyrjen më herët?
-password-reset-data-may-be-saved-locally-2 = Të dhënat e shfletuesit tuaj mund të jenë ruajtur në atë pajisje. Ricaktoni fjalëkalimin tuaj, mandej bëni hyrjen në llogari atje, për të rikthyer dhe njëkohësuar të dhënat tuaja.
-password-reset-no-old-device-2 = Keni një pajisje të re, por s’përdorni dot më cilëndo nga të mëparshmet?
-password-reset-encrypted-data-cannot-be-recovered-2 = Na vjen keq, por të dhënat tuaja të fshehtëzuara të shfletuesit në shërbyesit { -brand-firefox } s’mund të rikthehen.
 password-reset-warning-have-key = Keni një kyç rimarrjeje llogarie?
-password-reset-warning-use-key-link = Përdoreni tani, që të ricaktoni fjalëkalimin tuaj dhe mbani të dhënat tuaja
 
 ## Alert Bar
 
@@ -1725,9 +1720,6 @@ confirm-totp-reset-password-use-different-account = Përdorni një llogari tjet�
 ## ResetPassword start page
 
 password-reset-flow-heading = Ricaktoni fjalëkalimin tuaj
-password-reset-body-2 =
-    Do t’ju pyesim për nja dy gjëra që vetëm ju i dini, për ta mbajtur
-    të parrezik llogarinë tuaj.
 password-reset-email-input =
     .label = Jepni email-in tuaj
 password-reset-submit-button-2 = Vazhdo

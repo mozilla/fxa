@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = Pe tape oguerekova’erã hetave 255 t
 flow-recovery-key-hint-unsafe-char-error = Pe jehoha ndorekoiva’erã taichagua Unicode hekorosã’ỹva. Oñemoneĩ tai añónte, papapy, kyta aty ha ta’ãnga’i.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Jesarekorã
 password-reset-chevron-expanded = Ñemongyhyje
 password-reset-chevron-collapsed = Emyasãi mongyhyje
-password-reset-data-may-not-be-recovered = Ne ñeikundaha mba’ekuaarã ikatu okañyete
-password-reset-previously-signed-in-device-2 = ¿Ereko peteĩ mba’e’oka eñepyrũhaguékuri tembiapo?
-password-reset-data-may-be-saved-locally-2 = Umi mba’ekuaarã ne kundaharagua oñeñongatukuaa mba’e’okápe. Erujey ne ñe’ẽñemi ha eñepyrũ tembiapo upépe erujey ha embojuehe hag̃ua ne mba’ekuaarã.
-password-reset-no-old-device-2 = ¿Eguereko peteĩ mba’e’oka pyahu hákatu ndereikekuaái itujavévape?
-password-reset-encrypted-data-cannot-be-recovered-2 = Rombyasy, mba’ekuaarã ne mohendahapegua ipapapýva { -brand-firefox } mohendahavusu ndaikatúi erujey.
 password-reset-warning-have-key = ¿Eguereko mba’ete jeguerujeyrã?
-password-reset-warning-use-key-link = Eiporu egueru jey hag̃ua ne ñe’ẽñemi ha ani ogue ne mba’ekuaarã
 
 ## Alert Bar
 
@@ -1954,9 +1949,6 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
-password-reset-body-2 =
-    Rojerure ndéve ndahetái ndénte reikuaáva ereko hag̃ua ne mba’ete
-    tekorosãpe.
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey

@@ -317,6 +317,7 @@ link-expired-new-link-button = Neuen Link erhalten
 
 
 remember-password-text = Passwort speichern?
+remember-password-passkey-text = Haben Sie einen Zugangsschlüssel oder kennen Sie Ihr Passwort?
 remember-password-signin-link = Anmelden
 
 
@@ -390,13 +391,14 @@ flow-recovery-key-hint-unsafe-char-error = Der Hinweis darf keine unsicheren Uni
 password-reset-warning-icon = Warnung
 password-reset-chevron-expanded = Warnung einklappen
 password-reset-chevron-collapsed = Warnung ausklappen
-password-reset-data-may-not-be-recovered = Ihre Browser-Daten werden möglicherweise nicht wiederhergestellt
-password-reset-previously-signed-in-device-2 = Haben Sie ein Gerät auf dem Sie sich zuvor angemeldet haben?
-password-reset-data-may-be-saved-locally-2 = Möglicherweise sind Ihre Browser-Daten auf diesem Gerät gespeichert. Setzen Sie Ihr Passwort zurück und melden Sie sich dort an, um Ihre Daten wiederherzustellen und zu synchronisieren.
-password-reset-no-old-device-2 = Sie haben ein neues Gerät, aber Sie haben keinen Zugriff auf Ihre alten?
-password-reset-encrypted-data-cannot-be-recovered-2 = Es tut uns leid, aber Ihre verschlüsselten Browser-Daten auf { -brand-firefox }-Servern können nicht wiederhergestellt werden.
+password-reset-warning-review-sign-in-options = Überprüfen Sie die Anmeldeoptionen, um die Browser-Daten zu behalten
 password-reset-warning-have-key = Haben Sie einen Kontowiederherstellungsschlüssel?
-password-reset-warning-use-key-link = Verwenden Sie ihn jetzt, um Ihr Passwort zurückzusetzen und Ihre Daten zu behalten
+password-reset-warning-use-key-link-v2 = Verwenden Sie es, um Ihr Passwort zurückzusetzen und Ihre Browser-Daten zu behalten
+password-reset-warning-signed-in-device = Sind Sie noch auf einem anderen Gerät angemeldet?
+password-reset-warning-signed-in-device-description = Möglicherweise sind Ihre Browser-Daten verfügbar. Setzen Sie Ihr Passwort zurück und melden Sie sich auf dem Gerät an, um Ihre Daten wiederherzustellen und zu synchronisieren.
+password-reset-warning-restore-data-link = Erfahren Sie, wie Sie Browser-Daten von einem angemeldeten Gerät wiederherstellen
+password-reset-warning-new-device = Verwenden Sie ein neues Gerät, können aber nicht auf Ihre alten zugreifen?
+password-reset-warning-new-device-description = Nachdem Sie Ihr Passwort zurückgesetzt haben, sind verschlüsselte Browser-Daten auf den Servern von { -brand-firefox } auf diesem Gerät nicht mehr verfügbar.
 
 
 alert-bar-close-message = Nachricht schließen
@@ -1363,7 +1365,7 @@ confirm-totp-reset-password-use-different-account = Ein anderes Konto verwenden
 
 
 password-reset-flow-heading = Setzen Sie Ihr Passwort zurück
-password-reset-body-2 = Wir bitten Sie um ein paar Dinge, die nur Sie wissen, um Ihr Konto zu schützen.
+password-reset-body-3 = Das Zurücksetzen Ihres Passworts kann sich auf synchronisierte Browser-Daten auswirken.
 password-reset-email-input =
     .label = E-Mail-Adresse eingeben
 password-reset-submit-button-2 = Weiter
@@ -1449,6 +1451,7 @@ signin-passkey-fallback-heading = Geben Sie zum Synchronisieren Ihr Passwort ein
 signin-passkey-fallback-body = Um Ihre Daten zu schützen, müssen Sie Ihr Passwort eingeben, wenn Sie diesen Zugangsschlüssel verwenden.
 signin-passkey-fallback-password-label = Passwort
 signin-passkey-fallback-continue = Weiter
+signin-passkey-fallback-forgot-password-link = Passwort vergessen?
 
 
 

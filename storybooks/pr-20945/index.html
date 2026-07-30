@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ad9ff3dbcaab53d332ad5a4431d28a69a7f80aed</title>
+  <title>Storybooks for commit fb43057482bcc413dbdfafa5785fdb04c40d163d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ad9ff3dbcaab53d332ad5a4431d28a69a7f80aed</h1>
+  <h1>Storybooks for commit fb43057482bcc413dbdfafa5785fdb04c40d163d</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/30/2026, 8:52:06 PM UTC</dd>
+    <dd>7/30/2026, 10:10:22 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(cms): record statsd timings for free access program cache lookups</pre></dd>
     <dt>Description</dt>
@@ -39,9 +39,16 @@
 * Free access program cache lookups had no telemetry.
 
 This commit:
+* how long do I have to type for unti lti goes onto the next line by its
 
-* Emits cms_free_access_request statsd timings from the memory and Firestore cache strategies.
-* Injects StatsD into FreeAccessProgramConfigurationManager and updates its call sites.
+* Emits cms_free_access_request statsd timings from the memory and
+  Firestore cache strategies.
+* Injects StatsD into FreeAccessProgramConfigurationManager and updates
+  its call sites.
+* Adds membership.check, reconcile fan-out + journal-load timings, and
+  webhook outcome counters under free_access_program.*.
+* Times the uncached projection fetch inside getFreshProjection and wires
+  statsd into the auth-server webhook route.
 
 Closes #PAY-3875</pre></dd>
   </dl>

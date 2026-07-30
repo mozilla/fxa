@@ -484,18 +484,13 @@ flow-recovery-key-hint-char-limit-error = 힌트는 255자 미만이어야 합�
 flow-recovery-key-hint-unsafe-char-error = 힌트에는 안전하지 않은 유니코드 문자가 포함될 수 없습니다. 문자, 숫자, 구두점 및 기호만 허용됩니다.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = 경고
 password-reset-chevron-expanded = 경고 접기
 password-reset-chevron-collapsed = 경고 펼치기
-password-reset-data-may-not-be-recovered = 브라우저 데이터가 복구되지 않을 수 있습니다.
-password-reset-previously-signed-in-device-2 = 이전에 로그인한 기기가 있나요?
-password-reset-data-may-be-saved-locally-2 = 브라우저 데이터가 해당 기기에 저장되었을 수 있습니다. 비밀번호를 재설정한 뒤 기기에 로그인하여 데이터를 복구하고 동기화하세요.
-password-reset-no-old-device-2 = 새 기기는 있지만 이전 기기에 접근할 수 없나요?
-password-reset-encrypted-data-cannot-be-recovered-2 = 죄송합니다. { -brand-firefox } 서버에서 암호화된 브라우저 데이터를 복구할 수 없습니다.
 password-reset-warning-have-key = 계정 복구 키가 있나요?
-password-reset-warning-use-key-link = 지금 사용하여 비밀번호를 재설정하고 데이터를 유지하세요.
 
 ## Alert Bar
 
@@ -1822,9 +1817,6 @@ confirm-totp-reset-password-use-different-account = 다른 계정 사용
 ## ResetPassword start page
 
 password-reset-flow-heading = 비밀번호 재설정
-password-reset-body-2 =
-    계정을 안전하게 유지하기 위해 사용자만 아는 몇 가지 사항을
-    묻겠습니다.
 password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속

@@ -453,15 +453,13 @@ flow-recovery-key-hint-cta-text = Završi
 flow-recovery-key-hint-char-limit-error = Savjet mora sadržati manje od 255 znakova.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Upozorenje
 password-reset-chevron-expanded = Sklopi upozorenje
 password-reset-chevron-collapsed = Rasklopi upozorenje
-password-reset-data-may-not-be-recovered = Podaci tvog preglednika se možda neće oporaviti
-password-reset-previously-signed-in-device-2 = Imaš neki uređaj na kojem si se prethodno prijavio/la?
 password-reset-warning-have-key = Imaš ključ za obnavljanje računa?
-password-reset-warning-use-key-link = Upotrijebi ga sada za ponovno postavljanje lozinke i zadržavanje podataka
 
 ## Alert Bar
 

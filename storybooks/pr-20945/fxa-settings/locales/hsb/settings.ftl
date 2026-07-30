@@ -510,18 +510,13 @@ flow-recovery-key-hint-char-limit-error = Pokiw dyrbi mjenje hač 255 znamješko
 flow-recovery-key-hint-unsafe-char-error = Pokiw njesmě njewěste znamješka Unicode wobsahować. Jenož pismiki, ličby, interpunkciske znamješka a symbole su dowolene.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Warnowanje
 password-reset-chevron-expanded = Warnowanje schować
 password-reset-chevron-collapsed = Warnowanje pokazać
-password-reset-data-may-not-be-recovered = Daty wašeho wobhladowaka so snano njewobnowja
-password-reset-previously-signed-in-device-2 = Maće grat, hdźež sće so do toho přizjewił?
-password-reset-data-may-be-saved-locally-2 = Daty wašeho wobhladowaka su snano na tym graće składowane. Stajće swoje hesło wróćo, přizjewće so potom tam, zo byšće swoje daty wobnowił a synchronizował.
-password-reset-no-old-device-2 = Maće nowy grat, ale nimaće přistup k swojim staršim?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nam žel, ale waše zaklučowane daty wobhladowaka na serwerach { -brand-firefox } njedadźa so wobnowić.
 password-reset-warning-have-key = Maće kontowy wobnowjenski kluč?
-password-reset-warning-use-key-link = Wužiwajće jón nětko, zo byšće swoje hesło wróćo stajił a swoje daty wobchował
 
 ## Alert Bar
 
@@ -1969,9 +1964,6 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 ## ResetPassword start page
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
-password-reset-body-2 =
-    Prašamy so za někotrymi wěcami, kotrež jenož wy wěsće, zo bychmy waše konto
-    wěste dźerželi.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale

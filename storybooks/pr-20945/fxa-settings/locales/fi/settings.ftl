@@ -472,17 +472,13 @@ flow-recovery-key-hint-char-limit-error = Vihje saa sisältää alle 255 merkki�
 flow-recovery-key-hint-unsafe-char-error = Vihje ei saa sisältää vaarallisia unicode-merkkejä. Vain kirjaimet, numerot, välimerkit ja symbolit ovat sallittuja.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Varoitus
 password-reset-chevron-expanded = Supista varoitus
 password-reset-chevron-collapsed = Laajenna varoitus
-password-reset-data-may-not-be-recovered = Selaimen tietoja ei välttämättä palauteta
-password-reset-previously-signed-in-device-2 = Onko sinulla laitetta, jolla olet aiemmin kirjautunut?
-password-reset-no-old-device-2 = Onko sinulla uusi laite, mutta et pääse käyttämään aiempia laitteitasi?
-password-reset-encrypted-data-cannot-be-recovered-2 = Olemme pahoillamme, mutta salattuja selaintietojasi { -brand-firefox }-palvelimilla ei voida palauttaa.
 password-reset-warning-have-key = Onko sinulla tilin palautusavain?
-password-reset-warning-use-key-link = Käytä sitä nyt salasanan vaihtamiseen ja tietojesi säilyttämiseen
 
 ## Alert Bar
 
