@@ -1,3 +1,10 @@
 repo_name: "Firefox Accounts (mozilla/fxa)"
-node_version: "24"
+# Must match .nvmrc exactly — fxa's preinstall check (_scripts/check-node-version.sh)
+# requires the exact version, so "24" (-> latest 24.x) fails the install.
+node_version: "24.15.0"
 install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds"
+
+investigate:
+  # Let BLEnder close alerts it judges as not affecting our code.
+  # Only low/medium are auto-dismissed; critical/high always require a real fix.
+  dismiss_unaffected: true
