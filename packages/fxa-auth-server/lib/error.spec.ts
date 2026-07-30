@@ -136,17 +136,17 @@ describe('AppErrors', () => {
   });
 
   it('tooManyRequests', () => {
-    let result = AppError.tooManyRequests(900, 'in 15 minutes');
+    let result = AppError.tooManyRequests(900_000, 'in 15 minutes');
     expect(result instanceof AppError).toBe(true);
     expect(result.errno).toBe(114);
     expect(result.message).toBe('Client has sent too many requests');
     expect(result.output.statusCode).toBe(429);
     expect(result.output.payload.error).toBe('Too Many Requests');
-    expect(result.output.payload.retryAfter).toBe(900);
+    expect(result.output.payload.retryAfter).toBe(900_000);
     expect(result.output.payload.retryAfterLocalized).toBe('in 15 minutes');
 
-    result = AppError.tooManyRequests(900);
-    expect(result.output.payload.retryAfter).toBe(900);
+    result = AppError.tooManyRequests(900_000);
+    expect(result.output.payload.retryAfter).toBe(900_000);
     expect(result.output.payload.retryAfterLocalized).toBeUndefined();
   });
 

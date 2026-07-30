@@ -20,7 +20,7 @@ Where a 'section' is separated by ':' and leading and trailing whitespace within
 Note that comments can be added by starting a line with '#'.
 
 - action - this is the user action being checked. e.g. loginAttempt.
-- blockOn - this is the property we are checking. Options are ip, email, ip_email, and uid.
+- blockOn - this is the property we are checking. Options are ip, email, ip_email, ip_uid, uid, and token.
 - maxAttempts - the number of tries until the rule is considered violated and block (or ban) occurs
 - windowDuration - this the time span over which actions are counted. Once the window ends, actions are allowed again.
 - blockDuration - this is how long the block (or ban) lasts. Note that while active, attempts are being not counted!
@@ -33,6 +33,7 @@ Note that comments can be added by starting a line with '#'.
 - email - The user's email. This is useful only when the account isn't known and for some reason, we don't want to use ip_email.
 - uid - The user's account id. This can be useful from stopping a user that has logged in from doing something malicious, like trying to mine data.
 - ip_uid - The user's IP with the user's uid appended. This is useful for ensuring that one user can be impacted by another user's experience.
+- token - The hash of a credential the caller presented. This is useful for actions that must be checked before the account behind the credential is known.
 
 ### The 'default' Rule
 

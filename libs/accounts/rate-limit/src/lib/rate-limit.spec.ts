@@ -57,6 +57,36 @@ describe('rate-limit', () => {
     expect(rateLimit.supportsAction('foo')).toBeTruthy();
   });
 
+  it.each(['token', 'ip_uid'] as const)(
+    'short circuits on a ban held against %s',
+    async (blockingOn) => {
+      const blockedValue = 'a'.repeat(64);
+      const banKey = `rate-limit:ban:${blockingOn}=${blockedValue}`;
+      const ban: BlockRecord = {
+        action: 'tokenExchange',
+        usedDefaultRule: false,
+        blockingOn,
+        blockedValue,
+        startTime: MOCK_NOW,
+        duration: 900,
+        attempts: 6,
+        reason: TOO_MANY_ATTEMPTS,
+        policy: 'ban',
+      };
+      redis.get = jest.fn(async (key: string) =>
+        key === banKey ? JSON.stringify(ban) : null
+      ) as unknown as Redis['get'];
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+
+      const result = await rateLimit.check('tokenExchange', {
+        [blockingOn]: blockedValue,
+      });
+
+      expect(result?.blockingOn).toBe(blockingOn);
+      expect(result?.policy).toBe('ban');
+    }
+  );
+
   it('throws if no action can be found', async () => {
     rateLimit = new RateLimit({ rules: {} }, redis, statsd);
     expect(rateLimit.check('foo', {})).rejects.toThrow(
@@ -73,30 +103,35 @@ describe('rate-limit', () => {
           'testEmail:email:1:1s:1s:block',
           'testUid:uid:1:1s:1s:block',
           'testIpUid:ip_uid:1:1s:1s:block',
+          'testToken:token:1:1s:1s:block',
         ]),
       },
       redis,
       statsd
     );
 
-    expect(rateLimit.check('testIp', {})).rejects.toThrow(
+    await expect(rateLimit.check('testIp', {})).rejects.toThrow(
       `A rule for the 'testIp' action requires that 'ip' is provided as an option.`
     );
 
-    expect(rateLimit.check('testEmail', {})).rejects.toThrow(
+    await expect(rateLimit.check('testEmail', {})).rejects.toThrow(
       `A rule for the 'testEmail' action requires that 'email' is provided as an option.`
     );
 
-    expect(rateLimit.check('testUid', {})).rejects.toThrow(
+    await expect(rateLimit.check('testUid', {})).rejects.toThrow(
       `A rule for the 'testUid' action requires that 'uid' is provided as an option.`
     );
 
-    expect(rateLimit.check('testIpEmail', {})).rejects.toThrow(
+    await expect(rateLimit.check('testIpEmail', {})).rejects.toThrow(
       `A rule for the 'testIpEmail' action requires that 'ip_email' is provided as an option.`
     );
 
-    expect(rateLimit.check('testIpUid', {})).rejects.toThrow(
+    await expect(rateLimit.check('testIpUid', {})).rejects.toThrow(
       `A rule for the 'testIpUid' action requires that 'ip_uid' is provided as an option.`
+    );
+
+    await expect(rateLimit.check('testToken', {})).rejects.toThrow(
+      `A rule for the 'testToken' action requires that 'token' is provided as an option.`
     );
   });
 
@@ -536,13 +571,14 @@ describe('rate-limit', () => {
         test        : uid                :  1           : 30 seconds            : 1 day          : block
         test        : ip_email           :  100         : 10 seconds            : 1 Month        : block
         test        : ip_uid             :  100         : 10 seconds            : 1 Month        : block
+        test        : token              :  5           : 10 seconds            : 1 Month        : block
         testBan     : ip                 :  100         : 10 seconds            : 1 Month        : ban
         testReport  : ip                 :  10          : 10 seconds            : 1 Month        : report
       `);
       let rules = ruleSet['test'];
 
       expect(rules).toBeDefined();
-      expect(rules.length).toEqual(5);
+      expect(rules.length).toEqual(6);
 
       expect(rules[0]).toBeDefined();
       expect(rules[0].maxAttempts).toEqual(1);
@@ -578,6 +614,13 @@ describe('rate-limit', () => {
       expect(rules[4].blockDurationInSeconds).toEqual(2592000);
       expect(rules[4].blockPolicy).toEqual('block');
 
+      expect(rules[5]).toBeDefined();
+      expect(rules[5].maxAttempts).toEqual(5);
+      expect(rules[5].blockingOn).toEqual('token');
+      expect(rules[5].windowDurationInSeconds).toEqual(10);
+      expect(rules[5].blockDurationInSeconds).toEqual(2592000);
+      expect(rules[5].blockPolicy).toEqual('block');
+
       rules = ruleSet['testBan'];
       expect(rules[0].maxAttempts).toEqual(100);
       expect(rules[0].blockingOn).toEqual('ip');
@@ -602,6 +645,21 @@ describe('rate-limit', () => {
         test     : ip                 :  1           :   1 second            : 1s             : block
       `)
       ).toThrow(/Invalid configuration! Duplicates detected:/);
+    });
+
+    it.each(['ip', 'email', 'uid', 'ip_email', 'ip_uid', 'token'])(
+      'accepts %s as a blockOn',
+      (blockOn) => {
+        expect(() =>
+          parseConfigRules(`test:${blockOn}:1:1s:1s:block`)
+        ).not.toThrow();
+      }
+    );
+
+    it('rejects an unknown blockOn', () => {
+      expect(() => parseConfigRules('test:sessionId:1:1s:1s:block')).toThrow(
+        /Blocking on must be ip, email, uid, ip_email, ip_uid, or token/
+      );
     });
 
     it('throws on malformed rule', () => {

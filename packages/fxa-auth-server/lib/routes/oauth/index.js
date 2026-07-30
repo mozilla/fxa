@@ -8,7 +8,8 @@ module.exports = (
   devices,
   statsd,
   glean,
-  authServerCacheRedis
+  authServerCacheRedis,
+  customs
 ) => {
   const routes = [
     require('./authorization')({ log, oauthDB, config, statsd }),
@@ -29,6 +30,7 @@ module.exports = (
       statsd,
       glean,
       authServerCacheRedis,
+      customs,
     }),
     require('./verify')({ log, glean }),
   ].flat();

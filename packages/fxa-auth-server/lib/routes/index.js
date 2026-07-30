@@ -88,7 +88,8 @@ module.exports = function (
     devicesImpl,
     statsd,
     glean,
-    authServerCacheRedis
+    authServerCacheRedis,
+    customs
   );
   const oauthRoutes = oauth.map((route) => ({
     path: route.path,

@@ -26,6 +26,7 @@ const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 const { logErrorWithGlean } = require('./metrics/glean');
+const { retryAfterHeaderValue } = require('@fxa/accounts/errors');
 const mfa = require('./routes/auth-schemes/mfa');
 const verifiedSessionToken = require('./routes/auth-schemes/verified-session-token');
 
@@ -409,6 +410,17 @@ async function create(
       response = error.translate(request, response, oauthRoutes);
       if (config.env !== 'prod') {
         response.backtrace(request.app.traced);
+      }
+
+      // Clients need Retry-After to back off; payload is ms, header is seconds.
+      if (
+        response.output?.statusCode === 429 &&
+        !response.output.headers?.['retry-after']
+      ) {
+        response.header(
+          'retry-after',
+          retryAfterHeaderValue(response.output.payload?.retryAfter)
+        );
       }
     }
     response.header('Timestamp', `${Math.floor(Date.now() / 1000)}`);

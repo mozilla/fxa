@@ -202,3 +202,11 @@ passwordlessVerifyOtp                  : ip               : 100         : 24 hou
 passwordlessVerifyOtpPerDay            : ip_email         : 10          : 24 hours        : 24 hours     : block
 passwordlessVerifyOtpPerDay            : email            : 20          : 24 hours        : 24 hours     : block
 passwordlessVerifyOtpPerDay            : ip               : 100         : 24 hours        : 15 minutes   : ban
+
+#
+# Token Exchange (RFC 8693)
+# A successful exchange revokes the subject token, so a repeat with the same token is a retry of
+# a rejection. Counting on the token hash throttles the looping client without affecting others.
+#
+tokenExchange                          : token            : 5           : 15 minutes      : 15 minutes   : block
+tokenExchange                          : ip               : 100         : 15 minutes      : 15 minutes   : block

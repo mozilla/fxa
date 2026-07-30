@@ -88,6 +88,7 @@ const tokenRoutesArgMocks = {
   statsd: mockStatsD,
   glean: mockGlean,
   authServerCacheRedis: mockAuthServerCacheRedis,
+  customs: { checkToken: jest.fn().mockResolvedValue(undefined) },
 };
 
 // Captured at module scope so beforeAll's set and afterAll's remove use the
