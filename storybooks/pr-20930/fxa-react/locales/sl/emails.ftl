@@ -96,8 +96,8 @@ automated-email-reset-pwd-two-factor = Če tega niste storili vi, takoj <a data-
 automated-email-reset-pwd-plaintext-v3 = Če tega dejanja niste storili vi, takoj ponastavite geslo:
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = Ponastavite tudi overitev v dveh korakih:
-automated-email-sign-in = To je samodejno sporočilo; če niste sprožili tega dejanja, <a data-l10n-name="securitySettingsLink">preglejte varnostne nastavitve računa</a>. Za več informacij obiščite <a data-l10n-name="supportLink">podporo za { -brand-mozilla }</a>.
-automated-email-sign-in-plaintext = Če niste vi sprožili tega dejanja, si oglejte varnostne nastavitve računa na:
+automated-email-sign-in = To je samodejno sporočilo; če tega dejanja niste sprožili vi, <a data-l10n-name="securitySettingsLink">preglejte varnostne nastavitve računa</a>. Za več informacij obiščite <a data-l10n-name="supportLink">podporo { -brand-mozilla }</a>.
+automated-email-sign-in-plaintext = Če tega dejanja niste sprožili vi, si oglejte varnostne nastavitve računa na:
 brand-banner-message = Ali ste vedeli, da smo se preimenovali iz { -product-firefox-accounts } v { -product-mozilla-accounts }? <a data-l10n-name="learnMore">Več o tem</a>
 change-password-plaintext = Če slutite, da nekdo poskuša pridobiti dostop do vašega računa, spremenite geslo.
 manage-account = Upravljanje računa
@@ -263,10 +263,10 @@ postAddLinkedAccount-subject-2 = Nov račun povezan z vašim { -product-mozilla-
 postAddLinkedAccount-title-2 = Vaš račun { $providerName } se je povezal z vašim { -product-mozilla-account(sklon: "orodnik") }
 postAddLinkedAccount-action = Upravljanje računa
 postAddPasskey-subject = Ključ za dostop ustvarjen
-postAddPasskey-preview = Zdaj lahko za prijavo uporabljate svojo napravo
+postAddPasskey-preview = Zdaj lahko za prijavo uporabite svojo napravo
 postAddPasskey-title = Ustvarili ste ključ za dostop
 postAddPasskey-description = Zdaj ga lahko uporabljate za prijavo v vse svoje storitve { -product-mozilla-account }.
-postAddPasskey-sync-note = Upoštevajte, da bo geslo še naprej zahtevano za dostop do podatkov za sinhronizacijo { -brand-firefox }.
+postAddPasskey-sync-note = Upoštevajte, da bo geslo še naprej zahtevano za dostop do sinhroniziranih podatkov { -brand-firefox(sklon: "rodilnik") }.
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Več o tem
 postAddPasskey-requested-from = To ste zahtevali z naslednje naprave:
@@ -342,7 +342,7 @@ postRemoveAccountRecovery-action = Upravljanje računa
 postRemovePasskey-subject = Ključ za dostop izbrisan
 postRemovePasskey-preview = Ključ za dostop je bil odstranjen iz vašega računa
 postRemovePasskey-title = Izbrisali ste svoj Ključ za dostop
-postRemovePasskey-description = Za prijavo boste morali uporabiti drug način.
+postRemovePasskey-description = Uporabiti boste morali drug način prijave.
 postRemovePasskey-requested-from = To ste zahtevali z naslednje naprave:
 postRemovePasskey-action = Upravljanje računa
 postRemoveRecoveryPhone-subject = Telefonska številka za obnovitev je odstranjena

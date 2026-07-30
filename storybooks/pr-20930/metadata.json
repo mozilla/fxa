@@ -1,8 +1,8 @@
 {
-  "commit": "c5da6ca3b4f6408bf68fd3221f4aeca491405e3f",
+  "commit": "4aaf218e3ca8e1870470209707427efa2f5291fe",
   "summary": "chore(deps): bump tar from 7.4.3 to 7.5.22",
   "description": "Bumps [tar](https://github.com/isaacs/node-tar) from 7.4.3 to 7.5.22.\n- [Release notes](https://github.com/isaacs/node-tar/releases)\n- [Changelog](https://github.com/isaacs/node-tar/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/isaacs/node-tar/compare/v7.4.3...v7.5.22)\n\n---\nupdated-dependencies:\n- dependency-name: tar\n  dependency-version: 7.5.22\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1785258719000,
+  "timestamp": 1785439963000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
