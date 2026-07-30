@@ -1,8 +1,8 @@
 {
-  "commit": "0338db38465c7617311658b4fac69e1a1be83c49",
-  "summary": "chore(deps-dev): bump postcss from 8.5.12 to 8.5.18",
-  "description": "Bumps [postcss](https://github.com/postcss/postcss) from 8.5.12 to 8.5.18.\n- [Release notes](https://github.com/postcss/postcss/releases)\n- [Changelog](https://github.com/postcss/postcss/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/postcss/postcss/compare/8.5.12...8.5.18)\n\n---\nupdated-dependencies:\n- dependency-name: postcss\n  dependency-version: 8.5.18\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1785163888000,
+  "commit": "65679341310b4ef553262260e183a1617fbdbf32",
+  "summary": "fix(ci): restore executable bit on check-node-version.sh",
+  "description": "Because:\n\n* The BLEnder fix commit (bd91a6dfcb) changed the file mode from 100755\n  to 100644 alongside its semver change. Yarn's root-workspace postinstall\n  then fails with \"permission denied: _scripts/check-node-version.sh\"\n  (exit code 128), so Init (PR) never completes.\n\nThis commit:\n\n* Restores mode 755. No content change.",
+  "timestamp": 1785439828000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

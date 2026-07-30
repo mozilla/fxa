@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 0338db38465c7617311658b4fac69e1a1be83c49</title>
+  <title>Storybooks for commit 65679341310b4ef553262260e183a1617fbdbf32</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 0338db38465c7617311658b4fac69e1a1be83c49</h1>
+  <h1>Storybooks for commit 65679341310b4ef553262260e183a1617fbdbf32</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/27/2026, 2:51:28 PM UTC</dd>
+    <dd>7/30/2026, 7:30:28 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps-dev): bump postcss from 8.5.12 to 8.5.18</pre></dd>
+    <dd><pre>fix(ci): restore executable bit on check-node-version.sh</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Bumps [postcss](https://github.com/postcss/postcss) from 8.5.12 to 8.5.18.
-- [Release notes](https://github.com/postcss/postcss/releases)
-- [Changelog](https://github.com/postcss/postcss/blob/main/CHANGELOG.md)
-- [Commits](https://github.com/postcss/postcss/compare/8.5.12...8.5.18)
+    <dd><pre>Because:
 
----
-updated-dependencies:
-- dependency-name: postcss
-  dependency-version: 8.5.18
-  dependency-type: direct:development
-...
+* The BLEnder fix commit (bd91a6dfcb) changed the file mode from 100755
+  to 100644 alongside its semver change. Yarn&#039;s root-workspace postinstall
+  then fails with &quot;permission denied: _scripts/check-node-version.sh&quot;
+  (exit code 128), so Init (PR) never completes.
 
-Signed-off-by: dependabot[bot] &lt;support@github.com&gt;</pre></dd>
+This commit:
+
+* Restores mode 755. No content change.</pre></dd>
   </dl>
 </body>
 </html>

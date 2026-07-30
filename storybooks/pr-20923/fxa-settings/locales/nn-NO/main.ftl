@@ -420,7 +420,7 @@ bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = { -brand-firefox }-nettlesaren for datamaskiner
-bento-menu-firefox-mobile = { -brand-firefox }-nettlesar for mobil
+bento-menu-firefox-mobile = { -brand-firefox }-nettlesaren for mobil
 bento-menu-made-by-mozilla = Laga av { -brand-mozilla }
 
 

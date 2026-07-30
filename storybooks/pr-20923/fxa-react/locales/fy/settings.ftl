@@ -1534,12 +1534,24 @@ passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. P
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Kin net oanmelde mei in wachtwurdkaai
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Probearje it opnij of brûk in oare oanmeldingsopsje.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Wachtwurdkaaien brûke
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Oanmelding mei wachtwurdkaai mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = It ynstellen fan in wachtwurdkaai is net beskikber op dit apparaat. Probearje it opnij of kies in oare metoade.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Wachtwurdkaaifersyk ferrûn. Probearje it opnij.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Wachttiid foar oanmelden mei wachtwurdkaai is ferrûn. Probearje it opnij.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Jo browser of apparaat stipet gjin wachtwurdkaaien.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
