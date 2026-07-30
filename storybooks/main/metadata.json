@@ -1,8 +1,8 @@
 {
-  "commit": "af6b334bbb5b62173c0f7e58a6487d50d678b987",
-  "summary": "Merge pull request #20944 from mozilla/chore/blender-dismiss-unaffected",
-  "description": "chore(blender): pin node_version to .nvmrc + enable dismiss_unaffected",
-  "timestamp": 1785436480000,
+  "commit": "2c9feb3fd455dbb16f95489f22c35aa51fede21e",
+  "summary": "Merge pull request #20946 from mozilla/chore/blender-bump-budget",
+  "description": "chore(blender): raise investigate/fix turn+budget caps for the fxa monorepo",
+  "timestamp": 1785447090000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

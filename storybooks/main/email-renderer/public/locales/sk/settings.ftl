@@ -510,18 +510,13 @@ flow-recovery-key-hint-char-limit-error = Pomôcka musí obsahovať menej ako 25
 flow-recovery-key-hint-unsafe-char-error = Pomôcka nemôže obsahovať nebezpečné znaky Unicode. Povolené sú iba písmená, čísla, interpunkčné znamienka a symboly.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Upozornenie
 password-reset-chevron-expanded = Zbaliť upozornenie
 password-reset-chevron-collapsed = Rozbaliť upozornenie
-password-reset-data-may-not-be-recovered = Údaje vášho prehliadača nemusia byť obnovené
-password-reset-previously-signed-in-device-2 = Máte nejaké zariadenie, na ktorom ste sa predtým prihlásili?
-password-reset-data-may-be-saved-locally-2 = Údaje vášho prehliadača môžu byť uložené v danom zariadení. Zmeňte svoje heslo a potom sa prihláste, aby ste obnovili a synchronizovali svoje údaje.
-password-reset-no-old-device-2 = Máte nové zariadenie, ale nemáte prístup k žiadnemu zo svojich predchádzajúcich?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nám ľúto, ale vaše šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } nie je možné obnoviť.
 password-reset-warning-have-key = Máte kľúč na obnovenie účtu?
-password-reset-warning-use-key-link = Použite ho teraz na zmenu hesla a uchovanie údajov
 
 ## Alert Bar
 
@@ -1964,7 +1959,6 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 ## ResetPassword start page
 
 password-reset-flow-heading = Zmena hesla
-password-reset-body-2 = Požiadame vás o niekoľko vecí, ktoré viete iba vy, aby ste si ponechali svoj účet v bezpečí.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať

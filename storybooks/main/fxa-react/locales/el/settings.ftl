@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = Η υπόδειξη πρέπει να 
 flow-recovery-key-hint-unsafe-char-error = Η υπόδειξη δεν μπορεί να περιέχει μη ασφαλείς χαρακτήρες Unicode. Επιτρέπονται μόνο γράμματα, αριθμοί, σημεία στίξης και σύμβολα.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Προειδοποίηση
 password-reset-chevron-expanded = Σύμπτυξη προειδοποίησης
 password-reset-chevron-collapsed = Ανάπτυξη προειδοποίησης
-password-reset-data-may-not-be-recovered = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να μην ανακτηθούν
-password-reset-previously-signed-in-device-2 = Είχατε συνδεθεί από κάποια συσκευή στο παρελθόν;
-password-reset-data-may-be-saved-locally-2 = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να έχουν αποθηκευτεί σε εκείνη τη συσκευή. Κάντε επαναφορά του κωδικού πρόσβασής σας και συνδεθείτε εκεί για να ανακτήσετε και να συγχρονίσετε τα δεδομένα σας.
-password-reset-no-old-device-2 = Έχετε μια νέα συσκευή, αλλά δεν έχετε πρόσβαση σε καμία από τις προηγούμενες;
-password-reset-encrypted-data-cannot-be-recovered-2 = Λυπούμαστε, αλλά δεν είναι δυνατή η ανάκτηση των κρυπτογραφημένων δεδομένων περιήγησής σας από τους διακομιστές του { -brand-firefox }.
 password-reset-warning-have-key = Διαθέτετε κλειδί ανάκτησης λογαριασμού;
-password-reset-warning-use-key-link = Χρησιμοποιήστε το τώρα για να επαναφέρετε τον κωδικό πρόσβασής σας και να διατηρήσετε τα δεδομένα σας
 
 ## Alert Bar
 
@@ -1956,9 +1951,6 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 ## ResetPassword start page
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
-password-reset-body-2 =
-    Θα σας ρωτήσουμε μερικά πράγματα που μόνο εσείς γνωρίζετε, προκειμένου
-    να διατηρήσουμε τον λογαριασμό σας ασφαλή.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια

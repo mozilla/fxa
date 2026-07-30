@@ -507,18 +507,13 @@ flow-recovery-key-hint-char-limit-error = Подсказка должна сод
 flow-recovery-key-hint-unsafe-char-error = Подсказка не может содержать небезопасные символы Юникода. Допускаются только буквы, цифры, знаки препинания и символы.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Предупреждение
 password-reset-chevron-expanded = Свернуть предупреждение
 password-reset-chevron-collapsed = Развернуть предупреждение
-password-reset-data-may-not-be-recovered = Данные вашего браузера могут быть не восстановлены
-password-reset-previously-signed-in-device-2 = У вас есть устройство, на котором вы ранее вошли в систему?
-password-reset-data-may-be-saved-locally-2 = Данные вашего браузера могут быть сохранены на этом устройстве. Сбросьте свой пароль, а затем войдите в аккаунт, чтобы восстановить и синхронизировать свои данные.
-password-reset-no-old-device-2 = У вас новое устройство, но у вас нет доступа к ни одному из предыдущих?
-password-reset-encrypted-data-cannot-be-recovered-2 = Извините, но ваши зашифрованные данные браузера на серверах { -brand-firefox } не могут быть восстановлены.
 password-reset-warning-have-key = У вас есть ключ восстановления аккаунта?
-password-reset-warning-use-key-link = Используйте его сейчас, чтобы сбросить пароль и сохранить свои данные
 
 ## Alert Bar
 
@@ -1958,7 +1953,6 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 ## ResetPassword start page
 
 password-reset-flow-heading = Сбросить пароль
-password-reset-body-2 = Мы спросим пару вещей, которые знаете только вы, чтобы ваш профиль был в безопасности.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить

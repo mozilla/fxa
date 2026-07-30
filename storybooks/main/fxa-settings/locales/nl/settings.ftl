@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = De hint moet minder dan 255 tekens bev
 flow-recovery-key-hint-unsafe-char-error = De hint mag geen onveilige Unicode-tekens bevatten. Alleen letters, cijfers, leestekens en symbolen zijn toegestaan.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Waarschuwing
 password-reset-chevron-expanded = Waarschuwing samenvouwen
 password-reset-chevron-collapsed = Waarschuwing uitvouwen
-password-reset-data-may-not-be-recovered = Uw browsergegevens worden mogelijk niet hersteld
-password-reset-previously-signed-in-device-2 = Hebt u een apparaat waarop u eerder bent aangemeld?
-password-reset-data-may-be-saved-locally-2 = Uw browsergegevens zijn mogelijk op dat apparaat opgeslagen. Stel uw wachtwoord opnieuw in en meld u daar aan om uw gegevens te herstellen en te synchroniseren.
-password-reset-no-old-device-2 = Hebt u een nieuw apparaat, maar hebt u geen toegang tot een van uw vorige?
-password-reset-encrypted-data-cannot-be-recovered-2 = Sorry, maar uw versleutelde browsergegevens op { -brand-firefox }-servers kunnen niet worden hersteld.
 password-reset-warning-have-key = Hebt u een accountherstelsleutel?
-password-reset-warning-use-key-link = Gebruik deze nu om uw wachtwoord te herinitialiseren en uw gegevens te behouden
 
 ## Alert Bar
 
@@ -1955,9 +1950,6 @@ confirm-totp-reset-password-use-different-account = Een andere account gebruiken
 ## ResetPassword start page
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
-password-reset-body-2 =
-    We vragen u een aantal dingen die alleen u weet om uw account
-    veilig te houden.
 password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan

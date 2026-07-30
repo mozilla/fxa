@@ -395,18 +395,13 @@ flow-recovery-key-hint-char-limit-error = このヒントは 255 文字以内に
 flow-recovery-key-hint-unsafe-char-error = ヒントに安全でないユニコードの制御文字等を含めることはできません。通常の文字、数字、句読点、記号のみが使用できます。
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = 警告
 password-reset-chevron-expanded = 警告を折りたたみます
 password-reset-chevron-collapsed = 警告を展開します
-password-reset-data-may-not-be-recovered = ブラウザーのデータは回復されないかもしれません
-password-reset-previously-signed-in-device-2 = 以前にログインした端末をお持ちの場合:
-password-reset-data-may-be-saved-locally-2 = ブラウザーのデータが端末に保存されているかもしれません。パスワードをリセットした後にその端末にログインすると、データを回復して同期します。
-password-reset-no-old-device-2 = 新しい端末はあるが、以前の端末にアクセスできない場合:
-password-reset-encrypted-data-cannot-be-recovered-2 = 残念ながら、{ -brand-firefox } サーバーの暗号化されたブラウザーデータは回復できません。
 password-reset-warning-have-key = アカウント回復キーをお持ちの場合:
-password-reset-warning-use-key-link = 今すぐ使用して、データを保持したままパスワードをリセットしてください。
 
 ## Alert Bar
 
@@ -1418,7 +1413,6 @@ confirm-totp-reset-password-use-different-account = 別のアカウントを使�
 ## ResetPassword start page
 
 password-reset-flow-heading = パスワードをリセット
-password-reset-body-2 = アカウントを安全に保つために、あなただけが知っていることをいくつか質問します。
 password-reset-email-input =
     .label = メールアドレスを入力
 password-reset-submit-button-2 = 続ける

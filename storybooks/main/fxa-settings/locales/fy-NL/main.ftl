@@ -390,13 +390,7 @@ flow-recovery-key-hint-unsafe-char-error = De hint mei gjin ûnfeilige Unicode-t
 password-reset-warning-icon = Warskôging
 password-reset-chevron-expanded = Warskôging ynklappe
 password-reset-chevron-collapsed = Warskôging útklappe
-password-reset-data-may-not-be-recovered = Jo browsergegevens wurde mooglik net wersteld
-password-reset-previously-signed-in-device-2 = Hawwe jo in apparaat dêr’t jo earder oanmeld binne?
-password-reset-data-may-be-saved-locally-2 = Jo browsergegevens binne mooglik op dat apparaat bewarre. Stel jo wachtwurd opnij yn en meld jo dêr oan om jo gegevens te werstellen en te syngronisearjen.
-password-reset-no-old-device-2 = Hawwe jo in nij apparaat, mar hawwe jo gjin tagong ta ien fan jo foarige?
-password-reset-encrypted-data-cannot-be-recovered-2 = It spyt ús, mar jo fersifere browsergegevens op { -brand-firefox }-servers kinne net weromhelle wurde.
 password-reset-warning-have-key = Hawwe jo in accountwerstelkaai?
-password-reset-warning-use-key-link = Brûk dizze no om jo wachtwurd te opnij yn te stellen en jo gegevens te behâlden
 
 
 alert-bar-close-message = Berjocht slute
@@ -1369,9 +1363,6 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
-password-reset-body-2 =
-    Wy freegje jo in pear dingen dy’t allinnich jo witte om jo account
-    feilich te hâlden.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean

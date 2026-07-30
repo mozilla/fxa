@@ -442,6 +442,7 @@ link-expired-new-link-button = Prejmi novo povezavo
 
 
 remember-password-text = Se spomnite gesla?
+remember-password-passkey-text = Imate ključ ali si ga spomnite?
 remember-password-signin-link = Prijava
 
 
@@ -515,13 +516,14 @@ flow-recovery-key-hint-unsafe-char-error = Namig ne sme vsebovati nevarnih znako
 password-reset-warning-icon = Opozorilo
 password-reset-chevron-expanded = Skrči opozorilo
 password-reset-chevron-collapsed = Razširi opozorilo
-password-reset-data-may-not-be-recovered = Podatkov brskalnika morda ne bo mogoče obnoviti
-password-reset-previously-signed-in-device-2 = Imate kakšno napravo, na kateri ste se že kdaj prej prijavili?
-password-reset-data-may-be-saved-locally-2 = Podatki brskalnika so morda shranjeni na tej napravi. Ponastavite geslo, nato pa se prijavite, s čimer boste obnovili in sinhronizirali podatke.
-password-reset-no-old-device-2 = Imate novo napravo, nimate pa dostopa do nobene izmed prejšnjih?
-password-reset-encrypted-data-cannot-be-recovered-2 = Žal nam je, toda šifriranih podatkov brskalnika iz { -brand-firefox }ovih strežnikov ni mogoče obnoviti.
+password-reset-warning-review-sign-in-options = Preglejte možnosti prijave za hranjenje podatkov brskalnika
 password-reset-warning-have-key = Imate ključ za obnovitev računa?
-password-reset-warning-use-key-link = Uporabite ga za ponastavitev gesla in ohranitev podatkov
+password-reset-warning-use-key-link-v2 = Uporabite ga za ponastavitev gesla in ohranitev podatkov brskalnika
+password-reset-warning-signed-in-device = Ste še vedno prijavljeni v drugi napravi?
+password-reset-warning-signed-in-device-description = Podatki brskalnika so morda na voljo. Ponastavite geslo in se prijavite v tej napravi za obnovitev in sinhronizacijo podatkov.
+password-reset-warning-restore-data-link = Naučite se, kako obnoviti podatke brskalnika iz prijavljene naprave
+password-reset-warning-new-device = Uporabljate novo napravo, vendar nimate dostopa do starih?
+password-reset-warning-new-device-description = Ko ponastavite geslo, šifrirani podatki brskalnika v strežnikih { -brand-firefox } ne bodo na voljo v tej napravi.
 
 
 alert-bar-close-message = Zapri sporočilo
@@ -1497,7 +1499,7 @@ confirm-totp-reset-password-use-different-account = Uporabi drug račun
 
 
 password-reset-flow-heading = Ponastavite geslo
-password-reset-body-2 = Vprašali bomo za nekaj stvari, ki jih veste samo vi, da zavarujemo vaš račun.
+password-reset-body-3 = Ponastavitev gesla lahko vpliva na sinhronizirane podatke brskalnika.
 password-reset-email-input =
     .label = Vnesite e-poštni naslov
 password-reset-submit-button-2 = Nadaljuj
@@ -1588,6 +1590,7 @@ signin-passkey-fallback-heading = Vnesite geslo za sinhronizacijo
 signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri uporabi tega gesla vnesti svoje geslo.
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
+signin-passkey-fallback-forgot-password-link = Pozabljeno geslo?
 
 
 

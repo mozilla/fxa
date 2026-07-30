@@ -393,6 +393,8 @@ link-expired-new-link-button = Hämta ny länk
 
 # immediately before remember-password-signin-link
 remember-password-text = Kom ihåg ditt lösenord?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du en lösenordsnyckel eller kom ihåg ditt lösenord?
 # link navigates to the sign in page
 remember-password-signin-link = Logga in
 
@@ -504,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = Tipset måste innehålla färre än 25
 flow-recovery-key-hint-unsafe-char-error = Tipset får inte innehålla osäkra unicode-tecken. Endast bokstäver, siffror, skiljetecken och symboler är tillåtna.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Varning
 password-reset-chevron-expanded = Fäll ihop varning
 password-reset-chevron-collapsed = Expandera varning
-password-reset-data-may-not-be-recovered = Din webbläsardata kanske inte kan återställas
-password-reset-previously-signed-in-device-2 = Har du någon enhet där du tidigare loggat in?
-password-reset-data-may-be-saved-locally-2 = Din webbläsardata kan vara sparad på den enheten. Återställ ditt lösenord och logga sedan in där för att återställa och synkronisera din data.
-password-reset-no-old-device-2 = Har du en ny enhet men har inte tillgång till någon av dina tidigare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi är ledsna, men din krypterade webbläsardata på { -brand-firefox }-servrar kan inte återställas.
+password-reset-warning-review-sign-in-options = Granska inloggningsalternativ för att spara webbläsardata
 password-reset-warning-have-key = Har du en kontoåterställningsnyckel?
-password-reset-warning-use-key-link = Använd den nu för att återställa ditt lösenord och spara din data
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Använd den för att återställa ditt lösenord och spara din webbläsardata
+password-reset-warning-signed-in-device = Fortfarande inloggad på en annan enhet?
+password-reset-warning-signed-in-device-description = Din webbläsardata kan vara tillgänglig. Återställ ditt lösenord och logga sedan in på den här enheten för att återställa och synkronisera din data.
+password-reset-warning-restore-data-link = Lär dig hur du återställer webbläsardata från en inloggad enhet
+password-reset-warning-new-device = Använder du en ny enhet men kan inte komma åt dina gamla?
+password-reset-warning-new-device-description = När du har återställt ditt lösenord kommer krypterad webbläsardata på { -brand-firefox } servrar inte att vara tillgängliga på den här enheten.
 
 ## Alert Bar
 
@@ -1954,9 +1959,7 @@ confirm-totp-reset-password-use-different-account = Använd ett annat konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Återställ ditt lösenord
-password-reset-body-2 =
-    Vi ber om ett par saker som bara du vet för att behålla ditt konto
-    säkert.
+password-reset-body-3 = Återställning av lösenordet kan påverka synkroniserad webbläsardata.
 password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
@@ -2081,6 +2084,7 @@ signin-passkey-fallback-heading = Ange ditt lösenord för att synkronisera
 signin-passkey-fallback-body = För att skydda din data måste du ange ditt lösenord när du använder denna lösenordsnyckel.
 signin-passkey-fallback-password-label = Lösenord
 signin-passkey-fallback-continue = Fortsätt
+signin-passkey-fallback-forgot-password-link = Glömt lösenordet?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
