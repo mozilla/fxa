@@ -8,3 +8,13 @@ investigate:
   # Let BLEnder close alerts it judges as not affecting our code.
   # Only low/medium are auto-dismissed; critical/high always require a real fix.
   dismiss_unaffected: true
+  # fxa is a large monorepo; defaults exhaust before Claude reaches a verdict.
+  # Turns set high so the $ budget is the effective governor.
+  max_claude_turns: 100
+  max_budget_usd: 6.00
+
+fix:
+  # Same monorepo-size reasoning for the auto-fix flow.
+  max_claude_turns: 100
+  max_budget_usd: 6.00
+  max_fix_attempts: 5
