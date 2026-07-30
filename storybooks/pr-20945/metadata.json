@@ -1,8 +1,8 @@
 {
-  "commit": "c63a93144cfa0c3a6dfd496d7352d37fae75b0d5",
+  "commit": "ad9ff3dbcaab53d332ad5a4431d28a69a7f80aed",
   "summary": "feat(cms): record statsd timings for free access program cache lookups",
   "description": "Because:\n\n* Free access program cache lookups had no telemetry.\n\nThis commit:\n\n* Emits cms_free_access_request statsd timings from the memory and Firestore cache strategies.\n* Injects StatsD into FreeAccessProgramConfigurationManager and updates its call sites.\n\nCloses #PAY-3875",
-  "timestamp": 1785442099000,
+  "timestamp": 1785444726000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
