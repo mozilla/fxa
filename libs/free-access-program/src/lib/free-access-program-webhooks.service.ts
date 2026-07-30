@@ -47,17 +47,23 @@ export class FreeAccessProgramWebhooksService {
 
     const classification = classifyAccessWebhook(body);
     if ('skip' in classification) {
+      this.statsd.increment('free_access_program.webhook.skipped', {
+        reason: classification.skip,
+      });
       return { handled: false, reason: classification.skip };
     }
 
     if (isDuplicateAccessWebhook(this.seenEvents, classification.dedupeKey, Date.now())) {
+      this.statsd.increment('free_access_program.webhook.duplicate');
       return { handled: true, dedupe: true };
     }
 
     try {
       await this.freeAccessManager.invalidateProjectionCache();
+      this.statsd.increment('free_access_program.webhook.invalidate.success');
     } catch (err) {
       // Swallow: the periodic cron sweep is the backstop.
+      this.statsd.increment('free_access_program.webhook.invalidate.error');
       this.logger.error('freeAccessProgramWebhook.invalidate.error', { err });
     }
 

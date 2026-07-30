@@ -4,6 +4,7 @@
 
 import { createMock } from '@golevelup/ts-jest';
 import Boom from '@hapi/boom';
+import type { StatsD } from 'hot-shots';
 
 import { freeAccessProgramWebhookRoutes } from './free-access-program-webhook';
 import { AuthLogger } from '../../types';
@@ -14,12 +15,14 @@ describe('freeAccessProgramWebhookRoutes', () => {
   let log: any;
   let strapiClient: { verifyWebhookSignature: jest.Mock };
   let reconciler: { reconcile: jest.Mock };
+  let statsd: jest.Mocked<Pick<StatsD, 'increment'>>;
 
   const route = () => {
     const routes = freeAccessProgramWebhookRoutes(
       log,
       strapiClient as any,
-      reconciler as any
+      reconciler as any,
+      statsd as unknown as StatsD
     );
     return routes[0];
   };
@@ -43,6 +46,7 @@ describe('freeAccessProgramWebhookRoutes', () => {
     log = createMock<AuthLogger>();
     strapiClient = { verifyWebhookSignature: jest.fn().mockReturnValue(true) };
     reconciler = { reconcile: jest.fn().mockResolvedValue({ changed: 0 }) };
+    statsd = { increment: jest.fn() } as jest.Mocked<Pick<StatsD, 'increment'>>;
   });
 
   it('registers the access webhook route', () => {
@@ -79,5 +83,54 @@ describe('freeAccessProgramWebhookRoutes', () => {
     const result = await invoke({ model: 'something-else' });
     expect(result).toEqual({ handled: false, reason: 'model' });
     expect(reconciler.reconcile).not.toHaveBeenCalled();
+  });
+
+  it('increments the auth.error counter on an invalid signature', async () => {
+    strapiClient.verifyWebhookSignature.mockReturnValue(false);
+
+    await expect(invoke()).rejects.toMatchObject({ isBoom: true });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.auth.error'
+    );
+  });
+
+  it('increments the skipped counter with the reason tag', async () => {
+    await invoke({ model: 'something-else' });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.skipped',
+      { reason: 'model' }
+    );
+  });
+
+  it('increments the duplicate counter on a replayed event', async () => {
+    // Reuse one handler so the dedupe map persists across both calls.
+    const handler = route().handler as any;
+    const request = {
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        event: 'entry.publish',
+        model: 'access',
+        entry: { documentId: 'ent-1' },
+      },
+    };
+
+    await handler(request);
+    await handler(request);
+
+    expect(reconciler.reconcile).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.duplicate'
+    );
+  });
+
+  it('increments reconcile.error and still returns handled when reconcile throws', async () => {
+    reconciler.reconcile.mockRejectedValue(new Error('boom'));
+
+    const result = await invoke();
+
+    expect(result).toEqual({ handled: true });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.reconcile.error'
+    );
   });
 });

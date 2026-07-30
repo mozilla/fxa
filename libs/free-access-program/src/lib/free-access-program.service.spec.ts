@@ -130,6 +130,34 @@ describe('FreeAccessProgramService', () => {
         await service.findCapabilitiesForEmail('USER@example.com')
       ).toEqual({ 'client-a': ['vpn'] });
     });
+
+    it('records a non-member membership check for a missing email', async () => {
+      await service.findCapabilitiesForEmail(null);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'false', lookup: 'email_capabilities' }
+      );
+    });
+
+    it('records a member membership check when capabilities are found', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      await service.findCapabilitiesForEmail('user@example.com');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'true', lookup: 'email_capabilities' }
+      );
+    });
+
+    it('records a non-member membership check when the email has no capabilities', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue({});
+      await service.findCapabilitiesForEmail('nobody@example.com');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'false', lookup: 'email_capabilities' }
+      );
+    });
   });
 
   describe('findOfferingIdsForEmail', () => {
@@ -158,6 +186,26 @@ describe('FreeAccessProgramService', () => {
       expect(
         await service.findOfferingIdsForEmail('nobody@example.com')
       ).toEqual([]);
+    });
+
+    it('records a member membership check when offerings are found', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] }, ['vpn'])]])
+      );
+      await service.findOfferingIdsForEmail('user@example.com');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'true', lookup: 'email_offerings' }
+      );
+    });
+
+    it('records a non-member membership check when the email has no offerings', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue({});
+      await service.findOfferingIdsForEmail('nobody@example.com');
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'false', lookup: 'email_offerings' }
+      );
     });
   });
 
@@ -245,6 +293,27 @@ describe('FreeAccessProgramService', () => {
         isMember: true,
         grantsByClient: {},
       });
+    });
+
+    it('records a non-member membership check when the uid has no email', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue(undefined);
+      await service.findFreeAccessForUid(UID);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'false', lookup: 'uid' }
+      );
+    });
+
+    it('records a member membership check when the uid resolves to a member', async () => {
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('user@example.com');
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      await service.findFreeAccessForUid(UID);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'true', lookup: 'uid' }
+      );
     });
   });
 
@@ -375,7 +444,7 @@ describe('FreeAccessProgramService', () => {
       );
     });
 
-    it('logs and continues when an individual notification rejects', async () => {
+    it('continues and records both notify.error and notify.success when one notification rejects', async () => {
       journalManager.get.mockResolvedValue({});
       configurationManager.getFreshProjection.mockResolvedValue(
         projection([
@@ -392,6 +461,23 @@ describe('FreeAccessProgramService', () => {
       expect(statsd.increment).toHaveBeenCalledWith(
         'free_access_program.reconcile.notify.error'
       );
+      // The second email still delivered, so success is counted alongside.
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.notify.success'
+      );
+    });
+
+    it('increments notify.success for each delivered notification', async () => {
+      journalManager.get.mockResolvedValue({});
+      configurationManager.getFreshProjection.mockResolvedValue(
+        projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+
+      await service.reconcile();
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.notify.success'
+      );
     });
 
     it('emits success metric and duration timing on a normal run', async () => {
@@ -405,6 +491,24 @@ describe('FreeAccessProgramService', () => {
       );
       expect(statsd.timing).toHaveBeenCalledWith(
         'free_access_program.reconcile.duration_ms',
+        expect.any(Number)
+      );
+    });
+
+    it('times the journal load, delegating projection timing to the manager', async () => {
+      journalManager.get.mockResolvedValue({});
+      configurationManager.getFreshProjection.mockResolvedValue({});
+
+      await service.reconcile();
+
+      expect(statsd.timing).toHaveBeenCalledWith(
+        'free_access_program.reconcile.load.journal_ms',
+        expect.any(Number)
+      );
+      // Projection timing is emitted inside getFreshProjection (the CMS
+      // manager), not by the service.
+      expect(statsd.timing).not.toHaveBeenCalledWith(
+        'free_access_program.reconcile.load.projection_ms',
         expect.any(Number)
       );
     });

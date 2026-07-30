@@ -72,11 +72,15 @@ async function main() {
   Container.set(FirestoreService as unknown as string, firestore);
   Container.set(Logger, log as unknown as Logger);
 
+  const statsd = Container.get(StatsD);
+  Container.set(StatsDService as unknown as string, statsd);
+
   const configurationManager = new FreeAccessProgramConfigurationManager(
     strapiClientConfig as unknown as StrapiClientConfig,
     strapiClient,
     firestore,
-    log as unknown as Logger
+    log as unknown as Logger,
+    statsd
   );
   Container.set(FreeAccessProgramConfigurationManager, configurationManager);
 
@@ -89,8 +93,6 @@ async function main() {
   );
   Container.set(FreeAccessProgramJournalManagerConfig, journalManagerConfig);
 
-  const statsd = Container.get(StatsD);
-  Container.set(StatsDService as unknown as string, statsd);
   const notifier = new FreeAccessInProcessNotifier(
     database,
     Container.get(ProfileClient),

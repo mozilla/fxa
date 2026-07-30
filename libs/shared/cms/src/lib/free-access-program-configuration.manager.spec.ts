@@ -4,10 +4,15 @@
 
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { StatsD } from 'hot-shots';
 
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 
-import { FreeAccessProgramConfigurationManager } from './free-access-program-configuration.manager';
+import {
+  deriveCacheTimingTags,
+  FreeAccessProgramConfigurationManager,
+} from './free-access-program-configuration.manager';
 import { StrapiClient } from './strapi.client';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
 
@@ -38,6 +43,7 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 describe('FreeAccessProgramConfigurationManager', () => {
   let manager: FreeAccessProgramConfigurationManager;
   let strapiClient: { queryUncached: jest.Mock };
+  let mockStatsd: StatsD;
 
   beforeEach(async () => {
     strapiClient = { queryUncached: jest.fn() };
@@ -45,6 +51,7 @@ describe('FreeAccessProgramConfigurationManager', () => {
       providers: [
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
+        MockStatsDProvider,
         { provide: StrapiClient, useValue: strapiClient },
         {
           provide: Logger,
@@ -54,6 +61,7 @@ describe('FreeAccessProgramConfigurationManager', () => {
       ],
     }).compile();
     manager = moduleRef.get(FreeAccessProgramConfigurationManager);
+    mockStatsd = moduleRef.get(StatsDService);
   });
 
   afterEach(() => {
@@ -145,6 +153,34 @@ describe('FreeAccessProgramConfigurationManager', () => {
       });
     });
 
+    it('emits a fresh cms_free_access_request timing', async () => {
+      jest.spyOn(mockStatsd, 'timing');
+      strapiClient.queryUncached.mockResolvedValue({ accesses: [] });
+
+      await manager.getFreshProjection();
+
+      expect(mockStatsd.timing).toHaveBeenCalledWith(
+        'cms_free_access_request',
+        expect.any(Number),
+        undefined,
+        {
+          method: 'query',
+          operationName: 'freeAccessProgramProjection',
+          error: 'false',
+          cache: 'false',
+          cacheType: 'fresh',
+        }
+      );
+    });
+
+    it('does not emit the timing when the fetch fails', async () => {
+      jest.spyOn(mockStatsd, 'timing');
+      strapiClient.queryUncached.mockRejectedValue(new Error('strapi-down'));
+
+      await expect(manager.getFreshProjection()).rejects.toThrow('strapi-down');
+      expect(mockStatsd.timing).not.toHaveBeenCalled();
+    });
+
     it('propagates errors from the Strapi client', async () => {
       strapiClient.queryUncached.mockRejectedValue(new Error('strapi-down'));
       await expect(manager.getFreshProjection()).rejects.toThrow(
@@ -215,4 +251,87 @@ describe('FreeAccessProgramConfigurationManager', () => {
       ).resolves.toBeUndefined();
     });
   });
+
+  describe('recordCacheTiming', () => {
+    it('emits a cms_free_access_request timing for a memory hit', () => {
+      jest.spyOn(mockStatsd, 'timing');
+
+      manager.recordCacheTiming('freeAccessProgramProjection', 'memory', 12, 'cache');
+
+      expect(mockStatsd.timing).toHaveBeenCalledWith(
+        'cms_free_access_request',
+        12,
+        undefined,
+        {
+          method: 'query',
+          operationName: 'freeAccessProgramProjection',
+          error: 'false',
+          cache: 'true',
+          cacheType: 'memory',
+        }
+      );
+    });
+
+    it('emits a stringified error/cache tag for a Firestore fallback', () => {
+      jest.spyOn(mockStatsd, 'timing');
+
+      manager.recordCacheTiming(
+        'freeAccessProgramAccessGrantsByClient',
+        'firestore',
+        34,
+        'fallback'
+      );
+
+      expect(mockStatsd.timing).toHaveBeenCalledWith(
+        'cms_free_access_request',
+        34,
+        undefined,
+        {
+          method: 'query',
+          operationName: 'freeAccessProgramAccessGrantsByClient',
+          error: 'true',
+          cache: 'true',
+          cacheType: 'fallback',
+        }
+      );
+    });
+
+    it('does not emit for a memory miss (recorded by the Firestore tier instead)', () => {
+      jest.spyOn(mockStatsd, 'timing');
+
+      manager.recordCacheTiming('freeAccessProgramProjection', 'memory', 5, 'method');
+
+      expect(mockStatsd.timing).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe('deriveCacheTimingTags', () => {
+  it('tags a memory hit as a non-error cache hit', () => {
+    expect(deriveCacheTimingTags('memory', 'cache')).toEqual({
+      error: false,
+      cache: true,
+      cacheType: 'memory',
+    });
+  });
+
+  it('returns null for a memory miss so it is not double-counted', () => {
+    expect(deriveCacheTimingTags('memory', 'method')).toBeNull();
+  });
+
+  it.each([
+    { result: 'method', error: false, cache: false },
+    { result: 'stale', error: false, cache: true },
+    { result: 'fallback', error: true, cache: true },
+    { result: 'fallbackFailed', error: true, cache: false },
+  ])(
+    'maps Firestore result "$result" to error=$error cache=$cache',
+    ({ result, error, cache }) => {
+      expect(deriveCacheTimingTags('firestore', result)).toEqual({
+        error,
+        cache,
+        cacheType: result,
+      });
+    }
+  );
 });
