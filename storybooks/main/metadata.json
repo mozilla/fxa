@@ -1,8 +1,8 @@
 {
-  "commit": "0dcc3b0b6a6fc803a8fa3993b34a22428e74eef8",
-  "summary": "Merge pull request #20656 from mozilla/dependabot/npm_and_yarn/opentelemetry-packages-0d92cf2f2f",
-  "description": "chore(deps): bump the opentelemetry-packages group across 1 directory with 5 updates",
-  "timestamp": 1785354047000,
+  "commit": "748e1fe16823b06d66df5a02c0099c3a4288fc6b",
+  "summary": "Merge pull request #20943 from mozilla/PAY-3843",
+  "description": "fix(payments): Update payments-api version to reflect correct commit and source",
+  "timestamp": 1785421076000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
