@@ -95,7 +95,7 @@ choose-newsletters-option-reclaim-the-internet =
 
 dark-mode-toggle-light = Svetla
 dark-mode-toggle-dark = Temna
-dark-mode-toggle-system = Sistem
+dark-mode-toggle-system = Sistemska
 dark-mode-toggle-label = Preklopi temo
 
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
@@ -167,12 +167,11 @@ device-info-ip-address = Naslov IP: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
-firefox-promo-banner-mobile-heading = Prejmite { -brand-firefox } ne glede na to, ali ste
+firefox-promo-banner-mobile-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } ne glede na to, kje ste
 firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
 firefox-promo-banner-mobile-cta = Povežite napravo
-firefox-promo-banner-switch-heading = Hitro preklop. Enostaven za namestitev.
 firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
-firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox }
+firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox(sklon: "tozilnik") }
 
 ## FormPasswordInlineCriteria
 
@@ -335,7 +334,7 @@ confetti-falling-image-aria-label =
     .aria-label = Animirani padajoči konfeti
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
-    .aria-label = Okno { -brand-firefox } z krožno značko, ki prikazuje zeleno kljukico, in “VPN”, ki kaže, da je VPN aktiven.
+    .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -443,7 +442,7 @@ promo-qr-mobile-heading = Vaš telefon. Vaša pravila.
 promo-qr-mobile-description = Skenirajte za prenos aplikacije
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
-    .alt = Koda QR za prenos mobilne aplikacije { -brand-firefox }. Nastavite kamero telefona v spodnji desni kot zaslona, da jo preberete.
+    .alt = Koda QR za prenos mobilne aplikacije { -brand-firefox }. Usmerite kamero telefona v spodnji desni kot zaslona, da jo preberete.
 
 ## Notification Promo Banner component
 
@@ -451,7 +450,7 @@ account-recovery-notification-cta = Ustvari
 account-recovery-notification-header-value = Ne izgubite podatkov, če pozabite geslo
 account-recovery-notification-header-description = Ustvarite ključ, ki omogoča obnovitev sinhroniziranih podatkov iz računa v primeru, da kadarkoli pozabite geslo.
 recovery-phone-promo-cta = Dodaj telefonsko številko za obnovitev
-recovery-phone-promo-heading = Dodatno zaščitite svoj račun s telefonsko številko za obnovitev
+recovery-phone-promo-heading = Dodatno zavarujte svoj račun s telefonsko številko za obnovitev
 recovery-phone-promo-description = Zdaj se lahko prijavite z enkratnim geslom preko sporočila SMS, če ne morete uporabiti aplikacije za overjanje v dveh korakih.
 recovery-phone-promo-info-link = Preberite več o tveganju pri obnovi in zamenjavi SIM-kartice
 promo-banner-dismiss-button =
@@ -615,7 +614,7 @@ cs-sign-out-button = Odjava
 # the device's refresh token is authorized for Firefox’s built-in VPN.
 # In this context, "VPN" is a VPN service built into the Firefox browser, and
 # generally isn’t localized differently than "VPN".
-cs-scope-firefox-vpn = { -brand-firefox }ov vgrajen VPN
+cs-scope-firefox-vpn = { -brand-firefox }ov vgrajeni VPN
 
 ## Data collection section
 
@@ -688,7 +687,7 @@ flow-recovery-key-info-cancel-link = Prekliči
 
 ## FlowSetup2faApp
 
-flow-setup-2fa-qr-heading = Povežite se z aplikacijo za overitev
+flow-setup-2fa-qr-heading = Povežite se z aplikacijo za overjanje
 # DEV NOTE: "2a" in the id should be "2fa". This typo is kept intentionally to
 # avoid losing existing translations; fix it when creating a new version of
 # this string.
@@ -1067,7 +1066,7 @@ recent-activity-password-reset-otp-sent = Potrditvena koda za ponastavitev gesla
 recent-activity-password-reset-otp-verified = Potrditvena koda za ponastavitev gesla potrjena
 recent-activity-must-reset-password = Zahtevana je ponastavitev gesla
 recent-activity-account-recovery-phone-replace-complete = Telefonska številka za obnovitev zamenjana
-recent-activity-account-recovery-phone-replace-failure = Zamenjava telefonske številke za obnovitev ni uspela
+recent-activity-account-recovery-phone-replace-failure = Menjava telefonske številke za obnovitev ni uspela
 recent-activity-account-two-factor-replace-success = Overitev v dveh korakih je zamenjana
 recent-activity-account-two-factor-replace-failure = Zamenjava overjanja v dveh korakih ni uspela
 recent-activity-account-recovery-phone-setup-failed = Nastavitev obnovitvene telefonske številke ni uspela
@@ -1079,11 +1078,11 @@ recent-activity-account-mfa-otp-sent = Zahtevano je pooblastilo za spremembe ra�
 recent-activity-account-mfa-otp-verified = Sprememba računa je dovoljena
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = Pooblastitev sprememb računa ni uspela
-recent-activity-account-passkey-registration-success = Geslo dodano
+recent-activity-account-passkey-registration-success = Ključ za dostop dodan
 recent-activity-account-passkey-registration-failure = Registracija ključa za dostop ni uspela
-recent-activity-account-passkey-removed = Geslo odstranjeno
-recent-activity-account-passkey-authentication-success = Prijava z geslom je zaključena
-recent-activity-account-passkey-authentication-failure = Prijava z geslom ni uspela
+recent-activity-account-passkey-removed = Ključ za dostop odstranjen
+recent-activity-account-passkey-authentication-success = Prijava s ključem za dostop opravljena
+recent-activity-account-passkey-authentication-failure = Prijava s ključem za dostop ni uspela
 recent-activity-account-passwordless-login-otp-sent = Koda za prijavo brez gesla poslana
 recent-activity-account-passwordless-login-otp-failed = Koda za prijavo brez gesla ni uspela
 recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez gesla je preverjena
@@ -1268,18 +1267,18 @@ passkey-delete-modal-cancel-button = Prekliči
 passkey-delete-modal-confirm-button = Izbriši ključ za dostop
 passkey-delete-success = Ključ za dostop izbrisan
 passkey-delete-error = Pri brisanju ključa za dostop je prišlo do težave. Poskusite znova čez nekaj minut.
-passkey-sub-row-rename-title = Preimenuj geslo
-passkey-rename-modal-heading = Preimenuj geslo
-passkey-rename-modal-description = Vnesite novo ime za to geslo.
-passkey-rename-input-label = Ime gesla
+passkey-sub-row-rename-title = Preimenuj ključ za dostop
+passkey-rename-modal-heading = Preimenuj ključ za dostop
+passkey-rename-modal-description = Vnesite novo ime za ta ključ za dostop.
+passkey-rename-input-label = Ime ključa za dostop
 passkey-rename-save-button = Shrani
 passkey-rename-cancel-button = Prekliči
-passkey-rename-error-empty = Vnesite ime za to geslo
+passkey-rename-error-empty = Vnesite ime za ta ključ za dostop
 passkey-rename-error-too-long = Ime mora vsebovati manj kot 256 znakov.
 passkey-rename-error-invalid = Dovoljene so samo črke, številke, ločila in simboli.
-passkey-rename-error-duplicate = Geslo s tem imenom že obstaja
-passkey-rename-success = Geslo preimenovano
-passkey-rename-error = Pri preimenovanju gesla je prišlo do težave. Poskusite znova čez nekaj minut.
+passkey-rename-error-duplicate = Ključ za dostop s tem imenom že obstaja
+passkey-rename-success = Ključ za dostop preimenovan
+passkey-rename-error = Pri preimenovanju ključa za dostop je prišlo do napake. Poskusite znova čez nekaj minut.
 
 ## Switch component
 
@@ -1478,7 +1477,7 @@ auth-error-227 = Overjanje s ključem za dostop ni uspelo
 auth-error-228 = Registracija ključa za dostop ni uspela
 auth-error-233 = Če želite ustvariti geslo, nastavite zaklepanje zaslona, PIN, prstni odtis ali prepoznavanje obraza v napravi ali varnostni ključ. Nato poskusite znova.
 auth-error-238 = Izziv gesla je spodletel
-auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če se težava ponovi.
+auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če težava vztraja.
 auth-error-999 = Nepričakovana napaka
 auth-error-1001 = Poskus prijave preklican
 auth-error-1002 = Seja je potekla. Za nadaljevanje se prijavite.
@@ -2113,10 +2112,10 @@ signin-passwordless-code-subheading = Če uporabljate to kodo, boste opravili sa
 #   expirationMinutes (Number) - the expiration time in minutes
 signin-passwordless-code-instruction =
     { $expirationMinutes ->
-        [one] Vnesite kodo, ki je bila poslana na <email>{ $email }</email>, v { $expirationMinutes } minuti.
-        [two] Vnesite kodo, ki je bila poslana na <email>{ $email }</email>, v { $expirationMinutes } minutah.
-        [few] Vnesite kodo, ki je bila poslana na <email>{ $email }</email>, v { $expirationMinutes } minutah.
-       *[other] Vnesite kodo, ki je bila poslana na <email>{ $email }</email>, v { $expirationMinutes } minutah.
+        [one] V { $expirationMinutes } minuti vnesite kodo, ki je bila poslana na <email>{ $email }</email>.
+        [two] V { $expirationMinutes } minutah vnesite kodo, ki je bila poslana na <email>{ $email }</email>.
+        [few] V { $expirationMinutes } minutah vnesite kodo, ki je bila poslana na <email>{ $email }</email>.
+       *[other] V { $expirationMinutes } minutah vnesite kodo, ki je bila poslana na <email>{ $email }</email>.
     }
 signin-passwordless-code-input-label-v2 = Vnesite 6-mestno kodo
 signin-passwordless-code-confirm-button = Potrdi
@@ -2322,10 +2321,10 @@ confirm-signup-code-resend-code-link = Pošlji novo kodo.
 # { $seconds } represents the number of seconds remaining
 confirm-signup-code-resend-code-countdown =
     { $seconds ->
-        [one] Pošljite novo kodo čez { $seconds } sekunde
-        [two] Pošljite novo kodo čez { $seconds } sekund
-        [few] Pošljite novo kodo čez { $seconds } sekund
-       *[other] Pošljite novo kodo čez { $seconds } sekund
+        [one] Pošlji novo kodo čez { $seconds } sekundo
+        [two] Pošlji novo kodo čez { $seconds } sekundi
+        [few] Pošlji novo kodo čez { $seconds } sekunde
+       *[other] Pošlji novo kodo čez { $seconds } sekund
     }
 confirm-signup-code-success-alert = Račun uspešno potrjen
 # Error displayed in tooltip.
