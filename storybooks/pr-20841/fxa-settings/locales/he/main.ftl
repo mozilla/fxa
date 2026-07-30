@@ -308,6 +308,7 @@ link-expired-new-link-button = קבלת קישור חדש
 
 
 remember-password-text = נזכרת בססמה שלך?
+remember-password-passkey-text = יש לך מפתח גישה או שנזכרת בססמה שלך?
 remember-password-signin-link = כניסה
 
 
@@ -381,13 +382,14 @@ flow-recovery-key-hint-unsafe-char-error = הרמז אינו יכול להכיל
 password-reset-warning-icon = אזהרה
 password-reset-chevron-expanded = צמצום האזהרה
 password-reset-chevron-collapsed = הרחבת האזהרה
-password-reset-data-may-not-be-recovered = ייתכן שנתוני הדפדפן שלך לא ישוחזרו
-password-reset-previously-signed-in-device-2 = יש לך מכשיר כלשהו שבו התחברת בעבר?
-password-reset-data-may-be-saved-locally-2 = ייתכן שנתוני הדפדפן שלך שמורים במכשיר ההוא. יש לאפס את הססמה שלך ולאחר מכן להתחבר שם כדי לשחזר ולסנכרן את הנתונים שלך.
-password-reset-no-old-device-2 = יש לך מכשיר חדש אבל אין לך גישה לאף אחד מהקודמים שלך?
-password-reset-encrypted-data-cannot-be-recovered-2 = אנו מצטערים, אך לא ניתן לשחזר את נתוני הדפדפן המוצפנים שלך שנמצאים בשרתי { -brand-firefox }.
+password-reset-warning-review-sign-in-options = כדאי לסקור את אפשרויות הכניסה כדי לשמור על נתוני הדפדפן
 password-reset-warning-have-key = יש לך מפתח לשחזור החשבון?
-password-reset-warning-use-key-link = ניתן להשתמש בו כעת כדי לאפס את הססמה שלך ולשמור את נתונים שלך
+password-reset-warning-use-key-link-v2 = ניתן להשתמש בו כדי לאפס את הססמה שלך ולשמור על הנתונים שלך
+password-reset-warning-signed-in-device = עדיין מחובר במכשיר אחר?
+password-reset-warning-signed-in-device-description = ייתכן שנתוני הדפדפן שלך עדיין זמינים. יש לאפס את הססמה שלך ולאחר מכן להתחבר במכשיר ההוא כדי לשחזר ולסנכרן את הנתונים שלך.
+password-reset-warning-restore-data-link = מידע נוסף על אופן שחזור נתוני דפדפן ממכשיר המחובר לחשבון
+password-reset-warning-new-device = יש לך מכשיר חדש אבל אין לך גישה לישנים שלך?
+password-reset-warning-new-device-description = לאחר איפוס הססמה שלך, נתוני דפדפן מוצפנים שנמצאים בשרתי { -brand-firefox } לא יהיו זמינים במכשיר זה.
 
 
 alert-bar-close-message = סגירת הודעה
@@ -1308,7 +1310,7 @@ confirm-totp-reset-password-use-different-account = שימוש בחשבון אח
 
 
 password-reset-flow-heading = איפוס הססמה שלך
-password-reset-body-2 = נשאל אותך כמה שאלות שהתשובות עליהן ידועות רק לך, כדי לשמור על החשבון שלך.
+password-reset-body-3 = איפוס הססמה שלך עשויה להשפיע על נתוני הדפדפן המסונכרנים.
 password-reset-email-input =
     .label = נא להכניס את כתובת הדוא״ל שלך
 password-reset-submit-button-2 = המשך
@@ -1391,6 +1393,7 @@ signin-passkey-fallback-heading = נא להכניס את הססמה שלך כד�
 signin-passkey-fallback-body = כדי לשמור על בטיחות הנתונים שלך, עליך להכניס את הססמה שלך בעת שימוש במפתח גישה זה.
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
+signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
 
 
 

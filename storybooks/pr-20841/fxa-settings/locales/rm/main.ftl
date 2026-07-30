@@ -294,13 +294,7 @@ flow-recovery-key-hint-unsafe-char-error = Il tip na dastga betg cuntegnair cara
 password-reset-warning-icon = Avertiment
 password-reset-chevron-expanded = Reducir l’avertiment
 password-reset-chevron-collapsed = Expander l’avertiment
-password-reset-data-may-not-be-recovered = Las datas da tes navigatur na pon eventualmain betg vegnir recuperadas
-password-reset-previously-signed-in-device-2 = Has ti in apparat sin il qual ti es gia annunzià?
-password-reset-data-may-be-saved-locally-2 = Las datas da tes navigatur èn eventualmain memorisadas sin lez apparat. Reinizialisescha tes pled-clav, t’annunzia lura là per recuperar e sincronisar tias datas.
-password-reset-no-old-device-2 = Has ti in nov apparat ma n’has betg access a tes apparats vegls?
-password-reset-encrypted-data-cannot-be-recovered-2 = Quai ans displascha, ma tias datas dal navigatur criptadas sin ils servers da { -brand-firefox } na pon betg vegnir recuperadas.
 password-reset-warning-have-key = Has ti ina clav da recuperaziun dal conto?
-password-reset-warning-use-key-link = L’utilisescha ussa per reinizialisar tes pled-clav e salvar tias datas
 
 
 alert-bar-close-message = Serrar il messadi
@@ -986,9 +980,6 @@ confirm-totp-reset-password-use-different-account = Utilisar in auter conto
 
 
 password-reset-flow-heading = Redefinir tes pled-clav
-password-reset-body-2 =
-    Nus vegnin a ta dumandar in pèr chaussas che mo ti sas, per che tes conto restia
-    segir.
 password-reset-email-input =
     .label = Endatescha tia adressa dad e-mail
 password-reset-submit-button-2 = Cuntinuar

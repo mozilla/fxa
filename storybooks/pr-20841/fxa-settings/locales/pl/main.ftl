@@ -520,13 +520,7 @@ flow-recovery-key-hint-unsafe-char-error = Wskazówka nie może zawierać niebez
 password-reset-warning-icon = Ostrzeżenie
 password-reset-chevron-expanded = Ukryj ostrzeżenie
 password-reset-chevron-collapsed = Pokaż ostrzeżenie
-password-reset-data-may-not-be-recovered = Dane Twojej przeglądarki mogą nie zostać odzyskane
-password-reset-previously-signed-in-device-2 = Masz jakieś urządzenie, na którym wcześniej się logowano?
-password-reset-data-may-be-saved-locally-2 = Dane Twojej przeglądarki mogą być zachowane na tym urządzeniu. Zmień hasło, a następnie zaloguj się na nim, aby odzyskać i zsynchronizować dane.
-password-reset-no-old-device-2 = Masz nowe urządzenie, ale nie masz dostępu do żadnego z poprzednich?
-password-reset-encrypted-data-cannot-be-recovered-2 = Przepraszamy, ale nie można odzyskać zaszyfrowanych danych Twojej przeglądarki znajdujących się na serwerach { -brand-firefox(case: "gen") }.
 password-reset-warning-have-key = Masz klucz odzyskiwania konta?
-password-reset-warning-use-key-link = Użyj go teraz, aby zmienić hasło i zachować swoje dane
 
 
 alert-bar-close-message = Zamknij komunikat
@@ -1391,7 +1385,6 @@ confirm-totp-reset-password-use-different-account = Użyj innego konta
 
 
 password-reset-flow-heading = Zmień hasło
-password-reset-body-2 = Zapytamy Cię o kilka rzeczy znanych tylko Tobie, aby zapewnić bezpieczeństwo Twojego konta.
 password-reset-email-input =
     .label = Wpisz adres e-mail
 password-reset-submit-button-2 = Kontynuuj

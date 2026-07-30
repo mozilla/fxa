@@ -388,13 +388,7 @@ flow-recovery-key-hint-unsafe-char-error = Huskereglen kan ikke indeholde usikre
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Sammenfold advarsel
 password-reset-chevron-collapsed = Fold advarsel ud
-password-reset-data-may-not-be-recovered = Dine browserdata bliver måske ikke gendannet
-password-reset-previously-signed-in-device-2 = Har du en enhed, hvor du tidligere har logget ind?
-password-reset-data-may-be-saved-locally-2 = Dine browserdata er muligvis gemt på den pågældende enhed. Nulstil din adgangskode, og log derefter ind på enheden for at gendanne og synkronisere dine data.
-password-reset-no-old-device-2 = Har du en ny enhed, men ikke adgang til nogen af dine gamle enheder?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi beklager, men dine krypterede browserdata på { -brand-firefox }' servere kan ikke gendannes.
 password-reset-warning-have-key = Har du en genoprettelsesnøgle til kontoen?
-password-reset-warning-use-key-link = Brug den nu til at nulstille din adgangskode og beholde dine data
 
 
 alert-bar-close-message = Luk besked
@@ -1345,7 +1339,6 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 
 
 password-reset-flow-heading = Nulstil din adgangskode
-password-reset-body-2 = For at sikre din konto, spørger vi dig om nogle ting, som kun du kender.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt

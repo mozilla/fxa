@@ -492,18 +492,13 @@ flow-recovery-key-hint-char-limit-error = 提示不可以超過 255 個字。
 flow-recovery-key-hint-unsafe-char-error = 提示內容不可使用 Unicode 特殊字元，僅接受一般文字、拉丁字母、數字、標點符號。
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = 警告
 password-reset-chevron-expanded = 摺疊警告
 password-reset-chevron-collapsed = 展開警告
-password-reset-data-may-not-be-recovered = 可能無法救回您的上網資料
-password-reset-previously-signed-in-device-2 = 有先前登入過的裝置嗎？
-password-reset-data-may-be-saved-locally-2 = 您的瀏覽器資料可能還保存在該裝置中，請重設密碼，然後到該裝置登入，即可恢復資料並同步回來。
-password-reset-no-old-device-2 = 有新的裝置，但已經沒辦法使用任何先前的裝置了嗎？
-password-reset-encrypted-data-cannot-be-recovered-2 = 很抱歉，無法恢復您在 { -brand-firefox } 伺服器上，已加密過的瀏覽器資料。
 password-reset-warning-have-key = 之前有保存帳號救援金鑰嗎？
-password-reset-warning-use-key-link = 現在即可使用，以重設密碼並保留資料。
 
 ## Alert Bar
 
@@ -1913,7 +1908,6 @@ confirm-totp-reset-password-use-different-account = 使用另一個帳號
 ## ResetPassword start page
 
 password-reset-flow-heading = 重設您的密碼
-password-reset-body-2 = 我們將與您確認一些僅有您知道的問題，來確保您的帳號安全。
 password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續

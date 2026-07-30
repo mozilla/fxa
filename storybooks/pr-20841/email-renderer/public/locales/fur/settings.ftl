@@ -449,18 +449,13 @@ flow-recovery-key-hint-char-limit-error = Il sugjeriment al à di vê mancul di 
 flow-recovery-key-hint-unsafe-char-error = Il sugjeriment nol pues contignî caratars Unicode no sigûrs. A son consintûts dome letaris, numars, segns di puntuazion e simbui.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Atenzion
 password-reset-chevron-expanded = Strenç l'avertiment
 password-reset-chevron-collapsed = Slargje l'avertiment
-password-reset-data-may-not-be-recovered = Al è pussibil che no si rivedi a recuperâ i dâts dal to navigadôr
-password-reset-previously-signed-in-device-2 = Âstu un dispositîf dulà che tu sês za jentrât/jentrade in precedence?
-password-reset-data-may-be-saved-locally-2 = Al podarès jessi pussibil che i dâts dal navigadôr a sedin salvâts su chel dispositîf. Ristabilìs la password, dopo su chel dispositîf jentre cu lis credenziâls par ripristinâ e sincronizâ i tiei dâts.
-password-reset-no-old-device-2 = Âstu un gnûf dispositîf ma no tu âs acès a nissun dai tiei dispositîfs vecjos?
-password-reset-encrypted-data-cannot-be-recovered-2 = Nus displâs, ma nol è pussibil recuperâ i dâts cifrâts dal to navigadôr sui servidôrs di { -brand-firefox }.
 password-reset-warning-have-key = Âstu une clâf di recupar dal account?
-password-reset-warning-use-key-link = Doprile cumò par ristabilî la tô password e mantignî i tiei dâts
 
 ## Alert Bar
 
@@ -1622,9 +1617,6 @@ confirm-totp-reset-password-use-different-account = Dopre un altri account
 ## ResetPassword start page
 
 password-reset-flow-heading = Ristabilìs la tô password
-password-reset-body-2 =
-    Par mantignî al sigûr il to account, ti domandarìn cualchi informazion
-    che nome tu tu cognossis.
 password-reset-email-input =
     .label = Inserìs la tô e-mail
 password-reset-submit-button-2 = Continue

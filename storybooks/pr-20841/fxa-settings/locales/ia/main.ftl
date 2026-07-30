@@ -390,13 +390,7 @@ flow-recovery-key-hint-unsafe-char-error = Le indicio non pote continer characte
 password-reset-warning-icon = Aviso
 password-reset-chevron-expanded = Aviso de collapso
 password-reset-chevron-collapsed = Aviso de expansion
-password-reset-data-may-not-be-recovered = Tu datos de navigator pote non esser recuperate
-password-reset-previously-signed-in-device-2 = Ha il alcun apparato ubi tu previemente accedeva?
-password-reset-data-may-be-saved-locally-2 = Tu datos de navigator poterea esser salvate sur ille apparato. Reinitialisa tu contrasigno, pois accede illac pro restaurar e synchronisa tu datos.
-password-reset-no-old-device-2 = Ha tu un nove apparato, ma non ha accesso a alcuno del tuos previe?
-password-reset-encrypted-data-cannot-be-recovered-2 = Nos es desolate, ma tu datos de navigator cryptate sur servitores de { -brand-firefox } non pote esser recuperate.
 password-reset-warning-have-key = Ha tu un clave recuperation del conto?
-password-reset-warning-use-key-link = Usa lo ora pro reinitialisar tu contrasigno e reservar tu datos
 
 
 alert-bar-close-message = Clauder message
@@ -1368,7 +1362,6 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
-password-reset-body-2 = Pro mantener tu conto secur, nos te demandara alcun informationes que solo tu sape.
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar

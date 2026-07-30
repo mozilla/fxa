@@ -393,6 +393,8 @@ link-expired-new-link-button = Ricevi un nuovo link
 
 # immediately before remember-password-signin-link
 remember-password-text = Ricordi la password?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Hai una passkey o ricordi la password?
 # link navigates to the sign in page
 remember-password-signin-link = Accedi
 
@@ -504,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = Il suggerimento deve contenere meno di
 flow-recovery-key-hint-unsafe-char-error = Il suggerimento non può contenere caratteri Unicode non sicuri. Sono consentiti solo lettere, numeri, segni di punteggiatura e simboli.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Attenzione
 password-reset-chevron-expanded = Comprimi avviso
 password-reset-chevron-collapsed = Espandi avviso
-password-reset-data-may-not-be-recovered = Potrebbe non essere possibile recuperare i dati del browser
-password-reset-previously-signed-in-device-2 = Hai un dispositivo su cui hai effettuato l’accesso in precedenza?
-password-reset-data-may-be-saved-locally-2 = I dati del browser potrebbero essere salvati su quel dispositivo. Reimposta la password, quindi accedi per ripristinare e sincronizzare i tuoi dati.
-password-reset-no-old-device-2 = Hai un nuovo dispositivo ma non hai accesso a nessuno dei tuoi dispositivi precedenti?
-password-reset-encrypted-data-cannot-be-recovered-2 = Siamo spiacenti, non è possibile recuperare i dati crittati del tuo browser sui server { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Controlla le opzioni di accesso per conservare i dati del browser
 password-reset-warning-have-key = Hai una chiave di recupero dell’account?
-password-reset-warning-use-key-link = Usala ora per reimpostare la password e conservare i tuoi dati
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Utilizzalo per reimpostare la password e conservare i dati del browser
+password-reset-warning-signed-in-device = Hai ancora effettuato l’accesso da un altro dispositivo?
+password-reset-warning-signed-in-device-description = I dati del browser potrebbero essere disponibili. Reimposta la password, quindi accedi su quel dispositivo per ripristinare e sincronizzare i tuoi dati.
+password-reset-warning-restore-data-link = Scopri come ripristinare i dati del browser da un dispositivo su cui hai effettuato l’accesso
+password-reset-warning-new-device = Utilizzi un nuovo dispositivo ma non riesci ad accedere a quelli precedenti?
+password-reset-warning-new-device-description = Dopo aver reimpostato la password, i dati crittati del browser sui server { -brand-firefox } non saranno più disponibili su questo dispositivo.
 
 ## Alert Bar
 
@@ -1939,7 +1944,7 @@ confirm-totp-reset-password-use-different-account = Utilizza un altro account
 ## ResetPassword start page
 
 password-reset-flow-heading = Reimpostazione della password
-password-reset-body-2 = Per mantenere il tuo account al sicuro, ti chiederemo alcune informazioni che solo tu conosci.
+password-reset-body-3 = La reimpostazione della password potrebbe influire sulla sincronizzazione dei dati del browser.
 password-reset-email-input =
     .label = Inserisci la tua email
 password-reset-submit-button-2 = Continua
@@ -2061,6 +2066,7 @@ signin-passkey-fallback-heading = Inserisci la password per sincronizzare
 signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserire la tua password quando utilizzi questa passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
+signin-passkey-fallback-forgot-password-link = Password dimenticata?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

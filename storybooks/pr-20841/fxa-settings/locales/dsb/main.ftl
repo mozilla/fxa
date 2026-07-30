@@ -396,13 +396,7 @@ flow-recovery-key-hint-unsafe-char-error = Pokaz njesmějo njewěste znamuška U
 password-reset-warning-icon = Warnowanje
 password-reset-chevron-expanded = Warnowanje schowaś
 password-reset-chevron-collapsed = Warnowanje pokazaś
-password-reset-data-may-not-be-recovered = Daty wašogo wobglědowaka se snaź njewobnowiju
-password-reset-previously-signed-in-device-2 = Maśo rěd, źož sćo se do togo pśizjawił?
-password-reset-data-may-be-saved-locally-2 = Daty wašogo wobglědowaka su snaź na tom rěźe skłaźone. Stajśo swójo gronidło slědk, pśizjawśo se pón tam, aby swóje daty wótnowił a synchronizěrował.
-password-reset-no-old-device-2 = Maśo nowy rěd, ale njamaśo pśistup k swójim staršym?
-password-reset-encrypted-data-cannot-be-recovered-2 = Jo nam luto, ale waše skoděrowane daty wobglědowaka na serwerach { -brand-firefox } njedaju se wótnowiś.
 password-reset-warning-have-key = Maśo kontowy wótnowjeński kluc?
-password-reset-warning-use-key-link = Wužywajśo jen něnto, aby swójo gronidło slědk stajił a swóje daty wobchował
 
 
 alert-bar-close-message = Powěźeńku zacyniś
@@ -1379,9 +1373,6 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
-password-reset-body-2 =
-    Pšašamy se za někotarymi wěcami, kótarež jano wy wěsćo, aby my wašo konto
-    wěste źaržali.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej

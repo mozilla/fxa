@@ -435,13 +435,7 @@ flow-recovery-key-hint-unsafe-char-error = Підказка не може міс
 password-reset-warning-icon = Попередження
 password-reset-chevron-expanded = Згорнути попередження
 password-reset-chevron-collapsed = Розгорнути попередження
-password-reset-data-may-not-be-recovered = Дані вашого браузера можуть не відновитися
-password-reset-previously-signed-in-device-2 = У вас є пристрій, з якого ви входили раніше?
-password-reset-data-may-be-saved-locally-2 = Дані вашого браузера можуть бути збережені на цьому пристрої. Відновіть свій пароль, а потім увійдіть там, щоб відновити та синхронізувати дані.
-password-reset-no-old-device-2 = Маєте новий пристрій, але не маєте доступу до жодного з попередніх?
-password-reset-encrypted-data-cannot-be-recovered-2 = Нам прикро, але ваші зашифровані дані браузера на серверах { -brand-firefox } неможливо відновити.
 password-reset-warning-have-key = Маєте ключ відновлення облікового запису?
-password-reset-warning-use-key-link = Використайте його зараз, щоб відновити пароль і зберегти свої дані
 
 
 alert-bar-close-message = Закрити повідомлення
@@ -1171,7 +1165,6 @@ confirm-totp-reset-password-use-different-account = Використати ін�
 
 
 password-reset-flow-heading = Відновити свій пароль
-password-reset-body-2 = Ми запитаємо у вас про інформацію, відому лише вам, щоб захистити ваш обліковий запис.
 password-reset-email-input =
     .label = Адреса електронної пошти
 password-reset-submit-button-2 = Продовжити

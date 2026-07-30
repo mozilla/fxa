@@ -606,6 +606,7 @@ link-expired-new-link-button = Získat nový odkaz
 
 
 remember-password-text = Pamatujete si své heslo?
+remember-password-passkey-text = Máte přístupový kód nebo si pamatujete heslo?
 remember-password-signin-link = Přihlásit se
 
 
@@ -679,13 +680,14 @@ flow-recovery-key-hint-unsafe-char-error = Nápověda nemůže obsahovat nebezpe
 password-reset-warning-icon = Varování
 password-reset-chevron-expanded = Skrýt varování
 password-reset-chevron-collapsed = Rozbalit varování
-password-reset-data-may-not-be-recovered = Data prohlížeče nemusí být možné obnovit
-password-reset-previously-signed-in-device-2 = Máte nějaké zařízení, na kterém jste se dříve přihlásili?
-password-reset-data-may-be-saved-locally-2 = Data o prohlížeči mohou být uložena na tomto zařízení. Obnovte své heslo a poté se přihlaste pro obnovu a synchronizaci svých dat.
-password-reset-no-old-device-2 = Vlastníte nové zařízení, ale nemáte přístup k žádnému z předchozích?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nám líto, ale vaše šifrovaná data uložená na serverech { -brand-firefox(case: "gen") } nelze obnovit.
+password-reset-warning-review-sign-in-options = Podívejte se na možnosti přihlášení pro uchování dat prohlížeče
 password-reset-warning-have-key = Máte k účtu obnovovací klíč?
-password-reset-warning-use-key-link = Použijte ho k obnovení svého hesla a uchování dat
+password-reset-warning-use-key-link-v2 = Použijte jej k obnovení hesla a uchování dat prohlížeče
+password-reset-warning-signed-in-device = Jste stále přihlášeni na jiném zařízení?
+password-reset-warning-signed-in-device-description = Data o prohlížeči mohou být dostupná. Obnovte heslo a poté se na tomto zařízení přihlaste pro obnovu a synchronizaci svých dat.
+password-reset-warning-restore-data-link = Přečtěte si, jak obnovit data prohlížeče na zařízení, ve kterém jste přihlášeni
+password-reset-warning-new-device = Používáte nové zařízení, ale nemáte přístup ke svým starým?
+password-reset-warning-new-device-description = Po obnovení vašeho hesla nebudou na tomto zařízení dostupná šifrovaná data uložená na { -brand-firefox } serverech.
 
 
 alert-bar-close-message = Zavřít zprávu
@@ -1654,7 +1656,7 @@ confirm-totp-reset-password-use-different-account = Použít jiný účet
 
 
 password-reset-flow-heading = Obnovení hesla
-password-reset-body-2 = Abychom mohli vést váš účet v bezpečí, požádáme vás o několik věcí, které znáte jen vy.
+password-reset-body-3 = Obnovení hesla může ovlivnit synchronizovaná data prohlížeče.
 password-reset-email-input =
     .label = Zadejte svoji e-mailovou adresu
 password-reset-submit-button-2 = Pokračovat
@@ -1741,6 +1743,7 @@ signin-passkey-fallback-heading = Pro synchronizaci zadejte své heslo
 signin-passkey-fallback-body = Aby byla vaše data v bezpečí, musíte při použití tohoto přístupového klíče zadat své heslo.
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovat
+signin-passkey-fallback-forgot-password-link = Zapomněli jste heslo?
 
 
 
