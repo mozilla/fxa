@@ -74,4 +74,4 @@ app-loading-spinner-aria-label-loading = Caricamento in corso…
 
 
 app-logo-alt-3 =
-    .alt = Logo con la m di  { -brand-mozilla }
+    .alt = Logo con la m di { -brand-mozilla }

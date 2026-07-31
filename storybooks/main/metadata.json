@@ -1,8 +1,8 @@
 {
-  "commit": "d0724b9776cfa1b71af9cf12e5e5c0b87146ef98",
-  "summary": "Merge pull request #20945 from mozilla/PAY-3875-add-statsd-free-access",
-  "description": "feat(cms): record statsd timings for free access program cache lookups",
-  "timestamp": 1785507291000,
+  "commit": "e3c83e1548fd17a1914f96aefca4874e4bffc0d5",
+  "summary": "Merge pull request #20950 from bcolsson/brand-reference",
+  "description": "task(l10n): Update string to include correct brand term",
+  "timestamp": 1785515030000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
