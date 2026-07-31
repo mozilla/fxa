@@ -1,0 +1,10 @@
+{
+  "commit": "b0790302e32796084bc982b15f600385dc6e5a11",
+  "summary": "feat(settings): add mobile \"Connect this device\" pairing card",
+  "description": "Because:\n- The redesigned desktop-to-mobile pairing flow needs a mobile card that\n  asks the user to confirm connecting the device in their hand, showing the\n  account email plus the desktop device's browser, estimated location, and\n  IP address so they can verify the request before connecting.\n\nThis commit:\n- Adds `ConnectThisDevice` under `packages/fxa-settings/src/pages/Pair2/\n  Supplicant/`, a presentational card taking `email` and `authDeviceInfo` as\n  props with optional `onConnect`/`onCancel`. Button wiring, routing, and\n  metrics are deliberately deferred to the flow-wiring ticket.\n- Adds the Figma-exported Firefox lockup and sync illustration, `en.ftl`\n  strings, Storybook stories, and tests including a real Fluent-bundle check\n  that every string id resolves.\n- Extends `DeviceInfoBlock` with additive, defaulted `className` and\n  `showDeviceName` props so the card can render it as the design's bordered\n  box, reusing the existing localized browser/location/IP strings instead of\n  duplicating them.\n\nCloses #FXA-14233",
+  "timestamp": 1785520011000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
