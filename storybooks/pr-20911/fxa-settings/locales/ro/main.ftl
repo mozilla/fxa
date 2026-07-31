@@ -431,13 +431,7 @@ flow-recovery-key-hint-unsafe-char-error = Indiciul nu poate conține caractere 
 password-reset-warning-icon = Avertisment
 password-reset-chevron-expanded = Restrânge avertismentul
 password-reset-chevron-collapsed = Extinde avertismentul
-password-reset-data-may-not-be-recovered = Este posibil să nu se poată recupera datele din browser
-password-reset-previously-signed-in-device-2 = Ai vreun dispozitiv pe care te-ai conectat anterior?
-password-reset-data-may-be-saved-locally-2 = Este posibil să ai datele din browser salvate pe dispozitivul respectiv. Resetează-ți parola, apoi intră în cont pe dispozitiv ca să îți restaurezi și să îți sincronizezi datele.
-password-reset-no-old-device-2 = Ai un dispozitiv nou, dar nu ai acces la niciunul dintre cele anterioare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Ne pare rău, dar datele criptate ale browserului tău nu pot fi recuperate de pe serverele { -brand-firefox }.
 password-reset-warning-have-key = Ai o cheie de recuperare a contului?
-password-reset-warning-use-key-link = Folosește-o acum ca să resetezi parola și să-ți păstrezi datele
 
 
 alert-bar-close-message = Închide mesajul
@@ -1406,9 +1400,6 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 
 
 password-reset-flow-heading = Resetează-ți parola
-password-reset-body-2 =
-    Te vom întreba câteva chestii pe care numai tu le știi ca să îți menținem contul
-    în siguranță.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă

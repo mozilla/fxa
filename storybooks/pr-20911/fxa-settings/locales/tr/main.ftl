@@ -373,13 +373,7 @@ flow-recovery-key-hint-unsafe-char-error = İpucu güvensiz unicode karakterler 
 password-reset-warning-icon = Uyarı
 password-reset-chevron-expanded = Uyarıyı daralt
 password-reset-chevron-collapsed = Uyarıyı genişlet
-password-reset-data-may-not-be-recovered = Tarayıcı verileriniz kurtarılamayabilir
-password-reset-previously-signed-in-device-2 = Daha önce giriş yaptığınız bir cihazınız var mı?
-password-reset-data-may-be-saved-locally-2 = Tarayıcı verileriniz o cihazda kayıtlı olabilir. Parolanızı sıfırlayın, ardından verilerinizi geri yüklemek ve eşitlemek için o cihazdan giriş yapın.
-password-reset-no-old-device-2 = Yeni bir cihazınız var ama eski cihazlarınıza erişemiyor musunuz?
-password-reset-encrypted-data-cannot-be-recovered-2 = Üzgünüz, { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verileriniz bu durumda maalesef kurtarılamaz.
 password-reset-warning-have-key = Hesap kurtarma anahtarınız var mı?
-password-reset-warning-use-key-link = Parolanızı sıfırlayıp verilerinizi geri yüklemek için şimdi onu kullanabilirsiniz
 
 
 alert-bar-close-message = Mesajı kapat
@@ -1273,7 +1267,6 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 
 
 password-reset-flow-heading = Parolanızı sıfırlayın
-password-reset-body-2 = Hesabınızı güvende tutmak için yalnızca sizin bildiğiniz birkaç şey soracağız.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et

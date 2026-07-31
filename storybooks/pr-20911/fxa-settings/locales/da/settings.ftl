@@ -68,7 +68,7 @@ recovery-key-pdf-download-error = Der opstod desværre et problem med at hente d
 
 ## ButtonPasskeySignin
 
-button-passkey-signin = Log ind med adgangsnøgle
+button-passkey-signin = log ind med adgangsnøgle
 # This is a loading state indicating that we are waiting for the user to
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that
@@ -501,18 +501,13 @@ flow-recovery-key-hint-char-limit-error = Huskereglen skal indeholde færre end 
 flow-recovery-key-hint-unsafe-char-error = Huskereglen kan ikke indeholde usikre unicode-tegn. Kun bogstaver, tal, tegnsætningstegn og symboler er tilladt.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Sammenfold advarsel
 password-reset-chevron-collapsed = Fold advarsel ud
-password-reset-data-may-not-be-recovered = Dine browserdata bliver måske ikke gendannet
-password-reset-previously-signed-in-device-2 = Har du en enhed, hvor du tidligere har logget ind?
-password-reset-data-may-be-saved-locally-2 = Dine browserdata er muligvis gemt på den pågældende enhed. Nulstil din adgangskode, og log derefter ind på enheden for at gendanne og synkronisere dine data.
-password-reset-no-old-device-2 = Har du en ny enhed, men ikke adgang til nogen af dine gamle enheder?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi beklager, men dine krypterede browserdata på { -brand-firefox }' servere kan ikke gendannes.
 password-reset-warning-have-key = Har du en genoprettelsesnøgle til kontoen?
-password-reset-warning-use-key-link = Brug den nu til at nulstille din adgangskode og beholde dine data
 
 ## Alert Bar
 
@@ -1926,7 +1921,6 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Nulstil din adgangskode
-password-reset-body-2 = For at sikre din konto, spørger vi dig om nogle ting, som kun du kender.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt

@@ -393,6 +393,8 @@ link-expired-new-link-button = Recipe un nove ligamine
 
 # immediately before remember-password-signin-link
 remember-password-text = Rememorar tu contrasigno?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Ha tu un clave-contrasigno o te memora tu de tu contrasigno?
 # link navigates to the sign in page
 remember-password-signin-link = Aperir session
 
@@ -504,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = Le indicio debe continer minus que 255
 flow-recovery-key-hint-unsafe-char-error = Le indicio non pote continer characteres unicode non secur.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Aviso
 password-reset-chevron-expanded = Aviso de collapso
 password-reset-chevron-collapsed = Aviso de expansion
-password-reset-data-may-not-be-recovered = Tu datos de navigator pote non esser recuperate
-password-reset-previously-signed-in-device-2 = Ha il alcun apparato ubi tu previemente accedeva?
-password-reset-data-may-be-saved-locally-2 = Tu datos de navigator poterea esser salvate sur ille apparato. Reinitialisa tu contrasigno, pois accede illac pro restaurar e synchronisa tu datos.
-password-reset-no-old-device-2 = Ha tu un nove apparato, ma non ha accesso a alcuno del tuos previe?
-password-reset-encrypted-data-cannot-be-recovered-2 = Nos es desolate, ma tu datos de navigator cryptate sur servitores de { -brand-firefox } non pote esser recuperate.
+password-reset-warning-review-sign-in-options = Revider optiones de authentication pro mantener datos de navigator
 password-reset-warning-have-key = Ha tu un clave recuperation del conto?
-password-reset-warning-use-key-link = Usa lo ora pro reinitialisar tu contrasigno e reservar tu datos
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Usa lo pro reinitialisar tu contrasigno e mantener le datos de tu navigator
+password-reset-warning-signed-in-device = Ancora connexe sur un altere apparato?
+password-reset-warning-signed-in-device-description = Le datos de tu navigator pote esser disponibile. Reinitialisa tu contrasigno, pois accede sur ille apparato pro restaurar e synchronisar tu datos.
+password-reset-warning-restore-data-link = Apprende a restaurar datos de navigator ab un apparato connexe
+password-reset-warning-new-device = Usa tu un nove apparato, ma non pote tu acceder a los vetere tue?
+password-reset-warning-new-device-description = Post que tu reinitialisa tu contrasigno, le datos de navigator cryptate sur servitores { -brand-firefox } non sera disponibile sur iste apparato.
 
 ## Alert Bar
 
@@ -1958,7 +1963,7 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 ## ResetPassword start page
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
-password-reset-body-2 = Pro mantener tu conto secur, nos te demandara alcun informationes que solo tu sape.
+password-reset-body-3 = Remontar tu contrasigno pote interessar datos de navigator synchronisate.
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar
@@ -2080,6 +2085,7 @@ signin-passkey-fallback-heading = Insere tu contrasigno pro synchronisar
 signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu contrasigno quando tu usa iste clave-contrasigno.
 signin-passkey-fallback-password-label = Contrasigno
 signin-passkey-fallback-continue = Continuar
+signin-passkey-fallback-forgot-password-link = Contrasigno oblidate?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

@@ -418,18 +418,13 @@ flow-recovery-key-hint-char-limit-error = U suggirimentu àv’a èssiri cchiù 
 flow-recovery-key-hint-unsafe-char-error = U suggirimentu nun po’ aviri caràttari Unicode nun sicuri. Sunnu pirmisi sulu littri, nùmmari, signi di puntijatura e sìmmuli.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Accura
 password-reset-chevron-expanded = Chiuji abbisu
 password-reset-chevron-collapsed = Allarga abbisu
-password-reset-data-may-not-be-recovered = Putissi èssiri ca nun si ponnu ricupigghiari i dati dû navicaturi
-password-reset-previously-signed-in-device-2 = Ài autri dispusitivi unni già trasisti?
-password-reset-data-may-be-saved-locally-2 = Capaci ca i dati dû navicaturi sunnu sarbati nna ḍḍu dispusitivu. Risetta a to chiavi e trasi ḍḍocu pi ricupigghiari e sincrunizzari i to dati.
-password-reset-no-old-device-2 = Ài un dispusitivu novu ma nun ài accessu a nuḍḍu di l’autri to dispusitivi?
-password-reset-encrypted-data-cannot-be-recovered-2 = Ni dispiaci, ma nun è pussìbbili ricupigghiari i dati crittati dû to navicaturi dî sirbura { -brand-firefox }.
 password-reset-warning-have-key = Ài na chiavi di ricùpiru dû cuntu?
-password-reset-warning-use-key-link = Ùsala pi risittari a to chiavi e sarbari i to dati
 
 ## Alert Bar
 
@@ -1435,7 +1430,6 @@ confirm-totp-reset-password-use-different-account = Usa n’autru cuntu
 ## ResetPassword start page
 
 password-reset-flow-heading = Risetta a to chiavi
-password-reset-body-2 = T’addumannamu na para di cosi chi sai sulu tu pi prutèggiri u to cuntu.
 password-reset-email-input =
     .label = Metti u to nnirizzu di posta elittrònica
 password-reset-submit-button-2 = Cuntinua

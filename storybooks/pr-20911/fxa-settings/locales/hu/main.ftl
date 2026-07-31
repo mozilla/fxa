@@ -354,6 +354,7 @@ link-expired-new-link-button = Új hivatkozás kérése
 
 
 remember-password-text = Emlékszik a jelszavára?
+remember-password-passkey-text = Van jelkulcsa, vagy emlékszik a jelszavára?
 remember-password-signin-link = Bejelentkezés
 
 
@@ -427,13 +428,14 @@ flow-recovery-key-hint-unsafe-char-error = A tipp nem tartalmazhat nem biztonsá
 password-reset-warning-icon = Figyelmeztetés
 password-reset-chevron-expanded = Figyelmeztetés összecsukása
 password-reset-chevron-collapsed = Figyelmeztetés kinyitása
-password-reset-data-may-not-be-recovered = Előfordulhat, hogy a böngészési adatok nem állíthatók helyre
-password-reset-previously-signed-in-device-2 = Van olyan eszköze, amelyre korábban bejelentkezett?
-password-reset-data-may-be-saved-locally-2 = Előfordulhat, hogy a böngésző adatai vannak mentve azon az eszközön. Állítsa vissza a jelszavát, majd jelentkezzen be ott az adatai helyreállításához és szinkronizálásához.
-password-reset-no-old-device-2 = Új eszköze van, de a korábbiakhoz már nem fér hozzá?
-password-reset-encrypted-data-cannot-be-recovered-2 = Sajnáljuk, de a { -brand-firefox } kiszolgálókon lévő titkosított böngészőadatai nem állíthatók helyre.
+password-reset-warning-review-sign-in-options = Tekintse át a bejelentkezési beállításokat a böngészőadatok megtartásához
 password-reset-warning-have-key = Van fiók-helyreállítási kulcsa?
-password-reset-warning-use-key-link = Használja most a jelszó helyreállításához és az adatok megtartásához
+password-reset-warning-use-key-link-v2 = Használja a jelszó helyreállítására és a böngésző adatainak megtartására
+password-reset-warning-signed-in-device = Még mindig bejelentkezett egy másik eszközön?
+password-reset-warning-signed-in-device-description = A böngészője adatai elérhetők lehetnek. Állítsa vissza a jelszavát, majd jelentkezzen be az eszközön az adatai visszaállításához és szinkronizálásához.
+password-reset-warning-restore-data-link = Ismerje meg, hogyan állíthatja vissza a böngészőadatokat bejelentkezett eszközről
+password-reset-warning-new-device = Új eszközt használ, de nem éri el a régieit?
+password-reset-warning-new-device-description = A jelszó visszaállítása után a(z) { -brand-firefox } kiszolgálók titkosított böngészőadatai nem lesznek elérhetők ezen az eszközön.
 
 
 alert-bar-close-message = Üzenet bezárása
@@ -1406,7 +1408,7 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-2 = Kérdezünk néhány dolgot, melyet csak Ön tud, hogy biztonságban tartsa a fiókját.
+password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészőadatokra.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
@@ -1495,6 +1497,7 @@ signin-passkey-fallback-heading = Adja meg a jelszavát a szinkronizáláshoz
 signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia a jelszavát, amikor ezt a jelkulcsot használja.
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
+signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
 
 
 

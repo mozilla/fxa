@@ -382,13 +382,7 @@ flow-recovery-key-hint-unsafe-char-error = Наговештај не може д
 password-reset-warning-icon = Упозорење
 password-reset-chevron-expanded = Скупи упозорење
 password-reset-chevron-collapsed = Прошири упозорење
-password-reset-data-may-not-be-recovered = Подаци вашег прегледача можда неће бити враћени
-password-reset-previously-signed-in-device-2 = Имате ли неки уређај на којем сте се претходно пријавили?
-password-reset-data-may-be-saved-locally-2 = Подаци вашег прегледача су можда сачувани на том уређају. Ресетујте лозинку, а затим се пријавите тамо да бисте повратили и усагласили своје податке.
-password-reset-no-old-device-2 = Имате нови уређај, али немате приступ ниједном од претходних?
-password-reset-encrypted-data-cannot-be-recovered-2 = Жао нам је, али ваши шифровани подаци прегледача на { -brand-firefox } серверима не могу бити враћени.
 password-reset-warning-have-key = Имате кључ за опоравак налога?
-password-reset-warning-use-key-link = Употребите га сада да бисте ресетовали лозинку и сачували своје податке
 
 
 alert-bar-close-message = Затвори поруку
@@ -1315,7 +1309,6 @@ confirm-totp-reset-password-use-different-account = Користите друг�
 
 
 password-reset-flow-heading = Поништавање лозинке
-password-reset-body-2 = Тражићемо неколико ствари које само ви знате како бисмо сачували безбедност вашег налога.
 password-reset-email-input =
     .label = Унесите своју адресу е-поште
 password-reset-submit-button-2 = Настави

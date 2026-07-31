@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = Кеңес 255 таңбадан аз �
 flow-recovery-key-hint-unsafe-char-error = Кеңесте қауіпті юникод таңбалары болмауы керек. Тек әріптерге, сандарға, тыныс белгілеріне және белгілерге рұқсат етіледі.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Ескерту
 password-reset-chevron-expanded = Ескертуді бүктеу
 password-reset-chevron-collapsed = Ескертуді ашу
-password-reset-data-may-not-be-recovered = Браузеріңіздің деректері қалпына келтірілмеуі мүмкін
-password-reset-previously-signed-in-device-2 = Бұрын жүйеге кірген құрылғыларыңыз бар ма?
-password-reset-data-may-be-saved-locally-2 = Браузер деректері сол құрылғыда сақталуы мүмкін. Парольді тастап, деректерді қалпына келтіру және синхрондау үшін сол жерге кіріңіз.
-password-reset-no-old-device-2 = Жаңа құрылғыңыз бар, бірақ алдыңғы құрылғылардың ешқайсысына қол жеткізе алмайсыз ба?
-password-reset-encrypted-data-cannot-be-recovered-2 = Кешіріңіз, { -brand-firefox } серверлеріндегі браузердің шифрленген деректерін қалпына келтіру мүмкін емес.
 password-reset-warning-have-key = Тіркелгіні қалпына келтіру кілтіңіз бар ма?
-password-reset-warning-use-key-link = Парольді қалпына келтіру және деректеріңізді сақтау үшін оны қазір пайдаланыңыз
 
 ## Alert Bar
 
@@ -1956,7 +1951,6 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 ## ResetPassword start page
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-2 = Тіркелгіңізді қауіпсіз сақтау үшін тек сіз білетін бірнеше нәрсені сұраймыз.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру

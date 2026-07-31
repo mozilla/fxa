@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = Hintet må innehalde færre enn 255 te
 flow-recovery-key-hint-unsafe-char-error = Hintet kan ikkje innehalde usikre unicode-teikn. Berre bokstavar, tal, skiljeteikn og symbol er tillatne.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Åtvaring
 password-reset-chevron-expanded = Skjul åtvaring
 password-reset-chevron-collapsed = Vis åtvaring
-password-reset-data-may-not-be-recovered = Nettlesardataa dine kan ikkje gjenopprettast
-password-reset-previously-signed-in-device-2 = Har du ei eining du tidlegare har logga på?
-password-reset-data-may-be-saved-locally-2 = Nettlesardataa dine kan vere lagra på den eininga. Tilbakestill passordet ditt, og logg deretter på der for å gjenopprette og synkronisere dataa dine.
-password-reset-no-old-device-2 = Har du ei ny eining, men ikkje tilgang til nokon av dei tidlegare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi beklagar, men dei krypterte nettlesardataa dine på { -brand-firefox }-serverar kan ikkje gjenopprettast.
 password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
-password-reset-warning-use-key-link = Bruk han no for å tilbakestille passordet ditt og behalde dataa dine
 
 ## Alert Bar
 
@@ -1954,9 +1949,6 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Tilbakestill passordet ditt
-password-reset-body-2 =
-    Vi ber om eit par ting berre du veit for å behalde kontoen din
-    sikker.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
@@ -2081,6 +2073,7 @@ signin-passkey-fallback-heading = Skriv inn passordet ditt for å synkronisere
 signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi passordet ditt når du brukar denne passnøkkelen.
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
+signin-passkey-fallback-forgot-password-link = Gløymt passordet?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

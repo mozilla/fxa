@@ -357,10 +357,7 @@ flow-recovery-key-hint-char-limit-error = Savjet mora sadržati manje od 255 zna
 password-reset-warning-icon = Upozorenje
 password-reset-chevron-expanded = Sklopi upozorenje
 password-reset-chevron-collapsed = Rasklopi upozorenje
-password-reset-data-may-not-be-recovered = Podaci tvog preglednika se možda neće oporaviti
-password-reset-previously-signed-in-device-2 = Imaš neki uređaj na kojem si se prethodno prijavio/la?
 password-reset-warning-have-key = Imaš ključ za obnavljanje računa?
-password-reset-warning-use-key-link = Upotrijebi ga sada za ponovno postavljanje lozinke i zadržavanje podataka
 
 
 alert-bar-close-message = Zatvori poruku

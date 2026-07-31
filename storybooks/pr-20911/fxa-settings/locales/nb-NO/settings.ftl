@@ -504,18 +504,13 @@ flow-recovery-key-hint-char-limit-error = Hintet må inneholde færre enn 255 te
 flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unicode-tegn. Bare bokstaver, tall, tegnsettingstegn og symboler er tillatt.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
-password-reset-data-may-not-be-recovered = Nettleserdataene dine kan kanskje ikke gjenopprettes
-password-reset-previously-signed-in-device-2 = Har du en enhet du tidligere har logget på?
-password-reset-data-may-be-saved-locally-2 = Nettleserdataene dine kan være lagret på den enheten. Tilbakestill passordet ditt, og logg deretter inn der for å gjenopprette og synkronisere dataene dine.
-password-reset-no-old-device-2 = Har du en ny enhet, men har ikke tilgang til noen av de gamle?
-password-reset-encrypted-data-cannot-be-recovered-2 = Beklager, men de krypterte nettleserdataene dine på { -brand-firefox }-serverne kan ikke gjenopprettes.
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
-password-reset-warning-use-key-link = Bruk den nå for å tilbakestille passordet ditt og beholde dataene dine
 
 ## Alert Bar
 
@@ -1942,9 +1937,6 @@ confirm-totp-reset-password-use-different-account = Bruk en annen konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Tilbakestill passordet ditt
-password-reset-body-2 =
-    Vi ber om et par ting som bare du vet for å holde kontoen din
-    trygg.
 password-reset-email-input =
     .label = Skriv inn e-postadressen din
 password-reset-submit-button-2 = Fortsett
