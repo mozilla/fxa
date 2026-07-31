@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 67509b88d527cf4f2270e5e6059ad3f8ff1f8595</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 67509b88d527cf4f2270e5e6059ad3f8ff1f8595</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/31/2026, 5:26:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): add mobile Approve sign in card</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - After scanning the pairing QR code on their computer, users on mobile need
+   a screen that tells them the sign-in still has to be approved on the
+   computer, and that shows the requesting device&#039;s details so they can
+   confirm the request is really theirs before pairing completes.
+
+This commit:
+ - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/ApproveSignIn/index.tsx`,
+   a presentational card rendering the Firefox brand logo, a desktop/mobile sync
+   illustration, the heading and instruction copy, the device info block, and a
+   Cancel action. It supplies its own card surface rather than using `AppLayout`,
+   per the Pair2 mobile designs. `onCancel` is a required prop so that routing the
+   card cannot leave its only action inert; the flow logic lands with the route.
+ - Adds `device-info-lines.ts`, which selects the Fluent message for each line of
+   the device info block as a pure function so the device-name/OS fallback and the
+   five geo-resolution permutations are unit tested without rendering. The location
+   and IP lines reuse the shipped `device-info-block-*` messages, so only the
+   browser-on-device string is new.
+ - Adds `en.ftl` with the new strings, `index.stories.tsx` with four stories
+   covering the device-name, OS-fallback, unknown-location, and long-device-name
+   cases, and tests for the component and the message selection. The component
+   suite asserts wiring and runs `testAllL10n` against the bundle to catch drift
+   between fallback text and the Fluent messages; the permutations live in the
+   pure-function suite.
+ - Exports `firefox-brand-logo.svg` and `sync-devices.svg` from Figma. The sync
+   illustration is cropped to its visible bounds so it centres correctly, and the
+   browser-tab favicon it embedded at 1046x1081 for a ~3px render is downscaled,
+   taking the asset from 946KB to 58KB.
+
+Closes #FXA-14234</pre></dd>
+  </dl>
+</body>
+</html>
