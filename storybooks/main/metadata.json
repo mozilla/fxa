@@ -1,8 +1,8 @@
 {
-  "commit": "3b75ee4db4ccf00dcfa9ddd534a86100c2e8f490",
-  "summary": "Merge pull request #20820 from mozilla/FXA-13761",
-  "description": "chore(docs): Add accountAuthorizations ADR",
-  "timestamp": 1785532068000,
+  "commit": "c3d3cc9175a4763d9af6bc35371a0b2fac1b3ad0",
+  "summary": "Merge pull request #20951 from mozilla/FXA-14204",
+  "description": "refactor(oauth): remove MySQL access token lookups and deletes",
+  "timestamp": 1785532235000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
