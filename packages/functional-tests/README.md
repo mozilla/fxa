@@ -462,3 +462,12 @@ FUNCTIONAL_TESTS__TWILIO__API_KEY__PRODUCTION=XXX
 FUNCTIONAL_TESTS__TWILIO__API_SECRET__PRODUCTION=XXX
 FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER__PRODUCTION=XXX
 ```
+
+### Routing SMS tests in CI
+
+On stage and production every SMS test reads the same Twilio number, and the lookup returns the most recent message sent to that number regardless of which test triggered it. Two tests mid-flow at once will consume each other's codes, so CI keeps them apart:
+
+- **Tag the test `#phone`** if it needs real SMS coverage on a remote target. CI reserves node 0 and runs every `#phone` test there with `--workers=1`.
+- **Leave the severity label off** otherwise, which is the existing convention for local-only tests. Locally Twilio runs in test mode and codes are read from redis by uid, so those tests cannot collide and run in the normal parallel split.
+
+`SmsClient.getCode()` throws when a test carrying a severity label reads a code without `#phone`, so a new SMS test has to land on one side or the other rather than quietly racing.
