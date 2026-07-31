@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c301ae6c4e74eb099c9d3455532787056e2e58d1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c301ae6c4e74eb099c9d3455532787056e2e58d1</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>7/31/2026, 5:37:30 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(oauth): remove MySQL access token lookups and deletes</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Access tokens live only in redis. `fxa_oauth.tokens` is a relic of the
+  pre-refresh-token Pocket integration, and its rows were deleted when
+  Pocket was decommissioned as an RP.
+* Nothing has written to the table for some time — `_generateAccessToken`
+  already had zero callers — so the read-through fallbacks and the deletes
+  could never match a row.
+
+This commit:
+* Drops the MySQL fallback from `getAccessToken` and `removeAccessToken`,
+  and deletes the `getAccessTokensByUid` override so it inherits the
+  cache-only implementation from `ConnectedServicesDb`. Both remaining
+  methods also drop `await this.ready()`, which only seeds config-declared
+  clients and scopes into MySQL.
+* Deletes `_generateAccessToken`, `_getAccessToken`, `_removeAccessToken`,
+  `_getAccessTokensByUid`, `AccessToken.fromMySQL` and their queries, and
+  removes the access token deletes from `_removeTokensAndCodes`,
+  `_removePublicAndCanGrantTokens`, `_deleteClientAuthorization` and
+  `_deleteClientRefreshToken`. The redis revocation each caller already
+  performs in `lib/oauth/db/index.js` is now the whole story.
+* Drops `getAccessTokensByUid` from `IConnectedServicesDbStore` and
+  `MysqlOAuthShared`, making admin-server&#039;s attached-clients view
+  redis-only, and stops auditing the table in admin-server&#039;s
+  `audit-tokens` script. That ends the `db-audit.fxa_oauth_tokens.*`
+  statsd series — check for panels or alerts on it.
+* Normalizes `getAccessToken` to resolve `undefined` rather than redis&#039;
+  `null` on a miss, so the contract callers and tests rely on is unchanged.
+* Adds `lib/oauth/db/index.spec.ts` pinning the redis-only routing, and
+  fixes an assertion in `oauth_db.in.spec.ts` that looked an access token
+  up by its raw value instead of its hash and so could never fail.
+
+closes FXA-14204</pre></dd>
+  </dl>
+</body>
+</html>
