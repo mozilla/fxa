@@ -381,6 +381,8 @@ link-expired-new-link-button = 取得新鏈結
 
 # immediately before remember-password-signin-link
 remember-password-text = 想起密碼了嗎？
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = 之前打過 Passkey，或還記得密碼嗎？
 # link navigates to the sign in page
 remember-password-signin-link = 登入
 
@@ -498,7 +500,12 @@ flow-recovery-key-hint-unsafe-char-error = 提示內容不可使用 Unicode 特�
 password-reset-warning-icon = 警告
 password-reset-chevron-expanded = 摺疊警告
 password-reset-chevron-collapsed = 展開警告
+password-reset-warning-review-sign-in-options = 確認登入方式，看看是否有機會保留瀏覽器的資料
 password-reset-warning-have-key = 之前有保存帳號救援金鑰嗎？
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = 請使用那把金鑰來重設密碼，即可保留瀏覽器的資料
+password-reset-warning-signed-in-device = 此帳號還登入在其他裝置上嗎？
+password-reset-warning-signed-in-device-description = 您瀏覽器的資料可能還能取回。請重設密碼，然後到該裝置重新登入，即可恢復資料並同步回來。
 
 ## Alert Bar
 
