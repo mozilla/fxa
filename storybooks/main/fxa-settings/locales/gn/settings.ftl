@@ -393,6 +393,8 @@ link-expired-new-link-button = Ereko juajuha pyahu
 
 # immediately before remember-password-signin-link
 remember-password-text = ¿Nemandu’áke ñe’ẽñemíre?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = ¿Erekópa ñe’ẽ ñemi térã nemandu’a ne ñe’ẽñemíre?
 # link navigates to the sign in page
 remember-password-signin-link = Eñepyrũ tembiapo
 
@@ -510,7 +512,15 @@ flow-recovery-key-hint-unsafe-char-error = Pe jehoha ndorekoiva’erã taichagua
 password-reset-warning-icon = Jesarekorã
 password-reset-chevron-expanded = Ñemongyhyje
 password-reset-chevron-collapsed = Emyasãi mongyhyje
+password-reset-warning-review-sign-in-options = Ehecha jeike poravorã ha eñongatu kundahára mba’ekuaarã
 password-reset-warning-have-key = ¿Eguereko mba’ete jeguerujeyrã?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Eiporu egueru jey hag̃ua ne ñe’ẽñemi ha ani ogue ne mba’ekuaarã
+password-reset-warning-signed-in-device = ¿Erekóiti eikehague ambue mba’e’okápe?
+password-reset-warning-signed-in-device-description = Mba’ekuaarãita ne kundaharagua ojeporukuaa. Erujey ne ñe’ẽñemi, upéi eike mba’e’okápe erujey ha embojuehe hag̃ua ne mba’ekuaarã.
+password-reset-warning-restore-data-link = Eikuaa mba’éicha erujeýta kundahára mba’ekuaarã eikehaguépe
+password-reset-warning-new-device = ¿Eiporu mba’e’oka pyahu katu ndaikatúi eike ymaveguápe?
+password-reset-warning-new-device-description = Eru rire jey ne ñe’ẽñemi, mba’ekuaarãita ipapapýva mohendahavusu { -brand-firefox } ndojeporukuaamo’ãi ko mba’e’okápe.
 
 ## Alert Bar
 
@@ -1949,6 +1959,7 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
+password-reset-body-3 = Erujeyvo ñe’ẽñemi ombyaikuaa kundahára mba’ekuaarã ojuehepyre.
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -2073,6 +2084,7 @@ signin-passkey-fallback-heading = Ehai ñe’ẽñemi embojuehe hag̃ua
 signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotevẽ ehai ñe’ẽñemi eiporu vove ko ñe’ẽ ñemi.
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
+signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

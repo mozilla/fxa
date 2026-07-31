@@ -506,6 +506,9 @@ password-reset-warning-have-key = 之前有保存帳號救援金鑰嗎？
 password-reset-warning-use-key-link-v2 = 請使用那把金鑰來重設密碼，即可保留瀏覽器的資料
 password-reset-warning-signed-in-device = 此帳號還登入在其他裝置上嗎？
 password-reset-warning-signed-in-device-description = 您瀏覽器的資料可能還能取回。請重設密碼，然後到該裝置重新登入，即可恢復資料並同步回來。
+password-reset-warning-restore-data-link = 了解如何從以登入的裝置還原瀏覽器資料
+password-reset-warning-new-device = 改用新裝置，但已經無法使用原本的裝置了嗎？
+password-reset-warning-new-device-description = 重設密碼後，這台裝置就無法繼續使用 { -brand-firefox } 伺服器中加密的瀏覽器資料。
 
 ## Alert Bar
 
@@ -1915,6 +1918,7 @@ confirm-totp-reset-password-use-different-account = 使用另一個帳號
 ## ResetPassword start page
 
 password-reset-flow-heading = 重設您的密碼
+password-reset-body-3 = 重設密碼也可能會影響同步的瀏覽器資料。
 password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續
@@ -2032,6 +2036,7 @@ signin-passkey-fallback-heading = 請輸入您的密碼以進行同步
 signin-passkey-fallback-body = 為了確保您的資料安全，使用這把 Passkey 時需要輸入您的密碼。
 signin-passkey-fallback-password-label = 密碼
 signin-passkey-fallback-continue = 繼續
+signin-passkey-fallback-forgot-password-link = 忘記密碼？
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

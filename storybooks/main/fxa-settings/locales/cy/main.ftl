@@ -329,7 +329,7 @@ link-expired-new-link-button = Derbyn dolen newydd
 
 
 remember-password-text = Yn cofio eich cyfrinair?
-remember-password-passkey-text = Oes gennych chi gyfrinair neu cofiwch eich cyfrinair?
+remember-password-passkey-text = Oes gennych chi gyfrinallwedd neu'n cofio'ch cyfrinair?
 remember-password-signin-link = Mewngofnodi
 
 
@@ -403,14 +403,14 @@ flow-recovery-key-hint-unsafe-char-error = Ni all yr awgrym gynnwys nodau unicod
 password-reset-warning-icon = Rhybudd
 password-reset-chevron-expanded = Cau'r rhybudd
 password-reset-chevron-collapsed = Ehangu'r rhybudd
-password-reset-warning-review-sign-in-options = Adolygu opsiynau mewngofnodi i gadw data porwr
+password-reset-warning-review-sign-in-options = Adolygwch ddewisiadau mewngofnodi i gadw data porwr
 password-reset-warning-have-key = Oes gennych chi allwedd adfer cyfrif?
 password-reset-warning-use-key-link-v2 = Defnyddiwch ef i ailosod eich cyfrinair a chadw data eich porwr
-password-reset-warning-signed-in-device = Wedi mewngofnodi ar ddyfais arall o hyd?
-password-reset-warning-signed-in-device-description = Mae'n bosibl bod data eich porwr ar gael. Ailosodwch eich cyfrinair, yna mewngofnodwch ar y ddyfais honno i adfer a chysoni eich data.
+password-reset-warning-signed-in-device = Dal wedi mewngofnodi ar ddyfais arall?
+password-reset-warning-signed-in-device-description = Mae'n bosibl bod data eich porwr ar gael. Ailosodwch eich cyfrinair, yna mewngofnodi ar y ddyfais honno i adfer a chydweddu eich data.
 password-reset-warning-restore-data-link = Dysgwch sut i adfer data porwr o ddyfais sydd wedi'i mewngofnodi
-password-reset-warning-new-device = Defnyddio dyfais newydd ond methu cael mynediad i'ch hen rai?
-password-reset-warning-new-device-description = Ar ôl i chi ailosod eich cyfrinair, ni fydd data porwr wedi'i amgryptio ar weinyddion { -brand-firefox } ar gael ar y ddyfais hon.
+password-reset-warning-new-device = Yn defnyddio dyfais newydd ond methu cael mynediad i'ch hen rai?
+password-reset-warning-new-device-description = Ar ôl i chi ailosod eich cyfrinair, bydd data porwr wedi'i amgryptio ar weinyddion { -brand-firefox } ddim ar gael ar y ddyfais hon.
 
 
 alert-bar-close-message = Cau neges
@@ -1389,7 +1389,7 @@ confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
 
 
 password-reset-flow-heading = Ailosod eich cyfrinair
-password-reset-body-3 = Gall ailosod eich cyfrinair effeithio ar ddata porwr sydd wedi'i gysoni.
+password-reset-body-3 = Gall ailosod eich cyfrinair effeithio ar ddata porwr sydd wedi'i gydweddu.
 password-reset-email-input =
     .label = Rhowch eich e-bost
 password-reset-submit-button-2 = Parhau

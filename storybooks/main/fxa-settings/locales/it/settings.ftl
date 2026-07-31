@@ -515,12 +515,12 @@ password-reset-chevron-collapsed = Espandi avviso
 password-reset-warning-review-sign-in-options = Controlla le opzioni di accesso per conservare i dati del browser
 password-reset-warning-have-key = Hai una chiave di recupero dell’account?
 # "it" refers to the user's account recovery key.
-password-reset-warning-use-key-link-v2 = Utilizzalo per reimpostare la password e conservare i dati del browser
-password-reset-warning-signed-in-device = Hai ancora effettuato l’accesso da un altro dispositivo?
+password-reset-warning-use-key-link-v2 = Utilizzala per reimpostare la password e conservare i dati del browser
+password-reset-warning-signed-in-device = Sei ancora connesso su un altro dispositivo?
 password-reset-warning-signed-in-device-description = I dati del browser potrebbero essere disponibili. Reimposta la password, quindi accedi su quel dispositivo per ripristinare e sincronizzare i tuoi dati.
-password-reset-warning-restore-data-link = Scopri come ripristinare i dati del browser da un dispositivo su cui hai effettuato l’accesso
-password-reset-warning-new-device = Utilizzi un nuovo dispositivo ma non riesci ad accedere a quelli precedenti?
-password-reset-warning-new-device-description = Dopo aver reimpostato la password, i dati crittati del browser sui server { -brand-firefox } non saranno più disponibili su questo dispositivo.
+password-reset-warning-restore-data-link = Scopri come ripristinare i dati del browser da un dispositivo ancora connesso
+password-reset-warning-new-device = Utilizzi un nuovo dispositivo ma non hai accesso a quelli precedenti?
+password-reset-warning-new-device-description = Dopo aver reimpostato la password, i dati crittati del browser sui server di { -brand-firefox } non saranno più disponibili su questo dispositivo.
 
 ## Alert Bar
 

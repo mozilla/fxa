@@ -94,7 +94,7 @@ recovery-key-pdf-support = Læs mere om din genoprettelsesnøgle til kontoen
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 
-button-passkey-signin = Log ind med adgangsnøgle
+button-passkey-signin = log ind med adgangsnøgle
 button-passkey-signin-loading = Logger sikkert ind…
 
 

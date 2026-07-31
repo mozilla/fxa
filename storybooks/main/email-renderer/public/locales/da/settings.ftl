@@ -68,7 +68,7 @@ recovery-key-pdf-download-error = Der opstod desværre et problem med at hente d
 
 ## ButtonPasskeySignin
 
-button-passkey-signin = Log ind med adgangsnøgle
+button-passkey-signin = log ind med adgangsnøgle
 # This is a loading state indicating that we are waiting for the user to
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that
