@@ -5,7 +5,6 @@ import { randomUUID } from 'crypto';
 import { StatsD } from 'hot-shots';
 import mysql from 'mysql';
 
-import { AccessToken as AccessToken } from '../db/models/auth/access-token';
 import { ILogger } from '../log';
 import ScopeSet from '../oauth/scopes';
 
@@ -52,15 +51,6 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
-
-const QUERY_LIST_ACCESS_TOKENS_BY_UID =
-  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.scope, ' +
-  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
-  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
-  '  clients.publicClient ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.userId=?';
 
 const QUERY_LIST_ALL_CLIENTS =
   'SELECT id, name, imageUri, redirectUri, canGrant, ' +
@@ -394,16 +384,6 @@ export class MysqlOAuthShared extends MysqlStoreShared {
     metrics?: StatsD
   ) {
     super(options, events, log, metrics);
-  }
-
-  async getAccessTokensByUid(uid: string) {
-    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
-      buf(uid),
-    ]);
-
-    return accessTokens.map((t: any) => {
-      return AccessToken.fromMySQL(t);
-    });
   }
 
   async getRefreshTokensByUid(uid: string) {

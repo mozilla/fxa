@@ -83,10 +83,10 @@ const tables = {
   unverifiedTokens: toTable('unverifiedTokens'),
   verificationReminders: toTable('verificationReminders'),
 
-  // OAuth tables
+  // OAuth tables. Note that `fxa_oauth.tokens` is deliberately absent: OAuth
+  // access tokens are stored only in redis, so the table is never written to.
   oauthCodes: toTable('codes', 'fxa_oauth'),
   oauthRefreshTokens: toTable('refreshTokens', 'fxa_oauth'),
-  oauthTokens: toTable('tokens', 'fxa_oauth'),
 
   // Profile tables
   profile: toTable('profile', 'fxa_profile'),
@@ -358,7 +358,6 @@ async function auditAll() {
       [tables.verificationReminders, 'createdAt', 'uid'],
       [tables.oauthCodes, 'createdAt', 'token'],
       [tables.oauthRefreshTokens, 'createdAt', 'token'],
-      [tables.oauthTokens, 'createdAt', 'token'],
     ];
     for (const [table, colName, colSort] of set) {
       await auditAge(table, colName, colSort);

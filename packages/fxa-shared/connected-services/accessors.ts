@@ -109,7 +109,6 @@ export class ConnectedServicesCache {
  */
 export interface IConnectedServicesDbStore {
   getRefreshTokensByUid(uid: string): Promise<any>;
-  getAccessTokensByUid(uid: string): Promise<any>;
   close(): Promise<void>;
 }
 
@@ -143,9 +142,7 @@ export class ConnectedServicesDb {
   }
 
   async getAccessTokensByUid(uid: string) {
-    const tokens = await this.cache.getAccessTokens(uid);
-    const otherTokens = await this.db.getAccessTokensByUid(uid);
-    return tokens.concat(otherTokens);
+    return await this.cache.getAccessTokens(uid);
   }
 
   async close() {
