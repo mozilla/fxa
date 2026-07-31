@@ -13,6 +13,11 @@ const {
   OAUTH_SCOPE_RELAY,
   OAUTH_SCOPE_SESSION_TOKEN,
 } = require('fxa-shared/oauth/constants');
+const encrypt = require('fxa-shared/auth/encrypt');
+const { OAuthNativeClients } = require('@fxa/accounts/oauth');
+const {
+  excludeDauCacheKey,
+} = require('../../oauth/desktop-sync-dau-authorization-bandaid');
 
 function buf(v: any) {
   return Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex');
@@ -35,6 +40,7 @@ const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
+const FIREFOX_DESKTOP_CLIENT_ID = OAuthNativeClients.FirefoxDesktop;
 // Mirrors encrypt.hash(), used by the route to key the rate limit.
 const SUBJECT_TOKEN_HASH = crypto
   .createHash('sha256')
@@ -1575,6 +1581,182 @@ describe('/oauth/token POST', () => {
           clientId: CLIENT_ID,
         }
       );
+    });
+  });
+});
+
+// FXA-14263: /oauth/authorization is the only request that sees `service=`, so
+// it decides whether a Desktop sign-in counts toward Sync DAU and leaves the
+// answer in Redis against the code's hash. Here we assert the read side.
+// Read side of the FXA-14263 carry: /oauth/authorization decides, leaves the
+// answer in Redis against the code's hash, and the redemption picks it up.
+describe('exclude_dau carried on the authorization code', () => {
+  const EXPECTED_KEY = excludeDauCacheKey(
+    encrypt.hash(CODE_WITH_KEYS).toString('hex')
+  );
+
+  function codeRequest(payloadOverrides: Record<string, unknown> = {}) {
+    return {
+      app: {},
+      // Code redemption is client-authenticated; no session token rides along.
+      auth: { credentials: undefined },
+      headers: {},
+      payload: {
+        client_id: FIREFOX_DESKTOP_CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE_WITH_KEYS,
+        ...payloadOverrides,
+      },
+      emitMetricsEvent: () => {},
+    };
+  }
+
+  // The route short-circuits before Redis unless the code is a Firefox Desktop
+  // one carrying the Sync scope, so the default code fixture has to be that.
+  function buildOauthDB(codeOverrides: Record<string, unknown> = {}) {
+    return {
+      ...tokenRoutesArgMocks.oauthDB,
+      async getCode() {
+        return {
+          userId: buf(UID),
+          clientId: buf(FIREFOX_DESKTOP_CLIENT_ID),
+          createdAt: Date.now(),
+          scope: ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC, 'profile']),
+          ...codeOverrides,
+        };
+      },
+      getCanonicalScopeForService: (service: string) =>
+        service === 'sync' ? OAUTH_SCOPE_OLD_SYNC : undefined,
+    };
+  }
+
+  async function run({
+    redis,
+    oauthDB = buildOauthDB(),
+    payload,
+  }: {
+    redis?: { get: jest.Mock };
+    oauthDB?: Record<string, any>;
+    payload?: Record<string, unknown>;
+  }) {
+    resetAndMockDeps();
+    // The shared generateTokens stub passes `scope` through untouched, but the
+    // real one emits `access.scope.toString()`. These tests carry a real
+    // ScopeSet on the code, so match production or the route throws.
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => {
+        const t = { ...grant, scope: grant.scope.toString() } as any;
+        if (grant.offline) {
+          t.refresh_token = '00ff';
+        }
+        return t;
+      },
+    }));
+    const glean = { oauth: { tokenCreated: jest.fn() } };
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB,
+      glean,
+      authServerCacheRedis: redis,
+    });
+    const request = codeRequest(payload);
+    await routes[1].handler(request);
+    return { glean, request };
+  }
+
+  it('tags the token created event when the code was flagged', async () => {
+    const redis = { get: jest.fn().mockResolvedValue('1') };
+
+    const { glean, request } = await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({
+        reason: 'authorization_code',
+        scopes: ScopeSet.fromArray([
+          OAUTH_SCOPE_OLD_SYNC,
+          'profile',
+        ]).toString(),
+        excludeDau: true,
+      })
+    );
+  });
+
+  it('does not tag the event when no flag was recorded for the code', async () => {
+    const redis = { get: jest.fn().mockResolvedValue(null) };
+
+    const { glean, request } = await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+  });
+
+  it('counts the token and reports the failure when Redis is unavailable', async () => {
+    const redis = { get: jest.fn().mockRejectedValue(new Error('no redis')) };
+
+    const { glean, request } = await run({ redis });
+
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+    // The only signal that the bandaid has silently stopped working.
+    expect(mockStatsD.increment).toHaveBeenCalledWith(
+      'oauth.excludeDau.readFailed'
+    );
+  });
+
+  it('counts the token when no cache is wired up', async () => {
+    const { glean, request } = await run({ redis: undefined });
+
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+  });
+
+  it('keeps a client-supplied exclude_dau even when nothing was cached', async () => {
+    const redis = { get: jest.fn().mockResolvedValue(null) };
+
+    const { glean, request } = await run({
+      redis,
+      payload: { exclude_dau: true },
+    });
+
+    expect(redis.get).toHaveBeenCalled();
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: true })
+    );
+  });
+
+  describe('skips Redis when the code cannot carry a flag', () => {
+    it('does not read for a code without the Sync scope', async () => {
+      const redis = { get: jest.fn() };
+
+      await run({
+        redis,
+        oauthDB: buildOauthDB({ scope: ScopeSet.fromArray(['profile']) }),
+      });
+
+      expect(redis.get).not.toHaveBeenCalled();
+    });
+
+    it('does not read for a non-Desktop client', async () => {
+      const redis = { get: jest.fn() };
+
+      await run({
+        redis,
+        oauthDB: buildOauthDB({ clientId: buf(FIREFOX_IOS_CLIENT_ID) }),
+        payload: { client_id: FIREFOX_IOS_CLIENT_ID },
+      });
+
+      expect(redis.get).not.toHaveBeenCalled();
     });
   });
 });
