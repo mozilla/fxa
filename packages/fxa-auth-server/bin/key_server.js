@@ -249,7 +249,8 @@ async function run(config) {
             strapiClientConfig,
             strapiClient,
             firestore,
-            log
+            log,
+            statsd
           );
         freeAccessJournalManagerConfig = Object.assign(
           new FreeAccessProgramJournalManagerConfig(),

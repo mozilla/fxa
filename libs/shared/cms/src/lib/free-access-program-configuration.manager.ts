@@ -6,8 +6,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
 import { Cacheable, CacheClear } from '@type-cacheable/core';
 import { Firestore } from '@google-cloud/firestore';
+import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import {
   CacheFirstStrategy,
@@ -33,6 +35,24 @@ const DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS = 604800; // 7 days
 const DEFAULT_FIRESTORE_CACHE_TTL_SECONDS = 1800; // 30 minutes
 const DEFAULT_MEM_CACHE_TTL_SECONDS = 300; // 5 minutes
 
+type CacheTimingTags = { error: boolean; cache: boolean; cacheType: string };
+
+export function deriveCacheTimingTags(
+  cacheTier: 'memory' | 'firestore',
+  result: string
+): CacheTimingTags | null {
+  if (cacheTier === 'memory') {
+    return result === 'cache'
+      ? { error: false, cache: true, cacheType: 'memory' }
+      : null;
+  }
+  return {
+    error: result === 'fallback' || result === 'fallbackFailed',
+    cache: result === 'stale' || result === 'fallback',
+    cacheType: result,
+  };
+}
+
 @Injectable()
 export class FreeAccessProgramConfigurationManager {
   private memoryCacheAdapter: MemoryAdapter;
@@ -42,7 +62,8 @@ export class FreeAccessProgramConfigurationManager {
     private config: StrapiClientConfig,
     private strapiClient: StrapiClient,
     @Inject(FirestoreService) firestore: Firestore,
-    @Inject(Logger) private log: LoggerService
+    @Inject(Logger) private log: LoggerService,
+    @Inject(StatsDService) private statsd: StatsD
   ) {
     this.memoryCacheAdapter = new MemoryAdapter();
     this.firestoreCacheAdapter = new FirestoreAdapter(
@@ -51,16 +72,41 @@ export class FreeAccessProgramConfigurationManager {
     );
   }
 
+  recordCacheTiming(
+    operationName: string,
+    cacheTier: 'memory' | 'firestore',
+    elapsed: number,
+    result: string
+  ): void {
+    const tags = deriveCacheTimingTags(cacheTier, result);
+    if (!tags) {
+      return;
+    }
+    this.statsd.timing('cms_free_access_request', elapsed, undefined, {
+      method: 'query',
+      operationName,
+      error: `${tags.error}`,
+      cache: `${tags.cache}`,
+      cacheType: tags.cacheType,
+    });
+  }
+
   @Cacheable({
     cacheKey: () => PROJECTION_CACHE_KEY,
     strategy: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       new CacheFirstStrategy(
         (err) => Sentry.captureException(err),
-        () => {},
+        (startTime, endTime, result) =>
+          context.recordCacheTiming(
+            PROJECTION_CACHE_KEY,
+            'memory',
+            endTime - startTime,
+            result
+          ),
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.memCacheTTL ?? DEFAULT_MEM_CACHE_TTL_SECONDS,
+      context.config.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.memoryCacheAdapter,
   })
@@ -68,13 +114,19 @@ export class FreeAccessProgramConfigurationManager {
     cacheKey: () => PROJECTION_CACHE_KEY,
     strategy: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       new StaleWhileRevalidateWithFallbackStrategy(
-        context.config.firestoreCacheTTL ?? DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
+        context.config.firestoreCacheTTL || DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
         (err) => Sentry.captureException(err),
-        () => {},
+        (startTime, endTime, result) =>
+          context.recordCacheTiming(
+            PROJECTION_CACHE_KEY,
+            'firestore',
+            endTime - startTime,
+            result
+          ),
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.firestoreOfflineCacheTTL ??
+      context.config.firestoreOfflineCacheTTL ||
       DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS,
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.firestoreCacheAdapter,
@@ -90,13 +142,26 @@ export class FreeAccessProgramConfigurationManager {
   }
 
   async getFreshProjection(): Promise<FreeAccessProjection> {
+    const startedAt = Date.now();
     const queryResult = await this.strapiClient.queryUncached(
       accessesQuery,
       {}
     );
     const util = new AccessUtil(queryResult);
+    const projection = util.project();
 
-    return util.project();
+    // Uncached fetch (bypasses both cache tiers). Reported under the same
+    // metric as the cached lookups so fresh vs cached latency is comparable,
+    // tagged cacheType 'fresh' to set it apart.
+    this.statsd.timing('cms_free_access_request', Date.now() - startedAt, undefined, {
+      method: 'query',
+      operationName: PROJECTION_CACHE_KEY,
+      error: 'false',
+      cache: 'false',
+      cacheType: 'fresh',
+    });
+
+    return projection;
   }
 
   /**
@@ -110,11 +175,17 @@ export class FreeAccessProgramConfigurationManager {
     strategy: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       new CacheFirstStrategy(
         (err) => Sentry.captureException(err),
-        () => {},
+        (startTime, endTime, result) =>
+          context.recordCacheTiming(
+            ACCESS_GRANTS_CACHE_KEY,
+            'memory',
+            endTime - startTime,
+            result
+          ),
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.memCacheTTL ?? DEFAULT_MEM_CACHE_TTL_SECONDS,
+      context.config.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.memoryCacheAdapter,
   })
@@ -122,13 +193,19 @@ export class FreeAccessProgramConfigurationManager {
     cacheKey: () => ACCESS_GRANTS_CACHE_KEY,
     strategy: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       new StaleWhileRevalidateWithFallbackStrategy(
-        context.config.firestoreCacheTTL ?? DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
+        context.config.firestoreCacheTTL || DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
         (err) => Sentry.captureException(err),
-        () => {},
+        (startTime, endTime, result) =>
+          context.recordCacheTiming(
+            ACCESS_GRANTS_CACHE_KEY,
+            'firestore',
+            endTime - startTime,
+            result
+          ),
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.firestoreOfflineCacheTTL ??
+      context.config.firestoreOfflineCacheTTL ||
       DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS,
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.firestoreCacheAdapter,
