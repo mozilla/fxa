@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
 import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { gotoSyncSession } from '../../lib/sync-helpers';
 import { getTotpCode } from '../../lib/totp';
@@ -12,58 +12,58 @@ const CLIENTID_123Done = 'dcdb5ae7add825d2';
 const ENTRYPOINT_SYNC = 'firefox-cms';
 const CLIENTID_SYNC = '5882386c6d801776';
 
+async function assertCmsCustomization(
+  page: Page,
+  {
+    headline,
+    description,
+    logoUrl,
+    logoAlt = '123Done logo',
+    buttonColor,
+    buttonText,
+  }: {
+    headline: string;
+    description?: string;
+    logoUrl?: string;
+    logoAlt?: string;
+    buttonColor: string;
+    buttonText: string;
+  }
+) {
+  await expect(page.getByRole('heading', { name: headline })).toBeVisible();
+
+  if (description) {
+    await expect(page.getByText(description)).toBeVisible();
+  }
+
+  if (logoUrl) {
+    // A Firefox-branded mobile promo (PromoQrMobile) renders a second img
+    // with the same alt text, so scope to the CMS logo by its src.
+    const logo = page
+      .getByRole('img', { name: logoAlt, exact: true })
+      .and(page.locator(`[src="${logoUrl}"]`));
+    await expect(logo).toBeVisible();
+    await expect(logo).toHaveAttribute('src', logoUrl);
+  }
+
+  const button = page.getByRole('button', {
+    name: buttonText,
+    exact: true,
+  });
+  await expect(button).toBeVisible();
+  await expect(button).toHaveClass(/cta-primary-cms/);
+  await expect(button).toHaveClass(/cta-xl/);
+  await expect(button).toHaveClass(/cta-primary/);
+  await expect(button).toHaveCSS('--cta-bg', buttonColor);
+  await expect(button).toHaveCSS('--cta-border', buttonColor);
+  await expect(button).toHaveCSS('--cta-active', buttonColor);
+  await expect(button).toHaveCSS('--cta-disabled', buttonColor);
+}
+
 test.describe('severity-1 #smoke', () => {
   test.describe.configure({ mode: 'parallel' });
   test.describe('CMS customization with 2FA flows', () => {
     let config: any;
-
-    async function assertCmsCustomization(
-      page: any,
-      {
-        headline,
-        description,
-        logoUrl,
-        logoAlt = '123Done logo',
-        buttonColor,
-        buttonText,
-      }: {
-        headline: string;
-        description?: string;
-        logoUrl?: string;
-        logoAlt?: string;
-        buttonColor: string;
-        buttonText: string;
-      }
-    ) {
-      await expect(page.getByRole('heading', { name: headline })).toBeVisible();
-
-      if (description) {
-        await expect(page.getByText(description)).toBeVisible();
-      }
-
-      if (logoUrl) {
-        // A Firefox-branded mobile promo (PromoQrMobile) renders a second img
-        // with the same alt text, so scope to the CMS logo by its src.
-        const logo = page
-          .getByRole('img', { name: logoAlt, exact: true })
-          .and(page.locator(`[src="${logoUrl}"]`));
-        await expect(logo).toBeVisible();
-        await expect(logo).toHaveAttribute('src', logoUrl);
-      }
-
-      const button = page.getByRole('button', {
-        name: buttonText,
-        exact: true,
-      });
-      await expect(button).toBeVisible();
-      await expect(button).toHaveClass(/cta-primary-cms/);
-      await expect(button).toHaveClass(/cta-xl/);
-      await expect(button).toHaveClass(/cta-primary/);
-      await expect(button).toHaveCSS('--cta-bg', buttonColor);
-      await expect(button).toHaveCSS('--cta-border', buttonColor);
-      await expect(button).toHaveCSS('--cta-active', buttonColor);
-      await expect(button).toHaveCSS('--cta-disabled', buttonColor);
-    }
 
     test.beforeAll(async ({ target }) => {
       // These tests require customizations for 123Done and Sync. Please contact
@@ -90,11 +90,6 @@ test.describe('severity-1 #smoke', () => {
         isConfigEmpty(relierConfig) || isConfigEmpty(syncConfig),
         'CMS customization is not set up for 123Done or Sync'
       );
-
-      // SmsClient is lazy loaded, check these flags to ensure it is initialized
-      const isEnabled =
-        target.smsClient.isRedisEnabled() || target.smsClient.isTwilioEnabled();
-      test.skip(!isEnabled, 'SMS client needs redis or twilio to be enabled');
     });
 
     test.beforeEach(async ({ pages: { configPage } }) => {
@@ -220,159 +215,6 @@ test.describe('severity-1 #smoke', () => {
       // Enter TOTP code
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
-
-      // Verify successful login
-      expect(await relier.isLoggedIn()).toBe(true);
-    });
-
-    test('enable 2FA and signin with recovery phone - 123Done', async ({
-      target,
-      page,
-      pages: {
-        signin,
-        relier,
-        settings,
-        totp,
-        signinRecoveryPhone,
-        recoveryPhone,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-
-      // First, sign in and enable 2FA
-      await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
-      await relier.clickEmailFirst();
-
-      await assertCmsCustomization(page, {
-        headline: 'Make Space for What Matters',
-        description:
-          'Start your clutter-free to-do list with 123Done. Sign up with your email to create a Mozilla account and get started today.',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
-        buttonColor: '#4845D2',
-        buttonText: 'Create My List',
-      });
-
-      await page
-        .getByRole('textbox', { name: 'Email' })
-        .fill(credentials.email);
-      let submitButton = page.getByRole('button', {
-        name: 'Create My List',
-        exact: true,
-      });
-      await submitButton.click();
-
-      await assertCmsCustomization(page, {
-        headline: 'Enter your password',
-        description: 'for your Mozilla account',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
-        buttonColor: '#4845D2',
-        buttonText: 'Sign in',
-      });
-      await signin.passwordTextbox.fill(credentials.password);
-      submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
-      await submitButton.click();
-
-      // Verify successful login and go to settings
-      expect(await relier.isLoggedIn()).toBe(true);
-      await settings.goto();
-
-      // Enable 2FA
-      await expect(settings.totp.status).toHaveText('Disabled');
-      await settings.totp.addButton.click();
-      await settings.confirmMfaGuard(credentials.email);
-
-      // Set up 2FA with QR code and recovery phone
-      await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(credentials);
-
-      await expect(recoveryPhone.addHeader()).toBeVisible();
-
-      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-      await recoveryPhone.clickSendCode();
-
-      await expect(recoveryPhone.confirmHeader).toBeVisible();
-
-      const code = await target.smsClient.getCode({ ...credentials });
-
-      await recoveryPhone.enterCode(code);
-      await recoveryPhone.clickConfirm();
-
-      await page.waitForURL(/settings/);
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toContainText(
-        'Two-step authentication has been enabled'
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      // Sign out
-      await settings.signOut();
-
-      await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
-      await relier.signOut();
-
-      // Sign in again with 2FA
-      await relier.clickEmailFirst();
-
-      await assertCmsCustomization(page, {
-        headline: 'Make Space for What Matters',
-        description:
-          'Start your clutter-free to-do list with 123Done. Sign up with your email to create a Mozilla account and get started today.',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
-        buttonColor: '#4845D2',
-        buttonText: 'Create My List',
-      });
-
-      await page
-        .getByRole('textbox', { name: 'Email' })
-        .fill(credentials.email);
-      submitButton = page.getByRole('button', {
-        name: 'Create My List',
-        exact: true,
-      });
-      await submitButton.click();
-
-      await assertCmsCustomization(page, {
-        headline: 'Enter your password',
-        description: 'for your Mozilla account',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
-        buttonColor: '#4845D2',
-        buttonText: 'Sign in',
-      });
-      await signin.passwordTextbox.fill(credentials.password);
-      submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
-      await submitButton.click();
-
-      // Should now be on TOTP code page
-      await expect(page).toHaveURL(/signin_totp_code/);
-
-      await assertCmsCustomization(page, {
-        headline: 'Enter two-step authentication code',
-        buttonColor: '#4845D2',
-        buttonText: 'Confirm',
-      });
-
-      // Click trouble entering code to use recovery phone
-      await page.getByRole('link', { name: 'Trouble entering code?' }).click();
-
-      // Should be on recovery phone page
-      await expect(page).toHaveURL(/signin_recovery_phone/);
-
-      await assertCmsCustomization(page, {
-        headline: 'Enter recovery code',
-        buttonColor: '#4845D2',
-        buttonText: 'Confirm',
-      });
-
-      // Get SMS code and enter it
-      const smsCode = await target.smsClient.getCode({ ...credentials });
-
-      await signinRecoveryPhone.enterCode(smsCode);
-      await signinRecoveryPhone.clickConfirm();
 
       // Verify successful login
       expect(await relier.isLoggedIn()).toBe(true);
@@ -579,5 +421,178 @@ test.describe('severity-1 #smoke', () => {
       // Verify successful login
       await page.waitForURL(/settings/);
     });
+  });
+});
+
+// Local only — see "Routing SMS tests in CI" in the README.
+test.describe('CMS customization with 2FA via recovery phone (local only)', () => {
+  test.beforeAll(async ({ target }) => {
+    // Only 123Done is needed here, unlike the Sync-and-123Done suite above.
+    const relierConfig = await target.authClient.getCmsConfig(
+      CLIENTID_123Done,
+      ENTRYPOINT_123Done
+    );
+    test.skip(
+      !relierConfig ||
+        typeof relierConfig !== 'object' ||
+        Object.keys(relierConfig).length === 0,
+      'CMS customization is not set up for 123Done'
+    );
+
+    target.smsClient.guardTestPhoneNumber();
+  });
+
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(config.cms.enabled !== true, 'CMS customization is not enabled');
+  });
+
+  test('enable 2FA and signin with recovery phone - 123Done', async ({
+    target,
+    page,
+    pages: {
+      signin,
+      relier,
+      settings,
+      totp,
+      signinRecoveryPhone,
+      recoveryPhone,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+
+    // First, sign in and enable 2FA
+    await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
+    await relier.clickEmailFirst();
+
+    await assertCmsCustomization(page, {
+      headline: 'Make Space for What Matters',
+      description:
+        'Start your clutter-free to-do list with 123Done. Sign up with your email to create a Mozilla account and get started today.',
+      logoUrl:
+        'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
+      buttonColor: '#4845D2',
+      buttonText: 'Create My List',
+    });
+
+    await page.getByRole('textbox', { name: 'Email' }).fill(credentials.email);
+    let submitButton = page.getByRole('button', {
+      name: 'Create My List',
+      exact: true,
+    });
+    await submitButton.click();
+
+    await assertCmsCustomization(page, {
+      headline: 'Enter your password',
+      description: 'for your Mozilla account',
+      logoUrl:
+        'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
+      buttonColor: '#4845D2',
+      buttonText: 'Sign in',
+    });
+    await signin.passwordTextbox.fill(credentials.password);
+    submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
+    await submitButton.click();
+
+    // Verify successful login and go to settings
+    expect(await relier.isLoggedIn()).toBe(true);
+    await settings.goto();
+
+    // Enable 2FA
+    await expect(settings.totp.status).toHaveText('Disabled');
+    await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+
+    // Set up 2FA with QR code and recovery phone
+    await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(credentials);
+
+    await expect(recoveryPhone.addHeader()).toBeVisible();
+
+    await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+    await recoveryPhone.clickSendCode();
+
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
+
+    const code = await target.smsClient.getCode({ ...credentials });
+
+    await recoveryPhone.enterCode(code);
+    await recoveryPhone.clickConfirm();
+
+    await page.waitForURL(/settings/);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toContainText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Sign out
+    await settings.signOut();
+
+    await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
+    await relier.signOut();
+
+    // Sign in again with 2FA
+    await relier.clickEmailFirst();
+
+    await assertCmsCustomization(page, {
+      headline: 'Make Space for What Matters',
+      description:
+        'Start your clutter-free to-do list with 123Done. Sign up with your email to create a Mozilla account and get started today.',
+      logoUrl:
+        'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
+      buttonColor: '#4845D2',
+      buttonText: 'Create My List',
+    });
+
+    await page.getByRole('textbox', { name: 'Email' }).fill(credentials.email);
+    submitButton = page.getByRole('button', {
+      name: 'Create My List',
+      exact: true,
+    });
+    await submitButton.click();
+
+    await assertCmsCustomization(page, {
+      headline: 'Enter your password',
+      description: 'for your Mozilla account',
+      logoUrl:
+        'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
+      buttonColor: '#4845D2',
+      buttonText: 'Sign in',
+    });
+    await signin.passwordTextbox.fill(credentials.password);
+    submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
+    await submitButton.click();
+
+    // Should now be on TOTP code page
+    await expect(page).toHaveURL(/signin_totp_code/);
+
+    await assertCmsCustomization(page, {
+      headline: 'Enter two-step authentication code',
+      buttonColor: '#4845D2',
+      buttonText: 'Confirm',
+    });
+
+    // Click trouble entering code to use recovery phone
+    await page.getByRole('link', { name: 'Trouble entering code?' }).click();
+
+    // Should be on recovery phone page
+    await expect(page).toHaveURL(/signin_recovery_phone/);
+
+    await assertCmsCustomization(page, {
+      headline: 'Enter recovery code',
+      buttonColor: '#4845D2',
+      buttonText: 'Confirm',
+    });
+
+    // Get SMS code and enter it
+    const smsCode = await target.smsClient.getCode({ ...credentials });
+
+    await signinRecoveryPhone.enterCode(smsCode);
+    await signinRecoveryPhone.clickConfirm();
+
+    // Verify successful login
+    expect(await relier.isLoggedIn()).toBe(true);
   });
 });

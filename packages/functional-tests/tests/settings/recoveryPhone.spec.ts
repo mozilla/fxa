@@ -16,11 +16,7 @@ import { gotoSyncSession } from '../../lib/sync-helpers';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('recovery phone #phone', () => {
-    // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
-    // the same test phone number, and we cannot determine the order in which the messages were received.
-    test.describe.configure({ mode: 'serial' });
-
+  test.describe('recovery phone', () => {
     let testNumber: string;
 
     test.beforeAll(async ({ target }) => {
@@ -51,7 +47,7 @@ test.describe('severity-1 #smoke', () => {
       );
     });
 
-    test('can setup, confirm and remove recovery phone', async ({
+    test('can setup, confirm and remove recovery phone #phone', async ({
       target,
       pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
@@ -101,7 +97,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.addRecoveryPhoneButton).toBeVisible();
     });
 
-    test('can change recovery phone', async ({
+    test('can change recovery phone #phone', async ({
       target,
       pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
@@ -141,7 +137,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText('Recovery phone changed');
     });
 
-    test('can sign-in to settings with recovery phone', async ({
+    test('can sign-in to settings with recovery phone #phone', async ({
       target,
       pages: {
         page,
@@ -185,358 +181,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/settings/);
     });
 
-    test('can sign-in Sync (fx_desktop_v3) with recovery phone', async ({
-      target,
-      syncBrowserPages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        connectAnotherDevice,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await setup2faWithBackupCodeChoice(credentials, settings, totp);
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-      await page.waitForURL(/\//);
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-        { waitUntil: 'load' }
-      );
-
-      await fillOutRecoveryPhoneFromEmailFirst({
-        page,
-        signin,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        credentials,
-        target,
-      });
-
-      await page.waitForURL(/pair/);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-
-      await signin.checkWebChannelMessage(FirefoxCommand.Login);
-
-      await connectAnotherDevice.clickNotNowPair();
-      await page.waitForURL(/settings/);
-    });
-
-    test('can sign-in Sync (oauth_webchannel_v1) with recovery phone', async ({
-      target,
-      syncOAuthBrowserPages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        connectAnotherDevice,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await setup2faWithBackupCodeChoice(credentials, settings, totp);
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-      await page.waitForURL(/\//);
-
-      // Real /pair handshake so Firefox derives real Sync keys.
-      await gotoSyncSession(page, target);
-      await page.waitForURL(/action=email/, { timeout: 15000 });
-
-      await fillOutRecoveryPhoneFromEmailFirst({
-        page,
-        signin,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        credentials,
-        target,
-      });
-
-      await page.waitForURL(/pair/);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-
-      await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-      await signin.checkWebChannelMessage(FirefoxCommand.Login);
-
-      await connectAnotherDevice.clickNotNowPair();
-      await page.waitForURL(/settings/);
-    });
-
-    test('can sign-in with recovery phone after resend code', async ({
-      target,
-      pages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await setup2faWithBackupCodeChoice(credentials, settings, totp);
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-      await page.waitForURL(/\//);
-
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      await page.waitForURL(/signin_totp_code/);
-
-      await signinTotpCode.clickTroubleEnteringCode();
-
-      await page.waitForURL(/signin_recovery_choice/);
-
-      await signinRecoveryChoice.clickChoosePhone();
-      await signinRecoveryChoice.clickContinue();
-
-      await page.waitForURL(/signin_recovery_phone/);
-
-      // Invalid code
-      await signinRecoveryPhone.enterCode('123456');
-      await signinRecoveryPhone.clickConfirm();
-
-      await expect(
-        page.getByText(/The code is invalid or expired./)
-      ).toBeVisible();
-
-      const originalCode = await target.smsClient.getCode({ ...credentials });
-
-      // Sends a new code
-      await signinRecoveryPhone.clickResendCode();
-      await expect(page.getByText('Code sent')).toBeVisible();
-
-      const nextCode = await target.smsClient.getCode({ ...credentials });
-
-      expect(originalCode).not.toEqual(nextCode);
-
-      // Enter the new code and login
-      await signinRecoveryPhone.enterCode(nextCode);
-
-      await signinRecoveryPhone.clickConfirm();
-
-      await page.waitForURL(/settings/);
-    });
-
-    test('can sign-in 123Done with recovery phone', async ({
-      target,
-      pages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        relier,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await setup2faWithBackupCodeChoice(credentials, settings, totp);
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-
-      await relier.goto();
-      await relier.clickEmailFirst();
-
-      await fillOutRecoveryPhoneFromEmailFirst({
-        page,
-        signin,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        credentials,
-        target,
-      });
-
-      expect(await relier.isLoggedIn()).toBe(true);
-    });
-
-    test('can use recovery code with recovery phone setup', async ({
-      target,
-      pages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryCode,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        credentials,
-        settings,
-        totp
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-      await page.waitForURL(/\//);
-
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      await page.waitForURL(/signin_totp_code/);
-
-      await signinTotpCode.clickTroubleEnteringCode();
-
-      await page.waitForURL(/signin_recovery_choice/);
-
-      await signinRecoveryChoice.clickChooseCode();
-      await signinRecoveryChoice.clickContinue();
-
-      await page.waitForURL(/signin_recovery_code/);
-
-      await signinRecoveryCode.fillOutCodeForm(
-        totpCredentials.recoveryCodes[0]
-      );
-
-      await page.waitForURL(/settings/);
-
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await expect(settings.settingsHeading).toBeVisible();
-    });
-
-    test('can still use totp code with recovery phone setup', async ({
-      target,
-      pages: {
-        page,
-        settings,
-        signin,
-        recoveryPhone,
-        totp,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        credentials,
-        settings,
-        totp
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await addRecoveryPhone(
-        settings,
-        recoveryPhone,
-        page,
-        credentials,
-        target
-      );
-
-      await settings.signOut();
-      await page.waitForURL(/\//);
-
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      await page.waitForURL(/signin_totp_code/);
-
-      await signinTotpCode.clickTroubleEnteringCode();
-
-      await page.waitForURL(/signin_recovery_choice/);
-
-      await signinRecoveryChoice.clickChoosePhone();
-      await signinRecoveryChoice.clickContinue();
-
-      await page.waitForURL(/signin_recovery_phone/);
-
-      await signinRecoveryPhone.clickBack();
-      await page.waitForURL(/signin_recovery_choice/);
-
-      await signinRecoveryChoice.clickBack();
-      await page.waitForURL(/signin_totp_code/);
-
-      const totpCode = await getTotpCode(totpCredentials.secret);
-      await signinTotpCode.fillOutCodeForm(totpCode);
-
-      await page.waitForURL(/settings/);
-      await expect(await settings.totp.status).toHaveText('Enabled');
-    });
-
-    test('can set up recovery phone during initial 2FA setup', async ({
+    test('can set up recovery phone during initial 2FA setup #phone', async ({
       target,
       pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
@@ -559,7 +204,7 @@ test.describe('severity-1 #smoke', () => {
       );
     });
 
-    test('sign in with only recovery phone available (no backup codes)', async ({
+    test('sign in with only recovery phone available (no backup codes) #phone', async ({
       target,
       pages: {
         page,
@@ -609,6 +254,326 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
     });
+  });
+});
+
+// Local only — see "Routing SMS tests in CI" in the README.
+test.describe('recovery phone (local only)', () => {
+  test.beforeAll(async ({ target }) => {
+    target.smsClient.guardTestPhoneNumber();
+  });
+
+  test('can sign-in Sync (fx_desktop_v3) with recovery phone', async ({
+    target,
+    syncBrowserPages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      connectAnotherDevice,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await setup2faWithBackupCodeChoice(credentials, settings, totp);
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+    await page.waitForURL(/\//);
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
+      { waitUntil: 'load' }
+    );
+
+    await fillOutRecoveryPhoneFromEmailFirst({
+      page,
+      signin,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      credentials,
+      target,
+    });
+
+    await page.waitForURL(/pair/);
+    await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+
+    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+
+    await connectAnotherDevice.clickNotNowPair();
+    await page.waitForURL(/settings/);
+  });
+
+  test('can sign-in Sync (oauth_webchannel_v1) with recovery phone', async ({
+    target,
+    syncOAuthBrowserPages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      connectAnotherDevice,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await setup2faWithBackupCodeChoice(credentials, settings, totp);
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+    await page.waitForURL(/\//);
+
+    // Real /pair handshake so Firefox derives real Sync keys.
+    await gotoSyncSession(page, target);
+    await page.waitForURL(/action=email/, { timeout: 15000 });
+
+    await fillOutRecoveryPhoneFromEmailFirst({
+      page,
+      signin,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      credentials,
+      target,
+    });
+
+    await page.waitForURL(/pair/);
+    await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+
+    await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await signin.checkWebChannelMessage(FirefoxCommand.Login);
+
+    await connectAnotherDevice.clickNotNowPair();
+    await page.waitForURL(/settings/);
+  });
+
+  test('can sign-in with recovery phone after resend code', async ({
+    target,
+    pages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await setup2faWithBackupCodeChoice(credentials, settings, totp);
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+    await page.waitForURL(/\//);
+
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await page.waitForURL(/signin_totp_code/);
+
+    await signinTotpCode.clickTroubleEnteringCode();
+
+    await page.waitForURL(/signin_recovery_choice/);
+
+    await signinRecoveryChoice.clickChoosePhone();
+    await signinRecoveryChoice.clickContinue();
+
+    await page.waitForURL(/signin_recovery_phone/);
+
+    // Invalid code
+    await signinRecoveryPhone.enterCode('123456');
+    await signinRecoveryPhone.clickConfirm();
+
+    await expect(
+      page.getByText(/The code is invalid or expired./)
+    ).toBeVisible();
+
+    const originalCode = await target.smsClient.getCode({ ...credentials });
+
+    // Sends a new code
+    await signinRecoveryPhone.clickResendCode();
+    await expect(page.getByText('Code sent')).toBeVisible();
+
+    const nextCode = await target.smsClient.getCode({ ...credentials });
+
+    expect(originalCode).not.toEqual(nextCode);
+
+    // Enter the new code and login
+    await signinRecoveryPhone.enterCode(nextCode);
+
+    await signinRecoveryPhone.clickConfirm();
+
+    await page.waitForURL(/settings/);
+  });
+
+  test('can sign-in 123Done with recovery phone', async ({
+    target,
+    pages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      relier,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await setup2faWithBackupCodeChoice(credentials, settings, totp);
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    await fillOutRecoveryPhoneFromEmailFirst({
+      page,
+      signin,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      credentials,
+      target,
+    });
+
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('can use recovery code with recovery phone setup', async ({
+    target,
+    pages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryCode,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    const totpCredentials = await setup2faWithBackupCodeChoice(
+      credentials,
+      settings,
+      totp
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+    await page.waitForURL(/\//);
+
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await page.waitForURL(/signin_totp_code/);
+
+    await signinTotpCode.clickTroubleEnteringCode();
+
+    await page.waitForURL(/signin_recovery_choice/);
+
+    await signinRecoveryChoice.clickChooseCode();
+    await signinRecoveryChoice.clickContinue();
+
+    await page.waitForURL(/signin_recovery_code/);
+
+    await signinRecoveryCode.fillOutCodeForm(totpCredentials.recoveryCodes[0]);
+
+    await page.waitForURL(/settings/);
+
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await expect(settings.settingsHeading).toBeVisible();
+  });
+
+  test('can still use totp code with recovery phone setup', async ({
+    target,
+    pages: {
+      page,
+      settings,
+      signin,
+      recoveryPhone,
+      totp,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    const totpCredentials = await setup2faWithBackupCodeChoice(
+      credentials,
+      settings,
+      totp
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await addRecoveryPhone(settings, recoveryPhone, page, credentials, target);
+
+    await settings.signOut();
+    await page.waitForURL(/\//);
+
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await page.waitForURL(/signin_totp_code/);
+
+    await signinTotpCode.clickTroubleEnteringCode();
+
+    await page.waitForURL(/signin_recovery_choice/);
+
+    await signinRecoveryChoice.clickChoosePhone();
+    await signinRecoveryChoice.clickContinue();
+
+    await page.waitForURL(/signin_recovery_phone/);
+
+    await signinRecoveryPhone.clickBack();
+    await page.waitForURL(/signin_recovery_choice/);
+
+    await signinRecoveryChoice.clickBack();
+    await page.waitForURL(/signin_totp_code/);
+
+    const totpCode = await getTotpCode(totpCredentials.secret);
+    await signinTotpCode.fillOutCodeForm(totpCode);
+
+    await page.waitForURL(/settings/);
+    await expect(await settings.totp.status).toHaveText('Enabled');
   });
 });
 
