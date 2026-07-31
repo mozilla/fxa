@@ -25,6 +25,8 @@ import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentic
 import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
 import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
 import { ReactComponent as VpnWelcome } from './graphic_vpn_welcome.svg';
+import { ReactComponent as SyncDevices } from './graphic_sync_devices.min.svg';
+import { ReactComponent as FirefoxWordmark } from './graphic_firefox_wordmark.min.svg';
 
 function illustrationStyle(
   colors?: IllustrationsTheme
@@ -222,6 +224,29 @@ export const VpnWelcomeImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Firefox window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active."
     ariaLabelFtlId="vpn-welcome-image-aria-label"
     Image={VpnWelcome}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const SyncDevicesImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="A desktop browser window and a mobile phone, both syncing, with the Firefox mascot alongside them"
+    ariaLabelFtlId="sync-devices-image-aria-label"
+    Image={SyncDevices}
+    {...{ className, ariaHidden }}
+  />
+);
+
+/**
+ * The Firefox icon-plus-wordmark lockup. Its lettering is `currentColor`, so
+ * callers set the text colour — e.g. `text-black dark:text-white` — while the
+ * fox glyph keeps its gradients.
+ */
+export const FirefoxWordmarkImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Firefox logo"
+    ariaLabelFtlId="firefox-wordmark-image-aria-label"
+    Image={FirefoxWordmark}
     {...{ className, ariaHidden }}
   />
 );

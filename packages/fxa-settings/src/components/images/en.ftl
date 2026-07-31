@@ -39,3 +39,12 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
   .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+  .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+  .aria-label = { -brand-firefox } logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+  .aria-label = Illustration to represent a successful password change.
