@@ -32,6 +32,19 @@ describe('DeviceInfoBlock component', () => {
     );
   });
 
+  it('omits the device name heading when showDeviceName is false', () => {
+    renderWithLocalizationProvider(
+      <DeviceInfoBlock
+        remoteMetadata={MOCK_METADATA_WITH_DEVICE_NAME}
+        showDeviceName={false}
+      />
+    );
+
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+    // The rest of the block still renders.
+    screen.getByText('Firefox on macOS');
+  });
+
   it('renders as expected when a location is available', () => {
     renderWithLocalizationProvider(
       <DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_LOCATION} />

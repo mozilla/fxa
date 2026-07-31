@@ -7,9 +7,20 @@ import { RemoteMetadata } from '../../lib/types';
 
 // Remote metadata is obtained from pairing channel
 // Some of this data may align with the account.ts model but the keys are slightly different (e.g., `state` vs `region`)
-type DeviceInfoBlockProps = { remoteMetadata: RemoteMetadata };
+type DeviceInfoBlockProps = {
+  remoteMetadata: RemoteMetadata;
+  /** Replaces the default wrapper classes, for callers that present the block
+   * differently — e.g. the Pair2 cards render it as a bordered box. */
+  className?: string;
+  /** Set to `false` to omit the device name heading. */
+  showDeviceName?: boolean;
+};
 
-export const DeviceInfoBlock = ({ remoteMetadata }: DeviceInfoBlockProps) => {
+export const DeviceInfoBlock = ({
+  remoteMetadata,
+  className = 'mt-8 mb-4',
+  showDeviceName = true,
+}: DeviceInfoBlockProps) => {
   const {
     deviceName,
     deviceFamily,
@@ -58,8 +69,10 @@ export const DeviceInfoBlock = ({ remoteMetadata }: DeviceInfoBlockProps) => {
   };
 
   return (
-    <div className="mt-8 mb-4">
-      {deviceName && <h2 className="mb-4 text-base">{deviceName}</h2>}
+    <div {...{ className }}>
+      {showDeviceName && deviceName && (
+        <h2 className="mb-4 text-base">{deviceName}</h2>
+      )}
       <FtlMsg
         id="device-info-browser-os"
         vars={{ browserName: deviceFamily, genericOSName: deviceOS }}
