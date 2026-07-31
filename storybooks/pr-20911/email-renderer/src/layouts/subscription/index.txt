@@ -48,7 +48,7 @@ subplat-privacy-policy-plaintext-2 = "Mozilla Accounts Privacy Notice:"
 <%- privacyUrl %>
 
 subplat-moz-terms-plaintext = "Mozilla Accounts Terms Of Service:"
-<%- subscriptionTermsUrl %>
+https://www.mozilla.org/about/legal/terms/services/
 <% } %>
 
 Mozilla Corporation
