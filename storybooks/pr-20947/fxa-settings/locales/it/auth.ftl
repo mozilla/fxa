@@ -43,17 +43,17 @@ subplat-explainer-specific-2 = Ricevi questa email perché l’indirizzo { $emai
 # Variables:
 #  $email (String) - A user's primary email address
 subplat-explainer-reminder-form-2 = Ricevi questa email perché l’indirizzo { $email } è associato a un { -product-mozilla-account }.
-subplat-explainer-multiple-2 = Ricevi questa email perché l’indirizzo { $email } è associato a un { -product-mozilla-account } e ti sei registrato per più prodotti.
-subplat-explainer-was-deleted-2 = Ricevi questo messaggio perché l’indirizzo { $email } è stato utilizzato per registrare un { -product-mozilla-account }.
+subplat-explainer-multiple-2 = Ricevi questa email perché l’indirizzo { $email } è associato a un { -product-mozilla-account } e ti sei abbonato a più prodotti.
+subplat-explainer-was-deleted-2 = Ricevi questa email perché l’indirizzo { $email } è stato utilizzato per registrare un { -product-mozilla-account }.
 subplat-manage-account-2 = Gestisci le impostazioni del tuo { -product-mozilla-account } visitando la <a data-l10n-name="subplat-account-page">pagina dell’account</a>.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
 subplat-manage-account-plaintext-2 = Gestisci le impostazioni del tuo { -product-mozilla-account } visitando questa pagina: { $accountSettingsUrl }
-subplat-terms-policy = Termini e condizioni di annullamento
+subplat-terms-policy = Termini e politica di annullamento
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Annulla abbonamento
 subplat-cancel-plaintext = { subplat-cancel }:
-subplat-reactivate = Rinnova l’abbonamento
+subplat-reactivate = Riattiva abbonamento
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Aggiorna le informazioni di fatturazione
 subplat-privacy-policy = Informativa sulla privacy { -brand-mozilla }
@@ -114,12 +114,12 @@ subscription-charges-prorated-price-plaintext = Prezzo ripartito proporzionalmen
 subscription-charges-list-price = Prezzo di listino
 # $offeringPrice (String) - The list price of the subscription offering, including currency, e.g. $10.00
 subscription-charges-list-price-plaintext = Prezzo di listino: { $offeringPrice }
-subscription-charges-credit-from-unused-time = Credito dal tempo inutilizzato
+subscription-charges-credit-from-unused-time = Credito per il tempo non utilizzato
 # $unusedAmountTotal (String) - The credit amount from unused time of the subscription invoice, including currency, e.g. $2.00
-subscription-charges-credit-from-unused-time-plaintext = Credito dal tempo inutilizzato: { $unusedAmountTotal }
+subscription-charges-credit-from-unused-time-plaintext = Credito per il tempo non utilizzato: { $unusedAmountTotal }
 subscription-charges-subtotal = <b>Subtotale</b>
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00
-subscriptionFirstInvoiceDiscount-content-subtotal = Totale parziale: { $invoiceSubtotal }
+subscriptionFirstInvoiceDiscount-content-subtotal = Subtotale: { $invoiceSubtotal }
 
 ## $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
 ## $discountDuration - The duration of the discount in number of months, e.g. "3" if the discount is 3-months
@@ -128,12 +128,12 @@ subscription-charges-one-time-discount = Sconto una tantum
 subscription-charges-one-time-discount-plaintext = Sconto una tantum: { $invoiceDiscountAmount }
 subscription-charges-repeating-discount =
     { $discountDuration ->
-        [one] Sconto di { $discountDuration } mesi
+        [one] Sconto di { $discountDuration } mese
        *[other] Sconto di { $discountDuration } mesi
     }
 subscription-charges-repeating-discount-plaintext =
     { $discountDuration ->
-        [one] Sconto di { $discountDuration } mesi: { $invoiceDiscountAmount }
+        [one] Sconto di { $discountDuration } mese: { $invoiceDiscountAmount }
        *[other] Sconto di { $discountDuration } mesi: { $invoiceDiscountAmount }
     }
 subscription-charges-discount = Sconto
@@ -178,7 +178,7 @@ subscriptionUpdateBillingTry = Proveremo a effettuare nuovamente il pagamento ne
 subscriptionUpdateBillingTry-plaintext = Proveremo a effettuare nuovamente il pagamento nei prossimi giorni, ma potrebbe essere necessario aiutarci a risolvere il problema aggiornando le informazioni di pagamento:
 subscriptionUpdatePayment = Al fine di prevenire l’interruzione del servizio è consigliato <a data-l10n-name="updateBillingUrl">aggiornare le informazioni di pagamento</a> il prima possibile.
 # After the colon, there's a link to https://accounts.firefox.com/subscriptions
-subscriptionUpdatePayment-plaintext = Per evitare interruzioni del servizio, aggiorna le tue modalità di pagamento il prima possibile:
+subscriptionUpdatePayment-plaintext = Per evitare interruzioni del servizio, aggiorna le informazioni di pagamento il prima possibile:
 view-invoice-link-action = Visualizza fattura
 # Variables:
 #  $invoiceLink (String) - The link to the invoice
@@ -186,16 +186,16 @@ view-invoice-link-action = Visualizza fattura
 view-invoice-plaintext = Visualizza fattura: { $invoiceLink }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-subject = Ti diamo il benvenuto in { $productName }.
+downloadSubscription-subject = Ti diamo il benvenuto in { $productName }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-title = Ti diamo il benvenuto in { $productName }.
+downloadSubscription-title = Ti diamo il benvenuto in { $productName }
 downloadSubscription-content-2 = Inizia a utilizzare tutte le funzionalità incluse nel tuo abbonamento:
 downloadSubscription-link-action-2 = Inizia
 fraudulentAccountDeletion-subject-2 = Il tuo { -product-mozilla-account } è stato eliminato
 fraudulentAccountDeletion-title = Il tuo account è stato eliminato
 fraudulentAccountDeletion-content-part1-v2 = Di recente è stato creato un { -product-mozilla-account } ed è stato registrato un abbonamento a pagamento utilizzando questo indirizzo email. Come facciamo per tutti i nuovi account, per prima cosa abbiamo chiesto di confermare il tuo account convalidando questo indirizzo email.
-fraudulentAccountDeletion-content-part2-v2 = Al momento ci risulta che l’account non è mai stato confermato. Poiché questo passaggio non è stato completato, non possiamo essere sicuri che si tratti di un abbonamento legittimo. Di conseguenza, l’{ -product-mozilla-account } registrato con questo indirizzo email è stato eliminato e l’abbonamento è stato annullato con il rimborso di tutti gli addebiti.
+fraudulentAccountDeletion-content-part2-v2 = Al momento ci risulta che l’account non sia mai stato confermato. Poiché questo passaggio non è stato completato, non possiamo essere sicuri che si tratti di un abbonamento legittimo. Di conseguenza, l’{ -product-mozilla-account } registrato con questo indirizzo email è stato eliminato e l’abbonamento è stato annullato con il rimborso di tutti gli addebiti.
 fraudulentAccountDeletion-contact = Per qualsiasi domanda contatta il nostro <a data-l10n-name="mozillaSupportUrl">team di supporto</a>.
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
@@ -219,7 +219,7 @@ freeTrialEndingReminder-content-charge-heading = Dettagli addebito
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
-freeTrialEndingReminder-content-charge-subscription = Abbonamento { $productName }: { $invoiceSubtotal }
+freeTrialEndingReminder-content-charge-subscription = Abbonamento a { $productName }: { $invoiceSubtotal }
 freeTrialEndingReminder-content-charge-subscription-2 = Abbonamento a { $productName }
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
@@ -233,7 +233,7 @@ freeTrialEndingReminder-content-charge-tax-2 = Tasse
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
 #   $invoiceTotal (String) - The total amount due, e.g. $9.99
 freeTrialEndingReminder-content-charge-total = Totale dovuto il { $serviceLastActiveDateOnly }: { $invoiceTotal }
-freeTrialEndingReminder-content-charge-total-2 = Totale in scadenza il { $serviceLastActiveDateOnly }
+freeTrialEndingReminder-content-charge-total-2 = Totale dovuto il { $serviceLastActiveDateOnly }
 freeTrialEndingReminder-content-account-link = Puoi controllare o aggiornare il metodo di pagamento e le informazioni sull’account <a data-l10n-name="freeTrialEndingReminder-update-billing">qui</a>.
 freeTrialEndingReminder-content-account-link-plaintext = Puoi controllare o aggiornare il metodo di pagamento e le informazioni sull’account qui:
 # Variables:
@@ -254,7 +254,7 @@ freeTrialEndingReminder-content-support-plaintext = Contattaci: { $subscriptionS
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionAccountDeletion-subject = Il tuo abbonamento a { $productName } è stato annullato
-subscriptionAccountDeletion-title = Ci mancherai.
+subscriptionAccountDeletion-title = Ci dispiace che tu abbia deciso di andartene
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
@@ -267,7 +267,7 @@ subscriptionAccountReminderFirst-content-select-2 = Seleziona “Crea password�
 subscriptionAccountReminderFirst-action = Crea password
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Ultimo promemoria: configura il tuo account
-subscriptionAccountReminderSecond-title-2 = Ti diamo il benvenuto in { -brand-mozilla }!
+subscriptionAccountReminderSecond-title-2 = Ti diamo il benvenuto in { -brand-mozilla }
 subscriptionAccountReminderSecond-content-info-3 = Hai creato un { -product-mozilla-account } qualche giorno fa ma non l’hai mai confermato. Speriamo che tu finisca di configurare il tuo account, in modo da poter utilizzare il tuo nuovo abbonamento.
 subscriptionAccountReminderSecond-content-select-2 = Seleziona “Crea password” per impostare una nuova password e completare la conferma del tuo account.
 subscriptionAccountReminderSecond-action = Crea password
@@ -275,7 +275,7 @@ subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountRemind
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionCancellation-subject = Il tuo abbonamento a { $productName } è stato annullato
-subscriptionCancellation-title = Ci mancherai.
+subscriptionCancellation-title = Ci dispiace che tu abbia deciso di andartene
 
 ## Variables
 ##   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -289,11 +289,11 @@ subscriptionCancellation-outstanding-content-2 = Abbiamo annullato il tuo abbona
 subscriptionCancellation-content-continue = Il servizio continuerà fino alla fine del periodo di fatturazione corrente ({ $serviceLastActiveDateOnly }).
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionCancellation-freeTrial-subject = La versione di prova gratuita di { $productName } è stata cancellata
+subscriptionCancellation-freeTrial-subject = La versione di prova gratuita di { $productName } è stata annullata
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $trialEndDateOnly (String) - The date when the free trial ends, e.g. 01/20/2016
-subscriptionCancellation-freeTrial-content = La tua prova gratuita di { $productName } è stata cancellata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
+subscriptionCancellation-freeTrial-content = La tua prova gratuita di { $productName } è stata annullata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-subject = Sei passato a { $productName }
@@ -320,7 +320,7 @@ subscriptionEndingReminder-title = Il tuo abbonamento a { $productName } scadrà
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
 subscriptionEndingReminder-content-line1 = Il tuo accesso a { $productName } terminerà il <strong>{ $serviceLastActiveDateOnly }</strong>.
-subscriptionEndingReminder-content-line2-v2 = Se desideri continuare a utilizzare { $productName }, puoi rimanere abbonato tramite <a data-l10n-name="subscriptionEndingReminder-subscription-management">Gestione sottoscrizioni</a> prima del <strong>{ $serviceLastActiveDateOnly }</strong> . Se hai bisogno di assistenza, <a data-l10n-name="subscriptionEndingReminder-contact-support">contatta il nostro team di supporto</a>.
+subscriptionEndingReminder-content-line2-v2 = Se desideri continuare a utilizzare { $productName }, puoi rimanere abbonato tramite <a data-l10n-name="subscriptionEndingReminder-subscription-management">Gestione abbonamenti</a> prima del <strong>{ $serviceLastActiveDateOnly }</strong>. Se hai bisogno di assistenza, <a data-l10n-name="subscriptionEndingReminder-contact-support">contatta il nostro team di supporto</a>.
 subscriptionEndingReminder-content-line1-plaintext = Il tuo accesso a { $productName } terminerà il { $serviceLastActiveDateOnly }.
 subscriptionEndingReminder-content-line2-plaintext-v2 = Se desideri continuare a utilizzare { $productName }, puoi rimanere abbonato tramite Gestione abbonamenti prima del { $serviceLastActiveDateOnly }. Se hai bisogno di assistenza, contatta il nostro team di supporto.
 subscriptionEndingReminder-content-closing = Grazie per essere un prezioso abbonato.
@@ -338,7 +338,7 @@ subscriptionFailedPaymentsCancellation-subject = Il tuo abbonamento a { $product
 subscriptionFailedPaymentsCancellation-title = Il tuo abbonamento è stato annullato
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionFailedPaymentsCancellation-content = Abbiamo annullato il tuo abbonamento a { $productName } a causa dei numerosi tentativi di pagamento non andati a buon fine. Per ottenere nuovamente l’accesso, sottoscrivi un nuovo abbonamento con un metodo di pagamento aggiornato.
+subscriptionFailedPaymentsCancellation-content = Abbiamo annullato il tuo abbonamento a { $productName } a causa di ripetuti tentativi di pagamento non andati a buon fine. Per ottenere nuovamente l’accesso, sottoscrivi un nuovo abbonamento con un metodo di pagamento aggiornato.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFirstInvoice-subject = Il pagamento per { $productName } è stato confermato
@@ -384,7 +384,7 @@ subscriptionReactivation-subject-2 = Il tuo abbonamento a { $productName } è st
 subscriptionReactivation-freeTrial-subject = La versione di prova di { $productName } è stata riattivata
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-title = Grazie per aver riattivato il tuo abbonamento a { $productName }!
+subscriptionReactivation-title = Grazie per aver riattivato il tuo abbonamento a { $productName }.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-freeTrial-title = Grazie per aver riattivato la tua versione di prova di { $productName }.
@@ -461,7 +461,7 @@ subscriptionUpgrade-upgrade-info-2 = L’aggiornamento a { $productName } è sta
 ## $paymentProrated (String) - The one time fee to reflect the higher charge for the remainder of the payment cycle, including currency, e.g. $10.00
 
 subscriptionUpgrade-content-charge-prorated-1 = Ti è stata addebitata una tariffa una tantum di { $invoiceAmountDue } per riflettere il prezzo più alto del tuo abbonamento per il resto di questo periodo di fatturazione ({ $productPaymentCycleOld }).
-subscriptionUpgrade-content-charge-credit = Hai ricevuto un credito sul conto pari a { $paymentProrated }.
+subscriptionUpgrade-content-charge-credit = Hai ricevuto un credito sul tuo account pari a { $paymentProrated }.
 subscriptionUpgrade-content-subscription-next-bill-change = A partire dalla prossima fattura, il prezzo del tuo abbonamento cambierà.
 subscriptionUpgrade-content-old-price-day = La tariffa precedente era di { $paymentAmountOld } al giorno.
 subscriptionUpgrade-content-old-price-week = La tariffa precedente era di { $paymentAmountOld } a settimana.

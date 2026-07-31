@@ -393,6 +393,8 @@ link-expired-new-link-button = Nije keppeling ûntfange
 
 # immediately before remember-password-signin-link
 remember-password-text = Wachtwurd ûnthâlde?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Hawwe jo in wachtwurdwurdkaai of witte jo jo wachtwurd noch?
 # link navigates to the sign in page
 remember-password-signin-link = Oanmelde
 
@@ -510,7 +512,15 @@ flow-recovery-key-hint-unsafe-char-error = De hint mei gjin ûnfeilige Unicode-t
 password-reset-warning-icon = Warskôging
 password-reset-chevron-expanded = Warskôging ynklappe
 password-reset-chevron-collapsed = Warskôging útklappe
+password-reset-warning-review-sign-in-options = Oanmeldopsjes besjen om browsergegevens te behâlden
 password-reset-warning-have-key = Hawwe jo in accountwerstelkaai?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Brûk dizze om jo wachtwurd opnij yn te stellen en jo browsergegevens te behâlden
+password-reset-warning-signed-in-device = Noch hieltyd oanmeld op in oar apparaat?
+password-reset-warning-signed-in-device-description = Jo browsergegevens binne mooglik noch beskikber. Stel jo wachtwurd opnij yn en meld jo op jo oare apparaat oan om jo gegevens te werstellen en te syngronisearjen.
+password-reset-warning-restore-data-link = Lês hoe’t jo browsergegevens fan in oanmeld apparaat werstelle kinne
+password-reset-warning-new-device = Brûke jo in nij apparaat, mar gjin tagong ta jo âlde?
+password-reset-warning-new-device-description = Neidat jo jo wachtwurd opnij ynsteld hawwe, binne fersifere browsergegevens op { -brand-firefox }-servers net beskikber op dit apparaat.
 
 ## Alert Bar
 
@@ -1954,6 +1964,7 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 ## ResetPassword start page
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
+password-reset-body-3 = It opnij ynstellen fan jo wachtwurd kin ynfloed hawwe op syngronisearre browsergegevens.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean
@@ -2075,6 +2086,7 @@ signin-passkey-fallback-heading = Fier jo wachtwurd yn om te syngronisearjen
 signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo wachtwurd ynfiere as jo dizze wachtwurdkaai brûke.
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
+signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

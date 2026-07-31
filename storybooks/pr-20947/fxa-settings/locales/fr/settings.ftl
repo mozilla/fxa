@@ -394,7 +394,7 @@ link-expired-new-link-button = Recevoir un nouveau lien
 # immediately before remember-password-signin-link
 remember-password-text = Vous vous souvenez de votre mot de passe ?
 # shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
-remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez du mot de passe ?
+remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez de votre mot de passe ?
 # link navigates to the sign in page
 remember-password-signin-link = Connectez-vous
 

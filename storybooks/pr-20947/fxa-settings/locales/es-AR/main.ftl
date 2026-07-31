@@ -393,12 +393,12 @@ password-reset-chevron-expanded = Contraer advertencia
 password-reset-chevron-collapsed = Expandir advertencia
 password-reset-warning-review-sign-in-options = Revisar las opciones de inicio de sesión para mantener los datos del navegador
 password-reset-warning-have-key = ¿Tenés una clave de recuperación de cuenta?
-password-reset-warning-use-key-link-v2 = Úselo para restablecer su contraseña y mantener los datos del navegador
-password-reset-warning-signed-in-device = ¿Aún iniciaste sesión en otro dispositivo?
-password-reset-warning-signed-in-device-description = Los datos de su navegador pueden estar disponibles. Restablecé tu contraseña, luego iniciá sesión en ese dispositivo para restaurar y sincronizar tus datos.
-password-reset-warning-restore-data-link = Aprendé a restaurar los datos del navegador desde un dispositivo en el que iniciaste la sesión
+password-reset-warning-use-key-link-v2 = Usala para restablecer tu contraseña y mantener los datos del navegador
+password-reset-warning-signed-in-device = ¿Todavía tenes una sesión iniciada en otro dispositivo?
+password-reset-warning-signed-in-device-description = Los datos de tu navegador pueden estar disponibles. Restablecé tu contraseña, luego iniciá sesión en ese dispositivo para restaurar y sincronizar tus datos.
+password-reset-warning-restore-data-link = Aprendé a restaurar los datos del navegador desde un dispositivo en el que iniciaste sesión
 password-reset-warning-new-device = ¿Usás un nuevo dispositivo pero no podés acceder a los viejos?
-password-reset-warning-new-device-description = Después de restablecer la contraseña, los datos cifrados del navegador en { -brand-firefox } servidores no estarán disponibles en este dispositivo.
+password-reset-warning-new-device-description = Después de restablecer la contraseña, los datos cifrados del navegador en los servidores de { -brand-firefox } no estarán disponibles en este dispositivo.
 
 
 alert-bar-close-message = Cerrar mensaje

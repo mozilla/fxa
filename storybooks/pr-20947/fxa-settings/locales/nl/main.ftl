@@ -317,6 +317,7 @@ link-expired-new-link-button = Nieuwe koppeling ontvangen
 
 
 remember-password-text = Wachtwoord onthouden?
+remember-password-passkey-text = Hebt u een wachtwoordsleutel of weet u uw wachtwoord nog?
 remember-password-signin-link = Aanmelden
 
 
@@ -390,7 +391,14 @@ flow-recovery-key-hint-unsafe-char-error = De hint mag geen onveilige Unicode-te
 password-reset-warning-icon = Waarschuwing
 password-reset-chevron-expanded = Waarschuwing samenvouwen
 password-reset-chevron-collapsed = Waarschuwing uitvouwen
+password-reset-warning-review-sign-in-options = Aanmeldopties bekijken om browsergegevens te behouden
 password-reset-warning-have-key = Hebt u een accountherstelsleutel?
+password-reset-warning-use-key-link-v2 = Gebruik deze om uw wachtwoord te herinitialiseren en uw browsergegevens te behouden
+password-reset-warning-signed-in-device = Nog steeds aangemeld op een ander apparaat?
+password-reset-warning-signed-in-device-description = Uw browsergegevens zijn mogelijk nog beschikbaar. Stel uw wachtwoord opnieuw in en meld u op dat apparaat aan om uw gegevens te herstellen en te synchroniseren.
+password-reset-warning-restore-data-link = Lees hoe u browsergegevens van een aangemeld apparaat kunt herstellen
+password-reset-warning-new-device = Gebruikt u een nieuw apparaat, maar geen toegang tot uw oude?
+password-reset-warning-new-device-description = Nadat u uw wachtwoord opnieuw hebt ingesteld, zijn versleutelde browsergegevens op { -brand-firefox }-servers niet meer beschikbaar op dit apparaat.
 
 
 alert-bar-close-message = Bericht sluiten
@@ -1359,6 +1367,7 @@ confirm-totp-reset-password-use-different-account = Een andere account gebruiken
 
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
+password-reset-body-3 = Het opnieuw instellen van uw wachtwoord kan invloed hebben op gesynchroniseerde browsergegevens.
 password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan
@@ -1444,6 +1453,7 @@ signin-passkey-fallback-heading = Voer uw wachtwoord in om te synchroniseren
 signin-passkey-fallback-body = Om uw gegevens veilig te houden, dient u uw wachtwoord in te voeren wanneer u deze wachtwoordsleutel gebruikt.
 signin-passkey-fallback-password-label = Wachtwoord
 signin-passkey-fallback-continue = Doorgaan
+signin-passkey-fallback-forgot-password-link = Wachtwoord vergeten?
 
 
 

@@ -333,7 +333,7 @@ link-expired-new-link-button = Recevoir un nouveau lien
 
 
 remember-password-text = Vous vous souvenez de votre mot de passe ?
-remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez du mot de passe ?
+remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez de votre mot de passe ?
 remember-password-signin-link = Connectez-vous
 
 

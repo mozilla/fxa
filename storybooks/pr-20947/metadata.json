@@ -1,8 +1,8 @@
 {
-  "commit": "3f165c0440a5030e0078d8c87daa903b70fbc698",
+  "commit": "82ead2c0770a507c10082b5475d6d6d0813498d0",
   "summary": "fix(auth): throttle token-exchange retries with 429 + Retry-After",
   "description": "",
-  "timestamp": 1785447850000,
+  "timestamp": 1785519092000,
   "storybooks": [
     "fxa-settings"
   ],
