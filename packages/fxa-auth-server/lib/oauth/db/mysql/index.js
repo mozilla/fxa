@@ -5,7 +5,6 @@
 const encrypt = require('fxa-shared/auth/encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
-const AccessToken = require('../accessToken');
 const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
@@ -60,34 +59,18 @@ const QUERY_CLIENT_UPDATE =
 // This query deletes everything related to the client, and is thus quite expensive!
 // Don't worry, it's not exposed to any production-facing routes.
 const QUERY_CLIENT_DELETE =
-  'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
+  'DELETE clients, codes, refreshTokens, clientDevelopers ' +
   'FROM clients ' +
   'LEFT JOIN codes ON clients.id = codes.clientId ' +
-  'LEFT JOIN tokens ON clients.id = tokens.clientId ' +
   'LEFT JOIN refreshTokens ON clients.id = refreshTokens.clientId ' +
   'LEFT JOIN clientDevelopers ON clients.id = clientDevelopers.clientId ' +
   'WHERE clients.id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt, sessionTokenId) ' +
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-const QUERY_ACCESS_TOKEN_INSERT =
-  'INSERT INTO tokens (clientId, userId, scope, type, expiresAt, ' +
-  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
   'INSERT INTO refreshTokens (clientId, userId, scope, token, profileChangedAt) VALUES ' +
   '(?, ?, ?, ?, ?)';
-// Access token storage in redis annotates each token with client metadata,
-// so we do the same when reading from MySQL, for consistency.
-// Note that the `token` field stores the hash of the token rather than the raw token,
-// and hence would more properly be called `tokenId`.
-const QUERY_ACCESS_TOKEN_FIND =
-  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.scope, ' +
-  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
-  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
-  '  clients.publicClient ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.token=?';
 // Note that the `token` field stores the hash of the token rather than the raw token,
 // and hence would more properly be called `tokenId`.
 const QUERY_REFRESH_TOKEN_FIND =
@@ -98,17 +81,9 @@ const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE =
   'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
-const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_DELETE = 'DELETE FROM refreshTokens WHERE token=?';
-const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
-// These next two queries can be very expensive if MySQL
-// tries to filter by clientId before userId, so we add
-// an explicit index hint to help ensure this doesn't happen.
-const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS =
-  'DELETE tokens ' +
-  'FROM tokens FORCE INDEX (tokens_user_id)' +
-  'INNER JOIN clients ON tokens.clientId = clients.id ' +
-  'WHERE tokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
+// This query can be very expensive if MySQL tries to filter by clientId before
+// userId, so we add an explicit index hint to help ensure this doesn't happen.
 const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS =
   'DELETE refreshTokens ' +
   'FROM refreshTokens FORCE INDEX (tokens_user_id)' +
@@ -146,18 +121,6 @@ const QUERY_DEVELOPER_DELETE =
   'FROM developers ' +
   'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerId ' +
   'WHERE developers.email=?';
-// When listing access tokens, we deliberately do not exclude tokens that have expired.
-// Such tokens will be cleaned up by a background job.
-// There's minimal downside to showing tokens in the brief period between when they expire and when
-// they get deleted from the db.
-const QUERY_LIST_ACCESS_TOKENS_BY_UID =
-  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.scope, ' +
-  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
-  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
-  '  clients.publicClient ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.userId=?';
 const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   'SELECT refreshTokens.token AS tokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
@@ -191,8 +154,6 @@ const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
   'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
-const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
-  'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
 const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
@@ -507,55 +468,6 @@ class MysqlStore extends MysqlOAuthShared {
     return this._write(QUERY_CODE_DELETE, [hash]);
   }
 
-  _generateAccessToken(accessToken) {
-    return this._write(QUERY_ACCESS_TOKEN_INSERT, [
-      accessToken.clientId,
-      accessToken.userId,
-      accessToken.scope.toString(),
-      accessToken.type,
-      accessToken.expiresAt,
-      accessToken.tokenId,
-      accessToken.profileChangedAt,
-    ]);
-  }
-
-  /**
-   * Get an access token by token id
-   * @param id Token Id
-   * @returns {*}
-   */
-  _getAccessToken(id) {
-    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function (t) {
-      if (t) {
-        t = AccessToken.fromMySQL(t);
-      }
-      return t;
-    });
-  }
-
-  /**
-   * Remove token by token id
-   * @param id
-   * @returns {*}
-   */
-  _removeAccessToken(id) {
-    return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
-  }
-
-  /**
-   * Get all access tokens for a given user.
-   * @param {String} uid User ID as hex
-   * @returns {Promise}
-   */
-  async _getAccessTokensByUid(uid) {
-    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
-      buf(uid),
-    ]);
-    return accessTokens.map((t) => {
-      return AccessToken.fromMySQL(t);
-    });
-  }
-
   /**
    * Get all refresh tokens for a given user.
    * @param {String} uid User ID as hex
@@ -600,7 +512,11 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   /**
-   * Delete all authorization grants for some clientId and uid.
+   * Delete the authorization codes and refresh tokens for some clientId and uid.
+   *
+   * The caller is responsible for also revoking this pair's access tokens,
+   * which live only in redis — see `deleteClientAuthorization` in
+   * lib/oauth/db/index.js.
    *
    * @param {String} clientId Client ID
    * @param {String} uid User Id as Hex
@@ -612,17 +528,12 @@ class MysqlStore extends MysqlOAuthShared {
       buf(uid),
     ]);
 
-    const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
-      buf(clientId),
-      buf(uid),
-    ]);
-
     const deleteRefreshTokens = this._write(
       DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID,
       [buf(clientId), buf(uid)]
     );
 
-    return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
+    return Promise.all([deleteCodes, deleteRefreshTokens]);
   }
 
   async _pruneAuthorizationCodes(ttl) {
@@ -644,10 +555,12 @@ class MysqlStore extends MysqlOAuthShared {
 
   /**
    * Delete a specific refresh token, for some clientId and uid.
-   * Also deletes *all* access tokens for the clientId and uid combination,
-   * otherwise the refresh token is deleted but none of the access tokens
-   * created from that refresh token are, leaving ghost access tokens
-   * to appear in the users devices & apps list. See:
+   *
+   * The caller is responsible for also revoking *all* access tokens for the
+   * clientId and uid combination (they live in redis), otherwise the refresh
+   * token is deleted but none of the access tokens created from that refresh
+   * token are, leaving ghost access tokens to appear in the users devices &
+   * apps list. See:
    *
    * https://github.com/mozilla/fxa/issues/1249
    * https://github.com/mozilla/fxa/issues/3017
@@ -666,17 +579,7 @@ class MysqlStore extends MysqlOAuthShared {
       [buf(tokenId), buf(clientId), buf(uid)]
     );
 
-    // only delete access tokens if deleting the refresh
-    // tokens has succeeded.
-    if (deleteRefreshTokenRes.affectedRows) {
-      await this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
-        buf(clientId),
-        buf(uid),
-      ]);
-      return true;
-    }
-
-    return false;
+    return deleteRefreshTokenRes.affectedRows > 0;
   }
 
   generateRefreshToken(vals) {
@@ -919,11 +822,12 @@ class MysqlStore extends MysqlOAuthShared {
     });
   }
 
+  // Access tokens are not touched here; they live only in redis and are
+  // revoked by the caller in lib/oauth/db/index.js.
   _removeTokensAndCodes(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
-    return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
-      .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
+    return this._write(QUERY_REFRESH_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_ACCOUNT_ACTIVITY_DELETE_USER, [id]));
   }
@@ -1002,19 +906,17 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   /**
-   * Removes user's tokens and refreshTokens for canGrant and publicClient clients
+   * Removes user's refreshTokens for canGrant and publicClient clients.
+   * Their access tokens live only in redis and are revoked by the caller in
+   * lib/oauth/db/index.js.
    *
    * @param {Buffer | string} userId
    * @returns {Promise}
    */
   _removePublicAndCanGrantTokens(userId) {
-    const uid = buf(userId);
-
-    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
-      uid,
-    ]).then(() =>
-      this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
-    );
+    return this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [
+      buf(userId),
+    ]);
   }
 
   async getScope(scope) {
