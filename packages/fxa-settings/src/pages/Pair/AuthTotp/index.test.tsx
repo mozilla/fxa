@@ -3,31 +3,72 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AuthTotp, { viewName } from '.';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { MOCK_AUTHORITY_ACCOUNT } from '../mocks';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AppContext } from '../../../models/contexts/AppContext';
+import { firefox } from '../../../lib/channels/firefox';
+import {
+  isPairingTotpVerified,
+  resetPairingTotpVerified,
+} from '../../../lib/pairing-authority';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
+const mockNavigateWithQuery = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
-  useNavigateWithQuery: () => jest.fn(),
+  useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
+// The code is checked against the browser's session, not web storage.
+jest.mock('../../../lib/channels/firefox', () => ({
+  firefox: {
+    requestSignedInUser: jest.fn(),
+  },
+}));
+const mockRequestSignedInUser = firefox.requestSignedInUser as jest.Mock;
+
+const MOCK_CHANNEL_ID = '1c2d3e4f5a6b7c8d';
+const MOCK_CODE = '123456';
+
 // Helper to render with AppContext that includes authClient
-function renderWithAppContext(ui: React.ReactElement) {
+function renderWithAppContext(
+  ui: React.ReactElement,
+  authClientOverrides: Partial<{ verifyTotpCode: jest.Mock }> = {}
+) {
   const appCtx = mockAppContext();
-  return renderWithLocalizationProvider(
-    <AppContext.Provider value={appCtx}>{ui}</AppContext.Provider>
-  );
+  if (appCtx.authClient) {
+    Object.assign(appCtx.authClient as object, {
+      verifyTotpCode: jest.fn().mockResolvedValue({ success: true }),
+      ...authClientOverrides,
+    });
+  }
+  return {
+    ...renderWithLocalizationProvider(
+      <AppContext.Provider value={appCtx}>{ui}</AppContext.Provider>
+    ),
+    verifyTotpCode: (
+      appCtx.authClient as unknown as {
+        verifyTotpCode: jest.Mock;
+      }
+    ).verifyTotpCode,
+  };
+}
+
+async function submitCode(code = MOCK_CODE) {
+  const user = userEvent.setup();
+  await user.type(screen.getByLabelText('Enter 6-digit code'), code);
+  await user.click(screen.getByRole('button', { name: 'Confirm' }));
 }
 
 describe('Sign in with TOTP code page', () => {
@@ -37,6 +78,17 @@ describe('Sign in with TOTP code page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetPairingTotpVerified();
+    mockRequestSignedInUser.mockResolvedValue(MOCK_AUTHORITY_ACCOUNT);
+    window.history.pushState(
+      {},
+      '',
+      `/pair/auth/totp?channel_id=${MOCK_CHANNEL_ID}`
+    );
+  });
 
   it('renders as expected', () => {
     renderWithAppContext(<AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />);
@@ -74,5 +126,96 @@ describe('Sign in with TOTP code page', () => {
   it('emits a metrics event on render', () => {
     renderWithAppContext(<AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('on submit', () => {
+    it('verifies the code against the session the browser will pair with', async () => {
+      const { verifyTotpCode } = renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />
+      );
+
+      await submitCode();
+
+      await waitFor(() => {
+        expect(verifyTotpCode).toHaveBeenCalledWith(
+          MOCK_AUTHORITY_ACCOUNT.sessionToken,
+          MOCK_CODE,
+          { service: 'pair' }
+        );
+      });
+    });
+
+    it('records the verification for this pairing channel and returns to the approval page', async () => {
+      renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />
+      );
+
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/allow');
+      });
+      expect(isPairingTotpVerified(MOCK_CHANNEL_ID)).toBe(true);
+    });
+
+    it('calls onVerified instead of navigating when it is provided', async () => {
+      const onVerified = jest.fn();
+      renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} {...{ onVerified }} />
+      );
+
+      await submitCode();
+
+      await waitFor(() => {
+        expect(onVerified).toHaveBeenCalled();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('shows an error and records nothing when the code is rejected', async () => {
+      renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />,
+        { verifyTotpCode: jest.fn().mockResolvedValue({ success: false }) }
+      );
+
+      await submitCode();
+
+      expect(
+        await screen.findByText('Invalid authentication code')
+      ).toBeInTheDocument();
+      expect(isPairingTotpVerified(MOCK_CHANNEL_ID)).toBe(false);
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('shows an error and records nothing when verification throws', async () => {
+      renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />,
+        {
+          verifyTotpCode: jest
+            .fn()
+            .mockRejectedValue(new Error('Unexpected error')),
+        }
+      );
+
+      await submitCode();
+
+      expect(await screen.findByText('Unexpected error')).toBeInTheDocument();
+      expect(isPairingTotpVerified(MOCK_CHANNEL_ID)).toBe(false);
+    });
+
+    it('cancels pairing when the browser reports no signed-in account', async () => {
+      mockRequestSignedInUser.mockResolvedValue(undefined);
+      const { verifyTotpCode } = renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />
+      );
+
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/failure');
+      });
+      expect(verifyTotpCode).not.toHaveBeenCalled();
+      expect(isPairingTotpVerified(MOCK_CHANNEL_ID)).toBe(false);
+    });
   });
 });

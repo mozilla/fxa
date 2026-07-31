@@ -16,7 +16,11 @@ import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration } from '../../../models';
-import { getBasicAccountData } from '../../../lib/account-storage';
+import {
+  getPairingAuthorityAccount,
+  getPairingChannelId,
+  markPairingTotpVerified,
+} from '../../../lib/pairing-authority';
 import AppLayout from '../../../components/AppLayout';
 
 export type AuthTotpProps = {
@@ -28,11 +32,7 @@ export type AuthTotpProps = {
 
 export const viewName = 'pair.auth.totp';
 
-const AuthTotp = ({
-  email,
-  serviceName,
-  onVerified,
-}: AuthTotpProps) => {
+const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
@@ -56,14 +56,16 @@ const AuthTotp = ({
   const onSubmit = useCallback(
     async (code: string) => {
       try {
-        const accountData = getBasicAccountData();
-        if (!accountData?.sessionToken) {
-          navigateWithQuery('/signin');
+        // The code must be checked against the session the browser will pair
+        // with, not whatever the web app has cached (FXA-14194).
+        const account = await getPairingAuthorityAccount();
+        if (!account?.sessionToken) {
+          navigateWithQuery('/pair/failure');
           return;
         }
 
         const result = await authClient.verifyTotpCode(
-          accountData.sessionToken,
+          account.sessionToken,
           code,
           { service: 'pair' }
         );
@@ -78,12 +80,12 @@ const AuthTotp = ({
           return;
         }
 
+        markPairingTotpVerified(getPairingChannelId());
+
         if (onVerified) {
           onVerified();
         } else {
-          navigateWithQuery('/pair/auth/allow', {
-            state: { totpComplete: true },
-          });
+          navigateWithQuery('/pair/auth/allow');
         }
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Invalid code';

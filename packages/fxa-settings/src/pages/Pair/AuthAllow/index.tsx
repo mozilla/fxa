@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
@@ -15,9 +15,13 @@ import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { Integration, useAuthClient } from '../../../models';
-import { firefox } from '../../../lib/channels/firefox';
+import { firefox, SignedInUser } from '../../../lib/channels/firefox';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { getBasicAccountData } from '../../../lib/account-storage';
+import {
+  getPairingAuthorityAccount,
+  getPairingChannelId,
+  isPairingTotpVerified,
+} from '../../../lib/pairing-authority';
 import { getPairingErrorMessage } from '../../../lib/utilities';
 import AuthenticationMethods from '../../../constants/authentication-methods';
 
@@ -32,6 +36,12 @@ export type AuthAllowProps = {
   email?: string;
   integration?: Integration;
   error?: string;
+  /**
+   * Storybook-only stand-in for the browser account, which is otherwise read
+   * over the WebChannel. The route never passes it, so production always goes
+   * through {@link getPairingAuthorityAccount}.
+   */
+  authorityAccount?: SignedInUser;
 };
 
 export const viewName = 'pair.auth.allow';
@@ -45,6 +55,7 @@ const AuthAllow = ({
   email: emailProp,
   integration,
   error: errorProp,
+  authorityAccount,
 }: AuthAllowProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useEffect(() => {
@@ -52,50 +63,70 @@ const AuthAllow = ({
   }, []);
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
-  const location = useLocation();
   const [error, setError] = useState<string | undefined>(errorProp);
-  const [totpChecked, setTotpChecked] = useState(false);
+  const [approvalAllowed, setApprovalAllowed] = useState(false);
+  const [browserEmail, setBrowserEmail] = useState<string | undefined>();
   const [suppDeviceInfo, setSuppDeviceInfo] = useState<
     RemoteMetadata | undefined
   >(suppDeviceInfoProp);
-  const isTotpCheckStarted = useRef(false);
 
-  // Read email from URL params as fallback
-  const email = emailProp || getUrlParam('email');
-  const channelId = getUrlParam('channel_id');
+  // Prefer the browser's account: it is the one being paired. Props are for
+  // Storybook, and the URL param is a last-resort fallback.
+  const email = browserEmail || emailProp || getUrlParam('email');
+  const channelId = getPairingChannelId();
 
-  // Check if account has TOTP enabled; redirect to /pair/auth/totp if so.
-  // Skip the check if we're returning from a successful TOTP verification.
-  const totpComplete = (location.state as Record<string, unknown>)
-    ?.totpComplete;
+  // TOTP gate. This is the only second-factor check standing between someone
+  // at an unlocked, signed-in Firefox and a persistent Sync device on the
+  // account, so every unknown outcome cancels pairing rather than rendering
+  // the approve button (FXA-14194).
   useEffect(() => {
-    if (totpComplete || isTotpCheckStarted.current) {
-      setTotpChecked(true);
-      return;
-    }
-    isTotpCheckStarted.current = true;
-
-    const sessionToken = getBasicAccountData()?.sessionToken;
-    if (!sessionToken) {
-      setTotpChecked(true);
-      return;
-    }
+    let cancelled = false;
 
     (async () => {
+      const account = authorityAccount ?? (await getPairingAuthorityAccount());
+      if (cancelled) {
+        return;
+      }
+      if (!account?.sessionToken) {
+        // Backbone parity (pairing-totp-mixin cancelPairingWithError): with no
+        // signed-in browser account there is nothing to approve with.
+        navigateWithQuery('/pair/failure');
+        return;
+      }
+      setBrowserEmail(account.email);
+
+      let accountHasTotp: boolean;
       try {
         // Mirror Backbone: 'otp' is in AMR only when TOTP is verified AND enabled.
-        const { authenticationMethods } =
-          await authClient.accountProfile(sessionToken);
-        if (authenticationMethods?.includes(AuthenticationMethods.OTP)) {
-          navigateWithQuery('/pair/auth/totp');
-          return;
-        }
+        const { authenticationMethods } = await authClient.accountProfile(
+          account.sessionToken
+        );
+        accountHasTotp = !!authenticationMethods?.includes(
+          AuthenticationMethods.OTP
+        );
       } catch {
-        // Non-blocking: fall through and render the approval page on profile errors.
+        // Fail closed. Approving without knowing the TOTP status would let a
+        // blocked profile request skip the second factor entirely.
+        if (!cancelled) {
+          navigateWithQuery('/pair/failure');
+        }
+        return;
       }
-      setTotpChecked(true);
+      if (cancelled) {
+        return;
+      }
+
+      if (accountHasTotp && !isPairingTotpVerified(channelId)) {
+        navigateWithQuery('/pair/auth/totp');
+        return;
+      }
+      setApprovalAllowed(true);
     })();
-  }, [authClient, navigateWithQuery, totpComplete]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authClient, navigateWithQuery, channelId, authorityAccount]);
 
   // Validate client_id against pairing allowlist (matching Backbone behavior)
   useEffect(() => {
@@ -132,6 +163,11 @@ const AuthAllow = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+      // Defense in depth: the form is only rendered once the gate passes, but
+      // authorizing must never be reachable while it hasn't.
+      if (!approvalAllowed) {
+        return;
+      }
       GleanMetrics.cadApproveDevice.submit();
       try {
         if (integration instanceof PairingAuthorityIntegration) {
@@ -145,11 +181,12 @@ const AuthAllow = ({
         setError(getPairingErrorMessage(err));
       }
     },
-    [integration, channelId, navigateWithQuery]
+    [approvalAllowed, integration, channelId, navigateWithQuery]
   );
 
-  // Don't render the approval page until the TOTP check completes
-  if (!totpChecked) {
+  // Don't render the approval page until the TOTP gate passes. A blocked gate
+  // navigates away, so this also covers the moment before the redirect lands.
+  if (!approvalAllowed) {
     return <AppLayout loading />;
   }
 
