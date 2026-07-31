@@ -5,16 +5,17 @@ node_version: "24.15.0"
 install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds"
 
 investigate:
-  # Let BLEnder close alerts it judges as not affecting our code.
-  # Only low/medium are auto-dismissed; critical/high always require a real fix.
+  # Disabled: BLEnder's alert remediation is npm-only (npm audit fix +
+  # package-lock.json). fxa is a yarn repo, so remediate always fails, the
+  # alert is never tagged "investigated", and the ~30-min sweep re-investigates
+  # it forever — a runaway cost loop with zero result. Off until BLEnder
+  # supports yarn (see upstream bugs).
+  enabled: false
   dismiss_unaffected: true
-  # fxa is a large monorepo; defaults exhaust before Claude reaches a verdict.
-  # Turns set high so the $ budget is the effective governor.
   max_claude_turns: 100
   max_budget_usd: 6.00
 
 fix:
-  # Same monorepo-size reasoning for the auto-fix flow.
   max_claude_turns: 100
   max_budget_usd: 6.00
   max_fix_attempts: 5
