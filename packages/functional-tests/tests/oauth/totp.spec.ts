@@ -95,43 +95,50 @@ test.describe('severity-1 #smoke', () => {
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
+  });
+});
 
-    test('can setup TOTP inline with recovery phone choice', async ({
-      target,
-      pages: { page, relier, signin, totp, recoveryPhone, inlineTotpSetup },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
+// Local only — see "Routing SMS tests in CI" in the README.
+test.describe('OAuth totp with recovery phone (local only)', () => {
+  test.beforeAll(({ target }) => {
+    target.smsClient.guardTestPhoneNumber();
+  });
 
-      await relier.goto();
-      await relier.clickRequire2FA();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
+  test('can setup TOTP inline with recovery phone choice', async ({
+    target,
+    pages: { page, relier, signin, totp, recoveryPhone, inlineTotpSetup },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
 
-      await page.waitForURL(/inline_totp_setup/);
+    await relier.goto();
+    await relier.clickRequire2FA();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(inlineTotpSetup.introHeading).toBeVisible();
-      await inlineTotpSetup.continueButton.click();
-      await expect(totp.setup2faAppHeading).toBeVisible();
-      await totp.setUp2faAppWithManualCode(credentials);
+    await page.waitForURL(/inline_totp_setup/);
 
-      await page.waitForURL(/inline_recovery_setup/);
+    await expect(inlineTotpSetup.introHeading).toBeVisible();
+    await inlineTotpSetup.continueButton.click();
+    await expect(totp.setup2faAppHeading).toBeVisible();
+    await totp.setUp2faAppWithManualCode(credentials);
 
-      await totp.chooseRecoveryPhoneOption();
-      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-      await recoveryPhone.clickSendCode();
+    await page.waitForURL(/inline_recovery_setup/);
 
-      await expect(recoveryPhone.confirmHeader).toBeVisible();
+    await totp.chooseRecoveryPhoneOption();
+    await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+    await recoveryPhone.clickSendCode();
 
-      const smsCode = await target.smsClient.getCode({ ...credentials });
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      await recoveryPhone.enterCode(smsCode);
-      await recoveryPhone.clickConfirm();
+    const smsCode = await target.smsClient.getCode({ ...credentials });
 
-      await page.getByRole('button', { name: 'Continue' }).click();
+    await recoveryPhone.enterCode(smsCode);
+    await recoveryPhone.clickConfirm();
 
-      expect(await relier.isLoggedIn()).toBe(true);
-    });
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    expect(await relier.isLoggedIn()).toBe(true);
   });
 });
 
