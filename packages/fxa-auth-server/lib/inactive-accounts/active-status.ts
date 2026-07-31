@@ -35,6 +35,12 @@ export const hasActiveRefreshToken = async (
   const refreshTokens = await tokensFn(uid);
   return refreshTokens.some((t) => t.lastUsedAt >= activeByDateTimestamp);
 };
+/**
+ * Best-effort. Access tokens are read from redis, and that read swallows its own
+ * errors and returns an empty list, so an outage looks the same as "no tokens"
+ * and biases toward inactive. They are also short-lived, so this only ever
+ * reflected recent activity.
+ */
 export const hasAccessToken = async (
   tokensFn: GetTokensFn<{ lastUsedAt: number }>,
   uid: string

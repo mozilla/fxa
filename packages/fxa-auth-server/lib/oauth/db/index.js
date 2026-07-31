@@ -151,27 +151,13 @@ class OauthDB extends ConnectedServicesDb {
   }
 
   async getAccessToken(id) {
-    await this.ready();
-    const t = await this.redis.getAccessToken(id);
-    if (t) {
-      return t;
-    }
-    return await this.mysql._getAccessToken(id);
+    // redis reports a miss as null, but callers and tests expect the
+    // `undefined` that the removed MySQL fallback resolved.
+    return (await this.redis.getAccessToken(id)) ?? undefined;
   }
 
   async removeAccessToken(token) {
-    await this.ready();
-    const done = await this.redis.removeAccessToken(token.tokenId);
-    if (!done) {
-      return await this.mysql._removeAccessToken(token.tokenId);
-    }
-  }
-
-  async getAccessTokensByUid(uid) {
-    await this.ready();
-    const tokens = await this.redis.getAccessTokens(uid);
-    const otherTokens = await this.mysql._getAccessTokensByUid(uid);
-    return tokens.concat(otherTokens);
+    return await this.redis.removeAccessToken(token.tokenId);
   }
 
   async getRefreshToken(id) {

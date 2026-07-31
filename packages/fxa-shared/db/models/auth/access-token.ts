@@ -56,26 +56,6 @@ export class AccessToken {
   }
 
   /**
-   * @param {any} row
-   * @returns {AccessToken}
-   */
-  static fromMySQL(row: any) {
-    return new AccessToken(
-      row.tokenId,
-      row.clientId,
-      row.clientName,
-      row.clientCanGrant,
-      row.publicClient,
-      row.userId,
-      ScopeSet.fromString(row.scope),
-      row.createdAt,
-      row.profileChangedAt,
-      row.expiresAt,
-      null
-    );
-  }
-
-  /**
    *
    * @param {string} string
    * @returns {AccessToken}
