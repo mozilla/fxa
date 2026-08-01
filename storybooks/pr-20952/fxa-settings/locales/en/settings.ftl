@@ -380,6 +380,11 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
   .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+  .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+  .aria-label = { -brand-firefox }
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -2062,8 +2067,6 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
-# Alt text for the Firefox logo shown at the top of the card
-pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.

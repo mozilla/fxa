@@ -338,6 +338,10 @@ confetti-falling-image-aria-label =
   .aria-label = Animated falling confetti
 vpn-welcome-image-aria-label =
   .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+  .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+firefox-wordmark-image-aria-label =
+  .aria-label = { -brand-firefox }
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = You’re signed in to { -brand-firefox }.
@@ -1493,7 +1497,6 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
-pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-approve-sign-in-cancel-button = Cancel

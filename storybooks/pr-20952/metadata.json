@@ -1,9 +1,10 @@
 {
-  "commit": "035fa454601c219b03e4e30e2235137c3eee4469",
+  "commit": "e9640ad171dc62f16366a195b5da7ae22e0aa4d8",
   "summary": "feat(settings): add mobile Approve sign in card",
   "description": "Because:\n - After scanning the pairing QR code on their computer, users on mobile need\n   a screen that tells them the sign-in still has to be approved on the\n   computer, and that shows the requesting device's details so they can\n   confirm the request is really theirs before pairing completes.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/ApproveSignIn/index.tsx`,\n   a presentational card rendering the Firefox brand logo, a desktop/mobile sync\n   illustration, the heading and instruction copy, the device info block, and a\n   Cancel action. It supplies its own card surface rather than using `AppLayout`,\n   per the Pair2 mobile designs. `onCancel` is a required prop so that routing the\n   card cannot leave its only action inert; the flow logic lands with the route.\n - Adds `device-info-lines.ts`, which selects the Fluent message for each line of\n   the device info block as a pure function so the device-name/OS fallback and the\n   five geo-resolution permutations are unit tested without rendering. The location\n   and IP lines reuse the shipped `device-info-block-*` messages, so only the\n   browser-on-device string is new.\n - Adds `en.ftl` with the new strings, `index.stories.tsx` with four stories\n   covering the device-name, OS-fallback, unknown-location, and long-device-name\n   cases, and tests for the component and the message selection. The component\n   suite asserts wiring and runs `testAllL10n` against the bundle to catch drift\n   between fallback text and the Fluent messages; the permutations live in the\n   pure-function suite.\n - Exports `firefox-brand-logo.svg` and `sync-devices.svg` from Figma. The sync\n   illustration is cropped to its visible bounds so it centres correctly, and the\n   browser-tab favicon it embedded at 1046x1081 for a ~3px render is downscaled,\n   taking the asset from 946KB to 58KB.\n\nCloses #FXA-14234",
-  "timestamp": 1785547481000,
+  "timestamp": 1785548487000,
   "storybooks": [
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
