@@ -1,0 +1,12 @@
+{
+  "commit": "4e24d574b429760acfd5a2735a42645d29a32a52",
+  "summary": "chore(deps): replace uuid with native crypto",
+  "description": "",
+  "timestamp": 1785548557000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
