@@ -178,6 +178,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimated)
 device-info-block-location-country = { $country } (estimated)
 device-info-block-location-unknown = Location unknown
 device-info-browser-os = { $browserName } on { $genericOSName }
+device-info-browser-device = { $browserName } on { $deviceName }
 device-info-ip-address = IP address: { $ipAddress }
 
 
@@ -1495,7 +1496,6 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
-pair2-approve-sign-in-device-browser-on-device = { $browserName } on { $deviceName }
 pair2-approve-sign-in-cancel-button = Cancel
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed

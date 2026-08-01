@@ -173,6 +173,9 @@ device-info-block-location-unknown = Location unknown
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } on { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } on { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP address: { $ipAddress }
@@ -2064,9 +2067,6 @@ pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
-# Variable { $browserName } is the browser that started pairing (e.g., Firefox)
-# Variable { $deviceName } is the name of the device that started pairing (e.g., MacBook Pro)
-pair2-approve-sign-in-device-browser-on-device = { $browserName } on { $deviceName }
 # Dismisses the pairing attempt
 pair2-approve-sign-in-cancel-button = Cancel
 
