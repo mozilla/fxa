@@ -1492,8 +1492,7 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
-pair2-approve-sign-in-firefox-logo =
-    .alt = { -brand-firefox }
+pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-approve-sign-in-device-browser-on-device = { $browserName } on { $deviceName }

@@ -2060,8 +2060,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 ## computer, and shows that computer's details so they can verify the request.
 
 # Alt text for the Firefox logo shown at the top of the card
-pair2-approve-sign-in-firefox-logo =
-    .alt = { -brand-firefox }
+pair2-approve-sign-in-firefox-logo-alt = { -brand-firefox }
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-approve-sign-in-heading = One last step to sync
 pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
