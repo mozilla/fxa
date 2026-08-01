@@ -5,7 +5,6 @@
 import Storage from './storage';
 import { searchParam } from '../lib/utilities';
 import { StoredAccountData } from './storage-utils';
-import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
 import { MfaScope } from './types';
@@ -207,7 +206,7 @@ export function getUniqueUserId(): string {
   let uniqueUserId = storage.get('uniqueUserId');
   // Generate a new token if one is not found!
   if (!uniqueUserId) {
-    uniqueUserId = uuid();
+    uniqueUserId = crypto.randomUUID();
     storage.set('uniqueUserId', uniqueUserId);
   }
 

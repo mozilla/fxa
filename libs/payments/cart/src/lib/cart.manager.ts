@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'node:crypto';
 import { NotFoundError } from 'objection';
-import { v4 as uuidv4 } from 'uuid';
 import type { LoggerService } from '@nestjs/common';
 import { AccountDbProvider, CartState } from '@fxa/shared/db/mysql/account';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -123,7 +123,7 @@ export class CartManager {
           ? JSON.stringify(input.taxAddress)
           : undefined,
         currency: input.currency.toLowerCase(),
-        id: uuidv4({}, Buffer.alloc(16)),
+        id: crypto.randomBytes(16),
         uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.START,
         createdAt: now,
@@ -158,7 +158,7 @@ export class CartManager {
           ? JSON.stringify(input.taxAddress)
           : undefined,
         currency: input.currency.toLowerCase(),
-        id: uuidv4({}, Buffer.alloc(16)),
+        id: crypto.randomBytes(16),
         uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.FAIL,
         errorReasonId,

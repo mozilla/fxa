@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { AppError as errors } from '@fxa/accounts/errors';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../types';
@@ -10,7 +11,6 @@ import {
   uninstallMockFxaMailer,
 } from '../../test/fixtures/fxa-mailer';
 
-const uuid = require('uuid');
 const mocks = require('../../test/mocks');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
@@ -29,7 +29,7 @@ const email = 'test@email.com';
 const recoveryKeyId = '000000';
 const recoveryData = '11111111111';
 const hint = 'super secret location';
-const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const uid = crypto.randomBytes(16).toString('hex');
 
 let mockAuthorizedClientsList: any = jest.fn().mockResolvedValue([]);
 

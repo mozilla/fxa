@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import * as isA from 'joi';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
 import * as jwt from 'jsonwebtoken';
-import * as uuid from 'uuid';
 import { SecurityEvent } from 'fxa-shared/db/models/auth/security-event';
 import { Account, Email } from 'fxa-shared/db/models/auth';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
@@ -218,7 +218,7 @@ class MfaHandler {
         sub: account.uid,
         scope: [`mfa:${scope}`],
         iat: now,
-        jti: uuid.v4(),
+        jti: crypto.randomUUID(),
         stid: sessionTokenId,
       };
 

@@ -4,7 +4,6 @@
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { window } from './window';
-import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
 import { once } from './utilities';
 import { useEffect } from 'react';
@@ -20,7 +19,7 @@ const flowEventDataDefaults = {
   context: 'web',
   service: 'none',
   isSampledUser: false,
-  deviceId: uuid().replace(/-/g, ''),
+  deviceId: crypto.randomUUID().replace(/-/g, ''),
 };
 
 type Optional<T> = T | typeof NOT_REPORTED_VALUE;
@@ -197,7 +196,7 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
     // There are situations where arriving directly to /beta/settings means query params won't be
     // provided, and we will use a set of fixed defaults.
     if (!flowEventData.uniqueUserId) {
-      flowEventData.uniqueUserId = uuid();
+      flowEventData.uniqueUserId = crypto.randomUUID();
       try {
         localStorage.setItem(
           '__fxa_storage.uniqueUserId',

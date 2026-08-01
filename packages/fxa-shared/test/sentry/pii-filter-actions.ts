@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'node:crypto';
 import { expect } from 'chai';
-import * as uuid from 'uuid';
 
 import {
   CommonPiiActions,
@@ -324,9 +324,9 @@ describe('pii-filter-actions', () => {
     });
 
     it('filters token values', () => {
-      const token1 = uuid.v4().replace(/-/g, '');
-      const token2 = uuid.v4().replace(/-/g, '');
-      const token3 = uuid.v4().toString();
+      const token1 = crypto.randomUUID().replace(/-/g, '');
+      const token2 = crypto.randomUUID().replace(/-/g, '');
+      const token3 = crypto.randomUUID().toString();
       const { val: result } = CommonPiiActions.tokenValues.execute({
         foo: `-- ${token1}\n${token2}--`,
         bar: token3,
@@ -339,7 +339,7 @@ describe('pii-filter-actions', () => {
     });
 
     it('filters 64 byte token values', () => {
-      const token1 = uuid.v4().replace(/-/g, '');
+      const token1 = crypto.randomUUID().replace(/-/g, '');
       const { val: result } = CommonPiiActions.tokenValues.execute({
         foo: `X'${token1}${token1}'`,
       });

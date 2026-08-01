@@ -16,7 +16,6 @@ import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import isA from 'joi';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
-import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
 import ACCOUNT_DOCS from '../../docs/swagger/account-api';
@@ -73,7 +72,10 @@ import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
-import { BOUNCE_TYPE_HARD, escapeLikePattern } from '@fxa/accounts/email-sender';
+import {
+  BOUNCE_TYPE_HARD,
+  escapeLikePattern,
+} from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -223,7 +225,7 @@ export class AccountHandler {
     }
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email: email,
       emailCode: emailCode,
@@ -769,7 +771,7 @@ export class AccountHandler {
     const [kA, wrapWrapKb] = await random.hex(32, 32);
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email,
       emailCode,

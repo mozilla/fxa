@@ -5,7 +5,6 @@
 import { Redis } from 'ioredis';
 import * as isA from 'joi';
 import { StatsD } from 'hot-shots';
-import * as uuid from 'uuid';
 import Container from 'typedi';
 
 import { OtpManager, OtpStorage } from '@fxa/shared/otp';
@@ -528,7 +527,7 @@ class PasswordlessHandler {
     const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(32, 32, 32);
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email,
       emailCode,

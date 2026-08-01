@@ -17,7 +17,6 @@ const getRoute = require('../../test/routes_helpers').getRoute;
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
 const nock = require('nock');
-const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { gleanMetrics } = require('../metrics/glean');
 const gleanConfig = {
@@ -379,7 +378,7 @@ describe('/recovery_email/status', () => {
   const route = getRoute(accountRoutes, '/recovery_email/status');
   const mockRequest = mocks.mockRequest({
     credentials: {
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: crypto.randomBytes(16).toString('hex'),
       email: TEST_EMAIL,
     },
   });
@@ -487,9 +486,7 @@ describe('/recovery_email/status', () => {
     });
 
     it('verified account', () => {
-      mockRequest.auth.credentials.uid = uuid
-        .v4({}, Buffer.alloc(16))
-        .toString('hex');
+      mockRequest.auth.credentials.uid = crypto.randomBytes(16).toString('hex');
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
@@ -509,7 +506,7 @@ describe('/recovery_email/status', () => {
     pushCalled = false;
     const mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        uid: crypto.randomBytes(16).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: true,
@@ -610,7 +607,7 @@ describe('/recovery_email/resend_code', () => {
       uaOS: 'Mac OS X',
       uaOSVersion: '10.10',
       credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        uid: crypto.randomBytes(16).toString('hex'),
         deviceId: 'wibble',
         email: TEST_EMAIL,
         emailVerified: false,
@@ -665,7 +662,7 @@ describe('/recovery_email/resend_code', () => {
   });
 
   it('confirmation', () => {
-    const deviceId = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const deviceId = crypto.randomBytes(16).toString('hex');
     const mockRequest = mocks.mockRequest({
       log: mockLog,
       metricsContext: mockMetricsContext,
@@ -675,7 +672,7 @@ describe('/recovery_email/resend_code', () => {
       uaOSVersion: '6',
       uaDeviceType: 'tablet',
       credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        uid: crypto.randomBytes(16).toString('hex'),
         deviceId: deviceId,
         email: TEST_EMAIL,
         emailVerified: true,
@@ -724,7 +721,7 @@ describe('/recovery_email/resend_code', () => {
 });
 
 describe('/recovery_email/verify_code', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -982,7 +979,7 @@ describe('/recovery_email/verify_code', () => {
 });
 
 describe('/recovery_email', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const mockLog = createMock<AuthLogger>();
   let dbData: any,
     accountRoutes: any,
@@ -998,8 +995,8 @@ describe('/recovery_email', () => {
     mocks.mockOAuthClientInfo();
     mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        uid: crypto.randomBytes(16).toString('hex'),
+        deviceId: crypto.randomBytes(16).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: true,
@@ -1063,7 +1060,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     fxaMailer.sendVerifySecondaryCodeEmail.mockClear();
   });
   it('resends code when redis reservation exists for this uid', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockLog = createMock<AuthLogger>();
     const mockMailer = mocks.mockMailer();
@@ -1116,7 +1113,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('recreates reservation when expired and resends code', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
@@ -1168,8 +1165,8 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('errors when reservation belongs to a different uid', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    const otherUid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
+    const otherUid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
     const mockDB = mocks.mockDB({
@@ -1199,7 +1196,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('cleans corrupted redis record and recreates reservation', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const normalized = normalizeEmail(email);
     const mockMailer = mocks.mockMailer();
@@ -1258,7 +1255,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('errors when trying to resend to primary email', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const primaryEmail = TEST_EMAIL;
     const mockMailer = mocks.mockMailer();
     const mockDB = mocks.mockDB({
@@ -1291,7 +1288,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('errors when trying to resend to already verified secondary', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const uidBuffer = Buffer.from(uid, 'hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
@@ -1333,7 +1330,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('returns service error when DB fails during recreation', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
     const mockLog = createMock<AuthLogger>();
@@ -1379,7 +1376,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('cleans up new reservation when email send fails', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
     const mockLog = createMock<AuthLogger>();
@@ -1432,7 +1429,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
   });
 
   it('preserves existing reservation when email send fails', async () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const secret = 'existingsecret1234567890123456';
     const mockMailer = mocks.mockMailer();
@@ -1488,12 +1485,12 @@ describe('/emails/reminders/cad', () => {
   let accountRoutes: any, mockRequest: any, route: any, uid: string;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
 
     mockRequest = mocks.mockRequest({
       credentials: {
         uid,
-        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: crypto.randomBytes(16).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),

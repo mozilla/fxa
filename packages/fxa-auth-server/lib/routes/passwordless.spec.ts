@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import * as uuid from 'uuid';
 import { createMock } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AppError as error } from '@fxa/accounts/errors';
@@ -186,7 +185,7 @@ describe('/account/passwordless/send_code', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -352,7 +351,7 @@ describe('/account/passwordless/confirm_code', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -841,7 +840,7 @@ describe('passwordless CMS customization', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -1129,7 +1128,7 @@ describe('passwordless security events', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -1358,7 +1357,7 @@ describe('passwordless statsd metrics', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -1583,7 +1582,7 @@ describe('/account/passwordless/resend_code', () => {
     routes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -1813,7 +1812,7 @@ describe('passwordless service validation', () => {
     route: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,
@@ -2119,7 +2118,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
     mockRequest: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB({
       uid,

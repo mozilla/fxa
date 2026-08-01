@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'node:crypto';
 import { Firestore } from '@google-cloud/firestore';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { v4 as uuid4 } from 'uuid';
 
 import { FirestoreService } from './firestore.service';
 import { WebhookUrlDocumentMap } from './schemas.interface';
@@ -39,8 +39,8 @@ describe('#integration - FirestoreService', () => {
 
     service = module.get<FirestoreService>(FirestoreService);
     fs = (service as any).db;
-    uid1 = 'uid_' + uuid4();
-    uid2 = 'uid_' + uuid4();
+    uid1 = 'uid_' + crypto.randomUUID();
+    uid2 = 'uid_' + crypto.randomUUID();
   });
 
   it('should be defined', () => {

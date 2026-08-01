@@ -6,7 +6,6 @@ import base64url from 'base64url';
 import crypto from 'crypto';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import IORedis from 'ioredis';
-import * as uuid from 'uuid';
 
 import {
   getSharedTestServer,
@@ -102,7 +101,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   account = {
-    uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+    uid: crypto.randomBytes(16).toString('hex'),
     email: server.uniqueEmail(),
     emailCode: zeroBuffer16,
     emailVerified: false,

@@ -4,6 +4,7 @@
 
 /* eslint-disable no-undef */
 
+import crypto from 'node:crypto';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 
@@ -24,7 +25,6 @@ try {
 const { asyncIterable } = require('../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const stripeError = require('stripe').errors;
-const uuidv4 = require('uuid').v4;
 
 const chance = new Chance();
 
@@ -756,7 +756,7 @@ describe('StripeHelper', () => {
     });
 
     it('returns false when there is no Stripe customer', async () => {
-      const uid = uuidv4().replace(/-/g, '');
+      const uid = crypto.randomUUID().replace(/-/g, '');
       customerExpanded = undefined;
       jest
         .spyOn(stripeHelper, 'expandResource')
@@ -3700,7 +3700,8 @@ describe('StripeHelper', () => {
             promotion_name:
               subscriptionCouponRepeating.discounts[0].source.coupon.name,
             promotion_percent_off:
-              subscriptionCouponRepeating.discounts[0].source.coupon.percent_off,
+              subscriptionCouponRepeating.discounts[0].source.coupon
+                .percent_off,
           },
         ];
         const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -5775,7 +5776,10 @@ describe('StripeHelper', () => {
           [
             {
               subscription: event.data.object.id,
-              expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+              expand: [
+                'discounts',
+                'lines.data.taxes.tax_rate_details.tax_rate',
+              ],
             },
           ],
         ]);

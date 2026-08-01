@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import nock from 'nock';
 import zendesk from 'node-zendesk';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
 
-const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
 const { getRoute } = require('../../../test/routes_helpers');
 const { supportRoutes } = require('./support');
@@ -26,7 +26,7 @@ let config: any,
   zendeskClient: any;
 
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 const REQUESTER_ID = 987654321;
 const SUBDOMAIN = 'test';
 

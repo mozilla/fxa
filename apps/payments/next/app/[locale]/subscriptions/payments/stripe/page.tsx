@@ -4,6 +4,7 @@
 
 'use server';
 
+import crypto from 'node:crypto';
 import {
   ManageParams,
   StripeManagementWrapper,
@@ -12,7 +13,6 @@ import {
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 import { redirect } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
 import { getStripeClientSession } from '@fxa/payments/ui/actions';
 
 export default async function StripePaymentManagementPage({
@@ -46,7 +46,7 @@ export default async function StripePaymentManagementPage({
     stripeClientSession;
 
   // Only change the instanceKey, thereby remounting the StripeManagementWrapper, when the defaultPaymentMethod changes.
-  const instanceKey = defaultPaymentMethod ? `${defaultPaymentMethod.type}-${defaultPaymentMethod.id}` : uuidv4();
+  const instanceKey = defaultPaymentMethod ? `${defaultPaymentMethod.type}-${defaultPaymentMethod.id}` : crypto.randomUUID();
 
   return (
     <section

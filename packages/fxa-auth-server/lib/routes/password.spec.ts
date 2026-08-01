@@ -13,7 +13,6 @@ import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
-const uuid = require('uuid');
 const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../../lib/log');
 const random = require('../../lib/crypto/random');
@@ -93,7 +92,7 @@ describe('/password', () => {
       },
     };
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       uid,
@@ -256,7 +255,7 @@ describe('/password', () => {
       },
     };
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       uid,
@@ -480,7 +479,7 @@ describe('/password', () => {
 
   it('/forgot/verify_code', () => {
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const accountResetToken = {
       data: crypto.randomBytes(16).toString('hex'),
       id: crypto.randomBytes(16).toString('hex'),
@@ -585,7 +584,7 @@ describe('/password', () => {
 
   describe('/password/change/start', () => {
     it('should start password change', async () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,
@@ -651,7 +650,7 @@ describe('/password', () => {
     });
 
     it('should start password change with session token', async () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,
@@ -715,7 +714,7 @@ describe('/password', () => {
     });
 
     it('fails fast with INCORRECT_EMAIL_CASE when payload email does not match account.email', async () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       // Account's signup email is the canonical v1 PBKDF2 salt.
       const mockDB = mocks.mockDB({
         email: 'signup@example.com',
@@ -758,7 +757,7 @@ describe('/password', () => {
 
   describe('/change/finish', () => {
     it('smoke', () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       const devices = [
         { uid: uid, id: crypto.randomBytes(16) },
         { uid: uid, id: crypto.randomBytes(16) },
@@ -870,7 +869,7 @@ describe('/password', () => {
     });
 
     it('succeeds even if notification blocked', () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid: uid,
@@ -954,7 +953,7 @@ describe('/password', () => {
     });
 
     it('upgrades to v2', async () => {
-      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const uid = crypto.randomBytes(16).toString('hex');
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,
@@ -1027,7 +1026,7 @@ describe('/password', () => {
       mockMailer: any;
 
     beforeEach(async () => {
-      uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      uid = crypto.randomBytes(16).toString('hex');
       mockDB = mocks.mockDB({
         uid,
         email: TEST_EMAIL,
@@ -1131,7 +1130,7 @@ describe('/password', () => {
       uid: any;
 
     beforeEach(() => {
-      uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      uid = crypto.randomBytes(16).toString('hex');
       mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,

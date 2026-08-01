@@ -1,12 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'node:crypto';
 import fs from 'fs';
 import path from 'path';
 import { Kysely, sql } from 'kysely';
 
 import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
-import { v4 } from 'uuid';
 
 const SQL_FILE_LOCATION = '../test';
 
@@ -32,7 +32,7 @@ export async function testAccountDatabaseSetup(
     user: 'root',
   });
 
-  const testDbName = `testAccount-${v4()}`;
+  const testDbName = `testAccount-${crypto.randomUUID()}`;
 
   await sql`DROP DATABASE IF EXISTS ${sql.table(testDbName)}`.execute(db);
   await sql`CREATE DATABASE ${sql.table(testDbName)}`.execute(db);

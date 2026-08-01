@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import {
   createTestServer,
   getSharedTestServer,
@@ -12,7 +13,6 @@ import url from 'url';
 const Client = require('../client')();
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
 
 interface AuthServerError extends Error {
   errno: number;
@@ -599,7 +599,7 @@ describe.each(testVersions)(
         sub: client.uid,
         scope: ['mfa:password'],
         iat: now,
-        jti: uuid.v4(),
+        jti: crypto.randomUUID(),
         stid: sessionTokenId,
       };
 

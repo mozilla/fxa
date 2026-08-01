@@ -151,7 +151,7 @@
     "tslib": "^2.8.1",
     "twilio": "5.3.5",
     "typedi": "^0.8.0",
-    "uuid": "^10.0.0",
+    "uuid": "^11.1.1",
     "winston": "^3.17.0",
     "zod": "^4.3.6"
   },
@@ -244,7 +244,6 @@
     "@types/set-value": "^4",
     "@types/superagent": "4.1.11",
     "@types/twilio": "^3.19.3",
-    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^7.1.1",
     "autoprefixer": "^10.4.14",

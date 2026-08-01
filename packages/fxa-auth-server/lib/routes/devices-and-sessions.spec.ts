@@ -11,7 +11,6 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const mocks: any = require('../../test/mocks');
 const moment = require('moment');
-const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -91,7 +90,7 @@ function hexString(bytes: number) {
 }
 
 describe('/account/device', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockDeviceName = 'my awesome device \u{1F353}\u{1F525}';
   let config: any,
@@ -306,7 +305,7 @@ describe('/account/device', () => {
 
 describe('/account/devices/notify', () => {
   const config: any = {};
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
@@ -637,7 +636,7 @@ describe('/account/devices/notify', () => {
 });
 
 describe('/account/device/commands', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   let mockLog: any, mockRequest: any, mockCustoms: any;
 
@@ -865,7 +864,7 @@ describe('/account/device/commands', () => {
 });
 
 describe('/account/devices/invoke_command', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const command = 'bogusCommandName';
   const mockDevices = [
     {
@@ -1328,7 +1327,7 @@ describe('/account/device/destroy', () => {
   let mockPush: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     deviceId = crypto.randomBytes(16).toString('hex');
     deviceId2 = crypto.randomBytes(16).toString('hex');
     mockDevices = mocks.mockDevices({ deviceId });

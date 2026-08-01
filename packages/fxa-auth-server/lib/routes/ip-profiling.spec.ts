@@ -12,7 +12,6 @@
 
 import crypto from 'crypto';
 import { Container } from 'typedi';
-import { v4 as uuid } from 'uuid';
 import { createMock } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AuthLogger } from '../types';
@@ -27,7 +26,7 @@ const { AppConfig } = require('../types');
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
 const NOW = 1700000000000;
-const UID = uuid({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 
 const KNOWN_IP = '63.245.221.32'; // Mountain View, CA
 const KNOWN_LOCATION = {

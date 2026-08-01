@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../types';
 import {
   installMockFxaMailer,
   uninstallMockFxaMailer,
 } from '../../test/fixtures/fxa-mailer';
-
-const uuid = require('uuid');
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
@@ -48,7 +47,7 @@ function runTest(route: any, request: any, assertions?: (res: any) => void) {
 }
 
 describe('/account/login/send_unblock_code', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const email = 'unblock@example.com';
   const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
@@ -127,7 +126,7 @@ describe('/account/login/send_unblock_code', () => {
 
 describe('/account/login/reject_unblock_code', () => {
   it('should consume the unblock code', () => {
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const unblockCode = 'A1B2C3D4';
     const mockRequest = mocks.mockRequest({
       payload: {

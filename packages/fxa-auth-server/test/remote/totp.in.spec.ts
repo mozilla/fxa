@@ -11,7 +11,6 @@ import crypto from 'crypto';
 const Client = require('../client')();
 const otplib = require('otplib');
 const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
 const { default: Container } = require('typedi');
 const {
   PlaySubscriptions,
@@ -32,7 +31,7 @@ async function generateMfaJwt(client: any) {
     sub: client.uid,
     scope: ['mfa:2fa'],
     iat: now,
-    jti: uuid.v4(),
+    jti: crypto.randomUUID(),
     stid: sessionTokenId,
   };
 
