@@ -254,9 +254,9 @@ export type JwtPayload = {
 /**
  * External Container for holding JWTs.
  *
- * For now tokens will be held in page memory. This works as long as we have
- * no hard navigates, which should be the case in fxa settings. If edge cases
- * arise consider swapping `static state` for session storage.
+ * Tokens are backed by local storage so they survive hard navigates and page
+ * refreshes. `static state` is an in-memory cache of that stored value; it is
+ * lazily hydrated on first read and written through on every mutation.
  */
 export class JwtTokenCache {
   /** The following works with React.useSyncExternalStore. */
