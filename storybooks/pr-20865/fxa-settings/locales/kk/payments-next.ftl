@@ -42,7 +42,6 @@ auth-error-page-title = Сізді жүйеге кіргізе алмадық
 checkout-error-boundary-retry-button = Қайтадан көру
 checkout-error-boundary-basic-error-message = Бірдеңе дұрыс болмады. Қайталап көріңіз немесе <contactSupportLink>қолдау қызметіне хабарласыңыз.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } логотипі
-diners-logo-alt-text = { -brand-diner } логотипі
 discover-logo-alt-text = { -brand-discover } логотипі
 jcb-logo-alt-text = { -brand-jcb } логотипі
 mastercard-logo-alt-text = { -brand-mastercard } логотипі

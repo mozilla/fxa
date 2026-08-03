@@ -42,7 +42,6 @@ auth-error-page-title = No pudimos conectarte
 checkout-error-boundary-retry-button = Volver a intentarlo
 checkout-error-boundary-basic-error-message = Algo se fue a las pailas. Por favor, vuelve a intentarlo o <contactSupportLink>contacta con el soporte técnico.</contactSupportLink>
 amex-logo-alt-text = Logo de { -brand-amex }
-diners-logo-alt-text = Logo de { -brand-diner }
 discover-logo-alt-text = Logo de { -brand-discover }
 jcb-logo-alt-text = Logo de { -brand-jcb }
 mastercard-logo-alt-text = Logo de { -brand-mastercard }

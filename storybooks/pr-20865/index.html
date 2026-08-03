@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2c74911831113297c03167880c6eee5efa66c859</title>
+  <title>Storybooks for commit 1abedb722cf19fac9693b4fd75b111096b5ada9f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2c74911831113297c03167880c6eee5efa66c859</h1>
+  <h1>Storybooks for commit 1abedb722cf19fac9693b4fd75b111096b5ada9f</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/3/2026, 6:38:52 PM UTC</dd>
+    <dd>8/3/2026, 9:22:09 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>bug(auth-server): Let clients opt out of the server-sent signin OTP</pre></dd>
+    <dd><pre>bug(auth-server): Let FxA&#039;s front-end opt out of the server-sent signin OTP</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 - Dormant accounts signing in through Settings received two identical OTP
@@ -39,9 +39,9 @@
   during `/account/login`, and `handleNavigation` sends a second via
   `sessionResendVerifyCode` as it routes to the code screen.
 - The server-side send is the redundant one. It was added as a stop-gap for RPs
-  that integrate with the API directly and never render our web UI, and it has
-  caused duplicate-email problems ever since. The client-side send is the one we
-  want to keep: it couples the email to the navigation that prompts for the code.
+  that hit this API directly instead of going through our web UI, and it has
+  caused duplicate-email problems ever since. The client-side send is the one
+  worth keeping: it couples the email to the navigation that prompts for the code.
 
 This commit:
 - Adds an optional `suppressSigninVerificationEmail` payload flag to
@@ -50,12 +50,14 @@ This commit:
   and unverified-account (`sendVerifyAccountEmail`) OTP paths. Link-based
   confirmation emails are deliberately unaffected — they have no client-driven
   equivalent, so suppressing them would drop mail on the floor.
-- Sends the flag from the fxa-settings password and unblock sign-in paths, the
-  flows that reach `handleNavigation` and send the code themselves.
+- Sets the flag from FxA&#039;s own front-end only: the fxa-settings password and
+  unblock sign-in paths, which reach `handleNavigation` and send the code
+  themselves. FxA is the party opting out.
 - Removes the `sendVerificationEmailFromClient` gate, so `handleNavigation` is
   once again the sole sender for our own front-end.
-- Leaves legacy behavior intact for clients that omit the flag. They will not
-  update their code, so the auth-server keeps sending for them exactly as today.
+- Changes nothing for anyone else. Direct API consumers omit the flag and keep
+  the server-sent email exactly as today — including the RPs that render their
+  own verification UI, which is what this server-side send is there to serve.
 
 Note: the server treats `email-2fa` and `email-otp` identically, but
 `handleNavigation` only sends for `email-otp`. Settings only ever requests

@@ -42,7 +42,6 @@ auth-error-page-title = Nos non poteva aperir tu session
 checkout-error-boundary-retry-button = Retentar
 checkout-error-boundary-basic-error-message = Alco errate eveniva. Retenta o contacta le <contactSupportLink>supporto.</contactSupportLink>
 amex-logo-alt-text = Logo { -brand-amex }
-diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }

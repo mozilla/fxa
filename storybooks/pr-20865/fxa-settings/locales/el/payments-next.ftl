@@ -42,7 +42,6 @@ auth-error-page-title = Δεν ήταν δυνατή η σύνδεση
 checkout-error-boundary-retry-button = Δοκιμή ξανά
 checkout-error-boundary-basic-error-message = Κάτι πήγε στραβά. Δοκιμάστε ξανά ή <contactSupportLink>επικοινωνήστε με την υποστήριξη.</contactSupportLink>
 amex-logo-alt-text = Λογότυπο { -brand-amex }
-diners-logo-alt-text = Λογότυπο { -brand-diner }
 discover-logo-alt-text = Λογότυπο { -brand-discover }
 jcb-logo-alt-text = Λογότυπο { -brand-jcb }
 mastercard-logo-alt-text = Λογότυπο { -brand-mastercard }

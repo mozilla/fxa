@@ -42,7 +42,6 @@ auth-error-page-title = 無法讓您登入
 checkout-error-boundary-retry-button = 重試
 checkout-error-boundary-basic-error-message = 有些東西不對勁，請再試一次或<contactSupportLink>聯絡我們的技術支援團隊。</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } 圖示
-diners-logo-alt-text = { -brand-diner } 圖示
 discover-logo-alt-text = { -brand-discover } 圖示
 jcb-logo-alt-text = { -brand-jcb } 圖示
 mastercard-logo-alt-text = { -brand-mastercard } 圖示

@@ -45,7 +45,6 @@ auth-error-page-title = Njemóžachmy was přizjewić
 checkout-error-boundary-retry-button = Hišće raz spytać
 checkout-error-boundary-basic-error-message = Něšto je so nimokuliło. Prošu spytajće hišće raz abo <contactSupportLink>stajće so z pomocu do zwiska.</contactSupportLink>
 amex-logo-alt-text = Logo { -brand-amex }
-diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }

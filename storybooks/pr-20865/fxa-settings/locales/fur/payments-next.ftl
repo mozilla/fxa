@@ -38,7 +38,6 @@ auth-error-page-title = No rivìn a fâti jentrâ
 checkout-error-boundary-retry-button = Torne prove
 checkout-error-boundary-basic-error-message = Alc al è lât strucj. Torne prove opûr <contactSupportLink>contate il supuart.</contactSupportLink>
 amex-logo-alt-text = Logo { -brand-amex }
-diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }

@@ -42,7 +42,6 @@ auth-error-page-title = We konden u niet aanmelden
 checkout-error-boundary-retry-button = Opnieuw proberen
 checkout-error-boundary-basic-error-message = Er is iets misgegaan. Probeer het opnieuw of <contactSupportLink>neem contact op met de ondersteuningsafdeling.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex }-logo
-diners-logo-alt-text = { -brand-diner }-logo
 discover-logo-alt-text = { -brand-discover }-logo
 jcb-logo-alt-text = { -brand-jcb }-logo
 mastercard-logo-alt-text = { -brand-mastercard }-logo
