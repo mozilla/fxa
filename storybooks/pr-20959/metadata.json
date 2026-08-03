@@ -1,0 +1,10 @@
+{
+  "commit": "c0e8e51fe6c15905b5528f84e8183bb453a0531c",
+  "summary": "feat(passkeys): Add passwordless sync feature flags",
+  "description": "Because:\n\n* Passwordless sync sign-in needs a flag on both sides before the routes\n  and UI paths that use it can be gated.\n\nThis commit:\n\n* Adds `passkeys.passwordlessSyncEnabled` to auth-server config with an\n  `isPasskeyPasswordlessSyncEnabled` guard that throws when disabled.\n* Adds `passkeyPasswordlessSyncEnabled` to the content-server feature\n  flags and the settings `featureFlags` interface.\n* Enables both in local config. Defaults stay false.",
+  "timestamp": 1785778304000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
