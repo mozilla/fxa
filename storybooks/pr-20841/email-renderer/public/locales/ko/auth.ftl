@@ -202,6 +202,10 @@ freeTrialEndingReminder-content-greeting = { $productName } 고객님께,
 #   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
 freeTrialEndingReminder-content-trial-ending = 무료 평가판이 <strong>{ $serviceLastActiveDateOnly }</strong>에 종료됩니다.
 freeTrialEndingReminder-content-trial-ending-plaintext = 무료 평가판이 { $serviceLastActiveDateOnly }에 종료됩니다.
+# Variables:
+#   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+freeTrialEndingReminder-content-auto-charge = 그 이전에 취소하지 않으면 구독이 자동으로 시작되며 <strong>{ $serviceLastActiveDateOnly }</strong>에 계정으로 <strong>{ $invoiceTotal }</strong> 금액이 청구됩니다.
 freeTrialEndingReminder-content-charge-heading = 상세정보 변경하기
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN

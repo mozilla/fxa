@@ -21,7 +21,7 @@ next-payment-method-first-approve = Per prima cosa devi approvare il tuo abbonam
 ## Error page
 
 error-page-account-not-found-heading = Account non trovato
-error-page-account-not-found-message = L’account associato alla sessione non esiste. Utilizza un altro account o creane uno nuovo per iscriverti.
+error-page-account-not-found-message = L’account associato alla sessione non esiste. Utilizza un altro account o creane uno nuovo per abbonarti.
 error-page-account-not-found-continue-button = Continua
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Seleziona il tuo Paese e inserisci il tuo codice postale <p>per continuare con il pagamento per { $productName }</p>
@@ -40,7 +40,7 @@ upgrade-page-acknowledgment-from-trial = Con l’aggiornamento, il periodo di pr
 
 auth-error-page-title = Impossibile accedere
 checkout-error-boundary-retry-button = Riprova
-checkout-error-boundary-basic-error-message = Si è verificato un errore. Riprovare o <contactSupportLink>contattare il supporto</contactSupportLink>.
+checkout-error-boundary-basic-error-message = Si è verificato un errore. Riprova o <contactSupportLink>contatta il supporto</contactSupportLink>.
 amex-logo-alt-text = Logo { -brand-amex }
 diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
@@ -52,13 +52,13 @@ visa-logo-alt-text = Logo { -brand-visa }
 # Alt text for generic payment card logo
 unbranded-logo-alt-text = Logo senza marchio
 link-logo-alt-text = Logo { -brand-link }
-apple-pay-logo-alt-text = Logo di { -brand-apple-pay }
-google-pay-logo-alt-text = Logo di { -brand-google-pay }
+apple-pay-logo-alt-text = Logo { -brand-apple-pay }
+google-pay-logo-alt-text = Logo { -brand-google-pay }
 
 ## Error pages - /checkout and /upgrade
 ## Common strings used in multiple pages
 
-next-payment-error-manage-subscription-button = Gestione abbonamento
+next-payment-error-manage-subscription-button = Gestisci il mio abbonamento
 next-iap-blocked-contact-support = Hai un abbonamento in-app effettuato da mobile in conflitto con questo prodotto. Contatta il supporto per ricevere assistenza.
 next-payment-error-retry-button = Riprova
 next-basic-error-message = Si è verificato un problema. Riprova più tardi.
@@ -78,7 +78,7 @@ intent-expired-card-error = Questa carta di credito risulta scaduta. Prova con u
 intent-payment-error-try-again = Uhm… si è verificato un problema durante l’autorizzazione del pagamento. Riprova o contatta l’emittente della carta.
 intent-payment-error-get-in-touch = Uhm… si è verificato un problema durante l’autorizzazione del pagamento. Contatta l’emittente della carta.
 intent-payment-error-generic = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
-intent-payment-error-insufficient-funds = Questa carta non dispone di credito sufficiente. Prova con un’altra carta di credito.
+intent-payment-error-insufficient-funds = Questa carta non dispone di credito sufficiente. Prova con un’altra carta.
 general-paypal-error = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
 paypal-active-subscription-no-billing-agreement-error = Sembra che si sia verificato un problema di fatturazione con il tuo account { -brand-paypal }. Riattiva i pagamenti automatici per il tuo abbonamento.
 new-account-prepaid-card-free-trial-not-allowed = Non è possibile utilizzare carte prepagate per avviare una prova gratuita su un nuovo account. Scegli un altro metodo di pagamento.
@@ -163,7 +163,7 @@ subscription-management-credit-balance-message = Il credito verrà automaticamen
 subscription-management-payment-method-label = Metodo di pagamento
 subscription-management-button-add-payment-method-aria = Aggiungi metodo di pagamento
 subscription-management-button-add-payment-method = Aggiungi
-subscription-management-page-warning-message-no-payment-method = Aggiungi un metodo di pagamento per evitare interruzioni del tuo abbonamento.
+subscription-management-page-warning-message-no-payment-method = Aggiungi un metodo di pagamento per evitare interruzioni dei tuoi abbonamenti.
 subscription-management-button-manage-payment-method-aria = Gestisci il metodo di pagamento
 subscription-management-button-manage-payment-method = Gestisci
 # $last4 (String) - Last four numbers of credit card
@@ -209,7 +209,7 @@ alert-dialog-title = Finestra di avviso
 
 ## Already Canceling
 
-already-canceling-title = L’abbonamento sta per scadere
+already-canceling-title = L’abbonamento terminerà
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 # $date (Date) - Last day of product access
 already-canceling-message = Continuerai ad avere accesso a { $productName } fino al { $date }.
@@ -229,7 +229,7 @@ subscription-management-breadcrumb-back-aria = Torna a { $page }
 
 ## CancelSubscription
 
-subscription-cancellation-dialog-title = Ci dispiace per la tua decisione
+subscription-cancellation-dialog-title = Ci dispiace che tu abbia deciso di andartene
 # $name (String) - The name of the subscribed product.
 # $date (Date) - Last day of product access
 subscription-cancellation-dialog-msg = Il tuo abbonamento a { $name } è stato annullato. Potrai comunque accedere a { $name } fino al { $date }.
@@ -240,8 +240,8 @@ cancel-subscription-heading = Annulla l’abbonamento a { $productName }
 ## $currentPeriodEnd (Date) - The end date of the subscription's current billing period (e.g., September, 8, 2025)
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
-subscription-content-no-longer-use-message = Non potrai più utilizzare { $productName } dopo { $currentPeriodEnd }, l’ultimo giorno del ciclo di fatturazione.
-subscription-content-cancel-access-message = Disattiva il mio accesso e rimuovi le informazioni salvate in { $productName } prima di { $currentPeriodEnd }
+subscription-content-no-longer-use-message = Non potrai più utilizzare { $productName } dopo il { $currentPeriodEnd }, l’ultimo giorno del ciclo di fatturazione.
+subscription-content-cancel-access-message = Disattiva il mio accesso e rimuovi le informazioni salvate in { $productName } il { $currentPeriodEnd }
 
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
@@ -256,7 +256,7 @@ next-payment-confirm-with-legal-links-static-3 = Autorizzo { -brand-mozilla } ad
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = È necessario configurare un metodo di pagamento per iniziare la prova gratuita. Non ti verrà addebitato alcun importo fino a { $endDate }.
-checkbox-confirm-free-trial-with-legal-links = Al termine del periodo di prova gratuito il { $endDate }, autorizzo { -brand-mozilla } ad addebitare l’importo visualizzato utilizzando il metodo di pagamento da me scelto, in base ai <termsOfServiceLink>termini di servizio</termsOfServiceLink> e all’<privacyNoticeLink>informativa sulla privacy</privacyNoticeLink>, fino a quando non avrò annullato il mio abbonamento.
+checkbox-confirm-free-trial-with-legal-links = Al termine del periodo di prova gratuito il { $endDate }, autorizzo { -brand-mozilla } ad addebitare l’importo visualizzato utilizzando il metodo di pagamento da me scelto, in base alle <termsOfServiceLink>condizioni di utilizzo del servizio</termsOfServiceLink> e all’<privacyNoticeLink>informativa sulla privacy</privacyNoticeLink>, fino a quando non avrò annullato il mio abbonamento.
 next-payment-confirm-checkbox-error = È necessario selezionare questa opzione per procedere
 
 ## Checkout Form
@@ -271,7 +271,7 @@ churn-cancel-flow-success-title = Sei ancora abbonato
 # $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'you’ll save 10% on your next bill', discountPercent = 10)
 churn-cancel-flow-success-message = Il tuo abbonamento continuerà e risparmierai il { $discountPercent }% sulla prossima fattura.
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
-churn-cancel-flow-thanks-valued-subscriber = Grazie per aver utilizzato { $productName }.
+churn-cancel-flow-thanks-valued-subscriber = Grazie per utilizzare { $productName }.
 churn-cancel-flow-button-back-to-subscriptions = Torna agli abbonamenti
 churn-cancel-flow-action-error = Si è verificato un errore imprevisto. Riprova.
 # $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'Stay subscribed and save 10%', discountPercent = 10)
@@ -291,11 +291,11 @@ churn-cancel-flow-subscription-active-title = Il tuo abbonamento a { $productNam
 churn-cancel-flow-button-go-to-product-page = Vai a { $productName }
 # The sentence before this informs the customer that they will save a discount on their next bill (e.g. You will save 10% on your next charge of $12 to your PayPal payment method on March 6, 2026.)
 churn-cancel-flow-after = Successivamente, il tuo abbonamento si rinnoverà automaticamente alla tariffa standard, a meno che non venga annullato.
-churn-cancel-flow-cancel-success-title = Ci dispiace per la tua decisione
+churn-cancel-flow-cancel-success-title = Ci dispiace che tu abbia deciso di andartene
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 # $date (Date) - Last day of product access
 churn-cancel-flow-cancel-success-dialog-msg = Il tuo abbonamento a { $productName } è stato annullato. Potrai comunque accedere a { $productName } fino al { $date }.
-churn-cancel-flow-cancel-turn-back-on = Puoi riattivare il tuo abbonamento in qualsiasi momento prima della scadenza.
+churn-cancel-flow-cancel-turn-back-on = Puoi riattivare il tuo abbonamento in qualsiasi momento prima che scada.
 churn-cancel-flow-cancel-success-dialog-aside = Hai una domanda? Visita il sito per il <LinkExternal>supporto { -brand-mozilla }</LinkExternal>.
 
 ## Churn flow - stay subscribed
@@ -346,7 +346,7 @@ free-trial-content-trial-cancelled = La tua prova gratuita è stata annullata.
 free-trial-content-charge-info-with-tax-day = Ti verranno addebitati { $amount } + { $tax } (tasse) al giorno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-week = Ti verranno addebitati { $amount } + { $tax } (tasse) a settimana al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-month = Ti verranno addebitati { $amount } + { $tax } (tasse) al mese al termine del periodo di prova gratuito il { $date }.
-free-trial-content-charge-info-with-tax-halfyear = Ti verranno addebitati { $amount } + { $tax } (tasse) ogni sei mesi dopo il termine del periodo di prova gratuito il { $date }.
+free-trial-content-charge-info-with-tax-halfyear = Ti verranno addebitati { $amount } + { $tax } (tasse) ogni sei mesi al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-year = Ti verranno addebitati { $amount } + { $tax } (tasse) all’anno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-default = Ti verranno addebitati { $amount } + { $tax } (tasse) al termine del periodo di prova gratuito il { $date }.
 
@@ -355,15 +355,15 @@ free-trial-content-charge-info-with-tax-default = Ti verranno addebitati { $amou
 free-trial-content-charge-info-no-tax-day = Ti verranno addebitati { $amount } al giorno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-week = Ti verranno addebitati { $amount } alla settimana al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-month = Ti verranno addebitati { $amount } al mese al termine del periodo di prova gratuito il { $date }.
-free-trial-content-charge-info-no-tax-halfyear = Ti verranno addebitati { $amount } ogni sei mesi dopo il termine del periodo di prova gratuito di { $date }.
+free-trial-content-charge-info-no-tax-halfyear = Ti verranno addebitati { $amount } ogni sei mesi al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-year = Ti verranno addebitati { $amount } all’anno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-default = Ti verranno addebitati { $amount } al termine del periodo di prova gratuito il { $date }.
 free-trial-content-trial-ends = La tua prova gratuita termina il { $date }. Aggiorna il tuo metodo di pagamento per mantenere l’accesso dopo la prova gratuita.
 free-trial-content-trial-active = La tua prova gratuita è attiva.
 free-trial-content-action-error = Si è verificato un errore imprevisto. Riprova.
-free-trial-content-button-resume-trial = Riprendi la versione di prova
+free-trial-content-button-resume-trial = Riprendi il periodo di prova
 free-trial-content-button-resume-trial-aria = Riprendi il periodo di prova per { $productName }
-free-trial-content-button-cancel-trial = Annulla prova
+free-trial-content-button-cancel-trial = Annulla il periodo di prova
 free-trial-content-button-cancel-trial-aria = Annulla il periodo di prova per { $productName }
 free-trial-content-button-cancel-subscription = Annulla abbonamento
 free-trial-content-button-cancel-subscription-aria = Annulla abbonamento a { $productName }
@@ -406,7 +406,7 @@ payments-header-bento-firefox-relay = { -product-firefox-relay }
 payments-header-bento-vpn = { -product-mozilla-vpn }
 payments-header-bento-made-by-mozilla = Realizzato da { -brand-mozilla }
 payments-header-avatar =
-    .title = Menu { -product-mozilla-account }
+    .title = Menu dell’{ -product-mozilla-account }
 payments-header-avatar-icon =
     .alt = Immagine del profilo per l’account
 payments-header-avatar-expanded-signed-in-as = Accesso effettuato come
@@ -414,11 +414,11 @@ payments-header-avatar-expanded-sign-out = Disconnetti
 
 ## Interstitial Offer
 
-interstitial-offer-success-cancel-title = Ci dispiace per la tua decisione
+interstitial-offer-success-cancel-title = Ci dispiace che tu abbia deciso di andartene
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 # $date (Date) - Last day of product access
 interstitial-offer-cancel-success-dialog-msg = Il tuo abbonamento a { $productName } è stato annullato. Potrai comunque accedere a { $productName } fino al { $date }.
-interstitial-offer-turn-back-on = Puoi riattivare il tuo abbonamento in qualsiasi momento prima della scadenza.
+interstitial-offer-turn-back-on = Puoi riattivare il tuo abbonamento in qualsiasi momento prima che scada.
 interstitial-offer-cancel-success-dialog-aside = Hai una domanda? Visita il sito per il <LinkExternal>supporto { -brand-mozilla }</LinkExternal>.
 interstitial-offer-button-back-to-subscriptions = Torna agli abbonamenti
 interstitial-offer-action-error = Si è verificato un errore imprevisto. Riprova.
@@ -455,8 +455,8 @@ plan-details-product-prorated-price = Prezzo ripartito proporzionalmente per { $
 next-plan-details-tax = Tasse e commissioni
 next-plan-details-total-label = Totale
 # "Unused time" refers to the remaining value of the current subscription that hasn't been used yet
-purchase-details-unused-time-label = Credito dal tempo inutilizzato
-purchase-details-subtotal-label = Totale parziale
+purchase-details-unused-time-label = Credito per il tempo non utilizzato
+purchase-details-subtotal-label = Subtotale
 # "Credit applied" refers to account credit used to reduce the amount due on the invoice
 purchase-details-credit-applied-label = Credito applicato
 # "Total due" is the total that the customer owes after all credits, discounts, and taxes have been applied
@@ -480,11 +480,11 @@ free-trial-success-title =
 ## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
 ## $endDate (String) - The date the free trial ends
 
-free-trial-start-message-daily = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } al giorno al termine del periodo di prova gratuito di { $endDate }.
-free-trial-start-message-weekly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } alla settimana al termine del periodo di prova gratuito di { $endDate }.
-free-trial-start-message-monthly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } al mese al termine del periodo di prova gratuito di { $endDate }.
-free-trial-start-message-halfyearly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } ogni 6 mesi al termine del periodo di prova gratuito di { $endDate }.
-free-trial-start-message-yearly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } all’anno al termine del periodo di prova gratuito di { $endDate }.
+free-trial-start-message-daily = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } al giorno al termine del periodo di prova gratuito il { $endDate }.
+free-trial-start-message-weekly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } alla settimana al termine del periodo di prova gratuito il { $endDate }.
+free-trial-start-message-monthly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } al mese al termine del periodo di prova gratuito il { $endDate }.
+free-trial-start-message-halfyearly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } ogni 6 mesi al termine del periodo di prova gratuito il { $endDate }.
+free-trial-start-message-yearly = Nessun pagamento richiesto oggi. Ti verranno addebitati { $firstPrice } all’anno al termine del periodo di prova gratuito il { $endDate }.
 
 ##
 
@@ -496,9 +496,9 @@ free-trial-first-charge-title = Primo addebito: { $endDate }
 
 free-trial-first-charge-message-daily = Ti verranno addebitati { $firstPrice } il { $endDate }, poi giornalmente fino all’annullamento.
 free-trial-first-charge-message-weekly = Ti verranno addebitati { $firstPrice } il { $endDate }, poi settimanalmente fino all’annullamento.
-free-trial-first-charge-message-monthly = Ti verranno addebitati { $firstPrice } il { $endDate }, poi mensilmente fino alla tua disdetta.
-free-trial-first-charge-message-halfyearly = Ti verranno addebitati { $firstPrice } il { $endDate }, successivamente ogni 6 mesi fino alla tua disdetta.
-free-trial-first-charge-message-yearly = Ti verranno addebitati { $firstPrice } il { $endDate }, poi annualmente fino alla tua disdetta.
+free-trial-first-charge-message-monthly = Ti verranno addebitati { $firstPrice } il { $endDate }, poi mensilmente fino all’annullamento.
+free-trial-first-charge-message-halfyearly = Ti verranno addebitati { $firstPrice } il { $endDate }, successivamente ogni 6 mesi fino all’annullamento.
+free-trial-first-charge-message-yearly = Ti verranno addebitati { $firstPrice } il { $endDate }, poi annualmente fino all’annullamento.
 
 ##
 
@@ -516,12 +516,12 @@ select-tax-location-country-code-label = Paese
 select-tax-location-country-code-placeholder = Seleziona il tuo Paese
 select-tax-location-error-missing-country-code = Seleziona il tuo Paese
 #  $productName (String) - The name of the product to be downloaded, e.g. Mozilla VPN
-select-tax-location-product-not-available = { $productName } non è disponibile in questa località.
+select-tax-location-product-not-available = { $productName } non è disponibile in questa posizione.
 select-tax-location-postal-code-label = Codice postale
 select-tax-location-postal-code =
     .placeholder = Inserisci il tuo codice postale
 select-tax-location-error-missing-postal-code = Inserisci il tuo codice postale
-select-tax-location-error-invalid-postal-code = Inserire un codice postale valido
+select-tax-location-error-invalid-postal-code = Inserisci un codice postale valido
 select-tax-location-successfully-updated = La tua posizione è stata aggiornata.
 select-tax-location-error-location-not-updated = Impossibile aggiornare la posizione. Riprova.
 #  $currencyDisplayName (String) - The display name of a currency code, e.g. US Dollar
@@ -531,7 +531,7 @@ select-tax-location-new-tax-rate-info = Aggiornando la tua posizione verrà appl
 signin-form-continue-button = Continua
 signin-form-email-input = Inserisci il tuo indirizzo email
 signin-form-email-input-missing = Inserisci il tuo indirizzo email
-signin-form-email-input-invalid = Inserire un indirizzo email valido
+signin-form-email-input-invalid = Inserisci un indirizzo email valido
 next-new-user-subscribe-product-updates-mdnplus = Desidero ricevere aggiornamenti e novità sui prodotti da { -product-mdn-plus } e { -brand-mozilla }
 next-new-user-subscribe-product-updates-mozilla = Desidero ricevere aggiornamenti e novità sui prodotti da { -brand-mozilla }
 next-new-user-subscribe-product-updates-snp = Desidero ricevere aggiornamenti su sicurezza e privacy da { -brand-mozilla }
@@ -562,7 +562,7 @@ stay-subscribed-next-charge-no-tax = Il prossimo addebito sarà di { $nextInvoic
 ## $promotionName (String) - The name of the promotion.
 ## $taxDue (Number) - The tax added on, not included in amount. It will be formatted as currency.
 
-subscription-content-coupon-will-be-applied = Verrà applicato uno sconto di { $promotionName }
+subscription-content-coupon-will-be-applied = Verrà applicato lo sconto { $promotionName }
 # • is acting as a separator between "Last bill" and the billing date.
 subscription-content-last-bill = Ultima fattura • { $billedOnDate }
 subscription-content-last-bill-with-tax = { $invoiceTotal } + { $taxDue } (tasse)
@@ -580,7 +580,7 @@ subscription-content-button-cancel-subscription = Annulla abbonamento
     .aria-label = Annulla l’abbonamento a { $productName }
 # Link to the terms and restrictions for a coupon offer.
 subscription-content-link-churn-intervention-terms-apply = Termini applicabili
-subscription-content-link-churn-intervention-terms-aria = Visualizza i termini e le restrizioni dei coupon
+subscription-content-link-churn-intervention-terms-aria = Visualizza i termini e le restrizioni del codice promozionale
 
 ##
 
@@ -597,8 +597,8 @@ churn-error-page-message-discount-already-applied = Questo sconto è stato appli
 churn-error-page-button-manage-subscriptions = Gestisci gli abbonamenti
 churn-error-page-button-contact-support = Contatta l’assistenza
 churn-error-page-button-try-again = Riprova
-churn-error-page-title-customer-mismatch = Il coupon non può essere utilizzato
-churn-error-page-message-customer-mismatch = Questo coupon è stato emesso per un abbonamento diverso e può essere utilizzato solo dal destinatario originale.
+churn-error-page-title-customer-mismatch = Il codice promozionale non può essere utilizzato
+churn-error-page-message-customer-mismatch = Questo codice promozionale è stato emesso per un abbonamento diverso e può essere utilizzato solo dal destinatario originale.
 churn-error-page-button-sign-in = Accedi
 churn-error-page-title-general-error = Si è verificato un problema con il rinnovo dell’abbonamento
 churn-error-page-message-general-error = Contatta il supporto o riprova.
@@ -636,7 +636,7 @@ next-sub-guarantee = Garanzia di rimborso di 30 giorni
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Condizioni di utilizzo del servizio
 next-privacy = Informativa sulla privacy
-next-terms-download = Scarica i termini
+next-terms-download = Scarica le condizioni
 terms-and-privacy-stripe-label = { -brand-mozilla } utilizza { -brand-name-stripe } per l’elaborazione sicura dei pagamenti.
 terms-and-privacy-stripe-link = Informativa sulla privacy di { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } utilizza { -brand-paypal } per l’elaborazione sicura dei pagamenti.
@@ -666,20 +666,20 @@ upgrade-purchase-details-new-plan-yearly = { $productName } (all’anno)
 ## $productTitle (String) - The name of the product to create subscription, e.g. Mozilla VPN
 
 # Checkout start
-metadata-title-checkout-start = Acquista | { $productTitle }
+metadata-title-checkout-start = Pagamento | { $productTitle }
 metadata-description-checkout-start = Inserisci i dati per il pagamento per completare l’acquisto.
 # Checkout processing
 metadata-title-checkout-processing = Elaborazione | { $productTitle }
 metadata-description-checkout-processing = Attendi il completamento dell’elaborazione del pagamento.
 # Checkout error
 metadata-title-checkout-error = Errore | { $productTitle }
-metadata-description-checkout-error = Si è verificato un errore durante l’elaborazione dell’abbonamento. Se il problema persiste, contattare il supporto.
+metadata-description-checkout-error = Si è verificato un errore durante l’elaborazione dell’abbonamento. Se il problema persiste, contatta il supporto.
 # Checkout success
 metadata-title-checkout-success = Operazione riuscita | { $productTitle }
 metadata-description-checkout-success = Congratulazioni. L’acquisto è stato completato correttamente.
 # Checkout needs_input
 metadata-title-checkout-needs-input = Azione richiesta | { $productTitle }
-metadata-description-checkout-needs-input = Completare l’azione richiesta per procedere con il pagamento.
+metadata-description-checkout-needs-input = Completa l’azione richiesta per procedere con il pagamento.
 # Upgrade start
 metadata-title-upgrade-start = Aggiorna | { $productTitle }
 metadata-description-upgrade-start = Inserisci i dati per il pagamento per completare l’aggiornamento.
@@ -688,13 +688,13 @@ metadata-title-upgrade-processing = Elaborazione | { $productTitle }
 metadata-description-upgrade-processing = Attendi il completamento dell’elaborazione del pagamento.
 # Upgrade error
 metadata-title-upgrade-error = Errore | { $productTitle }
-metadata-description-upgrade-error = Si è verificato un errore durante l’aggiornamento. Se il problema persiste, contattare il supporto.
+metadata-description-upgrade-error = Si è verificato un errore durante l’aggiornamento. Se il problema persiste, contatta il supporto.
 # Upgrade success
 metadata-title-upgrade-success = Operazione riuscita | { $productTitle }
 metadata-description-upgrade-success = Congratulazioni. L’aggiornamento è stato completato correttamente.
 # Upgrade needs_input
 metadata-title-upgrade-needs-input = Azione richiesta | { $productTitle }
-metadata-description-upgrade-needs-input = Completare l’azione richiesta per procedere con il pagamento.
+metadata-description-upgrade-needs-input = Completa l’azione richiesta per procedere con il pagamento.
 # Default
 metadata-title-default = Pagina non trovata | { $productTitle }
 metadata-description-default = La pagina richiesta non è stata trovata.
@@ -721,11 +721,11 @@ stay-subscribed-error-general = Si è verificato un problema con il rinnovo dell
 
 manage-payment-method-intent-error-card-declined = La transazione non può essere elaborata. Verifica i dati della tua carta di credito e riprova.
 manage-payment-method-intent-error-expired-card-error = Questa carta di credito risulta scaduta. Prova con un’altra carta.
-manage-payment-method-intent-error-try-again = Uhm… Si è verificato un problema durante l’autorizzazione del pagamento. Riprova o contatta l’emittente della carta.
-manage-payment-method-intent-error-get-in-touch = Uhm… Si è verificato un problema durante l’autorizzazione del pagamento. Contatta l’emittente della carta.
+manage-payment-method-intent-error-try-again = Uhm… si è verificato un problema durante l’autorizzazione del pagamento. Riprova o contatta l’emittente della carta.
+manage-payment-method-intent-error-get-in-touch = Uhm… si è verificato un problema durante l’autorizzazione del pagamento. Contatta l’emittente della carta.
 manage-payment-method-intent-error-insufficient-funds = Questa carta non dispone di credito sufficiente. Prova con un’altra carta.
 manage-payment-method-intent-error-generic = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
-manage-payment-method-tax-address-required = Non è stato possibile determinare la località di fatturazione. Verifica le informazioni relative al metodo di pagamento e riprova.
+manage-payment-method-tax-address-required = Non è stato possibile determinare la posizione di fatturazione. Verifica le informazioni relative al metodo di pagamento e riprova.
 
 ## $currentPeriodEnd (Date) - The date of the next charge.
 ## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)
@@ -734,14 +734,14 @@ manage-payment-method-tax-address-required = Non è stato possibile determinare 
 ## $paymentMethod (String) - The name of the default payment method - "Google Pay", "Apple Pay", "PayPal", "Link".
 ## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
 
-next-charge-with-discount-and-tax-card = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse), effettuato il { $currentPeriodEnd } sulla carta che termina con { $last4 }.
-next-charge-with-discount-and-tax-payment-method = Risparmierai il { $discountPercent }% sul tuo prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse) sul tuo metodo di pagamento { $paymentMethod } a partire da { $currentPeriodEnd }.
-next-charge-next-charge-with-discount-and-tax = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse) per { $currentPeriodEnd }.
+next-charge-with-discount-and-tax-card = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse) sulla carta che termina con { $last4 } il { $currentPeriodEnd }.
+next-charge-with-discount-and-tax-payment-method = Risparmierai il { $discountPercent }% sul tuo prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse) sul tuo metodo di pagamento { $paymentMethod } il { $currentPeriodEnd }.
+next-charge-next-charge-with-discount-and-tax = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } + { $taxDue } (tasse) il { $currentPeriodEnd }.
 next-charge-with-discount-no-tax-card = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } sulla carta che termina con { $last4 } il { $currentPeriodEnd }.
-next-charge-with-discount-no-tax-payment-method = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } sul tuo metodo di pagamento { $paymentMethod } a partire da { $currentPeriodEnd }.
-next-charge-with-discount-no-tax = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } su { $currentPeriodEnd }.
+next-charge-with-discount-no-tax-payment-method = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } sul tuo metodo di pagamento { $paymentMethod } il { $currentPeriodEnd }.
+next-charge-with-discount-no-tax = Risparmierai il { $discountPercent }% sul prossimo addebito di { $nextInvoiceTotal } il { $currentPeriodEnd }.
 next-charge-with-tax-card = Il prossimo addebito sarà di { $nextInvoiceTotal } + { $taxDue } (tasse) sulla carta che termina con { $last4 } il { $currentPeriodEnd }.
-next-charge-with-tax-payment-method = Il prossimo addebito sarà di { $nextInvoiceTotal } + { $taxDue } (tasse) sul tuo metodo di pagamento { $paymentMethod } a partire da { $currentPeriodEnd }.
+next-charge-with-tax-payment-method = Il prossimo addebito sarà di { $nextInvoiceTotal } + { $taxDue } (tasse) sul tuo metodo di pagamento { $paymentMethod } il { $currentPeriodEnd }.
 next-charge-with-tax = Il prossimo addebito sarà di { $nextInvoiceTotal } + { $taxDue } (tasse) il { $currentPeriodEnd }.
 next-charge-no-tax-card = Il prossimo addebito sarà di { $nextInvoiceTotal } sulla carta che termina con { $last4 } il { $currentPeriodEnd }.
 next-charge-no-tax-payment-method = Il prossimo addebito sarà di { $nextInvoiceTotal } sul tuo metodo di pagamento { $paymentMethod } il { $currentPeriodEnd }.

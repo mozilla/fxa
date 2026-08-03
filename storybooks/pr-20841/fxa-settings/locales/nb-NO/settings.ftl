@@ -393,6 +393,8 @@ link-expired-new-link-button = Motta en ny lenke
 
 # immediately before remember-password-signin-link
 remember-password-text = Husker du passordet ditt?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du en passnøkkel, eller husker du passordet ditt?
 # link navigates to the sign in page
 remember-password-signin-link = Logg inn
 
@@ -2061,6 +2063,7 @@ signin-passkey-fallback-heading = Skriv inn passordet ditt for å synkronisere
 signin-passkey-fallback-body = For å holde dataene dine trygge, må du oppgi passordet ditt når du bruker denne passnøkkelen.
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Fortsett
+signin-passkey-fallback-forgot-password-link = Glemt passord?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

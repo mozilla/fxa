@@ -252,6 +252,10 @@ churn-cancel-flow-success-title = 아직 구독 중입니다
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 churn-cancel-flow-thanks-valued-subscriber = { $productName } 사용에 감사드립니다!
 churn-cancel-flow-button-back-to-subscriptions = 구독으로 돌아가기
+churn-cancel-flow-action-error = 알 수 없는 오류가 발생하였습니다. 다시 시도해 주세요.
+# $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'Stay subscribed and save 10%', discountPercent = 10)
+churn-cancel-flow-button-stay-subscribed-and-save-discount = 구독 상태를 유지하고 { $discountPercent }%를 절약하세요
+churn-cancel-flow-button-stay-subscribed-and-save = 구독 상태를 유지하고 비용을 절약하세요
 churn-cancel-flow-button-cancel-subscription = 구독 취소
 churn-cancel-flow-button-manage-subscriptions = 구독 관리
 churn-cancel-flow-button-contact-support = 지원팀 연락
@@ -272,6 +276,9 @@ churn-stay-subscribed-button-no-thanks = 아니요
 ## $productName (String) - The name of the product associated with the subscription.
 
 churn-stay-subscribed-title-subscription-renewed = 구독 갱신됨
+churn-stay-subscribed-title-subscription-active = { $productName } 구독 활성화됨
+churn-stay-subscribed-thanks-valued-subscriber = 구독해 주셔서 감사합니다!
+churn-stay-subscribed-button-go-to-product-page = { $productName } 제품으로 이동
 churn-stay-subscribed-button-go-to-subscriptions = 구독으로 이동
 churn-stay-subscribed-button-stay-subscribed = 구독 유지
 

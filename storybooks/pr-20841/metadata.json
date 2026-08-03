@@ -1,8 +1,8 @@
 {
-  "commit": "8ff25d0e1fde56022ab035e7c51faa95212b1e28",
-  "summary": "StrictMode doesn't work the same way in v19 and is causing interference with the WebAuthn calls - thanks Valerie",
+  "commit": "04e7ef994709e9e24679d2f9d2cdd1adf7e4cf4a",
+  "summary": "Update react-hook-form v6 to v7",
   "description": "",
-  "timestamp": 1785453040000,
+  "timestamp": 1785773882000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
