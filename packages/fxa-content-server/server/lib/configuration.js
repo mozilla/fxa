@@ -249,7 +249,7 @@ const conf = (module.exports = convict({
     },
     passkeysEnabled: {
       default: false,
-      doc: 'Master switch for passkeys UI. Must be true for registration or authentication UI to activate.',
+      doc: 'Primary switch for passkeys UI. Must be true for registration or authentication UI to activate.',
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
     },

@@ -2713,7 +2713,7 @@ const convictConf = convict({
   passkeys: {
     enabled: {
       default: false,
-      doc: 'Master switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
+      doc: 'Primary switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
       env: 'PASSKEYS__ENABLED',
       format: Boolean,
     },
