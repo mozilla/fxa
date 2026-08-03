@@ -769,6 +769,44 @@ describe('PaymentMethodManagement', () => {
     );
   });
 
+  it('displays error message when updateStripePaymentDetails rejects', async () => {
+    const user = userEvent.setup();
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    mockElements.submit.mockResolvedValue({ error: undefined });
+    mockStripe.createConfirmationToken.mockResolvedValue({
+      confirmationToken: { id: 'ctoken_123' },
+      error: undefined,
+    } as ConfirmationTokenResult);
+    mockUpdateStripePaymentDetails.mockRejectedValue(
+      new Error('Network failure')
+    );
+
+    render(<PaymentMethodManagement locale="en" />);
+
+    simulateLoaderStart();
+    simulatePaymentChange(
+      buildChangeEvent({
+        complete: true,
+        value: { type: 'card' },
+      })
+    );
+
+    const submitButton = screen.getByRole('button', {
+      name: /save payment method/i,
+    });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Network failure')).toBeInTheDocument();
+    });
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
   it('displays error message when elements.submit returns an error', async () => {
     const user = userEvent.setup();
 

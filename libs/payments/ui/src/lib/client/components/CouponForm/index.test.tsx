@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('@radix-ui/react-form');
 
@@ -77,10 +78,9 @@ describe('CouponForm', () => {
 
     render(<CouponForm {...baseProps} promoCode={null} />);
 
-    fireEvent.change(screen.getByTestId('coupon-input'), {
-      target: { value: 'SAVE10' },
-    });
-    fireEvent.click(screen.getByTestId('coupon-button'));
+    const user = userEvent.setup();
+    await user.type(screen.getByTestId('coupon-input'), 'SAVE10');
+    await user.click(screen.getByTestId('coupon-button'));
 
     await waitFor(() => {
       expect(mockApplyCouponAction).toHaveBeenCalledWith(
@@ -98,16 +98,17 @@ describe('CouponForm', () => {
 
     render(<CouponForm {...baseProps} promoCode={null} />);
 
-    fireEvent.change(screen.getByTestId('coupon-input'), {
-      target: { value: 'BADCODE' },
-    });
-    fireEvent.click(screen.getByTestId('coupon-button'));
+    const user = userEvent.setup();
+    await user.type(screen.getByTestId('coupon-input'), 'BADCODE');
+    await user.click(screen.getByTestId('coupon-button'));
 
     await waitFor(() => {
       expect(screen.getByTestId('coupon-error')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/code you entered is invalid/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/code you entered is invalid/i)
+    ).toBeInTheDocument();
     expect(screen.getByTestId('coupon-input')).toBeInTheDocument();
     expect(screen.queryByTestId('coupon-hascoupon')).not.toBeInTheDocument();
   });
@@ -121,7 +122,8 @@ describe('CouponForm', () => {
 
     expect(screen.getByTestId('coupon-hascoupon')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('coupon-remove-button'));
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId('coupon-remove-button'));
 
     await waitFor(() => {
       expect(mockApplyCouponAction).toHaveBeenCalledWith('cart-id', 1, '');
@@ -131,6 +133,20 @@ describe('CouponForm', () => {
 
     expect(screen.queryByTestId('coupon-hascoupon')).not.toBeInTheDocument();
     expect(screen.getByTestId('coupon-input')).toBeInTheDocument();
+  });
+
+  it('shows error when applyCouponAction returns an expired coupon error', async () => {
+    mockApplyCouponAction.mockResolvedValue(CouponErrorMessageType.Expired);
+
+    render(<CouponForm {...baseProps} promoCode={null} />);
+
+    const user = userEvent.setup();
+    await user.type(screen.getByTestId('coupon-input'), 'OLDCODE');
+    await user.click(screen.getByTestId('coupon-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('coupon-error')).toBeInTheDocument();
+    });
   });
 
   it('auto-applies a coupon from the search params on mount without user action', async () => {
