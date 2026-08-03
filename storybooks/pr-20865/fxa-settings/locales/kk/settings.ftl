@@ -393,6 +393,8 @@ link-expired-new-link-button = Жаңа сілтемені алу
 
 # immediately before remember-password-signin-link
 remember-password-text = Пароліңіз есіңізде ме?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Қол жеткізу кілтіңіз бар ма немесе пароліңіз есіңізде ме?
 # link navigates to the sign in page
 remember-password-signin-link = Кіру
 
@@ -504,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = Кеңес 255 таңбадан аз �
 flow-recovery-key-hint-unsafe-char-error = Кеңесте қауіпті юникод таңбалары болмауы керек. Тек әріптерге, сандарға, тыныс белгілеріне және белгілерге рұқсат етіледі.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Ескерту
 password-reset-chevron-expanded = Ескертуді бүктеу
 password-reset-chevron-collapsed = Ескертуді ашу
-password-reset-data-may-not-be-recovered = Браузеріңіздің деректері қалпына келтірілмеуі мүмкін
-password-reset-previously-signed-in-device-2 = Бұрын жүйеге кірген құрылғыларыңыз бар ма?
-password-reset-data-may-be-saved-locally-2 = Браузер деректері сол құрылғыда сақталуы мүмкін. Парольді тастап, деректерді қалпына келтіру және синхрондау үшін сол жерге кіріңіз.
-password-reset-no-old-device-2 = Жаңа құрылғыңыз бар, бірақ алдыңғы құрылғылардың ешқайсысына қол жеткізе алмайсыз ба?
-password-reset-encrypted-data-cannot-be-recovered-2 = Кешіріңіз, { -brand-firefox } серверлеріндегі браузердің шифрленген деректерін қалпына келтіру мүмкін емес.
+password-reset-warning-review-sign-in-options = Браузер деректерін сақтау үшін кіру опцияларын қарап шығу
 password-reset-warning-have-key = Тіркелгіні қалпына келтіру кілтіңіз бар ма?
-password-reset-warning-use-key-link = Парольді қалпына келтіру және деректеріңізді сақтау үшін оны қазір пайдаланыңыз
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Оны пароліңізді қалпына келтіру және деректеріңізді сақтау үшін пайдаланыңыз
+password-reset-warning-signed-in-device = Басқа құрылғыда әлі де кіріп тұрсыз ба?
+password-reset-warning-signed-in-device-description = Сіздің браузер деректеріңіз қолжетімді болуы мүмкін. Пароліңізді қалпына келтіріп, деректеріңізді қалпына келтіру және синхрондау үшін сол құрылғыда жүйеге кіріңіз.
+password-reset-warning-restore-data-link = Жүйеге кірген құрылғыдан браузер деректерін қалай қалпына келтіру керектігін білу
+password-reset-warning-new-device = Жаңа құрылғыны пайдаланып жатырсыз, бірақ ескі құрылғыңызға қол жеткізе алмайсыз ба?
+password-reset-warning-new-device-description = Пароліңзіді қалпына келтіргеннен кейін, { -brand-firefox } серверлеріндегі шифрленген браузер деректері бұл құрылғыда қолжетімді болмайды.
 
 ## Alert Bar
 
@@ -1956,7 +1961,7 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 ## ResetPassword start page
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-2 = Тіркелгіңізді қауіпсіз сақтау үшін тек сіз білетін бірнеше нәрсені сұраймыз.
+password-reset-body-3 = Пароліңізді қалпына келтіру синхрондалған браузер деректеріне әсер етуі мүмкін.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру
@@ -2081,6 +2086,7 @@ signin-passkey-fallback-heading = Синхрондау үшін пароліңі
 signin-passkey-fallback-body = Деректеріңіздің қауіпсіздігін қамтамасыз ету үшін, осы рұқсат кілтін пайдаланған кезде пароліңізді енгізуіңіз керек.
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
+signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

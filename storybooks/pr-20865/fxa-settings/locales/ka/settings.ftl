@@ -506,18 +506,13 @@ flow-recovery-key-hint-char-limit-error = მინიშნება უნდ�
 flow-recovery-key-hint-unsafe-char-error = მინიშნება არ უნდა შეიცავდეს საფრთხის შემცველ უნიკოდ-სიმბოლოებს. მისაღებია მხოლოდ ასოები, ციფრები და სასვენი ნიშნები.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = გაფრთხილება
 password-reset-chevron-expanded = გაფრთხილების აკეცვა
 password-reset-chevron-collapsed = გაფრთხილების გაშლა
-password-reset-data-may-not-be-recovered = თქვენი ბრაუზერის მონაცემები შესაძლოა, ვერ აღდგეს
-password-reset-previously-signed-in-device-2 = გაქვთ მოწყობილობა, საიდანაც მანამდეც ყოფილხართ შესული?
-password-reset-data-may-be-saved-locally-2 = თქვენი ბრაუზერის მონაცემები შესაძლოა, ამ მოწყობილობაზე ინახებოდეს. გაანულეთ პაროლი და შედით ანგარიშზე მონაცემების დასინქრონებისა და აღდგენისთვის.
-password-reset-no-old-device-2 = გაქვთ ახალი მოწყობილობა, მაგრამ აღარ გაქვთ წვდომა ადრინდელზე?
-password-reset-encrypted-data-cannot-be-recovered-2 = სამწუხაროდ, თქვენი დაშიფრული მონაცემები, რომელსაც { -brand-firefox } ინახავს სერვერებზე, ვეღარ აღდგება.
 password-reset-warning-have-key = გაქვთ ანგარიშის აღდგენის გასაღების?
-password-reset-warning-use-key-link = გამოიყენეთ პაროლის გასანულებლად მონაცემების დაკარგვის გარეშე
 
 ## Alert Bar
 
@@ -1955,9 +1950,6 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 ## ResetPassword start page
 
 password-reset-flow-heading = პაროლის განულება
-password-reset-body-2 =
-    ჩვენ მოგთხოვთ რამდენიმე რაღაცას, რაც მხოლოდ თქვენ გეცოდინებათ ანგარიშის
-    დასაცავად.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ

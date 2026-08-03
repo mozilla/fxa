@@ -376,6 +376,7 @@ link-expired-new-link-button = Receive new link
 
 
 remember-password-text = Remember your password?
+remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
@@ -453,14 +454,17 @@ password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
 
-password-reset-data-may-not-be-recovered = Your browser data may not be recovered
-password-reset-previously-signed-in-device-2 = Have any device where you previously signed in?
-password-reset-data-may-be-saved-locally-2 = Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.
-password-reset-no-old-device-2 = Have a new device but don’t have access to any of your previous ones?
-password-reset-encrypted-data-cannot-be-recovered-2 = We’re sorry, but your encrypted browser data on { -brand-firefox } servers can’t be recovered.
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 
 password-reset-warning-have-key = Have an account recovery key?
-password-reset-warning-use-key-link = Use it now to reset your password and keep your data
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 
 alert-bar-close-message = Close message
@@ -1555,8 +1559,7 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-2 = We’ll ask for a couple of things only you know to keep your account
-          safe.
+password-reset-body-3 = Resetting your password may affect synced browser data.
 
 password-reset-email-input =
   .label = Enter your email
@@ -1662,6 +1665,7 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?
 
 
 

@@ -106,7 +106,7 @@ payment-confirm-checkbox-error = È necessario selezionare questa opzione per pr
 ## Component - PaymentErrorView
 
 payment-error-retry-button = Riprova
-payment-error-manage-subscription-button = Gestione abbonamento
+payment-error-manage-subscription-button = Gestisci il mio abbonamento
 
 ## Component - PaymentErrorView - IAP upgrade errors
 
@@ -134,9 +134,9 @@ payment-validate-name-error = Inserisci il tuo nome
 payment-legal-copy-stripe-and-paypal-3 = { -brand-mozilla } utilizza { -brand-name-stripe } e { -brand-paypal } per l’elaborazione sicura dei pagamenti.
 payment-legal-link-stripe-paypal-2 = <stripePrivacyLink>Informativa sulla privacy di { -brand-name-stripe }</stripePrivacyLink> &nbsp; <paypalPrivacyLink>Informativa sulla privacy di { -brand-paypal }</paypalPrivacyLink>
 payment-legal-copy-paypal-2 = { -brand-mozilla } utilizza { -brand-paypal } per l’elaborazione sicura dei pagamenti.
-payment-legal-link-paypal-3 = <paypalPrivacyLink>Informativa sulla privacy di { -brand-paypal }</paypalPrivacyLink>.
+payment-legal-link-paypal-3 = <paypalPrivacyLink>Informativa sulla privacy di { -brand-paypal }</paypalPrivacyLink>
 payment-legal-copy-stripe-3 = { -brand-mozilla } utilizza { -brand-name-stripe } per l’elaborazione sicura dei pagamenti.
-payment-legal-link-stripe-3 = <stripePrivacyLink>Informativa sulla privacy di { -brand-name-stripe }</stripePrivacyLink>.
+payment-legal-link-stripe-3 = <stripePrivacyLink>Informativa sulla privacy di { -brand-name-stripe }</stripePrivacyLink>
 
 ## Component - PaymentMethodHeader
 
@@ -234,12 +234,12 @@ price-details-tax-day =
 # $intervalCount (Number) - The interval between payments, in weeks.
 price-details-tax-week =
     { $intervalCount ->
-        [one] { $priceAmount } + { $taxAmount } alla settimana
+        [one] { $priceAmount } + { $taxAmount } (tasse) alla settimana
        *[other] { $priceAmount } + { $taxAmount } (tasse) ogni { $intervalCount } settimane
     }
     .title =
         { $intervalCount ->
-            [one] { $priceAmount } + { $taxAmount } alla settimana
+            [one] { $priceAmount } + { $taxAmount } (tasse) alla settimana
            *[other] { $priceAmount } + { $taxAmount } (tasse) ogni { $intervalCount } settimane
         }
 # $intervalCount (Number) - The interval between payments, in months.
@@ -257,7 +257,7 @@ price-details-tax-month =
 price-details-tax-year =
     { $intervalCount ->
         [one] { $priceAmount } + { $taxAmount } (tasse) all’anno
-       *[other] { $priceAmount } + { $taxAmount } (tasse)ogni { $intervalCount } anni
+       *[other] { $priceAmount } + { $taxAmount } (tasse) ogni { $intervalCount } anni
     }
     .title =
         { $intervalCount ->
@@ -269,7 +269,7 @@ price-details-tax-year =
 
 subscription-create-title = Configura l’abbonamento
 subscription-success-title = Conferma dell’abbonamento
-subscription-processing-title = Conferma abbonamento…
+subscription-processing-title = Conferma dell’abbonamento in corso…
 subscription-error-title = Errore durante la conferma dell’abbonamento…
 subscription-noplanchange-title = Questa modifica al piano di abbonamento non è supportata
 subscription-iapsubscribed-title = Già abbonato
@@ -282,7 +282,7 @@ sub-guarantee = Garanzia di rimborso di 30 giorni
 subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 terms = Condizioni di utilizzo del servizio
 privacy = Informativa sulla privacy
-terms-download = Scarica i termini
+terms-download = Scarica le condizioni
 
 ## App-level string(s) and messages shared by multiple components or routes
 
@@ -312,12 +312,12 @@ plan-price-interval-day =
 # $intervalCount (Number) - The interval between payments, in weeks.
 plan-price-interval-week =
     { $intervalCount ->
-        [one] { $amount } settimanalmente
+        [one] { $amount } alla settimana
        *[other] { $amount } ogni { $intervalCount } settimane
     }
     .title =
         { $intervalCount ->
-            [one] { $amount } settimanalmente
+            [one] { $amount } alla settimana
            *[other] { $amount } ogni { $intervalCount } settimane
         }
 # $intervalCount (Number) - The interval between payments, in months.
@@ -352,14 +352,14 @@ payment-error-1 = Uhm… si è verificato un problema durante l’autorizzazione
 payment-error-2 = Uhm… si è verificato un problema durante l’autorizzazione del pagamento. Contatta l’emittente della carta.
 payment-error-3b = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
 expired-card-error = Questa carta di credito risulta scaduta. Prova con un’altra carta.
-insufficient-funds-error = Questa carta non dispone di credito sufficiente. Prova con un’altra carta di credito.
+insufficient-funds-error = Questa carta non dispone di credito sufficiente. Prova con un’altra carta.
 withdrawal-count-limit-exceeded-error = La transazione supera il limite di credito disponibile per questa carta. Prova con un’altra carta.
-charge-exceeds-source-limit = La transazione supera il limite di credito disponibile per questa carta. Prova con un’altra carta o attendi 24 ore.
+charge-exceeds-source-limit = La transazione supera il limite di credito giornaliero disponibile per questa carta. Prova con un’altra carta o attendi 24 ore.
 instant-payouts-unsupported = Questa carta di debito non risulta configurata per i pagamenti istantanei. Prova con un’altra carta di debito o di credito.
 duplicate-transaction = Uhm… sembra che sia stata appena inviata una transazione identica. Controlla la cronologia dei pagamenti.
 coupon-expired = Il codice promozionale risulta scaduto.
 card-error = La transazione non può essere elaborata. Verifica i dati della tua carta di credito e riprova.
-country-currency-mismatch = La valuta di questo abbonamento non è valida per il Paese associato alla tua modalità di pagamento.
+country-currency-mismatch = La valuta di questo abbonamento non è valida per il Paese associato al tuo metodo di pagamento.
 currency-currency-mismatch = Siamo spiacenti, non è possibile cambiare la valuta.
 location-unsupported = La tua posizione attuale non è supportata dalle nostre condizioni di utilizzo del servizio.
 no-subscription-change = Siamo spiacenti, non puoi modificare il tuo piano di abbonamento.
@@ -367,8 +367,8 @@ no-subscription-change = Siamo spiacenti, non puoi modificare il tuo piano di ab
 iap-already-subscribed = Sei già abbonato tramite { $mobileAppStore }.
 # $productName (String) - The name of the subscribed product.
 fxa-account-signup-error-2 = Un errore di sistema ha impedito l’abbonamento a { $productName }. Non è stato applicato alcun addebito sul tuo metodo di pagamento. Riprova.
-fxa-post-passwordless-sub-error = La sottoscrizione dell’abbonamento è confermata ma il caricamento della pagina di conferma non è riuscito. Verifica la tua email per configurare il tuo account.
-newsletter-signup-error = Non sei iscritto alle notifiche via mail relative agli aggiornamenti dei prodotti. Puoi riprovare nelle impostazioni del tuo account.
+fxa-post-passwordless-sub-error = La sottoscrizione dell’abbonamento è confermata ma il caricamento della pagina di conferma non è riuscito. Controlla la tua email per configurare il tuo account.
+newsletter-signup-error = Non sei iscritto alle notifiche via email relative agli aggiornamenti dei prodotti. Puoi riprovare nelle impostazioni del tuo account.
 product-plan-error =
     .title = Errore nel caricamento dei piani
 product-profile-error =
@@ -454,7 +454,7 @@ sub-item-cancel-confirm = Disattiva il mio accesso e rimuovi le informazioni per
 # Holiday Offer 2023 coupon applied: $11.20 monthly
 # Cybersecurity Awareness Month 2023 coupon applied: $11.20 + $0.35 tax
 # Summer Promo VPN coupon applied: $11.20
-sub-promo-coupon-applied = Coupon { $promotion_name } applicato: <priceDetails></priceDetails>
+sub-promo-coupon-applied = Codice promozionale { $promotion_name } applicato: <priceDetails></priceDetails>
 subscription-management-account-credit-balance = Il pagamento di questo abbonamento ha generato un accredito sul saldo del tuo account: <priceDetails></priceDetails>
 
 ## Routes - Subscription
@@ -469,7 +469,7 @@ sub-route-idx-cancel-msg =
     Il tuo abbonamento a { $name } è stato annullato.
           <br />
           Potrai ancora accedere a { $name } fino al { $date }.
-sub-route-idx-cancel-aside-2 = Hai domande? Visita il <a>supporto per { -brand-mozilla }</a>.
+sub-route-idx-cancel-aside-2 = Hai domande? Visita il <a>supporto { -brand-mozilla }</a>.
 
 ## Routes - Subscriptions - Errors
 
@@ -530,8 +530,8 @@ reactivate-confirm-copy =
 # $amount (Number) - The amount billed. It will be formatted as currency.
 # $endDate (Date) - Last day of product access
 reactivate-confirm-without-payment-method-copy =
-    Potrai continuare ad accedere a { $name }. Ciclo di fatturazione 
-    e importo rimarranno invariati. Il prossimo addebito 
+    Potrai continuare ad accedere a { $name }. Ciclo di fatturazione
+    e importo rimarranno invariati. Il prossimo addebito
     sarà di { $amount } e avverrà il { $endDate }.
 reactivate-confirm-button = Abbonati nuovamente
 

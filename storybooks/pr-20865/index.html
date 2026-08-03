@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 563e854c345f295498cce8a1e885794085bd1b7b</title>
+  <title>Storybooks for commit 2c74911831113297c03167880c6eee5efa66c859</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,35 +23,47 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 563e854c345f295498cce8a1e885794085bd1b7b</h1>
+  <h1>Storybooks for commit 2c74911831113297c03167880c6eee5efa66c859</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/29/2026, 1:21:51 AM UTC</dd>
+    <dd>8/3/2026, 6:38:52 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>bug(settings): Stop duplicate sign-in verification emails for dormant accounts</pre></dd>
+    <dd><pre>bug(auth-server): Let clients opt out of the server-sent signin OTP</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Dormant accounts signing in to Settings/Sync received two identical OTP
-  verification emails. The auth-server sends one during `signInWithAuthPW`,
-  and the shared `handleNavigation` sent a second via `sessionResendVerifyCode`
-  (added in 2fce100 to fix a cached-flow duplicate, but it also fired in the
-  password flow where the server already sent).
+- Dormant accounts signing in through Settings received two identical OTP
+  verification emails. The auth-server sends one from `sendSigninNotifications`
+  during `/account/login`, and `handleNavigation` sends a second via
+  `sessionResendVerifyCode` as it routes to the code screen.
+- The server-side send is the redundant one. It was added as a stop-gap for RPs
+  that integrate with the API directly and never render our web UI, and it has
+  caused duplicate-email problems ever since. The client-side send is the one we
+  want to keep: it couples the email to the navigation that prompts for the code.
 
 This commit:
-- Gates the client-side `sessionResendVerifyCode` in `handleNavigation` behind
-  a new optional `sendVerificationEmailFromClient` NavigationOptions flag.
-- Sets the flag only in the cached-signin paths (`SigninCached` and the
-  prompt=none `Authorization` container), the only flows that perform no
-  server-side login and therefore must send the OTP client-side.
-- Leaves the flag falsey for the password/unblock/reauth paths, which already
-  send server-side, eliminating the duplicate email.
-- Adds regression tests covering both the gated (cached) and non-gated
-  (server-login) paths so the duplicate cannot silently return.
+- Adds an optional `suppressSigninVerificationEmail` payload flag to
+  `/account/login` and `/session/reauth`. When set, `sendVerifyLoginCodeEmail`
+  short-circuits, covering both the unverified-session (`sendVerifySessionEmail`)
+  and unverified-account (`sendVerifyAccountEmail`) OTP paths. Link-based
+  confirmation emails are deliberately unaffected — they have no client-driven
+  equivalent, so suppressing them would drop mail on the floor.
+- Sends the flag from the fxa-settings password and unblock sign-in paths, the
+  flows that reach `handleNavigation` and send the code themselves.
+- Removes the `sendVerificationEmailFromClient` gate, so `handleNavigation` is
+  once again the sole sender for our own front-end.
+- Leaves legacy behavior intact for clients that omit the flag. They will not
+  update their code, so the auth-server keeps sending for them exactly as today.
 
-Closes #FXA-14109</pre></dd>
+Note: the server treats `email-2fa` and `email-otp` identically, but
+`handleNavigation` only sends for `email-otp`. Settings only ever requests
+`email-otp`, so this is inert today, but it is a trap if that changes.
+
+Closes #FXA-14109
+
+Co-Authored-By: Claude Opus 5 (1M context) &lt;noreply@anthropic.com&gt;</pre></dd>
   </dl>
 </body>
 </html>

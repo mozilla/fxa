@@ -396,6 +396,8 @@ link-expired-new-link-button = Primește un link nou
 
 # immediately before remember-password-signin-link
 remember-password-text = Îți amintești parola?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Ai o cheie de acces sau îți amintești parola?
 # link navigates to the sign in page
 remember-password-signin-link = Intră în cont
 
@@ -507,18 +509,21 @@ flow-recovery-key-hint-char-limit-error = Indiciul trebuie să conțină mai pu�
 flow-recovery-key-hint-unsafe-char-error = Indiciul nu poate conține caractere Unicode nesigure. Sunt permise doar litere, cifre, semne de punctuație și simboluri.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Avertisment
 password-reset-chevron-expanded = Restrânge avertismentul
 password-reset-chevron-collapsed = Extinde avertismentul
-password-reset-data-may-not-be-recovered = Este posibil să nu se poată recupera datele din browser
-password-reset-previously-signed-in-device-2 = Ai vreun dispozitiv pe care te-ai conectat anterior?
-password-reset-data-may-be-saved-locally-2 = Este posibil să ai datele din browser salvate pe dispozitivul respectiv. Resetează-ți parola, apoi intră în cont pe dispozitiv ca să îți restaurezi și să îți sincronizezi datele.
-password-reset-no-old-device-2 = Ai un dispozitiv nou, dar nu ai acces la niciunul dintre cele anterioare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Ne pare rău, dar datele criptate ale browserului tău nu pot fi recuperate de pe serverele { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Revezi opțiunile de autentificare pentru a păstra datele browserului
 password-reset-warning-have-key = Ai o cheie de recuperare a contului?
-password-reset-warning-use-key-link = Folosește-o acum ca să resetezi parola și să-ți păstrezi datele
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Folosește-o ca să-ți resetezi parola și să îți păstrezi datele din browser
+password-reset-warning-signed-in-device = Încă ești autentificat(ă) pe alt dispozitiv?
+password-reset-warning-signed-in-device-description = Este posibil ca datele din browser să fie disponibile. Resetează-ți parola, apoi intră în cont pe dispozitivul respectiv ca să îți restaurezi și să îți sincronizezi datele.
+password-reset-warning-restore-data-link = Află cum îți poți restaura datele din browser de pe un dispozitiv pe care ești autentificat(ă)
+password-reset-warning-new-device = Folosești un dispozitiv nou, dar nu le poți accesa pe cele vechi?
+password-reset-warning-new-device-description = După ce ți-ai resetat parola, datele criptate din browser de pe serverele { -brand-firefox } nu vor mai fi disponibile pe acest dispozitiv.
 
 ## Alert Bar
 
@@ -1537,12 +1542,24 @@ passkey-registration-error-unexpected = Setarea cheii de acces a eșuat. Încear
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Nu am reușit autentificarea cu o cheie de acces
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Încearcă din nou sau folosește o altă opțiune de autentificare.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Cum să utilizezi cheile de acces
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Autentificarea cu cheie de acces a eșuat sau nu este disponibilă. Încearcă din nou sau alege altă metodă.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Te rugăm să încerci din nou sau să alegi altă metodă.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Timpul de așteptare pentru cheia de acces a expirat. Te rugăm să încerci din nou.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = A expirat timpul alocat pentru autentificarea cu cheie de acces. Încercă din nou.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1950,9 +1967,7 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 ## ResetPassword start page
 
 password-reset-flow-heading = Resetează-ți parola
-password-reset-body-2 =
-    Te vom întreba câteva chestii pe care numai tu le știi ca să îți menținem contul
-    în siguranță.
+password-reset-body-3 = Resetarea parolei îți poate afecta datele din browser sincronizate.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă
@@ -2078,6 +2093,7 @@ signin-passkey-fallback-heading = Introdu parola pentru sincronizare
 signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, trebuie să introduci parola când folosești această cheie de acces.
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
+signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

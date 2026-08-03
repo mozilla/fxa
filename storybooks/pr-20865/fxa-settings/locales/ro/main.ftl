@@ -358,6 +358,7 @@ link-expired-new-link-button = Primește un link nou
 
 
 remember-password-text = Îți amintești parola?
+remember-password-passkey-text = Ai o cheie de acces sau îți amintești parola?
 remember-password-signin-link = Intră în cont
 
 
@@ -431,13 +432,14 @@ flow-recovery-key-hint-unsafe-char-error = Indiciul nu poate conține caractere 
 password-reset-warning-icon = Avertisment
 password-reset-chevron-expanded = Restrânge avertismentul
 password-reset-chevron-collapsed = Extinde avertismentul
-password-reset-data-may-not-be-recovered = Este posibil să nu se poată recupera datele din browser
-password-reset-previously-signed-in-device-2 = Ai vreun dispozitiv pe care te-ai conectat anterior?
-password-reset-data-may-be-saved-locally-2 = Este posibil să ai datele din browser salvate pe dispozitivul respectiv. Resetează-ți parola, apoi intră în cont pe dispozitiv ca să îți restaurezi și să îți sincronizezi datele.
-password-reset-no-old-device-2 = Ai un dispozitiv nou, dar nu ai acces la niciunul dintre cele anterioare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Ne pare rău, dar datele criptate ale browserului tău nu pot fi recuperate de pe serverele { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Revezi opțiunile de autentificare pentru a păstra datele browserului
 password-reset-warning-have-key = Ai o cheie de recuperare a contului?
-password-reset-warning-use-key-link = Folosește-o acum ca să resetezi parola și să-ți păstrezi datele
+password-reset-warning-use-key-link-v2 = Folosește-o ca să-ți resetezi parola și să îți păstrezi datele din browser
+password-reset-warning-signed-in-device = Încă ești autentificat(ă) pe alt dispozitiv?
+password-reset-warning-signed-in-device-description = Este posibil ca datele din browser să fie disponibile. Resetează-ți parola, apoi intră în cont pe dispozitivul respectiv ca să îți restaurezi și să îți sincronizezi datele.
+password-reset-warning-restore-data-link = Află cum îți poți restaura datele din browser de pe un dispozitiv pe care ești autentificat(ă)
+password-reset-warning-new-device = Folosești un dispozitiv nou, dar nu le poți accesa pe cele vechi?
+password-reset-warning-new-device-description = După ce ți-ai resetat parola, datele criptate din browser de pe serverele { -brand-firefox } nu vor mai fi disponibile pe acest dispozitiv.
 
 
 alert-bar-close-message = Închide mesajul
@@ -1170,9 +1172,13 @@ passkey-registration-error-constraint = Nu poți seta chei de acces cu acest dis
 passkey-registration-error-unexpected = Setarea cheii de acces a eșuat. Încearcă din nou sau alege altă metodă.
 
 
+passkey-authentication-trouble-heading = Nu am reușit autentificarea cu o cheie de acces
+passkey-authentication-trouble-description = Încearcă din nou sau folosește o altă opțiune de autentificare.
+passkey-authentication-trouble-link = Cum să utilizezi cheile de acces
 passkey-authentication-error-not-allowed = Autentificarea cu cheie de acces a eșuat sau nu este disponibilă. Încearcă din nou sau alege altă metodă.
 passkey-authentication-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Te rugăm să încerci din nou sau să alegi altă metodă.
 passkey-authentication-error-timeout = Timpul de așteptare pentru cheia de acces a expirat. Te rugăm să încerci din nou.
+passkey-authentication-error-timeout-v2 = A expirat timpul alocat pentru autentificarea cu cheie de acces. Încercă din nou.
 passkey-authentication-error-not-supported-v2 = Browserul sau dispozitivul nu acceptă chei de acces.
 passkey-authentication-error-security = Nu poți folosi chei de acces pe această pagină. Verifică dacă ești pe site-ul securizat corect și încearcă din nou.
 passkey-authentication-error-invalid-state = Ceva nu a mers cu cheia ta de acces. Încearcă din nou sau folosește altă metodă de autentificare.
@@ -1406,9 +1412,7 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 
 
 password-reset-flow-heading = Resetează-ți parola
-password-reset-body-2 =
-    Te vom întreba câteva chestii pe care numai tu le știi ca să îți menținem contul
-    în siguranță.
+password-reset-body-3 = Resetarea parolei îți poate afecta datele din browser sincronizate.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă
@@ -1498,6 +1502,7 @@ signin-passkey-fallback-heading = Introdu parola pentru sincronizare
 signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, trebuie să introduci parola când folosești această cheie de acces.
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
+signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
 
 
 

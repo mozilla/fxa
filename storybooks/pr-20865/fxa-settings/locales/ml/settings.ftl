@@ -308,7 +308,8 @@ flow-recovery-key-download-storage-ideas-folder-v2 = സുരക്ഷിത �
 flow-recovery-key-hint-cta-text = തീൎക്കുക
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = മുന്നറിയിപ്പു്
 

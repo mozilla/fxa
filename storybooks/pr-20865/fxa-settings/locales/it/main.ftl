@@ -74,7 +74,7 @@ app-loading-spinner-aria-label-loading = Caricamento in corso…
 
 
 app-logo-alt-3 =
-    .alt = Logo con la m di  { -brand-mozilla }
+    .alt = Logo con la m di { -brand-mozilla }
 
 
 
@@ -92,7 +92,7 @@ brand-learn-more = Ulteriori informazioni
 brand-close-banner =
     .alt = Chiudi banner
 brand-m-logo =
-    .alt = Logo con la m di  { -brand-mozilla }
+    .alt = Logo con la m di { -brand-mozilla }
 
 
 button-back-aria-label = Indietro
@@ -104,7 +104,7 @@ recovery-key-download-button-v3 = Scarica e continua
 recovery-key-pdf-heading = Chiave di recupero dell’account
 recovery-key-pdf-download-date = Generata: { $date }
 recovery-key-pdf-key-legend = Chiave di recupero dell’account
-recovery-key-pdf-instructions = Questa chiave consente di recuperare i dati crittati del browser (inclusi password, segnalibri e cronologia) se si dimentica la password dell’account. Conservala in un posto facile da ricordare.
+recovery-key-pdf-instructions = Questa chiave ti consente di recuperare i dati crittati del browser (inclusi password, segnalibri e cronologia) se dimentichi la password dell’account. Conservala in un posto facile da ricordare.
 recovery-key-pdf-storage-ideas-heading = Luoghi in cui conservare la chiave
 recovery-key-pdf-support = Ulteriori informazioni sulla chiave di recupero dell’account
 recovery-key-pdf-download-error = Siamo spiacenti, si è verificato un problema durante il download della chiave di recupero dell’account.
@@ -224,7 +224,7 @@ alert-icon-aria-label =
 icon-attention-aria-label =
     .aria-label = Attenzione
 icon-warning-aria-label =
-    .aria-label = Attenzione
+    .aria-label = Avvertenza
 authenticator-app-aria-label =
     .aria-label = Applicazione di autenticazione
 backup-codes-icon-aria-label-v2 =
@@ -315,8 +315,8 @@ input-password-sr-only-now-visible = La password è ora visibile sullo schermo.
 input-password-sr-only-now-hidden = La password è ora nascosta.
 
 
-input-phone-number-country-list-aria-label = Scegli la nazione
-input-phone-number-enter-number = Inserire il numero di telefono
+input-phone-number-country-list-aria-label = Scegli il Paese
+input-phone-number-enter-number = Inserisci il numero di telefono
 input-phone-number-country-united-states = Stati Uniti
 input-phone-number-country-canada = Canada
 legal-back-button = Indietro
@@ -325,7 +325,7 @@ app-general-err-message = Si è verificato un problema. Riprova più tardi.
 
 reset-pwd-link-damaged-header = Link per la reimpostazione della password danneggiato
 signin-link-damaged-header = Il link di conferma è danneggiato
-report-signin-link-damaged-header = Il link non è valido
+report-signin-link-damaged-header = Link danneggiato
 reset-pwd-link-damaged-message = Nel link su cui hai fatto clic mancano alcuni caratteri, probabilmente è un problema causato dal client di posta elettronica. Riprova assicurandoti di selezionare e copiare con cura il link.
 
 
@@ -333,6 +333,7 @@ link-expired-new-link-button = Ricevi un nuovo link
 
 
 remember-password-text = Ricordi la password?
+remember-password-passkey-text = Hai una passkey o ricordi la password?
 remember-password-signin-link = Accedi
 
 
@@ -371,7 +372,7 @@ account-recovery-notification-header-description = Genera una chiave di recupero
 recovery-phone-promo-cta = Aggiungi telefono per il recupero dell’account
 recovery-phone-promo-heading = Aggiungi ulteriore protezione al tuo account con un telefono per il recupero dell’account
 recovery-phone-promo-description = Ora puoi accedere con una password monouso via SMS se non puoi utilizzare l’app di autenticazione in due passaggi.
-recovery-phone-promo-info-link = Ulteriori informazioni sul recupero e sui rischi legati a “SIM swap”
+recovery-phone-promo-info-link = Ulteriori informazioni sul recupero e sui rischi legati allo scambio di SIM (SIM swap)
 promo-banner-dismiss-button =
     .aria-label = Chiudi banner
 
@@ -379,8 +380,8 @@ promo-banner-dismiss-button =
 ready-complete-set-up-instruction = Per completare la configurazione inserisci la nuova password sugli altri dispositivi { -brand-firefox }.
 manage-your-account-button = Gestisci il tuo account
 ready-use-service = Ora puoi utilizzare { $serviceName }
-ready-use-service-default = Ora è possibile utilizzare le impostazioni dell’account
-ready-account-ready = Il tuo account è pronto!
+ready-use-service-default = Ora puoi utilizzare le impostazioni dell’account
+ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
@@ -406,13 +407,14 @@ flow-recovery-key-hint-unsafe-char-error = Il suggerimento non può contenere ca
 password-reset-warning-icon = Attenzione
 password-reset-chevron-expanded = Comprimi avviso
 password-reset-chevron-collapsed = Espandi avviso
-password-reset-data-may-not-be-recovered = Potrebbe non essere possibile recuperare i dati del browser
-password-reset-previously-signed-in-device-2 = Hai un dispositivo su cui hai effettuato l’accesso in precedenza?
-password-reset-data-may-be-saved-locally-2 = I dati del browser potrebbero essere salvati su quel dispositivo. Reimposta la password, quindi accedi per ripristinare e sincronizzare i tuoi dati.
-password-reset-no-old-device-2 = Hai un nuovo dispositivo ma non hai accesso a nessuno dei tuoi dispositivi precedenti?
-password-reset-encrypted-data-cannot-be-recovered-2 = Siamo spiacenti, non è possibile recuperare i dati crittati del tuo browser sui server { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Controlla le opzioni di accesso per conservare i dati del browser
 password-reset-warning-have-key = Hai una chiave di recupero dell’account?
-password-reset-warning-use-key-link = Usala ora per reimpostare la password e conservare i tuoi dati
+password-reset-warning-use-key-link-v2 = Utilizzala per reimpostare la password e conservare i dati del browser
+password-reset-warning-signed-in-device = Sei ancora connesso su un altro dispositivo?
+password-reset-warning-signed-in-device-description = I dati del browser potrebbero essere disponibili. Reimposta la password, quindi accedi su quel dispositivo per ripristinare e sincronizzare i tuoi dati.
+password-reset-warning-restore-data-link = Scopri come ripristinare i dati del browser da un dispositivo ancora connesso
+password-reset-warning-new-device = Utilizzi un nuovo dispositivo ma non hai accesso a quelli precedenti?
+password-reset-warning-new-device-description = Dopo aver reimpostato la password, i dati crittati del browser sui server di { -brand-firefox } non saranno più disponibili su questo dispositivo.
 
 
 alert-bar-close-message = Chiudi messaggio
@@ -471,7 +473,7 @@ cs-disconnect-advice-confirm = OK
 cs-disconnect-lost-advice-heading = Dispositivo perso o rubato disconnesso
 cs-disconnect-lost-advice-content-3 = Poiché il tuo dispositivo è stato smarrito o rubato, per mantenere le tue informazioni al sicuro è consigliato cambiare la password dell’{ -product-mozilla-account } nelle impostazioni. Dovresti anche verificare con il produttore del tuo dispositivo come cancellare i dati da remoto.
 cs-disconnect-suspicious-advice-heading = Dispositivo sospetto disconnesso
-cs-disconnect-suspicious-advice-content-2 = Se il dispositivo disconnesso è effettivamente sospetto, ti consigliamo di modificare la password dell’{ -product-mozilla-account } nelle impostazioni del tuo account per mantenere le tue informazioni al sicuro. Ti consigliamo anche modificare qualsiasi altra password salvata in { -brand-firefox } digitando about:logins nelle barra degli indirizzi.
+cs-disconnect-suspicious-advice-content-2 = Se il dispositivo disconnesso è effettivamente sospetto, ti consigliamo di modificare la password dell’{ -product-mozilla-account } nelle impostazioni del tuo account per mantenere le tue informazioni al sicuro. Ti consigliamo anche di modificare qualsiasi altra password salvata in { -brand-firefox } digitando about:logins nella barra degli indirizzi.
 cs-sign-out-button = Disconnetti
 
 
@@ -484,12 +486,12 @@ dc-subheader-ff-browser = Browser { -brand-firefox }
 dc-subheader-content-2 = Consenti al servizio di { -product-mozilla-accounts } di inviare a { -brand-mozilla } dati tecnici e di interazione.
 dc-subheader-ff-content = Per controllare o aggiornare le impostazioni relative ai dati tecnici e di interazione del browser { -brand-firefox }, apri le impostazioni di { -brand-firefox } e accedi a Privacy e sicurezza.
 dc-opt-out-success-2 = Disattivazione riuscita. Il servizio di { -product-mozilla-accounts } non invierà a { -brand-mozilla } dati tecnici o di interazione.
-dc-opt-in-success-2 = Grazie! La condivisione di questi dati ci aiuta a migliorare gli { -product-mozilla-accounts }.
+dc-opt-in-success-2 = Grazie! La condivisione di questi dati ci aiuta a migliorare il servizio di { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Siamo spiacenti, si è verificato un problema durante la modifica delle preferenze relative alla raccolta dati
 dc-learn-more = Ulteriori informazioni
 
 
-drop-down-menu-title-2 = Menu { -product-mozilla-account }
+drop-down-menu-title-2 = Menu dell’{ -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Accesso effettuato come
 drop-down-menu-sign-out = Disconnetti
 drop-down-menu-sign-out-error-2 = Si è verificato un problema durante la disconnessione
@@ -498,14 +500,14 @@ drop-down-menu-sign-out-error-2 = Si è verificato un problema durante la discon
 flow-container-back = Indietro
 
 
-flow-recovery-key-confirm-pwd-heading-v2 = Reinserire la password per motivi di sicurezza
-flow-recovery-key-confirm-pwd-input-label = Inserire la password
+flow-recovery-key-confirm-pwd-heading-v2 = Reinserisci la password per motivi di sicurezza
+flow-recovery-key-confirm-pwd-input-label = Inserisci la password
 flow-recovery-key-confirm-pwd-submit-button = Genera una chiave di recupero dell’account
 flow-recovery-key-confirm-pwd-submit-button-change-key = Genera una nuova chiave di recupero dell’account
 
 
 flow-recovery-key-download-heading-v2 = Chiave di recupero dell’account generata: scaricala e salvala subito
-flow-recovery-key-download-info-v2 = Questa chiave consente di recuperare i propri dati se si dimentica la password. Scaricala adesso e conservala in un luogo facile da ricordare (non sarà possibile ritornare a questa pagina).
+flow-recovery-key-download-info-v2 = Questa chiave ti consente di recuperare i tuoi dati se dimentichi la password. Scaricala adesso e conservala in un luogo facile da ricordare (non sarà possibile ritornare a questa pagina).
 flow-recovery-key-download-next-link-v2 = Continua senza scaricare
 
 
@@ -543,12 +545,12 @@ flow-setup-2fa-backup-choice-phone-info = Ricevi un codice di recupero via SMS. 
 flow-setup-2fa-backup-choice-code-title = Codici di autenticazione di backup
 flow-setup-2fa-backup-choice-code-badge = Più sicuro
 flow-setup-2fa-backup-choice-code-info = Crea e salva codici di autenticazione monouso.
-flow-setup-2fa-backup-choice-learn-more-link = Ulteriori informazioni sul recupero e i rischi legati al SIM swap
+flow-setup-2fa-backup-choice-learn-more-link = Ulteriori informazioni sul recupero e sui rischi legati allo scambio di SIM (SIM swap)
 
 
 flow-setup-2fa-backup-code-confirm-heading = Digita il codice di autenticazione di backup
 flow-setup-2fa-backup-code-confirm-confirm-saved = Conferma di aver salvato i codici inserendone uno. Senza questi codici potresti non essere in grado di accedere se non hai accesso all’app di autenticazione.
-flow-setup-2fa-backup-code-confirm-code-input = Inserire il codice di 10 caratteri
+flow-setup-2fa-backup-code-confirm-code-input = Inserisci il codice di 10 caratteri
 flow-setup-2fa-backup-code-confirm-button-finish = Fine
 
 
@@ -577,7 +579,7 @@ flow-setup-2fa-prompt-continue-button = Continua
 
 
 flow-setup-phone-confirm-code-heading = Inserisci il codice di verifica
-flow-setup-phone-confirm-code-instruction = È stato inviato un codice di sei cifre a <span>{ $phoneNumber }</span> tramite SMS. Questo codice scade dopo 5 minuti.
+flow-setup-phone-confirm-code-instruction = È stato inviato un codice a 6 cifre a <span>{ $phoneNumber }</span> tramite SMS. Questo codice scade dopo 5 minuti.
 flow-setup-phone-confirm-code-input-label = Inserisci il codice a 6 cifre
 flow-setup-phone-confirm-code-button = Conferma
 flow-setup-phone-confirm-code-expired = Codice scaduto?
@@ -611,7 +613,7 @@ la-unlink-account-button = Scollega
 la-set-password-button = Imposta password
 la-unlink-heading = Scollega da account di terze parti
 la-unlink-content-3 = Sei sicuro di voler scollegare il tuo account? Scollegando il tuo account non verrai disconnesso automaticamente dai servizi attualmente connessi. Per farlo dovrai disconnetterti manualmente dalla sezione Servizi connessi.
-la-unlink-content-4 = Prima di scollegare il tuo account, devi impostare una password. Senza una password, non è più possibile accedere dopo aver scollegato il proprio account.
+la-unlink-content-4 = Prima di scollegare il tuo account, devi impostare una password. Senza una password, non potrai più accedere dopo aver scollegato il tuo account.
 nav-linked-accounts = { la-heading }
 
 
@@ -676,16 +678,16 @@ page-2fa-setup-success-additional-message = Per proteggere tutti i tuoi disposit
 
 avatar-page-title =
     .title = Immagine del profilo
-avatar-page-add-photo = Aggiungi un’immagine
+avatar-page-add-photo = Aggiungi foto
 avatar-page-add-photo-button =
     .title = { avatar-page-add-photo }
-avatar-page-take-photo = Scatta una foto
+avatar-page-take-photo = Scatta foto
 avatar-page-take-photo-button =
     .title = { avatar-page-take-photo }
-avatar-page-remove-photo = Elimina immagine
+avatar-page-remove-photo = Rimuovi foto
 avatar-page-remove-photo-button =
     .title = { avatar-page-remove-photo }
-avatar-page-retake-photo = Scatta una nuova foto
+avatar-page-retake-photo = Scatta di nuovo la foto
 avatar-page-cancel-button = Annulla
 avatar-page-save-button = Salva
 avatar-page-saving-button = Salvataggio in corso…
@@ -714,16 +716,16 @@ pw-change-cancel-button = Annulla
 pw-change-save-button = Salva
 pw-change-forgot-password-link = Password dimenticata?
 pw-change-current-password =
-    .label = Inserire la password attuale
+    .label = Inserisci la password attuale
 pw-change-new-password =
-    .label = Inserire una nuova password
+    .label = Inserisci una nuova password
 pw-change-confirm-password =
     .label = Conferma la nuova password
 pw-change-success-alert-2 = Password aggiornata
 
 
 pw-create-header =
-    .title = Creazione password
+    .title = Crea password
 pw-create-success-alert-2 = Password impostata
 pw-create-error-2 = Spiacenti, si è verificato un problema durante l’impostazione della password
 
@@ -739,9 +741,9 @@ delete-account-product-mdn-plus = { -product-mdn-plus }
 delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
 delete-account-product-mozilla-monitor = { -product-mozilla-monitor }
 delete-account-product-firefox-relay = { -product-firefox-relay }
-delete-account-product-firefox-sync = Sincronizzazione dati in { -brand-firefox }
-delete-account-product-firefox-addons = Componenti aggiuntivi in { -brand-firefox }
-delete-account-acknowledge = Cancellando il tuo account riconosci che:
+delete-account-product-firefox-sync = Sincronizzazione dei dati di { -brand-firefox }
+delete-account-product-firefox-addons = Componenti aggiuntivi di { -brand-firefox }
+delete-account-acknowledge = Eliminando il tuo account riconosci che:
 delete-account-chk-box-1-v4 =
     .label = Eventuali abbonamenti a pagamento saranno annullati
 delete-account-chk-box-2 =
@@ -753,7 +755,7 @@ delete-account-chk-box-4 =
 delete-account-continue-button = Continua
 delete-account-delete-button-passwordless = Elimina account
 delete-account-password-input =
-    .label = Inserire la password
+    .label = Inserisci la password
 delete-account-cancel-button = Annulla
 delete-account-delete-button-2 = Elimina
 
@@ -761,7 +763,7 @@ delete-account-delete-button-2 = Elimina
 display-name-page-title =
     .title = Nome visualizzato
 display-name-input =
-    .label = Inserire il nome visualizzato
+    .label = Inserisci il nome visualizzato
 submit-display-name = Salva
 cancel-display-name = Annulla
 display-name-update-error-2 = Si è verificato un problema durante l’aggiornamento del nome visualizzato
@@ -777,7 +779,7 @@ page-passkey-add-success = Passkey creata
 page-passkey-add-error-system-v2 = Si è verificato un problema durante la creazione della passkey. Riprova più tardi.
 
 
-recent-activity-title = Attività recente dell”account
+recent-activity-title = Attività recente dell’account
 recent-activity-account-create-v2 = Account creato
 recent-activity-account-disable-v2 = Account disattivato
 recent-activity-account-enable-v2 = Account attivato
@@ -850,7 +852,7 @@ settings-recovery-phone-remove-success = Il telefono per il recupero dell’acco
 
 
 page-setup-recovery-phone-heading = Aggiungi telefono per il recupero dell’account
-page-change-recovery-phone = Cambio il telefono per il recupero dell’account
+page-change-recovery-phone = Cambia il telefono per il recupero dell’account
 page-setup-recovery-phone-back-button-title = Torna alle impostazioni
 page-setup-recovery-phone-step2-back-button-title = Cambia numero di telefono
 
@@ -863,7 +865,7 @@ add-secondary-email-enter-address =
     .label = Inserisci il tuo indirizzo email
 add-secondary-email-cancel-button = Annulla
 add-secondary-email-save-button = Salva
-add-secondary-email-mask = Non è possibile utilizzare alias di posta elettronica come indirizzo email secondario.
+add-secondary-email-mask = Non è possibile utilizzare alias di posta elettronica come indirizzo email secondario
 
 
 add-secondary-email-step-2 = Passaggio 2 di 2
@@ -946,11 +948,11 @@ passkey-delete-success = Passkey eliminata
 passkey-delete-error = Si è verificato un problema durante l’eliminazione della passkey. Riprova tra qualche minuto.
 passkey-sub-row-rename-title = Rinomina passkey
 passkey-rename-modal-heading = Rinomina passkey
-passkey-rename-modal-description = Inserire un nuovo nome per questa passkey.
+passkey-rename-modal-description = Inserisci un nuovo nome per questa passkey.
 passkey-rename-input-label = Nome passkey
 passkey-rename-save-button = Salva
 passkey-rename-cancel-button = Annulla
-passkey-rename-error-empty = Inserire un nome per questa passkey
+passkey-rename-error-empty = Inserisci un nome per questa passkey
 passkey-rename-error-too-long = Il nome deve contenere meno di 256 caratteri.
 passkey-rename-error-invalid = Sono consentiti solo lettere, numeri, segni di punteggiatura e simboli.
 passkey-rename-error-duplicate = Esiste già una passkey con questo nome
@@ -962,7 +964,7 @@ switch-turn-off = Disattiva
 switch-turn-on = Attiva
 switch-submitting = Invio in corso…
 switch-is-on = attivo
-switch-is-off = disattivato
+switch-is-off = inattivo
 
 
 row-defaults-action-add = Aggiungi
@@ -983,11 +985,11 @@ passkey-row-max-limit-disabled-reason = Hai raggiunto il numero massimo di passk
 
 rk-header-1 = Chiave di recupero dell’account
 rk-enabled = Attiva
-rk-not-set = Non impostato
+rk-not-set = Non impostata
 rk-action-create = Crea
 rk-action-change-button = Modifica
 rk-action-remove = Rimuovi
-rk-key-removed-2 = Eliminata chiave di recupero account
+rk-key-removed-2 = Eliminata chiave di recupero dell’account
 rk-cannot-remove-key = Non è possibile rimuovere la chiave di recupero dell’account.
 rk-refresh-key-1 = Aggiorna la chiave di recupero dell’account
 rk-content-explain = Ripristina i dati in caso di password dimenticata.
@@ -1004,7 +1006,7 @@ se-cannot-refresh-email = Si è verificato un problema durante l’aggiornamento
 se-cannot-resend-code-3 = Si è verificato un problema durante il nuovo invio del codice di conferma
 se-set-primary-successful-2 = { $email } è ora la tua email principale
 se-set-primary-error-2 = Si è verificato un problema durante la modifica dell’email principale
-se-delete-email-successful-2 = { $email } eliminata correttamente
+se-delete-email-successful-2 = Indirizzo { $email } eliminato correttamente
 se-delete-email-error-2 = Si è verificato un problema durante l’eliminazione dell’email
 se-verify-session-3 = È necessario confermare la sessione in corso per effettuare questa operazione
 se-verify-session-error-3 = Si è verificato un problema durante la conferma della sessione
@@ -1027,7 +1029,7 @@ tfa-row-action-add = Aggiungi
 tfa-row-action-disable = Disattiva
 tfa-row-action-change = Modifica
 tfa-row-button-refresh =
-    .title = Ripristina l’autenticazione in due passaggi
+    .title = Aggiorna l’autenticazione in due passaggi
 tfa-row-cannot-refresh = Si è verificato un problema durante l’aggiornamento dell’autenticazione in due passaggi.
 tfa-row-enabled-description = Il tuo account è protetto dall’autenticazione in due passaggi. Quando accedi al tuo { -product-mozilla-account } dovrai inserire un codice monouso dall’app di autenticazione.
 tfa-row-enabled-info-link = Come aiuta a proteggere il tuo account
@@ -1060,18 +1062,18 @@ auth-error-103 = Password errata
 auth-error-105-2 = Codice di conferma non valido
 auth-error-110 = Token non valido
 auth-error-114-generic = Hai effettuato troppi tentativi. Riprova più tardi.
-auth-error-114 = Hai effettuato troppi tentativi errati. Riprova { $retryAfter }.
+auth-error-114 = Hai effettuato troppi tentativi. Riprova { $retryAfter }.
 auth-error-125 = La richiesta è stata bloccata per motivi di sicurezza
 auth-error-129-2 = Hai inserito un numero di telefono non valido. Controlla e riprova.
 auth-error-138-2 = Sessione non confermata
 auth-error-139 = L’email secondaria deve essere diversa dall’email principale associata all’account
-auth-error-144 = Questo indirizzo email è già utilizzato da un altro account. Riprova più tardi o utilizza un altro indirizzo email.
+auth-error-144 = Questo indirizzo email è riservato da un altro account. Riprova più tardi o utilizza un altro indirizzo email.
 auth-error-155 = Token TOTP non trovato
 auth-error-156 = Codice di autenticazione di backup non trovato
 auth-error-159 = Chiave di recupero dell’account non valida
 auth-error-183-2 = Codice di conferma non valido o scaduto
-auth-error-202 = Caratteristica non attiva
-auth-error-203 = Il sistema non è disponibile, riprova tra qualche secondo
+auth-error-202 = Funzionalità non attiva
+auth-error-203 = Il sistema non è disponibile, riprova a breve
 auth-error-206 = Impossibile creare la password, la password è già stata impostata
 auth-error-214 = Il telefono per il recupero dell’account è già presente
 auth-error-215 = Il telefono per il recupero dell’account non esiste
@@ -1083,7 +1085,7 @@ auth-error-225 = Passkey già registrata
 auth-error-226 = Raggiunto il limite di passkey
 auth-error-227 = Autenticazione con passkey non riuscita
 auth-error-228 = Registrazione passkey non riuscita
-auth-error-233 = Per creare una passkey, configura un blocco schermo, un PIN, l’impronta digitale, il riconoscimento facciale sul tuo dispositivo, o una chiave di sicurezza. Poi riprova.
+auth-error-233 = Per creare una passkey, configura un blocco schermo, un PIN, l’impronta digitale o il riconoscimento facciale sul tuo dispositivo o sulla chiave di sicurezza. Poi riprova.
 auth-error-238 = Verifica passkey non riuscita
 auth-error-239 = Ci dispiace, non siamo riusciti a eliminare il tuo account. Riprova oppure contatta l’assistenza se il problema persiste.
 auth-error-999 = Errore imprevisto
@@ -1093,18 +1095,18 @@ auth-error-1003 = L’archiviazione locale o i cookie sono ancora disattivati
 auth-error-1008 = La nuova password deve essere diversa
 auth-error-1010 = È necessario inserire una password valida
 auth-error-1011 = È necessario inserire un indirizzo email valido
-auth-error-1018 = L’email di conferma è stata respinta. Verifica di aver digitato correttamente l’indirizzo email.
-auth-error-1020 = Hai inserito l’email sbagliata? firefox.com non è un servizio di posta elettronica valido
+auth-error-1018 = L’email di conferma è stata respinta. C’è un errore di battitura nell’indirizzo email?
+auth-error-1020 = C’è un errore di battitura nell’indirizzo email? firefox.com non è un servizio di posta elettronica valido
 auth-error-1031 = Per completare la registrazione devi inserire la tua età
-auth-error-1032 = Per completare la registrazione inserire un’età valida
+auth-error-1032 = Per completare la registrazione devi inserire un’età valida
 auth-error-1054 = Codice di autenticazione in due passaggi non valido
 auth-error-1056 = Codice di autenticazione di backup non valido
 auth-error-1062 = Reindirizzamento non valido
-auth-error-1064 = Hai inserito l’email sbagliata? { $domain } non è un servizio di posta elettronica valido
+auth-error-1064 = C’è un errore di battitura nell’indirizzo email? { $domain } non è un servizio di posta elettronica valido
 auth-error-1066 = Non è possibile utilizzare alias di posta elettronica per creare un account.
 auth-error-1067 = C’è un errore di battitura nell’indirizzo email?
 recovery-phone-number-ending-digits = Numero che termina con { $lastFourPhoneNumber }
-oauth-error-1000 = Qualcosa è andato storto. Chiudi questa scheda e riprova.
+oauth-error-1000 = Si è verificato un problema. Chiudi questa scheda e riprova.
 
 
 
@@ -1120,7 +1122,7 @@ passkey-registration-error-could-not-complete = Impossibile completare la config
 passkey-registration-error-could-not-complete-link = Ulteriori informazioni
 passkey-registration-error-security = Non è possibile impostare passkey in questa pagina. Utilizza il sito sicuro e riprova.
 passkey-registration-error-invalid-state = Questa passkey è già registrata. Utilizzala per accedere o aggiungi un’altra passkey.
-passkey-registration-error-not-readable = Impossibile accedere alla funzione di autenticazione. Riprova o scegli un altro metodo.
+passkey-registration-error-not-readable = Impossibile accedere al dispositivo di autenticazione. Riprova o scegli un altro metodo.
 passkey-registration-error-constraint = La configurazione della passkey non è disponibile con questo dispositivo. Prova con un altro metodo o dispositivo.
 passkey-registration-error-unexpected = Configurazione passkey non riuscita. Riprova o scegli un altro metodo.
 
@@ -1135,7 +1137,7 @@ passkey-authentication-error-timeout-v2 = Tempo esaurito per l’accesso con pas
 passkey-authentication-error-not-supported-v2 = Il tuo browser o dispositivo non supporta le passkey.
 passkey-authentication-error-security = Non è possibile utilizzare passkey in questa pagina. Verifica di essere sul sito sicuro corretto e riprova.
 passkey-authentication-error-invalid-state = Si è verificato un errore con la passkey. Riprova o utilizza un altro metodo di accesso.
-passkey-authentication-error-not-readable = Impossibile accedere alla funzione di autenticazione. Riprova o utilizza un altro metodo di accesso.
+passkey-authentication-error-not-readable = Impossibile accedere al dispositivo di autenticazione. Riprova o utilizza un altro metodo di accesso.
 passkey-authentication-error-unexpected = Si è verificato un errore. Riprova o scegli un altro metodo di accesso.
 passkey-authentication-error-not-found = Passkey non riconosciuta. Utilizza un altro metodo di accesso.
 
@@ -1161,18 +1163,18 @@ cookies-disabled-learn-more = Ulteriori informazioni
 
 
 index-header = Inserisci la tua email
-index-sync-header = Passa al tuo { -product-mozilla-account }
+index-sync-header = Continua sul tuo { -product-mozilla-account }
 index-sync-subheader = Sincronizza password, schede e segnalibri ovunque utilizzi { -brand-firefox }.
 index-relay-header = Crea un alias di posta elettronica
 index-relay-subheader = Fornisci l’indirizzo email a cui desideri inoltrare le email dal tuo alias di posta elettronica.
 index-subheader-with-servicename = Continua su { $serviceName }
-index-subheader-default = Passa alle impostazioni dell’account
+index-subheader-default = Continua con le impostazioni dell’account
 index-cta = Registrati o accedi
 index-account-info = Un { -product-mozilla-account } consente inoltre di accedere ad altri prodotti { -brand-mozilla } per la protezione della privacy.
 index-email-input =
     .label = Inserisci la tua email
 index-account-delete-success = L’account è stato correttamente eliminato
-index-email-bounced = L’email di conferma è stata respinta. Verifica di aver digitato correttamente l’indirizzo email.
+index-email-bounced = L’email di conferma è stata respinta. C’è un errore di battitura nell’indirizzo email?
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile creare la chiave di recupero dell’account. Riprova più tardi.
@@ -1197,7 +1199,7 @@ inline-totp-setup-enter-key-or-use-qr-instructions = Digita questa chiave segret
 inline-totp-setup-use-qr-or-enter-key-instructions = Scansiona il codice QR nell’app di autenticazione e inserisci il codice fornito. <toggleToManualModeButton>Non è possibile eseguire la scansione del codice?</toggleToManualModeButton>
 inline-totp-setup-on-completion-description = Una volta completato, inizierà a generare codici di autenticazione da inserire.
 inline-totp-setup-security-code-placeholder = Codice di autenticazione
-inline-totp-setup-code-required-error = Codice di autenticazione richiesto
+inline-totp-setup-code-required-error = Codice di autenticazione obbligatorio
 tfa-qr-code-alt = Utilizza il codice { $code } per impostare l’autenticazione in due passaggi nelle applicazioni supportate.
 inline-totp-setup-page-title = Autenticazione in due passaggi
 
@@ -1227,7 +1229,7 @@ pair-auth-complete-manage-devices-link = Gestisci dispositivi
 
 pair-auth-complete-send-tab-heading = Sei pronto per inviare le tue schede
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } per { $deviceOS } è connesso.
-pair-auth-complete-send-tab-benefits = Puoi inviare immediatamente schede aperte, password e segnalibri da un dispositivo all'altro.
+pair-auth-complete-send-tab-benefits = Puoi inviare immediatamente schede aperte, password e segnalibri da un dispositivo all’altro.
 
 
 auth-totp-heading-w-default-service = Inserisci il codice di autenticazione <span>per continuare con le impostazioni dell’account</span>
@@ -1235,7 +1237,7 @@ auth-totp-heading-w-custom-service = Inserisci il codice di autenticazione <span
 auth-totp-instruction = Apri l’app di autenticazione e inserisci il codice di autenticazione ottenuto.
 auth-totp-input-label = Inserisci il codice a 6 cifre
 auth-totp-confirm-button = Conferma
-auth-totp-code-required-error = Codice di autenticazione richiesto
+auth-totp-code-required-error = Codice di autenticazione obbligatorio
 
 
 pair-wait-for-supp-heading-text = È ora richiesta l’approvazione <span>dall’altro dispositivo</span>
@@ -1251,7 +1253,7 @@ pair-cad-header-v2 = Connetti un altro dispositivo
 pair-already-have-firefox-paragraph = Utilizzi già { -brand-firefox } su un telefono o tablet?
 pair-sync-your-device-button = Sincronizza il tuo dispositivo
 pair-or-download-subheader = Oppure scaricalo
-pair-scan-to-download-message = Scansiona per scaricare { -brand-firefox } per dispositivi mobili oppure invia un <linkExternal>link per il download</linkExternal>.
+pair-scan-to-download-message = Scansiona per scaricare { -brand-firefox } per dispositivi mobili oppure inviati un <linkExternal>link per il download</linkExternal>.
 pair-not-now-button = Non adesso
 pair-take-your-data-message = Porta con te schede, segnalibri e password ovunque utilizzi { -brand-firefox }.
 pair-get-started-button = Inizia
@@ -1276,7 +1278,7 @@ pair-download-subheader = Scarica { -brand-firefox } per dispositivi mobili
 pair-download-description = Per sincronizzare { -brand-firefox } sul tuo telefono o tablet, devi prima scaricare { -brand-firefox } per dispositivi mobili. Ecco come:
 pair-download-step-scan-qr = <b>Passaggio { $stepNumber }</b>: scarica { -brand-firefox } scansionando il codice QR con la fotocamera del tuo dispositivo:
 pair-download-step-continue-sync = <b>Passaggio { $stepNumber }</b>: seleziona “Continua con la sincronizzazione” per sincronizzare la tua esperienza in { -brand-firefox } sul tuo dispositivo mobile.
-pair-continue-to-sync-button = Continua la sincronizzazione
+pair-continue-to-sync-button = Continua con la sincronizzazione
 
 
 pair-success-header-2 = Dispositivo connesso
@@ -1313,13 +1315,13 @@ service-welcome-vpn-description = Un altro passo per aumentare la privacy del tu
 
 
 set-password-heading-v2 = Crea una password per sincronizzare
-set-password-info-v2 = Questa operazione critta i tuoi dati. Deve essere diversa dalla password del tuo account { -brand-google } o { -brand-apple }.
+set-password-info-v2 = La password critta i tuoi dati e deve essere diversa da quella del tuo account { -brand-google } o { -brand-apple }.
 
 
 set-password-passwordless-info = Questa password critta i dati sincronizzati e li mantiene al sicuro.
 
 
-third-party-auth-callback-message = Attendere, si sta per essere reindirizzati all’applicazione autorizzata.
+third-party-auth-callback-message = Attendi, verrai reindirizzato all’applicazione autorizzata.
 
 
 account-recovery-confirm-key-heading = Inserisci la chiave di recupero dell’account
@@ -1340,7 +1342,7 @@ reset-password-complete-banner-message = Non dimenticare di generare una nuova c
 complete-reset-password-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
 
 
-confirm-backup-code-reset-password-input-label = Inserire il codice di 10 caratteri
+confirm-backup-code-reset-password-input-label = Inserisci il codice di 10 caratteri
 confirm-backup-code-reset-password-confirm-button = Conferma
 confirm-backup-code-reset-password-subheader = Digita il codice di autenticazione di backup
 confirm-backup-code-reset-password-instruction = Inserisci uno dei codici monouso salvati durante la configurazione dell’autenticazione in due passaggi.
@@ -1349,23 +1351,23 @@ confirm-backup-code-reset-password-locked-out-link = Sei rimasto bloccato fuori 
 
 confirm-reset-password-with-code-heading = Controlla la tua email
 confirm-reset-password-with-code-instruction = Abbiamo inviato un codice di conferma a <span>{ $email }</span>.
-confirm-reset-password-code-input-group-label = Inserire il codice di 8 cifre entro 10 minuti
+confirm-reset-password-code-input-group-label = Inserisci il codice di 8 cifre entro 10 minuti
 confirm-reset-password-otp-submit-button = Continua
 confirm-reset-password-otp-resend-code-button = Invia di nuovo il codice
 confirm-reset-password-otp-different-account-link = Utilizza un altro account
 
 
 confirm-totp-reset-password-header = Reimpostazione della password
-confirm-totp-reset-password-subheader-v2 = Inserire il codice di autenticazione in due passaggi
+confirm-totp-reset-password-subheader-v2 = Inserisci il codice di autenticazione in due passaggi
 confirm-totp-reset-password-instruction-v2 = Controlla l’<strong>app di autenticazione</strong> per reimpostare la password.
 confirm-totp-reset-password-trouble-code = Problemi a inserire il codice?
 confirm-totp-reset-password-confirm-button = Conferma
-confirm-totp-reset-password-input-label-v2 = Inserire il codice a 6 cifre
+confirm-totp-reset-password-input-label-v2 = Inserisci il codice a 6 cifre
 confirm-totp-reset-password-use-different-account = Utilizza un altro account
 
 
 password-reset-flow-heading = Reimpostazione della password
-password-reset-body-2 = Per mantenere il tuo account al sicuro, ti chiederemo alcune informazioni che solo tu conosci.
+password-reset-body-3 = La reimpostazione della password potrebbe influire sulla sincronizzazione dei dati del browser.
 password-reset-email-input =
     .label = Inserisci la tua email
 password-reset-submit-button-2 = Continua
@@ -1393,7 +1395,7 @@ password-reset-recovery-method-send-code-error-description = Riprova più tardi 
 
 reset-password-recovery-phone-flow-heading = Reimpostazione della password
 reset-password-recovery-phone-heading = Inserisci il codice di recupero
-reset-password-recovery-phone-instruction-v3 = È stato inviato un codice di 6 cifre al numero di telefono che termina con <span>{ $lastFourPhoneDigits }</span> tramite SMS. Questo codice scade dopo 5 minuti. Non condividere questo codice con nessuno.
+reset-password-recovery-phone-instruction-v3 = È stato inviato un codice a 6 cifre al numero di telefono che termina con <span>{ $lastFourPhoneDigits }</span> tramite SMS. Questo codice scade dopo 5 minuti. Non condividere questo codice con nessuno.
 reset-password-recovery-phone-input-label = Inserisci il codice a 6 cifre
 reset-password-recovery-phone-code-submit-button = Conferma
 reset-password-recovery-phone-resend-code-button = Invia di nuovo il codice
@@ -1401,9 +1403,9 @@ reset-password-recovery-phone-resend-success = Codice inviato
 reset-password-recovery-phone-locked-out-link = Sei rimasto bloccato fuori dal tuo account?
 reset-password-recovery-phone-send-code-error-heading = Si è verificato un problema durante l’invio del codice
 reset-password-recovery-phone-code-verification-error-heading = Si è verificato un problema durante la verifica del codice
-reset-password-recovery-phone-general-error-description = Riprovare più tardi.
+reset-password-recovery-phone-general-error-description = Riprova più tardi.
 reset-password-recovery-phone-invalid-code-error-description = Il codice non è valido o è scaduto.
-reset-password-recovery-phone-invalid-code-error-link = Utilizzare invece i codici di autenticazione di backup?
+reset-password-recovery-phone-invalid-code-error-link = Vuoi utilizzare i codici di autenticazione di backup?
 reset-password-with-recovery-key-verified-page-title = Password reimpostata correttamente
 reset-password-complete-new-password-saved = Nuova password salvata.
 reset-password-complete-recovery-key-created = È stata creata una nuova chiave di recupero dell’account. Scaricala e salvala subito.
@@ -1419,7 +1421,7 @@ signin-link-expired-message-2 = Il link su cui hai fatto clic è scaduto o è gi
 
 signin-password-needed-header-2 = Inserisci la password <span>per il tuo { -product-mozilla-account }</span>
 signin-subheader-without-logo-with-servicename = Continua su { $serviceName }
-signin-subheader-without-logo-default = Passa alle impostazioni dell’account
+signin-subheader-without-logo-default = Continua con le impostazioni dell’account
 signin-button = Accedi
 signin-header = Accedi
 signin-use-a-different-account-link = Utilizza un altro account
@@ -1436,8 +1438,8 @@ signin-account-locked-banner-link = Reimposta la password per accedere
 report-signin-link-damaged-body = Nel link su cui hai fatto clic mancano alcuni caratteri, probabilmente è un problema causato dal client di posta elettronica. Riprova assicurandoti di selezionare e copiare con cura il link.
 report-signin-header = Vuoi segnalare questo accesso non autorizzato?
 report-signin-body = Hai ricevuto un’email relativa a un tentativo di accesso al tuo account. Vuoi segnalare questa attività come sospetta?
-report-signin-submit-button = Segnala attività sospetta
-report-signin-support-link = Che cosa sta succedendo?
+report-signin-submit-button = Segnala attività
+report-signin-support-link = Perché succede questo?
 report-signin-error = Siamo spiacenti, si è verificato un problema durante l’invio della segnalazione.
 signin-bounced-header = Spiacenti, l’account è stato bloccato.
 signin-bounced-message = L’email di conferma che abbiamo inviato all’indirizzo { $email } è tornata indietro. L’account è stato bloccato per proteggere i dati in { -brand-firefox }.
@@ -1451,6 +1453,7 @@ signin-passkey-fallback-heading = Inserisci la password per sincronizzare
 signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserire la tua password quando utilizzi questa passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
+signin-passkey-fallback-forgot-password-link = Password dimenticata?
 
 
 
@@ -1499,18 +1502,18 @@ signin-recovery-method-send-code-error-description = Riprova più tardi o utiliz
 signin-recovery-code-heading = Accedi
 signin-recovery-code-sub-heading = Digita il codice di autenticazione di backup
 signin-recovery-code-instruction-v3 = Inserisci uno dei codici monouso salvati durante la configurazione dell’autenticazione in due passaggi.
-signin-recovery-code-input-label-v2 = Inserire il codice di 10 caratteri
+signin-recovery-code-input-label-v2 = Inserisci il codice di 10 caratteri
 signin-recovery-code-confirm-button = Conferma
 signin-recovery-code-phone-link = Utilizza il telefono per il recupero dell’account
 signin-recovery-code-support-link = Sei rimasto bloccato fuori dal tuo account?
-signin-recovery-code-required-error = È necessario inserire il codice di autenticazione di backup
+signin-recovery-code-required-error = Codice di autenticazione di backup obbligatorio
 signin-recovery-code-use-phone-failure = Si è verificato un problema durante l’invio del codice al telefono per il recupero dell’account
 signin-recovery-code-use-phone-failure-description = Riprova più tardi.
 
 
 signin-recovery-phone-flow-heading = Accedi
 signin-recovery-phone-heading = Inserisci il codice di recupero
-signin-recovery-phone-instruction-v3 = È stato inviato un codice di sei cifre al numero di telefono che termina con <span>{ $lastFourPhoneDigits }</span> tramite SMS. Questo codice scade dopo 5 minuti. Non condividere questo codice con nessuno.
+signin-recovery-phone-instruction-v3 = È stato inviato un codice a 6 cifre al numero di telefono che termina con <span>{ $lastFourPhoneDigits }</span> tramite SMS. Questo codice scade dopo 5 minuti. Non condividere questo codice con nessuno.
 signin-recovery-phone-input-label = Inserisci il codice a 6 cifre
 signin-recovery-phone-code-submit-button = Conferma
 signin-recovery-phone-resend-code-button = Invia di nuovo il codice
@@ -1520,7 +1523,7 @@ signin-recovery-phone-send-code-error-heading = Si è verificato un problema dur
 signin-recovery-phone-code-verification-error-heading = Si è verificato un problema durante la verifica del codice
 signin-recovery-phone-general-error-description = Riprova più tardi.
 signin-recovery-phone-invalid-code-error-description = Il codice non è valido o è scaduto.
-signin-recovery-phone-invalid-code-error-link = Utilizzare invece i codici di autenticazione di backup?
+signin-recovery-phone-invalid-code-error-link = Vuoi utilizzare i codici di autenticazione di backup?
 signin-recovery-phone-success-message = Accesso effettuato correttamente. Se utilizzi nuovamente il tuo telefono per il recupero dell’account, potrebbero essere applicati dei limiti.
 
 
@@ -1545,17 +1548,17 @@ signin-token-code-instruction-desktop-relay = Dopo aver effettuato l’accesso, 
 
 
 signin-totp-code-header = Accedi
-signin-totp-code-subheader-v2 = Inserire il codice di autenticazione in due passaggi
+signin-totp-code-subheader-v2 = Inserisci il codice di autenticazione in due passaggi
 signin-totp-code-instruction-v4 = Controlla l’<strong>app di autenticazione</strong> per confermare l’accesso.
-signin-totp-code-input-label-v4 = Inserire il codice a 6 cifre
+signin-totp-code-input-label-v4 = Inserisci il codice a 6 cifre
 signin-totp-code-aal-banner-header = Perché ti viene chiesto di autenticarti?
 signin-totp-code-aal-banner-content = Hai configurato l’autenticazione in due passaggi per il tuo account, ma non hai ancora effettuato l’accesso con un codice su questo dispositivo.
-signin-totp-code-aal-sign-out = Disconnettersi su questo dispositivo
+signin-totp-code-aal-sign-out = Disconnetti da questo dispositivo
 signin-totp-code-aal-sign-out-error = Si è verificato un problema durante la disconnessione
 signin-totp-code-confirm-button = Conferma
 signin-totp-code-other-account-link = Utilizza un altro account
 signin-totp-code-recovery-code-link = Problemi a inserire il codice?
-signin-totp-code-required-error = Codice di autenticazione richiesto
+signin-totp-code-required-error = Codice di autenticazione obbligatorio
 signin-totp-code-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
 
 
@@ -1563,11 +1566,11 @@ signin-unblock-header = Autorizza questo accesso
 signin-unblock-body = Controlla la tua casella di posta: il codice di autorizzazione è stato inviato a { $email }.
 signin-unblock-code-input = Digita il codice di autorizzazione
 signin-unblock-submit-button = Continua
-signin-unblock-code-required-error = È necessario inserire il codice di autorizzazione
+signin-unblock-code-required-error = Codice di autorizzazione obbligatorio
 signin-unblock-code-incorrect-length = Il codice di autorizzazione deve contenere 8 caratteri
 signin-unblock-code-incorrect-format-2 = Il codice di autorizzazione può contenere solo lettere e/o numeri
-signin-unblock-resend-code-button = Il messaggio non si trova nella posta in arrivo e neppure nello spam? Invia nuovamente il link
-signin-unblock-support-link = Che cosa sta succedendo?
+signin-unblock-resend-code-button = Il messaggio non si trova nella posta in arrivo e neppure nello spam? Invia di nuovo il codice
+signin-unblock-support-link = Perché succede questo?
 signin-unblock-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
 
 
@@ -1595,7 +1598,7 @@ signup-heading-v2 = Crea una password
 signup-relay-info = È necessaria una password per gestire in modo sicuro i tuoi alias di posta elettronica e accedere agli strumenti di sicurezza di { -brand-mozilla }.
 signup-sync-info = Sincronizza password, segnalibri e altro ancora ovunque utilizzi { -brand-firefox }.
 signup-sync-info-with-payment = Sincronizza password, metodi di pagamento, segnalibri e altro ancora ovunque utilizzi { -brand-firefox }.
-signup-change-email-link = Cambia e-mail
+signup-change-email-link = Cambia email
 
 
 signup-confirmed-sync-header = La sincronizzazione è attiva

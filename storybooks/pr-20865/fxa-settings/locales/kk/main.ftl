@@ -317,6 +317,7 @@ link-expired-new-link-button = Жаңа сілтемені алу
 
 
 remember-password-text = Пароліңіз есіңізде ме?
+remember-password-passkey-text = Қол жеткізу кілтіңіз бар ма немесе пароліңіз есіңізде ме?
 remember-password-signin-link = Кіру
 
 
@@ -390,13 +391,14 @@ flow-recovery-key-hint-unsafe-char-error = Кеңесте қауіпті юни�
 password-reset-warning-icon = Ескерту
 password-reset-chevron-expanded = Ескертуді бүктеу
 password-reset-chevron-collapsed = Ескертуді ашу
-password-reset-data-may-not-be-recovered = Браузеріңіздің деректері қалпына келтірілмеуі мүмкін
-password-reset-previously-signed-in-device-2 = Бұрын жүйеге кірген құрылғыларыңыз бар ма?
-password-reset-data-may-be-saved-locally-2 = Браузер деректері сол құрылғыда сақталуы мүмкін. Парольді тастап, деректерді қалпына келтіру және синхрондау үшін сол жерге кіріңіз.
-password-reset-no-old-device-2 = Жаңа құрылғыңыз бар, бірақ алдыңғы құрылғылардың ешқайсысына қол жеткізе алмайсыз ба?
-password-reset-encrypted-data-cannot-be-recovered-2 = Кешіріңіз, { -brand-firefox } серверлеріндегі браузердің шифрленген деректерін қалпына келтіру мүмкін емес.
+password-reset-warning-review-sign-in-options = Браузер деректерін сақтау үшін кіру опцияларын қарап шығу
 password-reset-warning-have-key = Тіркелгіні қалпына келтіру кілтіңіз бар ма?
-password-reset-warning-use-key-link = Парольді қалпына келтіру және деректеріңізді сақтау үшін оны қазір пайдаланыңыз
+password-reset-warning-use-key-link-v2 = Оны пароліңізді қалпына келтіру және деректеріңізді сақтау үшін пайдаланыңыз
+password-reset-warning-signed-in-device = Басқа құрылғыда әлі де кіріп тұрсыз ба?
+password-reset-warning-signed-in-device-description = Сіздің браузер деректеріңіз қолжетімді болуы мүмкін. Пароліңізді қалпына келтіріп, деректеріңізді қалпына келтіру және синхрондау үшін сол құрылғыда жүйеге кіріңіз.
+password-reset-warning-restore-data-link = Жүйеге кірген құрылғыдан браузер деректерін қалай қалпына келтіру керектігін білу
+password-reset-warning-new-device = Жаңа құрылғыны пайдаланып жатырсыз, бірақ ескі құрылғыңызға қол жеткізе алмайсыз ба?
+password-reset-warning-new-device-description = Пароліңзіді қалпына келтіргеннен кейін, { -brand-firefox } серверлеріндегі шифрленген браузер деректері бұл құрылғыда қолжетімді болмайды.
 
 
 alert-bar-close-message = Хабарламаны жабу
@@ -1366,7 +1368,7 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-2 = Тіркелгіңізді қауіпсіз сақтау үшін тек сіз білетін бірнеше нәрсені сұраймыз.
+password-reset-body-3 = Пароліңізді қалпына келтіру синхрондалған браузер деректеріне әсер етуі мүмкін.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру
@@ -1455,6 +1457,7 @@ signin-passkey-fallback-heading = Синхрондау үшін пароліңі
 signin-passkey-fallback-body = Деректеріңіздің қауіпсіздігін қамтамасыз ету үшін, осы рұқсат кілтін пайдаланған кезде пароліңізді енгізуіңіз керек.
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
+signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
 
 
 

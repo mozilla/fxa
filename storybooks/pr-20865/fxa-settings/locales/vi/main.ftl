@@ -305,6 +305,7 @@ link-expired-new-link-button = Nhận liên kết mới
 
 
 remember-password-text = Bạn đã nhớ mật khẩu của bạn?
+remember-password-passkey-text = Bạn có passkey hoặc nhớ mật khẩu của mình không?
 remember-password-signin-link = Đăng nhập
 
 
@@ -378,13 +379,14 @@ flow-recovery-key-hint-unsafe-char-error = Gợi ý không được chứa các 
 password-reset-warning-icon = Cảnh báo
 password-reset-chevron-expanded = Thu gọn cảnh báo
 password-reset-chevron-collapsed = Mở rộng cảnh báo
-password-reset-data-may-not-be-recovered = Dữ liệu trình duyệt của bạn có thể không được phục hồi
-password-reset-previously-signed-in-device-2 = Bạn có thiết bị nào đã đăng nhập trước đó không?
-password-reset-data-may-be-saved-locally-2 = Dữ liệu trình duyệt của bạn có thể được lưu trên thiết bị đó. Đặt lại mật khẩu của bạn, sau đó đăng nhập vào đó để khôi phục và đồng bộ hóa dữ liệu của bạn.
-password-reset-no-old-device-2 = Bạn có thiết bị mới nhưng không có quyền truy cập vào bất kỳ thiết bị nào trước đây của bạn?
-password-reset-encrypted-data-cannot-be-recovered-2 = Chúng tôi rất tiếc, dữ liệu trình duyệt được mã hóa của bạn trên máy chủ { -brand-firefox } không thể khôi phục được.
+password-reset-warning-review-sign-in-options = Xem lại các tùy chọn đăng nhập để giữ lại dữ liệu trình duyệt
 password-reset-warning-have-key = Bạn đã có khóa khôi phục tài khoản?
-password-reset-warning-use-key-link = Sử dụng nó ngay bây giờ để đặt lại mật khẩu và giữ lại dữ liệu của bạn
+password-reset-warning-use-key-link-v2 = Sử dụng nó để đặt lại mật khẩu và giữ lại dữ liệu trình duyệt của bạn
+password-reset-warning-signed-in-device = Bạn vẫn đang đăng nhập trên thiết bị khác chứ?
+password-reset-warning-signed-in-device-description = Dữ liệu trình duyệt của bạn có thể vẫn còn. Hãy đặt lại mật khẩu, sau đó đăng nhập trên thiết bị đó để khôi phục và đồng bộ hóa dữ liệu của bạn.
+password-reset-warning-restore-data-link = Tìm hiểu cách khôi phục dữ liệu trình duyệt từ thiết bị đã đăng nhập
+password-reset-warning-new-device = Bạn đang sử dụng thiết bị mới nhưng không thể truy cập vào các thiết bị cũ?
+password-reset-warning-new-device-description = Sau khi bạn đặt lại mật khẩu, dữ liệu trình duyệt được mã hóa trên máy chủ { -brand-firefox } sẽ không khả dụng trên thiết bị này.
 
 
 alert-bar-close-message = Đóng thông báo
@@ -1338,9 +1340,7 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
-password-reset-body-2 =
-    Chúng tôi sẽ yêu cầu một số điều chỉ bạn biết để giữ tài khoản của bạn
-    an toàn.
+password-reset-body-3 = Việc đặt lại mật khẩu có thể ảnh hưởng đến dữ liệu trình duyệt đã được đồng bộ hóa.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục
@@ -1425,6 +1425,7 @@ signin-passkey-fallback-heading = Nhập mật khẩu của bạn để đồng 
 signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn cần nhập mật khẩu khi sử dụng passkey này.
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
+signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
 
 
 

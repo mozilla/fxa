@@ -385,6 +385,7 @@ link-expired-new-link-button = Λήψη νέου συνδέσμου
 
 
 remember-password-text = Απομνημόνευση κωδικού πρόσβασης;
+remember-password-passkey-text = Έχετε κλειδί πρόσβασης ή θυμάστε τον κωδικό πρόσβασής σας;
 remember-password-signin-link = Σύνδεση
 
 
@@ -458,13 +459,14 @@ flow-recovery-key-hint-unsafe-char-error = Η υπόδειξη δεν μπορε
 password-reset-warning-icon = Προειδοποίηση
 password-reset-chevron-expanded = Σύμπτυξη προειδοποίησης
 password-reset-chevron-collapsed = Ανάπτυξη προειδοποίησης
-password-reset-data-may-not-be-recovered = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να μην ανακτηθούν
-password-reset-previously-signed-in-device-2 = Είχατε συνδεθεί από κάποια συσκευή στο παρελθόν;
-password-reset-data-may-be-saved-locally-2 = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να έχουν αποθηκευτεί σε εκείνη τη συσκευή. Κάντε επαναφορά του κωδικού πρόσβασής σας και συνδεθείτε εκεί για να ανακτήσετε και να συγχρονίσετε τα δεδομένα σας.
-password-reset-no-old-device-2 = Έχετε μια νέα συσκευή, αλλά δεν έχετε πρόσβαση σε καμία από τις προηγούμενες;
-password-reset-encrypted-data-cannot-be-recovered-2 = Λυπούμαστε, αλλά δεν είναι δυνατή η ανάκτηση των κρυπτογραφημένων δεδομένων περιήγησής σας από τους διακομιστές του { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Ελέγξτε τις επιλογές σύνδεσης για να διατηρήσετε τα δεδομένα του προγράμματος περιήγησης
 password-reset-warning-have-key = Διαθέτετε κλειδί ανάκτησης λογαριασμού;
-password-reset-warning-use-key-link = Χρησιμοποιήστε το τώρα για να επαναφέρετε τον κωδικό πρόσβασής σας και να διατηρήσετε τα δεδομένα σας
+password-reset-warning-use-key-link-v2 = Χρησιμοποιήστε το για να επαναφέρετε τον κωδικό πρόσβασής σας και να διατηρήσετε τα δεδομένα σας του προγράμματος περιήγησης
+password-reset-warning-signed-in-device = Έχετε συνδεθεί και σε μια άλλη συσκευή;
+password-reset-warning-signed-in-device-description = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να είναι διαθέσιμα. Κάντε επαναφορά του κωδικού πρόσβασής σας και συνδεθείτε σε αυτήν τη συσκευή για να ανακτήσετε και να συγχρονίσετε τα δεδομένα σας.
+password-reset-warning-restore-data-link = Μάθετε πώς να κάνετε επαναφορά των δεδομένων του προγράμματος περιήγησης από μια συνδεδεμένη συσκευή
+password-reset-warning-new-device = Χρησιμοποιείτε μια νέα συσκευή, αλλά δεν έχετε πρόσβαση στις παλιές σας;
+password-reset-warning-new-device-description = Αφού κάνετε επαναφορά του κωδικού πρόσβασής σας, τα κρυπτογραφημένα δεδομένα του προγράμματος περιήγησης στους διακομιστές του { -brand-firefox } δεν θα είναι διαθέσιμα σε αυτήν τη συσκευή.
 
 
 alert-bar-close-message = Κλείσιμο μηνύματος
@@ -1434,9 +1436,7 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
-password-reset-body-2 =
-    Θα σας ρωτήσουμε μερικά πράγματα που μόνο εσείς γνωρίζετε, προκειμένου
-    να διατηρήσουμε τον λογαριασμό σας ασφαλή.
+password-reset-body-3 = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει τα συγχρονισμένα δεδομένα του προγράμματος περιήγησης.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
@@ -1525,6 +1525,7 @@ signin-passkey-fallback-heading = Εισαγάγετε τον κωδικό πρ�
 signin-passkey-fallback-body = Για την προστασία των δεδομένων σας, θα πρέπει να εισάγετε τον κωδικό πρόσβασής σας όταν χρησιμοποιείτε αυτό το κλειδί πρόσβασης.
 signin-passkey-fallback-password-label = Κωδικός πρόσβασης
 signin-passkey-fallback-continue = Συνέχεια
+signin-passkey-fallback-forgot-password-link = Ξεχάσατε τον κωδικό πρόσβασής σας;
 
 
 

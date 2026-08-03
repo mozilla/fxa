@@ -333,6 +333,7 @@ link-expired-new-link-button = Recevoir un nouveau lien
 
 
 remember-password-text = Vous vous souvenez de votre mot de passe ?
+remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez de votre mot de passe ?
 remember-password-signin-link = Connectez-vous
 
 
@@ -406,13 +407,14 @@ flow-recovery-key-hint-unsafe-char-error = L’indice ne peut pas contenir de ca
 password-reset-warning-icon = Avertissement
 password-reset-chevron-expanded = Réduire l’avertissement
 password-reset-chevron-collapsed = Développer l’avertissement
-password-reset-data-may-not-be-recovered = Les données de votre navigateur pourraient ne pas été récupérées
-password-reset-previously-signed-in-device-2 = Vous disposez d’un appareil sur lequel vous vous êtes déjà connecté·e ?
-password-reset-data-may-be-saved-locally-2 = Les données de votre navigateur sont peut-être enregistrées sur cet appareil. Réinitialisez votre mot de passe, puis connectez-vous pour restaurer et synchroniser vos données.
-password-reset-no-old-device-2 = Vous avez un nouvel appareil mais vous n’avez plus accès à vos anciens appareils ?
-password-reset-encrypted-data-cannot-be-recovered-2 = Nous sommes désolés, mais vos données de navigateur chiffrées sur les serveurs de { -brand-firefox } ne peuvent pas être récupérées.
+password-reset-warning-review-sign-in-options = Consultez les options de connexion pour conserver les données du navigateur
 password-reset-warning-have-key = Vous disposez d’une clé de récupération de compte ?
-password-reset-warning-use-key-link = Utilisez-la maintenant pour réinitialiser votre mot de passe et conserver vos données
+password-reset-warning-use-key-link-v2 = Utilisez-la pour réinitialiser votre mot de passe et conserver les données de votre navigateur
+password-reset-warning-signed-in-device = Toujours connecté·e sur un autre appareil ?
+password-reset-warning-signed-in-device-description = Les données de votre navigateur peuvent peut-être être récupérées. Réinitialisez votre mot de passe, puis connectez-vous sur cet appareil pour restaurer et synchroniser vos données.
+password-reset-warning-restore-data-link = Découvrez comment restaurer les données du navigateur depuis un appareil connecté
+password-reset-warning-new-device = Vous utilisez un nouvel appareil mais ne pouvez pas accéder à vos anciens appareils ?
+password-reset-warning-new-device-description = Après la réinitialisation de votre mot de passe, les données de navigation chiffrées sur les serveurs de { -brand-firefox } ne seront plus disponibles sur cet appareil.
 
 
 alert-bar-close-message = Fermer le message
@@ -1373,7 +1375,7 @@ confirm-totp-reset-password-use-different-account = Utiliser un autre compte
 
 
 password-reset-flow-heading = Réinitialiser le mot de passe
-password-reset-body-2 = Nous vous demanderons d’effectuer certaines opérations pour assurer la sécurité de votre compte.
+password-reset-body-3 = La réinitialisation de votre mot de passe peut avoir un effet sur les données de navigation synchronisées.
 password-reset-email-input =
     .label = Saisissez votre adresse e-mail
 password-reset-submit-button-2 = Continuer
@@ -1459,6 +1461,7 @@ signin-passkey-fallback-heading = Saisissez votre mot de passe pour synchroniser
 signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir votre mot de passe lorsque vous utilisez cette clé d’accès.
 signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
+signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
 
 
 

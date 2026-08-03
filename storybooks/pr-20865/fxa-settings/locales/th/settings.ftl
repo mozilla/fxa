@@ -476,18 +476,13 @@ flow-recovery-key-hint-char-limit-error = คำใบ้จะต้องม�
 flow-recovery-key-hint-unsafe-char-error = คำใบ้จะต้องไม่มีอักขระ Unicode ที่ไม่ปลอดภัย โดยให้ใช้ได้เฉพาะตัวอักษร ตัวเลข เครื่องหมายวรรคตอน และเครื่องหมายทั่วไปเท่านั้น
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = คำเตือน
 password-reset-chevron-expanded = ยุบคำเตือน
 password-reset-chevron-collapsed = ขยายคำเตือน
-password-reset-data-may-not-be-recovered = ข้อมูลเบราว์เซอร์ของคุณอาจไม่สามารถกู้คืนได้
-password-reset-previously-signed-in-device-2 = มีอุปกรณ์ใดๆ ที่คุณลงชื่อเข้าก่อนหน้านี้หรือไม่?
-password-reset-data-may-be-saved-locally-2 = ข้อมูลเบราว์เซอร์ของคุณอาจถูกบันทึกไว้ในอุปกรณ์นั้น ให้ตั้งรหัสผ่านของคุณใหม่ จากนั้นลงชื่อเข้าเพื่อเรียกคืนและซิงค์ข้อมูลของคุณ
-password-reset-no-old-device-2 = มีอุปกรณ์ใหม่แต่ไม่สามารถเข้าถึงอุปกรณ์เดิมของคุณได้เลยใช่หรือไม่?
-password-reset-encrypted-data-cannot-be-recovered-2 = เราขออภัยด้วย แต่ข้อมูลเบราว์เซอร์ที่เข้ารหัสลับของคุณบนเซิร์ฟเวอร์ { -brand-firefox } ไม่สามารถกู้คืนได้
 password-reset-warning-have-key = มีคีย์กู้คืนบัญชีใช่หรือไม่?
-password-reset-warning-use-key-link = ใช้คีย์กู้คืนบัญชีเลยเพื่อตั้งรหัสผ่านของคุณใหม่และเก็บข้อมูลของคุณ
 
 ## Alert Bar
 
@@ -1834,7 +1829,6 @@ confirm-totp-reset-password-use-different-account = ใช้บัญชีอ�
 ## ResetPassword start page
 
 password-reset-flow-heading = ตั้งรหัสผ่านของคุณใหม่
-password-reset-body-2 = เราจะสอบถามข้อมูลจำนวนหนึ่งซึ่งคุณทราบอยู่เพียงคนเดียว เพื่อปกป้องบัญชีของคุณให้ปลอดภัย
 password-reset-email-input =
     .label = ใส่อีเมลของคุณ
 password-reset-submit-button-2 = ดำเนินการต่อ
