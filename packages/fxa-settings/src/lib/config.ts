@@ -57,8 +57,8 @@ export interface Config {
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
     reactClientIdsEnabled: string[];
-    clientInfoTimeout: number,
-    clientInfoRetries: number,
+    clientInfoTimeout: number;
+    clientInfoRetries: number;
   };
   recoveryCodes: {
     count: number;
@@ -118,6 +118,7 @@ export interface Config {
     passkeysEnabled?: boolean;
     passkeyRegistrationEnabled?: boolean;
     passkeyAuthenticationEnabled?: boolean;
+    passkeyPasswordlessSyncEnabled?: boolean;
     passwordlessEnabled?: boolean;
   };
   darkMode?: {
@@ -184,7 +185,7 @@ export function getDefault() {
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),
       clientInfoRetries: 4,
-      clientInfoTimeout: 10_000
+      clientInfoTimeout: 10_000,
     },
     recoveryCodes: {
       count: 8,
@@ -230,7 +231,8 @@ export function getDefault() {
     },
     mobileStoreLinks: {
       ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
-      android: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+      android:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,

@@ -469,6 +469,7 @@
     "enabled": true,
     "registrationEnabled": true,
     "authenticationEnabled": true,
+    "passwordlessSyncEnabled": true,
     "requestPrfAtRegistration": true,
     "requestPrfAtAuthentication": "all",
     "prfSalt": "dGVzdC1wcmYtc2FsdA",

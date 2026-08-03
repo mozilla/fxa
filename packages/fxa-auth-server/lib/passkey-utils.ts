@@ -31,7 +31,7 @@ export function isPasskeyFeatureEnabled(
 
 /**
  * Checks if passkey registration (adding new passkeys) is enabled.
- * Requires both the master `passkeys.enabled` flag and `passkeys.registrationEnabled`.
+ * Requires both the primary `passkeys.enabled` flag and `passkeys.registrationEnabled`.
  * Management routes (list/delete/rename) use isPasskeyFeatureEnabled instead.
  * @throws AppError.featureNotEnabled if either flag is disabled
  */
@@ -46,13 +46,28 @@ export function isPasskeyRegistrationEnabled(
 
 /**
  * Checks if passkey authentication (sign in with passkey) is enabled.
- * Requires both the master `passkeys.enabled` flag and `passkeys.authenticationEnabled`.
+ * Requires both the primary `passkeys.enabled` flag and `passkeys.authenticationEnabled`.
  * @throws AppError.featureNotEnabled if either flag is disabled
  */
 export function isPasskeyAuthenticationEnabled(
   config: PasskeyFlagsConfig<'enabled' | 'authenticationEnabled'>
 ): boolean {
   if (!config.passkeys.enabled || !config.passkeys.authenticationEnabled) {
+    throw AppError.featureNotEnabled();
+  }
+  return true;
+}
+
+/**
+ * Checks if passwordless sync sign-in is enabled, where `kB` is recovered from a
+ * passkey-wrapped envelope instead of the password.
+ * Requires both the primary `passkeys.enabled` flag and `passkeys.passwordlessSyncEnabled`.
+ * @throws AppError.featureNotEnabled if either flag is disabled
+ */
+export function isPasskeyPasswordlessSyncEnabled(
+  config: PasskeyFlagsConfig<'enabled' | 'passwordlessSyncEnabled'>
+): boolean {
+  if (!config.passkeys.enabled || !config.passkeys.passwordlessSyncEnabled) {
     throw AppError.featureNotEnabled();
   }
   return true;

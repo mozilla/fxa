@@ -2729,6 +2729,12 @@ const convictConf = convict({
       env: 'PASSKEYS__AUTHENTICATION_ENABLED',
       format: Boolean,
     },
+    passwordlessSyncEnabled: {
+      default: false,
+      doc: 'Enable passwordless sync sign-in, where kB is recovered from a passkey-wrapped envelope instead of the password. Requires passkeys.enabled.',
+      env: 'PASSKEYS__PASSWORDLESS_SYNC_ENABLED',
+      format: Boolean,
+    },
     rpId: {
       default: '',
       doc: 'WebAuthn Relying Party ID. Must match the domain of the deployment (e.g. "accounts.firefox.com"). Required when passkeys are enabled.',

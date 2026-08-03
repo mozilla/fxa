@@ -142,6 +142,9 @@ const settingsConfig = {
     passkeyAuthenticationEnabled: config.get(
       'featureFlags.passkeyAuthenticationEnabled'
     ),
+    passkeyPasswordlessSyncEnabled: config.get(
+      'featureFlags.passkeyPasswordlessSyncEnabled'
+    ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
   },
   darkMode: {

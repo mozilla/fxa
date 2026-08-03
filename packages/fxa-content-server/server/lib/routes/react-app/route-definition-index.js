@@ -64,6 +64,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED = config.get(
     'featureFlags.passkeyAuthenticationEnabled'
   );
+  const FEATURE_FLAGS_PASSKEY_PASSWORDLESS_SYNC_ENABLED = config.get(
+    'featureFlags.passkeyPasswordlessSyncEnabled'
+  );
   const PASSKEYS_MAX_PER_USER = config.get('passkeys.maxPerUser');
   const DARK_MODE_ENABLED = config.get('darkMode.enabled');
   const GLEAN_ENABLED = config.get('glean.enabled');
@@ -136,6 +139,8 @@ function getIndexRouteDefinition(config) {
       passkeyRegistrationEnabled: FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED,
       passkeyAuthenticationEnabled:
         FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED,
+      passkeyPasswordlessSyncEnabled:
+        FEATURE_FLAGS_PASSKEY_PASSWORDLESS_SYNC_ENABLED,
     },
     darkMode: {
       enabled: DARK_MODE_ENABLED,

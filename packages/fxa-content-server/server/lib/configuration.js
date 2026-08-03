@@ -265,6 +265,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED',
     },
+    passkeyPasswordlessSyncEnabled: {
+      default: false,
+      doc: 'Enables passwordless sync sign-in UI, where sync keys are recovered from a passkey instead of the password',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PASSWORDLESS_SYNC_ENABLED',
+    },
     passwordlessEnabled: {
       default: false,
       doc: 'Enables auto-redirect to passwordless OTP signup for new accounts on allowed RPs',
