@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { promisify } from 'util';
+
 import Container from 'typedi';
 import { Logger } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
@@ -93,6 +95,7 @@ async function main() {
   );
   Container.set(FreeAccessProgramJournalManagerConfig, journalManagerConfig);
 
+  statsd.increment('free-access-program-reconcile.startup');
   const notifier = new FreeAccessInProcessNotifier(
     database,
     Container.get(ProfileClient),
@@ -104,7 +107,9 @@ async function main() {
     firestore
   );
   Container.set(FreeAccessProgramJournalManager, journalManager);
-  const accountDatabase = await setupAccountDatabase(config.database.mysql.auth);
+  const accountDatabase = await setupAccountDatabase(
+    config.database.mysql.auth
+  );
   const accountManager = new AccountManager(accountDatabase);
   Container.set(AccountManager, accountManager);
 
@@ -118,8 +123,14 @@ async function main() {
   );
   Container.set(FreeAccessProgramService, service);
 
-  const result = await service.reconcile();
-  log.info('free-access-program-reconcile.complete', result);
+  try {
+    const result = await service.reconcile();
+    log.info('free-access-program-reconcile.complete', result);
+    statsd.increment('free-access-program-reconcile.shutdown');
+  } finally {
+    await promisify(statsd.close).bind(statsd)();
+  }
+
   return 0;
 }
 
