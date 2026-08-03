@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b53ef5593a3d8322e807af93875509ef4721657d</title>
+  <title>Storybooks for commit a0ef925a0839d549aeaa6464392a66646bc217f3</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,54 +23,50 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b53ef5593a3d8322e807af93875509ef4721657d</h1>
+  <h1>Storybooks for commit a0ef925a0839d549aeaa6464392a66646bc217f3</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/3/2026, 11:21:51 PM UTC</dd>
+    <dd>8/3/2026, 11:50:08 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>test(functional): Assert signin verification email counts</pre></dd>
+    <dd><pre>bug(auth-server): Let FxA&#039;s front-end turn off the server-sent signin OTP</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- FXA-14109 was a duplicate-email bug, and the regression introduced while
-  fixing it was a wrong-template bug. Neither is visible to unit tests, which
-  assert `toHaveBeenCalledTimes(1)` on a mailer mock rather than checking what
-  actually lands in a mailbox.
-- The regression surfaced in CI only as four `EmailTimeout` failures in
-  unrelated-looking specs, which took a full pipeline and a log dig to diagnose.
+- Dormant accounts signing in through Settings received two identical OTP
+  verification emails. The auth-server sends one from `sendSigninNotifications`
+  during `/account/login`, and `handleNavigation` sends a second via
+  `sessionResendVerifyCode` as it routes to the code screen.
+- The server-side send is the redundant one. It was added as a stop-gap for RPs
+  that hit this API directly instead of going through our web UI, and it has
+  caused duplicate-email problems ever since. The client-side send is the one
+  worth keeping: it couples the email to the navigation that prompts for the code.
 
 This commit:
-- Adds three Playwright tests to `tests/signin/signIn.spec.ts` that assert email
-  counts directly, so a future change to this logic fails with a legible message
-  instead of a timeout.
-- &quot;forced signin confirmation sends exactly one verifyLoginCode email&quot; covers the
-  reported dormant-account case: a `sync`-prefixed account (matched by
-  SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX) signs into Settings and must receive
-  exactly one code email, not one per sender.
-- &quot;unverified signin keeps the server-sent verifyLoginCode email&quot; pins the reason
-  the flag is scoped to `sendVerifySessionEmail`. Widening it back to the shared
-  helper drops this email and leaves only the client&#039;s `verifyShortCode`.
-- &quot;servicesWithEmailVerification RP gets exactly one verifyLoginCode email&quot; covers
-  the config-list path, where a disagreement between server and front-end would
-  leave the user with no code at all. No existing test exercised it: the VPN specs
-  use the Fenix client with `service=vpn`, but the list matches on client IDs.
+- Adds an optional `sendSigninVerificationEmail` payload flag to `/account/login`
+  and `/session/reauth`, defaulting to `true` when omitted.
+- Honours the flag in `sendVerifySessionEmail` only — the unverified-session path
+  that produces the duplicate. The unverified-account path
+  (`sendVerifyAccountEmail`) keeps sending unconditionally, because the client&#039;s
+  stand-in `/session/resend_code` sends a *different* template
+  (`verifyShortCode`) when the primary email is unverified. Honouring the flag
+  there would silently change which email a signing-up user receives rather than
+  just deduplicating.
+- Passes `false` from FxA&#039;s own front-end only: the fxa-settings password and
+  unblock sign-in paths, which reach `handleNavigation` and send the code
+  themselves. FxA is the party turning it off.
+- Removes the `sendVerificationEmailFromClient` gate, so `handleNavigation` is
+  once again the sole sender on /signin_token_code for our own front-end.
+- Changes nothing for anyone else. Direct API consumers omit the flag, get the
+  `true` default, and keep the server-sent email exactly as today — including the
+  RPs that render their own verification UI, which is what this send is there for.
 
-Notes:
-- Each test uses a later email in the same flow as a causal barrier rather than a
-  fixed sleep, because counting as soon as the first email lands would pass even
-  when a duplicate is in flight — a false green.
-- Codes are read via `waitForEmail(..., EmailHeader.*)` rather than
-  `getVerifyLoginCode()`, which clears the whole inbox and would destroy the
-  evidence being counted.
-- The two `sync`-prefix tests are local-only; that regex is not set on stage.
+Note: the server treats `email-2fa` and `email-otp` identically, but
+`handleNavigation` only sends for `email-otp`. Settings only ever requests
+`email-otp`, so this is inert today, but it is a trap if that changes.
 
-Verified each test fails against the bug it guards (2 instead of 1, and 0 instead
-of 1 respectively) and passes once restored. Full file: 8 passed, 1 pre-existing
-skip. Stability checked with --repeat-each=3.
-
-Co-Authored-By: Claude Opus 5 (1M context) &lt;noreply@anthropic.com&gt;</pre></dd>
+Closes #FXA-14109</pre></dd>
   </dl>
 </body>
 </html>
