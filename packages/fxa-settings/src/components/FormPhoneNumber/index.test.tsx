@@ -32,14 +32,14 @@ describe('FormPhoneNumber', () => {
             localizedCTAText="Send code"
             submitPhoneNumber={mockSubmit}
             infoBannerContent={{
-            localizedDescription: 'This is a banner description',
-            localizedHeading: 'This is a banner heading',
-          }}
-          infoBannerLink={{
-            localizedText: 'This is a banner link',
-            path: '#',
-          }}
-        />
+              localizedDescription: 'This is a banner description',
+              localizedHeading: 'This is a banner heading',
+            }}
+            infoBannerLink={{
+              localizedText: 'This is a banner link',
+              path: '#',
+            }}
+          />
         </MemoryRouter>
       );
     });
@@ -107,7 +107,9 @@ describe('FormPhoneNumber', () => {
       await waitFor(
         async () => await user.type(getPhoneInput(), '(123) 123-1234')
       );
-      expect(getSubmitButton()).toBeEnabled();
+      await waitFor(() => {
+        expect(getSubmitButton()).toBeEnabled();
+      });
       await waitFor(async () => await user.click(getSubmitButton()));
       expect(mockSubmit).toHaveBeenCalledWith('+11231231234');
     });

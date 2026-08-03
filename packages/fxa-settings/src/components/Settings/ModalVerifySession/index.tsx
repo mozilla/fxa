@@ -145,7 +145,6 @@ export const ModalVerifySession = ({
 
           <div className="mt-4 mb-6">
             <InputText
-              name="verificationCode"
               label={l10n.getString(
                 'mvs-enter-verification-code-2',
                 null,
@@ -156,7 +155,7 @@ export const ModalVerifySession = ({
                   setErrorText(undefined);
                 }
               }}
-              inputRef={register({
+              registration={register('verificationCode', {
                 required: true,
                 pattern: /^\s*[0-9]{6}\s*$/,
               })}

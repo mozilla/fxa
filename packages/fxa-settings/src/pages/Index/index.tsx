@@ -205,10 +205,9 @@ export const Index = ({
         <FtlMsg id="index-email-input" attrs={{ label: true }}>
           <InputText
             className="mt-8"
-            name="email"
             inputMode="email"
             label="Enter your email"
-            inputRef={register()}
+            registration={register('email')}
             inputRefDOM={emailInputRef}
             errorText={tooltipErrorMessage}
             onChange={handleInputChange}

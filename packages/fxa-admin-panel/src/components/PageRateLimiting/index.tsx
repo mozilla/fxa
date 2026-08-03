@@ -117,11 +117,10 @@ export const PageRateLimiting = () => {
         </label>
         <input
           id={`rate-limit-${id}`}
-          name={id}
           type={type}
           placeholder={label}
           className="bg-grey-50 rounded w-full py-2 px-3 placeholder-grey-500"
-          ref={register}
+          {...register(id)}
         />
       </div>
     );
