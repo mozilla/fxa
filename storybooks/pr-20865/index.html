@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a0ef925a0839d549aeaa6464392a66646bc217f3</title>
+  <title>Storybooks for commit b07789bfcf262353c2193f9529c13da0b03b9b87</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,48 +23,23 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a0ef925a0839d549aeaa6464392a66646bc217f3</h1>
+  <h1>Storybooks for commit b07789bfcf262353c2193f9529c13da0b03b9b87</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/3/2026, 11:50:08 PM UTC</dd>
+    <dd>8/4/2026, 5:45:59 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>bug(auth-server): Let FxA&#039;s front-end turn off the server-sent signin OTP</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Dormant accounts signing in through Settings received two identical OTP
-  verification emails. The auth-server sends one from `sendSigninNotifications`
-  during `/account/login`, and `handleNavigation` sends a second via
-  `sessionResendVerifyCode` as it routes to the code screen.
-- The server-side send is the redundant one. It was added as a stop-gap for RPs
-  that hit this API directly instead of going through our web UI, and it has
-  caused duplicate-email problems ever since. The client-side send is the one
-  worth keeping: it couples the email to the navigation that prompts for the code.
+- Dormant accounts signing in through Settings received two identical OTP verification emails. The auth-server sends one from `sendSigninNotifications` during `/account/login`, and `handleNavigation` sends a second via `sessionResendVerifyCode` as it routes to the code screen.
+- The decision was made in #20601 to move the code sending logic to front end. In theory this stopped the code from being sent when a user was never prompted for one. In practice we had this &#039;dormant&#039; account state that wasn&#039;t accounted for, and had no test coverage. As a result, the change wasn&#039;t full proof.
 
 This commit:
-- Adds an optional `sendSigninVerificationEmail` payload flag to `/account/login`
-  and `/session/reauth`, defaulting to `true` when omitted.
-- Honours the flag in `sendVerifySessionEmail` only — the unverified-session path
-  that produces the duplicate. The unverified-account path
-  (`sendVerifyAccountEmail`) keeps sending unconditionally, because the client&#039;s
-  stand-in `/session/resend_code` sends a *different* template
-  (`verifyShortCode`) when the primary email is unverified. Honouring the flag
-  there would silently change which email a signing-up user receives rather than
-  just deduplicating.
-- Passes `false` from FxA&#039;s own front-end only: the fxa-settings password and
-  unblock sign-in paths, which reach `handleNavigation` and send the code
-  themselves. FxA is the party turning it off.
-- Removes the `sendVerificationEmailFromClient` gate, so `handleNavigation` is
-  once again the sole sender on /signin_token_code for our own front-end.
-- Changes nothing for anyone else. Direct API consumers omit the flag, get the
-  `true` default, and keep the server-sent email exactly as today — including the
-  RPs that render their own verification UI, which is what this send is there for.
-
-Note: the server treats `email-2fa` and `email-otp` identically, but
-`handleNavigation` only sends for `email-otp`. Settings only ever requests
-`email-otp`, so this is inert today, but it is a trap if that changes.
+- Adds an optional `sendSigninVerificationEmail` payload flag to `/account/login` and `/session/reauth`. **It defaults to `true` when omitted**, so the safe default is the existing behavior — a client (ie front end) has to opt out deliberately. This makes the API level change non-breaking and backwards compatible.
+- For this `sendSigninVerificationEmail` flag, FxA will now provide `false` — the fxa-settings password and unblock sign-in paths, which reach `handleNavigation` and send the code themselves. `handleNavigation` is restored to sending unconditionally and is once again the sole sender on `/signin_token_code` for our web UI.
 
 Closes #FXA-14109</pre></dd>
   </dl>
