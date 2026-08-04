@@ -1,8 +1,8 @@
 {
-  "commit": "3cc096122d8bde99a2cb4157e9dae21b7e6efaf9",
-  "summary": "Merge pull request #20930 from mozilla/dependabot/npm_and_yarn/tar-7.5.22",
-  "description": "chore(deps): bump tar from 7.4.3 to 7.5.22",
-  "timestamp": 1785864324000,
+  "commit": "36749ad70bc4ce2b03f3a62eb364d06c95939a48",
+  "summary": "Merge pull request #20960 from mozilla/PAY-3782",
+  "description": "feat(auth): add statsd to free access script",
+  "timestamp": 1785872630000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
