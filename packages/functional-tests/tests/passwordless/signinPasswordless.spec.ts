@@ -1126,6 +1126,13 @@ test.describe('severity-2', () => {
       await signin.fillOutEmailFirstForm(otherPasswordlessEmail);
       await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      // Drain the OTP this navigation triggered. Teardown clears the inbox and
+      // sends its own code, but an undrained one still in flight can land after
+      // that clear and be read instead, failing cleanup as an invalid code.
+      await target.emailClient.getPasswordlessSigninCode(
+        otherPasswordlessEmail
+      );
     });
 
     test('direct /signup URL with email param redirects to passwordless code when enabled', async ({

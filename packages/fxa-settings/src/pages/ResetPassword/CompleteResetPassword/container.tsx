@@ -27,7 +27,7 @@ import {
 } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';
@@ -63,9 +63,31 @@ const CompleteResetPasswordContainer = ({
 
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Navigate from an effect; a render-phase navigation races the commit.
+  // Compute all redirect conditions before the early return so hooks
+  // are always called in the same order.
+  const stateFields = location.state as Record<string, any> | null;
+  const hasConfirmedRecoveryKeyEarly = !!(
+    stateFields?.accountResetToken &&
+    stateFields?.email &&
+    sensitiveDataClient.getDataType(SensitiveData.Key.DecryptedRecoveryKey)
+      ?.kB &&
+    stateFields?.recoveryKeyId
+  );
+  const isResetWithoutRecoveryKeyEarly = !!(
+    stateFields?.code && stateFields?.token
+  );
+  const shouldRedirectToReset =
+    !location.state ||
+    !(hasConfirmedRecoveryKeyEarly || isResetWithoutRecoveryKeyEarly);
+  useEffect(() => {
+    if (shouldRedirectToReset) {
+      navigateWithQuery('/reset_password', { replace: true });
+    }
+  }, [shouldRedirectToReset, navigateWithQuery]);
+
   if (!location.state) {
-    navigateWithQuery('/reset_password', { replace: true });
-    return;
+    return null;
   }
 
   const {
@@ -369,13 +391,15 @@ const CompleteResetPasswordContainer = ({
     }
   };
 
-  // handle the case where we don't have all data required
-  if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
-    navigateWithQuery('/reset_password', { replace: true });
-  }
-
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
+  }
+
+  // The redirect effect only runs after commit, so return rather than mount an
+  // invalid reset form for a frame. Below the OAuth error, which outranked this
+  // in the render order it replaced.
+  if (shouldRedirectToReset) {
+    return null;
   }
 
   return (

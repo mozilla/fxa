@@ -212,6 +212,10 @@ const SigninRecoveryPhoneContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  if (!signinState || !signinState.sessionToken || !lastFourPhoneDigits) {
+    return null;
+  }
+
   return (
     <SigninRecoveryPhone
       {...{

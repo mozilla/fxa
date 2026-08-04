@@ -182,7 +182,14 @@ export class SettingsPage extends SettingsLayout {
    * call when the cached JWT already satisfies the guard and no modal appears.
    */
   async confirmMfaGuardIfVisible(email: string) {
-    if (await this.isMfaGuardVisible()) {
+    // The modal only mounts once its OTP request resolves, so a bare
+    // isVisible() can read false while the guard is still on its way and skip
+    // it. Wait briefly; still absent means the cached JWT covered the scope.
+    const gated = await this.mfaGuardHeading
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (gated) {
       await this.confirmMfaGuard(email);
     }
   }

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 
 import VerificationMethods from '../../../constants/verification-methods';
@@ -230,6 +231,13 @@ export const SigninUnblockContainer = ({
     }
   };
 
+  // Navigate from an effect; a render-phase navigation races the commit.
+  useEffect(() => {
+    if (!oAuthDataError && (!email || !password)) {
+      navigateWithQuery('/');
+    }
+  }, [oAuthDataError, email, password, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -238,7 +246,6 @@ export const SigninUnblockContainer = ({
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
 
   if (!email || !password) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

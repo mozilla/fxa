@@ -352,7 +352,11 @@ export const ConnectedServices = forwardRef<
               </Localized>
               <form
                 onChange={(event) => {
-                  setReason((event.target as HTMLInputElement).value);
+                  // React 19 types the form's change target as the form itself,
+                  // but the event bubbles from the radio input that changed.
+                  if (event.target instanceof HTMLInputElement) {
+                    setReason(event.target.value);
+                  }
                 }}
               >
                 <ul className="my-4 text-start">

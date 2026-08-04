@@ -613,6 +613,40 @@ const SigninContainer = ({
     [authClient, flowQueryParams, ftlMsgResolver]
   );
 
+  // Guard redirects run from an effect; a render-phase navigation races the
+  // commit.
+  useEffect(() => {
+    if (!oAuthDataError && (!email || validationError)) {
+      navigateWithQuery('/');
+    }
+  }, [oAuthDataError, email, validationError, navigateWithQuery]);
+
+  // Same reason, for the hard navigation below. A render discarded by a
+  // concurrent root would otherwise still have sent the browser to
+  // /update_firefox. Guards mirror the early returns in the render body so
+  // this only fires at the point that branch was reachable.
+  useEffect(() => {
+    if (
+      !oAuthDataError &&
+      email &&
+      !validationError &&
+      hasLinkedAccount !== undefined &&
+      hasPassword !== undefined &&
+      sessionValidationComplete &&
+      isUnsupportedContext(integration.data.context)
+    ) {
+      hardNavigate('/update_firefox', {}, true);
+    }
+  }, [
+    oAuthDataError,
+    email,
+    validationError,
+    hasLinkedAccount,
+    hasPassword,
+    sessionValidationComplete,
+    integration,
+  ]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -627,7 +661,6 @@ const SigninContainer = ({
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -649,7 +682,7 @@ const SigninContainer = ({
   }
 
   if (isUnsupportedContext(integration.data.context)) {
-    hardNavigate('/update_firefox', {}, true);
+    // Hard navigation runs from the effect above.
     return (
       <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
     );
