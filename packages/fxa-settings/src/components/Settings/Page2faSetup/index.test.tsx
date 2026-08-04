@@ -129,7 +129,10 @@ const config: Config = {
 const baseTotpInfo = { secret: 'SECRET', barcodeUri: 'otpauth://dummy' };
 
 function renderWithAccount(
-  account = { recoveryPhone: { available: false } } as unknown as Account
+  account = {
+    recoveryPhone: { available: false },
+    refresh: jest.fn().mockResolvedValue(undefined),
+  } as unknown as Account
 ) {
   return render(
     <AppContext.Provider value={mockAppContext({ account, config })}>
@@ -155,14 +158,14 @@ describe('Page2faSetup', () => {
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
-  it('renders the first step when TOTP info is ready', () => {
+  it('renders the first step when TOTP info is ready', async () => {
     mockUseTotpSetup.mockReturnValue({
       totpInfo: baseTotpInfo,
       loading: false,
       error: null,
     });
     renderWithAccount();
-    expect(screen.getByTestId('app-step')).toBeInTheDocument();
+    expect(await screen.findByTestId('app-step')).toBeInTheDocument();
   });
 
   it('renders error and navigates home if useTotpSetup returns error', () => {
@@ -179,6 +182,7 @@ describe('Page2faSetup', () => {
     it('progresses through download & confirm and navigates home', async () => {
       const account = {
         recoveryPhone: { available: false },
+        refresh: jest.fn().mockResolvedValue(undefined),
         verifyTotpSetupCodeWithJwt: jest.fn(),
         completeTotpSetupWithJwt: jest.fn(),
         setRecoveryCodesWithJwt: jest.fn(),
@@ -192,7 +196,7 @@ describe('Page2faSetup', () => {
       renderWithAccount(account);
 
       // Step 1 → Step 3 (download)
-      fireEvent.click(screen.getByText('verify'));
+      fireEvent.click(await screen.findByText('verify'));
       await waitFor(() =>
         expect(account.verifyTotpSetupCodeWithJwt).toHaveBeenCalledWith(
           '123456'
@@ -231,7 +235,7 @@ describe('Page2faSetup', () => {
         confirmRecoveryPhoneWithJwt: jest.fn(),
         verifyTotpSetupCodeWithJwt: jest.fn(),
         completeTotpSetupWithJwt: jest.fn(),
-        refresh: jest.fn(),
+        refresh: jest.fn().mockResolvedValue(undefined),
       } as unknown as Account;
 
       mockUseTotpSetup.mockReturnValue({
@@ -243,7 +247,7 @@ describe('Page2faSetup', () => {
       renderWithAccount(account);
 
       // Step 1 → Step 2 (choice)
-      fireEvent.click(screen.getByText('verify'));
+      fireEvent.click(await screen.findByText('verify'));
       await waitFor(() =>
         expect(account.verifyTotpSetupCodeWithJwt).toHaveBeenCalledWith(
           '123456'

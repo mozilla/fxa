@@ -19,7 +19,6 @@ exports[`InputText renders as expected 1`] = `
         class="pb-1 pt-5 px-3 font-body rounded text-start bg-transparent dark:text-grey-10 w-full"
         data-testid="input-field"
         type="text"
-        value=""
       />
     </span>
   </label>

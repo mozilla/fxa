@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -128,18 +128,77 @@ export const Settings = ({
     })();
   }, [authClient, sessionVerified, sessionVerificationMeetsAAL]);
 
+  // Compute any redirect that needs to happen. React 19 forbids calling
+  // navigate (which updates BrowserRouter state) during render, so we derive
+  // the target here and perform the actual navigation in a useEffect below.
+  const redirect = useMemo<{
+    to: string;
+    options?: Parameters<typeof navigateWithQuery>[1];
+  } | null>(() => {
+    if (loading || sessionVerified === undefined) {
+      return null; // still loading, no redirect
+    }
+
+    if (error) {
+      if (error instanceof InvalidTokenError) {
+        if (!isSigningOut()) {
+          return { to: '/signin' };
+        }
+        return null; // signing out, just show spinner
+      }
+      // Non-token errors are not redirects; handled in render below
+      return null;
+    }
+
+    try {
+      if (
+        account.primaryEmail.verified === false ||
+        sessionVerified === false
+      ) {
+        console.warn(
+          'Account or email verification is required to access /settings!'
+        );
+        return { to: '/' };
+      }
+    } catch {
+      console.warn('Account data unavailable, redirecting to sign-in');
+      return { to: '/' };
+    }
+
+    // Multi-device 2FA: user set up TOTP on device A and must upgrade AAL
+    // on device B's session token before accessing Settings.
+    if (sessionVerificationMeetsAAL === false) {
+      console.warn('2FA must be entered to access /settings!');
+      const storedAccount = currentAccount();
+      return {
+        to: '/signin_totp_code',
+        options: {
+          state: {
+            email: storedAccount?.email,
+            sessionToken: storedAccount?.sessionToken,
+            uid: storedAccount?.uid,
+            verified: storedAccount?.verified,
+            isSessionAALUpgrade: true,
+          },
+        },
+      };
+    }
+
+    return null;
+  }, [loading, sessionVerified, error, account, sessionVerificationMeetsAAL]);
+
+  useEffect(() => {
+    if (redirect) {
+      navigateWithQuery(redirect.to, redirect.options);
+    }
+  }, [redirect, navigateWithQuery]);
+
   if (loading || sessionVerified === undefined) {
     return <LoadingSpinner fullScreen />;
   }
 
-  // This error check includes a network error
   if (error) {
-    // If the session token is invalid, redirect to signin.
-    // Skip during sign-out to avoid racing with window.location.assign.
     if (error instanceof InvalidTokenError) {
-      if (!isSigningOut()) {
-        navigateWithQuery('/signin');
-      }
       return <LoadingSpinner fullScreen />;
     }
     Sentry.captureException(error, { tags: { source: 'settings' } });
@@ -147,38 +206,8 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // Redirect to root if the account or session is unverified. The try-catch
-  // handles the case where account data may be missing from localStorage
-  // (e.g. WKWebView storage eviction on iOS).
-  try {
-    if (account.primaryEmail.verified === false || sessionVerified === false) {
-      console.warn(
-        'Account or email verification is required to access /settings!'
-      );
-      navigateWithQuery('/');
-      return <LoadingSpinner fullScreen />;
-    }
-  } catch {
-    console.warn('Account data unavailable, redirecting to sign-in');
-    navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
-  }
-
-  // This happens when a multi-device user sets up 2FA on device A and tries
-  // to access Settings on device B. If they haven't upgraded the assurance level
-  // on device B's session token with TOTP, we require them to.
-  if (sessionVerificationMeetsAAL === false) {
-    console.warn('2FA must be entered to access /settings!');
-    const storedAccount = currentAccount();
-    navigateWithQuery('/signin_totp_code', {
-      state: {
-        email: storedAccount?.email,
-        sessionToken: storedAccount?.sessionToken,
-        uid: storedAccount?.uid,
-        verified: storedAccount?.verified,
-        isSessionAALUpgrade: true,
-      },
-    });
+  // Show spinner while redirect is pending
+  if (redirect) {
     return <LoadingSpinner fullScreen />;
   }
 

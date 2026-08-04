@@ -17,7 +17,6 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import { PageDeleteAccount } from '.';
-import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
@@ -76,11 +75,13 @@ const session = mockSession(true, false);
 
 console.error = jest.fn();
 
-const advanceStep = () => {
-  const inputs = screen.getAllByTestId('checkbox-input');
-  inputs.forEach((el) => fireEvent.click(el));
-  const continueBtn = screen.getByTestId('continue-button');
-  fireEvent.click(continueBtn);
+const advanceStep = async () => {
+  await act(async () => {
+    const inputs = screen.getAllByTestId('checkbox-input');
+    inputs.forEach((el) => fireEvent.click(el));
+    const continueBtn = screen.getByTestId('continue-button');
+    fireEvent.click(continueBtn);
+  });
 };
 
 describe('PageDeleteAccount', () => {
@@ -164,8 +165,14 @@ describe('PageDeleteAccount', () => {
     await advanceStep();
     expect(screen.getByTestId('delete-account-button')).toBeDisabled();
 
-    await typeByTestIdFn('delete-account-confirm-input-field')('password');
-    expect(screen.getByTestId('delete-account-button')).toBeEnabled();
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByTestId('delete-account-confirm-input-field'),
+      'password'
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('delete-account-button')).toBeEnabled();
+    });
   });
 
   it('deletes account with password set', async () => {
@@ -176,11 +183,17 @@ describe('PageDeleteAccount', () => {
     );
 
     await advanceStep();
-    await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByTestId('delete-account-confirm-input-field'),
+      'hunter67'
+    );
 
     const deleteAccountButton = screen.getByTestId('delete-account-button');
-    expect(deleteAccountButton).toBeEnabled();
-    await userEvent.click(deleteAccountButton);
+    await waitFor(() => {
+      expect(deleteAccountButton).toBeEnabled();
+    });
+    await user.click(deleteAccountButton);
     await waitFor(() => {
       expect(mockDestroy).toHaveBeenCalled();
     });

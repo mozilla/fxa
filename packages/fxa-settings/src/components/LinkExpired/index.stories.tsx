@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MemoryRouter } from 'react-router';
-import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
@@ -13,7 +12,7 @@ const meta = {
   component: LinkExpired,
   decorators: [
     withLocalization,
-    (Story: StoryFn) => (
+    (Story: React.ComponentType) => (
       <MemoryRouter>
         <Story />
       </MemoryRouter>

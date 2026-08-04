@@ -1,6 +1,10 @@
-// This file was created by react-scripts' (create-react-app) eject script.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+// Custom Jest transformer turning file imports into filenames.
+// For SVG files, generates a React component matching SVGR's naming convention.
+// http://facebook.github.io/jest/docs/en/webpack.html
 
 const path = require('path');
 
@@ -15,9 +19,6 @@ function toPascalCase(name) {
     .join('')
     .replace(/\d[a-z]/g, (match) => match.toUpperCase());
 }
-
-// This is a custom Jest transformer turning file imports into filenames.
-// http://facebook.github.io/jest/docs/en/webpack.html
 
 module.exports = {
   process(src, filename) {
@@ -34,15 +35,7 @@ module.exports = {
         __esModule: true,
         default: ${assetFilename},
         ReactComponent: React.forwardRef(function ${componentName}(props, ref) {
-          return {
-            $$typeof: Symbol.for('react.element'),
-            type: 'svg',
-            ref: ref,
-            key: null,
-            props: Object.assign({}, props, {
-              children: ${assetFilename}
-            })
-          };
+          return React.createElement('svg', Object.assign({}, props, { ref: ref }), ${assetFilename});
         }),
       };`,
       };

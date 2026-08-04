@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import {
@@ -124,6 +125,24 @@ export const SigninTotpCodeContainer = ({
     }
   };
 
+  // React 19 forbids calling navigate() during render. Freeze the redirect
+  // decision at mount so that mid-flow cache writes (e.g. after successful
+  // TOTP verification) can't transiently clear signinState and trigger an
+  // unwanted redirect to '/'.  The toPass retry in fillOutCodeForm handles
+  // the case where a Suspense remount creates a fresh ref.
+  const shouldRedirectFromTotpRef = useRef(
+    !signinState ||
+      (signinState.isSessionAALUpgrade !== true &&
+        signinState.verificationMethod &&
+        signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
+  );
+  const shouldRedirectFromTotp = shouldRedirectFromTotpRef.current;
+  useEffect(() => {
+    if (shouldRedirectFromTotp) {
+      navigateWithQuery('/');
+    }
+  }, [shouldRedirectFromTotp, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -135,13 +154,7 @@ export const SigninTotpCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
-  if (
-    !signinState ||
-    (signinState.isSessionAALUpgrade !== true &&
-      signinState.verificationMethod &&
-      signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
-  ) {
-    navigateWithQuery('/');
+  if (shouldRedirectFromTotp) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -155,7 +168,7 @@ export const SigninTotpCodeContainer = ({
         finishOAuthFlowHandler,
         integration,
         redirectTo,
-        signinState,
+        signinState: signinState as NonNullable<typeof signinState>,
         submitTotpCode,
         serviceName,
         keyFetchToken,

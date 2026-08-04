@@ -91,8 +91,8 @@ function mockModelsModule() {
   });
   mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
     primary: MOCK_EMAIL,
-    original: MOCK_EMAIL
-  })
+    original: MOCK_EMAIL,
+  });
   mockAuthClient.sessionReauthWithAuthPW = jest
     .fn()
     .mockResolvedValue({ keyFetchToken: MOCK_KEY_FETCH_TOKEN });
@@ -139,7 +139,7 @@ function applyDefaultMocks() {
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
       .fn()
-      .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+      .mockReturnValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
     oAuthDataError: null,
   }));
 }
@@ -241,6 +241,7 @@ describe('SetPassword-container', () => {
 
   beforeEach(() => {
     applyDefaultMocks();
+    currentSetPasswordProps = undefined;
     mockLocation.state = undefined;
   });
 
@@ -366,6 +367,9 @@ describe('SetPassword-container', () => {
 
       await waitFor(() => {
         expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        expect(currentSetPasswordProps?.passwordCreationReason).toBe(
+          'third_party_auth'
+        );
       });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
@@ -396,22 +400,27 @@ describe('SetPassword-container', () => {
 
       await waitFor(() => {
         expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        expect(currentSetPasswordProps?.passwordCreationReason).toBe(
+          'third_party_auth'
+        );
       });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
-      expect(fxaLoginSpy).toHaveBeenCalledWith({
-        email: MOCK_EMAIL,
-        sessionToken: MOCK_SESSION_TOKEN,
-        uid: MOCK_UID,
-        verified: true,
-        services: {
-          sync: {
-            offeredEngines,
-            declinedEngines: [],
+      expect(fxaLoginSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: MOCK_EMAIL,
+          sessionToken: MOCK_SESSION_TOKEN,
+          uid: MOCK_UID,
+          verified: true,
+          services: {
+            sync: {
+              offeredEngines,
+              declinedEngines: [],
+            },
           },
-        },
-      });
+        })
+      );
       expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
         action: 'signin',
         code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
@@ -426,6 +435,9 @@ describe('SetPassword-container', () => {
 
       await waitFor(() => {
         expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        expect(currentSetPasswordProps?.passwordCreationReason).toBe(
+          'third_party_auth'
+        );
       });
 
       await act(async () => {
@@ -445,8 +457,12 @@ describe('SetPassword-container', () => {
         mockLocation.state = { passwordCreationReason: reason };
         render();
 
+        // Wait for the component to settle with the correct location state.
+        // React 19 concurrent rendering may re-render the component, so we
+        // must wait until the captured props reflect the expected state.
         await waitFor(() => {
           expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+          expect(currentSetPasswordProps?.passwordCreationReason).toBe(reason);
         });
         await act(async () => {
           await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
@@ -474,6 +490,12 @@ describe('SetPassword-container', () => {
 
         await waitFor(() => {
           expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+          expect(currentSetPasswordProps?.passwordCreationReason).toBe(
+            'passkey'
+          );
+          expect(currentSetPasswordProps?.gleanReason).toBe(
+            `${passkeySurface}_passkey`
+          );
         });
         await act(async () => {
           await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
@@ -501,6 +523,12 @@ describe('SetPassword-container', () => {
 
         await waitFor(() => {
           expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+          expect(currentSetPasswordProps?.passwordCreationReason).toBe(
+            'passkey'
+          );
+          expect(currentSetPasswordProps?.gleanReason).toBe(
+            `${passkeySurface}_passkey`
+          );
         });
         await act(async () => {
           await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
@@ -517,6 +545,7 @@ describe('SetPassword-container', () => {
       render();
       await waitFor(() => {
         expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        expect(currentSetPasswordProps?.passwordCreationReason).toBe('passkey');
       });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
@@ -536,6 +565,7 @@ describe('SetPassword-container', () => {
       render();
       await waitFor(() => {
         expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+        expect(currentSetPasswordProps?.passwordCreationReason).toBe('otp');
       });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
