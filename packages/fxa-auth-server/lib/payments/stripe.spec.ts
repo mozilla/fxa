@@ -1771,27 +1771,37 @@ describe('StripeHelper', () => {
   });
 
   describe('fetchOpenInvoices', () => {
-    it('returns customer paypal agreement id', async () => {
+    const openInvoice = (subscriptionId: string) => {
       const invoice = deepCopy(invoicePaidSubscriptionCreate);
       invoice.parent = {
-        subscription_details: { subscription: { status: 'active' } },
+        type: 'subscription_details',
+        subscription_details: { subscription: subscriptionId },
       };
-      const invoice2 = deepCopy(invoicePaidSubscriptionCreate);
-      invoice2.parent = {
-        subscription_details: { subscription: { status: 'cancelled' } },
-      };
-      async function* genInvoice() {
-        yield invoice;
-        yield invoice2;
+      return invoice;
+    };
+
+    const mockInvoiceList = (invoices: any[]) => {
+      async function* genInvoices() {
+        for (const invoice of invoices) {
+          yield invoice;
+        }
       }
       jest
         .spyOn(stripeHelper.stripe.invoices, 'list')
-        .mockReturnValue(genInvoice());
-      const actual: any[] = [];
-      for await (const item of stripeHelper.fetchOpenInvoices(0)) {
-        actual.push(item);
+        .mockReturnValue(genInvoices());
+    };
+
+    const collectInvoices = async () => {
+      const invoices: any[] = [];
+      for await (const invoice of stripeHelper.fetchOpenInvoices(0)) {
+        invoices.push(invoice);
       }
-      expect(actual).toEqual([invoice]);
+      return invoices;
+    };
+
+    it('lists open send_invoice invoices without expanding the subscription', async () => {
+      mockInvoiceList([]);
+      await collectInvoices();
       expect(
         stripeHelper.stripe.invoices.list as jest.Mock
       ).toHaveBeenCalledTimes(1);
@@ -1803,11 +1813,50 @@ describe('StripeHelper', () => {
         collection_method: 'send_invoice',
         status: 'open',
         created: 0,
-        expand: [
-          'data.customer',
-          'data.parent.subscription_details.subscription',
-        ],
+        expand: ['data.customer'],
       });
+    });
+
+    it('yields invoices whose subscription is active', async () => {
+      const invoice = openInvoice('sub_active');
+      mockInvoiceList([invoice]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({ id: 'sub_active', status: 'active' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([invoice]);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
+        'sub_active',
+        SUBSCRIPTIONS_RESOURCE
+      );
+    });
+
+    it('skips invoices whose subscription is not active', async () => {
+      mockInvoiceList([openInvoice('sub_canceled')]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({ id: 'sub_canceled', status: 'canceled' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([]);
+    });
+
+    it('skips invoices whose subscription cannot be resolved', async () => {
+      mockInvoiceList([openInvoice('sub_missing')]);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(undefined);
+      const actual = await collectInvoices();
+      expect(actual).toEqual([]);
+    });
+
+    it('yields only the invoices with an active subscription', async () => {
+      const activeInvoice = openInvoice('sub_active');
+      mockInvoiceList([openInvoice('sub_canceled'), activeInvoice]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValueOnce({ id: 'sub_canceled', status: 'canceled' })
+        .mockResolvedValueOnce({ id: 'sub_active', status: 'active' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([activeInvoice]);
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(2);
     });
   });
 

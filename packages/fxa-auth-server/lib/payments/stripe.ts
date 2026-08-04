@@ -988,6 +988,11 @@ export class StripeHelper extends StripeHelperBase {
    * Note that created times for Stripe are in seconds since epoch and that
    * invoices can be open for subscriptions that are cancelled, thus the extra
    * subscription check before returning an invoice.
+   *
+   * The subscription is resolved per invoice rather than expanded on the list
+   * call: Stripe rejects `data.parent.subscription_details.subscription` as an
+   * expansion on the invoice list endpoint. Invoices are therefore yielded with
+   * an unexpanded subscription reference.
    */
   async *fetchOpenInvoices(
     created: Stripe.InvoiceListParams['created'],
@@ -999,10 +1004,12 @@ export class StripeHelper extends StripeHelperBase {
       collection_method: 'send_invoice',
       status: 'open',
       created,
-      expand: ['data.customer', 'data.parent.subscription_details.subscription'],
+      expand: ['data.customer'],
     })) {
-      const subscription = invoice.parent?.subscription_details
-        ?.subscription as Stripe.Subscription;
+      const subscription = await this.expandResource(
+        getInvoiceSubscription(invoice),
+        SUBSCRIPTIONS_RESOURCE
+      );
       if (
         subscription &&
         ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)
