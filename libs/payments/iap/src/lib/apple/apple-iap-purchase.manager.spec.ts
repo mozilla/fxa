@@ -12,13 +12,17 @@ import { MockAppleIapClientConfigProvider } from './apple-iap.client.config';
 import * as repository from './apple-iap-purchase.repository';
 import { AppStoreSubscriptionPurchase } from './subscription-purchase';
 import {
+  AppStoreError,
   decodeRenewalInfo,
   decodeTransaction,
   SubscriptionStatus,
   type StatusResponse,
 } from 'app-store-server-api';
 import { FirestoreAppleIapPurchaseRecordFactory } from '../factories';
-import { AppleIapNotFoundError } from './apple-iap.error';
+import {
+  AppleIapNotFoundError,
+  AppleIapServiceUnavailableError,
+} from './apple-iap.error';
 
 jest.mock('./apple-iap-purchase.repository', () => ({
   getActivePurchasesForUserId: jest.fn(),
@@ -33,6 +37,7 @@ jest.mock('app-store-server-api', () => {
   return {
     Environment: actual.Environment,
     SubscriptionStatus: actual.SubscriptionStatus,
+    AppStoreError: actual.AppStoreError,
     decodeTransaction: jest.fn(),
     decodeRenewalInfo: jest.fn(),
     AppStoreServerAPI: jest.fn().mockImplementation(() => ({})),
@@ -214,6 +219,33 @@ describe('AppleIapPurchaseManager', () => {
       await expect(manager.getForUser(userId)).resolves.not.toThrow();
     });
 
+    // Callers decide how to degrade — the read paths skip the purchases, while
+    // EligibilityService falls back to the cached records — so this has to keep
+    // propagating rather than being swallowed here.
+    it('propagates AppleIapServiceUnavailableError', async () => {
+      const userId = faker.string.uuid();
+
+      jest.spyOn(repository, 'getActivePurchasesForUserId').mockResolvedValue([
+        FirestoreAppleIapPurchaseRecordFactory({
+          status: SubscriptionStatus.Expired,
+        }),
+      ]);
+      jest
+        .spyOn(appleIapClient, 'getSubscriptionStatuses')
+        .mockRejectedValue(
+          new AppleIapServiceUnavailableError(
+            new AppStoreError(
+              5000001,
+              'An unknown error occurred. Please try again.'
+            )
+          )
+        );
+
+      await expect(manager.getForUser(userId)).rejects.toThrow(
+        AppleIapServiceUnavailableError
+      );
+    });
+
     it('throws for unknown errors', async () => {
       const userId = faker.string.uuid();
 
@@ -249,6 +281,44 @@ describe('AppleIapPurchaseManager', () => {
         originalTransactionId,
         { userId }
       );
+    });
+  });
+
+  describe('getStaleCachedForUser', () => {
+    it('returns the cached purchases without querying Apple', async () => {
+      const userId = faker.string.uuid();
+      const originalTransactionId = faker.string.uuid();
+
+      jest.spyOn(repository, 'getActivePurchasesForUserId').mockResolvedValue([
+        FirestoreAppleIapPurchaseRecordFactory({
+          status: SubscriptionStatus.Expired,
+          originalTransactionId,
+        }),
+      ]);
+      jest.spyOn(appleIapClient, 'getSubscriptionStatuses');
+
+      const result = await manager.getStaleCachedForUser(userId);
+
+      expect(repository.getActivePurchasesForUserId).toHaveBeenCalledWith(
+        expect.anything(),
+        userId
+      );
+      expect(appleIapClient.getSubscriptionStatuses).not.toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(AppStoreSubscriptionPurchase);
+      expect(result[0].originalTransactionId).toBe(originalTransactionId);
+    });
+
+    it('returns an empty list when the user has no cached purchases', async () => {
+      const userId = faker.string.uuid();
+
+      jest
+        .spyOn(repository, 'getActivePurchasesForUserId')
+        .mockResolvedValue([]);
+
+      const result = await manager.getStaleCachedForUser(userId);
+
+      expect(result).toEqual([]);
     });
   });
 

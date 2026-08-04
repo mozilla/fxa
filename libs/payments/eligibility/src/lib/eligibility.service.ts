@@ -2,12 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  type LoggerService,
+} from '@nestjs/common';
 import { SubscriptionManager, SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import {
   GoogleIapPurchaseManager,
   AppleIapPurchaseManager,
+  AppleIapServiceUnavailableError,
 } from '@fxa/payments/iap';
 import { EligibilityManager } from './eligibility.manager';
 import {
@@ -26,7 +32,8 @@ export class EligibilityService {
     private eligibilityManager: EligibilityManager,
     private subscriptionManager: SubscriptionManager,
     private googleIapPurchaseManager: GoogleIapPurchaseManager,
-    private appleIapPurchaseManager: AppleIapPurchaseManager
+    private appleIapPurchaseManager: AppleIapPurchaseManager,
+    @Inject(Logger) private log: LoggerService
   ) {}
 
   /**
@@ -56,7 +63,15 @@ export class EligibilityService {
     const targetOffering = targetOfferingResult.getOffering();
 
     const [appleIapPurchases, googleIapPurchases] = await Promise.all([
-      this.appleIapPurchaseManager.getForUser(uid),
+      this.appleIapPurchaseManager.getForUser(uid).catch((error) => {
+        if (error instanceof AppleIapServiceUnavailableError) {
+          // Unconfirmed must not read as absent, or an overlapping purchase
+          // slips through — including a stale cache that reads inactive.
+          this.log.warn('checkEligibility.appleIapUnavailable', { uid });
+          return this.appleIapPurchaseManager.getStaleCachedForUser(uid);
+        }
+        throw error;
+      }),
       this.googleIapPurchaseManager.getForUser(uid),
     ]);
     if (appleIapPurchases.length || googleIapPurchases.length) {
