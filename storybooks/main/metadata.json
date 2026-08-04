@@ -1,8 +1,8 @@
 {
-  "commit": "546dfa109ad64e126b90c6fa1439b2b5724056ca",
-  "summary": "Merge pull request #20964 from mozilla/dependabot/npm_and_yarn/fast-uri-3.1.5",
-  "description": "chore(deps): bump fast-uri from 3.1.4 to 3.1.5",
-  "timestamp": 1785874200000,
+  "commit": "fb849c707845684efe6412d189518ffd28e89370",
+  "summary": "Merge pull request #20966 from mozilla/PAY-3890",
+  "description": "fix(auth): resolve invoice subscriptions outside the list expand",
+  "timestamp": 1785879682000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
