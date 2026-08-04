@@ -240,6 +240,14 @@ const DESCRIPTIONS = {
     'Opaque URL-encoded string to be included in the verification link as a query parameter.',
   scope:
     'A space-separated list of scope values that the user has authorized, or is held by the granted access token that the connecting client will be granted. The requested scope will be provided by the connecting client as part of its authorization request, but may be pruned by the user in a confirmation dialog before being sent to this endpoint.',
+  sendSigninVerificationEmail: dedent`
+    Whether the server should send the sign-in verification code email. Defaults to
+    \`true\` when omitted, so clients integrating with this API directly keep receiving
+    it — including those that render their own verification UI, which this send exists
+    for. Set to \`false\` if the caller sends the code itself (via \`/session/resend_code\`)
+    when it presents the code entry screen, as FxA's own web front-end does. Applies
+    only to the \`verifyLoginCode\` email; link-based confirmation emails are unaffected.
+  `,
   sendVerifyEmail:
     'Boolean indicating whether a verification email should be sent.',
   service: 'Opaque alphanumeric token to be included in verification links.',

@@ -292,6 +292,19 @@ describe('signin unblock container', () => {
     expect(tryFinalizeUpgrade).toHaveBeenCalledTimes(1);
   });
 
+  // FXA-14109: handleNavigation sends the OTP as it routes to the code screen,
+  // so the auth-server must not send its own copy or the user gets two emails.
+  it('turns off the server-sent verification email', async () => {
+    await render();
+
+    await act(async () => {
+      await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+    });
+
+    const options = mockAuthClient.signInWithAuthPW.mock.calls[0]?.[2];
+    expect(options?.sendSigninVerificationEmail).toBe(false);
+  });
+
   it('handles signin with correct code and failure when looking up credential status', async () => {
     jest.spyOn(global.console, 'warn');
     // Mock credential status to fail
