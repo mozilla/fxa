@@ -1,8 +1,8 @@
 {
-  "commit": "2127ca534b1c76807a58a761126e22bb3b906c6b",
-  "summary": "Merge pull request #20948 from mozilla/FXA-14284-sms-test-tagging",
-  "description": "fix(functional-tests): Stop concurrent tests stealing each other's SMS codes",
-  "timestamp": 1785535887000,
+  "commit": "3cc096122d8bde99a2cb4157e9dae21b7e6efaf9",
+  "summary": "Merge pull request #20930 from mozilla/dependabot/npm_and_yarn/tar-7.5.22",
+  "description": "chore(deps): bump tar from 7.4.3 to 7.5.22",
+  "timestamp": 1785864324000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

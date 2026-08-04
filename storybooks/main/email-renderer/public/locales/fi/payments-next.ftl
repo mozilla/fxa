@@ -37,7 +37,6 @@ auth-error-page-title = Emme voineet kirjata sinua sisään
 checkout-error-boundary-retry-button = Yritä uudelleen
 checkout-error-boundary-basic-error-message = Jotain meni pieleen. Yritä uudelleen tai <contactSupportLink>ota yhteyttä tukeen.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex }-logo
-diners-logo-alt-text = { -brand-diner }-logo
 discover-logo-alt-text = { -brand-discover }-logo
 jcb-logo-alt-text = { -brand-jcb }-logo
 mastercard-logo-alt-text = { -brand-mastercard }-logo

@@ -36,6 +36,7 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Bir sorun oluştu
+app-something-went-wrong-message = Sorunu ekibimize bildirdik. Yeniden denemek için sayfayı tazeleyin.
 app-error-id = Hata kimliği: { $errorId }
 app-error-details-summary = Hata ayrıntıları
 app-query-parameter-err-heading = Hatalı istek: Geçersiz sorgu parametresi

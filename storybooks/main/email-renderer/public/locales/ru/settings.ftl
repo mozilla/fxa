@@ -396,6 +396,8 @@ link-expired-new-link-button = Получить новую ссылку
 
 # immediately before remember-password-signin-link
 remember-password-text = Помните ваш пароль?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = У вас есть ключ доступа или помните ваш пароль?
 # link navigates to the sign in page
 remember-password-signin-link = Войти
 
@@ -513,7 +515,15 @@ flow-recovery-key-hint-unsafe-char-error = Подсказка не может с
 password-reset-warning-icon = Предупреждение
 password-reset-chevron-expanded = Свернуть предупреждение
 password-reset-chevron-collapsed = Развернуть предупреждение
+password-reset-warning-review-sign-in-options = Проверьте параметры входа, чтобы сохранить данные браузера
 password-reset-warning-have-key = У вас есть ключ восстановления аккаунта?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Используйте его, чтобы сбросить свой пароль и сохранить данные вашего браузера
+password-reset-warning-signed-in-device = Всё ещё вошли на другом устройстве?
+password-reset-warning-signed-in-device-description = Данные вашего браузера могут быть доступны. Сбросьте свой пароль, а затем войдите на этом устройстве, чтобы восстановить и синхронизировать свои данные.
+password-reset-warning-restore-data-link = Узнайте, как восстановить данные браузера с устройства, на котором выполнен вход
+password-reset-warning-new-device = Используете новое устройство, но не можете получить доступ к старым?
+password-reset-warning-new-device-description = После сброса пароля зашифрованные данные браузера на серверах { -brand-firefox } не будут доступны на этом устройстве.
 
 ## Alert Bar
 
@@ -1953,6 +1963,7 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 ## ResetPassword start page
 
 password-reset-flow-heading = Сбросить пароль
+password-reset-body-3 = Сброс вашего пароля может повлиять на синхронизируемые данные браузера.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить
@@ -2078,6 +2089,7 @@ signin-passkey-fallback-heading = Введите свой пароль для с
 signin-passkey-fallback-body = Для обеспечения безопасности ваших данных вам необходимо ввести пароль, когда вы используете этот ключ доступа.
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
+signin-passkey-fallback-forgot-password-link = Забыли пароль?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

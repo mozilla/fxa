@@ -449,18 +449,13 @@ flow-recovery-key-hint-char-limit-error = La pista debe contener menos de 255 ca
 flow-recovery-key-hint-unsafe-char-error = La pista no puede contener caracteres Unicode inseguros. Solo se permiten letras, números, signos de puntuación y símbolos.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Advertencia
 password-reset-chevron-expanded = Contraer advertencia
 password-reset-chevron-collapsed = Expandir advertencia
-password-reset-data-may-not-be-recovered = Tal vez no puedan recuperar los datos de tu navegador
-password-reset-previously-signed-in-device-2 = ¿Tienes algún dispositivo desde el cual te hayas conectado anteriormente?
-password-reset-data-may-be-saved-locally-2 = Es posible que los datos de tu navegador estén guardados en ese dispositivo. Restablece tu contraseña y luego conéctate desde allí para restaurar y sincronizar tus datos.
-password-reset-no-old-device-2 = ¿Tienes un dispositivo nuevo pero no tienes acceso a ninguno de los anteriores?
-password-reset-encrypted-data-cannot-be-recovered-2 = Lo sentimos, pero los datos de tu navegador que se encuentran cifrados en los servidores de { -brand-firefox } no se pueden recuperar.
 password-reset-warning-have-key = ¿Tienes una clave de recuperación de cuenta?
-password-reset-warning-use-key-link = Úsala ahora para restablecer tu contraseña y conservar tus datos.
 
 ## Alert Bar
 
@@ -1587,9 +1582,6 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 ## ResetPassword start page
 
 password-reset-flow-heading = Restablecer tu contraseña
-password-reset-body-2 =
-    Te pediremos un par de cosas que solo tú sabes para mantener tu cuenta
-    segura.
 password-reset-email-input =
     .label = Escribe tu correo electrónico
 password-reset-submit-button-2 = Continuar

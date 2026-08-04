@@ -431,11 +431,11 @@ password-reset-chevron-collapsed = Figyelmeztetés kinyitása
 password-reset-warning-review-sign-in-options = Tekintse át a bejelentkezési beállításokat a böngészőadatok megtartásához
 password-reset-warning-have-key = Van fiók-helyreállítási kulcsa?
 password-reset-warning-use-key-link-v2 = Használja a jelszó helyreállítására és a böngésző adatainak megtartására
-password-reset-warning-signed-in-device = Még mindig bejelentkezett egy másik eszközön?
-password-reset-warning-signed-in-device-description = A böngészője adatai elérhetők lehetnek. Állítsa vissza a jelszavát, majd jelentkezzen be az eszközön az adatai visszaállításához és szinkronizálásához.
-password-reset-warning-restore-data-link = Ismerje meg, hogyan állíthatja vissza a böngészőadatokat bejelentkezett eszközről
-password-reset-warning-new-device = Új eszközt használ, de nem éri el a régieit?
-password-reset-warning-new-device-description = A jelszó visszaállítása után a(z) { -brand-firefox } kiszolgálók titkosított böngészőadatai nem lesznek elérhetők ezen az eszközön.
+password-reset-warning-signed-in-device = Még mindig be van jelentkezve egy másik eszközön?
+password-reset-warning-signed-in-device-description = A böngészési adatai elérhetők lehetnek. Állítsa vissza a jelszavát, majd jelentkezzen be az eszközön az adatai helyreállításához és a szinkronizálásához.
+password-reset-warning-restore-data-link = Ismerje meg, hogyan állíthatja helyre a böngészési adatokat a bejelentkezett eszközről
+password-reset-warning-new-device = Új eszközt használ, de nem éri el a régiket?
+password-reset-warning-new-device-description = A jelszó visszaállítása után a { -brand-firefox }-kiszolgálók titkosított böngészési adatai nem lesznek elérhetők ezen az eszközön.
 
 
 alert-bar-close-message = Üzenet bezárása
@@ -1170,7 +1170,7 @@ passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Pr�
 
 passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
 passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
-passkey-authentication-trouble-link = A jelkulcsok használata
+passkey-authentication-trouble-link = Jelkulcsok használata
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 passkey-authentication-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálja újra, vagy válasszon másik módszert.
 passkey-authentication-error-timeout = A jelkulcskérés túllépte az időkorlátot. Próbálja újra.
@@ -1408,7 +1408,7 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészőadatokra.
+password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészési adatokra.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás

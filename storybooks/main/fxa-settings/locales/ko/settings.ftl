@@ -1937,6 +1937,7 @@ signin-passkey-fallback-heading = 동기화하려면 비밀번호 입력
 signin-passkey-fallback-body = 데이터를 안전하게 지키기 위해, 이 패스키를 사용할 때 비밀번호를 입력해야 합니다.
 signin-passkey-fallback-password-label = 비밀번호
 signin-passkey-fallback-continue = 계속
+signin-passkey-fallback-forgot-password-link = 비밀번호를 잊으셨나요?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
