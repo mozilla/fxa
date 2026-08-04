@@ -75,12 +75,7 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
 });
 let mockSessionHook: () => any = () => ({ token: 'ABBA' });
 let accountRefreshFn = jest.fn();
-let recoveryPhoneFn = jest
-  .fn()
-  .mockImplementationOnce(() => {
-    throw Error('no');
-  })
-  .mockImplementation(() => ({ available: true }));
+let recoveryPhoneFn = jest.fn().mockReturnValue({ available: true });
 let addRecoveryPhoneFn = jest
   .fn()
   .mockResolvedValue({ nationalFormat: '+12345678900' });
@@ -141,7 +136,10 @@ function setMocks() {
   mockGenerateCodes = jest.fn((...args: any[]) => ['wibble', 'quux']);
 
   // Default: TOTP doesn't exist
-  mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
+  mockCheckTotpTokenExists.mockResolvedValue({
+    exists: false,
+    verified: false,
+  });
   (InlineRecoverySetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
   mockCompleteTotpSetup.mockClear();
@@ -216,7 +214,10 @@ describe('InlineRecoverySetupContainer', () => {
 
     it('redirects when totp is already active', async () => {
       mockSessionHook = () => ({ isSessionVerified: async () => true });
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
       mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
 
       render();
@@ -247,7 +248,8 @@ describe('InlineRecoverySetupContainer', () => {
       await waitFor(() => {
         expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
         // Get the most recent call since codes may be generated
-        const calls = (InlineRecoverySetupModule.default as jest.Mock).mock.calls;
+        const calls = (InlineRecoverySetupModule.default as jest.Mock).mock
+          .calls;
         const args = calls[calls.length - 1][0];
         // Codes are auto-generated now, so they may already be populated
         expect(args.serviceName).toBe(defaultProps.serviceName);

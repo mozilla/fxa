@@ -174,7 +174,8 @@ describe('SigninRecoveryChoice container', () => {
             numBackupCodes: 3,
             signinState: mockSigninLocationState,
           }),
-          {}
+          // React 19: non-forwardRef components receive undefined as second arg
+          undefined
         );
       });
     });
@@ -194,12 +195,11 @@ describe('SigninRecoveryChoice container', () => {
         expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
         expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
         // show loading spinner while navigating
-        expect(SigninRecoveryChoiceModule.default).toHaveBeenCalledWith(
-          expect.objectContaining({
-            loading: true,
-          }),
-          expect.anything()
-        );
+        expect(
+          (SigninRecoveryChoiceModule.default as jest.Mock).mock.calls.some(
+            ([props]: any) => props?.loading === true
+          )
+        ).toBe(true);
         expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_code', {
           replace: true,
           state: { signinState: mockSigninLocationState },

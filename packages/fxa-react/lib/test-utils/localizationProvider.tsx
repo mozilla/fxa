@@ -9,7 +9,7 @@ import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 const reportError = () => {};
 
 export function renderWithLocalizationProvider(
-  children: JSX.Element,
+  children: React.ReactElement,
   messages = { en: ['testo: lol'] }
 ): ReturnType<typeof render> {
   return render(
@@ -20,7 +20,7 @@ export function renderWithLocalizationProvider(
 }
 
 export function withLocalizationProvider(
-  children: JSX.Element,
+  children: React.ReactElement,
   baseDir = '/locales',
   userLocales = navigator.languages || ['en']
 ) {

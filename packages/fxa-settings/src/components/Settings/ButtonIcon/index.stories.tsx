@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from '.';
-import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 const meta = {
@@ -12,7 +11,7 @@ const meta = {
   subcomponents: { ButtonIconTrash, ButtonIconReload },
   decorators: [
     withLocalization,
-    (Story: StoryFn) => (
+    (Story: React.ComponentType) => (
       <div className="p-10 max-w-lg">
         <Story />
       </div>

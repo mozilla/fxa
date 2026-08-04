@@ -99,7 +99,10 @@ const configureDevServerCompression = (devServerConfig) => {
 
     setupMiddlewares: (middlewares, devServer) => {
       middlewares.unshift(compression({ threshold: '4kb' }));
-      return devServerConfig.setupMiddlewares?.(middlewares, devServer) || middlewares;
+      return (
+        devServerConfig.setupMiddlewares?.(middlewares, devServer) ||
+        middlewares
+      );
     },
   };
 };
@@ -108,6 +111,13 @@ const setModuleNameMapper = (tsconfigBase) => (config) => {
   config.transform = {
     ...config.transform,
     '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
+    // Override CRA's fileTransform for non-JS assets (SVGs, images).
+    // react-scripts' built-in transform hardcodes Symbol.for('react.element')
+    // which is incompatible with React 19's element format.
+    '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)': resolve(
+      __dirname,
+      '../../fxa-settings/config/jest/fileTransform.js'
+    ),
   };
 
   // ts-jest - Paths mapping - With helper

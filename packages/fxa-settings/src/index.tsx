@@ -5,8 +5,7 @@
 // @ts-ignore
 import './styles/tailwind.out.css';
 
-import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
@@ -80,23 +79,23 @@ try {
         return <CookiesDisabled />;
       };
 
-  render(
-    <React.StrictMode>
-      <BrowserRouter>
-        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-          <AppErrorBoundary>
-            <AppContext.Provider value={appContext}>
-              <NimbusProvider>
-                <ThemeProvider enabled={config.darkMode?.enabled}>
-                  <View />
-                </ThemeProvider>
-              </NimbusProvider>
-            </AppContext.Provider>
-          </AppErrorBoundary>
-        </DynamicLocalizationProvider>
-      </BrowserRouter>
-    </React.StrictMode>,
-    document.getElementById('root')
+  const root = createRoot(document.getElementById('root') as HTMLElement);
+  // StrictMode disabled: React 19 changed the double-invoke timing, which
+  // interferes with WebAuthn ceremonies (navigator.credentials.create/get).
+  root.render(
+    <BrowserRouter>
+      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+        <AppErrorBoundary>
+          <AppContext.Provider value={appContext}>
+            <NimbusProvider>
+              <ThemeProvider enabled={config.darkMode?.enabled}>
+                <View />
+              </ThemeProvider>
+            </NimbusProvider>
+          </AppContext.Provider>
+        </AppErrorBoundary>
+      </DynamicLocalizationProvider>
+    </BrowserRouter>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

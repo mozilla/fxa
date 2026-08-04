@@ -17,7 +17,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get codeInput() {
     this.checkPath();
-    return this.page.getByRole('textbox');
+    return this.page.getByRole('textbox', { name: /code/i });
   }
 
   get resendCodeButton() {
@@ -55,8 +55,13 @@ export abstract class BaseTokenCodePage extends BaseLayout {
    */
   async fillOutCodeForm(code: string) {
     this.checkPath();
-    await this.codeInput.fill(code);
-    await expect(this.codeInput).toHaveValue(code);
+    // Retry fill to handle React 19 component remounts during route
+    // transitions (e.g. passwordless → TOTP). A remount resets the input
+    // value, so we retry until the fill sticks.
+    await expect(async () => {
+      await this.codeInput.fill(code);
+      await expect(this.codeInput).toHaveValue(code);
+    }).toPass({ timeout: 15_000 });
     await this.submitButton.click();
   }
 }

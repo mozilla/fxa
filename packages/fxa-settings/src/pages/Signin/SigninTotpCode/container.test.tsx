@@ -10,7 +10,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import * as ModelsModule from '../../../models';
 
 // Regular imports
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { SigninTotpCodeProps } from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -252,19 +252,25 @@ describe('signin totp code container', () => {
     mockReachRouter();
     mockCache({}, true);
     await render(false);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
   });
 
   it('redirects if there is no sessionToken', async () => {
     mockReachRouter();
     mockCache({ sessionToken: '' });
     await render(false);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
   });
 
   it('redirects if verification method is not totp', async () => {
     mockReachRouter(MOCK_NON_TOTP_LOCATION_STATE);
     await render(false);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
   });
 });

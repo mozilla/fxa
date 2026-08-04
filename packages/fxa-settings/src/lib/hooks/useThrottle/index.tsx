@@ -21,7 +21,7 @@ type UseThrottleResult = {
  */
 function useThrottle(): UseThrottleResult {
   const [isThrottled, setIsThrottled] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const startThrottle = useCallback((error: ThrottleErrorInput) => {
     const retryAfterMs = error.retryAfter ?? 0;
