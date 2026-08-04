@@ -1,0 +1,12 @@
+{
+  "commit": "5f714be224166d0714955ab11660753629862a46",
+  "summary": "chore(settings): Update to React 19)",
+  "description": "",
+  "timestamp": 1785855047000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
