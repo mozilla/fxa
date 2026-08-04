@@ -43,6 +43,7 @@ import {
 import {
   AppleIapClient,
   AppleIapPurchaseManager,
+  AppStoreSubscriptionPurchase,
   GoogleIapClient,
   GoogleIapPurchaseManager,
   MockAppleIapClientConfigProvider,
@@ -139,6 +140,7 @@ jest.mock('@fxa/shared/error', () => ({
 
 describe('SubscriptionManagementService', () => {
   let accountCustomerManager: AccountCustomerManager;
+  let appleIapPurchaseManager: AppleIapPurchaseManager;
   let customerManager: CustomerManager;
   let churnInterventionService: ChurnInterventionService;
   let paymentMethodManager: PaymentMethodManager;
@@ -219,6 +221,7 @@ describe('SubscriptionManagementService', () => {
     }).compile();
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    appleIapPurchaseManager = moduleRef.get(AppleIapPurchaseManager);
     churnInterventionService = moduleRef.get(ChurnInterventionService);
     customerManager = moduleRef.get(CustomerManager);
     invoiceManager = moduleRef.get(InvoiceManager);
@@ -1340,6 +1343,50 @@ describe('SubscriptionManagementService', () => {
 
       expect(result.subscriptions).toEqual([mockSubscriptionContent]);
       expect(result.trialSubscriptions).toEqual([]);
+    });
+  });
+
+  describe('getAppleIapPurchases', () => {
+    const mockStoreId = faker.string.sample();
+    const mockExpiresDate = Date.UTC(2099, 0, 2);
+
+    const mockApplePurchase = () => {
+      const purchase = new AppStoreSubscriptionPurchase();
+      purchase.productId = mockStoreId;
+      purchase.expiresDate = mockExpiresDate;
+      return purchase;
+    };
+
+    it('maps the purchases to storeIds and purchaseDetails', async () => {
+      const mockUid = faker.string.uuid();
+
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUserOrStaleCached')
+        .mockResolvedValue([mockApplePurchase()]);
+
+      const result = await (
+        subscriptionManagementService as any
+      ).getAppleIapPurchases(mockUid);
+
+      expect(result).toEqual({
+        storeIds: [mockStoreId],
+        purchaseDetails: [
+          { storeId: mockStoreId, expiresDate: mockExpiresDate },
+        ],
+      });
+    });
+
+    it('reads the purchases with getForUserOrStaleCached', async () => {
+      const mockUid = faker.string.uuid();
+      const getForUserOrStaleCached = jest
+        .spyOn(appleIapPurchaseManager, 'getForUserOrStaleCached')
+        .mockResolvedValue([mockApplePurchase()]);
+
+      await (subscriptionManagementService as any).getAppleIapPurchases(
+        mockUid
+      );
+
+      expect(getForUserOrStaleCached).toHaveBeenCalledWith(mockUid);
     });
   });
 
