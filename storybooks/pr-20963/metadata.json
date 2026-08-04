@@ -1,8 +1,8 @@
 {
-  "commit": "9fde4c5d66e0e164646d3405d07872d78afc132f",
-  "summary": "chore(settings): Update to React 19)",
+  "commit": "2a279e63ee326acf591798a5f92ce1e108f6db5f",
+  "summary": "\\_(ツ)_/",
   "description": "",
-  "timestamp": 1785871999000,
+  "timestamp": 1785873824000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
