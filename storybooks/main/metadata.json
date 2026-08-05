@@ -1,8 +1,8 @@
 {
-  "commit": "bc7a7f050240ff963d76fda3876cb00a696b4a78",
-  "summary": "Merge pull request #20956 from mozilla/replace-uuid",
-  "description": "chore(deps): replace uuid with native crypto",
-  "timestamp": 1785947870000,
+  "commit": "e0cb1addf0dccf1d8ba70576e7d73c3f96695ae9",
+  "summary": "Merge pull request #20959 from mozilla/FXA-13141",
+  "description": "feat(passkeys): Add passwordless sync feature flags",
+  "timestamp": 1785948751000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
