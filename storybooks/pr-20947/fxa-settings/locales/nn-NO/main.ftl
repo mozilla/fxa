@@ -321,6 +321,7 @@ link-expired-new-link-button = Få ei ny lenke
 
 
 remember-password-text = Hugse passordet ditt?
+remember-password-passkey-text = Har du ein passnøkkel, eller hugsar du passordet ditt?
 remember-password-signin-link = Logg inn
 
 

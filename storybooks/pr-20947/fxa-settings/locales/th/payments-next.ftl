@@ -39,7 +39,6 @@ auth-error-page-title = เราไม่สามารถลงชื่อ�
 checkout-error-boundary-retry-button = ลองอีกครั้ง
 checkout-error-boundary-basic-error-message = มีบางอย่างผิดพลาด โปรดลองอีกครั้งหรือ <contactSupportLink>ติดต่อฝ่ายสนับสนุน</contactSupportLink>
 amex-logo-alt-text = โลโก้ { -brand-amex }
-diners-logo-alt-text = โลโก้ { -brand-diner }
 discover-logo-alt-text = โลโก้ { -brand-discover }
 jcb-logo-alt-text = โลโก้ { -brand-jcb }
 mastercard-logo-alt-text = โลโก้ { -brand-mastercard }

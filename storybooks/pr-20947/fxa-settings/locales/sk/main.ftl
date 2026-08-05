@@ -469,6 +469,7 @@ link-expired-new-link-button = Získať nový odkaz
 
 
 remember-password-text = Pamätáte si svoje heslo?
+remember-password-passkey-text = Máte prístupový kľúč alebo si pamätáte heslo?
 remember-password-signin-link = Prihlásiť sa
 
 
@@ -542,7 +543,14 @@ flow-recovery-key-hint-unsafe-char-error = Pomôcka nemôže obsahovať nebezpe�
 password-reset-warning-icon = Upozornenie
 password-reset-chevron-expanded = Zbaliť upozornenie
 password-reset-chevron-collapsed = Rozbaliť upozornenie
+password-reset-warning-review-sign-in-options = Skontrolujte možnosti prihlásenia, aby ste si zachovali údaje prehliadača
 password-reset-warning-have-key = Máte kľúč na obnovenie účtu?
+password-reset-warning-use-key-link-v2 = Použite ho na obnovenie hesla a uchovanie údajov prehliadača
+password-reset-warning-signed-in-device = Stále ste prihlásený/á na inom zariadení?
+password-reset-warning-signed-in-device-description = Dáta vášho prehliadača môžu byť k dispozícii. Obnovte si heslo a potom sa prihláste na danom zariadení, aby ste obnovili a synchronizovali svoje údaje.
+password-reset-warning-restore-data-link = Zistite, ako obnoviť údaje prehliadača z prihláseného zariadenia
+password-reset-warning-new-device = Používate nové zariadenie, ale nemáte prístup k starému?
+password-reset-warning-new-device-description = Po obnovení hesla nebudú šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } na tomto zariadení k dispozícii.
 
 
 alert-bar-close-message = Zavrieť správu
@@ -1514,6 +1522,7 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 
 
 password-reset-flow-heading = Zmena hesla
+password-reset-body-3 = Obnovenie hesla môže ovplyvniť synchronizované údaje prehliadača.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať
@@ -1603,6 +1612,7 @@ signin-passkey-fallback-heading = Zadajte heslo pre synchronizáciu
 signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je potrebné pri použití tohto prístupového kľúča zadať heslo.
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovať
+signin-passkey-fallback-forgot-password-link = Zabudli ste heslo?
 
 
 

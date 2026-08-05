@@ -42,7 +42,6 @@ auth-error-page-title = Ndaikatúikuri roike
 checkout-error-boundary-retry-button = Eha’ã jey
 checkout-error-boundary-basic-error-message = Oĩ osẽvaíva. Eha’ã jey upéi térã <contactSupportLink>eñe’ẽ pytyvõha renda ndive</contactSupportLink>.
 amex-logo-alt-text = { -brand-amex } ra’ãnga’i
-diners-logo-alt-text = { -brand-diner } ra’ãnga’i
 discover-logo-alt-text = { -brand-discover } ra’ãnga’i
 jcb-logo-alt-text = { -brand-jcb } ra’ãnga’i
 mastercard-logo-alt-text = { -brand-mastercard } ra’ãnga’i
