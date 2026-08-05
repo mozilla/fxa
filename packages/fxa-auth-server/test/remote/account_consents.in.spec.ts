@@ -660,6 +660,12 @@ describe('accountAuthorizations v2 dual-write and read (FXA-14169)', () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { config } = require('../../config');
 
+  const v1ReadRows = (uid: string) =>
+    db.mysql._read(
+      'SELECT scope, service FROM accountAuthorizations WHERE uid=?',
+      [Buffer.from(uid, 'hex')]
+    );
+
   const v2ReadRows = (uid: string) =>
     db.mysql._read(
       'SELECT scopeId, service FROM accountAuthorizations_v2 WHERE uid=?',
@@ -713,9 +719,12 @@ describe('accountAuthorizations v2 dual-write and read (FXA-14169)', () => {
       clientId: DESKTOP,
       now: Date.now(),
     });
-    // Drop the v1 rows only; the v2 row remains, so a v2 read is the only
-    // thing that can still find this consent.
-    await db.deleteAllConsentsForUser(id);
+    // Leave only the v2 row standing, so a v2 read is the only thing that can
+    // still find this consent. `deleteAllConsentsForUser` now clears both
+    // tables, so this deletes from v1 directly instead.
+    await db.mysql._write('DELETE FROM accountAuthorizations WHERE uid=?', [
+      Buffer.from(id, 'hex'),
+    ]);
 
     config.set('oauthServer.accountAuthorizations.readV2', true);
     expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(true);
@@ -756,5 +765,27 @@ describe('accountAuthorizations v2 dual-write and read (FXA-14169)', () => {
     expect(await v2ReadRows(id)).toHaveLength(0);
     // ...but v1 still recorded it, so nothing is dropped.
     expect(await db.hasConsentForSignIn(id, UNKNOWN_SCOPE, '')).toBe(true);
+  });
+
+  it('account deletion clears both v1 and v2 rows', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+    expect(await v1ReadRows(id)).toHaveLength(1);
+    expect(await v2ReadRows(id)).toHaveLength(1);
+
+    await db.deleteAllConsentsForUser(id);
+
+    expect(await v1ReadRows(id)).toHaveLength(0);
+    expect(await v2ReadRows(id)).toHaveLength(0);
+    // readV2 is off here, so this is the v1 path answering.
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(false);
   });
 });
