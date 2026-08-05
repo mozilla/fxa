@@ -32,6 +32,7 @@ import {
 import {
   CheckoutTokenManager,
   PaypalBillingAgreementManager,
+  PayPalClientError,
 } from '@fxa/payments/paypal';
 import {
   ProductConfigError,
@@ -555,7 +556,7 @@ export class NextJSActionsService {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({ allowlist: [PayPalClientError] })
   @CaptureTimingWithStatsD()
   @NextIOValidator(GetPayPalCheckoutTokenArgs, GetPayPalCheckoutTokenResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -790,10 +791,7 @@ export class NextJSActionsService {
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @AssertCartOwnership()
-  async submitNeedsInput(args: {
-    cartId: string;
-    requestArgs: CommonMetrics;
-  }) {
+  async submitNeedsInput(args: { cartId: string; requestArgs: CommonMetrics }) {
     await this.cartService.submitNeedsInput(args.cartId, args.requestArgs);
   }
 
