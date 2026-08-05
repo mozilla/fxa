@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import crypto from 'crypto';
 
 const Client = require('../client')();
 const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { email: emailHelper } = require('fxa-shared');
@@ -23,7 +25,7 @@ async function generateMfaJwt(client: any) {
     sub: client.uid,
     scope: ['mfa:email'],
     iat: now,
-    jti: uuid.v4(),
+    jti: crypto.randomUUID(),
     stid: sessionTokenId,
   };
 
@@ -98,11 +100,17 @@ describe.each(testVersions)(
       expect(res).toBeTruthy();
 
       const emailData = await server.mailbox.waitForEmail(secondEmail);
-      expect(emailData['headers']['x-template-name']).toBe('verifySecondaryCode');
+      expect(emailData['headers']['x-template-name']).toBe(
+        'verifySecondaryCode'
+      );
       const emailCode = emailData['headers']['x-verify-code'];
       expect(emailCode).toBeTruthy();
 
-      res = await client.verifySecondaryEmailWithCode(mfaJwt, emailCode, secondEmail);
+      res = await client.verifySecondaryEmailWithCode(
+        mfaJwt,
+        emailCode,
+        secondEmail
+      );
       expect(res).toBeTruthy();
 
       res = await client.accountEmails();
@@ -136,7 +144,11 @@ describe.each(testVersions)(
         const emailData = await server.mailbox.waitForEmail(anotherEmail);
         const code = emailData.headers['x-verify-code'];
         expect(code).toBeTruthy();
-        await client2.verifySecondaryEmailWithCode(client2Jwt, code, anotherEmail);
+        await client2.verifySecondaryEmailWithCode(
+          client2Jwt,
+          code,
+          anotherEmail
+        );
 
         const mfaJwt = await generateMfaJwt(client);
         try {
@@ -367,12 +379,20 @@ describe.each(testVersions)(
       await client1.createEmail(client1Jwt, client1SecondEmail);
       emailData = await server.mailbox.waitForEmail(client1SecondEmail);
       emailCode = emailData['headers']['x-verify-code'];
-      await client1.verifySecondaryEmailWithCode(client1Jwt, emailCode, client1SecondEmail);
+      await client1.verifySecondaryEmailWithCode(
+        client1Jwt,
+        emailCode,
+        client1SecondEmail
+      );
 
       await client2.createEmail(client2Jwt, client2SecondEmail);
       emailData = await server.mailbox.waitForEmail(client2SecondEmail);
       emailCode = emailData['headers']['x-verify-code'];
-      await client2.verifySecondaryEmailWithCode(client2Jwt, emailCode, client2SecondEmail);
+      await client2.verifySecondaryEmailWithCode(
+        client2Jwt,
+        emailCode,
+        client2SecondEmail
+      );
 
       await client1.setPrimaryEmail(client1Jwt, client1SecondEmail);
       await client1.deleteEmail(client1Jwt, client1Email);
@@ -381,14 +401,28 @@ describe.each(testVersions)(
       await client2.deleteEmail(client2Jwt, client2Email);
 
       await client1.createEmail(client1Jwt, client2Email);
-      emailCode = await server.mailbox.waitForEmailByHeader(client2Email, 'x-verify-code');
-      await client1.verifySecondaryEmailWithCode(client1Jwt, emailCode, client2Email);
+      emailCode = await server.mailbox.waitForEmailByHeader(
+        client2Email,
+        'x-verify-code'
+      );
+      await client1.verifySecondaryEmailWithCode(
+        client1Jwt,
+        emailCode,
+        client2Email
+      );
       await client1.setPrimaryEmail(client1Jwt, client2Email);
       await client1.deleteEmail(client1Jwt, client1SecondEmail);
 
       await client2.createEmail(client2Jwt, client1Email);
-      emailCode = await server.mailbox.waitForEmailByHeader(client1Email, 'x-verify-code');
-      await client2.verifySecondaryEmailWithCode(client2Jwt, emailCode, client1Email);
+      emailCode = await server.mailbox.waitForEmailByHeader(
+        client1Email,
+        'x-verify-code'
+      );
+      await client2.verifySecondaryEmailWithCode(
+        client2Jwt,
+        emailCode,
+        client1Email
+      );
       await client2.setPrimaryEmail(client2Jwt, client1Email);
       await client2.deleteEmail(client2Jwt, client2SecondEmail);
 
@@ -421,7 +455,9 @@ describe.each(testVersions)(
         expect(res[0].verified).toBe(true);
 
         emailData = await server.mailbox.waitForEmail(secondEmail);
-        expect(emailData['headers']['x-template-name']).toBe('postRemoveSecondary');
+        expect(emailData['headers']['x-template-name']).toBe(
+          'postRemoveSecondary'
+        );
       });
 
       it('can login', async () => {
@@ -449,10 +485,15 @@ describe.each(testVersions)(
           expect(err.errno).toBe(120);
           expect(err.email).toBe(email);
 
-          const res = await Client.login(server.publicUrl, err.email, password, {
-            originalLoginEmail: secondEmail,
-            ...testOptions,
-          });
+          const res = await Client.login(
+            server.publicUrl,
+            err.email,
+            password,
+            {
+              originalLoginEmail: secondEmail,
+              ...testOptions,
+            }
+          );
           expect(res).toBeTruthy();
         }
       });
@@ -503,10 +544,15 @@ describe.each(testVersions)(
           );
         }
 
-        const loginRes = await Client.login(server.publicUrl, email, newPassword, {
-          originalLoginEmail: secondEmail,
-          ...testOptions,
-        });
+        const loginRes = await Client.login(
+          server.publicUrl,
+          email,
+          newPassword,
+          {
+            originalLoginEmail: secondEmail,
+            ...testOptions,
+          }
+        );
         expect(loginRes).toBeTruthy();
       });
 

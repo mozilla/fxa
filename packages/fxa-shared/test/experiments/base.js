@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 const _ = require('underscore');
-const uuid = require('uuid');
 const { assert } = require('chai');
 import BaseExperiment from '../../experiments/base';
 
@@ -213,7 +213,7 @@ describe('experiments/base', () => {
         for (let i = 0; i < ITERATIONS; ++i) {
           const choice = experiment.choose({
             experimentChooser,
-            uuid: uuid.v4(),
+            uuid: crypto.randomUUID(),
           });
 
           counts[choice]++;

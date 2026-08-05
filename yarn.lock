@@ -21778,13 +21778,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^10, @types/uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@types/uuid@npm:10.0.0"
-  checksum: 10c0/9a1404bf287164481cb9b97f6bb638f78f955be57c40c6513b7655160beb29df6f84c915aaf4089a1559c216557dc4d2f79b48d978742d3ae10b937420ddac60
-  languageName: node
-  linkType: hard
-
 "@types/uuid@npm:^9.0.1":
   version: 9.0.8
   resolution: "@types/uuid@npm:9.0.8"
@@ -33778,7 +33771,6 @@ __metadata:
     "@types/nodemailer": "npm:^7.0.4"
     "@types/request": "npm:2.48.5"
     "@types/sass": "npm:^1"
-    "@types/uuid": "npm:^10.0.0"
     "@types/verror": "npm:^1.10.4"
     "@types/webpack": "npm:5.28.5"
     ajv: "npm:^8.20.0"
@@ -33859,7 +33851,7 @@ __metadata:
     tsc-alias: "npm:^1.8.8"
     type-fest: "npm:^4.38.0"
     typescript: "npm:5.5.3"
-    uuid: "npm:^10.0.0"
+    uuid: "npm:^11.1.1"
     verror: "npm:^1.10.1"
     web-push: "npm:3.4.4"
     webpack: "npm:^5.104.1"
@@ -34074,7 +34066,6 @@ __metadata:
     "@types/rimraf": "npm:3.0.0"
     "@types/sinon": "npm:10.0.1"
     "@types/supertest": "npm:^2.0.11"
-    "@types/uuid": "npm:^10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^5.59.0"
     "@typescript-eslint/parser": "npm:^7.1.1"
     audit-filter: "npm:^0.5.0"
@@ -34104,7 +34095,6 @@ __metadata:
     ts-loader: "npm:^9.5.1"
     tsconfig-paths: "npm:^4.2.0"
     typescript: "npm:5.5.3"
-    uuid: "npm:^10.0.0"
   languageName: unknown
   linkType: soft
 
@@ -34266,7 +34256,6 @@ __metadata:
     "@types/node": "npm:^22.13.5"
     "@types/prop-types": "npm:^15"
     "@types/ua-parser-js": "npm:^0.7.36"
-    "@types/uuid": "npm:^10"
     "@types/webpack": "npm:5.28.5"
     "@types/webpack-bundle-analyzer": "npm:^4"
     babel-jest: "npm:^29.7.0"
@@ -34348,7 +34337,6 @@ __metadata:
     type-fest: "npm:^4.38.0"
     typescript: "npm:5.5.3"
     ua-parser-js: "npm:1.0.35"
-    uuid: "npm:^10.0.0"
     webpack: "npm:^5.104.1"
     webpack-bundle-analyzer: "npm:^4.10.2"
     webpack-dev-server: "npm:^5.2.5"
@@ -34377,7 +34365,6 @@ __metadata:
     "@types/node": "npm:^22.13.5"
     "@types/proxyquire": "npm:^1.3.28"
     "@types/sinon": "npm:10.0.1"
-    "@types/uuid": "npm:^10.0.0"
     accept-language-parser: "npm:^1.5.0"
     ajv: "npm:^8.20.0"
     audit-filter: "npm:^0.5.0"
@@ -34416,7 +34403,6 @@ __metadata:
     tsconfig-paths: "npm:^4.2.0"
     typescript: "npm:5.5.3"
     underscore: "npm:^1.13.8"
-    uuid: "npm:^10.0.0"
   languageName: unknown
   linkType: soft
 
@@ -34537,7 +34523,6 @@ __metadata:
     "@types/set-value": "npm:^4"
     "@types/superagent": "npm:4.1.11"
     "@types/twilio": "npm:^3.19.3"
-    "@types/uuid": "npm:^10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^5.59.1"
     "@typescript-eslint/parser": "npm:^7.1.1"
     app-store-server-api: "npm:^0.16.0"
@@ -34644,7 +34629,7 @@ __metadata:
     twilio: "npm:5.3.5"
     typedi: "npm:^0.8.0"
     typescript: "npm:5.5.3"
-    uuid: "npm:^10.0.0"
+    uuid: "npm:^11.1.1"
     webpack-cli: "npm:^6.0.1"
     winston: "npm:^3.17.0"
     zod: "npm:^4.3.6"
@@ -57216,12 +57201,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "uuid@npm:10.0.0"
+"uuid@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "uuid@npm:11.1.1"
   bin:
-    uuid: dist/bin/uuid
-  checksum: 10c0/eab18c27fe4ab9fb9709a5d5f40119b45f2ec8314f8d4cf12ce27e4c6f4ffa4a6321dc7db6c515068fa373c075b49691ba969f0010bf37f44c37ca40cd6bf7fe
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/9e3af58eba872ece5a5e76f4773a94fc78a0ef2c2444c38dbe6b42f41dadf76c01850fd783604f27986f6195e6286aef064d45987d401b2a33127b98ddf7c0c5
   languageName: node
   linkType: hard
 

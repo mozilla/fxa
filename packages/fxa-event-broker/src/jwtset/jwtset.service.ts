@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { v4 as uuidv4 } from 'uuid';
-
+import crypto from 'node:crypto';
 import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -43,7 +42,7 @@ export class JwtsetService {
       aud: event.clientId,
       events: event.events,
       iat: Date.now() / 1000,
-      jti: uuidv4(),
+      jti: crypto.randomUUID(),
       sub: event.uid,
     };
     return this.tokenKey.sign(claims);

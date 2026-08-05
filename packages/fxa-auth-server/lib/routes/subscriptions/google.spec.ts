@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { Container } from 'typedi';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
-const uuid = require('uuid');
 
 const mocks = require('../../../test/mocks');
 const { GoogleIapHandler } = require('./google');
@@ -21,7 +21,7 @@ const { CapabilityService } = require('../../payments/capability');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 const VALID_REQUEST = {
   auth: {
     credentials: {

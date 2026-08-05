@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { default as Container } from 'typedi';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
 
-const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const Sentry = require('@sentry/node');
@@ -65,7 +65,7 @@ let config: any,
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;

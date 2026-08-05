@@ -17,7 +17,6 @@ const {
   ReasonForDeletion,
 } = require('@fxa/shared/cloud-tasks');
 
-const uuid = require('uuid');
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../log');
@@ -316,7 +315,7 @@ describe('/account/reset', () => {
     oauth: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     mockLog = createMock<AuthLoggerType>();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
@@ -691,7 +690,7 @@ describe('/account/reset', () => {
 });
 
 describe('deleteAccountIfUnverified', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     uid,
@@ -883,7 +882,7 @@ describe('/account/create', () => {
     const emailCode = hexString(16);
     const keyFetchTokenId = hexString(16);
     const sessionTokenId = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email: TEST_EMAIL,
@@ -1442,7 +1441,7 @@ describe('/account/stub', () => {
     });
     const clientAddress = mockRequest.app.clientAddress;
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email,
@@ -1656,7 +1655,7 @@ describe('/account/status', () => {
     });
     const clientAddress = mockRequest.app.clientAddress;
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email,
@@ -1997,7 +1996,7 @@ describe('/account/finish_setup', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const email = Math.random() + '_stub@mozilla.com';
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockRequest = mocks.mockRequest({
       locale: 'en-GB',
       log: mockLog,
@@ -2135,7 +2134,7 @@ describe('/account/set_password', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const email = Math.random() + '_stub@mozilla.com';
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = crypto.randomBytes(16).toString('hex');
     const mockRequest = mocks.mockRequest({
       auth: {
         credentials: {
@@ -2458,7 +2457,7 @@ describe('/account/login', () => {
   });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
@@ -4067,7 +4066,7 @@ describe('/account/login', () => {
 
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const mockLog = createMock<AuthLoggerType>();
   const mockRequest = mocks.mockRequest({
     credentials: {
@@ -4139,7 +4138,7 @@ describe('/account/keys', () => {
 describe('/account/destroy', () => {
   const email = 'foo@example.com';
   const tokenVerified = true;
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
 
   let mockDB: any,
     mockLog: any,
@@ -4343,7 +4342,7 @@ describe('/account/destroy', () => {
 
 describe('/account', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
 
   let log: any,
     request: any,
@@ -5088,7 +5087,9 @@ describe('/account/email_bounce_status', () => {
     });
     const route = buildRoute();
     return runTest(route, request, () => {
-      expect(mockDB.emailBounces).toHaveBeenCalledWith('bob\\_smith@example.com');
+      expect(mockDB.emailBounces).toHaveBeenCalledWith(
+        'bob\\_smith@example.com'
+      );
     });
   });
 });

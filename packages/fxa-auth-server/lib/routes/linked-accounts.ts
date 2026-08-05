@@ -4,7 +4,6 @@
 import { AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
-import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import * as jose from 'jose';
 import validators from './validators';
@@ -522,7 +521,7 @@ export class LinkedAccountHandler {
           32
         );
         accountRecord = await this.db.createAccount({
-          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+          uid: await random.hex(16),
           createdAt: Date.now(),
           email,
           emailCode,
