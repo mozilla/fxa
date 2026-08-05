@@ -1,8 +1,8 @@
 {
-  "commit": "a10c541ab530376f76570d369508944d1541bcc2",
-  "summary": "Merge pull request #20939 from mozilla/FXA-14272",
-  "description": "polish(auth): Point bq writer an v2 rate limit checks table",
-  "timestamp": 1785948931000,
+  "commit": "71523380a4715b73b09fa4a7793b7d21efcbb9da",
+  "summary": "Merge pull request #20961 from mozilla/PAY-3840",
+  "description": "fix(payments-ui): Reduce Sentry noise by adding PayPalClientError to decorator",
+  "timestamp": 1785957999000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
