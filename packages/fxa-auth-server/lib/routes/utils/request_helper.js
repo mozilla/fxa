@@ -14,6 +14,20 @@ function wantsKeys(request) {
   return !!(request.query && request.query.keys);
 }
 
+/**
+ * Returns `true` if the request's session has proven more than the password:
+ * email verified and no confirmation still owed. Non-session tokens, which carry
+ * none of these fields, count as unproven.
+ *
+ * @param request
+ * @returns {boolean}
+ */
+function hasProvenSession(request) {
+  const { emailVerified, mustVerify, tokenVerified } =
+    request.auth?.credentials || {};
+  return !!emailVerified && !(mustVerify && !tokenVerified);
+}
+
 function urlSafeBase64(hex) {
   return Buffer.from(hex, 'hex')
     .toString('base64')
@@ -24,5 +38,6 @@ function urlSafeBase64(hex) {
 
 module.exports = {
   wantsKeys,
+  hasProvenSession,
   urlSafeBase64,
 };

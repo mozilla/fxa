@@ -619,6 +619,14 @@ module.exports.subscriptionsMozillaSubscriptionsValidator = isA
   })
   .unknown(true);
 
+// Caps a phone number in a response at 4 digits, so one that would leak the
+// full value fails validation instead of shipping.
+module.exports.maskedPhoneNumber = isA
+  .string()
+  .regex(/^(?:\D*\d){0,4}\D*$/)
+  .allow(null)
+  .optional();
+
 module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 
 module.exports.scopes = isA.array().items(scope).default([]).optional();

@@ -7,8 +7,47 @@ const requestHelper = require('./request_helper');
 describe('requestHelper', () => {
   it('interface is correct', () => {
     expect(typeof requestHelper).toBe('object');
-    expect(Object.keys(requestHelper).length).toBe(2);
+    expect(Object.keys(requestHelper).length).toBe(3);
     expect(typeof requestHelper.wantsKeys).toBe('function');
+    expect(typeof requestHelper.hasProvenSession).toBe('function');
+  });
+
+  describe('hasProvenSession', () => {
+    const withCredentials = (credentials: object) => ({
+      auth: { credentials },
+    });
+
+    it.each([
+      { name: 'a confirmed session', emailVerified: true, tokenVerified: true },
+      {
+        name: 'a session that never had to confirm',
+        emailVerified: true,
+        mustVerify: false,
+      },
+    ])('is true for $name', ({ name, ...credentials }) => {
+      expect(requestHelper.hasProvenSession(withCredentials(credentials))).toBe(
+        true
+      );
+    });
+
+    it.each([
+      { name: 'an unverified email', emailVerified: false },
+      {
+        name: 'a session still owing confirmation',
+        emailVerified: true,
+        mustVerify: true,
+        tokenVerified: false,
+      },
+      { name: 'a token carrying no session fields', other: 'value' },
+    ])('is false for $name', ({ name, ...credentials }) => {
+      expect(requestHelper.hasProvenSession(withCredentials(credentials))).toBe(
+        false
+      );
+    });
+
+    it('is false when the request carries no credentials', () => {
+      expect(requestHelper.hasProvenSession({})).toBe(false);
+    });
   });
 
   it('wantsKeys', () => {
