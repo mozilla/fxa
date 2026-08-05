@@ -80,8 +80,9 @@ try {
       };
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
-  // StrictMode disabled: React 19 changed the double-invoke timing, which
-  // interferes with WebAuthn ceremonies (navigator.credentials.create/get).
+  // StrictMode disabled: PagePasskeyAdd auto-starts the ceremony in a
+  // mount effect: cleanup aborts it, the second run short-circuits on
+  // ceremonyStarted, and the AbortError gets swallowed.
   root.render(
     <BrowserRouter>
       <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>

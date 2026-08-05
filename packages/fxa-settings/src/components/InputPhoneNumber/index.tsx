@@ -191,7 +191,7 @@ const InputPhoneNumber = ({
       </div>
 
       {/* Because the country code may not be unique, the above `select`'s `value` must
-       be by country ID. The countryCode field is kept in react-hook-form state via setValue(). */}
+       be by country ID. The country code is synced to RHF via setValue. */}
       <InputText
         type="tel"
         label={localizedLabel}

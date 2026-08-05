@@ -140,13 +140,15 @@ export const InputText = ({
   const combinedRef = useCallback(
     (element: HTMLInputElement | null) => {
       if (inputRefDOM) {
-        (
-          inputRefDOM as React.MutableRefObject<HTMLInputElement | null>
-        ).current = element;
+        (inputRefDOM as React.RefObject<HTMLInputElement | null>).current =
+          element;
       }
       const refToCall = registrationRefLatest.current || inputRef;
-      if (refToCall && typeof refToCall === 'function') {
+      if (typeof refToCall === 'function') {
         refToCall(element);
+      } else if (refToCall) {
+        (refToCall as React.RefObject<HTMLInputElement | null>).current =
+          element;
       }
     },
     [inputRef, inputRefDOM]

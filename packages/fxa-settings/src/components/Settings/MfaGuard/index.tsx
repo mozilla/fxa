@@ -140,6 +140,22 @@ export const MfaGuard = ({
         // Don't call onDismiss here — it navigates to /settings, which
         // in React 19's batched updates would override the redirect.
         if (err?.errno === ERRNO.INSUFFICIENT_AAL) {
+          Sentry.addBreadcrumb({
+            category: 'mfa',
+            message:
+              'INSUFFICIENT_AAL — expecting global redirect to /signin_totp_code',
+            level: 'info',
+          });
+          // If the global handler's redirect hasn't fired after a short
+          // delay, show an error banner so the user isn't stuck silently.
+          setTimeout(() => {
+            setLocalizedErrorBannerMessage(
+              ftlMsgResolver.getMsg(
+                'mfa-guard-session-expired',
+                'Session verification required. Please sign in again.'
+              )
+            );
+          }, 3000);
           return;
         }
 

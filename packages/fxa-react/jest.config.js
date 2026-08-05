@@ -7,7 +7,7 @@ const { compilerOptions } = require('../../tsconfig.base.json');
 module.exports = {
   transform: {
     '^.+\\.(ts|tsx)?$': ['ts-jest', { isolatedModules: true }],
-    '^.+\\.svg$': '<rootDir>/../fxa-settings/config/jest/fileTransform.js',
+    '^.+\\.svg$': '<rootDir>/svg-transform.js',
   },
   // ts-jest - Paths mapping - With helper
   // https://kulshekhar.github.io/ts-jest/docs/getting-started/paths-mapping#jest-config-with-helper

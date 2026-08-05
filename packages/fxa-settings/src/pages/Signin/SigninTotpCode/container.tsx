@@ -154,7 +154,7 @@ export const SigninTotpCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
-  if (shouldRedirectFromTotp) {
+  if (shouldRedirectFromTotp || !signinState) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -168,7 +168,7 @@ export const SigninTotpCodeContainer = ({
         finishOAuthFlowHandler,
         integration,
         redirectTo,
-        signinState: signinState as NonNullable<typeof signinState>,
+        signinState: signinState!,
         submitTotpCode,
         serviceName,
         keyFetchToken,

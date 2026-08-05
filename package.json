@@ -5,7 +5,6 @@
   "description": "Firefox Accounts monorepo",
   "scripts": {
     "preinstall": "_scripts/check-package-manager.sh && _scripts/check-node-version.sh",
-    "postinstall": "rm -f node_modules/react-markdown/lib/complex-types.ts",
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "start": "nps --prefix=start",
     "stop": "nps --prefix=stop",
@@ -221,7 +220,7 @@
     "@swc/cli": "0.7.10",
     "@swc/core": "1.15.8",
     "@swc/jest": "0.2.39",
-    "@testing-library/react": "15.0.6",
+    "@testing-library/react": "^16.3.0",
     "@types/babel__core": "^7",
     "@types/babel__preset-env": "^7",
     "@types/bn.js": "^5",
@@ -297,6 +296,8 @@
     "packages/*"
   ],
   "resolutions": {
+    "@react-pdf/layout": "3.9.1",
+    "@react-pdf/textkit": "4.3.0",
     "@types/react": "19.2.18",
     "asn1.js": ">=5.4.1",
     "axios": "^1.13.4",
