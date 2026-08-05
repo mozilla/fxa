@@ -48,8 +48,7 @@ export const useTotpSetup = () => {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [account, handleMfaError]);
 
   return {
     totpInfo,

@@ -55,13 +55,8 @@ export abstract class BaseTokenCodePage extends BaseLayout {
    */
   async fillOutCodeForm(code: string) {
     this.checkPath();
-    // Retry fill to handle React 19 component remounts during route
-    // transitions (e.g. passwordless → TOTP). A remount resets the input
-    // value, so we retry until the fill sticks.
-    await expect(async () => {
-      await this.codeInput.fill(code);
-      await expect(this.codeInput).toHaveValue(code);
-    }).toPass({ timeout: 15_000 });
+    await this.codeInput.fill(code);
+    await expect(this.codeInput).toHaveValue(code);
     await this.submitButton.click();
   }
 }

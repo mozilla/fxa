@@ -266,6 +266,14 @@ describe('InlineRecoverySetupContainer', () => {
       });
     });
 
+    it('still renders when account.refresh fails', async () => {
+      accountRefreshFn.mockRejectedValueOnce(new Error('network error'));
+      render();
+      await waitFor(() => {
+        expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
+      });
+    });
+
     it('sets flowHasPhoneChoice to false when recovery phone is not available', async () => {
       recoveryPhoneFn = jest.fn().mockReturnValue({ available: false });
 

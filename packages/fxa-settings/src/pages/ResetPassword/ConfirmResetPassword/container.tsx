@@ -196,6 +196,10 @@ const ConfirmResetPasswordContainer = ({
     }
   };
 
+  if (!email || !metricsContext) {
+    return null;
+  }
+
   return (
     <ConfirmResetPassword
       {...{

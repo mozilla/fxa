@@ -2,29 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('@radix-ui/react-form');
 
-jest.mock('react', () => {
-  const actual = jest.requireActual<typeof import('react')>('react');
-  return {
-    ...actual,
-    useActionState: <S, P>(
+jest
+  .spyOn(React, 'useActionState')
+  .mockImplementation(
+    <S, P>(
       action: (state: S, payload: P) => Promise<S> | S,
       initial: S
-    ) => {
-      const [state, setState] = actual.useState<S>(initial);
+    ): [S, (payload: P) => Promise<S>, boolean] => {
+      const [state, setState] = React.useState<S>(initial);
       const formAction = async (payload: P) => {
         const result = await action(state, payload);
         setState(result);
         return result;
       };
-      return [state, formAction];
-    },
-  };
-});
+      return [state, formAction, false];
+    }
+  );
 
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
