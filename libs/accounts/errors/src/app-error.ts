@@ -12,6 +12,7 @@ import {
   DEBUGGABLE_PAYLOAD_KEYS,
 } from './constants';
 import { OauthError } from './oauth-error';
+import { normalizeRetryAfterMs, retryAfterHeaderValue } from './util';
 import type { Request as HapiRequest } from 'hapi';
 
 /**
@@ -518,14 +519,14 @@ export class AppError extends Error {
     });
   }
 
+  /** @param retryAfterMs Wait in milliseconds; the `retry-after` header is seconds. */
   static tooManyRequests(
-    retryAfter: number,
+    retryAfterMs: number,
     retryAfterLocalized?: string,
     canUnblock?: boolean
   ) {
-    if (!retryAfter) {
-      retryAfter = 30;
-    }
+    // Normalize once so the payload and the header can never disagree.
+    const retryAfter = normalizeRetryAfterMs(retryAfterMs);
 
     const extraData: any = {
       retryAfter: retryAfter,
@@ -549,7 +550,7 @@ export class AppError extends Error {
       },
       extraData,
       {
-        'retry-after': retryAfter.toString(),
+        'retry-after': retryAfterHeaderValue(retryAfter),
       }
     );
 

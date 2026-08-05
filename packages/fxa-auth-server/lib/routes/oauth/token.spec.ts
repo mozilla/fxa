@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const crypto = require('crypto');
 const Joi = require('joi');
 const { Container } = require('typedi');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const {
@@ -33,6 +35,11 @@ const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
+// Mirrors encrypt.hash(), used by the route to key the rate limit.
+const SUBJECT_TOKEN_HASH = crypto
+  .createHash('sha256')
+  .update(Buffer.from(REFRESH_TOKEN, 'hex'))
+  .digest('hex');
 
 const noop = () => {};
 const mockLog = { debug: noop, warn: noop, info: noop, error: noop };
@@ -41,6 +48,7 @@ const mockStatsD = { increment: jest.fn() };
 const mockGlean = {
   oauth: { tokenCreated: jest.fn() },
 };
+const mockCustoms = { checkToken: jest.fn().mockResolvedValue(undefined) };
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
@@ -131,6 +139,7 @@ const tokenRoutesArgMocks = {
   devices: {},
   statsd: mockStatsD,
   glean: mockGlean,
+  customs: mockCustoms,
 };
 
 let tokenRoutes: any;
@@ -702,6 +711,60 @@ describe('token exchange grant_type', () => {
       expect(result.scope).toContain(OAUTH_SCOPE_OLD_SYNC);
       expect(result.scope).toContain(OAUTH_SCOPE_RELAY);
       expect(hex(removedTokenId)).toBe('1234567890abcdef');
+    });
+  });
+
+  describe('rate limiting', () => {
+    function exchangeRequest() {
+      return {
+        app: {},
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: OAUTH_SCOPE_RELAY,
+        },
+        emitMetricsEvent: () => {},
+      };
+    }
+
+    it('throttles on the hash of the subject_token', async () => {
+      resetAndMockDeps();
+      const routes = require('./token')(tokenRoutesArgMocks);
+      const request = exchangeRequest();
+
+      await expect(routes[0].config.handler(request)).rejects.toMatchObject({
+        errno: 108, // the stub subject_token does not resolve
+      });
+
+      expect(mockCustoms.checkToken).toHaveBeenCalledWith(
+        request,
+        'tokenExchange',
+        SUBJECT_TOKEN_HASH
+      );
+    });
+
+    it('rejects a throttled exchange without reading the oauth db', async () => {
+      resetAndMockDeps();
+      const getRefreshToken = jest.fn();
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        customs: {
+          checkToken: jest
+            .fn()
+            .mockRejectedValue(
+              AuthError.tooManyRequests(900_000, 'in 15 minutes')
+            ),
+        },
+        oauthDB: { ...tokenRoutesArgMocks.oauthDB, getRefreshToken },
+      });
+
+      await expect(
+        routes[0].config.handler(exchangeRequest())
+      ).rejects.toMatchObject({ errno: 114 });
+
+      expect(getRefreshToken).not.toHaveBeenCalled();
     });
   });
 });

@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** The attributes we can count and block on. */
-export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email' | 'ip_uid';
+/**
+ * The attributes we can count and block on. 'token' is a credential hash, for
+ * actions checked before the account behind the credential is known.
+ */
+export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email' | 'ip_uid' | 'token';
 
 export function isBlockOn(value: unknown): value is BlockOn {
   return (
@@ -11,7 +14,8 @@ export function isBlockOn(value: unknown): value is BlockOn {
     value === 'email' ||
     value === 'uid' ||
     value === 'ip_email' ||
-    value === 'ip_uid'
+    value === 'ip_uid' ||
+    value === 'token'
   );
 }
 

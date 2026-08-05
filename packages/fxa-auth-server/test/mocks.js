@@ -42,6 +42,7 @@ const CUSTOMS_METHOD_NAMES = [
   'check',
   'checkAuthenticated',
   'checkIpOnly',
+  'checkToken',
   'flag',
   'reset',
   'v2Enabled',

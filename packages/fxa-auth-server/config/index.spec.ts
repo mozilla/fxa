@@ -45,4 +45,37 @@ describe('Config', () => {
       }).not.toThrow();
     });
   });
+
+  describe('rate limit rules', () => {
+    // The shipped rules file is otherwise only parsed at server boot, so a typo
+    // here surfaces as a deploy-time crash rather than a failing test.
+    function shippedRules() {
+      const { parseConfigRules } = require('@fxa/accounts/rate-limit');
+      const { config } = require('./index');
+      return parseConfigRules(config.get('rateLimit.rules'));
+    }
+
+    it('parses without error', () => {
+      expect(shippedRules).not.toThrow();
+    });
+
+    it('limits tokenExchange on both the token hash and the ip', () => {
+      expect(shippedRules()['tokenExchange']).toEqual([
+        {
+          blockingOn: 'token',
+          maxAttempts: 5,
+          windowDurationInSeconds: 900,
+          blockDurationInSeconds: 900,
+          blockPolicy: 'block',
+        },
+        {
+          blockingOn: 'ip',
+          maxAttempts: 100,
+          windowDurationInSeconds: 900,
+          blockDurationInSeconds: 900,
+          blockPolicy: 'block',
+        },
+      ]);
+    });
+  });
 });

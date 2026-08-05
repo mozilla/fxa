@@ -323,5 +323,9 @@ export const AUTH_SERVER_API_DESCRIPTION = {
             "retryAfterLocalized": "in a few seconds"
         }
   \`\`\`
+
+    Rate limiting uses the same shape with \`429 Too Many Requests\` and
+    \`errno: 114\`. On those responses \`retryAfter\` is in **milliseconds**;
+    the \`Retry-After\` header is in seconds, as always.
   `,
 };

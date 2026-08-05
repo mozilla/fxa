@@ -280,9 +280,7 @@ export class RateLimit {
       })(),
       wasBlocked: result != null,
       blockPolicy: result?.policy,
-      blockDurationSeconds: result
-        ? result.duration
-        : undefined,
+      blockDurationSeconds: result ? result.duration : undefined,
       wasSkipped,
       usedDefaultRule: firstRule?.isDefault ?? false,
     });
@@ -416,6 +414,8 @@ export class RateLimit {
       check('ip', opts.ip),
       check('ip_email', opts.ip_email),
       check('uid', opts.uid),
+      check('ip_uid', opts.ip_uid),
+      check('token', opts.token),
     ]);
     return bans;
   }

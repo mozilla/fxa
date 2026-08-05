@@ -715,10 +715,11 @@ describe('lib/server', () => {
 
           it('handles customs block', async () => {
             customs.checkIpOnly = jest.fn(async () => {
-              throw error.tooManyRequests(100, 'foo');
+              throw error.tooManyRequests(100000, 'foo');
             });
 
-            const { statusCode, result } = await query('/account/status');
+            const { statusCode, result, headers } =
+              await query('/account/status');
 
             expect(customs.checkIpOnly).toHaveBeenCalledTimes(1);
             expect(statusCode).toBe(429);
@@ -728,9 +729,33 @@ describe('lib/server', () => {
               error: 'Too Many Requests',
               info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
               message: 'Client has sent too many requests',
-              retryAfter: 100,
+              retryAfter: 100000,
               retryAfterLocalized: 'foo',
             });
+            expect(headers['retry-after']).toBe('100');
+          });
+
+          it('sends a default retry-after on a 429 that carries no wait', async () => {
+            customs.checkIpOnly = jest.fn(async () => {
+              throw error.smsSendRateLimitExceeded();
+            });
+
+            const { statusCode, headers } = await query('/account/status');
+
+            expect(statusCode).toBe(429);
+            expect(headers['retry-after']).toBe('30');
+          });
+
+          it('keeps a retry-after the 429 already set', async () => {
+            customs.checkIpOnly = jest.fn(async () => {
+              const err = error.tooManyRequests(100000, 'foo');
+              err.header('retry-after', '5');
+              throw err;
+            });
+
+            const { headers } = await query('/account/status');
+
+            expect(headers['retry-after']).toBe('5');
           });
 
           for (const endpoint of [

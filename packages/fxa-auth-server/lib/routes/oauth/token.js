@@ -262,6 +262,7 @@ module.exports = ({
   statsd,
   glean,
   authServerCacheRedis,
+  customs,
 }) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
@@ -605,7 +606,15 @@ module.exports = ({
     // Token exchange doesn't require client authentication since the
     // subject_token is already bound to an allowed client.
     let client = null;
-    if (params.grant_type !== GRANT_TOKEN_EXCHANGE) {
+    if (params.grant_type === GRANT_TOKEN_EXCHANGE) {
+      // A successful exchange revokes the subject token, so a repeat with the
+      // same token is a retry of a rejection. Must stay ahead of the db reads.
+      await customs.checkToken(
+        req,
+        'tokenExchange',
+        hex(encrypt.hash(params.subject_token))
+      );
+    } else {
       client = await authenticateClient(req.headers, params);
       // Refuse to generate new access tokens for disabled clients that are already
       // connected to the account. We allow disabled clients to claim existing authorization

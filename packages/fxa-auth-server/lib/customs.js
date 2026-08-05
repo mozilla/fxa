@@ -182,6 +182,16 @@ class CustomsClient {
     return this.handleCustomsResult(request, result);
   }
 
+  /**
+   * Rate limits on a credential hash, for actions checked before the account
+   * behind it is known. v2 only; no-ops when v2 is off.
+   */
+  async checkToken(request, action, tokenHash) {
+    const opts = toOpts(request?.app?.clientAddress);
+    opts.token = tokenHash;
+    await this.checkV2(request, 'checkToken', action, opts);
+  }
+
   async flag(ip, info) {
     // noop since this is being deprecated
     return Promise.resolve();
@@ -247,15 +257,18 @@ class CustomsClient {
       const unblock = !!result.unblock;
 
       if (result.retryAfter) {
+        // Legacy reports seconds; everything downstream expects ms.
+        const retryAfter = result.retryAfter * 1000;
+
         // Create a localized retryAfterLocalized value from retryAfter.
         // For example '713' becomes '12 minutes' in English.
         const retryAfterLocalized = localizeTimestamp.format(
-          Date.now() + result.retryAfter * 1000,
+          Date.now() + retryAfter,
           request.headers['accept-language']
         );
 
         throw this.error.tooManyRequests(
-          result.retryAfter,
+          retryAfter,
           retryAfterLocalized,
           unblock
         );
@@ -320,6 +333,7 @@ class CustomsClient {
         uid: opts.uid,
         ip_email: opts.ip_email,
         ip_uid: opts.ip_uid,
+        token: opts.token,
       });
     } catch (err) {
       Sentry.captureException(err, {
