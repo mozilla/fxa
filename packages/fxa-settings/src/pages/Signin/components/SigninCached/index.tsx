@@ -262,6 +262,9 @@ const SigninCached = ({
           <FtlMsg id="signin-button">
             <CmsButtonWithFallback
               type="submit"
+              // Functional tests identify this step by test id: it shares
+              // /signin with the password step and all its copy is CMS-driven.
+              data-testid="cached-signin-submit"
               disabled={signinLoading}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={cachedPageCms?.primaryButtonText}

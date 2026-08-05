@@ -95,7 +95,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
@@ -108,7 +112,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('enables submit button when code entered', async () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
 
     const inputEl = screen.getByLabelText('Enter 6-digit code');
     await waitFor(() => userEvent.type(inputEl, '123456'));
@@ -137,10 +145,25 @@ describe('Sign in with TOTP code page', () => {
       </MemoryRouter>
     );
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.headline!)
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage.headline)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.description!)
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage.description)
+    ).toBeInTheDocument();
+  });
+
+  it('renders the CMS primary button text when provided', () => {
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject
+          integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+        />
+      </MemoryRouter>
+    );
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SigninTotpCodePage.primaryButtonText,
+      })
     ).toBeInTheDocument();
   });
 
@@ -159,7 +182,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
     expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
     expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
     expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
@@ -205,7 +232,9 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', {
+        replace: false,
+      });
     });
 
     describe('fxaLogin webchannel message', () => {

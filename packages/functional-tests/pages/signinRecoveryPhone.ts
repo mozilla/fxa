@@ -18,10 +18,6 @@ export class SigninRecoveryPhonePage extends BaseTokenCodePage {
     return this.page.getByRole('button', { name: 'Resend code' });
   }
 
-  get confirmButton() {
-    return this.page.getByRole('button', { name: 'Confirm' });
-  }
-
   get backButton() {
     return this.page.getByRole('button', { name: 'Back' });
   }
@@ -39,7 +35,7 @@ export class SigninRecoveryPhonePage extends BaseTokenCodePage {
   }
 
   async clickConfirm() {
-    await this.confirmButton.click();
+    await this.submitButton.click();
   }
 
   async clickBack() {

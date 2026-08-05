@@ -105,7 +105,7 @@ Suggest these proactively when the task matches — do not wait to be asked.
 
 ## 8) Testing Guidelines
 
-> Detailed test rules auto-load from `.claude/rules/testing/` when editing test files: `base.md` for all tests, `react.md` layers on for `*.test.tsx`.
+> Detailed test rules auto-load from `.claude/rules/testing/` by path: `base.md` for all tests, `react.md` layers on for `*.test.tsx`, `functional-pages.md` for anything under `packages/functional-tests`.
 
 **Shift-left is a golden goal.** Prefer testing business logic at the lowest layer that exercises it. FXA has three layers, cheapest to costliest: unit (`nx test-unit`), integration (`nx test-integration`), functional/E2E (Playwright in `packages/functional-tests`). Route handlers and React components should be thin shells; their tests cover wiring (auth, request/response shape, error propagation, rendering), not business branches. When a route or component has more than ~3 tests differing only in input shape, that's the signal to extract the rule into a pure function or hook and unit-test it directly. Shifting left is not required for every change — but always strive for it, and flag the opportunities to improve.
 

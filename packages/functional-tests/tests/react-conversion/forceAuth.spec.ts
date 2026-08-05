@@ -22,7 +22,7 @@ test.describe('force auth react', () => {
     );
     await page.goto(url);
 
-    await expect(signin.passwordFormHeading).toBeVisible();
+    await expect(signin.passwordTextbox).toBeVisible();
     await expect(page.getByText(credentials.email)).toBeVisible();
     await expect(signin.signInButton).toBeVisible();
   });
@@ -41,7 +41,10 @@ test.describe('force auth react', () => {
     );
     await page.goto(url);
 
-    await expect(signup.signupFormHeading).toBeVisible();
+    // URL guard: the signin password step labels its field identically, so the
+    // field alone does not prove we routed to signup.
+    await expect(page).toHaveURL(/signup/);
+    await expect(signup.verifyPasswordTextbox).toBeVisible();
     await expect(page.getByText(unregisteredEmail)).toBeVisible();
     await expect(signup.createAccountButton).toBeVisible();
   });

@@ -25,7 +25,7 @@ test.describe('severity-2 #smoke', () => {
       // Return to sign in without signing out
       await signin.goto();
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       // email is prefilled and password is not required to sign in
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();

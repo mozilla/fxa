@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.clearSessionStorage();
       await page.goto(target.contentServerUrl);
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
 
       await signin.signInButton.click();
@@ -56,7 +56,7 @@ test.describe('severity-2 #smoke', () => {
 
       await signin.denormalizeStoredEmail(email);
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
 
       await signin.signInButton.click();
@@ -85,7 +85,7 @@ test.describe('severity-2 #smoke', () => {
         page.getByText('Session expired. Sign in to continue.')
       ).toBeVisible();
 
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await signin.fillOutPasswordForm(credentials.password);
 
       //Verify logged in on Settings page
@@ -181,7 +181,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.primaryEmail.status).toHaveText(credentials1.email);
       await settings.signOut();
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
 
       // Check that suggested cached account is the sync account
       await expect(page.getByText(credentials2.email)).toBeVisible();

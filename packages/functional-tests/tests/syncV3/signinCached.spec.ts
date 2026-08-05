@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(`${target.contentServerUrl}?${queryParam.toString()}`);
 
       //Check prefilled email
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -41,7 +41,7 @@ test.describe('severity-2 #smoke', () => {
       // the account settings would be loaded for the sync credential account
 
       await page.goto(target.contentServerUrl);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       // suggests most recently signed in account
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();
@@ -50,10 +50,10 @@ test.describe('severity-2 #smoke', () => {
       await settings.signOut();
 
       // falls back to suggesting the account signed in to the browser
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
       await signin.useDifferentAccountLink.click();
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
     });
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({

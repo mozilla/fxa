@@ -9,12 +9,7 @@ export class SigninUnblockPage extends BaseTokenCodePage {
 
   get heading() {
     this.checkPath();
-    return this.page.getByRole('heading', { name: /^Authorize this sign-in/ });
-  }
-
-  get submitButton() {
-    this.checkPath();
-    return this.page.getByRole('button', { name: 'Continue' });
+    return this.pageHeading;
   }
 
   get codeInput() {

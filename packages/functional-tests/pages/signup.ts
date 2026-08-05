@@ -9,24 +9,12 @@ import { getReactFeatureFlagUrl } from '../lib/react-flag';
 export class SignupPage extends BaseLayout {
   readonly path = 'signup';
 
-  get emailFormHeading() {
-    // Match by role/level only — the heading text can be overridden by CMS
-    // configuration per relying party, so asserting on copy is fragile.
-    return this.page.getByRole('heading', { level: 1 });
-  }
-
   get emailTextbox() {
     return this.page.getByRole('textbox', { name: 'Enter your email' });
   }
 
   get submitButton() {
-    return this.page
-      .getByRole('button')
-      .and(this.page.locator('button[type="submit"]'));
-  }
-
-  get signupFormHeading() {
-    return this.page.getByRole('heading', { name: 'Create a password' });
+    return this.formSubmitButton;
   }
 
   get passwordTextbox() {
@@ -48,7 +36,7 @@ export class SignupPage extends BaseLayout {
   }
 
   get createAccountButton() {
-    return this.page.getByRole('button', { name: 'Create account' });
+    return this.formSubmitButton;
   }
 
   get changeEmailLink() {
@@ -79,7 +67,6 @@ export class SignupPage extends BaseLayout {
   }
 
   async fillOutEmailForm(email: string) {
-    await expect(this.emailFormHeading).toBeVisible();
     await expect(this.emailTextbox).toBeVisible();
 
     await this.emailTextbox.fill(email);
@@ -87,14 +74,14 @@ export class SignupPage extends BaseLayout {
   }
 
   async fillOutSignupForm(password: string) {
-    await expect(this.signupFormHeading).toBeVisible();
+    await expect(this.passwordTextbox).toBeVisible();
 
     await this.passwordTextbox.fill(password);
     await this.createAccountButton.click();
   }
 
   async fillOutSyncSignupForm(password: string) {
-    await expect(this.signupFormHeading).toBeVisible();
+    await expect(this.passwordTextbox).toBeVisible();
 
     await this.passwordTextbox.fill(password);
     await this.verifyPasswordTextbox.fill(password);

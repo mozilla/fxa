@@ -309,6 +309,26 @@ describe('SigninPasswordlessCode page', () => {
       ).toBeInTheDocument();
     });
 
+    it('renders the CMS headline and primary button text when provided', () => {
+      // Local fixture: MOCK_CMS_INFO has no SigninPasswordlessCodePage yet.
+      const cmsPage = {
+        headline: 'CMS: Check your email',
+        description: 'CMS: for your sign-in code',
+        primaryButtonText: 'CMS: Continue',
+        pageTitle: 'CMS: Check your email',
+      };
+      const integration = createOAuthNativeIntegration(true, {
+        ...MOCK_CMS_INFO,
+        SigninPasswordlessCodePage: cmsPage,
+      });
+      render({ integration, isSignup: false });
+
+      expect(screen.getByText(cmsPage.headline)).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: cmsPage.primaryButtonText })
+      ).toBeInTheDocument();
+    });
+
     it('does not render additional accessibility info when CMS info is absent', () => {
       render({ isSignup: false });
 

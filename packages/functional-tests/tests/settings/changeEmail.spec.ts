@@ -79,7 +79,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Sign in with old password
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
       await signin.fillOutEmailFirstForm(newEmail);
       await signin.fillOutPasswordForm(initialPassword);
 

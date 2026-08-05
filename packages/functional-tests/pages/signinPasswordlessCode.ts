@@ -9,19 +9,12 @@ export class SigninPasswordlessCodePage extends BaseTokenCodePage {
 
   get heading() {
     this.checkPath();
-    return this.page.getByRole('heading', {
-      name: /^(Enter confirmation code|Create your account)/,
-    });
+    return this.pageHeading;
   }
 
   get codeInput() {
     this.checkPath();
     return this.page.getByLabel('Enter 6-digit code');
-  }
-
-  get submitButton() {
-    this.checkPath();
-    return this.page.getByRole('button', { name: 'Confirm' });
   }
 
   get resendCodeButton() {

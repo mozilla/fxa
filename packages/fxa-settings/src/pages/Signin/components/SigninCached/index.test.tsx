@@ -18,6 +18,7 @@ import {
 import { handleNavigation } from '../../utils';
 import {
   MOCK_AVATAR_NON_DEFAULT,
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
@@ -87,6 +88,10 @@ describe('SigninCached', () => {
     screen.getByAltText('Your avatar');
     screen.getByText(MOCK_EMAIL);
     screen.getByRole('button', { name: 'Sign in' });
+    expect(screen.getByTestId('cached-signin-submit')).toHaveAttribute(
+      'type',
+      'submit'
+    );
     screen.getByRole('link', { name: 'Use a different account' });
     expect(screen.queryByLabelText('Password')).not.toBeInTheDocument();
     expect(
@@ -95,6 +100,29 @@ describe('SigninCached', () => {
     expect(
       screen.queryByRole('link', { name: 'Forgot password?' })
     ).not.toBeInTheDocument();
+  });
+
+  it('renders the CMS headline and primary button text when provided', () => {
+    // Local fixture: MOCK_CMS_INFO deliberately omits SigninCachedPage so the
+    // Signin suite can cover the fallback path.
+    const cachedPageCms = {
+      headline: 'CMS: Sign in to continue',
+      description: 'CMS: with your saved account',
+      primaryButtonText: 'CMS: Continue',
+      pageTitle: 'CMS: Sign in to continue',
+    };
+    renderSigninCached({
+      integration: createMockSigninWebIntegration({
+        cmsInfo: { ...MOCK_CMS_INFO, SigninCachedPage: cachedPageCms },
+      }),
+    });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: cachedPageCms.headline })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: cachedPageCms.primaryButtonText })
+    ).toBeInTheDocument();
   });
 
   it('renders the same cached UI for passwordless users (hasPassword=false)', () => {

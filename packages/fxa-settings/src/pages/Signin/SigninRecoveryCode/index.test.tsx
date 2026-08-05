@@ -180,7 +180,12 @@ describe('PageSigninRecoveryCode', () => {
       screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.headline!)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.description!)
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage.description)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SigninRecoveryCodePage.primaryButtonText,
+      })
     ).toBeInTheDocument();
   });
 
