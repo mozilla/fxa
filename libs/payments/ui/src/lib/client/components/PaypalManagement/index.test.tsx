@@ -96,12 +96,7 @@ describe('PaypalManagement', () => {
   });
 
   it('renders the PayPal button when script is loaded', () => {
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="usd"
-      />
-    );
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
 
     expect(screen.getByTestId('paypal-button')).toBeInTheDocument();
   });
@@ -109,12 +104,7 @@ describe('PaypalManagement', () => {
   it('shows a spinner while the PayPal script is loading', () => {
     mockScriptReducerState = { isPending: true, isRejected: false };
 
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="usd"
-      />
-    );
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
 
     expect(screen.getByRole('presentation')).toBeInTheDocument();
     expect(screen.queryByTestId('paypal-button')).not.toBeInTheDocument();
@@ -123,12 +113,7 @@ describe('PaypalManagement', () => {
   it('shows an error message and reports to Sentry when PayPal script fails to load', () => {
     mockScriptReducerState = { isPending: false, isRejected: true };
 
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="usd"
-      />
-    );
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
 
     expect(
       screen.getByText(/PayPal is currently unavailable/i)
@@ -142,12 +127,7 @@ describe('PaypalManagement', () => {
   it('calls getPayPalCheckoutToken with lowercase currency on createOrder', async () => {
     mockGetPayPalCheckoutToken.mockResolvedValue('EC-TOKEN123');
 
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="USD"
-      />
-    );
+    render(<PaypalManagement paypalClientId="test-client-id" currency="USD" />);
 
     if (!capturedCreateOrder) {
       throw new Error('createOrder callback was not captured');
@@ -163,12 +143,7 @@ describe('PaypalManagement', () => {
     mockGetPayPalCheckoutToken.mockResolvedValue('EC-TOKEN123');
     mockCreatePayPalBillingAgreementId.mockResolvedValue(undefined);
 
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="usd"
-      />
-    );
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
 
     await user.click(screen.getByTestId('paypal-button'));
 
@@ -179,19 +154,42 @@ describe('PaypalManagement', () => {
     });
 
     await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        '/en/subscriptions/manage'
-      );
+      expect(mockRouterPush).toHaveBeenCalledWith('/en/subscriptions/manage');
     });
   });
 
-  it('propagates PayPal checkout errors via onError handler', () => {
-    render(
-      <PaypalManagement
-        paypalClientId="test-client-id"
-        currency="usd"
-      />
+  it('rejects when getPayPalCheckoutToken fails during createOrder', async () => {
+    mockGetPayPalCheckoutToken.mockRejectedValue(
+      new Error('Token fetch failed')
     );
+
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
+
+    if (!capturedCreateOrder) {
+      throw new Error('createOrder callback was not captured');
+    }
+    await expect(capturedCreateOrder()).rejects.toThrow('Token fetch failed');
+  });
+
+  it('rejects when createPayPalBillingAgreementId fails during onApprove', async () => {
+    mockCreatePayPalBillingAgreementId.mockRejectedValue(
+      new Error('Billing agreement failed')
+    );
+
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
+
+    if (!capturedOnApprove) {
+      throw new Error('onApprove callback was not captured');
+    }
+    await expect(capturedOnApprove({ orderID: 'EC-TOKEN123' })).rejects.toThrow(
+      'Billing agreement failed'
+    );
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('propagates PayPal checkout errors via onError handler', () => {
+    render(<PaypalManagement paypalClientId="test-client-id" currency="usd" />);
 
     if (!capturedOnError) {
       throw new Error('onError callback was not captured');
