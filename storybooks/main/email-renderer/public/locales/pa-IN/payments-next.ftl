@@ -18,6 +18,7 @@ upgrade-page-payment-information = ਭੁਗਤਾਨ ਦੀ ਜਾਣਕਾਰ�
 
 checkout-error-boundary-retry-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
 amex-logo-alt-text = { -brand-amex } ਲੋਗੋ
+diners-logo-alt-text2 = { -brand-diners } ਲੋਗੋ
 discover-logo-alt-text = { -brand-discover } ਲੋਗੋ
 jcb-logo-alt-text = { -brand-jcb } ਲੋਗੋ
 mastercard-logo-alt-text = { -brand-mastercard } ਲੋਗੋ

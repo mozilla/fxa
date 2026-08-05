@@ -1,8 +1,8 @@
 {
-  "commit": "fb849c707845684efe6412d189518ffd28e89370",
-  "summary": "Merge pull request #20966 from mozilla/PAY-3890",
-  "description": "fix(auth): resolve invoice subscriptions outside the list expand",
-  "timestamp": 1785879682000,
+  "commit": "62d8b93a66c9ef1c57564965805ee4d1241f23e2",
+  "summary": "Merge pull request #20957 from mozilla/PAY-3834",
+  "description": "feat(payments): Adds test for extended coverage",
+  "timestamp": 1785939003000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
