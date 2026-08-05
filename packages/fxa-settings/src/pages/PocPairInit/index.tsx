@@ -40,6 +40,36 @@
  *
  * This mirrors the Android situation noted at `deepLink` below: the no-chooser /
  * no-alert path on both platforms is verified app links, which is app-side work.
+ *
+ * Android finding — the extra 'continue with firefox' tap is an iOS tax, so
+ * Android doesn't pay it:
+ *
+ * 4. Every constraint above is WebKit-specific. Chromium follows a top-level
+ *    `intent://` navigation made from page script with no user-activation bit
+ *    required, and the intent carries its own store fallback in
+ *    `S.browser_fallback_url`, so there is nothing for the JS watchdog to infer.
+ *    Making the user tap "Continue with Firefox" on Android therefore buys
+ *    nothing — they already acted, by scanning the QR. We now fire the deep link
+ *    from a mount effect on Android and keep the happy path at zero taps.
+ *
+ *    Two things that auto-navigation forces us to handle, which a manual tap did
+ *    not:
+ *
+ *    a. The Play Store round-trip becomes a loop risk. Back from the store
+ *       returns to this page in the same tab; if Chrome reloads it rather than
+ *       restoring from the back/forward cache, an unguarded effect re-fires the
+ *       intent and bounces the user straight back out. `shouldAutoAttempt` /
+ *       `claimAutoAttempt` spend a one-shot token in sessionStorage, which
+ *       survives both a reload and the native-app round-trip. No token (storage
+ *       unavailable, or already spent) ⇒ render the manual CTA instead.
+ *
+ *    b. In an in-app WebView (Gmail, Facebook) `intent://` silently no-ops unless
+ *       the host app implements shouldOverrideUrlLoading, which would strand the
+ *       user on the spinner forever. A UI-only timer reveals the manual CTA — it
+ *       never navigates, so it cannot race the store fallback.
+ *
+ *    Still outstanding on Android: the "Choose activity" chooser, for the same
+ *    reason as iOS's alert — verified app links are the fix, and they're app-side.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -66,15 +96,27 @@ const DEFAULT_CHANNEL_KEY = 'pocChannelKey0000000000000000000000000000000';
 function detectPlatform(ua: string) {
   const isIos = /iPhone|iPad|iPod/i.test(ua);
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  // Matched explicitly rather than inferred as "mobile but not iOS": we now
+  // auto-navigate to `intent://` on Android, and the loose inference swept in
+  // every other mobile UA (KaiOS, old Windows Phone, unusual WebViews) that
+  // cannot handle that scheme. Those now fall through to the firefox:// +
+  // armStoreFallback path, which degrades to a visible CTA instead.
+  const isAndroid = /Android/i.test(ua);
   // 'fxios' covers Firefox on iOS, which does not contain 'firefox' in its UA.
   const isFirefox = /firefox|fxios/i.test(ua);
-  return { isIos, isAndroid: isMobile && !isIos, isMobile, isFirefox };
+  return { isIos, isAndroid, isMobile, isFirefox };
 }
 
 // Custom-scheme guards for the iOS deep link. Anything not matching (or a
 // dangerous scheme like javascript:/data:) falls back to a safe constant, so
 // user input can never turn the `location.href = deepLink` into an XSS vector.
-const DANGEROUS_SCHEMES = new Set(['javascript', 'data', 'vbscript', 'file', 'blob']);
+const DANGEROUS_SCHEMES = new Set([
+  'javascript',
+  'data',
+  'vbscript',
+  'file',
+  'blob',
+]);
 const SAFE_SCHEME = /^[a-z][a-z0-9.+-]*$/;
 const SAFE_ACTION = /^[a-z0-9/_-]+$/i;
 
@@ -88,7 +130,10 @@ const SAFE_ACTION = /^[a-z0-9/_-]+$/i;
 function sameOriginHttpUrl(raw: string, origin: string): string | null {
   try {
     const u = new URL(raw, origin);
-    if ((u.protocol === 'http:' || u.protocol === 'https:') && u.origin === origin) {
+    if (
+      (u.protocol === 'http:' || u.protocol === 'https:') &&
+      u.origin === origin
+    ) {
       return u.href;
     }
   } catch {
@@ -117,6 +162,10 @@ function readConfig(search: string) {
   const timeout = Number(params.get('timeout')) || DEFAULT_TIMEOUT_MS;
   const grace = Number(params.get('grace')) || DEFAULT_GRACE_MS;
 
+  // `?auto=0` opts out of the Android auto-attempt and restores the tap-to-continue
+  // flow, so both can be compared on the same device without a rebuild.
+  const autoAttempt = params.get('auto') !== '0';
+
   const sampleQuery = new URLSearchParams({
     channel_id: params.get('channel_id') || DEFAULT_CHANNEL_ID,
     channel_key: params.get('channel_key') || DEFAULT_CHANNEL_KEY,
@@ -126,9 +175,84 @@ function readConfig(search: string) {
   // `?url=` may only point at our own origin — blocks open-redirects and
   // javascript:/data: URLs. Anything else falls back to the default target.
   const target =
-    sameOriginHttpUrl(params.get('url') || defaultTarget, origin) || defaultTarget;
+    sameOriginHttpUrl(params.get('url') || defaultTarget, origin) ||
+    defaultTarget;
 
-  return { target, timeout, grace, scheme, action, protocol };
+  return { target, timeout, grace, scheme, action, protocol, autoAttempt };
+}
+
+/**
+ * A single auto-attempt is spent per target per tab session. sessionStorage is
+ * the only store that survives BOTH a reload of this page and a trip out to the
+ * Play Store and back, which is exactly the pair of events we have to survive.
+ * Keyed on the target so a QR for a different target still gets its own shot.
+ */
+export const AUTO_ATTEMPT_KEY_PREFIX = 'poc_pair_init_auto_attempted:';
+
+const autoAttemptKey = (target: string) =>
+  `${AUTO_ATTEMPT_KEY_PREFIX}${target}`;
+
+/** Storage surface we need — lets tests pass a stub, including a throwing one. */
+type AttemptStorage = Pick<Storage, 'getItem' | 'setItem'>;
+
+/**
+ * `window.sessionStorage` is a getter that itself throws in some sandboxed
+ * WebViews, so even reaching it needs a guard.
+ */
+export function getAttemptStorage(): AttemptStorage | undefined {
+  try {
+    return typeof window !== 'undefined' ? window.sessionStorage : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Read-only decision: should this page hand off to Firefox without waiting for a
+ * tap? Android only — iOS requires the navigation to come from the tap itself
+ * (finding 1), and inside Firefox there is nothing to hand off to (see the mount
+ * effect). No usable storage counts as "no", because without a spent-token
+ * record we cannot stop a Play Store bounce loop (finding 4a), and today's
+ * manual CTA is the safe way to fail.
+ */
+export function shouldAutoAttempt({
+  isAndroid,
+  isFirefox,
+  autoAttempt,
+  target,
+  storage,
+}: {
+  isAndroid: boolean;
+  isFirefox: boolean;
+  autoAttempt: boolean;
+  target: string;
+  storage: AttemptStorage | undefined;
+}): boolean {
+  if (!isAndroid || isFirefox || !autoAttempt || !storage) {
+    return false;
+  }
+  try {
+    return storage.getItem(autoAttemptKey(target)) === null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Spend the one-shot token. Returns whether we now own the attempt — callers must
+ * navigate only on `true`, since a `getItem` that works alongside a `setItem`
+ * that throws would otherwise re-attempt forever.
+ */
+export function claimAutoAttempt(
+  target: string,
+  storage: AttemptStorage | undefined
+): boolean {
+  try {
+    storage?.setItem(autoAttemptKey(target), '1');
+    return storage !== undefined;
+  } catch {
+    return false;
+  }
 }
 
 type Status = 'redirecting' | 'prompt' | 'attempting' | 'desktop';
@@ -139,7 +263,8 @@ const PocPairInit = () => {
   const location = useLocation();
   const search =
     typeof window !== 'undefined' ? window.location.search : location.search;
-  const { target, timeout, grace, scheme, action, protocol } = readConfig(search);
+  const { target, timeout, grace, scheme, action, protocol, autoAttempt } =
+    readConfig(search);
 
   const config = useConfig();
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
@@ -158,14 +283,31 @@ const PocPairInit = () => {
   // cannot work in the local http setup, and must be done in a follow up. For
   // this POC, we will have to live the activity chooser when testing on local host.
   const deepLink = (() => {
-    if(isAndroid) {
-      return `intent://${target.replace(/^https?:\/\//, '')}#Intent;scheme=${protocol};package=org.mozilla.firefox;S.browser_fallback_url=${encodeURIComponent(storeUrl)};end`
+    if (isAndroid) {
+      return `intent://${target.replace(/^https?:\/\//, '')}#Intent;scheme=${protocol};package=org.mozilla.firefox;S.browser_fallback_url=${encodeURIComponent(storeUrl)};end`;
     }
-    return `${scheme}://${action}?url=${encodeURIComponent(target)}`
-  })()
+    return `${scheme}://${action}?url=${encodeURIComponent(target)}`;
+  })();
+
+  // Read-only, so it is safe to evaluate during render (and under StrictMode's
+  // double render). The token is only spent in the mount effect below.
+  const storage = getAttemptStorage();
+  const willAutoAttempt = shouldAutoAttempt({
+    isAndroid,
+    isFirefox,
+    autoAttempt,
+    target,
+    storage,
+  });
 
   const [status, setStatus] = useState<Status>(
-    isFirefox ? 'redirecting' : isMobile ? 'prompt' : 'desktop'
+    isFirefox
+      ? 'redirecting'
+      : willAutoAttempt
+        ? 'attempting'
+        : isMobile
+          ? 'prompt'
+          : 'desktop'
   );
   // Shared source of truth for "the app took the foreground", written by the
   // visibility listeners and read by both store-fallback triggers.
@@ -174,13 +316,29 @@ const PocPairInit = () => {
   const cleanupRef = useRef<(() => void) | null>(null);
   useEffect(() => () => cleanupRef.current?.(), []);
 
-  // Already in Firefox: skip the button entirely and navigate the current tab
-  // straight to the target. A firefox:// scheme navigation from inside Firefox
-  // does nothing, and no app hand-off is needed — we're already in Firefox.
   useEffect(() => {
+    // Already in Firefox: skip the button entirely and navigate the current tab
+    // straight to the target. A firefox:// scheme navigation from inside Firefox
+    // does nothing, and no app hand-off is needed — we're already in Firefox.
     if (isFirefox) {
       window.location.assign(target);
+      return;
     }
+
+    // Android: hand off immediately, no tap (finding 4). Navigate only once the
+    // one-shot token is actually ours, or Back from the Play Store loops.
+    if (!willAutoAttempt || !claimAutoAttempt(target, storage)) {
+      return;
+    }
+    window.location.assign(deepLink);
+
+    // WebView backstop: if the intent silently no-ops, reveal the manual CTA
+    // rather than spinning forever. State only — never a navigation, so it can't
+    // race S.browser_fallback_url (a successful fallback unloads us first). We
+    // don't gate on visibilityState: if the hand-off did work, this fires while
+    // backgrounded and the user simply returns to a usable retry card.
+    const revealTimer = window.setTimeout(() => setStatus('prompt'), timeout);
+    return () => window.clearTimeout(revealTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -294,7 +452,10 @@ const PocPairInit = () => {
 
   return (
     <AppLayout>
-      <CardHeader headingText="Pair Start" headingTextFtlId="poc_pair_init-header" />
+      <CardHeader
+        headingText="Pair Start"
+        headingTextFtlId="poc_pair_init-header"
+      />
 
       {status === 'redirecting' && (
         <p className="text-sm text-grey-400 mt-2">Continuing in Firefox…</p>
@@ -302,8 +463,8 @@ const PocPairInit = () => {
 
       {status === 'desktop' && (
         <p className="text-sm text-grey-400 mt-2">
-          This open-or-store flow is for mobile. On desktop, just open the target
-          directly:{' '}
+          This open-or-store flow is for mobile. On desktop, just open the
+          target directly:{' '}
           <a className="link-blue break-all" href={target}>
             {target}
           </a>
@@ -329,26 +490,30 @@ const PocPairInit = () => {
             </p>
           )}
           {/* Escape hatch, not the primary path — armStoreFallback() redirects on
-              its own. This covers the residual case where the alert happens to
-              fire visibilitychange on some iOS version, which correctly suppresses
-              both triggers and would otherwise leave the user sitting here.
-              Android has its own native fallback and doesn't need it. */}
-          {!isAndroid && (
-            <p className="text-sm text-grey-400">
-              {status === 'attempting'
-                ? 'Firefox didn’t open? '
-                : 'Don’t have Firefox? '}
-              <a className="link-blue" href={storeUrl}>
-                Get Firefox on the {storeName}
-              </a>
-            </p>
-          )}
+              its own. On iOS this covers the residual case where the alert happens
+              to fire visibilitychange on some iOS version, which correctly
+              suppresses both triggers and would otherwise leave the user sitting
+              here. It now shows on Android too: reaching this card there means the
+              auto-attempt was spent, blocked, or silently swallowed by a WebView,
+              so S.browser_fallback_url never got the chance to run. */}
+          <p className="text-sm text-grey-400">
+            {status === 'attempting'
+              ? 'Firefox didn’t open? '
+              : 'Don’t have Firefox? '}
+            <a className="link-blue" href={storeUrl}>
+              Get Firefox on the {storeName}
+            </a>
+          </p>
         </div>
       )}
 
       {/* Debug block — POC visibility into what this page resolved. */}
       <pre className="text-xs text-start break-all whitespace-pre-wrap mt-6 text-grey-400">
-        {`deepLink: ${deepLink}\ntarget:   ${target}\ntimeout:  ${timeout}ms\ngrace:    ${grace}ms`}
+        {`deepLink: ${deepLink}\ntarget:   ${target}\ntimeout:  ${timeout}ms\ngrace:    ${grace}ms\nauto:     ${autoAttempt ? 'on' : 'off (?auto=0)'} — ${
+          willAutoAttempt
+            ? 'attempted on load'
+            : `manual (${!isAndroid ? 'not android' : !storage ? 'no sessionStorage' : 'already attempted'})`
+        }`}
       </pre>
     </AppLayout>
   );
