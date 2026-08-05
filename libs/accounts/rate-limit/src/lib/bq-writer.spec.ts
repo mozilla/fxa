@@ -52,7 +52,7 @@ describe('RateLimitBqWriter', () => {
     config = {
       projectId: 'test-project',
       dataset: 'fxa',
-      table: 'rate_limit_checks',
+      table: 'rate_limit_checks_v2',
       flushIntervalMs: 5000,
       batchSize: 3,
     };

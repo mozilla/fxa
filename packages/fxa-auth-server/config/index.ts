@@ -2613,7 +2613,7 @@ const convictConf = convict({
         format: String,
       },
       table: {
-        default: 'rate_limit_checks',
+        default: 'rate_limit_checks_v2',
         doc: 'BigQuery table name',
         env: 'RATE_LIMIT__BIGQUERY__TABLE',
         format: String,
