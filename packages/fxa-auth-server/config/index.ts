@@ -2713,7 +2713,7 @@ const convictConf = convict({
   passkeys: {
     enabled: {
       default: false,
-      doc: 'Master switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
+      doc: 'Primary switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
       env: 'PASSKEYS__ENABLED',
       format: Boolean,
     },
@@ -2727,6 +2727,12 @@ const convictConf = convict({
       default: false,
       doc: 'Enable passkey authentication (sign in with passkey). Requires passkeys.enabled.',
       env: 'PASSKEYS__AUTHENTICATION_ENABLED',
+      format: Boolean,
+    },
+    passwordlessSyncEnabled: {
+      default: false,
+      doc: 'Enable passwordless sync sign-in, where kB is recovered from a passkey-wrapped envelope instead of the password. Requires passkeys.enabled.',
+      env: 'PASSKEYS__PASSWORDLESS_SYNC_ENABLED',
       format: Boolean,
     },
     rpId: {

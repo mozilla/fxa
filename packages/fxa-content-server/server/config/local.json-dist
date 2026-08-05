@@ -79,6 +79,7 @@
     "passkeysEnabled": true,
     "passkeyRegistrationEnabled": true,
     "passkeyAuthenticationEnabled": true,
+    "passkeyPasswordlessSyncEnabled": true,
     "passwordlessEnabled": true
   },
   "darkMode": {

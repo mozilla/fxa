@@ -249,7 +249,7 @@ const conf = (module.exports = convict({
     },
     passkeysEnabled: {
       default: false,
-      doc: 'Master switch for passkeys UI. Must be true for registration or authentication UI to activate.',
+      doc: 'Primary switch for passkeys UI. Must be true for registration or authentication UI to activate.',
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
     },
@@ -264,6 +264,12 @@ const conf = (module.exports = convict({
       doc: 'Enables passkey sign-in UI',
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED',
+    },
+    passkeyPasswordlessSyncEnabled: {
+      default: false,
+      doc: 'Enables passwordless sync sign-in UI, where sync keys are recovered from a passkey instead of the password',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PASSWORDLESS_SYNC_ENABLED',
     },
     passwordlessEnabled: {
       default: false,
