@@ -45,7 +45,6 @@ auth-error-page-title = თქვენს ანგარიშზე შეს
 checkout-error-boundary-retry-button = ხელახლა ცდა
 checkout-error-boundary-basic-error-message = რაღაც ხარვეზი წარმოიშვა. გთხოვთ, სცადოთ ხელახლა ან <contactSupportLink>დაუკავშირდეთ მხარდაჭერის გუნდს.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex }-ლოგო
-diners-logo-alt-text = { -brand-diner }-ლოგო
 discover-logo-alt-text = { -brand-discover }-ლოგო
 jcb-logo-alt-text = { -brand-jcb }-ლოგო
 mastercard-logo-alt-text = { -brand-mastercard }-ლოგო

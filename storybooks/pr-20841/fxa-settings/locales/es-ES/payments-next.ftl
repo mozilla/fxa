@@ -38,7 +38,6 @@ auth-error-page-title = No hemos podido iniciar la sesión
 checkout-error-boundary-retry-button = Volver a intentarlo
 checkout-error-boundary-basic-error-message = Algo salió mal. Inténtalo de nuevo o <contactSupportLink>contacta con el servicio de asistencia</contactSupportLink>.
 amex-logo-alt-text = Logo de { -brand-amex }
-diners-logo-alt-text = Logo de { -brand-diner }
 discover-logo-alt-text = Logo de { -brand-discover }
 jcb-logo-alt-text = Logo de { -brand-jcb }
 mastercard-logo-alt-text = Logo de { -brand-mastercard }

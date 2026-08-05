@@ -41,7 +41,6 @@ auth-error-page-title = S’bënë Dot Futjen Tuaj Në Llogari
 checkout-error-boundary-retry-button = Riprovoni
 checkout-error-boundary-basic-error-message = Diç shkoi ters. Ju lutemi, riprovoni, ose <contactSupportLink>lidhuni me asistencën.</contactSupportLink>
 amex-logo-alt-text = Stemë { -brand-amex }-i
-diners-logo-alt-text = Stemë { -brand-diner }-i
 discover-logo-alt-text = Stemë { -brand-discover }-i
 jcb-logo-alt-text = Stemë { -brand-jcb }-je
 mastercard-logo-alt-text = Stemë { -brand-mastercard }-i

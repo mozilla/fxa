@@ -18,7 +18,6 @@ upgrade-page-payment-information = Маълумоти пардохт
 
 checkout-error-boundary-retry-button = Аз нав кӯшиш кардан
 amex-logo-alt-text = Тамғаи «{ -brand-amex }»
-diners-logo-alt-text = Тамғаи «{ -brand-diner }»
 discover-logo-alt-text = Тамғаи «{ -brand-discover }»
 jcb-logo-alt-text = Тамғаи «{ -brand-jcb }»
 mastercard-logo-alt-text = Тамғаи «{ -brand-mastercard }»

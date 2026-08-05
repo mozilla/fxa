@@ -42,7 +42,6 @@ auth-error-page-title = Nepodarilo sa nám vás prihlásiť
 checkout-error-boundary-retry-button = Skúsiť znova
 checkout-error-boundary-basic-error-message = Niečo sa pokazilo. Skúste to znova alebo <contactSupportLink>kontaktujte podporu.</contactSupportLink>
 amex-logo-alt-text = Logo { -brand-amex }
-diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }
