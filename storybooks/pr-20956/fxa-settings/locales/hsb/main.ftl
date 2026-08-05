@@ -323,6 +323,7 @@ link-expired-new-link-button = Nowy wotkaz dóstać
 
 
 remember-password-text = Hesło sej spomjatkować?
+remember-password-passkey-text = Maće hesłowy kluč abo wěsće swoje hesło?
 remember-password-signin-link = Přizjewić
 
 
@@ -396,7 +397,14 @@ flow-recovery-key-hint-unsafe-char-error = Pokiw njesmě njewěste znamješka Un
 password-reset-warning-icon = Warnowanje
 password-reset-chevron-expanded = Warnowanje schować
 password-reset-chevron-collapsed = Warnowanje pokazać
+password-reset-warning-review-sign-in-options = Přepruwujće swoje přizjewjenske nastajenja, zo byšće daty wobhladowaka wobchował
 password-reset-warning-have-key = Maće kontowy wobnowjenski kluč?
+password-reset-warning-use-key-link-v2 = Wužiwajće jón, zo byšće swoje hesło wróćo stajił a daty swojeho wobhladowaka wobchował
+password-reset-warning-signed-in-device = Sće na druhim gracé přizjewjeny?
+password-reset-warning-signed-in-device-description = Daty wašeho wobhladowaka su snano k dispoziciji. Stajće swoje hesło wróćo, přizjewće so potom na tym graće, zo byšće swoje daty wobnowił a synchronizował.
+password-reset-warning-restore-data-link = Zhońće, kak móžeće daty wobhladowaka z přizjewjeneho grata wobnowić
+password-reset-warning-new-device = Wužiwaće nowy grat, ale nimaće přistup k swojim starym?
+password-reset-warning-new-device-description = Po tym zo sće swoje hesło wróćo stajił, njebudu zaklučowane daty wobhladowaka na serwerach { -brand-firefox } na tutym graće k dispoziciji.
 
 
 alert-bar-close-message = Zdźělenku začinić
@@ -1373,6 +1381,7 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
+password-reset-body-3 = Hdyž swoje hesło wróćo stajeće, móže to synchronizowane daty wobhladowaka wobwliwować.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
@@ -1463,6 +1472,7 @@ signin-passkey-fallback-heading = Zapodajće swoje hesło, zo byšće synchroniz
 signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće swoje hesło zapodać, hdyž tutón hesłowy kluč wužiwaće.
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
+signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
 
 
 

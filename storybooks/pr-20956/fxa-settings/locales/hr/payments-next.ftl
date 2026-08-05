@@ -26,7 +26,6 @@ auth-error-page-title = Nismo te mogli prijaviti
 checkout-error-boundary-retry-button = Pokušaj ponovo
 checkout-error-boundary-basic-error-message = Nešto nije u redu. Pokušaj ponovo ili <contactSupportLink>kontaktiraj podršku.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } logotip
-diners-logo-alt-text = { -brand-diner } logotip
 discover-logo-alt-text = { -brand-discover } logotip
 jcb-logo-alt-text = { -brand-jcb } logotip
 mastercard-logo-alt-text = { -brand-mastercard } logotip

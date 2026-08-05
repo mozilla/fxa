@@ -393,6 +393,8 @@ link-expired-new-link-button = Recibir enlace nuevo
 
 # immediately before remember-password-signin-link
 remember-password-text = ¿Recuerdas tu contraseña?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = ¿Tienes una llave de acceso o recuerdas tu contraseña?
 # link navigates to the sign in page
 remember-password-signin-link = Conectarse
 
@@ -510,7 +512,15 @@ flow-recovery-key-hint-unsafe-char-error = La sugerencia no puede contener carac
 password-reset-warning-icon = Advertencia
 password-reset-chevron-expanded = Contraer advertencia
 password-reset-chevron-collapsed = Expandir advertencia
+password-reset-warning-review-sign-in-options = Revisa las opciones de conexión para conservar los datos del navegador
 password-reset-warning-have-key = ¿Tienes una clave de recuperación de cuenta?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Úsala para restablecer tu contraseña y conservar tus datos del navegador
+password-reset-warning-signed-in-device = ¿Sigues conectado en otro dispositivo?
+password-reset-warning-signed-in-device-description = Es posible que los datos de tu navegador estén disponibles. Restablece tu contraseña y luego conéctate en ese dispositivo para restaurar y sincronizar tus datos.
+password-reset-warning-restore-data-link = Aprende cómo restaurar los datos del navegador desde un dispositivo con sesión iniciada.
+password-reset-warning-new-device = ¿Estás usando un dispositivo nuevo pero no puedes acceder a los antiguos?
+password-reset-warning-new-device-description = Después de restablecer tu contraseña, los datos cifrados del navegador en los servidores de { -brand-firefox } no estarán disponibles en este dispositivo.
 
 ## Alert Bar
 
@@ -1946,6 +1956,7 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 ## ResetPassword start page
 
 password-reset-flow-heading = Restablecer tu contraseña
+password-reset-body-3 = Restablecer tu contraseña puede afectar a los datos sincronizados del navegador.
 password-reset-email-input =
     .label = Ingresa tu correo
 password-reset-submit-button-2 = Continuar
@@ -2070,6 +2081,7 @@ signin-passkey-fallback-heading = Ingresa tu contraseña para sincronizar
 signin-passkey-fallback-body = Para mantener tus datos seguros, deberás ingresar tu contraseña cuando utilices esta llave de acceso.
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
+signin-passkey-fallback-forgot-password-link = ¿Olvidaste tu contraseña?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

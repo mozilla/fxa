@@ -17,7 +17,6 @@ upgrade-page-payment-information = Түләү турындагы мәгълүм�
 ## Authentication Error page
 
 checkout-error-boundary-retry-button = Янәдән тырышып карау
-diners-logo-alt-text = { -brand-diner } логотибы
 discover-logo-alt-text = { -brand-discover } логотибы
 jcb-logo-alt-text = { -brand-jcb } логотибы
 mastercard-logo-alt-text = { -brand-mastercard } логотибы

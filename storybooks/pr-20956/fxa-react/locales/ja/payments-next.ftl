@@ -13,7 +13,6 @@ next-payment-method-first-approve = まず、サブスクリプションの承�
 checkout-error-boundary-retry-button = 再試行
 checkout-error-boundary-basic-error-message = 問題が発生しました。もう一度試すか、<contactSupportLink>サポートにお問い合わせください。</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } ロゴ
-diners-logo-alt-text = { -brand-diner } ロゴ
 discover-logo-alt-text = { -brand-discover } ロゴ
 jcb-logo-alt-text = { -brand-jcb } ロゴ
 mastercard-logo-alt-text = { -brand-mastercard } ロゴ

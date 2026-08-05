@@ -40,7 +40,6 @@ auth-error-page-title = Girişinizi yapamadık
 checkout-error-boundary-retry-button = Yeniden dene
 checkout-error-boundary-basic-error-message = Bir sorun oluştu. Lütfen yeniden deneyin veya <contactSupportLink>destek ekibiyle iletişime geçin.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } logosu
-diners-logo-alt-text = { -brand-diner } logosu
 discover-logo-alt-text = { -brand-discover } logosu
 jcb-logo-alt-text = { -brand-jcb } logosu
 mastercard-logo-alt-text = { -brand-mastercard } logosu

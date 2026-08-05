@@ -393,6 +393,8 @@ link-expired-new-link-button = Få ei ny lenke
 
 # immediately before remember-password-signin-link
 remember-password-text = Hugse passordet ditt?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du ein passnøkkel, eller hugsar du passordet ditt?
 # link navigates to the sign in page
 remember-password-signin-link = Logg inn
 
