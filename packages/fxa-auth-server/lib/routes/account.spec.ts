@@ -2665,7 +2665,8 @@ describe('/account/login', () => {
       expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenNthCalledWith(
         1,
         'account.signed',
-        'login'
+        'login',
+        'email'
       );
 
       expect(mockFxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
@@ -2828,7 +2829,7 @@ describe('/account/login', () => {
         );
         expect(
           mockMetricsContext.setFlowCompleteSignal
-        ).toHaveBeenNthCalledWith(1, 'account.confirmed', expect.anything());
+        ).toHaveBeenNthCalledWith(1, 'account.confirmed', 'login', 'email');
 
         expect(response.verified).toBeFalsy();
         expect(response.verificationMethod).toBe('email');
@@ -2888,7 +2889,7 @@ describe('/account/login', () => {
         );
         expect(
           mockMetricsContext.setFlowCompleteSignal
-        ).toHaveBeenNthCalledWith(1, 'account.login', expect.anything());
+        ).toHaveBeenNthCalledWith(1, 'account.login', 'login', 'email');
 
         expect(response.emailVerified).toBeTruthy();
         expect(response.sessionVerified).toBeTruthy();
@@ -2989,7 +2990,7 @@ describe('/account/login', () => {
         );
         expect(
           mockMetricsContext.setFlowCompleteSignal
-        ).toHaveBeenNthCalledWith(1, 'account.confirmed', expect.anything());
+        ).toHaveBeenNthCalledWith(1, 'account.confirmed', 'login', 'email');
 
         expect(response.verified).toBeFalsy();
         expect(response.verificationMethod).toBe('email-otp');
@@ -5088,7 +5089,9 @@ describe('/account/email_bounce_status', () => {
     });
     const route = buildRoute();
     return runTest(route, request, () => {
-      expect(mockDB.emailBounces).toHaveBeenCalledWith('bob\\_smith@example.com');
+      expect(mockDB.emailBounces).toHaveBeenCalledWith(
+        'bob\\_smith@example.com'
+      );
     });
   });
 });

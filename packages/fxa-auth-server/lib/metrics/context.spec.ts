@@ -89,7 +89,7 @@ describe('metricsContext', () => {
     expect(metricsContext.validate).toHaveLength(0);
 
     expect(typeof metricsContext.setFlowCompleteSignal).toBe('function');
-    expect(metricsContext.setFlowCompleteSignal).toHaveLength(2);
+    expect(metricsContext.setFlowCompleteSignal).toHaveLength(3);
   });
 
   it('instantiated cache correctly', () => {
@@ -170,6 +170,46 @@ describe('metricsContext', () => {
     );
 
     expect(cache.add).toHaveBeenCalledTimes(1);
+    expect(cache.add.mock.calls[0][1].service).toBe('qux');
+  });
+
+  it('metricsContext.stash keeps a metricsContext service when the request has none', async () => {
+    results.add = Promise.resolve('wibble');
+    const request = {
+      payload: {
+        metricsContext: {
+          service: 'sync',
+        } as any,
+      },
+      query: {},
+    };
+    await metricsContext.stash.call(request, {
+      uid: Array(64).fill('c').join(''),
+      id: 'foo',
+    });
+
+    expect(cache.add.mock.calls[0][1].service).toBe('sync');
+    expect(request.payload.metricsContext.service).toBe('sync');
+  });
+
+  it('metricsContext.stash prefers the request service over the metricsContext one', async () => {
+    results.add = Promise.resolve('wibble');
+    await metricsContext.stash.call(
+      {
+        payload: {
+          metricsContext: {
+            service: 'sync',
+          },
+          service: 'qux',
+        },
+        query: {},
+      },
+      {
+        uid: Array(64).fill('c').join(''),
+        id: 'foo',
+      }
+    );
+
     expect(cache.add.mock.calls[0][1].service).toBe('qux');
   });
 
@@ -410,7 +450,7 @@ describe('metricsContext', () => {
     );
 
     expect(typeof result).toBe('object');
-    expect(Object.keys(result)).toHaveLength(19);
+    expect(Object.keys(result)).toHaveLength(20);
     expect(result.time).toBeGreaterThan(time);
     expect(result.device_id).toBe('mock device id');
     expect(result.entrypoint).toBe('mock entry point');
@@ -471,7 +511,7 @@ describe('metricsContext', () => {
     );
 
     expect(typeof result).toBe('object');
-    expect(Object.keys(result)).toHaveLength(18);
+    expect(Object.keys(result)).toHaveLength(19);
     expect(result.time).toBeGreaterThan(time);
     expect(result.device_id).toBe('mock device id');
     expect(result.entrypoint).toBe('mock entry point');
@@ -526,7 +566,7 @@ describe('metricsContext', () => {
       {}
     );
 
-    expect(Object.keys(result)).toHaveLength(9);
+    expect(Object.keys(result)).toHaveLength(10);
     expect(result.entrypoint).toBeUndefined();
     expect(result.entrypoint_experiment).toBeUndefined();
     expect(result.entrypoint_variation).toBeUndefined();
@@ -936,6 +976,25 @@ describe('metricsContext', () => {
     expect(request.payload.metricsContext).toEqual({
       flowCompleteSignal: 'wibble',
       flowType: 'blee',
+    });
+  });
+
+  it('setFlowCompleteSignal with authMethod', () => {
+    const request = {
+      payload: {
+        metricsContext: {} as any,
+      },
+    };
+    metricsContext.setFlowCompleteSignal.call(
+      request,
+      'wibble',
+      'blee',
+      'passkey'
+    );
+    expect(request.payload.metricsContext).toEqual({
+      flowCompleteSignal: 'wibble',
+      flowType: 'blee',
+      authMethod: 'passkey',
     });
   });
 

@@ -855,6 +855,7 @@ function mockMetricsContext(methods) {
                 flowCompleteSignal:
                   this.payload.metricsContext.flowCompleteSignal,
                 flowType: this.payload.metricsContext.flowType,
+                authMethod: this.payload.metricsContext.authMethod,
               },
               this.headers && this.headers.dnt === '1'
                 ? {}
