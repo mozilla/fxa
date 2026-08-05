@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const _ = require('underscore');
 const uuid = require('uuid');
 const { assert } = require('chai');
 import BaseExperiment from '../../experiments/base';
@@ -27,32 +26,64 @@ describe('experiments/base', () => {
     experiment = new BaseExperiment();
   });
 
+  // Fixed keys keep these tests deterministic. Random keys made the
+  // distribution assertions flaky, see FXA-14281.
+  const keys = Array.from({ length: ITERATIONS }, (_unused, i) => `key-${i}`);
+
+  // Count how many of `values` fall into each of ten equally sized buckets
+  // spanning [0, upperBound].
+  const decileCounts = (values, upperBound) => {
+    const counts = new Array(10).fill(0);
+    values.forEach((value) => {
+      counts[Math.min(9, Math.floor((value / upperBound) * 10))]++;
+    });
+    return counts;
+  };
+
   describe('hash', () => {
     it('returns a 32 bit hash', () => {
-      const hashes = new Array(ITERATIONS);
-      for (let i = 0; i < ITERATIONS; ++i) {
-        const hash = experiment.hash(Math.random());
-        assert.ok(hash);
-        assert.ok(0 <= hash && hash < MAX_HASH_VALUE);
-        hashes[i] = hash;
-      }
+      const hashes = keys.map((key) => experiment.hash(key));
 
-      // assure each hash value is unique.
-      assert.lengthOf(_.uniq(hashes), ITERATIONS);
+      hashes.forEach((hash) => {
+        assert.ok(0 <= hash && hash < MAX_HASH_VALUE);
+      });
+    });
+
+    it('returns the same hash for the same key', () => {
+      keys.forEach((key) => {
+        assert.equal(experiment.hash(key), experiment.hash(key));
+      });
+    });
+
+    it('spreads hashes across the 32 bit range', () => {
+      const hashes = keys.map((key) => experiment.hash(key));
+
+      decileCounts(hashes, MAX_HASH_VALUE).forEach((count, i) => {
+        assert.ok(count > 0, `no hashes fell into decile ${i}`);
+      });
     });
   });
 
   describe('luckyNumber', () => {
     it('returns a number between 0 and 1', () => {
-      const luckyNumbers = new Array(ITERATIONS);
-      for (let i = 0; i < ITERATIONS; ++i) {
-        const luckyNumber = experiment.luckyNumber(Math.random());
+      keys.forEach((key) => {
+        const luckyNumber = experiment.luckyNumber(key);
         assert.ok(0 <= luckyNumber && luckyNumber <= 1);
-        luckyNumbers[i] = luckyNumber;
-      }
+      });
+    });
 
-      // assure each hash value is unique.
-      assert.lengthOf(_.uniq(luckyNumbers), ITERATIONS);
+    it('returns the same number for the same key', () => {
+      keys.forEach((key) => {
+        assert.equal(experiment.luckyNumber(key), experiment.luckyNumber(key));
+      });
+    });
+
+    it('spreads numbers across [0,1]', () => {
+      const luckyNumbers = keys.map((key) => experiment.luckyNumber(key));
+
+      decileCounts(luckyNumbers, 1).forEach((count, i) => {
+        assert.ok(count > 0, `no lucky numbers fell into decile ${i}`);
+      });
     });
   });
 
