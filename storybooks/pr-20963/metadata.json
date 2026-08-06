@@ -1,8 +1,8 @@
 {
-  "commit": "c2cca025bf70fbb883b58f24c0ff18a33f26d3d9",
-  "summary": "\\_(ツ)_/",
+  "commit": "3ea8a3a63e3f6070ce4a09160353059efa82d72a",
+  "summary": "Address Co-pilot comments",
   "description": "",
-  "timestamp": 1785955467000,
+  "timestamp": 1786037149000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
