@@ -17,7 +17,12 @@ export class AccessToken {
     public profileChangedAt: number,
     public expiresAt: Date,
     public token: Buffer | null,
-    public type: string = 'bearer'
+    public type: string = 'bearer',
+    // Authentication-event metadata for RFC 9470 step-up. Present on tokens
+    // minted from a grant that carried them; undefined for legacy/other tokens.
+    public authAt?: number, // seconds since epoch (the authentication event)
+    public amr?: string[],
+    public aal?: number
   ) {}
 
   get clientCanGrant() {
@@ -52,6 +57,11 @@ export class AccessToken {
       createdAt: this.createdAt.getTime(),
       profileChangedAt: this.profileChangedAt,
       expiresAt: this.expiresAt.getTime(),
+      // JSON.stringify omits these keys when undefined, so tokens without
+      // authentication-event metadata serialize exactly as before.
+      authAt: this.authAt,
+      amr: this.amr,
+      aal: this.aal,
     };
   }
 
@@ -81,7 +91,11 @@ export class AccessToken {
       new Date(json.createdAt),
       json.profileChangedAt,
       new Date(json.expiresAt),
-      null
+      null,
+      'bearer',
+      json.authAt,
+      json.amr,
+      json.aal
     );
   }
 }

@@ -134,7 +134,12 @@ class OauthDB extends ConnectedServicesDb {
       vals.scope,
       vals.profileChangedAt,
       vals.expiresAt,
-      vals.ttl
+      vals.ttl,
+      // Authentication-event metadata carried on the grant, persisted so token
+      // introspection can report acr/auth_time/amr (RFC 9470 §6.2).
+      vals.authAt,
+      vals.amr,
+      vals.aal
     );
     if (
       JWT_ACCESS_TOKENS_ENABLED &&

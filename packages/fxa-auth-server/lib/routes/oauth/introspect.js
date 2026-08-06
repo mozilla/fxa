@@ -48,6 +48,11 @@ module.exports = ({ oauthDB }) => ({
         'fxa-lastUsedAt': Joi.number()
           .optional()
           .description(DESCRIPTION['fxa-lastUsedAt']),
+        // RFC 9470 §6.2 — authentication level, event time, and methods of the
+        // access token. Access tokens only; refresh tokens never carry these.
+        acr: Joi.string().optional(),
+        auth_time: Joi.number().optional(),
+        amr: Joi.array().items(Joi.string()).optional(),
       }),
     },
     handler: async function introspectEndpoint(req) {
@@ -107,6 +112,23 @@ module.exports = ({ oauthDB }) => ({
 
         if (token.lastUsedAt) {
           response['fxa-lastUsedAt'] = token.lastUsedAt.getTime();
+        }
+
+        // RFC 9470 §6.2: report the session's authentication level and event on
+        // access tokens. These are persisted only on access tokens, so a refresh
+        // token never surfaces them — that is what keeps elevation from surviving
+        // a token refresh. `auth_time` is seconds since epoch (as sourced from the
+        // grant's authAt), matching the token response's `auth_at`.
+        if (tokenType === 'access_token') {
+          if (token.aal) {
+            response.acr = 'AAL' + token.aal;
+          }
+          if (token.authAt) {
+            response.auth_time = token.authAt;
+          }
+          if (token.amr) {
+            response.amr = token.amr;
+          }
         }
       }
 
