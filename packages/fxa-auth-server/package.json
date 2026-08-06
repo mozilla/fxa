@@ -131,7 +131,6 @@
     "@types/node": "^22.13.5",
     "@types/node-zendesk": "^2.0.2",
     "@types/nodemailer": "^7.0.4",
-    "@types/request": "2.48.5",
     "@types/sass": "^1",
     "@types/verror": "^1.10.4",
     "@types/webpack": "5.28.5",
