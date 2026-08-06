@@ -33,13 +33,16 @@ const accountWithBrowserServices = {
   attachedClients: MOCK_BROWSER_SERVICES,
 } as unknown as Account;
 
-const storyWithContext = (account: Partial<Account>) => {
+const storyWithContext = (
+  account: Partial<Account>,
+  showConnectDeviceButton = false
+) => {
   const context = { account: account as Account };
 
   const story = () => (
     <MemoryRouter>
       <AppContext.Provider value={mockAppContext(context)}>
-        <ConnectedServices />
+        <ConnectedServices {...{ showConnectDeviceButton }} />
       </AppContext.Provider>
     </MemoryRouter>
   );
@@ -50,6 +53,12 @@ export const Default = storyWithContext(accountWithManyServices);
 
 // Shows ConnectAnotherDevicePromo if no mobile devices in the list
 export const NoMobileServices = storyWithContext(accountWithoutMobileDevice);
+
+// Shows the "Connect a device" button
+export const WithConnectDeviceButton = storyWithContext(
+  accountWithManyServices,
+  true
+);
 
 // Demonstrates the read-only scope sub-entries shown under a refresh-token
 // browser entry when the token's scope includes Relay and/or VPN.

@@ -21,6 +21,7 @@ jest.mock('../../models', () => ({
 
 jest.mock('../../lib/utilities', () => ({
   __esModule: true,
+  ...jest.requireActual('../../lib/utilities'),
   isMobileDevice: jest.fn(),
   isMobileOrTabletDevice: jest.fn(),
 }));
