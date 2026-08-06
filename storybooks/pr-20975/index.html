@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 0230eb9d902cc5534712f199d0c09e6fd3b0ac41</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 0230eb9d902cc5534712f199d0c09e6fd3b0ac41</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/6/2026, 11:27:52 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(auth-server): never return the full recovery phone number</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* GET /account is gated only by a bare sessionToken, with no tokenVerified
+  or assurance-level check. A caller holding nothing but the account
+  password therefore received the unmasked E.164 number in
+  recoveryPhone.phoneNumber, which is the credential needed to mount a SIM
+  swap and defeat TOTP.
+* GET /recovery_phone decided whether to mask from emailVerified,
+  mustVerify and tokenVerified, and never consulted the session&#039;s
+  assurance level, so a session that cleared those checks without reaching
+  AAL2 also received the full number.
+
+This commit:
+* Adds RecoveryPhoneService.hasConfirmedMasked(), returning only the last
+  four digits, and points both read endpoints at it. Masking is
+  unconditional rather than derived from the caller&#039;s assurance level, so
+  there is no gate left to get wrong.
+* Omits nationalFormat from both read responses. Twilio&#039;s grouping would
+  reveal the number&#039;s length and region, and clients render the last four
+  through the localized recovery-phone-number-ending-digits string rather
+  than formatting them, so the formatted value has no consumer.
+* Drops the phoneNumberStrip parameter from hasConfirmed(). Defaulting it
+  to &quot;do not mask&quot; is what made the leak possible. The raw accessor is now
+  documented server-side only and is reached by the email, setup and
+  change paths, which need a dialable number.
+* Constrains phoneNumber in both response schemas through a new
+  maskedPhoneNumber validator, and drops nationalFormat from them
+  entirely, so a future regression fails response validation instead of
+  shipping.
+* Routes PageRecoveryPhoneRemove through formatPhoneNumber, which
+  otherwise rendered a bare &quot;1234&quot; now that no national format arrives.
+
+Settings previously showed a client-masked national format and now shows
+&quot;Number ending in 1234&quot;, matching what the signin and reset-password
+recovery screens already displayed. The display is consistent, localized
+and safe to render in RTL locales.
+
+The confirm and change endpoints still return a dialable number. Both are
+gated on a verified session or mfa:2fa and echo a number the caller just
+supplied and proved control of, so they are not an egress path.
+
+Closes FXA-14028</pre></dd>
+  </dl>
+</body>
+</html>
