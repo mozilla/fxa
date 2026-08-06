@@ -341,12 +341,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('session.verify.recoveryCode', request);
 
-        const {
-          email,
-          id: tokenId,
-          tokenVerified,
-          uid,
-        } = request.auth.credentials;
+        const { email, id: tokenId, uid } = request.auth.credentials;
 
         await customs.checkAuthenticated(
           request,
@@ -361,15 +356,11 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           log.info('account.recoveryCode.consumedAllCodes', { uid });
         }
 
-        if (
-          !tokenVerified ||
-          // If the token is already verified but the auth assurance level needs
-          // to be upgraded, then this user was redirected from Settings to
-          // our TOTP page and entered a recovery code to upgrade their session
-          request.auth.credentials.authenticatorAssuranceLevel <= 1
-        ) {
-          await db.verifyTokensWithMethod(tokenId, 'recovery-code');
-        }
+        // A consumed backup authentication code always refreshes the session's
+        // authentication event, including on an already-AAL2 session (a step-up
+        // re-challenge). `recovery-code` maps to AAL2, so this can never lower the
+        // session's assurance level.
+        await db.verifyTokensWithMethod(tokenId, 'recovery-code');
 
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;

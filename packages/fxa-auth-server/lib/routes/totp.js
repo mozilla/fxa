@@ -1146,8 +1146,12 @@ module.exports = (
 
         // This endpoint now only handles session/login verification using DB secret
 
-        // If a valid code was sent, this verifies the session using the `totp-2fa` method.
-        if (isValidCode && sessionToken.authenticatorAssuranceLevel <= 1) {
+        // If a valid code was sent, this verifies the session using the `totp-2fa`
+        // method. We always refresh the session's authentication event (even for
+        // an already-AAL2 session) so a step-up challenge is recorded via
+        // `verificationMethod`/`verifiedAt`. `totp-2fa` maps to AAL2, so this can
+        // never lower the session's assurance level.
+        if (isValidCode) {
           await db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa');
         }
 

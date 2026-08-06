@@ -291,5 +291,23 @@ describe('backup authentication codes', () => {
         }
       );
     });
+
+    it('refreshes the authentication event on an already-AAL2 session (step-up)', async () => {
+      // A step-up re-challenge on a session that already reached AAL2 must still
+      // refresh the authentication event. `recovery-code` maps to AAL2, so this
+      // never lowers the session's assurance level.
+      requestOptions.credentials.id = 'sessionTokenId';
+      requestOptions.credentials.tokenVerified = true;
+      requestOptions.credentials.authenticatorAssuranceLevel = 2;
+      db.consumeRecoveryCode = jest.fn((_code: any) => {
+        return Promise.resolve({ remaining: 4 });
+      });
+      await runTest('/session/verify/recoveryCode', requestOptions);
+      expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+      expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+        'sessionTokenId',
+        'recovery-code'
+      );
+    });
   });
 });

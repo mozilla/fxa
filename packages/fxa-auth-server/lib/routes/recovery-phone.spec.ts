@@ -6,7 +6,7 @@ import { Container } from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AppError } from '@fxa/accounts/errors';
-import { AccountManager } from '@fxa/shared/account/account';
+import { AccountManager, VerificationMethods } from '@fxa/shared/account/account';
 import { AuthLogger } from '../types';
 import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 import {
@@ -776,6 +776,32 @@ describe('/recovery_phone', () => {
       expect(request.emitMetricsEvent).toHaveBeenCalledWith(
         'account.confirmed',
         { uid }
+      );
+    });
+
+    it('refreshes the authentication event on an already-AAL2 session (step-up)', async () => {
+      // A step-up re-challenge via recovery phone must refresh the session's
+      // authentication event even when it is already AAL2. `sms-2fa` maps to
+      // AAL2, so this never lowers the assurance level.
+      mockRecoveryPhoneService.confirmCode = jest.fn().mockReturnValue(true);
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/signin/confirm',
+        credentials: {
+          uid,
+          email,
+          id: 'sessionTokenId',
+          authenticatorAssuranceLevel: 2,
+        },
+        payload: { code },
+      });
+
+      expect(mockAccountManager.verifySession).toHaveBeenCalledTimes(1);
+      expect(mockAccountManager.verifySession).toHaveBeenCalledWith(
+        uid,
+        'sessionTokenId',
+        VerificationMethods.sms2fa
       );
     });
 
