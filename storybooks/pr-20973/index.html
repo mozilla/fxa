@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 59c4081f703ea31273bdc2176a8bb67b6ca1fed3</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 59c4081f703ea31273bdc2176a8bb67b6ca1fed3</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/6/2026, 2:01:27 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(functional-tests): decouple smoke locators from CMS-overridable copy</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Page copy is CMS-overridable per relying party, so page objects matching on
+  default English text break whenever a relying party customizes it. This took
+  down the confirm-signup-code step of the Sync send-tab smoke test in
+  production, where the CTA renders as &quot;Continue&quot;.
+- Matching on copy also asserts the opposite of the contract: it fails
+  precisely when CMS is working as intended.
+- CMS overrides content but never routes, so page identity belongs on the URL,
+  on form fields whose labels come from FTL, or on an explicit test id.
+- This is the third time this class of failure has been patched per-incident,
+  so the convention needs to be written down where it is encountered.
+
+This commit:
+- Adds BaseLayout.formSubmitButton and BaseLayout.pageHeading, matching the
+  submit button and heading structurally instead of by label, and routes the
+  CTA getters across nine page objects through them.
+- Scopes formSubmitButton to `form` so the getter stays single-match on pages
+  that render more than one submit button, since every page object inherits it.
+- Drops the redundant submitButton overrides on signinUnblock and
+  signinPasswordlessCode, and the confirmButton override on signinRecoveryPhone.
+- Locates the signup-confirmed-sync pair CTA by its Glean id, since that button
+  renders outside a form with no type attribute.
+- Replaces the five copy-matched heading getters with the elements that
+  actually identify each step: the email and password fields, whose labels are
+  FTL-only, and a new `cached-signin-submit` test id for the cached step, which
+  shares /signin with the password step and has no distinguishing field.
+- Applies pageHeading only to the code pages, which render a single h1 behind a
+  checkPath() guard. Level matching is unsafe elsewhere: Settings pages render
+  a second h1 for the header logo, and a strict-mode violation throws instead
+  of retrying, so such assertions stop working as waits for a navigation.
+- Asserts the email field rather than a heading where a spec checks that the
+  email-first form is absent; the error page renders its own h1.
+- Matches only the brand-free portion of the Relay set-password copy, which
+  Fluent renders with bidi isolation marks around the brand term.
+- Deletes the unused fillOutAuthenticationForm and the getters only it reached.
+- Covers CMS headline and primaryButtonText in the component unit tests, which
+  is the layer that should own copy assertions, guards the new test id there
+  too, and constrains MOCK_CMS_INFO with `satisfies RelierCmsInfo`.
+- Records the locator rules, including the strict-mode hazard, in
+  .claude/rules/testing/functional-pages.md, which loads whenever a page object
+  or spec is edited.</pre></dd>
+  </dl>
+</body>
+</html>
