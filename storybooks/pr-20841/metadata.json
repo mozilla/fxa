@@ -1,8 +1,8 @@
 {
-  "commit": "f719832f69bac041143cb4dd0a995d9ee70c9a2a",
+  "commit": "fa7a3da925ae0ac52ee3b7d03dba273301666969",
   "summary": "Update react-hook-form v6 to v7",
   "description": "",
-  "timestamp": 1785963714000,
+  "timestamp": 1786025365000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
