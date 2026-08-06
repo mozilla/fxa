@@ -99,6 +99,9 @@ const ACCOUNT_ACTIVITY_UPDATE_AFTER_MS = config.get(
 
 // VPN-in-Desktop DAU bandaid (FXA-14159).
 const vpnInDesktopDauBandaid = require('../../oauth/vpn-in-desktop-dau-bandaid');
+const {
+  excludeDauCacheKey,
+} = require('../../oauth/desktop-sync-dau-authorization-bandaid');
 // The client and scope the bandaid targets are fixed product facts, not
 // operational knobs, so they're constants rather than config: Firefox Desktop
 // is the only client that mints a VPN token for every signed-in user, and the
@@ -295,9 +298,10 @@ module.exports = ({
     requestedGrant.ttl = Math.min(params.ttl, MAX_TTL_S);
     // When true, the `access_token.created` Glean event is tagged with
     // `exclude_dau` so this token creation is excluded from the DAU signal (the
-    // event still fires). Exposed on the authorization_code / fxa-credentials
-    // grants only; absent elsewhere, so it coerces to false.
-    requestedGrant.excludeDau = params.exclude_dau === true;
+    // event still fires). Set either by the client, or by the
+    // authorization_code grant carrying the server-side decision (FXA-14263).
+    requestedGrant.excludeDau =
+      params.exclude_dau === true || requestedGrant.excludeDau === true;
     return requestedGrant;
   }
 
@@ -364,6 +368,28 @@ module.exports = ({
     }
     // Looks legit! Codes are one-time-use, so remove it from the db.
     await oauthDB.removeCode(buf(code));
+    // Pick up the exclude-DAU decision left by /oauth/authorization (FXA-14263).
+    // Absent key means "count it", so a Redis failure degrades to today's
+    // behaviour. No delete needed: the key expires with the code, which is
+    // itself one-time-use. Constant checks first — only a Desktop code carrying
+    // the Sync scope can have a flag, so everything else skips Redis.
+    if (
+      authServerCacheRedis &&
+      hex(codeObj.clientId) === FIREFOX_DESKTOP_CLIENT_ID &&
+      codeObj.scope?.contains(OAUTH_SCOPE_OLD_SYNC)
+    ) {
+      try {
+        const cached = await authServerCacheRedis.get(
+          excludeDauCacheKey(encrypt.hash(code).toString('hex'))
+        );
+        if (cached === '1') {
+          codeObj.excludeDau = true;
+        }
+      } catch (err) {
+        statsd?.increment('oauth.excludeDau.readFailed');
+        log.warn('oauth.excludeDau.readFailed', { err: err?.message });
+      }
+    }
     return codeObj;
   }
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { AuthLogger } from '../../types';
 
 const Joi = require('joi');
@@ -21,7 +22,7 @@ const mockLog = createMock<AuthLogger>();
 
 const baseConfig = {
   oauthServer: {
-    expiration: { accessToken: 3600000 },
+    expiration: { accessToken: 3600000, code: 900000 },
     disabledClients: [DISABLED_CLIENT_ID],
     allowHttpRedirects: false,
     contentUrl: 'http://localhost',
@@ -341,6 +342,20 @@ describe('/authorization POST consent write', () => {
   const UID_HEX = 'a'.repeat(32);
   const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
   const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+  const SMARTWINDOW_SCOPE = 'https://identity.mozilla.com/apps/smartwindow';
+  const DESKTOP_CLIENT_ID = OAuthNativeClients.FirefoxDesktop;
+
+  /**
+   * The metric names emitted, for negative assertions. `toHaveBeenCalledWith`
+   * requires an exact argument-list match, so a regression that emitted a
+   * counter with no tag object — or a different arity — would slip past
+   * `not.toHaveBeenCalledWith(name, expect.anything())`.
+   */
+  function emittedMetrics(statsd: { increment: jest.Mock }): string[] {
+    return statsd.increment.mock.calls.map(
+      (call: unknown[]) => call[0] as string
+    );
+  }
 
   function buildOauthDB(overrides: Record<string, any> = {}) {
     return {
@@ -382,10 +397,14 @@ describe('/authorization POST consent write', () => {
     log?: any;
     payload?: Record<string, any>;
     app?: Record<string, any>;
+    /** Client id on both the payload and the resolved grant. */
+    clientId?: string;
+    authServerCacheRedis?: any;
   }) {
     // Real hapi requests always have `app`; recordAuthorizationRows stashes
     // service/firstAuthorization there. Returned so tests can assert on it.
     const app = opts.app ?? {};
+    const clientId = opts.clientId ?? CLIENT_ID;
     let routes: any;
     await jest.isolateModulesAsync(async () => {
       jest.doMock('../../oauth/assertion', () =>
@@ -393,12 +412,9 @@ describe('/authorization POST consent write', () => {
       );
       jest.doMock('../../oauth/grant', () => ({
         validateRequestedGrant: jest.fn(async (_claims, _client, payload) => ({
-          clientId: Buffer.from(CLIENT_ID, 'hex'),
+          clientId: Buffer.from(clientId, 'hex'),
           userId: Buffer.from(UID_HEX, 'hex'),
-          scope: {
-            getScopeValues: () =>
-              (payload.scope as string).split(/\s+/).filter(Boolean),
-          },
+          scope: ScopeSet.fromString(payload.scope as string),
           offline: payload.access_type !== 'online',
         })),
         generateTokens: jest.fn(async () => ({})),
@@ -408,11 +424,12 @@ describe('/authorization POST consent write', () => {
         oauthDB: opts.oauthDB,
         config: baseConfig,
         statsd: opts.statsd,
+        authServerCacheRedis: opts.authServerCacheRedis,
       });
       await routes[1].config.handler({
         headers: {},
         app,
-        payload: buildPayload(opts.payload),
+        payload: buildPayload({ client_id: clientId, ...opts.payload }),
       });
     });
     return { app };
@@ -667,8 +684,199 @@ describe('/authorization POST consent write', () => {
     expect([...scopes].sort()).toEqual([SYNC_SCOPE, VPN_SCOPE, 'profile']);
     // apps/oldsync's canonical owner is 'sync', but every row in this grant
     // is currently keyed to the URL service='vpn'. FXA-13874 tracks changing
-    // this so the apps/oldsync row is keyed to 'sync' instead.
+    // this so the apps/oldsync row is keyed to 'sync' instead. Note this
+    // client is a web RP; on Firefox Desktop the apps/oldsync row is dropped
+    // entirely by the FXA-14263 bandaid, covered below.
     expect(service).toBe('vpn');
+  });
+
+  // FXA-14263: Desktop asks for the Sync scope on every browser flow, so a
+  // non-Sync sign-in would otherwise file an apps/oldsync consent row for a
+  // user who never authorized Sync.
+  it('drops the Sync scope from the consent write when Desktop signs into a non-Sync service', async () => {
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(
+        (s: string) => s === 'sync' || s === 'smartwindow'
+      ),
+      getCanonicalScopeForService: jest.fn((s: string) => {
+        if (s === 'sync') return SYNC_SCOPE;
+        if (s === 'smartwindow') return SMARTWINDOW_SCOPE;
+        return undefined;
+      }),
+    });
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB,
+      statsd,
+      clientId: DESKTOP_CLIENT_ID,
+      payload: { service: 'smartwindow', scope: `profile ${SYNC_SCOPE}` },
+    });
+
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledTimes(1);
+    const { scopes } = (oauthDB.recordSignInConsents as jest.Mock).mock
+      .calls[0][0];
+    expect([...scopes].sort()).toEqual([SMARTWINDOW_SCOPE, 'profile']);
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'accountAuthorization.sync_scope_dropped',
+      { service: 'smartwindow' }
+    );
+  });
+
+  // The bandaid must touch the consent ledger and nothing else.
+  // Granted refresh and access token scopes should be untouched.
+  it('leaves the Sync scope on the grant when it drops it from the consent write', async () => {
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(
+        (s: string) => s === 'sync' || s === 'smartwindow'
+      ),
+      getCanonicalScopeForService: jest.fn((s: string) => {
+        if (s === 'sync') return SYNC_SCOPE;
+        if (s === 'smartwindow') return SMARTWINDOW_SCOPE;
+        return undefined;
+      }),
+    });
+
+    await runHandler({
+      oauthDB,
+      clientId: DESKTOP_CLIENT_ID,
+      payload: { service: 'smartwindow', scope: `profile ${SYNC_SCOPE}` },
+    });
+
+    // The ledger loses the Sync scope while the grant that becomes the code —
+    // and from there the access and refresh tokens — keeps it.
+    const { scopes } = (oauthDB.recordSignInConsents as jest.Mock).mock
+      .calls[0][0];
+    expect([...scopes].sort()).toEqual([SMARTWINDOW_SCOPE, 'profile']);
+
+    const grant = (oauthDB.generateCode as jest.Mock).mock.calls[0][0];
+    expect([...grant.scope.getScopeValues()].sort()).toEqual(
+      [SYNC_SCOPE, 'profile'].sort()
+    );
+  });
+
+  // The consent drop and the DAU tag are one decision. /oauth/token never sees
+  // `service=`, so it's stashed against the code's hash here. Read side:
+  // ./token.spec.ts.
+  describe('carrying the decision to /oauth/token', () => {
+    const CODE_HEX = 'a1'.repeat(32);
+    const encrypt = require('fxa-shared/auth/encrypt');
+    const {
+      excludeDauCacheKey,
+    } = require('../../oauth/desktop-sync-dau-authorization-bandaid');
+
+    function buildDesktopOauthDB() {
+      return buildOauthDB({
+        generateCode: jest.fn(async () => CODE_HEX),
+        isKnownService: jest.fn(
+          (s: string) => s === 'sync' || s === 'smartwindow'
+        ),
+        getCanonicalScopeForService: jest.fn((s: string) => {
+          if (s === 'sync') return SYNC_SCOPE;
+          if (s === 'smartwindow') return SMARTWINDOW_SCOPE;
+          return undefined;
+        }),
+      });
+    }
+
+    it('stashes the flag against the code hash, expiring with the code', async () => {
+      const authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
+
+      await runHandler({
+        oauthDB: buildDesktopOauthDB(),
+        authServerCacheRedis,
+        clientId: DESKTOP_CLIENT_ID,
+        payload: { service: 'smartwindow', scope: `profile ${SYNC_SCOPE}` },
+      });
+
+      expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+        excludeDauCacheKey(encrypt.hash(CODE_HEX).toString('hex')),
+        '1',
+        'EX',
+        900
+      );
+    });
+
+    it('writes nothing to Redis when the sign-in is Sync', async () => {
+      const authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
+
+      await runHandler({
+        oauthDB: buildDesktopOauthDB(),
+        authServerCacheRedis,
+        clientId: DESKTOP_CLIENT_ID,
+        payload: { service: 'sync', scope: `profile ${SYNC_SCOPE}` },
+      });
+
+      expect(authServerCacheRedis.set).not.toHaveBeenCalled();
+    });
+
+    it('still issues the code when the Redis write fails', async () => {
+      const authServerCacheRedis = {
+        set: jest.fn().mockRejectedValue(new Error('no redis')),
+      };
+      const oauthDB = buildDesktopOauthDB();
+      const statsd = { increment: jest.fn() };
+
+      await runHandler({
+        oauthDB,
+        statsd,
+        authServerCacheRedis,
+        clientId: DESKTOP_CLIENT_ID,
+        payload: { service: 'smartwindow', scope: `profile ${SYNC_SCOPE}` },
+      });
+
+      expect(oauthDB.generateCode).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'accountAuthorization.exclude_dau_write_failed'
+      );
+    });
+  });
+
+  // The scope-keeping branch itself is covered by the pure spec; what is
+  // route-unique here is that the counter stays silent.
+  it('does not emit sync_scope_dropped when Desktop signs into Sync', async () => {
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB: buildOauthDB(),
+      statsd,
+      clientId: DESKTOP_CLIENT_ID,
+      payload: { service: 'sync', scope: `profile ${SYNC_SCOPE}` },
+    });
+
+    expect(emittedMetrics(statsd)).not.toContain(
+      'accountAuthorization.sync_scope_dropped'
+    );
+  });
+
+  // The counter tracks rows actually kept out of the ledger, not decisions
+  // made, so a failed write must not increment it.
+  it('does not emit sync_scope_dropped when the consent write fails', async () => {
+    const statsd = { increment: jest.fn() };
+
+    await runHandler({
+      oauthDB: buildOauthDB({
+        isKnownService: jest.fn(
+          (s: string) => s === 'sync' || s === 'smartwindow'
+        ),
+        getCanonicalScopeForService: jest.fn((s: string) => {
+          if (s === 'sync') return SYNC_SCOPE;
+          if (s === 'smartwindow') return SMARTWINDOW_SCOPE;
+          return undefined;
+        }),
+        recordSignInConsents: jest.fn().mockRejectedValue(new Error('db down')),
+      }),
+      statsd,
+      clientId: DESKTOP_CLIENT_ID,
+      payload: { service: 'smartwindow', scope: `profile ${SYNC_SCOPE}` },
+    });
+
+    expect(emittedMetrics(statsd)).toContain(
+      'accountAuthorization.write_failed'
+    );
+    expect(emittedMetrics(statsd)).not.toContain(
+      'accountAuthorization.sync_scope_dropped'
+    );
   });
 });
 
