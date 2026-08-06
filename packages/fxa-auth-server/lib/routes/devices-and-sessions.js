@@ -831,7 +831,14 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_DESTROY_POST,
         auth: {
-          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
+          // Destroying a device revokes its sessions and refresh tokens, so it
+          // needs the same bar as /account/attached_client/destroy. Mobile
+          // reaches this with a refreshToken, which is unaffected.
+          strategies: [
+            'verifiedSessionTokenBearer',
+            'verifiedSessionToken',
+            'refreshToken',
+          ],
         },
         validate: {
           payload: isA.object({

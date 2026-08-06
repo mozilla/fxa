@@ -66,8 +66,6 @@ describe.each(testVersions)(
       expect(devices[0].pushPublicKey).toBe('');
       expect(devices[0].pushAuthKey).toBe('');
       expect(devices[0].pushEndpointExpired).toBeFalsy();
-
-      await client.destroyDevice(devices[0].id);
     });
 
     it('device registration without optional parameters', async () => {
@@ -101,8 +99,22 @@ describe.each(testVersions)(
       expect(devices[0].pushPublicKey == null).toBe(true);
       expect(devices[0].pushAuthKey == null).toBe(true);
       expect(devices[0].pushEndpointExpired).toBe(false);
+    });
 
-      await client.destroyDevice(devices[0].id);
+    it('device disconnect fails on an unconfirmed account', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.create(server.publicUrl, email, password, testOptions);
+
+      const device = await client.updateDevice({ name: 'test device', type: 'mobile' });
+
+      try {
+        await client.destroyDevice(device.id);
+        throw new Error('request should have failed');
+      } catch (err: any) {
+        expect(err.code).toBe(400);
+        expect(err.errno).toBe(104);
+      }
     });
 
     it('device registration with unicode characters in the name', async () => {

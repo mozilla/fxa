@@ -1325,6 +1325,7 @@ describe('/account/device/destroy', () => {
   let mockLog: any;
   let mockDB: any;
   let mockPush: any;
+  let accountRoutes: any;
 
   beforeEach(() => {
     uid = crypto.randomBytes(16).toString('hex');
@@ -1334,9 +1335,25 @@ describe('/account/device/destroy', () => {
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB();
     mockPush = mocks.mockPush();
+    accountRoutes = makeRoutes({
+      db: mockDB,
+      devices: mockDevices,
+      log: mockLog,
+      push: mockPush,
+    });
   });
 
-  it('should destory the device record', () => {
+  it('requires verifiedSessionToken or refreshToken auth strategies', () => {
+    const routeConfig = getRoute(accountRoutes, '/account/device/destroy');
+
+    expect(routeConfig.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+      'refreshToken',
+    ]);
+  });
+
+  it('destroys the device record', () => {
     const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid,
@@ -1346,12 +1363,6 @@ describe('/account/device/destroy', () => {
       payload: {
         id: deviceId,
       },
-    });
-    const accountRoutes = makeRoutes({
-      db: mockDB,
-      devices: mockDevices,
-      log: mockLog,
-      push: mockPush,
     });
     const route = getRoute(accountRoutes, '/account/device/destroy');
 
