@@ -39,4 +39,61 @@ describe('DeviceInfoBlock component', () => {
 
     screen.getByText('Vancouver, British Columbia, Canada (estimated)');
   });
+
+  describe('deviceNameDisplay', () => {
+    it('folds the device name into the browser line when set to inline', () => {
+      renderWithLocalizationProvider(
+        <DeviceInfoBlock
+          remoteMetadata={MOCK_METADATA_WITH_DEVICE_NAME}
+          deviceNameDisplay="inline"
+        />
+      );
+
+      screen.getByText('Firefox on Ultron');
+      expect(
+        screen.queryByRole('heading', { level: 2 })
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Firefox on macOS')).not.toBeInTheDocument();
+    });
+
+    it('omits the device name entirely when set to hidden', () => {
+      renderWithLocalizationProvider(
+        <DeviceInfoBlock
+          remoteMetadata={MOCK_METADATA_WITH_DEVICE_NAME}
+          deviceNameDisplay="hidden"
+        />
+      );
+
+      screen.getByText('Firefox on macOS');
+      expect(
+        screen.queryByRole('heading', { level: 2 })
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Firefox on Ultron')).not.toBeInTheDocument();
+    });
+
+    // `pairing-authority-integration` leaves `deviceName` unset rather than
+    // substituting a generic type, so `inline` has to degrade to the OS line.
+    it('falls back to the OS line under inline when there is no device name', () => {
+      renderWithLocalizationProvider(
+        <DeviceInfoBlock
+          remoteMetadata={MOCK_METADATA_WITH_LOCATION}
+          deviceNameDisplay="inline"
+        />
+      );
+
+      screen.getByText('Firefox on macOS');
+    });
+  });
+
+  it('replaces the default wrapper classes when className is given', () => {
+    const { container } = renderWithLocalizationProvider(
+      <DeviceInfoBlock
+        remoteMetadata={MOCK_METADATA_WITH_LOCATION}
+        className="rounded-md border"
+      />
+    );
+
+    expect(container.firstElementChild).toHaveClass('rounded-md', 'border');
+    expect(container.firstElementChild).not.toHaveClass('mt-8', 'mb-4');
+  });
 });
