@@ -57,6 +57,19 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     claims['fxa-profileChangedAt'] = grant.profileChangedAt;
   }
 
+  // RFC 9470 §5: reflect the session's authentication level (acr) and the time of
+  // the authentication event (auth_time) on the access token, mirroring the ID
+  // token (see grant.js `generateIdToken`). `grant.authAt` is already in seconds
+  // (the same value emitted as `auth_at` on the token response), so it is emitted
+  // directly without further conversion.
+  if (grant.aal) {
+    claims.acr = 'AAL' + grant.aal;
+  }
+
+  if (grant.authAt) {
+    claims.auth_time = grant.authAt;
+  }
+
   return {
     ...accessToken,
     jwt_token: await exports.sign(claims),
