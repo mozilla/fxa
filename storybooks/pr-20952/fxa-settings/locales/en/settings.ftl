@@ -384,7 +384,11 @@ sync-devices-image-aria-label =
   .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
-  .aria-label = { -brand-firefox }
+  .aria-label = { -brand-firefox } logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+  .aria-label = Illustration to represent a successful password change.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -2068,10 +2072,10 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 ## computer, and shows that computer's details so they can verify the request.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-approve-sign-in-heading = One last step to sync
-pair2-approve-sign-in-instruction = Approve the sign-in on your computer.
+pair2-supplicant-approve-sign-in-heading = One last step to sync
+pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 # Dismisses the pairing attempt
-pair2-approve-sign-in-cancel-button = Cancel
+pair2-supplicant-approve-sign-in-cancel-button = Cancel
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

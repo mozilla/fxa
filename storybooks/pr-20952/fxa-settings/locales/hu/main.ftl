@@ -1408,7 +1408,7 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészőadatokra.
+password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészési adatokra.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
