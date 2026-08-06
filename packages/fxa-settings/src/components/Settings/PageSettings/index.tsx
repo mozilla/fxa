@@ -10,7 +10,12 @@ import ConnectedServices from '../ConnectedServices';
 import LinkedAccounts from '../LinkedAccounts';
 
 import * as Metrics from '../../../lib/metrics';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import {
+  isProbablyFirefox,
+  useAccount,
+  useAlertBar,
+  useFtlMsgResolver,
+} from '../../../models';
 import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
@@ -34,6 +39,7 @@ import {
 import FirefoxPromoBanner, {
   shouldShowFirefoxPromo,
 } from '../../FirefoxPromoBanner';
+import { canPairDevice, isMobileOrTabletDevice } from '../../../lib/utilities';
 
 export const PageSettings = ({
   integration,
@@ -207,7 +213,14 @@ export const PageSettings = ({
         {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
         <Profile ref={profileRef} />
         <Security ref={securityRef} />
-        <ConnectedServices ref={connectedServicesRef} />
+        <ConnectedServices
+          ref={connectedServicesRef}
+          showConnectDeviceButton={canPairDevice({
+            isFirefox: isProbablyFirefox(),
+            isMobile: isMobileOrTabletDevice(),
+            isSignedIntoBrowser: isSignedIntoFirefox,
+          })}
+        />
         <LinkedAccounts ref={linkedAccountsRef} />
         <DataCollection ref={dataCollectionRef} />
         <div className="flex mx-4 tablet:mx-0" id="delete-account">
