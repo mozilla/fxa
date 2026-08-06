@@ -1,0 +1,90 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from 'react';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import AppLayout from '../../../../components/AppLayout';
+import {
+  FirefoxWordmarkImage,
+  PairingInterruptedImage,
+} from '../../../../components/images';
+
+/**
+ * Why the pairing attempt ended without connecting. Named for the cause rather
+ * than the screen, because that is what the caller knows at the point it routes
+ * here — the two states are otherwise the same card.
+ */
+export type PairingInterruptionReason = 'timeout' | 'canceled';
+
+/**
+ * The only thing that varies between the two states. Keyed by reason so the
+ * component stays a single card, and each state keeps its own Fluent messages —
+ * the sentences differ in structure, not just in a word, so they cannot share
+ * one parameterised message.
+ */
+const COPY: Record<
+  PairingInterruptionReason,
+  {
+    headingFtlId: string;
+    heading: string;
+    descriptionFtlId: string;
+    description: string;
+  }
+> = {
+  timeout: {
+    headingFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-heading',
+    heading: 'Looks like we timed out',
+    descriptionFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-description',
+    description:
+      'To connect your mobile device and sync your Firefox data, visit firefox.com/pair on your computer.',
+  },
+  canceled: {
+    headingFtlId: 'pair2-supplicant-timeout-and-cancel-canceled-heading',
+    heading: 'Canceled',
+    descriptionFtlId:
+      'pair2-supplicant-timeout-and-cancel-canceled-description',
+    description:
+      'To connect a device anytime, visit firefox.com/pair on your computer.',
+  },
+};
+
+export type TimeoutAndCancelProps = {
+  /** Which of the two dead-end states to show. */
+  reason: PairingInterruptionReason;
+};
+
+/**
+ * The mobile dead-end screen shown when pairing ends without connecting, either
+ * because it timed out or because it was canceled. Both states are purely
+ * informational — the designs give them no button and no link, so the user
+ * restarts from `firefox.com/pair` on their computer.
+ *
+ * Presentational only: routing and the page-view/Glean metrics that sibling
+ * pairing pages emit land with the flow wiring.
+ */
+const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
+  const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
+
+  return (
+    <AppLayout>
+      <div className="flex flex-col items-center text-center">
+        <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
+
+        {/* The design centres the 104px illustration in a 120px slot set 40px
+        below the wordmark and 16px above the copy, which flattens to 48px and
+        24px of margin around the illustration itself. */}
+        <PairingInterruptedImage className="mt-12 h-[104px] w-auto" />
+
+        <FtlMsg id={headingFtlId}>
+          <h1 className="card-header mt-6">{heading}</h1>
+        </FtlMsg>
+        <FtlMsg id={descriptionFtlId}>
+          <p className="mt-1 text-base">{description}</p>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default TimeoutAndCancel;
