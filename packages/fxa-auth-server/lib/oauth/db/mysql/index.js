@@ -226,6 +226,8 @@ const QUERY_HAS_CONSENT_FOR_SERVICE_V2 =
   'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND service=? LIMIT 1';
 const QUERY_HAS_CONSENT_FOR_CLIENT_V2 =
   'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND clientId=? LIMIT 1';
+const QUERY_ACCOUNT_CONSENT_V2_DELETE_BY_UID =
+  'DELETE FROM accountAuthorizations_v2 WHERE uid=?';
 
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
@@ -659,9 +661,18 @@ class MysqlStore extends MysqlOAuthShared {
 
     // Best-effort v2 mirror. Unresolved scopes are skipped; a v2 failure is
     // swallowed so it can never affect the authoritative v1 write or the grant.
-    // (Observability of skips/failures is deferred to the metrics work.)
+    // Both are logged so the dual-write is observable during the bake.
     try {
-      const { resolved } = await this._scopeIdCache.resolve(scopes);
+      const { resolved, missing } = await this._scopeIdCache.resolve(scopes);
+      if (missing.length > 0) {
+        // Seed list for the scopes table. Both the list length and each string
+        // are capped — scopes are caller-supplied, so the log event has to stay
+        // bounded regardless of what was passed in.
+        this.log?.warn('accountAuthorizations.v2.missing_scope', {
+          scopes: missing.slice(0, 10).map((s) => String(s).slice(0, 128)),
+          count: missing.length,
+        });
+      }
       if (resolved.size > 0) {
         const v2Tuples = [];
         const v2Params = [];
@@ -676,8 +687,13 @@ class MysqlStore extends MysqlOAuthShared {
           v2Params
         );
       }
-    } catch {
-      // v2 is best-effort; v1 already landed. Intentionally swallowed.
+    } catch (err) {
+      // Still swallowed; v1 already landed. Log only code/errno — the driver
+      // decorates errors with connection options that can include credentials.
+      this.log?.error('accountAuthorizations.v2.write_failed', {
+        code: err?.code,
+        errno: err?.errno,
+      });
     }
   }
 
@@ -793,8 +809,14 @@ class MysqlStore extends MysqlOAuthShared {
     return rows.length > 0;
   }
 
-  _deleteAllAccountConsentsForUser(uid) {
-    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [buf(uid)]);
+  // Clears both tables. Not gated on dualWriteV2 — turning that off stops new
+  // v2 writes but existing rows still need purging. v2 first: if the v1 delete
+  // then fails, reads fall back to v1 rather than v2 answering "consent exists"
+  // for an account whose v1 rows are already gone.
+  async _deleteAllAccountConsentsForUser(uid) {
+    const uidBuf = buf(uid);
+    await this._write(QUERY_ACCOUNT_CONSENT_V2_DELETE_BY_UID, [uidBuf]);
+    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [uidBuf]);
   }
 
   _listAccountConsentsByUid(uid) {
