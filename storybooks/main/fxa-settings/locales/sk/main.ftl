@@ -300,6 +300,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhadnuté)
 device-info-block-location-country = { $country } (odhadnuté)
 device-info-block-location-unknown = Neznáma poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na zariadení { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
@@ -433,6 +434,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animované padajúce konfety
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakom so zelenou fajkou a textom „VPN“, čo znamená, že VPN je aktívna.
+sync-devices-image-aria-label =
+    .aria-label = Okno prehliadača na počítači a mobilný telefón, obe synchronizované, s maskotom { -brand-firefox(case: "gen") } vedľa nich
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+password-success-image-aria-label =
+    .aria-label = Ilustrácia znázorňujúca úspešnú zmenu hesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Ste prihlásený/-á do { -brand-firefox(case: "gen") }.
@@ -1259,7 +1266,7 @@ auth-error-1056 = Neplatný záložný overovací kód
 auth-error-1062 = Neplatné presmerovanie
 auth-error-1064 = Nesprávne zadaný e‑mail? { $domain } nie je platná e‑mailová služba
 auth-error-1066 = Na vytvorenie účtu nie je možné použiť e‑mailovú masku.
-auth-error-1067 = Nesprávna e-mailová adresa?
+auth-error-1067 = Nesprávna e‑mailová adresa?
 recovery-phone-number-ending-digits = Číslo končiace na { $lastFourPhoneNumber }
 oauth-error-1000 = Niečo sa pokazilo. Prosím, zatvorte túto kartu a skúste to znova.
 
@@ -1459,6 +1466,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Otvorte { -brand-firefox(ca
 pair-unsupported-learn-more-link-v2 = Ďalšie informácie
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Niečo sa pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zatvorte túto kartu a skúste to znova.
+
+
+pair2-supplicant-approve-sign-in-heading = Posledný krok k synchronizácii
+pair2-supplicant-approve-sign-in-instruction = Schváľte prihlásenie na počítači.
+pair2-supplicant-approve-sign-in-cancel-button = Zrušiť
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrdený

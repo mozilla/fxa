@@ -189,6 +189,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimate)
 device-info-block-location-country = { $country } (estimată)
 device-info-block-location-unknown = Locație necunoscută
 device-info-browser-os = { $browserName } pe { $genericOSName }
+device-info-browser-device = { $browserName } pe { $deviceName }
 device-info-ip-address = Adresă IP: { $ipAddress }
 
 
@@ -322,6 +323,12 @@ confetti-falling-image-aria-label =
     .aria-label = Confeti animate care cad
 vpn-welcome-image-aria-label =
     .aria-label = Fereastră { -brand-firefox } cu o insignă circulară care prezintă o bifă verde și „VPN”, indicând că VPN-ul este activ.
+sync-devices-image-aria-label =
+    .aria-label = O fereastră de browser pe desktop și un telefon mobil, ambele sincronizându-se, cu mascota { -brand-firefox } alături
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustrația care reprezintă o schimbare reușită a parolei.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Ești autentificat(ă) în { -brand-firefox }.
@@ -1349,6 +1356,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Deschide { -brand-firefox }
 pair-unsupported-learn-more-link-v2 = Află mai multe
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Ceva nu a funcționat.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Te rugăm să închizi această filă și să încerci din nou.
+
+
+pair2-supplicant-approve-sign-in-heading = Un ultim pas pentru sincronizare
+pair2-supplicant-approve-sign-in-instruction = Aprobă autentificarea pe calculator.
+pair2-supplicant-approve-sign-in-cancel-button = Anulează
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmat

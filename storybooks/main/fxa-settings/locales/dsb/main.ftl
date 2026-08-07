@@ -154,6 +154,7 @@ device-info-block-location-city-country = { $city }, { $country } (pówoblicone)
 device-info-block-location-country = { $country } (pówoblicone)
 device-info-block-location-unknown = Njeznate městno
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na { $deviceName }
 device-info-ip-address = IP-adresa: { $ipAddress }
 
 
@@ -287,6 +288,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animěrowany padajucy konfeti
 vpn-welcome-image-aria-label =
     .aria-label = Wokno { -brand-firefox } z kulowatym znamuškom ze zeleneju kokulku a „VPN“, kótarež  pokazujo, až VPN jo aktiwny.
+sync-devices-image-aria-label =
+    .aria-label = Wokno desktopowego wobglědowaka a mobilny telefon, kótarejž se wobej synchronizěrujotej, z maskotku { -brand-firefox } pódla njeju
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustracija wuspěšneje gronidłoweje změny.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Sćo pla { -brand-firefox } pśizjawjony.
@@ -1318,6 +1325,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Wócyńśo { -brand-firefox
 pair-unsupported-learn-more-link-v2 = Dalšne informacije
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něco njejo se raźiło.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Pšosym zacyńśo toś ten rejtarik a wopytajśo hyšći raz.
+
+
+pair2-supplicant-approve-sign-in-heading = Jaden slědny kšac k synchronizaciji
+pair2-supplicant-approve-sign-in-instruction = Zwólśo do pśizjawjenja na swójom licadle.
+pair2-supplicant-approve-sign-in-cancel-button = Pśetergnuś
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone

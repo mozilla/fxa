@@ -154,6 +154,7 @@ device-info-block-location-city-country = { $city }, { $country } (trochowany)
 device-info-block-location-country = { $country } (trochowany)
 device-info-block-location-unknown = Njeznate městno
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na { $deviceName }
 device-info-ip-address = IP-adresa: { $ipAddress }
 
 
@@ -287,6 +288,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animěrowany padacy konfetti
 vpn-welcome-image-aria-label =
     .aria-label = Wokno { -brand-firefox } z kulojtym znamješkom ze zelenej hóčku a „VPN“, kotrež  pokazuje, zo VPN je aktiwny.
+sync-devices-image-aria-label =
+    .aria-label = Wokno desktopoweho wobhladowaka a mobilny telefon, kotrejž so wobaj synchronizujetej, z maskotku { -brand-firefox } pódla njeju
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustracija wuspěšneje hesłoweje změny.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Sće pola { -brand-firefox } přizjewjeny.
@@ -1318,6 +1325,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Wočińće { -brand-firefox
 pair-unsupported-learn-more-link-v2 = Dalše informacije
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něšto je so nimokuliło.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Prošu začińće tutón rajtark a spytajće hišće raz.
+
+
+pair2-supplicant-approve-sign-in-heading = Jedyn posledni krok k synchronizaciji
+pair2-supplicant-approve-sign-in-instruction = Zwolće do přizjewjenja na swojim ličaku.
+pair2-supplicant-approve-sign-in-cancel-button = Přetorhnyć
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene

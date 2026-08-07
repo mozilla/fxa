@@ -437,7 +437,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhad)
 device-info-block-location-country = { $country } (odhad)
 device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
-device-info-browser-device = { $browserName } na { $deviceName }
+device-info-browser-device = { $browserName } na zařízení { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 

@@ -159,6 +159,9 @@ device-info-block-location-unknown = Neznáma poloha
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } na { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } na zariadení { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
@@ -336,6 +339,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakom so zelenou fajkou a textom „VPN“, čo znamená, že VPN je aktívna.
+sync-devices-image-aria-label =
+    .aria-label = Okno prehliadača na počítači a mobilný telefón, obe synchronizované, s maskotom { -brand-firefox(case: "gen") } vedľa nich
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustrácia znázorňujúca úspešnú zmenu hesla.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1496,7 +1508,7 @@ auth-error-1062 = Neplatné presmerovanie
 # Shown when a user tries to sign up with an email address with a domain that doesn't receive emails
 auth-error-1064 = Nesprávne zadaný e‑mail? { $domain } nie je platná e‑mailová služba
 auth-error-1066 = Na vytvorenie účtu nie je možné použiť e‑mailovú masku.
-auth-error-1067 = Nesprávna e-mailová adresa?
+auth-error-1067 = Nesprávna e‑mailová adresa?
 # Displayed when we want to reference a user's previously set up recovery phone
 # number, but they are not completely signed in yet. We'll only show the last 4 digits.
 # Variables:
@@ -1864,6 +1876,17 @@ pair-unsupported-learn-more-link-v2 = Ďalšie informácie
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Niečo sa pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zatvorte túto kartu a skúste to znova.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Posledný krok k synchronizácii
+pair2-supplicant-approve-sign-in-instruction = Schváľte prihlásenie na počítači.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Zrušiť
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

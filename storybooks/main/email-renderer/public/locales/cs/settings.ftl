@@ -158,7 +158,7 @@ device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
-device-info-browser-device = { $browserName } na { $deviceName }
+device-info-browser-device = { $browserName } na zařízení { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }

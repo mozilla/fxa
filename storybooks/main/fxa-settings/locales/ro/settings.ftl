@@ -156,6 +156,9 @@ device-info-block-location-unknown = Locație necunoscută
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } pe { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } pe { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresă IP: { $ipAddress }
@@ -333,6 +336,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Fereastră { -brand-firefox } cu o insignă circulară care prezintă o bifă verde și „VPN”, indicând că VPN-ul este activ.
+sync-devices-image-aria-label =
+    .aria-label = O fereastră de browser pe desktop și un telefon mobil, ambele sincronizându-se, cu mascota { -brand-firefox } alături
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustrația care reprezintă o schimbare reușită a parolei.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1862,6 +1874,17 @@ pair-unsupported-learn-more-link-v2 = Află mai multe
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Ceva nu a funcționat.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Te rugăm să închizi această filă și să încerci din nou.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Un ultim pas pentru sincronizare
+pair2-supplicant-approve-sign-in-instruction = Aprobă autentificarea pe calculator.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Anulează
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
