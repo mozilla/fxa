@@ -1,8 +1,8 @@
 {
-  "commit": "dbc3d911d6364f04a8baf4d61032bff1deb5df45",
+  "commit": "ce3a739cfcc897646fad8ce909e2a504e0e76816",
   "summary": "chore(profile): replace request with native fetch",
   "description": "",
-  "timestamp": 1786141174000,
+  "timestamp": 1786143865000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
