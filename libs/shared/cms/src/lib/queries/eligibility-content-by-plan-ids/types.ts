@@ -11,9 +11,17 @@ export interface EligibilitySubgroupOfferingResult {
   countries: string[];
 }
 
+export interface EligibilitySubgroupRankedOfferingResult {
+  position: number;
+  offering: {
+    apiIdentifier: string;
+  };
+}
+
 export interface EligibilitySubgroupResult {
   groupName: string;
   offerings: EligibilitySubgroupOfferingResult[];
+  rankedOfferings: EligibilitySubgroupRankedOfferingResult[];
 }
 
 export interface EligibilityOfferingResult {

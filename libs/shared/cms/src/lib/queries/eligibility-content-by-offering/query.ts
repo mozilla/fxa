@@ -28,6 +28,12 @@ export const eligibilityContentByOfferingQuery = graphql(`
             }
           }
         }
+        rankedOfferings(pagination: { limit: 200 }) {
+          position
+          offering {
+            apiIdentifier
+          }
+        }
       }
     }
   }
