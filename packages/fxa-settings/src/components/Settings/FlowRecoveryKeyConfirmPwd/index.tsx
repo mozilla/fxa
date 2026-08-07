@@ -65,6 +65,9 @@ export const FlowRecoveryKeyConfirmPwd = ({
       password: '',
     },
   });
+  // Eagerly read isDirty so react-hook-form's Proxy subscribes to it
+  // even when isLoading short-circuits the disabled expression.
+  const { isDirty } = formState;
 
   const createRecoveryKey = useCallback(async () => {
     const password = getValues('password');
@@ -151,7 +154,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
           })}
         >
           <InputPassword
-            name="password"
             label={ftlMsgResolver.getMsg(
               'flow-recovery-key-confirm-pwd-input-label',
               'Enter your password'
@@ -159,7 +161,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             onChange={() => {
               errorText && setErrorText(undefined);
             }}
-            inputRef={register({
+            registration={register('password', {
               required: true,
             })}
             {...{ errorText }}
@@ -169,7 +171,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
               <button
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
-                disabled={isLoading || !formState.isDirty}
+                disabled={isLoading || !isDirty}
               >
                 Create account recovery key
               </button>
@@ -180,7 +182,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
               <button
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
-                disabled={isLoading || !formState.isDirty}
+                disabled={isLoading || !isDirty}
               >
                 Create new account recovery key
               </button>

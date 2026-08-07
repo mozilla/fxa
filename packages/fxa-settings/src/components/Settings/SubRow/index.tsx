@@ -665,7 +665,9 @@ const PasskeyRenameModal = ({
               }
               setSubmitError(null);
             }}
-            inputRef={register({ validate: localizeValidationError })}
+            registration={register('name', {
+              validate: localizeValidationError,
+            })}
           />
         </div>
         <div className="flex justify-center mx-2 mt-6">

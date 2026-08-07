@@ -94,12 +94,11 @@ const ResetPassword = ({
           <InputText
             type="email"
             label="Enter your email"
-            name="email"
             onChange={() => setErrorMessage('')}
             autoFocus
             autoComplete="username"
             spellCheck={false}
-            inputRef={register()}
+            registration={register('email')}
           />
         </FtlMsg>
 

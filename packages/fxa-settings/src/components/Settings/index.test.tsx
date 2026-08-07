@@ -96,6 +96,15 @@ jest.mock('./MfaGuard', () => ({
   useMfaErrorHandler: () => mockMfaErrorHandler,
 }));
 
+// Mock VerifiedSessionGuard to avoid async sessionStatus calls
+jest.mock('./VerifiedSessionGuard', () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => <>{children}</>,
+  VerifiedSessionGuard: ({ children }: { children: ReactNode }) => (
+    <>{children}</>
+  ),
+}));
+
 // Default behavior: render mock guard element
 mockMfaGuard.mockImplementation(({ children }: { children: ReactNode }) => (
   <div data-testid="mfa-guard">MockMfaGuard</div>
@@ -201,9 +210,7 @@ describe('Settings App', () => {
     });
 
     renderWithRouter(
-      <AppContext.Provider
-        value={mockAppContext({ account: brokenAccount })}
-      >
+      <AppContext.Provider value={mockAppContext({ account: brokenAccount })}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }
@@ -340,10 +347,7 @@ describe('Settings App', () => {
   });
 
   it('routes to PageSettings', async () => {
-    const {
-      getByTestId,
-      router,
-    } = renderWithRouter(
+    const { getByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -358,10 +362,7 @@ describe('Settings App', () => {
   });
 
   it('routes to PageDisplayName', async () => {
-    const {
-      getByTestId,
-      router,
-    } = renderWithRouter(
+    const { getByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -374,10 +375,7 @@ describe('Settings App', () => {
   });
 
   it('routes to PageAvatar', async () => {
-    const {
-      getAllByTestId,
-      router,
-    } = renderWithRouter(
+    const { getAllByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -413,10 +411,7 @@ describe('Settings App', () => {
     }));
 
     const session = mockSession(true);
-    const {
-      getByTestId,
-      router,
-    } = renderWithRouter(
+    const { getByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
@@ -430,10 +425,7 @@ describe('Settings App', () => {
 
   it('routes to PageDeleteAccount', async () => {
     const session = mockSession(true);
-    const {
-      getByTestId,
-      router,
-    } = renderWithRouter(
+    const { getByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
@@ -446,9 +438,7 @@ describe('Settings App', () => {
   });
 
   it('redirects to ConnectedServices', async () => {
-    const {
-      router,
-    } = renderWithRouter(
+    const { router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -464,9 +454,7 @@ describe('Settings App', () => {
   });
 
   it('redirects to PageAvatar', async () => {
-    const {
-      router,
-    } = renderWithRouter(
+    const { router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -544,10 +532,7 @@ describe('Settings App', () => {
           ...MOCK_ACCOUNT,
           hasPassword,
         } as unknown as Account;
-        const {
-          getByTestId,
-          router,
-        } = renderWithRouter(
+        const { getByTestId, router } = renderWithRouter(
           <AppContext.Provider value={mockAppContext({ session, account })}>
             <Subject />
           </AppContext.Provider>,

@@ -8,9 +8,11 @@ import React, {
   useCallback,
   ReactElement,
   Ref,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../Tooltip';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 export type InputTextProps = {
   value?: string;
@@ -25,6 +27,9 @@ export type InputTextProps = {
   inputOnlyClassName?: string;
   inputRef?: Ref<HTMLInputElement>;
   inputRefDOM?: Ref<HTMLInputElement>;
+  /** react-hook-form v7 register() return value. When provided, ref/onChange/onBlur/name
+   *  are taken from this object (merged with any explicit onChange/onBlurCb/inputRefDOM). */
+  registration?: UseFormRegisterReturn;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onFocusCb?: () => void;
   onBlurCb?: () => void;
@@ -70,6 +75,7 @@ export const InputText = ({
   inputOnlyClassName = '',
   inputRef,
   inputRefDOM,
+  registration,
   type = 'text',
   name,
   prefixDataTestId = '',
@@ -126,6 +132,11 @@ export const InputText = ({
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
   }
 
+  // Store registration ref in a mutable ref to avoid combinedRef recreation
+  // on every render (register() returns a new object each call in v7).
+  const registrationRefLatest = useRef(registration?.ref);
+  registrationRefLatest.current = registration?.ref;
+
   const combinedRef = useCallback(
     (element: HTMLInputElement | null) => {
       if (inputRefDOM) {
@@ -133,12 +144,16 @@ export const InputText = ({
           inputRefDOM as React.MutableRefObject<HTMLInputElement | null>
         ).current = element;
       }
-      if (inputRef && typeof inputRef === 'function') {
-        inputRef(element);
+      const refToCall = registrationRefLatest.current || inputRef;
+      if (refToCall && typeof refToCall === 'function') {
+        refToCall(element);
       }
     },
     [inputRef, inputRefDOM]
   );
+
+  // When registration is provided, use its name
+  const effectiveName = registration ? registration.name : name;
 
   return (
     <label
@@ -187,14 +202,22 @@ export const InputText = ({
               : ''
           )}
           data-testid={formatDataTestId('input-field')}
-          onChange={textFieldChange}
+          onChange={(e) => {
+            // registration.onChange must fire first to update form state
+            // before any trigger() calls in the component's onChange
+            registration?.onChange(e);
+            textFieldChange(e);
+          }}
           ref={combinedRef}
           aria-describedby={ariaDescribedBy}
+          onBlur={(e) => {
+            registration?.onBlur(e);
+            onBlur(e);
+          }}
           {...{
-            name,
+            name: effectiveName,
             disabled,
             onFocus,
-            onBlur,
             onPaste,
             placeholder,
             type,

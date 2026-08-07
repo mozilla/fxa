@@ -33671,6 +33671,7 @@ __metadata:
     pm2: "npm:^7.0.0"
     postcss-import: "npm:^16.1.0"
     prettier: "npm:^3.5.3"
+    react-hook-form: "npm:^7.54.0"
     react-router: "npm:7.18.0"
     react-scripts: "npm:^5.0.1"
     serve-static: "npm:^1.16.0"
@@ -34316,7 +34317,7 @@ __metadata:
     react-async-hook: "npm:^4.0.0"
     react-dev-utils: "npm:^12.0.1"
     react-easy-crop: "npm:^5.2.0"
-    react-hook-form: "npm:^6.15.8"
+    react-hook-form: "npm:^7.54.0"
     react-markdown: "npm:^8.0.5"
     react-refresh: "npm:^0.16.0"
     react-router: "npm:7.18.0"
@@ -49826,12 +49827,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.15.8":
-  version: 6.15.8
-  resolution: "react-hook-form@npm:6.15.8"
+"react-hook-form@npm:^7.54.0":
+  version: 7.84.0
+  resolution: "react-hook-form@npm:7.84.0"
   peerDependencies:
-    react: ^16.8.0 || ^17
-  checksum: 10c0/7a41e476d53ce78a9d37390cdabc53016eb0e6fce86563ec9c2b67f03d6db27366f4ff57498427e9e2c3e37cc92020740fa570b7dbaaf21fa4b72397fa71f77e
+    react: ^16.8.0 || ^17 || ^18 || ^19
+  checksum: 10c0/9af7e9850ac3c41e6a03fe2fc5a236525603dd8ab983194ffb8e893dba1d26b518ae02989192786d8c1f109793adb93d6de46385bee2b04ff06267f7431bdf8e
   languageName: node
   linkType: hard
 

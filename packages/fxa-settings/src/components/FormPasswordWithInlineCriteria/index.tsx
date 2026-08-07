@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
-import { UseFormMethods } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -13,14 +13,17 @@ import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFormReturn = UseFormReturn<any>;
+
 export type FormPasswordWithInlineCriteriaProps = {
   passwordFormType: PasswordFormType;
-  formState: UseFormMethods['formState'];
-  errors: UseFormMethods['errors'];
+  formState: AnyFormReturn['formState'];
+  errors: Record<string, any>;
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  trigger: UseFormMethods['trigger'];
-  register: UseFormMethods['register'];
-  getValues: UseFormMethods['getValues'];
+  trigger: AnyFormReturn['trigger'];
+  register: AnyFormReturn['register'];
+  getValues: AnyFormReturn['getValues'];
   email: string;
   loading: boolean;
   disableButtonUntilValid?: boolean;
@@ -93,6 +96,10 @@ export const FormPasswordWithInlineCriteria = ({
   submitButtonGleanId,
   cmsButton,
 }: FormPasswordWithInlineCriteriaProps) => {
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation in disabled expressions.
+  const { isValid, dirtyFields } = formState;
+
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
@@ -166,7 +173,7 @@ export const FormPasswordWithInlineCriteria = ({
       setPasswordMatchErrorText(localizedPasswordMatchError);
     }
 
-    if (!formState.isValid && showConfirmPasswordInput) {
+    if (!isValid && showConfirmPasswordInput) {
       trigger('confirmPassword');
     }
   };
@@ -188,11 +195,11 @@ export const FormPasswordWithInlineCriteria = ({
       setSROnlyConfirmPwdFeedbackMessage(srOnlyPasswordsMatch);
     }
 
-    if (!formState.isValid) {
+    if (!isValid) {
       trigger('newPassword');
     }
   }, [
-    formState,
+    isValid,
     ftlMsgResolver,
     getValues,
     localizedPasswordMatchError,
@@ -270,15 +277,12 @@ export const FormPasswordWithInlineCriteria = ({
         <div className="relative mb-4" aria-atomic="true">
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
-              name="newPassword"
               label={templateValues.passwordLabel}
               onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
               onChange={() => onChangePassword('newPassword')}
-              hasErrors={
-                formState.dirtyFields.newPassword ? errors.newPassword : false
-              }
-              inputRef={register({
+              hasErrors={dirtyFields.newPassword ? errors.newPassword : false}
+              registration={register('newPassword', {
                 required: true,
                 validate: {
                   length: (value: string) =>
@@ -312,14 +316,13 @@ export const FormPasswordWithInlineCriteria = ({
               attrs={{ label: true }}
             >
               <InputPassword
-                name="confirmPassword"
                 label={templateValues.confirmPasswordLabel}
                 className="text-start"
                 onFocusCb={onFocusConfirmPassword}
                 onBlurCb={onBlurConfirmPassword}
                 onChange={() => onChangePassword('confirmPassword')}
                 hasErrors={errors.confirmPassword && passwordMatchErrorText}
-                inputRef={register({
+                registration={register('confirmPassword', {
                   required: true,
                   validate: (value: string) =>
                     value === getValues().newPassword,
@@ -373,9 +376,7 @@ export const FormPasswordWithInlineCriteria = ({
           <CmsButtonWithFallback
             type="submit"
             className="cta-primary cta-xl"
-            disabled={
-              loading || (disableButtonUntilValid && !formState.isValid)
-            }
+            disabled={loading || (disableButtonUntilValid && !isValid)}
             data-glean-id={submitButtonGleanId && submitButtonGleanId}
             buttonColor={cmsButton?.color}
             buttonText={cmsButton?.text}
