@@ -9,6 +9,7 @@ export interface EligibilitySubgroupOfferingResult {
     stripeLegacyPlan: string;
   }[];
   countries: string[];
+  tier: number | null;
 }
 
 export interface EligibilitySubgroupResult {

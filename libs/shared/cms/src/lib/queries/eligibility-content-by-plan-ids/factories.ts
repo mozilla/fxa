@@ -79,5 +79,6 @@ export const EligibilitySubgroupOfferingResultFactory = (
     })
   ),
   countries: [faker.string.sample()],
+  tier: null,
   ...override,
 });

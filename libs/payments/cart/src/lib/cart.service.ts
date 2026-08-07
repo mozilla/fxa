@@ -489,6 +489,21 @@ export class CartService {
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    // This is the request whose answer is persisted on the cart row and drives
+    // the start-vs-error and checkout-vs-upgrade routing in /[interval]/new.
+    console.log(
+      '[PAY-3844] setupCart: persisted eligibility',
+      JSON.stringify({
+        offeringConfigId: args.offeringConfigId,
+        interval: args.interval,
+        uid: args.uid,
+        stripeCustomerId: accountCustomer?.stripeCustomerId,
+        eligibility: eligibility.subscriptionEligibilityResult,
+        cartEligibilityStatus,
+      })
+    );
+
     let couponCode = args.promoCode;
     const checkoutAmount = await this.checkoutService.determineCheckoutAmount({
       eligibility,
@@ -1047,6 +1062,28 @@ export class CartService {
     ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    // `stored` is what the UI renders from - the recomputed value is only used
+    // for fromPrice and the invoice preview, so a divergence here is invisible
+    // until checkout throws CartEligibilityMismatchError.
+    console.log(
+      '[PAY-3844] getCart: stored vs recomputed',
+      JSON.stringify({
+        cartId,
+        stored: {
+          state: cart.state,
+          eligibilityStatus: cart.eligibilityStatus,
+          uid: cart.uid,
+          stripeCustomerId: cart.stripeCustomerId,
+        },
+        recomputed: {
+          eligibility: eligibility.subscriptionEligibilityResult,
+          cartEligibilityStatus,
+        },
+        diverged: cart.eligibilityStatus !== cartEligibilityStatus,
+      })
+    );
 
     // Use Stripe's trial dates as the source of truth if applicable
     const trialSubscription =

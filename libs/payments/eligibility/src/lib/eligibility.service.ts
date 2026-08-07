@@ -100,6 +100,18 @@ export class EligibilityService {
       subscribedPrices
     );
 
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    console.log(
+      '[PAY-3844] checkEligibility: final',
+      JSON.stringify({
+        offeringConfigId,
+        interval,
+        targetOfferingId: targetOffering.apiIdentifier,
+        subscribedPriceIds: priceIds,
+        eligibility: eligibility.subscriptionEligibilityResult,
+      })
+    );
+
     return eligibility;
   }
 

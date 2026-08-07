@@ -38,6 +38,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
               stripeLegacyPlan
             }
             countries
+            tier
           }
         }
       }

@@ -27,6 +27,7 @@ export const eligibilityContentByOfferingQuery = graphql(`
               stripePlanChoice
             }
           }
+          tier
         }
       }
     }

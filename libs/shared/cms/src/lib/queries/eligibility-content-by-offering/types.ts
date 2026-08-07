@@ -10,6 +10,7 @@ export interface EligibilityContentSubgroupOfferingResult {
       stripePlanChoice: string;
     }[];
   };
+  tier: number | null;
 }
 
 export interface EligibilityContentSubgroupResult {

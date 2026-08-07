@@ -64,11 +64,35 @@ export class EligibilityManager {
       targetOfferingForComparison =
         detailsResult.offeringForPlanId(targetPriceId);
     }
-    if (!targetOfferingForComparison) return [];
+    if (!targetOfferingForComparison) {
+      // TODO PAY-3844: temporary debug logging, remove before merge
+      console.log(
+        '[PAY-3844] getOfferingOverlap: no target offering resolved -> no overlap',
+        JSON.stringify({ priceIds, targetPriceId })
+      );
+      return [];
+    }
+
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    console.log(
+      '[PAY-3844] getOfferingOverlap: start',
+      JSON.stringify({
+        subscribedPriceIds: priceIds,
+        targetPriceId,
+        targetOfferingId: targetOfferingForComparison.apiIdentifier,
+      })
+    );
 
     for (const priceId of priceIds) {
       const fromOffering = detailsResult.offeringForPlanId(priceId);
-      if (!fromOffering) continue;
+      if (!fromOffering) {
+        // TODO PAY-3844: temporary debug logging, remove before merge
+        console.log(
+          '[PAY-3844] getOfferingOverlap: subscribed price has no CMS offering, skipping',
+          priceId
+        );
+        continue;
+      }
 
       const comparison = offeringComparison(
         fromOffering.apiIdentifier,
@@ -81,6 +105,13 @@ export class EligibilityManager {
           fromOfferingId: fromOffering.apiIdentifier,
         });
     }
+
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    console.log(
+      '[PAY-3844] getOfferingOverlap: overlaps',
+      JSON.stringify(result)
+    );
+
     return result;
   }
 
@@ -91,6 +122,14 @@ export class EligibilityManager {
     subscribedPrices: StripePrice[]
   ): Promise<SubscriptionEligibilityResult> {
     if (!overlaps.length) {
+      // TODO PAY-3844: temporary debug logging, remove before merge
+      console.log(
+        '[PAY-3844] compareOverlaps: no overlaps -> CREATE',
+        JSON.stringify({
+          targetOfferingId: targetOffering.apiIdentifier,
+          interval,
+        })
+      );
       return {
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       };
@@ -105,6 +144,11 @@ export class EligibilityManager {
     );
 
     if (!targetPrice) {
+      // TODO PAY-3844: temporary debug logging, remove before merge
+      console.log(
+        '[PAY-3844] compareOverlaps: no target price for interval -> INVALID',
+        JSON.stringify({ targetPriceIds, interval })
+      );
       return {
         subscriptionEligibilityResult: EligibilityStatus.INVALID,
       };
@@ -112,6 +156,14 @@ export class EligibilityManager {
 
     const overlapResults = overlaps.map((overlap) =>
       this.compareOverlap(overlap, targetPrice, subscribedPrices)
+    );
+
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    console.log(
+      '[PAY-3844] compareOverlaps: per-overlap results',
+      JSON.stringify(
+        overlapResults.map((result) => result.subscriptionEligibilityResult)
+      )
     );
 
     if (overlapResults.length === 1) {
@@ -124,6 +176,10 @@ export class EligibilityManager {
           result.subscriptionEligibilityResult === EligibilityStatus.SAME
       )
     ) {
+      // TODO PAY-3844: temporary debug logging, remove before merge
+      console.log(
+        '[PAY-3844] compareOverlaps: at least one SAME across overlaps -> SAME'
+      );
       return {
         subscriptionEligibilityResult: EligibilityStatus.SAME,
       };
@@ -139,6 +195,11 @@ export class EligibilityManager {
       overlapResults[0].subscriptionEligibilityResult ===
       EligibilityStatus.INVALID;
     if (!allSame || isInvalid) {
+      // TODO PAY-3844: temporary debug logging, remove before merge
+      console.log(
+        '[PAY-3844] compareOverlaps: mixed or invalid overlap directions -> INVALID',
+        JSON.stringify({ allSame, isInvalid })
+      );
       return {
         subscriptionEligibilityResult: EligibilityStatus.INVALID,
       };
@@ -187,6 +248,41 @@ export class EligibilityManager {
   }
 
   compareOverlap(
+    overlap: OfferingOverlapResult,
+    targetPrice: StripePrice,
+    subscribedPrices: StripePrice[]
+  ): SubscriptionEligibilityResult {
+    const result = this.compareOverlapResult(
+      overlap,
+      targetPrice,
+      subscribedPrices
+    );
+
+    // TODO PAY-3844: temporary debug logging, remove before merge
+    console.log(
+      '[PAY-3844] compareOverlap',
+      JSON.stringify({
+        overlap,
+        targetPrice: {
+          id: targetPrice.id,
+          product: targetPrice.product,
+          recurring: targetPrice.recurring,
+        },
+        fromPrice: subscribedPrices
+          .filter((price) => price.id === overlap.priceId)
+          .map((price) => ({
+            id: price.id,
+            product: price.product,
+            recurring: price.recurring,
+          }))[0],
+        eligibility: result.subscriptionEligibilityResult,
+      })
+    );
+
+    return result;
+  }
+
+  private compareOverlapResult(
     overlap: OfferingOverlapResult,
     targetPrice: StripePrice,
     subscribedPrices: StripePrice[]

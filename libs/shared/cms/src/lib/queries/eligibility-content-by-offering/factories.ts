@@ -66,5 +66,6 @@ export const EligibilityContentSubgroupOfferingResultFactory = (
       },
     ],
   },
+  tier: null,
   ...override,
 });

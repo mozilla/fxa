@@ -77,6 +77,7 @@ export type AccessInput = {
   description: InputMaybe<Scalars['String']['input']>;
   freeAccessProgram: InputMaybe<Scalars['ID']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   matchers: InputMaybe<Array<Scalars['AccessMatchersDynamicZoneInput']['input']>>;
   offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
@@ -263,6 +264,7 @@ export type CapabilityFiltersInput = {
 export type CapabilityInput = {
   description: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   services: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
@@ -880,6 +882,7 @@ export type CouponConfigFiltersInput = {
 export type CouponConfigInput = {
   countries: InputMaybe<Scalars['JSON']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   stripePromotionCodes: InputMaybe<Array<InputMaybe<ComponentStripeStripePromoCodesInput>>>;
 };
@@ -1079,6 +1082,7 @@ export type FreeAccessProgramInput = {
   accesses: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   displayName: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
 };
 
@@ -1138,6 +1142,7 @@ export type FreeTrialInput = {
   countries: InputMaybe<Scalars['JSON']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
   intervals: InputMaybe<Scalars['JSON']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   trialLengthDays: InputMaybe<Scalars['Int']['input']>;
@@ -1238,6 +1243,7 @@ export type IapFiltersInput = {
 export type IapInput = {
   internalName: InputMaybe<Scalars['String']['input']>;
   interval: InputMaybe<Enum_Iap_Interval>;
+  locale: InputMaybe<Scalars['String']['input']>;
   offering: InputMaybe<Scalars['ID']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   storeID: InputMaybe<Scalars['String']['input']>;
@@ -1331,6 +1337,7 @@ export type LegalNoticeFiltersInput = {
 export type LegalNoticeInput = {
   Terms: InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsInput>;
   l10nId: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   serviceOrClientId: InputMaybe<Scalars['String']['input']>;
 };
@@ -1405,6 +1412,7 @@ export type MeterFiltersInput = {
 
 export type MeterInput = {
   limit: InputMaybe<Scalars['Long']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   notificationThresholds: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   slug: InputMaybe<Scalars['String']['input']>;
@@ -1971,6 +1979,7 @@ export type Offering = {
   stripeProductId: Scalars['String']['output'];
   subGroups: Array<Maybe<Subgroup>>;
   subGroups_connection: Maybe<SubgroupRelationResponseCollection>;
+  tier: Maybe<Scalars['Int']['output']>;
   updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -2094,6 +2103,7 @@ export type OfferingFiltersInput = {
   stripeLegacyPlans: InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>;
   stripeProductId: InputMaybe<StringFilterInput>;
   subGroups: InputMaybe<SubgroupFiltersInput>;
+  tier: InputMaybe<IntFilterInput>;
   updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
@@ -2111,10 +2121,12 @@ export type OfferingInput = {
   free_trials: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   iaps: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   stripeLegacyPlans: InputMaybe<Array<InputMaybe<ComponentStripeStripeLegacyPlansInput>>>;
   stripeProductId: InputMaybe<Scalars['String']['input']>;
   subGroups: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  tier: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type OfferingRelationResponseCollection = {
@@ -2136,6 +2148,17 @@ export type PaginationArg = {
   pageSize: InputMaybe<Scalars['Int']['input']>;
   start: InputMaybe<Scalars['Int']['input']>;
 };
+
+export enum PublicationFilter {
+  HasPublishedVersion = 'HAS_PUBLISHED_VERSION',
+  HasPublishedVersionDocument = 'HAS_PUBLISHED_VERSION_DOCUMENT',
+  Modified = 'MODIFIED',
+  NeverPublished = 'NEVER_PUBLISHED',
+  NeverPublishedDocument = 'NEVER_PUBLISHED_DOCUMENT',
+  PublishedWithoutDraft = 'PUBLISHED_WITHOUT_DRAFT',
+  PublishedWithDraft = 'PUBLISHED_WITH_DRAFT',
+  Unmodified = 'UNMODIFIED'
+}
 
 export enum PublicationStatus {
   Draft = 'DRAFT',
@@ -2253,6 +2276,7 @@ export type PurchaseFiltersInput = {
 export type PurchaseInput = {
   description: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   offering: InputMaybe<Scalars['ID']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   purchaseDetails: InputMaybe<Scalars['ID']['input']>;
@@ -2338,6 +2362,7 @@ export type Query = {
 export type QueryAccessArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2346,6 +2371,7 @@ export type QueryAccessesArgs = {
   filters: InputMaybe<AccessFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2355,6 +2381,7 @@ export type QueryAccesses_ConnectionArgs = {
   filters: InputMaybe<AccessFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2364,6 +2391,7 @@ export type QueryCancelInterstitialOfferArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2373,6 +2401,7 @@ export type QueryCancelInterstitialOffersArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2383,6 +2412,7 @@ export type QueryCancelInterstitialOffers_ConnectionArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2392,6 +2422,7 @@ export type QueryCapabilitiesArgs = {
   filters: InputMaybe<CapabilityFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2401,6 +2432,7 @@ export type QueryCapabilities_ConnectionArgs = {
   filters: InputMaybe<CapabilityFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2409,6 +2441,7 @@ export type QueryCapabilities_ConnectionArgs = {
 export type QueryCapabilityArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2417,6 +2450,7 @@ export type QueryChurnInterventionArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2426,6 +2460,7 @@ export type QueryChurnInterventionsArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2436,6 +2471,7 @@ export type QueryChurnInterventions_ConnectionArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2445,6 +2481,7 @@ export type QueryCommonContentArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2454,6 +2491,7 @@ export type QueryCommonContentsArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2464,6 +2502,7 @@ export type QueryCommonContents_ConnectionArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2472,6 +2511,7 @@ export type QueryCommonContents_ConnectionArgs = {
 export type QueryCouponConfigArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2480,6 +2520,7 @@ export type QueryCouponConfigsArgs = {
   filters: InputMaybe<CouponConfigFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2489,6 +2530,7 @@ export type QueryCouponConfigs_ConnectionArgs = {
   filters: InputMaybe<CouponConfigFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2497,6 +2539,7 @@ export type QueryCouponConfigs_ConnectionArgs = {
 export type QueryDefaultArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2504,6 +2547,7 @@ export type QueryDefaultArgs = {
 export type QueryFreeAccessProgramArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2512,6 +2556,7 @@ export type QueryFreeAccessProgramsArgs = {
   filters: InputMaybe<FreeAccessProgramFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2521,6 +2566,7 @@ export type QueryFreeAccessPrograms_ConnectionArgs = {
   filters: InputMaybe<FreeAccessProgramFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2529,6 +2575,7 @@ export type QueryFreeAccessPrograms_ConnectionArgs = {
 export type QueryFreeTrialArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2537,6 +2584,7 @@ export type QueryFreeTrialsArgs = {
   filters: InputMaybe<FreeTrialFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2546,6 +2594,7 @@ export type QueryFreeTrials_ConnectionArgs = {
   filters: InputMaybe<FreeTrialFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2554,6 +2603,7 @@ export type QueryFreeTrials_ConnectionArgs = {
 export type QueryI18NLocaleArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2562,6 +2612,7 @@ export type QueryI18NLocalesArgs = {
   filters: InputMaybe<I18NLocaleFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2571,6 +2622,7 @@ export type QueryI18NLocales_ConnectionArgs = {
   filters: InputMaybe<I18NLocaleFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2579,6 +2631,7 @@ export type QueryI18NLocales_ConnectionArgs = {
 export type QueryIapArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2587,6 +2640,7 @@ export type QueryIapsArgs = {
   filters: InputMaybe<IapFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2596,6 +2650,7 @@ export type QueryIaps_ConnectionArgs = {
   filters: InputMaybe<IapFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2604,6 +2659,7 @@ export type QueryIaps_ConnectionArgs = {
 export type QueryLegalNoticeArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2612,6 +2668,7 @@ export type QueryLegalNoticesArgs = {
   filters: InputMaybe<LegalNoticeFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2621,6 +2678,7 @@ export type QueryLegalNotices_ConnectionArgs = {
   filters: InputMaybe<LegalNoticeFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2629,6 +2687,7 @@ export type QueryLegalNotices_ConnectionArgs = {
 export type QueryMeterArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2637,6 +2696,7 @@ export type QueryMetersArgs = {
   filters: InputMaybe<MeterFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2646,6 +2706,7 @@ export type QueryMeters_ConnectionArgs = {
   filters: InputMaybe<MeterFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2654,6 +2715,7 @@ export type QueryMeters_ConnectionArgs = {
 export type QueryOfferingArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2662,6 +2724,7 @@ export type QueryOfferingsArgs = {
   filters: InputMaybe<OfferingFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2671,6 +2734,7 @@ export type QueryOfferings_ConnectionArgs = {
   filters: InputMaybe<OfferingFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2679,6 +2743,7 @@ export type QueryOfferings_ConnectionArgs = {
 export type QueryPurchaseArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2687,6 +2752,7 @@ export type QueryPurchaseDetailArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2696,6 +2762,7 @@ export type QueryPurchaseDetailsArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2706,6 +2773,7 @@ export type QueryPurchaseDetails_ConnectionArgs = {
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2715,6 +2783,7 @@ export type QueryPurchasesArgs = {
   filters: InputMaybe<PurchaseFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2724,6 +2793,7 @@ export type QueryPurchases_ConnectionArgs = {
   filters: InputMaybe<PurchaseFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2733,6 +2803,7 @@ export type QueryRelyingPartiesArgs = {
   filters: InputMaybe<RelyingPartyFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2742,6 +2813,7 @@ export type QueryRelyingParties_ConnectionArgs = {
   filters: InputMaybe<RelyingPartyFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2750,6 +2822,7 @@ export type QueryRelyingParties_ConnectionArgs = {
 export type QueryRelyingPartyArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2757,6 +2830,7 @@ export type QueryRelyingPartyArgs = {
 export type QueryReviewWorkflowsWorkflowArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2764,6 +2838,7 @@ export type QueryReviewWorkflowsWorkflowArgs = {
 export type QueryReviewWorkflowsWorkflowStageArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2772,6 +2847,7 @@ export type QueryReviewWorkflowsWorkflowStagesArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowStageFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2781,6 +2857,7 @@ export type QueryReviewWorkflowsWorkflowStages_ConnectionArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowStageFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2790,6 +2867,7 @@ export type QueryReviewWorkflowsWorkflowsArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2799,6 +2877,7 @@ export type QueryReviewWorkflowsWorkflows_ConnectionArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2807,6 +2886,7 @@ export type QueryReviewWorkflowsWorkflows_ConnectionArgs = {
 export type QueryServiceArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2815,6 +2895,7 @@ export type QueryServicesArgs = {
   filters: InputMaybe<ServiceFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2824,6 +2905,7 @@ export type QueryServices_ConnectionArgs = {
   filters: InputMaybe<ServiceFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2832,6 +2914,7 @@ export type QueryServices_ConnectionArgs = {
 export type QuerySubgroupArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2840,6 +2923,7 @@ export type QuerySubgroupsArgs = {
   filters: InputMaybe<SubgroupFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2849,6 +2933,7 @@ export type QuerySubgroups_ConnectionArgs = {
   filters: InputMaybe<SubgroupFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2857,6 +2942,7 @@ export type QuerySubgroups_ConnectionArgs = {
 export type QueryUploadFileArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2865,6 +2951,7 @@ export type QueryUploadFilesArgs = {
   filters: InputMaybe<UploadFileFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2874,6 +2961,7 @@ export type QueryUploadFiles_ConnectionArgs = {
   filters: InputMaybe<UploadFileFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2882,6 +2970,7 @@ export type QueryUploadFiles_ConnectionArgs = {
 export type QueryUsersPermissionsRoleArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2890,6 +2979,7 @@ export type QueryUsersPermissionsRolesArgs = {
   filters: InputMaybe<UsersPermissionsRoleFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2899,6 +2989,7 @@ export type QueryUsersPermissionsRoles_ConnectionArgs = {
   filters: InputMaybe<UsersPermissionsRoleFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2907,6 +2998,7 @@ export type QueryUsersPermissionsRoles_ConnectionArgs = {
 export type QueryUsersPermissionsUserArgs = {
   documentId: Scalars['ID']['input'];
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -2915,6 +3007,7 @@ export type QueryUsersPermissionsUsersArgs = {
   filters: InputMaybe<UsersPermissionsUserFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2924,6 +3017,7 @@ export type QueryUsersPermissionsUsers_ConnectionArgs = {
   filters: InputMaybe<UsersPermissionsUserFiltersInput>;
   hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
+  publicationFilter: InputMaybe<PublicationFilter>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -3029,6 +3123,7 @@ export type RelyingPartyInput = {
   clientId: InputMaybe<Scalars['String']['input']>;
   entrypoint: InputMaybe<Scalars['String']['input']>;
   l10nId: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   shared: InputMaybe<ComponentAccountsSharedInput>;
@@ -3083,6 +3178,7 @@ export type ReviewWorkflowsWorkflowFiltersInput = {
 
 export type ReviewWorkflowsWorkflowInput = {
   contentTypes: InputMaybe<Scalars['JSON']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   stageRequiredToPublish: InputMaybe<Scalars['ID']['input']>;
@@ -3121,6 +3217,7 @@ export type ReviewWorkflowsWorkflowStageFiltersInput = {
 
 export type ReviewWorkflowsWorkflowStageInput = {
   color: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   workflow: InputMaybe<Scalars['ID']['input']>;
@@ -3182,6 +3279,7 @@ export type ServiceInput = {
   capabilities: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   description: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   oauthClientId: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
 };
@@ -3264,6 +3362,7 @@ export type SubgroupFiltersInput = {
 export type SubgroupInput = {
   groupName: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
 };
@@ -3473,6 +3572,7 @@ export type UsersPermissionsRoleFiltersInput = {
 
 export type UsersPermissionsRoleInput = {
   description: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   permissions: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
@@ -3528,11 +3628,14 @@ export type UsersPermissionsUserFiltersInput = {
 
 export type UsersPermissionsUserInput = {
   blocked: InputMaybe<Scalars['Boolean']['input']>;
+  confirmationToken: InputMaybe<Scalars['String']['input']>;
   confirmed: InputMaybe<Scalars['Boolean']['input']>;
   email: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
   provider: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  resetPasswordToken: InputMaybe<Scalars['String']['input']>;
   role: InputMaybe<Scalars['ID']['input']>;
   username: InputMaybe<Scalars['String']['input']>;
 };
@@ -3585,14 +3688,14 @@ export type EligibilityContentByOfferingQueryVariables = Exact<{
 }>;
 
 
-export type EligibilityContentByOfferingQuery = { __typename?: 'Query', offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null } | null> } | null> } | null> };
+export type EligibilityContentByOfferingQuery = { __typename?: 'Query', offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, tier: number | null, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null } | null> } | null> } | null> };
 
 export type EligibilityContentByPlanIdsQueryVariables = Exact<{
   stripePlanIds: Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type EligibilityContentByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, offering: { __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null } | null> } | null> } | null } | null> };
+export type EligibilityContentByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, offering: { __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, tier: number | null, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null } | null> } | null> } | null } | null> };
 
 export type FreeTrialQueryVariables = Exact<{
   apiIdentifier: Scalars['String']['input'];
@@ -3734,8 +3837,8 @@ export const CancelInterstitialOfferDocument = {"kind":"Document","definitions":
 export const CapabilityServiceByPlanIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CapabilityServiceByPlanIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"capabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oauthClientId"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CapabilityServiceByPlanIdsQuery, CapabilityServiceByPlanIdsQueryVariables>;
 export const ChurnInterventionByProductIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ChurnInterventionByProductId"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"interval"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeProductId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"interval"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"interval"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"churnType"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}}]}}]}}]} as unknown as DocumentNode<ChurnInterventionByProductIdQuery, ChurnInterventionByProductIdQueryVariables>;
 export const DefaultDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Default"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"default"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"promoQrImageUrl"}}]}}]}}]} as unknown as DocumentNode<DefaultQuery, DefaultQueryVariables>;
-export const EligibilityContentByOfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByOffering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByOfferingQuery, EligibilityContentByOfferingQueryVariables>;
-export const EligibilityContentByPlanIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByPlanIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByPlanIdsQuery, EligibilityContentByPlanIdsQueryVariables>;
+export const EligibilityContentByOfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByOffering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"tier"}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByOfferingQuery, EligibilityContentByOfferingQueryVariables>;
+export const EligibilityContentByPlanIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByPlanIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"tier"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByPlanIdsQuery, EligibilityContentByPlanIdsQueryVariables>;
 export const FreeTrialDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FreeTrial"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"freeTrials"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offerings"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"intervals"}},{"kind":"Field","name":{"kind":"Name","value":"trialLengthDays"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"cooldownPeriodMonths"}}]}}]}}]} as unknown as DocumentNode<FreeTrialQuery, FreeTrialQueryVariables>;
 export const IapOfferingsByStoreIDsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"IapOfferingsByStoreIDs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iaps"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"storeID"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeID"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<IapOfferingsByStoreIDsQuery, IapOfferingsByStoreIDsQueryVariables>;
 export const LegalTermsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LegalTerms"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalNotices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"serviceOrClientId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"serviceOrClientId"}},{"kind":"Field","name":{"kind":"Name","value":"Terms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceLink"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeLink"}},{"kind":"Field","name":{"kind":"Name","value":"fontSize"}}]}},{"kind":"Field","name":{"kind":"Name","value":"l10nId"}}]}}]}}]} as unknown as DocumentNode<LegalTermsQuery, LegalTermsQueryVariables>;
