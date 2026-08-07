@@ -11777,9 +11777,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-darwin-arm64@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-darwin-arm64@npm:23.0.1"
+"@nx/nx-darwin-arm64@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-darwin-arm64@npm:23.0.2"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -11799,9 +11799,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-darwin-x64@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-darwin-x64@npm:23.0.1"
+"@nx/nx-darwin-x64@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-darwin-x64@npm:23.0.2"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
@@ -11813,9 +11813,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-freebsd-x64@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-freebsd-x64@npm:23.0.1"
+"@nx/nx-freebsd-x64@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-freebsd-x64@npm:23.0.2"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
@@ -11827,9 +11827,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-linux-arm-gnueabihf@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-linux-arm-gnueabihf@npm:23.0.1"
+"@nx/nx-linux-arm-gnueabihf@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-linux-arm-gnueabihf@npm:23.0.2"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
@@ -11841,9 +11841,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-linux-arm64-gnu@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-linux-arm64-gnu@npm:23.0.1"
+"@nx/nx-linux-arm64-gnu@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-linux-arm64-gnu@npm:23.0.2"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
@@ -11855,9 +11855,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-linux-arm64-musl@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-linux-arm64-musl@npm:23.0.1"
+"@nx/nx-linux-arm64-musl@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-linux-arm64-musl@npm:23.0.2"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
@@ -11869,9 +11869,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-linux-x64-gnu@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-linux-x64-gnu@npm:23.0.1"
+"@nx/nx-linux-x64-gnu@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-linux-x64-gnu@npm:23.0.2"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
@@ -11883,9 +11883,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-linux-x64-musl@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-linux-x64-musl@npm:23.0.1"
+"@nx/nx-linux-x64-musl@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-linux-x64-musl@npm:23.0.2"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
@@ -11897,9 +11897,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-win32-arm64-msvc@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-win32-arm64-msvc@npm:23.0.1"
+"@nx/nx-win32-arm64-msvc@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-win32-arm64-msvc@npm:23.0.2"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
@@ -11911,9 +11911,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/nx-win32-x64-msvc@npm:23.0.1":
-  version: 23.0.1
-  resolution: "@nx/nx-win32-x64-msvc@npm:23.0.1"
+"@nx/nx-win32-x64-msvc@npm:23.0.2":
+  version: 23.0.2
+  resolution: "@nx/nx-win32-x64-msvc@npm:23.0.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -23594,7 +23594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agent-base@npm:6":
+"agent-base@npm:6, agent-base@npm:6.0.2":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
   dependencies:
@@ -33666,7 +33666,7 @@ __metadata:
     jest: "npm:27.5.1"
     jest-watch-typeahead: "npm:0.6.5"
     mozlog: "npm:^3.0.2"
-    nx: "npm:^23.0.1"
+    nx: "npm:^23.0.2"
     on-headers: "npm:^1.1.0"
     pm2: "npm:^7.0.0"
     postcss-import: "npm:^16.1.0"
@@ -33830,7 +33830,7 @@ __metadata:
     node-zendesk: "npm:^2.2.0"
     nodemailer: "npm:^9.0.1"
     nodemon: "npm:^3.1.0"
-    nx: "npm:^23.0.1"
+    nx: "npm:^23.0.2"
     openapi-fetch: "npm:^0.13.5"
     otplib: "npm:^11.0.1"
     p-queue: "npm:^8.1.0"
@@ -34214,7 +34214,7 @@ __metadata:
     identity-obj-proxy: "npm:^3.0.0"
     jest: "npm:27.5.1"
     jest-environment-jsdom: "npm:^27.5.1"
-    nx: "npm:^23.0.1"
+    nx: "npm:^23.0.2"
     pm2: "npm:^7.0.0"
     postcss-import: "npm:^16.1.0"
     prettier: "npm:^3.5.3"
@@ -34301,7 +34301,7 @@ __metadata:
     jest-watch-typeahead: "npm:0.6.5"
     mini-css-extract-plugin: "npm:^2.9.0"
     mutationobserver-shim: "npm:^0.3.7"
-    nx: "npm:^23.0.1"
+    nx: "npm:^23.0.2"
     pm2: "npm:^7.0.0"
     postcss: "npm:^8.5.12"
     postcss-assets: "npm:^6.0.0"
@@ -34593,7 +34593,7 @@ __metadata:
     node-jose: "npm:^2.2.0"
     nodemailer: "npm:^9.0.1"
     nps: "npm:^5.10.0"
-    nx: "npm:^23.0.1"
+    nx: "npm:^23.0.2"
     nx-cloud: "npm:19.1.3"
     objection: "npm:^3.1.3"
     os-browserify: "npm:^0.3.0"
@@ -36864,7 +36864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"https-proxy-agent@npm:^5.0.0, https-proxy-agent@npm:^5.0.1":
+"https-proxy-agent@npm:5.0.1, https-proxy-agent@npm:^5.0.0, https-proxy-agent@npm:^5.0.1":
   version: 5.0.1
   resolution: "https-proxy-agent@npm:5.0.1"
   dependencies:
@@ -45257,34 +45257,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nx@npm:^23.0.1":
-  version: 23.0.1
-  resolution: "nx@npm:23.0.1"
+"nx@npm:^23.0.2":
+  version: 23.0.2
+  resolution: "nx@npm:23.0.2"
   dependencies:
     "@emnapi/core": "npm:1.4.5"
     "@emnapi/runtime": "npm:1.4.5"
     "@emnapi/wasi-threads": "npm:1.0.4"
     "@jest/diff-sequences": "npm:30.0.1"
     "@napi-rs/wasm-runtime": "npm:0.2.4"
-    "@nx/nx-darwin-arm64": "npm:23.0.1"
-    "@nx/nx-darwin-x64": "npm:23.0.1"
-    "@nx/nx-freebsd-x64": "npm:23.0.1"
-    "@nx/nx-linux-arm-gnueabihf": "npm:23.0.1"
-    "@nx/nx-linux-arm64-gnu": "npm:23.0.1"
-    "@nx/nx-linux-arm64-musl": "npm:23.0.1"
-    "@nx/nx-linux-x64-gnu": "npm:23.0.1"
-    "@nx/nx-linux-x64-musl": "npm:23.0.1"
-    "@nx/nx-win32-arm64-msvc": "npm:23.0.1"
-    "@nx/nx-win32-x64-msvc": "npm:23.0.1"
+    "@nx/nx-darwin-arm64": "npm:23.0.2"
+    "@nx/nx-darwin-x64": "npm:23.0.2"
+    "@nx/nx-freebsd-x64": "npm:23.0.2"
+    "@nx/nx-linux-arm-gnueabihf": "npm:23.0.2"
+    "@nx/nx-linux-arm64-gnu": "npm:23.0.2"
+    "@nx/nx-linux-arm64-musl": "npm:23.0.2"
+    "@nx/nx-linux-x64-gnu": "npm:23.0.2"
+    "@nx/nx-linux-x64-musl": "npm:23.0.2"
+    "@nx/nx-win32-arm64-msvc": "npm:23.0.2"
+    "@nx/nx-win32-x64-msvc": "npm:23.0.2"
     "@tybys/wasm-util": "npm:0.9.0"
     "@yarnpkg/lockfile": "npm:1.1.0"
     "@zkochan/js-yaml": "npm:0.0.7"
+    agent-base: "npm:6.0.2"
     ansi-colors: "npm:4.1.3"
     ansi-regex: "npm:5.0.1"
     ansi-styles: "npm:4.3.0"
     argparse: "npm:2.0.1"
     asynckit: "npm:0.4.0"
-    axios: "npm:1.16.0"
+    axios: "npm:1.16.1"
     balanced-match: "npm:4.0.3"
     base64-js: "npm:1.5.1"
     bl: "npm:4.1.0"
@@ -45299,6 +45300,7 @@ __metadata:
     color-convert: "npm:2.0.1"
     color-name: "npm:1.1.4"
     combined-stream: "npm:1.0.8"
+    debug: "npm:4.4.3"
     defaults: "npm:1.0.4"
     define-lazy-prop: "npm:2.0.0"
     delayed-stream: "npm:1.0.0"
@@ -45329,6 +45331,7 @@ __metadata:
     has-symbols: "npm:1.1.0"
     has-tostringtag: "npm:1.0.2"
     hasown: "npm:2.0.4"
+    https-proxy-agent: "npm:5.0.1"
     ieee754: "npm:1.2.1"
     ignore: "npm:7.0.5"
     inherits: "npm:2.0.4"
@@ -45348,6 +45351,7 @@ __metadata:
     mimic-fn: "npm:2.1.0"
     minimatch: "npm:10.2.5"
     minimist: "npm:1.2.8"
+    ms: "npm:2.1.3"
     npm-run-path: "npm:4.0.1"
     once: "npm:1.4.0"
     onetime: "npm:5.1.2"
@@ -45414,7 +45418,7 @@ __metadata:
   bin:
     nx: ./dist/bin/nx.js
     nx-cloud: ./dist/bin/nx-cloud.js
-  checksum: 10c0/2b66d820d060c4247cf787b609c97ae8407934972dff22fe001628da5fc7bb459bf0eab7a4f57135ef9ed6580151c3bfc893dc59f004cca546a3fd2bd1acf151
+  checksum: 10c0/214201e6f2c07a5c315f7a8630519b879023157a1443cb3fd0bb2d0a9a5132671bfc7e92809f818bad506d4e2894b9d64ec4d5ae30632d11c359e350df4cb0e5
   languageName: node
   linkType: hard
 
