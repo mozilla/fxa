@@ -1,8 +1,8 @@
 {
-  "commit": "a730e1ffd6900e9c56ee6f20d1e439050bd2dcc6",
-  "summary": "fix(fxa-react): move shared Jest file transformer into fxa-react",
-  "description": "Because:\n\n- fxa-react/jest.config.js pointed at svg-transform.js, which this branch\n  deleted, so fxa-react:test-unit failed Jest config validation before\n  running a single test\n- the replacement transformer lived in fxa-settings, so fxa-react and\n  fxa-admin-panel reached into an app package for library test config\n\nThis commit:\n\n- moves fileTransform.js to fxa-react/configs\n- repoints fxa-react's jest.config.js, the shared rescripts config, and\n  fxa-settings' Jest transform at the new location",
-  "timestamp": 1786126748000,
+  "commit": "6c91efbf95a9522b6c1ed079ee5e414172673ebe",
+  "summary": "refactor(settings): drop the MfaGuard INSUFFICIENT_AAL fallback banner",
+  "description": "Because:\n\n- the timer, breadcrumb and new localized string guarded against the global\n  redirect failing, which is a pre-existing assumption React 19 did not change\n- hardening it needs UX copy and an l10n string, so it belongs in its own\n  change rather than a dependency upgrade\n\nThis commit:\n\n- reduces the INSUFFICIENT_AAL branch to a bare return; the comment already\n  explains why onDismiss must be skipped\n- clarifies the InputPhoneNumber comment: defaultValues seeds countryCode,\n  setValue keeps it in sync",
+  "timestamp": 1786135089000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

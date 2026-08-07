@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a730e1ffd6900e9c56ee6f20d1e439050bd2dcc6</title>
+  <title>Storybooks for commit 6c91efbf95a9522b6c1ed079ee5e414172673ebe</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a730e1ffd6900e9c56ee6f20d1e439050bd2dcc6</h1>
+  <h1>Storybooks for commit 6c91efbf95a9522b6c1ed079ee5e414172673ebe</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,23 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/7/2026, 6:19:08 PM UTC</dd>
+    <dd>8/7/2026, 8:38:09 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(fxa-react): move shared Jest file transformer into fxa-react</pre></dd>
+    <dd><pre>refactor(settings): drop the MfaGuard INSUFFICIENT_AAL fallback banner</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- fxa-react/jest.config.js pointed at svg-transform.js, which this branch
-  deleted, so fxa-react:test-unit failed Jest config validation before
-  running a single test
-- the replacement transformer lived in fxa-settings, so fxa-react and
-  fxa-admin-panel reached into an app package for library test config
+- the timer, breadcrumb and new localized string guarded against the global
+  redirect failing, which is a pre-existing assumption React 19 did not change
+- hardening it needs UX copy and an l10n string, so it belongs in its own
+  change rather than a dependency upgrade
 
 This commit:
 
-- moves fileTransform.js to fxa-react/configs
-- repoints fxa-react&#039;s jest.config.js, the shared rescripts config, and
-  fxa-settings&#039; Jest transform at the new location</pre></dd>
+- reduces the INSUFFICIENT_AAL branch to a bare return; the comment already
+  explains why onDismiss must be skipped
+- clarifies the InputPhoneNumber comment: defaultValues seeds countryCode,
+  setValue keeps it in sync</pre></dd>
   </dl>
 </body>
 </html>

@@ -153,9 +153,23 @@ device-info-block-location-unknown = Location unknown
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } on { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } on { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP address: { $ipAddress }
+
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Get { -brand-firefox } wherever you are
+firefox-promo-banner-mobile-description = Sync your tabs, bookmarks, and passwords across your devices. Plus, everything stays safely encrypted.
+firefox-promo-banner-mobile-cta = Connect a device
+firefox-promo-banner-switch-heading = Fast to switch. Easy to settle in.
+firefox-promo-banner-switch-description = When you switch to { -brand-firefox }, you can bring your bookmarks, passwords, history and more so you can get to browsing without missing a beat.
+firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
 
 ## FormPasswordInlineCriteria
 
@@ -260,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Code
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Edit
 error-icon-aria-label =
     .aria-label = Error
 # Used as information icon for informative messaging
@@ -316,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+    .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration to represent a successful password change.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -353,6 +379,8 @@ input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
 # Back button on legal/terms or legal/privacy that takes users to the previous page
 legal-back-button = Back
+# Generic error shown when the legal document fails to load
+app-general-err-message = Something went wrong. Please try again later.
 
 ## LinkDamaged component
 
@@ -377,6 +405,8 @@ link-expired-new-link-button = Receive new link
 
 # immediately before remember-password-signin-link
 remember-password-text = Remember your password?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Have a passkey or remember your password?
 # link navigates to the sign in page
 remember-password-signin-link = Sign in
 
@@ -494,7 +524,15 @@ flow-recovery-key-hint-unsafe-char-error = The hint cannot contain unsafe unicod
 password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 password-reset-warning-have-key = Have an account recovery key?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 ## Alert Bar
 
@@ -1228,10 +1266,23 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
+passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey, or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
 
 ## Switch component
 
@@ -1423,6 +1474,7 @@ auth-error-225 = Passkey already registered
 auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
+auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
@@ -1490,12 +1542,24 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = How to use passkeys
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
