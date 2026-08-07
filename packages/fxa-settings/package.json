@@ -160,7 +160,7 @@
     "jest": "^29.7.0",
     "jest-watch-typeahead": "^1.0.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.5.12",
+    "postcss": "^8.5.23",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^8.1.1",
     "postcss-normalize": "^13.0.1",
