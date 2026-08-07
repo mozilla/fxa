@@ -1,8 +1,8 @@
 {
-  "commit": "2dc048c4c160bb454593669e5b524520caf045f6",
-  "summary": "Merge pull request #20972 from mozilla/account-authz-v2-signal",
-  "description": "fix(oauth): purge v2 consent rows on delete, log dual-write failures",
-  "timestamp": 1786124466000,
+  "commit": "8d083848faa653761f971911f30c8dac092a1178",
+  "summary": "Merge pull request #20993 from mozilla/dependabot/npm_and_yarn/nx-23.0.2",
+  "description": "chore(deps-dev): bump nx from 23.0.1 to 23.0.2",
+  "timestamp": 1786125157000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
