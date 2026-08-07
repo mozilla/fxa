@@ -420,6 +420,12 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
               .optional()
               .allow(null)
               .description(DESCRIPTION.acrValues),
+            max_age: Joi.number()
+              .integer()
+              .min(0)
+              .optional()
+              .allow(null)
+              .description(DESCRIPTION.maxAge),
             resource: validators.resourceUrl
               .when('response_type', {
                 is: RESPONSE_TYPE_TOKEN,
@@ -515,6 +521,12 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
               .allow(null)
               .optional()
               .description(DESCRIPTION.acrValues),
+            max_age: Joi.number()
+              .integer()
+              .min(0)
+              .allow(null)
+              .optional()
+              .description(DESCRIPTION.maxAge),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
             service: validators.service

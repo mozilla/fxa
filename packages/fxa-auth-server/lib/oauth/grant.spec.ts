@@ -109,7 +109,9 @@ describe('validateRequestedGrant', () => {
     };
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
-    ).rejects.toThrow('Mismatch acr value');
+      // errno 170 (INSUFFICIENT_ACR_VALUES) is the signal the frontend routes to
+      // a second-factor challenge.
+    ).rejects.toMatchObject({ errno: 170 });
     let grant = await validateRequestedGrant(
       { ...CLAIMS, 'fxa-aal': 2 },
       CLIENT,
@@ -130,7 +132,7 @@ describe('validateRequestedGrant', () => {
     };
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
-    ).rejects.toThrow('Mismatch acr value');
+    ).rejects.toMatchObject({ errno: 170 });
     const grant = await validateRequestedGrant(
       { ...CLAIMS, 'fxa-aal': 2 },
       CLIENT,
@@ -176,6 +178,50 @@ describe('validateRequestedGrant', () => {
         requestedGrant
       )
     ).rejects.toThrow('Requested scopes are not allowed');
+  });
+
+  describe('max_age (RFC 9470 freshness)', () => {
+    // `fxa-lastAuthAt` is seconds since epoch, compared against Date.now()/1000.
+    const nowSeconds = () => Math.floor(Date.now() / 1000);
+    const claimsAuthedAt = (secondsAgo: number) => ({
+      ...CLAIMS,
+      'fxa-lastAuthAt': nowSeconds() - secondsAgo,
+    });
+
+    it('requires step-up (errno 170) when the session is older than max_age', async () => {
+      await expect(
+        validateRequestedGrant(claimsAuthedAt(3600), CLIENT, { max_age: 60 })
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('passes when the session is within max_age', async () => {
+      const grant = await validateRequestedGrant(claimsAuthedAt(10), CLIENT, {
+        max_age: 3600,
+      });
+      expect(grant.aal).toBe(1);
+    });
+
+    it('treats max_age=0 as satisfied by a just-completed challenge (within leeway)', async () => {
+      const grant = await validateRequestedGrant(claimsAuthedAt(0), CLIENT, {
+        max_age: 0,
+      });
+      expect(grant.aal).toBe(1);
+    });
+
+    it('requires step-up for max_age=0 when the session is older than the leeway', async () => {
+      await expect(
+        validateRequestedGrant(claimsAuthedAt(60), CLIENT, { max_age: 0 })
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('skips the freshness check entirely when max_age is absent', async () => {
+      const grant = await validateRequestedGrant(
+        claimsAuthedAt(99999),
+        CLIENT,
+        {}
+      );
+      expect(grant.aal).toBe(1);
+    });
   });
 });
 
