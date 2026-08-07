@@ -1,0 +1,11 @@
+{
+  "commit": "097efe7cada6c28275fcb33e70f26178b84ce612",
+  "summary": "fix(auth): grant auth_at and introspect fix",
+  "description": "",
+  "timestamp": 1786125879000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
