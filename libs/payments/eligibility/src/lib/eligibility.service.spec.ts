@@ -48,14 +48,28 @@ import {
 import { LocationConfig, MockLocationConfigProvider } from './location.config';
 import {
   AppleIapClient,
+  AppleIapClientBundleError,
   AppleIapPurchaseManager,
+  AppleIapServiceUnavailableError,
   GoogleIapClient,
   GoogleIapPurchaseManager,
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
 } from '@fxa/payments/iap';
+import { AppStoreError } from 'app-store-server-api';
 import { faker } from '@faker-js/faker';
 import { Logger } from '@nestjs/common';
+
+// Apple reports a transient internal failure as errorCode 5000001, which
+// app-store-server-api flags as retryable.
+const APPLE_RETRYABLE_ERROR = new AppleIapServiceUnavailableError(
+  new AppStoreError(5000001, 'An unknown error occurred. Please try again.')
+);
+// A 401 from the App Store Server API surfaces as a plain Error, meaning our
+// JWT is invalid — never that the customer has no Apple subscriptions.
+const APPLE_INVALID_JWT_ERROR = new AppleIapClientBundleError(
+  new Error('The request is unauthorized; the JSON Web Token (JWT) is invalid.')
+);
 
 describe('EligibilityService', () => {
   let productConfigurationManager: ProductConfigurationManager;
@@ -64,6 +78,7 @@ describe('EligibilityService', () => {
   let subscriptionManager: SubscriptionManager;
   let appleIapPurchaseManager: AppleIapPurchaseManager;
   let googleIapPurchaseManager: GoogleIapPurchaseManager;
+  let logger: Logger;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -97,6 +112,7 @@ describe('EligibilityService', () => {
     subscriptionManager = module.get(SubscriptionManager);
     appleIapPurchaseManager = module.get(AppleIapPurchaseManager);
     googleIapPurchaseManager = module.get(GoogleIapPurchaseManager);
+    logger = module.get(Logger);
   });
 
   describe('checkEligibility', () => {
@@ -308,6 +324,109 @@ describe('EligibilityService', () => {
       expect(result).toEqual({
         subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
       });
+    });
+
+    it('returns BLOCKED_IAP from the cached Apple purchases when the App Store Server API is unavailable', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUser')
+        .mockRejectedValue(APPLE_RETRYABLE_ERROR);
+      jest
+        .spyOn(appleIapPurchaseManager, 'getStaleCachedForUser')
+        .mockResolvedValue([{ productId: 'apple_product_1' } as any]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      const warn = jest.spyOn(logger, 'warn').mockImplementation();
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    apiIdentifier: offeringApiIdentifier,
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: offeringApiIdentifier,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+      const uid = faker.string.uuid();
+
+      const result = await eligibilityService.checkEligibility(
+        interval,
+        offeringApiIdentifier,
+        uid,
+        mockCustomer.id
+      );
+
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+      });
+      expect(appleIapPurchaseManager.getStaleCachedForUser).toHaveBeenCalledWith(uid);
+      expect(warn).toHaveBeenCalledWith('checkEligibility.appleIapUnavailable', {
+        uid,
+      });
+    });
+
+    it('rethrows Apple IAP errors Apple did not ask us to retry', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+
+      jest
+        .spyOn(appleIapPurchaseManager, 'getForUser')
+        .mockRejectedValue(APPLE_INVALID_JWT_ERROR);
+      jest.spyOn(appleIapPurchaseManager, 'getStaleCachedForUser');
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [
+                EligibilityContentOfferingResultFactory({
+                  apiIdentifier: offeringApiIdentifier,
+                }),
+              ],
+            })
+          )
+        );
+
+      await expect(
+        eligibilityService.checkEligibility(
+          interval,
+          offeringApiIdentifier,
+          faker.string.uuid(),
+          mockCustomer.id
+        )
+      ).rejects.toBe(APPLE_INVALID_JWT_ERROR);
+      expect(appleIapPurchaseManager.getStaleCachedForUser).not.toHaveBeenCalled();
     });
 
     it('returns CREATE when Google IAP subscription is for a different product', async () => {

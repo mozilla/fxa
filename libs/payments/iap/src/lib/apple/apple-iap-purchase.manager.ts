@@ -240,6 +240,27 @@ export class AppleIapPurchaseManager {
     });
   }
 
+  /**
+   * Return the user's purchases as they are cached in Firestore, without
+   * refreshing them against the App Store Server API.
+   *
+   * Intended for callers that still have to make a decision when Apple is
+   * unreachable. Since the records can be stale, an inactive entitlement here
+   * is not proof that the subscription has lapsed.
+   */
+  async getStaleCachedForUser(
+    userId: string
+  ): Promise<AppStoreSubscriptionPurchase[]> {
+    const firestorePurchaseRecords = await getActivePurchasesForUserId(
+      this.collectionRef,
+      userId
+    );
+
+    return firestorePurchaseRecords.map((firestorePurchaseRecord) =>
+      AppStoreSubscriptionPurchase.fromFirestoreObject(firestorePurchaseRecord)
+    );
+  }
+
   async getStaleCached(
     originalTransactionId: string
   ): Promise<AppStoreSubscriptionPurchase | undefined> {

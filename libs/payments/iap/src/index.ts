@@ -8,6 +8,7 @@ export * from './lib/google/subscription-purchase';
 export * from './lib/apple/apple-iap.client';
 export * from './lib/google/google-iap.client.config';
 export * from './lib/apple/apple-iap-purchase.manager';
+export * from './lib/apple/apple-iap.error';
 export * from './lib/apple/subscription-purchase';
 export * from './lib/google/google-iap.client';
 export * from './lib/apple/apple-iap.client.config';
