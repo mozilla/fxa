@@ -249,25 +249,6 @@ describe('EmailLinkBuilder', () => {
     });
   });
 
-  describe('buildTermsOfServiceDownloadLink', () => {
-    it('can build link', () => {
-      const link = linkBuilder.buildTermsOfServiceDownloadLink(
-        'downloadSubscription',
-        true
-      );
-      expect(link).toEqual(
-        `${mockConfig.subscriptionTermsUrl}?utm_medium=email&utm_content=fx-subscription-terms`
-      );
-    });
-    it('can build link without utm', () => {
-      const link = linkBuilder.buildTermsOfServiceDownloadLink(
-        'downloadSubscription',
-        false
-      );
-      expect(link).toEqual(`${mockConfig.subscriptionTermsUrl}`);
-    });
-  });
-
   describe('buildPrivacyLink', () => {
     it('can build', () => {
       const link = linkBuilder.buildPrivacyLink('recovery', true);

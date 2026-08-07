@@ -1,8 +1,8 @@
 {
-  "commit": "8d083848faa653761f971911f30c8dac092a1178",
-  "summary": "Merge pull request #20993 from mozilla/dependabot/npm_and_yarn/nx-23.0.2",
-  "description": "chore(deps-dev): bump nx from 23.0.1 to 23.0.2",
-  "timestamp": 1786125157000,
+  "commit": "fa80491ca49fad028854e8d52d51432ed0dcda4c",
+  "summary": "Merge pull request #20911 from mozilla/PAY-3829-switch-all-mozilla-accounts-legal-links",
+  "description": "feat(payments): Switch all Mozilla accounts legal links over to Mozilla.org version",
+  "timestamp": 1786127722000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
