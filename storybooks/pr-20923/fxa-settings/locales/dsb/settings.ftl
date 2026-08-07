@@ -159,6 +159,9 @@ device-info-block-location-unknown = Njeznate městno
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } na { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } na { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresa: { $ipAddress }
@@ -336,6 +339,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Wokno { -brand-firefox } z kulowatym znamuškom ze zeleneju kokulku a „VPN“, kótarež  pokazujo, až VPN jo aktiwny.
+sync-devices-image-aria-label =
+    .aria-label = Wokno desktopowego wobglědowaka a mobilny telefon, kótarejž se wobej synchronizěrujotej, z maskotku { -brand-firefox } pódla njeju
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustracija wuspěšneje gronidłoweje změny.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -399,6 +411,8 @@ link-expired-new-link-button = Nowy wótkaz dostaś
 
 # immediately before remember-password-signin-link
 remember-password-text = Gronidło se spomniś?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Maśo gronidłowy kluc abo wěsćo swójo gronidło?
 # link navigates to the sign in page
 remember-password-signin-link = Pśizjawiś
 
@@ -510,18 +524,21 @@ flow-recovery-key-hint-char-limit-error = Pokaz musy mjenjej ako 255 znamuškow 
 flow-recovery-key-hint-unsafe-char-error = Pokaz njesmějo njewěste znamuška Unicode wopśimowaś. Jano pismiki, licby, interpunkciske znamuška a symbole su dowólone.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Warnowanje
 password-reset-chevron-expanded = Warnowanje schowaś
 password-reset-chevron-collapsed = Warnowanje pokazaś
-password-reset-data-may-not-be-recovered = Daty wašogo wobglědowaka se snaź njewobnowiju
-password-reset-previously-signed-in-device-2 = Maśo rěd, źož sćo se do togo pśizjawił?
-password-reset-data-may-be-saved-locally-2 = Daty wašogo wobglědowaka su snaź na tom rěźe skłaźone. Stajśo swójo gronidło slědk, pśizjawśo se pón tam, aby swóje daty wótnowił a synchronizěrował.
-password-reset-no-old-device-2 = Maśo nowy rěd, ale njamaśo pśistup k swójim staršym?
-password-reset-encrypted-data-cannot-be-recovered-2 = Jo nam luto, ale waše skoděrowane daty wobglědowaka na serwerach { -brand-firefox } njedaju se wótnowiś.
+password-reset-warning-review-sign-in-options = Pśeglědujśo swóje pśizjawjeńske nastajenja, aby daty wobglědowaka wobchował
 password-reset-warning-have-key = Maśo kontowy wótnowjeński kluc?
-password-reset-warning-use-key-link = Wužywajśo jen něnto, aby swójo gronidło slědk stajił a swóje daty wobchował
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Wužywajśo jen, aby swójo gronidło slědk stajił a daty swójogo wobglědowaka wobchował
+password-reset-warning-signed-in-device = Sćo na drugem rěźe pśizjawjony?
+password-reset-warning-signed-in-device-description = Daty wašogo wobglědowaka su snaź  k dispoziciji. Stajśo swójo gronidło slědk, pśizjawśo se pón na tom rěźe, aby swóje daty wótnowił a synchronizěrował.
+password-reset-warning-restore-data-link = Zgóńśo, kak móžośo daty wobglědowaka z pśizjawjonego rěda wótnowiś
+password-reset-warning-new-device = Wužywaśo nowy rěd, ale njamaśo pśistup k swójim starym?
+password-reset-warning-new-device-description = Za tym až sćo swójo gronidło slědk stajił, njebudu skoděrowane daty wobglědowaka na serwerach { -brand-firefox } na toś tom rěźe k dispoziciji.
 
 ## Alert Bar
 
@@ -1865,6 +1882,17 @@ pair-unsupported-learn-more-link-v2 = Dalšne informacije
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něco njejo se raźiło.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Pšosym zacyńśo toś ten rejtarik a wopytajśo hyšći raz.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Jaden slědny kšac k synchronizaciji
+pair2-supplicant-approve-sign-in-instruction = Zwólśo do pśizjawjenja na swójom licadle.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Pśetergnuś
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1969,9 +1997,7 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 ## ResetPassword start page
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
-password-reset-body-2 =
-    Pšašamy se za někotarymi wěcami, kótarež jano wy wěsćo, aby my wašo konto
-    wěste źaržali.
+password-reset-body-3 = Gaž swójo gronidło slědk stajaśo, móžo to synchronizěrowane daty wobglědowaka wobwliwowaś.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej
@@ -2098,6 +2124,7 @@ signin-passkey-fallback-heading = Zapódajśo swójo gronidło, aby synchronizě
 signin-passkey-fallback-body = Aby swóje daty wěste wobchował, musyśo swójo gronidło zapódaś, gaž toś ten gronidłowy kluc wužywaśo.
 signin-passkey-fallback-password-label = Gronidło
 signin-passkey-fallback-continue = Dalej
+signin-passkey-fallback-forgot-password-link = Sćo gronidło zabył?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

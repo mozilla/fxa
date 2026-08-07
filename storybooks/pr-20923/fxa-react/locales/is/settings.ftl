@@ -413,18 +413,13 @@ flow-recovery-key-hint-char-limit-error = Vísbendingin verður að innihalda f�
 flow-recovery-key-hint-unsafe-char-error = Vísbendingin má ekki innihalda óörugga unicode-stafi. Aðeins bókstafir, tölustafir, greinarmerki og tákn eru leyfð.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Aðvörun
 password-reset-chevron-expanded = Fella aðvörun saman
 password-reset-chevron-collapsed = Fella út aðvörun
-password-reset-data-may-not-be-recovered = Ekki er víst að vafragögnin þín verði endurheimt
-password-reset-previously-signed-in-device-2 = Ertu með tæki þar sem þú skráðir þig áður inn?
-password-reset-data-may-be-saved-locally-2 = Gögn vafrans þíns gætu verið vistuð á því tæki. Endurstilltu lykilorðið þitt og skráðu þig síðan þar inn til að endurheimta og samstilla gögnin þín.
-password-reset-no-old-device-2 = Ertu með nýtt tæki en hefur ekki aðgang að neinu af þínum eldri tækjum?
-password-reset-encrypted-data-cannot-be-recovered-2 = Því miður er ekki hægt að endurheimta dulkrituðu vafragögnin þín af { -brand-firefox } netþjónum.
 password-reset-warning-have-key = Ertu með endurheimtulykil reiknings?
-password-reset-warning-use-key-link = Notaðu það núna til að endurstilla lykilorðið þitt og halda gögnunum þínum
 
 ## Alert Bar
 
@@ -1452,9 +1447,6 @@ confirm-totp-reset-password-use-different-account = Nota annan reikning
 ## ResetPassword start page
 
 password-reset-flow-heading = Endurstilltu lykilorðið þitt
-password-reset-body-2 =
-    Við munum biðja um nokkra hluti sem aðeins þú veist til að halda reikningnum þínum
-    öruggum.
 password-reset-email-input =
     .label = Settu inn tölvupóstfangið þitt
 password-reset-submit-button-2 = Halda áfram

@@ -153,6 +153,9 @@ device-info-block-location-unknown = Locatie onbekend
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } op { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } op { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adres: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-venster met een ronde badge met een groen vinkje en ‘VPN’, wat aangeeft dat de VPN actief is.
+sync-devices-image-aria-label =
+    .aria-label = Een desktopbrowser en een mobiele telefoon, beide synchroniserend, met de { -brand-firefox }-mascotte ernaast
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustratie om een succesvolle wachtwoordwijziging weer te geven.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Nieuwe koppeling ontvangen
 
 # immediately before remember-password-signin-link
 remember-password-text = Wachtwoord onthouden?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Hebt u een wachtwoordsleutel of weet u uw wachtwoord nog?
 # link navigates to the sign in page
 remember-password-signin-link = Aanmelden
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = De hint moet minder dan 255 tekens bev
 flow-recovery-key-hint-unsafe-char-error = De hint mag geen onveilige Unicode-tekens bevatten. Alleen letters, cijfers, leestekens en symbolen zijn toegestaan.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Waarschuwing
 password-reset-chevron-expanded = Waarschuwing samenvouwen
 password-reset-chevron-collapsed = Waarschuwing uitvouwen
-password-reset-data-may-not-be-recovered = Uw browsergegevens worden mogelijk niet hersteld
-password-reset-previously-signed-in-device-2 = Hebt u een apparaat waarop u eerder bent aangemeld?
-password-reset-data-may-be-saved-locally-2 = Uw browsergegevens zijn mogelijk op dat apparaat opgeslagen. Stel uw wachtwoord opnieuw in en meld u daar aan om uw gegevens te herstellen en te synchroniseren.
-password-reset-no-old-device-2 = Hebt u een nieuw apparaat, maar hebt u geen toegang tot een van uw vorige?
-password-reset-encrypted-data-cannot-be-recovered-2 = Sorry, maar uw versleutelde browsergegevens op { -brand-firefox }-servers kunnen niet worden hersteld.
+password-reset-warning-review-sign-in-options = Aanmeldopties bekijken om browsergegevens te behouden
 password-reset-warning-have-key = Hebt u een accountherstelsleutel?
-password-reset-warning-use-key-link = Gebruik deze nu om uw wachtwoord te herinitialiseren en uw gegevens te behouden
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Gebruik deze om uw wachtwoord te herinitialiseren en uw browsergegevens te behouden
+password-reset-warning-signed-in-device = Nog steeds aangemeld op een ander apparaat?
+password-reset-warning-signed-in-device-description = Uw browsergegevens zijn mogelijk nog beschikbaar. Stel uw wachtwoord opnieuw in en meld u op dat apparaat aan om uw gegevens te herstellen en te synchroniseren.
+password-reset-warning-restore-data-link = Lees hoe u browsergegevens van een aangemeld apparaat kunt herstellen
+password-reset-warning-new-device = Gebruikt u een nieuw apparaat, maar geen toegang tot uw oude?
+password-reset-warning-new-device-description = Nadat u uw wachtwoord opnieuw hebt ingesteld, zijn versleutelde browsergegevens op { -brand-firefox }-servers niet meer beschikbaar op dit apparaat.
 
 ## Alert Bar
 
@@ -1851,6 +1868,17 @@ pair-unsupported-learn-more-link-v2 = Meer info
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oeps, er is iets misgegaan.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sluit dit tabblad en probeer het opnieuw.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
+pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer goed.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Annuleren
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1955,9 +1983,7 @@ confirm-totp-reset-password-use-different-account = Een andere account gebruiken
 ## ResetPassword start page
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
-password-reset-body-2 =
-    We vragen u een aantal dingen die alleen u weet om uw account
-    veilig te houden.
+password-reset-body-3 = Het opnieuw instellen van uw wachtwoord kan invloed hebben op gesynchroniseerde browsergegevens.
 password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan
@@ -2079,6 +2105,7 @@ signin-passkey-fallback-heading = Voer uw wachtwoord in om te synchroniseren
 signin-passkey-fallback-body = Om uw gegevens veilig te houden, dient u uw wachtwoord in te voeren wanneer u deze wachtwoordsleutel gebruikt.
 signin-passkey-fallback-password-label = Wachtwoord
 signin-passkey-fallback-continue = Doorgaan
+signin-passkey-fallback-forgot-password-link = Wachtwoord vergeten?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

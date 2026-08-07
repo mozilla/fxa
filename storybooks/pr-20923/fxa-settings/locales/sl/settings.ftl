@@ -159,6 +159,9 @@ device-info-block-location-unknown = Neznana lokacija
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } v { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } dne { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Naslov IP: { $ipAddress }
@@ -170,6 +173,7 @@ device-info-ip-address = Naslov IP: { $ipAddress }
 firefox-promo-banner-mobile-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } ne glede na to, kje ste
 firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
 firefox-promo-banner-mobile-cta = Povežite napravo
+firefox-promo-banner-switch-heading = Preklopite hitro. Udobno nadaljujte.
 firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
 firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox(sklon: "tozilnik") }
 
@@ -335,6 +339,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
+sync-devices-image-aria-label =
+    .aria-label = Namizno okno brskalnika in mobilni telefon, oboje sinhronizirano, ob njem pa maskota { -brand-firefox }
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotip { -brand-firefox(sklon: "rodilnik") }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustracija uspešne spremembe gesla.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -398,6 +411,8 @@ link-expired-new-link-button = Prejmi novo povezavo
 
 # immediately before remember-password-signin-link
 remember-password-text = Se spomnite gesla?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Imate ključ ali si ga spomnite?
 # link navigates to the sign in page
 remember-password-signin-link = Prijava
 
@@ -509,18 +524,21 @@ flow-recovery-key-hint-char-limit-error = Namig lahko vsebuje največ 255 znakov
 flow-recovery-key-hint-unsafe-char-error = Namig ne sme vsebovati nevarnih znakov unicode. Dovoljene so samo črke, številke, ločila in simboli.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Opozorilo
 password-reset-chevron-expanded = Skrči opozorilo
 password-reset-chevron-collapsed = Razširi opozorilo
-password-reset-data-may-not-be-recovered = Podatkov brskalnika morda ne bo mogoče obnoviti
-password-reset-previously-signed-in-device-2 = Imate kakšno napravo, na kateri ste se že kdaj prej prijavili?
-password-reset-data-may-be-saved-locally-2 = Podatki brskalnika so morda shranjeni na tej napravi. Ponastavite geslo, nato pa se prijavite, s čimer boste obnovili in sinhronizirali podatke.
-password-reset-no-old-device-2 = Imate novo napravo, nimate pa dostopa do nobene izmed prejšnjih?
-password-reset-encrypted-data-cannot-be-recovered-2 = Žal nam je, toda šifriranih podatkov brskalnika iz { -brand-firefox }ovih strežnikov ni mogoče obnoviti.
+password-reset-warning-review-sign-in-options = Preglejte možnosti prijave za hranjenje podatkov brskalnika
 password-reset-warning-have-key = Imate ključ za obnovitev računa?
-password-reset-warning-use-key-link = Uporabite ga za ponastavitev gesla in ohranitev podatkov
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Uporabite ga za ponastavitev gesla in ohranitev podatkov brskalnika
+password-reset-warning-signed-in-device = Ste še vedno prijavljeni v drugi napravi?
+password-reset-warning-signed-in-device-description = Podatki brskalnika so morda na voljo. Ponastavite geslo in se prijavite v tej napravi za obnovitev in sinhronizacijo podatkov.
+password-reset-warning-restore-data-link = Naučite se, kako obnoviti podatke brskalnika iz prijavljene naprave
+password-reset-warning-new-device = Uporabljate novo napravo, vendar nimate dostopa do starih?
+password-reset-warning-new-device-description = Ko ponastavite geslo, šifrirani podatki brskalnika v strežnikih { -brand-firefox } ne bodo na voljo v tej napravi.
 
 ## Alert Bar
 
@@ -1509,6 +1527,8 @@ oauth-error-1000 = Nekaj je šlo narobe. Zaprite ta zavihek in poskusite znova.
 
 # Registration errors
 
+# User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
+passkey-registration-error-not-allowed = Nastavitev ključa za dostop ni uspela ali ni na voljo. Poskusite znova ali izberite drugo metodo.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
@@ -1862,6 +1882,17 @@ pair-unsupported-learn-more-link-v2 = Več o tem
 pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
+pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Prekliči
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1966,7 +1997,7 @@ confirm-totp-reset-password-use-different-account = Uporabi drug račun
 ## ResetPassword start page
 
 password-reset-flow-heading = Ponastavite geslo
-password-reset-body-2 = Vprašali bomo za nekaj stvari, ki jih veste samo vi, da zavarujemo vaš račun.
+password-reset-body-3 = Ponastavitev gesla lahko vpliva na sinhronizirane podatke brskalnika.
 password-reset-email-input =
     .label = Vnesite e-poštni naslov
 password-reset-submit-button-2 = Nadaljuj
@@ -2093,6 +2124,7 @@ signin-passkey-fallback-heading = Vnesite geslo za sinhronizacijo
 signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri uporabi tega gesla vnesti svoje geslo.
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
+signin-passkey-fallback-forgot-password-link = Pozabljeno geslo?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

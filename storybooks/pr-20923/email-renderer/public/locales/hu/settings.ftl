@@ -153,6 +153,9 @@ device-info-block-location-unknown = Hely ismeretlen
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } ezen: { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } ekkor: { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-cím: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } ablak egy kör alakú kitűzővel, zöld pipával és „VPN” felirattal, jelezve, hogy a VPN aktív.
+sync-devices-image-aria-label =
+    .aria-label = Egy asztali böngészőablak és egy mobiltelefon, mindkettő szinkronizálva, mellettük a(z) { -brand-firefox } kabalafigura
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logó
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ábra, amely egy sikeres jelszóváltoztatást ábrázol.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Új hivatkozás kérése
 
 # immediately before remember-password-signin-link
 remember-password-text = Emlékszik a jelszavára?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Van jelkulcsa, vagy emlékszik a jelszavára?
 # link navigates to the sign in page
 remember-password-signin-link = Bejelentkezés
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = A tippnek 255 karakternél rövidebbne
 flow-recovery-key-hint-unsafe-char-error = A tipp nem tartalmazhat nem biztonságos Unicode karaktereket. Csak betűk, számok, írásjelek és szimbólumok engedélyezettek.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Figyelmeztetés
 password-reset-chevron-expanded = Figyelmeztetés összecsukása
 password-reset-chevron-collapsed = Figyelmeztetés kinyitása
-password-reset-data-may-not-be-recovered = Előfordulhat, hogy a böngészési adatok nem állíthatók helyre
-password-reset-previously-signed-in-device-2 = Van olyan eszköze, amelyre korábban bejelentkezett?
-password-reset-data-may-be-saved-locally-2 = Előfordulhat, hogy a böngésző adatai vannak mentve azon az eszközön. Állítsa vissza a jelszavát, majd jelentkezzen be ott az adatai helyreállításához és szinkronizálásához.
-password-reset-no-old-device-2 = Új eszköze van, de a korábbiakhoz már nem fér hozzá?
-password-reset-encrypted-data-cannot-be-recovered-2 = Sajnáljuk, de a { -brand-firefox } kiszolgálókon lévő titkosított böngészőadatai nem állíthatók helyre.
+password-reset-warning-review-sign-in-options = Tekintse át a bejelentkezési beállításokat a böngészőadatok megtartásához
 password-reset-warning-have-key = Van fiók-helyreállítási kulcsa?
-password-reset-warning-use-key-link = Használja most a jelszó helyreállításához és az adatok megtartásához
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Használja a jelszó helyreállítására és a böngésző adatainak megtartására
+password-reset-warning-signed-in-device = Még mindig be van jelentkezve egy másik eszközön?
+password-reset-warning-signed-in-device-description = A böngészési adatai elérhetők lehetnek. Állítsa vissza a jelszavát, majd jelentkezzen be az eszközön az adatai helyreállításához és a szinkronizálásához.
+password-reset-warning-restore-data-link = Ismerje meg, hogyan állíthatja helyre a böngészési adatokat a bejelentkezett eszközről
+password-reset-warning-new-device = Új eszközt használ, de nem éri el a régiket?
+password-reset-warning-new-device-description = A jelszó visszaállítása után a { -brand-firefox }-kiszolgálók titkosított böngészési adatai nem lesznek elérhetők ezen az eszközön.
 
 ## Alert Bar
 
@@ -1543,7 +1560,7 @@ passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
 passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
 # Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
 # using passkeys.
-passkey-authentication-trouble-link = A jelkulcsok használata
+passkey-authentication-trouble-link = Jelkulcsok használata
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = A jelkulccsal történő bejelentkezés sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 # User already registered a device
@@ -1855,6 +1872,17 @@ pair-unsupported-learn-more-link-v2 = További tudnivalók
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppá, hiba történt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, és próbálja újra.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Még egy utolsó lépés a szinkronizáláshoz
+pair2-supplicant-approve-sign-in-instruction = Jóváhagyja a bejelentkezést a számítógépén.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Mégse
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1959,7 +1987,7 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 ## ResetPassword start page
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-2 = Kérdezünk néhány dolgot, melyet csak Ön tud, hogy biztonságban tartsa a fiókját.
+password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészési adatokra.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
@@ -2084,6 +2112,7 @@ signin-passkey-fallback-heading = Adja meg a jelszavát a szinkronizáláshoz
 signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia a jelszavát, amikor ezt a jelkulcsot használja.
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
+signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

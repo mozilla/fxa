@@ -153,6 +153,9 @@ device-info-block-location-unknown = Орналасқан жері белгіс�
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $genericOSName } жүйесінде { $browserName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } ({ $deviceName })
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP адресі: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } терезесінде VPN белсенді екенін білдіретін жасыл құсбелгісі бар дөңгелек белгіше және «VPN» жазуы көрсетілген.
+sync-devices-image-aria-label =
+    .aria-label = Жұмыс үстелінің браузер терезесі және ұялы телефон, екеуі де синхрондалған, жанында { -brand-firefox } тұмары бар
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } логотипі
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Парольдің сәтті өзгертілгенін көрсететін иллюстрация.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Жаңа сілтемені алу
 
 # immediately before remember-password-signin-link
 remember-password-text = Пароліңіз есіңізде ме?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Қол жеткізу кілтіңіз бар ма немесе пароліңіз есіңізде ме?
 # link navigates to the sign in page
 remember-password-signin-link = Кіру
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = Кеңес 255 таңбадан аз �
 flow-recovery-key-hint-unsafe-char-error = Кеңесте қауіпті юникод таңбалары болмауы керек. Тек әріптерге, сандарға, тыныс белгілеріне және белгілерге рұқсат етіледі.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Ескерту
 password-reset-chevron-expanded = Ескертуді бүктеу
 password-reset-chevron-collapsed = Ескертуді ашу
-password-reset-data-may-not-be-recovered = Браузеріңіздің деректері қалпына келтірілмеуі мүмкін
-password-reset-previously-signed-in-device-2 = Бұрын жүйеге кірген құрылғыларыңыз бар ма?
-password-reset-data-may-be-saved-locally-2 = Браузер деректері сол құрылғыда сақталуы мүмкін. Парольді тастап, деректерді қалпына келтіру және синхрондау үшін сол жерге кіріңіз.
-password-reset-no-old-device-2 = Жаңа құрылғыңыз бар, бірақ алдыңғы құрылғылардың ешқайсысына қол жеткізе алмайсыз ба?
-password-reset-encrypted-data-cannot-be-recovered-2 = Кешіріңіз, { -brand-firefox } серверлеріндегі браузердің шифрленген деректерін қалпына келтіру мүмкін емес.
+password-reset-warning-review-sign-in-options = Браузер деректерін сақтау үшін кіру опцияларын қарап шығу
 password-reset-warning-have-key = Тіркелгіні қалпына келтіру кілтіңіз бар ма?
-password-reset-warning-use-key-link = Парольді қалпына келтіру және деректеріңізді сақтау үшін оны қазір пайдаланыңыз
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Оны пароліңізді қалпына келтіру және деректеріңізді сақтау үшін пайдаланыңыз
+password-reset-warning-signed-in-device = Басқа құрылғыда әлі де кіріп тұрсыз ба?
+password-reset-warning-signed-in-device-description = Сіздің браузер деректеріңіз қолжетімді болуы мүмкін. Пароліңізді қалпына келтіріп, деректеріңізді қалпына келтіру және синхрондау үшін сол құрылғыда жүйеге кіріңіз.
+password-reset-warning-restore-data-link = Жүйеге кірген құрылғыдан браузер деректерін қалай қалпына келтіру керектігін білу
+password-reset-warning-new-device = Жаңа құрылғыны пайдаланып жатырсыз, бірақ ескі құрылғыңызға қол жеткізе алмайсыз ба?
+password-reset-warning-new-device-description = Пароліңзіді қалпына келтіргеннен кейін, { -brand-firefox } серверлеріндегі шифрленген браузер деректері бұл құрылғыда қолжетімді болмайды.
 
 ## Alert Bar
 
@@ -1852,6 +1869,17 @@ pair-unsupported-learn-more-link-v2 = Көбірек білу
 pair-unsupported-desktop-firefox-fallback-header-v2 = Бірнәрсе қате кетті.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Бұл бетті жауып, әрекетті қайталап көріңіз.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Синхрондауға дейін соңғы қадам
+pair2-supplicant-approve-sign-in-instruction = Компьютеріңізде кіруді мақұлдаңыз.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Бас тарту
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1956,7 +1984,7 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 ## ResetPassword start page
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-2 = Тіркелгіңізді қауіпсіз сақтау үшін тек сіз білетін бірнеше нәрсені сұраймыз.
+password-reset-body-3 = Пароліңізді қалпына келтіру синхрондалған браузер деректеріне әсер етуі мүмкін.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру
@@ -2081,6 +2109,7 @@ signin-passkey-fallback-heading = Синхрондау үшін пароліңі
 signin-passkey-fallback-body = Деректеріңіздің қауіпсіздігін қамтамасыз ету үшін, осы рұқсат кілтін пайдаланған кезде пароліңізді енгізуіңіз керек.
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
+signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

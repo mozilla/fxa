@@ -353,12 +353,7 @@ flow-recovery-key-hint-char-limit-error = ਇਸ਼ਾਰੇ ਵਿੱਚ 255 ਤ�
 password-reset-warning-icon = ਚੇਤਾਵਨੀ
 password-reset-chevron-expanded = ਸਮੇਟਣ ਦੀ ਚੇਤਾਵਨੀ
 password-reset-chevron-collapsed = ਫੈਲਾਓ ਦੀ ਚੇਤਾਵਨੀ
-password-reset-data-may-not-be-recovered = ਸ਼ਾਇਦ ਤੁਹਾਡੇ ਬਰਾਊਜ਼ਰ ਡਾਟੇ ਨੂੰ ਰਿਕਵਰ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ
-password-reset-previously-signed-in-device-2 = ਕੋਈ ਡਿਵਾਈਸ ਹੈ, ਜਿਸ ਉੱਤੇ ਤੁਸੀਂ ਪਹਿਲਾਂ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
-password-reset-no-old-device-2 = ਨਵਾਂ ਡਿਵਾਈਸ ਤਾਂ ਹੈ, ਪਰ ਤੁਹਾਡੇ ਕੋਲ ਕਿਸੇ ਪੁਰਾਣੇ ਲਈ ਪਹੁੰਚ ਨਹੀਂ ਹੈ?
-password-reset-encrypted-data-cannot-be-recovered-2 = ਸਾਨੂੰ ਅਫ਼ਸੋਸ ਹੈ, ਪਰ { -brand-firefox } ਸਰਵਰਾਂ ਉੱਤੇ ਤੁਹਾਡੇ ਇੰਕ੍ਰਿਪਟ ਹੋਏ ਬਰਾਊਜ਼ਰ ਡਾਟਾ ਨੂੰ ਬਹਾਲ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।
 password-reset-warning-have-key = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਹੈ?
-password-reset-warning-use-key-link = ਇਸ ਨੂੰ ਹੁਣ ਆਪਣਾ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰਨ ਅਤੇ ਆਪਣਾ ਡਾਟਾ ਰੱਖਣ ਲਈ ਵਰਤੋਂ
 
 
 alert-bar-close-message = ਸੁਨੇਹਾ ਬੰਦ ਕਰੋ
@@ -1074,7 +1069,6 @@ confirm-totp-reset-password-use-different-account = ਵੱਖਰੇ ਖਾਤੇ
 
 
 password-reset-flow-heading = ਆਪਣਾ ਪਾਸਵਰਡ ਬਦਲੋ
-password-reset-body-2 = ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਲਈ ਅਸੀਂ ਕੁਝ ਸਵਾਲ ਪੁੱਛਾਂਗੇ, ਜਿਸੇ ਬਾਰੇ ਸਿਰਫ਼ ਤੁਹਾਨੂੰ ਪਤਾ ਹੈ।
 password-reset-email-input =
     .label = ਆਪਣਾ ਈਮੇਲ ਦਿਓ
 password-reset-submit-button-2 = ਜਾਰੀ ਰੱਖੋ

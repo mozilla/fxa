@@ -153,6 +153,9 @@ device-info-block-location-unknown = Lieu inconnu
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } sur { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } sur { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresse IP : { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Fenêtre { -brand-firefox } avec un badge circulaire comportant une coche verte et « VPN » indiquant que le VPN est actif.
+sync-devices-image-aria-label =
+    .aria-label = Une fenêtre de navigateur sur ordinateur et un téléphone mobile en cours de synchronisation, accompagnés de la mascotte { -brand-firefox }
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration représentant un changement de mot de passe réussi.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Recevoir un nouveau lien
 
 # immediately before remember-password-signin-link
 remember-password-text = Vous vous souvenez de votre mot de passe ?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Vous avez une clé d’accès ou vous souvenez de votre mot de passe ?
 # link navigates to the sign in page
 remember-password-signin-link = Connectez-vous
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = L’indice doit contenir moins de 225�
 flow-recovery-key-hint-unsafe-char-error = L’indice ne peut pas contenir de caractères Unicode non sûrs. Seuls les lettres, les nombres, les signes de ponctuation et les symboles sont autorisés.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Avertissement
 password-reset-chevron-expanded = Réduire l’avertissement
 password-reset-chevron-collapsed = Développer l’avertissement
-password-reset-data-may-not-be-recovered = Les données de votre navigateur pourraient ne pas été récupérées
-password-reset-previously-signed-in-device-2 = Vous disposez d’un appareil sur lequel vous vous êtes déjà connecté·e ?
-password-reset-data-may-be-saved-locally-2 = Les données de votre navigateur sont peut-être enregistrées sur cet appareil. Réinitialisez votre mot de passe, puis connectez-vous pour restaurer et synchroniser vos données.
-password-reset-no-old-device-2 = Vous avez un nouvel appareil mais vous n’avez plus accès à vos anciens appareils ?
-password-reset-encrypted-data-cannot-be-recovered-2 = Nous sommes désolés, mais vos données de navigateur chiffrées sur les serveurs de { -brand-firefox } ne peuvent pas être récupérées.
+password-reset-warning-review-sign-in-options = Consultez les options de connexion pour conserver les données du navigateur
 password-reset-warning-have-key = Vous disposez d’une clé de récupération de compte ?
-password-reset-warning-use-key-link = Utilisez-la maintenant pour réinitialiser votre mot de passe et conserver vos données
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Utilisez-la pour réinitialiser votre mot de passe et conserver les données de votre navigateur
+password-reset-warning-signed-in-device = Toujours connecté·e sur un autre appareil ?
+password-reset-warning-signed-in-device-description = Les données de votre navigateur peuvent peut-être être récupérées. Réinitialisez votre mot de passe, puis connectez-vous sur cet appareil pour restaurer et synchroniser vos données.
+password-reset-warning-restore-data-link = Découvrez comment restaurer les données du navigateur depuis un appareil connecté
+password-reset-warning-new-device = Vous utilisez un nouvel appareil mais ne pouvez pas accéder à vos anciens appareils ?
+password-reset-warning-new-device-description = Après la réinitialisation de votre mot de passe, les données de navigation chiffrées sur les serveurs de { -brand-firefox } ne seront plus disponibles sur cet appareil.
 
 ## Alert Bar
 
@@ -1843,6 +1860,17 @@ pair-unsupported-learn-more-link-v2 = En savoir plus
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oups, une erreur s’est produite.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Veuillez fermer cet onglet puis réessayer.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Une dernière étape pour lancer la synchronisation
+pair2-supplicant-approve-sign-in-instruction = Approuvez la connexion sur votre ordinateur.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Annuler
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1947,7 +1975,7 @@ confirm-totp-reset-password-use-different-account = Utiliser un autre compte
 ## ResetPassword start page
 
 password-reset-flow-heading = Réinitialiser le mot de passe
-password-reset-body-2 = Nous vous demanderons d’effectuer certaines opérations pour assurer la sécurité de votre compte.
+password-reset-body-3 = La réinitialisation de votre mot de passe peut avoir un effet sur les données de navigation synchronisées.
 password-reset-email-input =
     .label = Saisissez votre adresse e-mail
 password-reset-submit-button-2 = Continuer
@@ -2069,6 +2097,7 @@ signin-passkey-fallback-heading = Saisissez votre mot de passe pour synchroniser
 signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir votre mot de passe lorsque vous utilisez cette clé d’accès.
 signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
+signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

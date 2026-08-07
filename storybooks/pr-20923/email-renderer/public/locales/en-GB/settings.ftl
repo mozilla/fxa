@@ -153,6 +153,9 @@ device-info-block-location-unknown = Location unknown
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } on { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } on { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP address: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+    .aria-label = A desktop browser window and a mobile phone, both synchronising, with the { -brand-firefox } mascot alongside them
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration to represent a successful password change.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Receive new link
 
 # immediately before remember-password-signin-link
 remember-password-text = Remember your password?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Have a passkey or remember your password?
 # link navigates to the sign in page
 remember-password-signin-link = Sign in
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = The hint must contain fewer than 255 c
 flow-recovery-key-hint-unsafe-char-error = The hint cannot contain unsafe unicode characters. Only letters, numbers, punctuation marks and symbols are allowed.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
-password-reset-data-may-not-be-recovered = Your browser data may not be recovered
-password-reset-previously-signed-in-device-2 = Have any device where you previously signed in?
-password-reset-data-may-be-saved-locally-2 = Your browser data might be saved on that device. Reset your password, then sign in there to restore and synchronise your data.
-password-reset-no-old-device-2 = Have a new device but don’t have access to any of your previous ones?
-password-reset-encrypted-data-cannot-be-recovered-2 = We’re sorry, but your encrypted browser data on { -brand-firefox } servers can’t be recovered.
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 password-reset-warning-have-key = Have an account recovery key?
-password-reset-warning-use-key-link = Use it now to reset your password and keep your data
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and synchronise your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 ## Alert Bar
 
@@ -1850,6 +1867,17 @@ pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = One last step to synchronise
+pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Cancel
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1954,9 +1982,7 @@ confirm-totp-reset-password-use-different-account = Use a different account
 ## ResetPassword start page
 
 password-reset-flow-heading = Reset your password
-password-reset-body-2 =
-    We’ll ask for a couple of things only you know to keep your account
-    safe.
+password-reset-body-3 = Resetting your password may affect synchronised browser data.
 password-reset-email-input =
     .label = Enter your email
 password-reset-submit-button-2 = Continue
@@ -2081,6 +2107,7 @@ signin-passkey-fallback-heading = Enter your password to synchronise
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

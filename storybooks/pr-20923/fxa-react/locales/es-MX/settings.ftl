@@ -369,7 +369,8 @@ flow-recovery-key-hint-char-limit-error = La pista debe tener menos de 255 carac
 flow-recovery-key-hint-unsafe-char-error = La pista no puede contener caracteres de unicode inseguras. Solo se permiten letras, números, y signos de puntuación y símbolos.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Advertencia
 
@@ -1260,9 +1261,6 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 ## ResetPassword start page
 
 password-reset-flow-heading = Restablecer tu contraseña
-password-reset-body-2 =
-    Te pediremos un par de cosas que solo tú sabes para mantener tu cuenta
-    segura.
 password-reset-email-input =
     .label = Ingresa tu correo electrónico
 password-reset-submit-button-2 = Continuar

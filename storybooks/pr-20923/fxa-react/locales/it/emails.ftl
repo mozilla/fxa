@@ -5,7 +5,7 @@
 fxa-header-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="Logo { -brand-mozilla }">
 fxa-header-sync-devices-image = <img data-l10n-name="sync-devices-image" alt="Sincronizza dispositivi">
 body-devices-image = <img data-l10n-name="devices-image" alt="Dispositivi">
-fxa-privacy-url = Informativa sulla privacy  di { -brand-mozilla }
+fxa-privacy-url = Informativa sulla privacy di { -brand-mozilla }
 moz-accounts-privacy-url-2 = Informativa sulla privacy degli { -product-mozilla-accounts }
 moz-accounts-terms-url = Condizioni di utilizzo del servizio degli { -product-mozilla-accounts }
 account-deletion-info-block-communications = Se il tuo account viene eliminato, continuerai a ricevere email da Mozilla Corporation e Mozilla Foundation, a meno che tu non <a data-l10n-name="unsubscribeLink">chieda di annullare l’iscrizione</a>.
@@ -36,10 +36,10 @@ another-device-plaintext = Installa { $productName } su un altro dispositivo:
 automated-email-change-2 = Se non sei stato tu a eseguire questa operazione, <a data-l10n-name="passwordChangeLink">cambia la tua password</a> immediatamente.
 automated-email-support = Per ulteriori informazioni, visita il <a data-l10n-name="supportLink">supporto { -brand-mozilla }</a>.
 # After the colon, there's a link to https://accounts.firefox.com/settings/change_password
-automated-email-change-plaintext-2 = Se questa operazione non è stata eseguita da te, cambia la tua password immediatamente.
+automated-email-change-plaintext-2 = Se questa operazione non è stata eseguita da te, cambia la tua password immediatamente:
 #  After the colon, there's a link to https://support.mozilla.org/kb/im-having-problems-my-firefox-account
 automated-email-support-plaintext = Per ulteriori informazioni, visita il supporto { -brand-mozilla }:
-automated-email-inactive-account = Questa è una email automatica. L’hai ricevuta perché hai un { -product-mozilla-account } e sono trascorsi 2 anni dall’ultimo accesso.
+automated-email-inactive-account = Questa è un’email automatica. L’hai ricevuta perché hai un { -product-mozilla-account } e sono trascorsi 2 anni dall’ultimo accesso.
 # supportLink - https://support.mozilla.org/kb/im-having-problems-my-firefox-account
 automated-email-no-action = { automated-email-no-action-plaintext } Per ulteriori informazioni, visita il <a data-l10n-name="supportLink">supporto { -brand-mozilla }</a>.
 automated-email-no-action-plaintext = Questa email è stata inviata da un servizio automatico. Se hai ricevuto questa email per errore, puoi semplicemente ignorarla.
@@ -96,7 +96,7 @@ automated-email-reset-pwd-two-factor = Se non sei stato tu a eseguire questa ope
 automated-email-reset-pwd-plaintext-v3 = Se non sei stato tu a eseguire questa operazione, reimposta immediatamente la password all’indirizzo:
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = Reimposta l’autenticazione in due passaggi anche su:
-automated-email-sign-in = Questa è una email automatica; se non sei stato tu ad autorizzare questa azione, <a data-l10n-name="securitySettingsLink">verifica le impostazioni di sicurezza del tuo account</a>. Per ulteriori informazioni, visita il <a data-l10n-name="supportLink">supporto { -brand-mozilla }</a>.
+automated-email-sign-in = Questa è un’email automatica; se non sei stato tu ad autorizzare questa azione, <a data-l10n-name="securitySettingsLink">verifica le impostazioni di sicurezza del tuo account</a>. Per ulteriori informazioni, visita il <a data-l10n-name="supportLink">supporto { -brand-mozilla }</a>.
 automated-email-sign-in-plaintext = Se non sei stato tu ad autorizzare questa azione, controlla le impostazioni di sicurezza del tuo account all’indirizzo:
 brand-banner-message = Lo sapevi che abbiamo cambiato nome da { -product-firefox-accounts } ad { -product-mozilla-accounts }? <a data-l10n-name="learnMore">Ulteriori informazioni</a>
 change-password-plaintext = Se ritieni che qualcuno stia tentando di accedere indebitamente al tuo account, cambiane subito la password.
@@ -180,7 +180,7 @@ codes-reminder-title-one = Ultimo codice di autenticazione di backup rimasto
 codes-reminder-title-two = È arrivato il momento di generare nuovi codici di autenticazione di backup
 codes-reminder-description-part-one = I codici di autenticazione di backup ti permettono di ripristinare i tuoi dati nel caso in cui dimentichi la password.
 codes-reminder-description-part-two = Genera adesso nuovi codici per non perdere i tuoi dati in futuro.
-codes-reminder-description-two-left = Rimangono solo solo due codici.
+codes-reminder-description-two-left = Rimangono solo due codici.
 codes-reminder-description-create-codes = Genera nuovi codici di autenticazione di backup per poter accedere al tuo account nel caso in cui rimani bloccato fuori.
 lowRecoveryCodes-action-2 = Genera codici
 codes-create-plaintext = { lowRecoveryCodes-action-2 }:
@@ -194,7 +194,7 @@ lowRecoveryCodes-subject-2 =
 # $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
 newDeviceLogin-subject = Nuovo accesso a { $clientName }
 newDeviceLogin-subjectForMozillaAccount = Nuovo accesso al tuo { -product-mozilla-account }
-newDeviceLogin-title-3 = Hai effettuato l’accesso con il tuo { -product-mozilla-account }
+newDeviceLogin-title-3 = Il tuo { -product-mozilla-account } è stato utilizzato per accedere
 # The "Not you?" question is asking whether the recipient of the email is the
 # person who performed the action that triggered the email.
 newDeviceLogin-change-password = Non sei stato tu? <a data-l10n-name="passwordChangeLink">Cambia la tua password</a>.
@@ -263,7 +263,7 @@ postAddLinkedAccount-action = Gestisci account
 postAddPasskey-subject = Passkey creata
 postAddPasskey-preview = Ora puoi utilizzare il tuo dispositivo per accedere
 postAddPasskey-title = Hai creato una passkey
-postAddPasskey-description = Ora puoi usarla per accedere a tutti i tuoi servizi { -product-mozilla-account }.
+postAddPasskey-description = Ora puoi usarla per accedere a tutti i servizi del tuo { -product-mozilla-account }.
 postAddPasskey-sync-note = Ricorda che per accedere ai tuoi dati di sincronizzazione di { -brand-firefox } sarà ancora necessaria la password.
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Ulteriori informazioni
@@ -278,7 +278,7 @@ postAddRecoveryPhone-description-v2 = Hai aggiunto { $maskedLastFourPhoneNumber 
 # Links out to a support article about two factor authentication
 postAddRecoveryPhone-how-protect = Come aiuta a proteggere il tuo account
 postAddRecoveryPhone-how-protect-plaintext = Come aiuta a proteggere il tuo account:
-postAddRecoveryPhone-enabled-device = L’hai attivata da:
+postAddRecoveryPhone-enabled-device = L’hai attivato da:
 postAddRecoveryPhone-action = Gestisci account
 postAddTwoStepAuthentication-preview = Il tuo account è protetto
 postAddTwoStepAuthentication-subject-v3 = L’autenticazione in due passaggi è attiva
@@ -339,7 +339,7 @@ postRemoveAccountRecovery-body-part2 = Se non l’hai già fatto, genera una nuo
 postRemoveAccountRecovery-action = Gestisci account
 postRemovePasskey-subject = Passkey eliminata
 postRemovePasskey-preview = Una passkey è stata rimossa dal tuo account
-postRemovePasskey-title = La passkey è stata eliminata
+postRemovePasskey-title = Hai eliminato la passkey
 postRemovePasskey-description = È necessario utilizzare un altro metodo per accedere.
 postRemovePasskey-requested-from = L’hai richiesto da:
 postRemovePasskey-action = Gestisci account
@@ -353,7 +353,7 @@ postRemoveSecondary-subject = L’indirizzo email secondario è stato rimosso
 postRemoveSecondary-title = L’indirizzo email secondario è stato rimosso
 # Variables:
 #  $secondaryEmail (String) - A user's email address
-postRemoveSecondary-description-2 = L’indirizzo email { $secondaryEmail } non è più configurato come indirizzo secondario per il tuo { -product-mozilla-account }. Da questo momento le notifiche di sicurezza e le verifiche d’accesso non verranno più inviate a questo indirizzo.
+postRemoveSecondary-description-2 = L’indirizzo email { $secondaryEmail } non è più configurato come indirizzo secondario per il tuo { -product-mozilla-account }. Da questo momento le notifiche di sicurezza e le conferme d’accesso non verranno più inviate a questo indirizzo.
 postRemoveSecondary-action = Gestisci account
 postRemoveTwoStepAuthentication-subject-line-2 = Autenticazione in due passaggi disattivata
 postRemoveTwoStepAuthentication-title-2 = Hai disattivato l’autenticazione in due passaggi
@@ -364,24 +364,24 @@ postRemoveTwoStepAuthentication-not-required-2 = Non dovrai più utilizzare i co
 postSigninRecoveryCode-subject = Codice di autenticazione di backup utilizzato per accedere
 postSigninRecoveryCode-preview = Conferma l’attività dell’account
 postSigninRecoveryCode-title = Il codice di autenticazione di backup è stato utilizzato per accedere
-postSigninRecoveryCode-description = In caso contrario, dovresti cambiare immediatamente la password per mantenere il tuo account al sicuro.
+postSigninRecoveryCode-description = Se non sei stato tu, dovresti cambiare immediatamente la password per mantenere il tuo account al sicuro.
 postSigninRecoveryCode-device = Hai effettuato l’accesso da:
 postSigninRecoveryCode-action = Gestisci account
 postSigninRecoveryPhone-subject = Telefono per il recupero dell’account utilizzato per accedere
 postSigninRecoveryPhone-preview = Conferma l’attività dell’account
 postSigninRecoveryPhone-title = Telefono per il recupero dell’account utilizzato per accedere
-postSigninRecoveryPhone-description = In caso contrario, dovresti cambiare immediatamente la password per mantenere il tuo account al sicuro.
+postSigninRecoveryPhone-description = Se non sei stato tu, dovresti cambiare immediatamente la password per mantenere il tuo account al sicuro.
 postSigninRecoveryPhone-device = Hai effettuato l’accesso da:
 postSigninRecoveryPhone-action = Gestisci account
-postVerify-sub-title-3 = Siamo felici di averti qui!
+postVerify-sub-title-3 = Siamo felici di averti qui
 postVerify-title-2 = Vuoi visualizzare la stessa scheda su due dispositivi?
 postVerify-description-2 = È facile! Installa { -brand-firefox } su un altro dispositivo ed effettua l’accesso per attivare la sincronizzazione. È come un tocco di magia!
 postVerify-sub-description = (Psst… Questo significa che puoi accedere ai tuoi segnalibri, password e altri dati { -brand-firefox } ovunque effettui l’accesso.)
-postVerify-subject-4 = Ti diamo il benvenuto in { -brand-mozilla }!
+postVerify-subject-4 = Ti diamo il benvenuto in { -brand-mozilla }
 postVerify-setup-2 = Connetti un altro dispositivo:
 postVerify-action-2 = Connetti un altro dispositivo
-postVerifySecondary-subject = Email secondaria aggiunta correttamente
-postVerifySecondary-title = Email secondaria aggiunta correttamente
+postVerifySecondary-subject = L’indirizzo email secondario è stato aggiunto
+postVerifySecondary-title = L’indirizzo email secondario è stato aggiunto
 # Variables:
 #  $secondaryEmail (String) - A user's secondary email address
 postVerifySecondary-content-3 = L’indirizzo email { $secondaryEmail } è stato correttamente confermato e sarà utilizzato come indirizzo secondario per l’{ -product-mozilla-account }. Da questo momento le notifiche di sicurezza e le conferme d’accesso verranno inviate a entrambi gli indirizzi email.
@@ -409,7 +409,7 @@ verificationReminderFinal-description-2 = Hai creato un { -product-mozilla-accou
 confirm-account = Conferma account
 confirm-account-plaintext = { confirm-account }:
 verificationReminderFirst-subject-2 = Ricordati di confermare il tuo account
-verificationReminderFirst-title-3 = Ti diamo il benvenuto in { -brand-mozilla }!
+verificationReminderFirst-title-3 = Ti diamo il benvenuto in { -brand-mozilla }
 verificationReminderFirst-description-3 = Hai creato un { -product-mozilla-account } qualche giorno fa ma non l’hai mai confermato. Conferma il tuo account nei prossimi 15 giorni o verrà automaticamente eliminato.
 verificationReminderFirst-sub-description-3 = Non farti sfuggire il browser che mette te e la tua privacy al primo posto.
 confirm-email-2 = Conferma account
@@ -437,7 +437,7 @@ verifyAccountChange-preview =
     }
 verifyAccountChange-title = Stai modificando le informazioni relative al tuo account?
 # After the colon is a description of the device used to sign in to the service
-verifyAccountChange-safe = Aiutaci a mantenere il tuo account al sicuro approvando questa modifica:
+verifyAccountChange-safe = Aiutaci a mantenere il tuo account al sicuro approvando questa modifica da:
 verifyAccountChange-prompt = In caso affermativo, questo è il tuo codice di autorizzazione:
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
@@ -449,7 +449,7 @@ verifyAccountChange-expiry-notice =
 # Variables:
 #  $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
 verifyLogin-title-2 = Hai effettuato tu l’accesso a { $clientName }?
-verifyLogin-description-2 = Aiutaci a mantenere il tuo account al sicuro confermando di esser stato tu ad accedere:
+verifyLogin-description-2 = Aiutaci a mantenere il tuo account al sicuro confermando di essere stato tu ad accedere:
 verifyLogin-subject-2 = Conferma accesso
 verifyLogin-action = Conferma accesso
 # Variables:
@@ -462,7 +462,7 @@ verifyLoginCode-title-2 = Hai effettuato tu l’accesso a { $serviceName }?
 # After the colon is a description of the device used to sign in to the service
 verifyLoginCode-safe = Aiutaci a mantenere il tuo account al sicuro approvando il tuo accesso su:
 verifyLoginCode-prompt-3 = In caso affermativo, questo è il tuo codice di autorizzazione:
-verifyLoginCode-expiry-notice = Il codice scadrà entro 5 minuti.
+verifyLoginCode-expiry-notice = Il codice scade tra 5 minuti.
 verifyPrimary-title-2 = Conferma indirizzo email primario
 verifyPrimary-description = Una richiesta di autorizzazione a modificare l’account è stata inviata dal seguente dispositivo:
 verifyPrimary-subject = Conferma l’indirizzo email primario
@@ -488,4 +488,4 @@ verifyShortCode-title-3 = Apri Internet con { -brand-mozilla }
 # Information on the browser and device triggering this confirmation email follows below this string.
 verifyShortCode-title-subtext-2 = Conferma il tuo account e ottieni il massimo da { -brand-mozilla } su tutti i dispositivi da cui accedi, a cominciare da:
 verifyShortCode-prompt-3 = Usa questo codice di conferma:
-verifyShortCode-expiry-notice = Il codice scadrà entro 5 minuti.
+verifyShortCode-expiry-notice = Il codice scade tra 5 minuti.

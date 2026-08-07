@@ -156,6 +156,9 @@ device-info-block-location-unknown = Местоположение неизвес
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } в { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } на { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-адрес: { $ipAddress }
@@ -333,6 +336,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Окно { -brand-firefox } с круговым значком с зелёным флажком и «VPN», указывающим, что VPN активен.
+sync-devices-image-aria-label =
+    .aria-label = Окно браузера на компьютере и мобильном телефоне, оба синхронизируемые, с талисманом { -brand-firefox } рядом с ними
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Логотип { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Иллюстрация для успешной смены пароля.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -396,6 +408,8 @@ link-expired-new-link-button = Получить новую ссылку
 
 # immediately before remember-password-signin-link
 remember-password-text = Помните ваш пароль?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = У вас есть ключ доступа или помните ваш пароль?
 # link navigates to the sign in page
 remember-password-signin-link = Войти
 
@@ -507,18 +521,21 @@ flow-recovery-key-hint-char-limit-error = Подсказка должна сод
 flow-recovery-key-hint-unsafe-char-error = Подсказка не может содержать небезопасные символы Юникода. Допускаются только буквы, цифры, знаки препинания и символы.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Предупреждение
 password-reset-chevron-expanded = Свернуть предупреждение
 password-reset-chevron-collapsed = Развернуть предупреждение
-password-reset-data-may-not-be-recovered = Данные вашего браузера могут быть не восстановлены
-password-reset-previously-signed-in-device-2 = У вас есть устройство, на котором вы ранее вошли в систему?
-password-reset-data-may-be-saved-locally-2 = Данные вашего браузера могут быть сохранены на этом устройстве. Сбросьте свой пароль, а затем войдите в аккаунт, чтобы восстановить и синхронизировать свои данные.
-password-reset-no-old-device-2 = У вас новое устройство, но у вас нет доступа к ни одному из предыдущих?
-password-reset-encrypted-data-cannot-be-recovered-2 = Извините, но ваши зашифрованные данные браузера на серверах { -brand-firefox } не могут быть восстановлены.
+password-reset-warning-review-sign-in-options = Проверьте параметры входа, чтобы сохранить данные браузера
 password-reset-warning-have-key = У вас есть ключ восстановления аккаунта?
-password-reset-warning-use-key-link = Используйте его сейчас, чтобы сбросить пароль и сохранить свои данные
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Используйте его, чтобы сбросить свой пароль и сохранить данные вашего браузера
+password-reset-warning-signed-in-device = Всё ещё вошли на другом устройстве?
+password-reset-warning-signed-in-device-description = Данные вашего браузера могут быть доступны. Сбросьте свой пароль, а затем войдите на этом устройстве, чтобы восстановить и синхронизировать свои данные.
+password-reset-warning-restore-data-link = Узнайте, как восстановить данные браузера с устройства, на котором выполнен вход
+password-reset-warning-new-device = Используете новое устройство, но не можете получить доступ к старым?
+password-reset-warning-new-device-description = После сброса пароля зашифрованные данные браузера на серверах { -brand-firefox } не будут доступны на этом устройстве.
 
 ## Alert Bar
 
@@ -1854,6 +1871,17 @@ pair-unsupported-learn-more-link-v2 = Подробнее
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ой! Что-то пошло не так.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Последний шаг до синхронизации
+pair2-supplicant-approve-sign-in-instruction = Подтвердите вход на вашем компьютере.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Отмена
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1958,7 +1986,7 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 ## ResetPassword start page
 
 password-reset-flow-heading = Сбросить пароль
-password-reset-body-2 = Мы спросим пару вещей, которые знаете только вы, чтобы ваш профиль был в безопасности.
+password-reset-body-3 = Сброс вашего пароля может повлиять на синхронизируемые данные браузера.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить
@@ -2084,6 +2112,7 @@ signin-passkey-fallback-heading = Введите свой пароль для с
 signin-passkey-fallback-body = Для обеспечения безопасности ваших данных вам необходимо ввести пароль, когда вы используете этот ключ доступа.
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
+signin-passkey-fallback-forgot-password-link = Забыли пароль?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

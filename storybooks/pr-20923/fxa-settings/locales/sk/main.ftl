@@ -300,6 +300,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhadnuté)
 device-info-block-location-country = { $country } (odhadnuté)
 device-info-block-location-unknown = Neznáma poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na zariadení { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
@@ -433,6 +434,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animované padajúce konfety
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakom so zelenou fajkou a textom „VPN“, čo znamená, že VPN je aktívna.
+sync-devices-image-aria-label =
+    .aria-label = Okno prehliadača na počítači a mobilný telefón, obe synchronizované, s maskotom { -brand-firefox(case: "gen") } vedľa nich
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+password-success-image-aria-label =
+    .aria-label = Ilustrácia znázorňujúca úspešnú zmenu hesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Ste prihlásený/-á do { -brand-firefox(case: "gen") }.
@@ -469,6 +476,7 @@ link-expired-new-link-button = Získať nový odkaz
 
 
 remember-password-text = Pamätáte si svoje heslo?
+remember-password-passkey-text = Máte prístupový kľúč alebo si pamätáte heslo?
 remember-password-signin-link = Prihlásiť sa
 
 
@@ -542,13 +550,14 @@ flow-recovery-key-hint-unsafe-char-error = Pomôcka nemôže obsahovať nebezpe�
 password-reset-warning-icon = Upozornenie
 password-reset-chevron-expanded = Zbaliť upozornenie
 password-reset-chevron-collapsed = Rozbaliť upozornenie
-password-reset-data-may-not-be-recovered = Údaje vášho prehliadača nemusia byť obnovené
-password-reset-previously-signed-in-device-2 = Máte nejaké zariadenie, na ktorom ste sa predtým prihlásili?
-password-reset-data-may-be-saved-locally-2 = Údaje vášho prehliadača môžu byť uložené v danom zariadení. Zmeňte svoje heslo a potom sa prihláste, aby ste obnovili a synchronizovali svoje údaje.
-password-reset-no-old-device-2 = Máte nové zariadenie, ale nemáte prístup k žiadnemu zo svojich predchádzajúcich?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nám ľúto, ale vaše šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } nie je možné obnoviť.
+password-reset-warning-review-sign-in-options = Skontrolujte možnosti prihlásenia, aby ste si zachovali údaje prehliadača
 password-reset-warning-have-key = Máte kľúč na obnovenie účtu?
-password-reset-warning-use-key-link = Použite ho teraz na zmenu hesla a uchovanie údajov
+password-reset-warning-use-key-link-v2 = Použite ho na obnovenie hesla a uchovanie údajov prehliadača
+password-reset-warning-signed-in-device = Stále ste prihlásený/á na inom zariadení?
+password-reset-warning-signed-in-device-description = Dáta vášho prehliadača môžu byť k dispozícii. Obnovte si heslo a potom sa prihláste na danom zariadení, aby ste obnovili a synchronizovali svoje údaje.
+password-reset-warning-restore-data-link = Zistite, ako obnoviť údaje prehliadača z prihláseného zariadenia
+password-reset-warning-new-device = Používate nové zariadenie, ale nemáte prístup k starému?
+password-reset-warning-new-device-description = Po obnovení hesla nebudú šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } na tomto zariadení k dispozícii.
 
 
 alert-bar-close-message = Zavrieť správu
@@ -1257,7 +1266,7 @@ auth-error-1056 = Neplatný záložný overovací kód
 auth-error-1062 = Neplatné presmerovanie
 auth-error-1064 = Nesprávne zadaný e‑mail? { $domain } nie je platná e‑mailová služba
 auth-error-1066 = Na vytvorenie účtu nie je možné použiť e‑mailovú masku.
-auth-error-1067 = Nesprávna e-mailová adresa?
+auth-error-1067 = Nesprávna e‑mailová adresa?
 recovery-phone-number-ending-digits = Číslo končiace na { $lastFourPhoneNumber }
 oauth-error-1000 = Niečo sa pokazilo. Prosím, zatvorte túto kartu a skúste to znova.
 
@@ -1459,6 +1468,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Niečo sa pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zatvorte túto kartu a skúste to znova.
 
 
+pair2-supplicant-approve-sign-in-heading = Posledný krok k synchronizácii
+pair2-supplicant-approve-sign-in-instruction = Schváľte prihlásenie na počítači.
+pair2-supplicant-approve-sign-in-cancel-button = Zrušiť
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrdený
 service-welcome-signin-success-banner = Prihlásenie bolo úspešné!
 service-welcome-vpn-heading = Ďalej: Zapnite VPN
@@ -1520,7 +1534,7 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 
 
 password-reset-flow-heading = Zmena hesla
-password-reset-body-2 = Požiadame vás o niekoľko vecí, ktoré viete iba vy, aby ste si ponechali svoj účet v bezpečí.
+password-reset-body-3 = Obnovenie hesla môže ovplyvniť synchronizované údaje prehliadača.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať
@@ -1610,6 +1624,7 @@ signin-passkey-fallback-heading = Zadajte heslo pre synchronizáciu
 signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je potrebné pri použití tohto prístupového kľúča zadať heslo.
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovať
+signin-passkey-fallback-forgot-password-link = Zabudli ste heslo?
 
 
 

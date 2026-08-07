@@ -39,7 +39,6 @@ auth-error-page-title = Não foi possível entrar na conta
 checkout-error-boundary-retry-button = Tentar novamente
 checkout-error-boundary-basic-error-message = Algo deu errado. Tente novamente ou <contactSupportLink>entre em contato com o suporte</contactSupportLink>.
 amex-logo-alt-text = Logotipo do { -brand-amex }
-diners-logo-alt-text = Logotipo do { -brand-diner }
 discover-logo-alt-text = Logotipo do { -brand-discover }
 jcb-logo-alt-text = Logotipo do { -brand-jcb }
 mastercard-logo-alt-text = Logotipo do { -brand-mastercard }

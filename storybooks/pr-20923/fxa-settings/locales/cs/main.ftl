@@ -437,6 +437,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhad)
 device-info-block-location-country = { $country } (odhad)
 device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na zařízení { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
@@ -570,6 +571,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animované padající konfety
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakem, na kterém je zelená zaškrtávací značka a nápis „VPN“, což signalizuje, že je VPN aktivní.
+sync-devices-image-aria-label =
+    .aria-label = Okno prohlížeče na počítači a mobilním telefonu (oba synchronizované) s maskotem { -brand-firefox } vedle sebe
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+password-success-image-aria-label =
+    .aria-label = Ilustrace znázorňující úspěšnou změnu hesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Jste přihlášeni do { -brand-firefox(case: "gen") }.
@@ -606,6 +613,7 @@ link-expired-new-link-button = Získat nový odkaz
 
 
 remember-password-text = Pamatujete si své heslo?
+remember-password-passkey-text = Máte přístupový kód nebo si pamatujete heslo?
 remember-password-signin-link = Přihlásit se
 
 
@@ -679,13 +687,14 @@ flow-recovery-key-hint-unsafe-char-error = Nápověda nemůže obsahovat nebezpe
 password-reset-warning-icon = Varování
 password-reset-chevron-expanded = Skrýt varování
 password-reset-chevron-collapsed = Rozbalit varování
-password-reset-data-may-not-be-recovered = Data prohlížeče nemusí být možné obnovit
-password-reset-previously-signed-in-device-2 = Máte nějaké zařízení, na kterém jste se dříve přihlásili?
-password-reset-data-may-be-saved-locally-2 = Data o prohlížeči mohou být uložena na tomto zařízení. Obnovte své heslo a poté se přihlaste pro obnovu a synchronizaci svých dat.
-password-reset-no-old-device-2 = Vlastníte nové zařízení, ale nemáte přístup k žádnému z předchozích?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nám líto, ale vaše šifrovaná data uložená na serverech { -brand-firefox(case: "gen") } nelze obnovit.
+password-reset-warning-review-sign-in-options = Podívejte se na možnosti přihlášení pro uchování dat prohlížeče
 password-reset-warning-have-key = Máte k účtu obnovovací klíč?
-password-reset-warning-use-key-link = Použijte ho k obnovení svého hesla a uchování dat
+password-reset-warning-use-key-link-v2 = Použijte jej k obnovení hesla a uchování dat prohlížeče
+password-reset-warning-signed-in-device = Jste stále přihlášeni na jiném zařízení?
+password-reset-warning-signed-in-device-description = Data o prohlížeči mohou být dostupná. Obnovte heslo a poté se na tomto zařízení přihlaste pro obnovu a synchronizaci svých dat.
+password-reset-warning-restore-data-link = Přečtěte si, jak obnovit data prohlížeče na zařízení, ve kterém jste přihlášeni
+password-reset-warning-new-device = Používáte nové zařízení, ale nemáte přístup ke svým starým?
+password-reset-warning-new-device-description = Po obnovení vašeho hesla nebudou na tomto zařízení dostupná šifrovaná data uložená na { -brand-firefox } serverech.
 
 
 alert-bar-close-message = Zavřít zprávu
@@ -1593,6 +1602,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
 
 
+pair2-supplicant-approve-sign-in-heading = Poslední krok k synchronizaci
+pair2-supplicant-approve-sign-in-instruction = Schvalte přihlášení na svém počítači.
+pair2-supplicant-approve-sign-in-cancel-button = Zrušit
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen
 service-welcome-signin-success-banner = Přihlášení bylo úspěšné!
 service-welcome-vpn-heading = Další: Zapněte VPN
@@ -1654,7 +1668,7 @@ confirm-totp-reset-password-use-different-account = Použít jiný účet
 
 
 password-reset-flow-heading = Obnovení hesla
-password-reset-body-2 = Abychom mohli vést váš účet v bezpečí, požádáme vás o několik věcí, které znáte jen vy.
+password-reset-body-3 = Obnovení hesla může ovlivnit synchronizovaná data prohlížeče.
 password-reset-email-input =
     .label = Zadejte svoji e-mailovou adresu
 password-reset-submit-button-2 = Pokračovat
@@ -1741,6 +1755,7 @@ signin-passkey-fallback-heading = Pro synchronizaci zadejte své heslo
 signin-passkey-fallback-body = Aby byla vaše data v bezpečí, musíte při použití tohoto přístupového klíče zadat své heslo.
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovat
+signin-passkey-fallback-forgot-password-link = Zapomněli jste heslo?
 
 
 

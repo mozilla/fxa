@@ -35,7 +35,6 @@ auth-error-page-title = Nie można się zalogować
 checkout-error-boundary-retry-button = Spróbuj ponownie
 checkout-error-boundary-basic-error-message = Coś się nie powiodło. Proszę spróbować ponownie lub <contactSupportLink>skontaktować się z zespołem wsparcia</contactSupportLink>.
 amex-logo-alt-text = Logo { -brand-amex }
-diners-logo-alt-text = Logo { -brand-diner }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }

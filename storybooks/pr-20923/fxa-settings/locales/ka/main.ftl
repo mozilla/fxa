@@ -428,13 +428,7 @@ flow-recovery-key-hint-unsafe-char-error = მინიშნება არ �
 password-reset-warning-icon = გაფრთხილება
 password-reset-chevron-expanded = გაფრთხილების აკეცვა
 password-reset-chevron-collapsed = გაფრთხილების გაშლა
-password-reset-data-may-not-be-recovered = თქვენი ბრაუზერის მონაცემები შესაძლოა, ვერ აღდგეს
-password-reset-previously-signed-in-device-2 = გაქვთ მოწყობილობა, საიდანაც მანამდეც ყოფილხართ შესული?
-password-reset-data-may-be-saved-locally-2 = თქვენი ბრაუზერის მონაცემები შესაძლოა, ამ მოწყობილობაზე ინახებოდეს. გაანულეთ პაროლი და შედით ანგარიშზე მონაცემების დასინქრონებისა და აღდგენისთვის.
-password-reset-no-old-device-2 = გაქვთ ახალი მოწყობილობა, მაგრამ აღარ გაქვთ წვდომა ადრინდელზე?
-password-reset-encrypted-data-cannot-be-recovered-2 = სამწუხაროდ, თქვენი დაშიფრული მონაცემები, რომელსაც { -brand-firefox } ინახავს სერვერებზე, ვეღარ აღდგება.
 password-reset-warning-have-key = გაქვთ ანგარიშის აღდგენის გასაღების?
-password-reset-warning-use-key-link = გამოიყენეთ პაროლის გასანულებლად მონაცემების დაკარგვის გარეშე
 
 
 alert-bar-close-message = შეტყობინების დახურვა
@@ -1401,9 +1395,6 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 
 
 password-reset-flow-heading = პაროლის განულება
-password-reset-body-2 =
-    ჩვენ მოგთხოვთ რამდენიმე რაღაცას, რაც მხოლოდ თქვენ გეცოდინებათ ანგარიშის
-    დასაცავად.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ

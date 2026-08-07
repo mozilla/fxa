@@ -159,6 +159,9 @@ device-info-block-location-unknown = Neznáma poloha
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } na { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } na zariadení { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
@@ -336,6 +339,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakom so zelenou fajkou a textom „VPN“, čo znamená, že VPN je aktívna.
+sync-devices-image-aria-label =
+    .aria-label = Okno prehliadača na počítači a mobilný telefón, obe synchronizované, s maskotom { -brand-firefox(case: "gen") } vedľa nich
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustrácia znázorňujúca úspešnú zmenu hesla.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -399,6 +411,8 @@ link-expired-new-link-button = Získať nový odkaz
 
 # immediately before remember-password-signin-link
 remember-password-text = Pamätáte si svoje heslo?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Máte prístupový kľúč alebo si pamätáte heslo?
 # link navigates to the sign in page
 remember-password-signin-link = Prihlásiť sa
 
@@ -510,18 +524,21 @@ flow-recovery-key-hint-char-limit-error = Pomôcka musí obsahovať menej ako 25
 flow-recovery-key-hint-unsafe-char-error = Pomôcka nemôže obsahovať nebezpečné znaky Unicode. Povolené sú iba písmená, čísla, interpunkčné znamienka a symboly.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Upozornenie
 password-reset-chevron-expanded = Zbaliť upozornenie
 password-reset-chevron-collapsed = Rozbaliť upozornenie
-password-reset-data-may-not-be-recovered = Údaje vášho prehliadača nemusia byť obnovené
-password-reset-previously-signed-in-device-2 = Máte nejaké zariadenie, na ktorom ste sa predtým prihlásili?
-password-reset-data-may-be-saved-locally-2 = Údaje vášho prehliadača môžu byť uložené v danom zariadení. Zmeňte svoje heslo a potom sa prihláste, aby ste obnovili a synchronizovali svoje údaje.
-password-reset-no-old-device-2 = Máte nové zariadenie, ale nemáte prístup k žiadnemu zo svojich predchádzajúcich?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nám ľúto, ale vaše šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } nie je možné obnoviť.
+password-reset-warning-review-sign-in-options = Skontrolujte možnosti prihlásenia, aby ste si zachovali údaje prehliadača
 password-reset-warning-have-key = Máte kľúč na obnovenie účtu?
-password-reset-warning-use-key-link = Použite ho teraz na zmenu hesla a uchovanie údajov
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Použite ho na obnovenie hesla a uchovanie údajov prehliadača
+password-reset-warning-signed-in-device = Stále ste prihlásený/á na inom zariadení?
+password-reset-warning-signed-in-device-description = Dáta vášho prehliadača môžu byť k dispozícii. Obnovte si heslo a potom sa prihláste na danom zariadení, aby ste obnovili a synchronizovali svoje údaje.
+password-reset-warning-restore-data-link = Zistite, ako obnoviť údaje prehliadača z prihláseného zariadenia
+password-reset-warning-new-device = Používate nové zariadenie, ale nemáte prístup k starému?
+password-reset-warning-new-device-description = Po obnovení hesla nebudú šifrované údaje prehliadača na serveroch { -brand-firefox(case: "gen") } na tomto zariadení k dispozícii.
 
 ## Alert Bar
 
@@ -1491,7 +1508,7 @@ auth-error-1062 = Neplatné presmerovanie
 # Shown when a user tries to sign up with an email address with a domain that doesn't receive emails
 auth-error-1064 = Nesprávne zadaný e‑mail? { $domain } nie je platná e‑mailová služba
 auth-error-1066 = Na vytvorenie účtu nie je možné použiť e‑mailovú masku.
-auth-error-1067 = Nesprávna e-mailová adresa?
+auth-error-1067 = Nesprávna e‑mailová adresa?
 # Displayed when we want to reference a user's previously set up recovery phone
 # number, but they are not completely signed in yet. We'll only show the last 4 digits.
 # Variables:
@@ -1860,6 +1877,17 @@ pair-unsupported-learn-more-link-v2 = Ďalšie informácie
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Niečo sa pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zatvorte túto kartu a skúste to znova.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Posledný krok k synchronizácii
+pair2-supplicant-approve-sign-in-instruction = Schváľte prihlásenie na počítači.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Zrušiť
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1964,7 +1992,7 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 ## ResetPassword start page
 
 password-reset-flow-heading = Zmena hesla
-password-reset-body-2 = Požiadame vás o niekoľko vecí, ktoré viete iba vy, aby ste si ponechali svoj účet v bezpečí.
+password-reset-body-3 = Obnovenie hesla môže ovplyvniť synchronizované údaje prehliadača.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať
@@ -2090,6 +2118,7 @@ signin-passkey-fallback-heading = Zadajte heslo pre synchronizáciu
 signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je potrebné pri použití tohto prístupového kľúča zadať heslo.
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovať
+signin-passkey-fallback-forgot-password-link = Zabudli ste heslo?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

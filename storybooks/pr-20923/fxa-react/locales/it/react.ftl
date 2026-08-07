@@ -38,4 +38,4 @@ app-loading-spinner-aria-label-loading = Caricamento in corso…
 ## FxA React - Strings shared between multiple FxA products for logo lockup
 
 app-logo-alt-3 =
-    .alt = Logo con la m di  { -brand-mozilla }
+    .alt = Logo con la m di { -brand-mozilla }

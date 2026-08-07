@@ -153,6 +153,9 @@ device-info-block-location-unknown = Ukjend plassering
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } på { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } på { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresse: { $ipAddress }
@@ -330,6 +333,9 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindauge med eit rundt merke som viser eit grønt hakemerke og «VPN», som viser at VPN-et er aktivt.
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +399,8 @@ link-expired-new-link-button = Få ei ny lenke
 
 # immediately before remember-password-signin-link
 remember-password-text = Hugse passordet ditt?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du ein passnøkkel, eller hugsar du passordet ditt?
 # link navigates to the sign in page
 remember-password-signin-link = Logg inn
 
@@ -504,18 +512,13 @@ flow-recovery-key-hint-char-limit-error = Hintet må innehalde færre enn 255 te
 flow-recovery-key-hint-unsafe-char-error = Hintet kan ikkje innehalde usikre unicode-teikn. Berre bokstavar, tal, skiljeteikn og symbol er tillatne.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Åtvaring
 password-reset-chevron-expanded = Skjul åtvaring
 password-reset-chevron-collapsed = Vis åtvaring
-password-reset-data-may-not-be-recovered = Nettlesardataa dine kan ikkje gjenopprettast
-password-reset-previously-signed-in-device-2 = Har du ei eining du tidlegare har logga på?
-password-reset-data-may-be-saved-locally-2 = Nettlesardataa dine kan vere lagra på den eininga. Tilbakestill passordet ditt, og logg deretter på der for å gjenopprette og synkronisere dataa dine.
-password-reset-no-old-device-2 = Har du ei ny eining, men ikkje tilgang til nokon av dei tidlegare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi beklagar, men dei krypterte nettlesardataa dine på { -brand-firefox }-serverar kan ikkje gjenopprettast.
 password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
-password-reset-warning-use-key-link = Bruk han no for å tilbakestille passordet ditt og behalde dataa dine
 
 ## Alert Bar
 
@@ -1850,6 +1853,14 @@ pair-unsupported-learn-more-link-v2 = Les meir
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ops! Noko gjekk gale.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og prøv på nytt.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1954,9 +1965,6 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Tilbakestill passordet ditt
-password-reset-body-2 =
-    Vi ber om eit par ting berre du veit for å behalde kontoen din
-    sikker.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
@@ -2081,6 +2089,7 @@ signin-passkey-fallback-heading = Skriv inn passordet ditt for å synkronisere
 signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi passordet ditt når du brukar denne passnøkkelen.
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
+signin-passkey-fallback-forgot-password-link = Gløymt passordet?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

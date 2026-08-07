@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimado)
 device-info-block-location-country = { $country } (estimado)
 device-info-block-location-unknown = Ubicación desconocida
 device-info-browser-os = { $browserName } en { $genericOSName }
+device-info-browser-device = { $browserName } en { $deviceName }
 device-info-ip-address = Dirección IP: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Papel picado que cae animado
 vpn-welcome-image-aria-label =
     .aria-label = Ventana de { -brand-firefox } con una insignia circular que muestra una marca de verificación verde y "VPN", que indica que la VPN está activa.
+sync-devices-image-aria-label =
+    .aria-label = Una ventana del navegador de escritorio y un teléfono móvil, ambos sincronizados, con la mascota de { -brand-firefox } al lado de ellos
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo de { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustración para representar un cambio de contraseña exitoso.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Iniciaste sesión en { -brand-firefox }.
@@ -317,6 +324,7 @@ link-expired-new-link-button = Recibir un nuevo enlace
 
 
 remember-password-text = ¿Recordar tu contraseña?
+remember-password-passkey-text = ¿Tenés una clave de acceso o recordás tu contraseña?
 remember-password-signin-link = Iniciar sesión
 
 
@@ -390,13 +398,14 @@ flow-recovery-key-hint-unsafe-char-error = La pista no puede contener caracteres
 password-reset-warning-icon = Advertencia
 password-reset-chevron-expanded = Contraer advertencia
 password-reset-chevron-collapsed = Expandir advertencia
-password-reset-data-may-not-be-recovered = Es posible que no se recuperen los datos del navegador
-password-reset-previously-signed-in-device-2 = ¿Tenés algún dispositivo en el que iniciaste sesión anteriormente?
-password-reset-data-may-be-saved-locally-2 = Los datos de tu navegador pueden estar guardados en ese dispositivo. Restablecé tu contraseña e iniciá sesión ahí para restaurar y sincronizar tus datos.
-password-reset-no-old-device-2 = ¿Tenés un dispositivo nuevo pero no tenés acceso a los anteriores?
-password-reset-encrypted-data-cannot-be-recovered-2 = Lo sentimos, pero los datos cifrados del navegador en los servidores de { -brand-firefox } no pueden recuperarse.
+password-reset-warning-review-sign-in-options = Revisá las opciones de inicio de sesión para mantener los datos del navegador
 password-reset-warning-have-key = ¿Tenés una clave de recuperación de cuenta?
-password-reset-warning-use-key-link = Usala ahora para restablecer tu contraseña y mantener tus datos
+password-reset-warning-use-key-link-v2 = Usala para restablecer tu contraseña y mantener los datos del navegador
+password-reset-warning-signed-in-device = ¿Todavía tenes una sesión iniciada en otro dispositivo?
+password-reset-warning-signed-in-device-description = Los datos de tu navegador pueden estar disponibles. Restablecé tu contraseña, luego iniciá sesión en ese dispositivo para restaurar y sincronizar tus datos.
+password-reset-warning-restore-data-link = Aprendé a restaurar los datos del navegador desde un dispositivo en el que iniciaste sesión
+password-reset-warning-new-device = ¿Usás un nuevo dispositivo pero no podés acceder a los viejos?
+password-reset-warning-new-device-description = Después de restablecer la contraseña, los datos cifrados del navegador en los servidores de { -brand-firefox } no estarán disponibles en este dispositivo.
 
 
 alert-bar-close-message = Cerrar mensaje
@@ -1302,6 +1311,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Algo salió mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Cerrá esta pestaña y probá de nuevo.
 
 
+pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
+pair2-supplicant-approve-sign-in-instruction = Aprobá el inicio de sesión en tu computadora.
+pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = ¡Inicio de sesión exitoso!
 service-welcome-vpn-heading = Siguiente: Habilitar VPN
@@ -1363,9 +1377,7 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 
 
 password-reset-flow-heading = Restablecé tu contraseña
-password-reset-body-2 =
-    Te pediremos un par de cosas que solo vos sepás para mantener tu cuenta
-    segura.
+password-reset-body-3 = Restablecer tu contraseña puede afectar los datos sincronizados del navegador.
 password-reset-email-input =
     .label = Ingresá tu correo electrónico
 password-reset-submit-button-2 = Continuar
@@ -1454,6 +1466,7 @@ signin-passkey-fallback-heading = Ingresá tu contraseña para sincronizar
 signin-passkey-fallback-body = Para mantener tus datos seguros, necesitás ingresar tu contraseña cuando usés esta clave de acceso.
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
+signin-passkey-fallback-forgot-password-link = ¿Te olvidaste la contraseña?
 
 
 
