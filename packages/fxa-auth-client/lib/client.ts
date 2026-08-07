@@ -3179,6 +3179,7 @@ export default class AuthClient {
     options: {
       access_type?: string;
       acr_values?: string;
+      max_age?: number;
       keys_jwe?: string;
       redirect_uri?: string;
       response_type?: string;
@@ -3205,6 +3206,7 @@ export default class AuthClient {
       {
         access_type: options.access_type,
         acr_values: options.acr_values,
+        max_age: options.max_age,
         client_id: clientId,
         code_challenge: options.code_challenge,
         code_challenge_method: options.code_challenge_method,

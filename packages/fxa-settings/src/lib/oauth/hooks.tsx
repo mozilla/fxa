@@ -159,6 +159,11 @@ async function getOAuthData(
   if (integration.data.prompt) {
     opts.prompt = integration.data.prompt;
   }
+  // Forward max_age so the server can enforce authentication freshness and
+  // require step-up when the session is too old (RFC 9470 / FXA-12856).
+  if (integration.data.maxAge != null) {
+    opts.max_age = integration.data.maxAge;
+  }
 
   const result: OAuthData | null = await authClient.createOAuthCode(
     sessionToken,

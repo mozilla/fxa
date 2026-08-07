@@ -39,6 +39,36 @@ describe('models/integrations/oauth-relier', function () {
     expect(model).toBeDefined();
   });
 
+  describe('wantsLogin', () => {
+    function getIntegration(params: Record<string, unknown>) {
+      return new OAuthWebIntegration(
+        new GenericData({ scope: 'profile', ...params }),
+        new GenericData({ scope: 'profile' }),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+    }
+
+    it('returns true when prompt=login', () => {
+      expect(getIntegration({ prompt: 'login' }).wantsLogin()).toBe(true);
+    });
+
+    // Step-up auth must NOT prompt for a password; max_age drives a second-factor
+    // challenge via the backend instead (FXA-12861 / FXA-12856).
+    it('does not force login for max_age=0', () => {
+      // Query-param values are strings in the data store.
+      expect(getIntegration({ max_age: '0' }).wantsLogin()).toBe(false);
+    });
+
+    it('returns false when neither prompt=login nor a password reason is present', () => {
+      expect(getIntegration({}).wantsLogin()).toBe(false);
+    });
+  });
+
   describe('scope', () => {
     const SCOPE = 'profile:email profile:uid';
     const SCOPE_PROFILE = 'profile';

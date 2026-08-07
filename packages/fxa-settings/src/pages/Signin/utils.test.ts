@@ -588,6 +588,10 @@ describe('Signin utils', () => {
       };
 
       it('diverts to /inline_totp_setup when the account has no TOTP', async () => {
+        // An AAL2 RP may check account-level AAL2 (profile:amr), where passkeys
+        // don't count, so a passkey session with no account TOTP is still forced
+        // to enroll to avoid the AMO bounce loop. (Distinguishing session- vs
+        // account-level AAL2 is FXA-14312.)
         const finishOAuthFlowHandler = jest.fn();
         const navigationOptions = buildPasskeyOAuthOptions({
           accountHasTotp: false,
@@ -664,6 +668,57 @@ describe('Signin utils', () => {
 
         expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
         expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('AAL upgrade / step-up routing', () => {
+      // /settings is the carve-out for Settings-originated AAL upgrades only.
+      // RP-initiated step-up is not flagged isSessionAALUpgrade and completes
+      // the OAuth flow back to the RP.
+      it('completes the OAuth flow to the RP for an RP-initiated step-up', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          // Not a Settings upgrade; account already AAL2 so the TOTP-setup gate
+          // is skipped and the grant completes.
+          accountHasTotp: true,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).not.toHaveBeenCalledWith('/settings');
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          undefined,
+          undefined,
+          true
+        );
+      });
+
+      it('returns a Settings-originated AAL upgrade to /settings', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        const finishOAuthFlowHandler = jest.fn();
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          isSessionAALUpgrade: true,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/settings');
       });
     });
 
