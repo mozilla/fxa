@@ -1144,6 +1144,73 @@ describe('/session/verify_code', () => {
     expect(fxaMailer.sendPostVerifyEmail).not.toHaveBeenCalled();
     expect(mailer.sendPostVerifyEmail).not.toHaveBeenCalled();
   });
+
+  it('rejects with insufficientAal when a verified TOTP token exists', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+      output: { statusCode: 400 },
+    });
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
+  });
+
+  it('still verifies when the TOTP token is unverified', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: false,
+      enabled: false,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies when the TOTP token is verified but disabled', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: false,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies when there is no TOTP token', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockRejectedValue(error.totpTokenNotFound());
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies signup confirmation when the primary email is unverified even with TOTP', async () => {
+    // Default setup leaves the primary email unverified, exercising the
+    // signup/confirmation branch that the isVerified conjunct must never gate.
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
 });
 
 describe('/session/resend_code', () => {

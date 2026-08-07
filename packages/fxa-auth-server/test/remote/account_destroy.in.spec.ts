@@ -184,13 +184,15 @@ describe.each(testVersions)(
       const res = await client.emailStatus();
       expect(res.sessionVerified).toBe(false);
 
-      // Try verifying the session with a short code. This should
-      // not be enough to bypass 2FA.
-      await client.verifyShortCodeEmail(code);
-      expect((await client.emailStatus()).sessionVerified).toBe(true);
+      // Verifying the session with an email short code must be rejected for a
+      // TOTP account; it cannot be used to bypass 2FA.
+      await expect(client.verifyShortCodeEmail(code)).rejects.toMatchObject({
+        errno: AppError.ERRNO.INSUFFICIENT_AAL,
+      });
+      expect((await client.emailStatus()).sessionVerified).toBe(false);
 
-      // Destroying the account should not work. Despite the session being 'verified',
-      // totp has not been provided.
+      // Destroying the account should not work either; the session is still
+      // unverified and totp has not been provided.
       try {
         await client.destroyAccount();
         fail('Should not be able to destroy account without verifying totp');
