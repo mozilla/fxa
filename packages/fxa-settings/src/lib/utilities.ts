@@ -123,6 +123,20 @@ export function isMobileOrTabletDevice() {
   return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
 }
 
+// Whether this browser can pair a new device: `/pair` is currently a Desktop-only
+// flow. The user must be signed in.
+export function canPairDevice({
+  isFirefox,
+  isMobile,
+  isSignedIntoBrowser,
+}: {
+  isFirefox: boolean;
+  isMobile: boolean;
+  isSignedIntoBrowser: boolean;
+}) {
+  return isFirefox && !isMobile && isSignedIntoBrowser;
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {

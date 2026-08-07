@@ -604,6 +604,30 @@ describe('Connected Services', () => {
     });
   });
 
+  describe('connect a device button', () => {
+    const renderWithButton = (showConnectDeviceButton: boolean) =>
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices {...{ showConnectDeviceButton }} />
+        </AppContext.Provider>
+      );
+
+    it('links to the pairing flow', async () => {
+      renderWithButton(true);
+      expect(
+        await screen.findByRole('link', { name: 'Connect a device' })
+      ).toHaveAttribute('href', '/pair');
+    });
+
+    it('does not render when showConnectDeviceButton is false', async () => {
+      renderWithButton(false);
+      await screen.findByTestId('settings-connected-services');
+      expect(
+        screen.queryByRole('link', { name: 'Connect a device' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('scope-based sub row', () => {
     const baseMockClient = {
       deviceId: null,

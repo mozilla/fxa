@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { canPairDevice } from '../../lib/utilities';
+
 export type BannerState =
   | 'firefox-pair'
   | 'switch-desktop'
@@ -22,13 +24,13 @@ export function getBannerState({
   isMobile: boolean;
   isSignedIntoBrowser: boolean;
 }): BannerState {
+  if (canPairDevice({ isFirefox, isMobile, isSignedIntoBrowser })) {
+    return 'firefox-pair';
+  }
+  // Other Firefox users have nothing to promo: mobile already has the app, and
+  // desktop needs a browser sign-in to pair from.
   if (isFirefox) {
-    // Firefox mobile users already have the app, so there is nothing to promo.
-    if (isMobile) {
-      return 'hidden';
-    }
-    // Desktop Firefox: only promote pairing to users signed into the browser.
-    return isSignedIntoBrowser ? 'firefox-pair' : 'hidden';
+    return 'hidden';
   }
   return isMobile ? 'switch-mobile' : 'switch-desktop';
 }
