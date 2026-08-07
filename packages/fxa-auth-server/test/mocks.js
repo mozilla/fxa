@@ -637,8 +637,13 @@ function mockDB(data, errors) {
         return Promise.reject(error.recoveryKeyInvalid());
       }
 
+      if (data.recoveryKeyDisabled) {
+        return Promise.reject(error.recoveryKeyNotFound());
+      }
+
       return Promise.resolve({
         recoveryData: data.recoveryData,
+        enabled: true,
       });
     }),
     getRecoveryKeyRecordWithHint: jest.fn(() => {

@@ -603,6 +603,15 @@ export const createDB = (
         throw error.recoveryKeyInvalid();
       }
 
+      // Legacy disabled rows are not usable keys; reject as if missing
+      // (FXA-14201).
+      if (!data.enabled) {
+        this.metrics?.increment('db.recoveryKey.retrieve', {
+          result: 'notFound',
+        });
+        throw error.recoveryKeyNotFound();
+      }
+
       this.metrics?.increment('db.recoveryKey.retrieve', { result: 'success' });
       return data;
     }

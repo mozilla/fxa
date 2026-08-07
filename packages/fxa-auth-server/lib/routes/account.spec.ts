@@ -515,6 +515,25 @@ describe('/account/reset', () => {
     });
   });
 
+  describe('reset account with a disabled (unconfirmed) account recovery key', () => {
+    beforeEach(() => {
+      // A disabled key must not satisfy 2FA during reset: db.getRecoveryKey
+      // rejects it as if it were missing.
+      mockDB.getRecoveryKey = jest.fn(() =>
+        Promise.reject(error.recoveryKeyNotFound())
+      );
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+    });
+
+    it('rejects with recoveryKeyNotFound and does not reset the account', async () => {
+      await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+        errno: error.recoveryKeyNotFound().errno,
+      });
+      expect(mockDB.resetAccount).not.toHaveBeenCalled();
+    });
+  });
+
   describe('reset account with account recovery key, isFirefoxMobileClient=true', () => {
     beforeEach(() => {
       mockRequest.payload.wrapKb = hexString(32);
