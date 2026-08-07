@@ -243,10 +243,14 @@ async function generateIdToken(grant, accessToken) {
     claims['fxa-aal'] = grant.aal;
     claims.acr = 'AAL' + grant.aal;
   }
-  // For legacy reasons auth_time was stored as authAt in our db. It also
-  // needs to be converted to seconds.
+  // auth_time is the authentication event, in seconds since the epoch.
+  // grant.authAt is already in seconds (it comes from fxa-lastAuthAt /
+  // session_token.lastAuthAt(), and is the same value emitted as `auth_at` on
+  // the token response and as `auth_time` on the JWT access token), so emit it
+  // directly. It previously divided by 1000 again, yielding a value ~1000x too
+  // small.
   if (grant.authAt) {
-    claims.auth_time = Math.floor(grant.authAt / 1000);
+    claims.auth_time = grant.authAt;
   }
 
   return jwt.sign(claims);
