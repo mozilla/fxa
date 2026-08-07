@@ -30,6 +30,21 @@
  *   node -r ts-node/register/transpile-only -r tsconfig-paths/register \
  *     scripts/backfill-account-authorizations-v2/backfill-account-authorizations-v2.ts
  *
+ * Every batch logs an opaque `cursor` token on its backfill_v2.batch line. To
+ * continue a run that was interrupted (Ctrl-C, crash, pod eviction), take the
+ * token from the last such line and pass it back — run a burst, stop, resume
+ * later. Rescanning a batch or two is free: the upsert is idempotent, so there
+ * is deliberately no handler trying to capture the exact interruption point.
+ *   node -r ts-node/register/transpile-only -r tsconfig-paths/register \
+ *     scripts/backfill-account-authorizations-v2/backfill-account-authorizations-v2.ts --resume-from <token>
+ *
+ * Careful: the missing-scopes seed list is per-process. The
+ * backfill_v2.missing_scopes warning at completion covers only the rows THAT
+ * run scanned, so a walk split across resumed chunks must have every chunk's
+ * list unioned — or the final verification pass must be one uninterrupted run.
+ * Treating the last chunk's list as complete would under-seed the scopes table
+ * and silently block Phase 3 cutover.
+ *
  * Exit criteria (Phase 3 cutover is blocked until this holds):
  *   SELECT COUNT(*) FROM accountAuthorizations v1
  *     LEFT JOIN scopes s ON s.scope = v1.scope
@@ -116,6 +131,74 @@ export function humanDuration(ms: number): string {
   if (h > 0) return `${h}h${m}m${s}s`;
   if (m > 0) return `${m}m${s}s`;
   return `${s}s`;
+}
+
+// uid is BINARY(16), clientId is BINARY(8) — hex of exactly those widths.
+const UID_HEX = /^[0-9a-fA-F]{32}$/;
+const CLIENT_ID_HEX = /^[0-9a-fA-F]{16}$/;
+
+/**
+ * Encode a cursor as an opaque resume token. Base64 so the token survives being
+ * pasted as a single shell argument — `scope` is a VARCHAR(256) that can hold
+ * spaces, quotes and `$`.
+ */
+export function encodeCursor(c: Cursor): string {
+  return Buffer.from(
+    JSON.stringify({
+      uid: c.uid.toString('hex'),
+      scope: c.scope,
+      service: c.service,
+      clientId: c.clientId.toString('hex'),
+    })
+  ).toString('base64');
+}
+
+/**
+ * Decode a resume token, validating strictly. A malformed token that decoded to
+ * a garbage cursor would silently skip rows and then report success, so every
+ * field is checked and anything unexpected throws.
+ */
+export function decodeCursor(rawToken: string): Cursor {
+  // Tokens get copied out of wrapped log viewers, so tolerate surrounding
+  // whitespace rather than failing with a misleading "not valid base64".
+  const token = rawToken.trim();
+  // Buffer's base64 decoder is lenient (it drops invalid characters), so
+  // round-trip the token to reject anything that isn't really base64.
+  if (Buffer.from(token, 'base64').toString('base64') !== token) {
+    throw new Error('Invalid resume cursor: not valid base64');
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+  } catch (err) {
+    throw new Error(
+      `Invalid resume cursor: not valid JSON (${errMessage(err)})`
+    );
+  }
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new Error('Invalid resume cursor: expected a JSON object');
+  }
+  const { uid, scope, service, clientId } = parsed as Record<string, unknown>;
+  if (typeof uid !== 'string' || !UID_HEX.test(uid)) {
+    throw new Error('Invalid resume cursor: uid must be 32 hex characters');
+  }
+  if (typeof clientId !== 'string' || !CLIENT_ID_HEX.test(clientId)) {
+    throw new Error(
+      'Invalid resume cursor: clientId must be 16 hex characters'
+    );
+  }
+  if (typeof scope !== 'string') {
+    throw new Error('Invalid resume cursor: scope must be a string');
+  }
+  if (typeof service !== 'string') {
+    throw new Error('Invalid resume cursor: service must be a string');
+  }
+  return {
+    uid: Buffer.from(uid, 'hex'),
+    scope,
+    service,
+    clientId: Buffer.from(clientId, 'hex'),
+  };
 }
 
 // Codes the mysql driver / Node net stack surface for transient blips. A single
@@ -257,11 +340,26 @@ async function fetchBatch(
     );
   }
   // Row-value keyset pagination over the full PK — index-served, resumable.
+  // `uid >= ?` is implied by the tuple comparison and filters no extra rows, but
+  // it is load-bearing: MySQL 8 won't range-optimize a row constructor on this
+  // key, so without it the plan is access_type "index" and every batch rescans
+  // the PRIMARY index from the start (O(offset), ~33h over 23.1M rows). The
+  // redundant conjunct gives the optimizer a single-column range to seek on
+  // (access_type "range", used_key_parts ["uid"]) — measured 19.4ms vs ~7s for
+  // 1000 rows at a cursor 94% into the keyspace. uid is bound twice by design.
   return query<V1Row[]>(
     `SELECT ${cols} FROM accountAuthorizations ` +
-      'WHERE (uid, scope, service, clientId) > (?, ?, ?, ?) ' +
+      'WHERE uid >= ? ' +
+      'AND (uid, scope, service, clientId) > (?, ?, ?, ?) ' +
       'ORDER BY uid, scope, service, clientId LIMIT ?',
-    [cursor.uid, cursor.scope, cursor.service, cursor.clientId, batchSize]
+    [
+      cursor.uid,
+      cursor.uid,
+      cursor.scope,
+      cursor.service,
+      cursor.clientId,
+      batchSize,
+    ]
   );
 }
 
@@ -288,6 +386,7 @@ export async function run(
     batchSize: number;
     batchDelayMs: number;
     statsd?: StatsD;
+    startCursor?: Cursor | null;
   }
 ): Promise<void> {
   const { dryRun, batchSize, batchDelayMs, statsd } = opts;
@@ -300,9 +399,16 @@ export async function run(
       statsd,
     });
   const runStartedMs = Date.now();
-  log.info('backfill_v2.start', { batchSize, batchDelayMs, dryRun });
+  log.info('backfill_v2.start', {
+    batchSize,
+    batchDelayMs,
+    dryRun,
+    // Token, not the raw Cursor: Buffers serialise unhelpfully, and this is the
+    // value someone would paste back into --resume-from.
+    startCursor: opts.startCursor ? encodeCursor(opts.startCursor) : undefined,
+  });
 
-  let cursor: Cursor | null = null;
+  let cursor: Cursor | null = opts.startCursor ?? null;
   let batchNum = 0;
   let totalScanned = 0;
   let totalV2Written = 0;
@@ -355,6 +461,7 @@ export async function run(
       service: last.service,
       clientId: last.clientId,
     };
+    const cursorToken = encodeCursor(cursor);
 
     statsd?.timing(
       'account_authz.backfill_v2.batch_duration_ms',
@@ -366,6 +473,7 @@ export async function run(
       totalScanned,
       totalV2Written,
       missingScopesSoFar: missingTotals.size,
+      cursor: cursorToken,
     });
 
     if (rows.length < batchSize) break;
@@ -420,6 +528,10 @@ export async function init(): Promise<number> {
       'Sleep between batches in ms (controls DB load)',
       '100'
     )
+    .option(
+      '--resume-from <token>',
+      "Opaque cursor token from a prior run's backfill_v2.batch log line; resume immediately after that row"
+    )
     .parse(process.argv);
 
   const dryRun: boolean = program.dryRun;
@@ -427,6 +539,20 @@ export async function init(): Promise<number> {
   // no-op logged as success; a negative delay is meaningless.
   const batchSize = Math.max(1, parseInt(program.batchSize, 10) || 1000);
   const batchDelayMs = Math.max(0, parseInt(program.batchDelayMs, 10) || 100);
+
+  // Fail fast on a bad token, before any connection is opened. Checked against
+  // undefined, not truthiness: `--resume-from "$LAST_CURSOR"` with an unset
+  // variable would otherwise be read as "no cursor" and silently restart the
+  // walk from row zero, which only shows up as hours of wasted scan.
+  let startCursor: Cursor | null = null;
+  if (program.resumeFrom !== undefined) {
+    try {
+      startCursor = decodeCursor(program.resumeFrom);
+    } catch (err) {
+      log.error('backfill_v2.invalid_resume_cursor', { err: errMessage(err) });
+      return 1;
+    }
+  }
 
   const dbConfig = config.oauthServer.mysql;
 
@@ -463,12 +589,18 @@ export async function init(): Promise<number> {
   const query = makeQuery(pool);
 
   try {
-    await run(query, log, { dryRun, batchSize, batchDelayMs, statsd });
+    await run(query, log, {
+      dryRun,
+      batchSize,
+      batchDelayMs,
+      statsd,
+      startCursor,
+    });
   } catch (err) {
     log.error('backfill_v2.run_failed', {
       code: (err as { code?: string }).code,
       err: errMessage(err),
-      msg: 'Run aborted; re-run the script (upsert is idempotent).',
+      msg: 'Run aborted; re-run the script (upsert is idempotent), optionally with --resume-from <cursor> using the token from the last backfill_v2.batch line.',
     });
     return 1;
   } finally {

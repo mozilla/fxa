@@ -10,6 +10,9 @@ import {
   fetchBatch,
   resolveScopeIds,
   run,
+  encodeCursor,
+  decodeCursor,
+  Cursor,
   V1Row,
   V2Row,
   Query,
@@ -187,9 +190,31 @@ describe('backfill-account-authorizations-v2', () => {
 
       const [sql, params] = query.mock.calls[0];
       expect(sql).toContain(
-        'WHERE (uid, scope, service, clientId) > (?, ?, ?, ?)'
+        'AND (uid, scope, service, clientId) > (?, ?, ?, ?)'
       );
-      expect(params).toEqual([UID_A, 'profile', 'sync', CLIENT, 500]);
+      expect(params).toEqual([UID_A, UID_A, 'profile', 'sync', CLIENT, 500]);
+    });
+
+    it('leads with a uid >= conjunct so MySQL can range-seek the PK', async () => {
+      // Logically redundant with the tuple comparison, but without it MySQL
+      // scans the PRIMARY index from the start on every batch.
+      const query = jest
+        .fn()
+        .mockResolvedValue([]) as jest.MockedFunction<Query>;
+      const cursor = {
+        uid: UID_A,
+        scope: 'profile',
+        service: 'sync',
+        clientId: CLIENT,
+      };
+
+      await fetchBatch(query, cursor, 500);
+
+      const [sql, params] = query.mock.calls[0];
+      expect(sql).toContain('WHERE uid >= ? ');
+      // cursor.uid is bound twice: the range conjunct, then the tuple head.
+      expect(params?.[0]).toBe(UID_A);
+      expect(params?.[1]).toBe(UID_A);
     });
   });
 
@@ -216,6 +241,106 @@ describe('backfill-account-authorizations-v2', () => {
       expect(params).toEqual(['Profile', 'openid']);
       expect(result.get('profile')).toBe(3);
       expect(result.get('openid')).toBe(2);
+    });
+  });
+
+  describe('encodeCursor / decodeCursor', () => {
+    // Base64 of an arbitrary JSON payload, for building malformed tokens.
+    function tokenFor(payload: unknown): string {
+      return Buffer.from(JSON.stringify(payload)).toString('base64');
+    }
+    const VALID_PAYLOAD = {
+      uid: 'a'.repeat(32),
+      scope: 'profile',
+      service: 'sync',
+      clientId: 'b'.repeat(16),
+    };
+
+    it('round-trips a cursor through the token', () => {
+      const cursor: Cursor = {
+        uid: UID_A,
+        scope: 'profile',
+        service: 'sync',
+        clientId: CLIENT,
+      };
+
+      expect(decodeCursor(encodeCursor(cursor))).toEqual(cursor);
+    });
+
+    it('round-trips a scope containing shell-hostile characters', () => {
+      // The token is meant to be pasted as a single shell argument, and
+      // scope is a VARCHAR(256) that can hold spaces, quotes and `$`.
+      const cursor: Cursor = {
+        uid: UID_A,
+        scope: `weird "scope" with spaces and $VARS 'quoted'`,
+        service: '',
+        clientId: CLIENT,
+      };
+
+      expect(decodeCursor(encodeCursor(cursor))).toEqual(cursor);
+    });
+
+    it('throws when the token is not base64', () => {
+      expect(() => decodeCursor('not base64 !!!')).toThrow(
+        'Invalid resume cursor: not valid base64'
+      );
+    });
+
+    it('tolerates whitespace around a token copied out of a log viewer', () => {
+      const cursor: Cursor = {
+        uid: UID_A,
+        scope: 'profile',
+        service: 'sync',
+        clientId: CLIENT,
+      };
+
+      expect(decodeCursor(`  ${encodeCursor(cursor)}\n`)).toEqual(cursor);
+    });
+
+    it('throws on an empty token rather than silently restarting at page one', () => {
+      // `--resume-from "$LAST_CURSOR"` with an unset variable must fail, not
+      // quietly re-walk the table from the beginning.
+      expect(() => decodeCursor('')).toThrow('Invalid resume cursor');
+    });
+
+    it('throws when the token is base64 but not JSON', () => {
+      const token = Buffer.from('plain text, not json').toString('base64');
+
+      expect(() => decodeCursor(token)).toThrow(
+        'Invalid resume cursor: not valid JSON'
+      );
+    });
+
+    it('throws when uid is not exactly 32 hex characters', () => {
+      const token = tokenFor({ ...VALID_PAYLOAD, uid: 'a'.repeat(31) });
+
+      expect(() => decodeCursor(token)).toThrow(
+        'Invalid resume cursor: uid must be 32 hex characters'
+      );
+    });
+
+    it('throws when clientId is not exactly 16 hex characters', () => {
+      const token = tokenFor({ ...VALID_PAYLOAD, clientId: 'b'.repeat(17) });
+
+      expect(() => decodeCursor(token)).toThrow(
+        'Invalid resume cursor: clientId must be 16 hex characters'
+      );
+    });
+
+    it('throws when scope is not a string', () => {
+      const token = tokenFor({ ...VALID_PAYLOAD, scope: 42 });
+
+      expect(() => decodeCursor(token)).toThrow(
+        'Invalid resume cursor: scope must be a string'
+      );
+    });
+
+    it('throws when service is not a string', () => {
+      const token = tokenFor({ ...VALID_PAYLOAD, service: null });
+
+      expect(() => decodeCursor(token)).toThrow(
+        'Invalid resume cursor: service must be a string'
+      );
     });
   });
 
@@ -372,12 +497,110 @@ describe('backfill-account-authorizations-v2', () => {
         sql.includes('FROM accountAuthorizations ')
       );
       expect(fetchCalls).toHaveLength(2);
-      // Second fetch carries the keyset cursor tuple (uid, scope, service, clientId, limit).
-      expect(fetchCalls[1][1]).toHaveLength(5);
+      // Second fetch resumes after the last row of page one: the range conjunct
+      // uid, then the keyset tuple (uid, scope, service, clientId), then limit.
+      expect(fetchCalls[1][1]).toEqual([UID_B, UID_B, 'openid', '', CLIENT, 2]);
       expect(log.info).toHaveBeenCalledWith(
         'backfill_v2.complete',
         expect.objectContaining({ totalScanned: 3, totalV2Written: 3 })
       );
+    });
+
+    it('binds startCursor into the very first fetch instead of reading page one', async () => {
+      const upserts: unknown[][] = [];
+      const query = makeQuery(
+        [[v1Row({ scope: 'openid', uid: UID_B })]],
+        { openid: 2 },
+        upserts
+      );
+      const startCursor: Cursor = {
+        uid: UID_A,
+        scope: 'profile',
+        service: 'sync',
+        clientId: CLIENT,
+      };
+
+      await run(query, log, {
+        dryRun: false,
+        batchSize: 10,
+        batchDelayMs: 0,
+        startCursor,
+      });
+
+      const [sql, params] = query.mock.calls[0];
+      expect(sql).toContain(
+        'AND (uid, scope, service, clientId) > (?, ?, ?, ?)'
+      );
+      expect(params).toEqual([UID_A, UID_A, 'profile', 'sync', CLIENT, 10]);
+    });
+
+    it('logs the encoded startCursor on the start log when resuming', async () => {
+      const upserts: unknown[][] = [];
+      const query = makeQuery(
+        [[v1Row({ scope: 'openid', uid: UID_B })]],
+        { openid: 2 },
+        upserts
+      );
+      const startCursor: Cursor = {
+        uid: UID_A,
+        scope: 'profile',
+        service: 'sync',
+        clientId: CLIENT,
+      };
+
+      await run(query, log, {
+        dryRun: false,
+        batchSize: 10,
+        batchDelayMs: 0,
+        startCursor,
+      });
+
+      // The token, not the raw Cursor — it says which chunk this log covers and
+      // is the value that goes back into --resume-from.
+      expect(log.info).toHaveBeenCalledWith(
+        'backfill_v2.start',
+        expect.objectContaining({ startCursor: encodeCursor(startCursor) })
+      );
+    });
+
+    it('logs an undefined startCursor on the start log when beginning at page one', async () => {
+      const upserts: unknown[][] = [];
+      const query = makeQuery(
+        [[v1Row({ scope: 'profile' })]],
+        { profile: 3 },
+        upserts
+      );
+
+      await run(query, log, { dryRun: false, batchSize: 10, batchDelayMs: 0 });
+
+      expect(log.info).toHaveBeenCalledWith(
+        'backfill_v2.start',
+        expect.objectContaining({ startCursor: undefined })
+      );
+    });
+
+    it('logs a resume cursor per batch that decodes to that batch last row', async () => {
+      const upserts: unknown[][] = [];
+      const query = makeQuery(
+        [[v1Row({ scope: 'profile' }), v1Row({ scope: 'openid', uid: UID_B })]],
+        { profile: 3, openid: 2 },
+        upserts
+      );
+
+      await run(query, log, { dryRun: false, batchSize: 10, batchDelayMs: 0 });
+
+      const batchLog = log.info.mock.calls.find(
+        ([op]) => op === 'backfill_v2.batch'
+      );
+      const { cursor } = (batchLog as NonNullable<typeof batchLog>)[1] as {
+        cursor: string;
+      };
+      expect(decodeCursor(cursor)).toEqual<Cursor>({
+        uid: UID_B,
+        scope: 'openid',
+        service: '',
+        clientId: CLIENT,
+      });
     });
   });
 });
