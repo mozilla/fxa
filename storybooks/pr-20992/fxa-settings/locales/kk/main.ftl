@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (шамаме�
 device-info-block-location-country = { $country } (шамамен)
 device-info-block-location-unknown = Орналасқан жері белгісіз
 device-info-browser-os = { $genericOSName } жүйесінде { $browserName }
+device-info-browser-device = { $browserName } ({ $deviceName })
 device-info-ip-address = IP адресі: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Анимациялық құлап жатқан конфетти
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } терезесінде VPN белсенді екенін білдіретін жасыл құсбелгісі бар дөңгелек белгіше және «VPN» жазуы көрсетілген.
+sync-devices-image-aria-label =
+    .aria-label = Жұмыс үстелінің браузер терезесі және ұялы телефон, екеуі де синхрондалған, жанында { -brand-firefox } тұмары бар
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } логотипі
+password-success-image-aria-label =
+    .aria-label = Парольдің сәтті өзгертілгенін көрсететін иллюстрация.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Сіз { -brand-firefox } ішіне кірдіңіз.
@@ -1305,6 +1312,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Компьютеріңіз�
 pair-unsupported-learn-more-link-v2 = Көбірек білу
 pair-unsupported-desktop-firefox-fallback-header-v2 = Бірнәрсе қате кетті.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Бұл бетті жауып, әрекетті қайталап көріңіз.
+
+
+pair2-supplicant-approve-sign-in-heading = Синхрондауға дейін соңғы қадам
+pair2-supplicant-approve-sign-in-instruction = Компьютеріңізде кіруді мақұлдаңыз.
+pair2-supplicant-approve-sign-in-cancel-button = Бас тарту
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } расталды

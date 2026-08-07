@@ -1,8 +1,8 @@
 {
-  "commit": "25471b10f3d6d0151c2e33d6f4cca764998bb150",
+  "commit": "a47c799f1408c018282b073b26b4480d5df8337b",
   "summary": "feat(signin): support step-up auth in sign-in flow",
   "description": "Because:\n\n* an RP requesting step-up (acr_values=AAL2 / max_age) must be challenged\n  for a second factor without prompting for a password, and passkey users\n  were wrongly forced into TOTP enrollment they don't need\n\nThis commit:\n\n* decouples max_age from the password prompt and forwards max_age to the\n  backend so it can enforce authentication freshness\n* does not force TOTP enrollment for passkey sessions (already AAL2)\n\nCloses #FXA-12861",
-  "timestamp": 1786113700000,
+  "timestamp": 1786129129000,
   "storybooks": [
     "fxa-settings"
   ],
