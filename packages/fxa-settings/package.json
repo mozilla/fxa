@@ -227,7 +227,7 @@
     "grunt-hash": "^0.5.0",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
-    "nx": "^23.0.1",
+    "nx": "^23.0.2",
     "pm2": "^7.0.0",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
