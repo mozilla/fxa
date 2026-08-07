@@ -1,8 +1,8 @@
 {
-  "commit": "d4249cf4a4d726393d42647f7b72441b96512799",
-  "summary": "Merge pull request #20978 from mozilla/dep-reduce-request-2",
-  "description": "chore(deps): replace request with native fetch",
-  "timestamp": 1786132294000,
+  "commit": "d4daef98b493f8f25af58d4c4975b8fd52530c45",
+  "summary": "Merge pull request #20996 from mozilla/blender/disable-automerge-dryrun",
+  "description": "chore(blender): dry-run automerge to stop endless re-approvals",
+  "timestamp": 1786143197000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

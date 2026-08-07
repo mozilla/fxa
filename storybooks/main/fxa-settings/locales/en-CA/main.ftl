@@ -39,6 +39,10 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Something went wrong
+app-something-went-wrong-message = We’ve been notified of the issue. Refresh the page to try again.
+app-error-id = Error ID: { $errorId }
+app-error-details-summary = Error details
 app-query-parameter-err-heading = Bad Request: Invalid Query Parameters
 
 
@@ -148,7 +152,16 @@ device-info-block-location-city-country = { $city }, { $country } (estimated)
 device-info-block-location-country = { $country } (estimated)
 device-info-block-location-unknown = Location unknown
 device-info-browser-os = { $browserName } on { $genericOSName }
+device-info-browser-device = { $browserName } on { $deviceName }
 device-info-ip-address = IP address: { $ipAddress }
+
+
+firefox-promo-banner-mobile-heading = Get { -brand-firefox } wherever you are
+firefox-promo-banner-mobile-description = Sync your tabs, bookmarks, and passwords across your devices. Plus, everything stays safely encrypted.
+firefox-promo-banner-mobile-cta = Connect a device
+firefox-promo-banner-switch-heading = Fast to switch. Easy to settle in.
+firefox-promo-banner-switch-description = When you switch to { -brand-firefox }, you can bring your bookmarks, passwords, history and more so you can get to browsing without missing a beat.
+firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -225,6 +238,8 @@ close-icon-aria-label =
     .aria-label = Close message
 code-icon-aria-label =
     .aria-label = Code
+edit-icon-aria-label =
+    .aria-label = Edit
 error-icon-aria-label =
     .aria-label = Error
 info-icon-aria-label =
@@ -271,6 +286,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animated falling confetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+    .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logo
+password-success-image-aria-label =
+    .aria-label = Illustration to represent a successful password change.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = You’re signed in to { -brand-firefox }.
@@ -294,6 +315,7 @@ input-phone-number-enter-number = Enter phone number
 input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
 legal-back-button = Back
+app-general-err-message = Something went wrong. Please try again later.
 
 
 reset-pwd-link-damaged-header = Reset password link damaged
@@ -306,6 +328,7 @@ link-expired-new-link-button = Receive new link
 
 
 remember-password-text = Remember your password?
+remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
@@ -379,7 +402,14 @@ flow-recovery-key-hint-unsafe-char-error = The hint cannot contain unsafe unicod
 password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 password-reset-warning-have-key = Have an account recovery key?
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 
 alert-bar-close-message = Close message
@@ -908,10 +938,23 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
+passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey, or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
+passkey-sub-row-rename-title = Rename passkey
+passkey-rename-modal-heading = Rename passkey
+passkey-rename-modal-description = Enter a new name for this passkey.
+passkey-rename-input-label = Passkey name
+passkey-rename-save-button = Save
+passkey-rename-cancel-button = Cancel
+passkey-rename-error-empty = Enter a name for this passkey
+passkey-rename-error-too-long = The name must contain fewer than 256 characters.
+passkey-rename-error-invalid = Only letters, numbers, punctuation marks and symbols are allowed.
+passkey-rename-error-duplicate = A passkey with this name already exists
+passkey-rename-success = Passkey renamed
+passkey-rename-error = There was a problem renaming your passkey. Try again in a few minutes.
 
 
 switch-turn-off = Turn off
@@ -1048,6 +1091,7 @@ auth-error-225 = Passkey already registered
 auth-error-226 = Passkey limit reached
 auth-error-227 = Passkey authentication failed
 auth-error-228 = Passkey registration failed
+auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
 auth-error-999 = Unexpected error
@@ -1089,9 +1133,13 @@ passkey-registration-error-constraint = Passkey setup isn’t available with thi
 passkey-registration-error-unexpected = Passkey setup failed. Try again or choose another method.
 
 
+passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
+passkey-authentication-trouble-description = Try again or use another sign-in option.
+passkey-authentication-trouble-link = How to use passkeys
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
 passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
+passkey-authentication-error-timeout-v2 = Passkey sign-in timed out. Try again.
 passkey-authentication-error-not-supported-v2 = Your browser or device doesn’t support passkeys.
 passkey-authentication-error-security = Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.
 passkey-authentication-error-invalid-state = Something went wrong with your passkey. Try again or use another sign-in method.

@@ -42,6 +42,7 @@ auth-error-page-title = We Couldn’t Sign You In
 checkout-error-boundary-retry-button = Try again
 checkout-error-boundary-basic-error-message = Something went wrong. Please try again or <contactSupportLink>contact support.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } logo
+diners-logo-alt-text2 = { -brand-diners } logo
 discover-logo-alt-text = { -brand-discover } logo
 jcb-logo-alt-text = { -brand-jcb } logo
 mastercard-logo-alt-text = { -brand-mastercard } logo
