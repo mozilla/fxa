@@ -10,7 +10,6 @@ const Sentry = require('@sentry/node');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
-const request = require('../request');
 const summary = require('../logging/summary');
 
 function trimLocale(header) {
@@ -175,41 +174,56 @@ exports.create = async function createServer() {
         }
         var token = auth.split(' ')[1];
 
-        function makeReq() {
-          return new Promise((resolve, reject) => {
-            request.post(
-              {
-                url: url,
-                json: {
-                  token: token,
-                },
-              },
-              function (err, resp, body) {
-                if (err || resp.statusCode >= 500) {
-                  err = err || resp.statusMessage || 'unknown';
-                  logger.error('oauth.error', err);
-                  return reject(AppError.oauthError(err));
-                }
-                if (body == null) {
-                  logger.error('oauth.error', 'no response body');
-                  return reject(AppError.oauthError('no response body'));
-                }
-                if (body.code >= 400) {
-                  logger.debug('unauthorized', body);
-                  return reject(AppError.unauthorized(body.message));
-                }
-                logger.debug('auth.valid', body);
-                body.token = token;
-                return resolve(body);
-              }
-            );
-          });
+        async function makeReq() {
+          let resp;
+          try {
+            resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ token: token }),
+            });
+          } catch (err) {
+            logger.error('oauth.error', err);
+            throw AppError.oauthError(err);
+          }
+
+          if (resp.status >= 500) {
+            const err = resp.statusText || 'unknown';
+            logger.error('oauth.error', err);
+            throw AppError.oauthError(err);
+          }
+
+          // Only an object can carry credentials, so anything else — a parse
+          // failure or a bare JSON primitive — is treated as absent.
+          let body = null;
+          try {
+            const parsed = JSON.parse(await resp.text());
+            if (
+              parsed &&
+              typeof parsed === 'object' &&
+              !Array.isArray(parsed)
+            ) {
+              body = parsed;
+            }
+          } catch (e) {
+            body = null;
+          }
+
+          if (body == null) {
+            logger.error('oauth.error', 'no response body');
+            throw AppError.oauthError('no response body');
+          }
+          if (body.code >= 400) {
+            logger.debug('unauthorized', body);
+            throw AppError.unauthorized(body.message);
+          }
+          logger.debug('auth.valid', body);
+          body.token = token;
+          return body;
         }
 
-        return makeReq().then((body) => {
-          return h.authenticated({
-            credentials: body,
-          });
+        return h.authenticated({
+          credentials: await makeReq(),
         });
       },
     };
