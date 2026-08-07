@@ -3,7 +3,6 @@
 var config = require('./config').getProperties();
 
 var crypto = require('crypto');
-var request = require('request');
 var querystring = require('querystring');
 var { JWTool } = require('./lib/jwtool');
 
@@ -45,7 +44,7 @@ function verifyIdToken(oauthConfig, token) {
     });
 }
 
-function setupOAuthFlow(req, action, options = {}, cb) {
+async function setupOAuthFlow(req, action, options = {}, cb) {
   var params = {
     access_type: 'offline',
     client_id: config.client_id,
@@ -66,44 +65,43 @@ function setupOAuthFlow(req, action, options = {}, cb) {
     params.max_age = options.max_age;
   }
 
-  request.get(
+  var r, body;
+  try {
+    r = await fetch(config.issuer_uri + '/.well-known/openid-configuration');
+    body = await r.text();
+  } catch (err) {
+    return cb(err);
+  }
+  if (r.status >= 400) {
+    return cb('Config lookup error: ' + body);
+  }
+  // Named to avoid shadowing the module's own `config`, which is read above.
+  var issuerConfig;
+  try {
+    issuerConfig = JSON.parse(body);
+  } catch (err) {
+    return cb(err);
+  }
+
+  // eslint-disable-next-line fxa/async-crypto-random
+  params.state = crypto.randomBytes(32).toString('hex');
+  req.session.state = params.state;
+  oauthFlows[params.state] = { params: params, config: issuerConfig };
+
+  // Clear stale profile-AAL2 enforcement so an abandoned flow can't leak.
+  req.session.profileAal2Required = null;
+  req.session.profileAal2Bounced = null;
+
+  return cb(
+    null,
     {
-      uri: config.issuer_uri + '/.well-known/openid-configuration',
+      ...params,
+      // propagate query parameters out to the request, overriding
+      // the default values. This is used by the functional tests
+      // to, e.g., override the client_id or propagate an email.
+      ...req.query,
     },
-    function (err, r, body) {
-      if (err) {
-        return cb(err);
-      }
-      if (r.status >= 400) {
-        return cb('Config lookup error: ' + body);
-      }
-      try {
-        var config = JSON.parse(body);
-      } catch (err) {
-        return cb(err);
-      }
-
-      // eslint-disable-next-line fxa/async-crypto-random
-      params.state = crypto.randomBytes(32).toString('hex');
-      req.session.state = params.state;
-      oauthFlows[params.state] = { params: params, config: config };
-
-      // Clear stale profile-AAL2 enforcement so an abandoned flow can't leak.
-      req.session.profileAal2Required = null;
-      req.session.profileAal2Bounced = null;
-
-      return cb(
-        null,
-        {
-          ...params,
-          // propagate query parameters out to the request, overriding
-          // the default values. This is used by the functional tests
-          // to, e.g., override the client_id or propagate an email.
-          ...req.query,
-        },
-        config
-      );
-    }
+    issuerConfig
   );
 }
 
@@ -237,7 +235,7 @@ module.exports = function (app, db) {
     );
   });
 
-  app.get('/api/oauth', function (req, res) {
+  app.get('/api/oauth', async function (req, res) {
     var state = req.query.state;
     var code = req.query.code;
 
@@ -268,91 +266,101 @@ module.exports = function (app, db) {
       delete oauthFlows[state];
       delete req.session.state;
 
-      request.post(
-        {
-          uri: oauthConfig.token_endpoint,
-          json: {
+      var r, body;
+      try {
+        r = await fetch(oauthConfig.token_endpoint, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
             code: code,
             client_id: config.client_id,
             client_secret: config.client_secret,
-          },
-        },
-        function (err, r, body) {
-          if (err) {
-            return res.send(r.status, err);
-          }
-
-          console.log(err, body); //eslint-disable-line no-console
-          req.session.scopes = body.scopes;
-          req.session.token_type = body.token_type;
-          req.session.keys_jwe = body.keys_jwe;
-          var token = (req.session.token = body.access_token);
-          var id_token = body.id_token;
-
-          // Verify signature and extract claims from id_token
-          verifyIdToken(oauthConfig, id_token)
-            .then(function (claims) {
-              req.session.uid = claims.sub;
-              req.session.amr = claims.amr;
-              req.session.acr = claims.acr;
-              // Fetch additional profile data.
-              request.get(
-                {
-                  uri: oauthConfig.userinfo_endpoint,
-                  headers: {
-                    Authorization: 'Bearer ' + token,
-                  },
-                },
-                function (err, r, body) {
-                  console.log(err, body); //eslint-disable-line no-console
-                  if (err || r.status >= 400) {
-                    return res.send(r ? r.status : 400, err || body);
-                  }
-                  var profile = JSON.parse(body);
-                  var accountAal2 = !!profile.twoFactorAuthentication;
-
-                  // Passkey-only account with required profile AAL2: bounce
-                  // once to FxA to force TOTP enrolment. The bounced flag
-                  // caps it at one pass if the FxA divert is broken.
-                  if (
-                    req.session.profileAal2Required &&
-                    !accountAal2 &&
-                    !req.session.profileAal2Bounced
-                  ) {
-                    req.session.profileAal2Bounced = true;
-                    return res.redirect('/api/profile_aal2');
-                  }
-
-                  req.session.email = profile.email;
-                  req.session.subscriptions = profile.subscriptions;
-                  req.session.account_aal2 = accountAal2;
-                  req.session.profileAal2Required = null;
-                  req.session.profileAal2Bounced = null;
-
-                  // ensure the redirect goes to the correct place for either
-                  // the redirect or iframe OAuth flows.
-                  var referrer = req.get('referrer') || '';
-                  var isIframe = referrer.indexOf('/iframe') > -1;
-                  if (isIframe) {
-                    res.redirect('/iframe');
-                  } else {
-                    res.redirect('/');
-                  }
-                }
-              );
-            })
-            .catch(function (err) {
-              if (err.message === 'malformed') {
-                return res
-                  .status(400)
-                  .send(
-                    'Error: Client secret mismatch, please verify secret or obtain from an Admin.'
-                  );
-              }
-              return res.send(400, err);
-            });
+          }),
+        });
+        // Tolerate a non-JSON body so an error page is reported as-is
+        // rather than throwing here.
+        var text = await r.text();
+        try {
+          body = JSON.parse(text);
+        } catch (e) {
+          body = text;
         }
-      );
+      } catch (err) {
+        return res.send(r ? r.status : 400, err);
+      }
+
+      console.log(body); //eslint-disable-line no-console
+      if (r.status >= 400) {
+        return res.send(r.status, body);
+      }
+
+      req.session.scopes = body.scopes;
+      req.session.token_type = body.token_type;
+      req.session.keys_jwe = body.keys_jwe;
+      var token = (req.session.token = body.access_token);
+      var id_token = body.id_token;
+
+      try {
+        // Verify signature and extract claims from id_token
+        var claims = await verifyIdToken(oauthConfig, id_token);
+        req.session.uid = claims.sub;
+        req.session.amr = claims.amr;
+        req.session.acr = claims.acr;
+
+        // Fetch additional profile data.
+        var profileRes = await fetch(oauthConfig.userinfo_endpoint, {
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
+        });
+        var profileBody = await profileRes.text();
+        console.log(profileBody); //eslint-disable-line no-console
+        if (profileRes.status >= 400) {
+          return res.send(profileRes.status, profileBody);
+        }
+
+        var profile = JSON.parse(profileBody);
+        var accountAal2 = !!profile.twoFactorAuthentication;
+
+        // Passkey-only account with required profile AAL2: bounce
+        // once to FxA to force TOTP enrolment. The bounced flag
+        // caps it at one pass if the FxA divert is broken.
+        if (
+          req.session.profileAal2Required &&
+          !accountAal2 &&
+          !req.session.profileAal2Bounced
+        ) {
+          req.session.profileAal2Bounced = true;
+          return res.redirect('/api/profile_aal2');
+        }
+
+        req.session.email = profile.email;
+        req.session.subscriptions = profile.subscriptions;
+        req.session.account_aal2 = accountAal2;
+        req.session.profileAal2Required = null;
+        req.session.profileAal2Bounced = null;
+
+        // ensure the redirect goes to the correct place for either
+        // the redirect or iframe OAuth flows.
+        var referrer = req.get('referrer') || '';
+        var isIframe = referrer.indexOf('/iframe') > -1;
+        if (isIframe) {
+          res.redirect('/iframe');
+        } else {
+          res.redirect('/');
+        }
+      } catch (err) {
+        if (err.message === 'malformed') {
+          return res
+            .status(400)
+            .send(
+              'Error: Client secret mismatch, please verify secret or obtain from an Admin.'
+            );
+        }
+        return res.send(400, err);
+      }
     } else if (req.session.email) {
       // already logged in
       res.redirect('/');

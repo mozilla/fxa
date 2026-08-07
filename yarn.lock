@@ -20,7 +20,6 @@ __metadata:
     morgan: "npm:^1.11.0"
     pm2: "npm:^7.0.0"
     prettier: "npm:^3.5.3"
-    request: "npm:^2.88.2"
   languageName: unknown
   linkType: soft
 
@@ -33829,7 +33828,6 @@ __metadata:
     qrcode: "npm:^1.5.1"
     read: "npm:3.0.1"
     redlock: "npm:^5.0.0-beta.2"
-    request: "npm:^2.88.2"
     rimraf: "npm:^6.0.1"
     sass: "npm:^1.80.4"
     simplesmtp: "npm:0.3.35"
@@ -34097,7 +34095,6 @@ __metadata:
     mozlog: "npm:^3.0.2"
     nyc: "npm:^17.1.0"
     prettier: "npm:^3.5.3"
-    request: "npm:^2.88.2"
     rimraf: "npm:^6.0.1"
     sinon: "npm:^14.0.0"
   languageName: unknown

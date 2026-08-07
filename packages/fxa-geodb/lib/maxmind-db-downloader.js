@@ -9,7 +9,7 @@ var DEFAULTS = require('./defaults');
 var fs = require('fs');
 var mozlog = require('mozlog');
 var Promise = require('bluebird');
-var request = require('request');
+var { pipeline } = require('stream/promises');
 var zlib = require('zlib');
 
 // set up mozlog, default is `heka`
@@ -73,48 +73,37 @@ var MaxmindDbDownloader = function () {
 
   this.createDownloadPromise = function (url, targetFilePath) {
     // closure to separate multiple file-download
-    return function () {
-      return new Promise(function (resolve, reject) {
-        var stream = request(url);
-        var targetFilePathTemp = targetFilePath + '-temp';
+    return async function () {
+      var targetFilePathTemp = targetFilePath + '-temp';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error('download responded with ' + res.status);
+        }
         // forces overwrite, even if file exists already
-        stream
-          .pipe(zlib.createGunzip())
-          .pipe(fs.createWriteStream(targetFilePathTemp))
-          .on('finish', function (err) {
-            if (err) {
-              logHelper('error', err);
-              reject(err);
-            } else {
-              // extraction is complete
-              logHelper('info', 'unzip complete');
-              try {
-                // load up geodb with the downloaded file
-                const geoDb = require('./fxa-geodb')({
-                  dbPath: targetFilePathTemp,
-                });
-                logHelper(
-                  'info',
-                  'checking if lookup works with downloaded file'
-                );
-                // check if lookup works with the downloaded file
-                geoDb(DEFAULTS.GEODB_TEST_IP);
-                // download worked, rename file
-                fs.renameSync(targetFilePathTemp, targetFilePath);
-                logHelper('info', 'lookup works, renaming downloaded file');
-                resolve();
-              } catch (err) {
-                // download resulted in an error, do not rename
-                // remove temp file
-                if (fs.existsSync(targetFilePathTemp)) {
-                  fs.unlinkSync(targetFilePathTemp);
-                }
-                logHelper('error', 'downloaded file not working');
-                reject(err);
-              }
-            }
-          });
-      });
+        await pipeline(
+          res.body,
+          zlib.createGunzip(),
+          fs.createWriteStream(targetFilePathTemp)
+        );
+        // extraction is complete
+        logHelper('info', 'unzip complete');
+        // load up geodb with the downloaded file
+        const geoDb = require('./fxa-geodb')({
+          dbPath: targetFilePathTemp,
+        });
+        logHelper('info', 'checking if lookup works with downloaded file');
+        // check if lookup works with the downloaded file
+        geoDb(DEFAULTS.GEODB_TEST_IP);
+        // download worked, rename file
+        fs.renameSync(targetFilePathTemp, targetFilePath);
+        logHelper('info', 'lookup works, renaming downloaded file');
+      } catch (err) {
+        // download or extraction resulted in an error, do not rename
+        fs.rmSync(targetFilePathTemp, { force: true });
+        logHelper('error', 'downloaded file not working');
+        throw err;
+      }
     };
   };
 
