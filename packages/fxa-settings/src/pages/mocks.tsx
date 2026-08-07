@@ -7,7 +7,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../lib/types';
 import { SyncEngines, WebChannelServices } from '../lib/channels/firefox';
 import { MOCK_ACCOUNT } from '../models/mocks';
-import { Integration, IntegrationType } from '../models';
+import { Integration, IntegrationType, RelierCmsInfo } from '../models';
 import PLACEHOLDER_IMAGE_URL from './cat.jpg';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
@@ -96,6 +96,8 @@ export const PLACEHOLDER_QR_CODE =
 export const MOCK_CMS_PRIMARY_IMAGE_URL =
   'https://raw.githubusercontent.com/mozilla/fxa/9b124e626c48067a653518ecb4af420679256a5f/assets/other/cms/fox_with_devices.svg';
 
+// `satisfies`, not an annotation: keeps literal types so tests can index in
+// without optional chaining.
 export const MOCK_CMS_INFO = {
   clientId: 'dcdb5ae7add825d2',
   entrypoint: 'app',
@@ -214,7 +216,7 @@ export const MOCK_CMS_INFO = {
       altText: 'CMS: A cartoon fox with a laptop and a smartphone',
     },
   },
-};
+} satisfies RelierCmsInfo;
 
 export const createMockIntegrationWithCms = () =>
   ({

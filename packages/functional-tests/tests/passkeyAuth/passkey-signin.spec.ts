@@ -83,7 +83,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Land on /signin's password form, then pick passkey instead of typing.
       await signin.fillOutEmailFirstForm(email);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
 
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
         await signin.passkeySigninButton.click();
@@ -439,7 +439,7 @@ test.describe('severity-1 #smoke', () => {
       // divert the RP bounces and the user loops on the cached-signin screen.
       await relier.goto();
       await relier.clickRequireProfileAAL2();
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await signin.signInButton.click();
 
       // No TOTP on the account, so FxA must divert to inline TOTP setup.
@@ -484,7 +484,7 @@ test.describe('severity-1 #smoke', () => {
       // and the grant completes.
       await relier.goto();
       await relier.clickRequireProfileAAL2();
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await signin.signInButton.click();
       await page.waitForURL((url) => url.href.startsWith(target.relierUrl));
 
@@ -600,7 +600,7 @@ test.describe('severity-1 #smoke', () => {
 
       await page.goto(`${target.relierUrl}/api/prompt_login`);
       await signin.fillOutEmailFirstForm(email);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(signin.passkeySigninButton).toBeVisible();
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
         await signin.passkeySigninButton.click();

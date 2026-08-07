@@ -49,7 +49,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation, and get search params
-      await expect(signup.emailFormHeading).toBeVisible();
+      await expect(signup.emailTextbox).toBeVisible();
       const path = new URL(page.url()).pathname;
       const params = new URL(page.url()).searchParams;
       params.delete('redirect_uri');
@@ -92,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutEmailForm(email);
 
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
 
       await signup.fillOutSyncSignupForm(password);
 
@@ -123,7 +123,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutEmailForm(email);
 
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
 
       await signup.fillOutSyncSignupForm(password);
 

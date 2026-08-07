@@ -14,7 +14,7 @@ test.describe('error views', () => {
     await expect(fourOhFour.homeLink).toBeVisible();
     await fourOhFour.homeLink.click();
     await page.waitForLoadState();
-    await expect(signin.emailFirstHeading).toBeVisible();
+    await expect(signin.emailTextbox).toBeVisible();
   });
 
   test('app error view renders for an invalid query parameter', async ({
@@ -35,6 +35,6 @@ test.describe('error views', () => {
     }
 
     await expect(signin.badRequestHeading).toBeVisible();
-    await expect(signin.emailFirstHeading).toBeHidden();
+    await expect(signin.emailTextbox).toBeHidden();
   });
 });

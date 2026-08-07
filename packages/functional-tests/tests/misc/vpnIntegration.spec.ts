@@ -36,7 +36,7 @@ test.describe('vpn integration', () => {
       await signin.goto('/authorization', vpnMobileOAuthQueryParams);
 
       // User is already signed in — cached signin view, no password required
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
 
       // "Use a different account" link is hidden when signed into Firefox with

@@ -131,7 +131,7 @@ test.describe('server-side scope resolution', () => {
         '/authorization',
         smartWindowDesktopOAuthQueryParamsNoScope
       );
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await signin.signInButton.click();
 
       const scope = await getOAuthLoginScope(signin);

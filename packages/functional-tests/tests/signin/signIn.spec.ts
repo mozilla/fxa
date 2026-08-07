@@ -159,7 +159,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Verify user redirected to login page
       // in backbone, user currently redirected to /signup
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
       await expect(signin.emailTextbox).toHaveValue('');
     });
   });

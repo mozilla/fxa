@@ -112,8 +112,8 @@ test.describe('severity-2 #smoke', () => {
       page,
       pages: { signup, settings },
     }) => {
-      page.goto(settings.url);
-      await expect(signup.emailFormHeading).toBeVisible();
+      await page.goto(settings.url);
+      await expect(signup.emailTextbox).toBeVisible();
     });
 
     test('redirects to sign in when session token is invalid', async ({

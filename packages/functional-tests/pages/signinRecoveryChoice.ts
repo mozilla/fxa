@@ -3,14 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseLayout } from './layout';
-import { expect } from '@playwright/test';
 
 export class SigninRecoveryChoicePage extends BaseLayout {
   readonly path = '/signin_recovery_choice';
-
-  get heading() {
-    return this.page.getByRole('heading', { name: 'Sign in' });
-  }
 
   get errorBanner() {
     return this.page.locator('.banner.error');
@@ -29,7 +24,8 @@ export class SigninRecoveryChoicePage extends BaseLayout {
   }
 
   get continueButton() {
-    return this.page.getByRole('button', { name: 'Continue' });
+    this.checkPath();
+    return this.formSubmitButton;
   }
 
   async clickChoosePhone() {

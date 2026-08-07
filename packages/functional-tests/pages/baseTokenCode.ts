@@ -6,6 +6,15 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 
 export abstract class BaseTokenCodePage extends BaseLayout {
+  // Only valid for confirmSignupCode, signinTokenCode, signinUnblock and
+  // signinPasswordlessCode, whose single h1 is the page headline. The totp,
+  // recovery-code and recovery-phone pages render a generic "Sign in" h1
+  // (HeadingPrimary) with their headline in an h2, so this would match that
+  // instead — silently, since it still resolves to one element.
+  protected get pageHeading() {
+    return this.page.getByRole('heading', { level: 1 });
+  }
+
   get codeInput() {
     this.checkPath();
     return this.page.getByRole('textbox');
@@ -23,9 +32,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get submitButton() {
     this.checkPath();
-    return this.page.getByRole('button', {
-      name: /^(Confirm|Start syncing)$/i,
-    });
+    return this.formSubmitButton;
   }
 
   get successMessage() {

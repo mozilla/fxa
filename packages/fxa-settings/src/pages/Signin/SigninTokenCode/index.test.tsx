@@ -142,6 +142,18 @@ describe('SigninTokenCode page', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the CMS headline when provided', () => {
+    render({
+      integration: createOAuthNativeIntegration(true, MOCK_CMS_INFO),
+    });
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: MOCK_CMS_INFO.SigninTokenCodePage.headline,
+      })
+    ).toBeInTheDocument();
+  });
+
   it('emits a metrics event on render', () => {
     render();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
@@ -381,7 +393,9 @@ describe('SigninTokenCode page', () => {
 
         await expectSuccessGleanEvents();
         expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
-        expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', {
+          replace: false,
+        });
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();

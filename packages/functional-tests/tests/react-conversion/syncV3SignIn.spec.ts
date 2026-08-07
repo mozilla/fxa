@@ -16,7 +16,7 @@ test.describe('severity-2 #smoke', () => {
         undefined,
         new URLSearchParams('context=fx_desktop_v3&service=sync&action=email')
       );
-      await expect(signin.syncSignInHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 

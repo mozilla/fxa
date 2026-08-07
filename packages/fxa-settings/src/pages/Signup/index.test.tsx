@@ -315,6 +315,11 @@ describe('Signup page', () => {
       name: MOCK_CMS_INFO.SignupSetPasswordPage.headline,
     });
     screen.getByText(MOCK_CMS_INFO.SignupSetPasswordPage.description);
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SignupSetPasswordPage.primaryButtonText,
+      })
+    ).toBeInTheDocument();
   });
 
   it('renders as expected when cms enabled and on mobile', async () => {

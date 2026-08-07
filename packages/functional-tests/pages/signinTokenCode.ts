@@ -9,7 +9,7 @@ export class SigninTokenCodePage extends BaseTokenCodePage {
 
   get heading() {
     this.checkPath();
-    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
+    return this.pageHeading;
   }
 
   get codeInput() {

@@ -74,7 +74,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       // account signed into browser suggested
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
 
@@ -140,7 +140,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.respondToWebChannelMessage(eventDetailStatusSync);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       // currently signed in local account takes precedence
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();
@@ -183,7 +183,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       // email param takes precedence over user signed into the browser
       await expect(page.getByText(credentials.email)).toBeVisible();
     });
@@ -226,7 +226,7 @@ test.describe('severity-2 #smoke', () => {
       };
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
     });
   });
