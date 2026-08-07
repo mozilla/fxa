@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
 // is also provided.
 export function useFocusOnTriggeringElementOnClose(
   revealed: boolean | undefined,
-  triggerElement: React.RefObject<HTMLButtonElement>,
+  triggerElement: React.RefObject<HTMLButtonElement | null>,
   triggerException?: boolean
 ) {
   const prevRevealedRef = useRef(revealed);

@@ -159,6 +159,14 @@ export const MfaGuard = ({
           return;
         }
 
+        // INSUFFICIENT_AAL is handled by the auth client's global error
+        // handler (AppContext), which redirects to /signin_totp_code.
+        // Don't call onDismiss here — it navigates to /settings, which
+        // in React 19's batched updates would override the redirect.
+        if (err?.errno === ERRNO.INSUFFICIENT_AAL) {
+          return;
+        }
+
         Sentry.captureException(err);
         alertBar.error(getLocalizedErrorMessage(ftlMsgResolver, err));
         onDismiss();
@@ -249,8 +257,6 @@ export const MfaGuard = ({
 
   // Provide the scope via context so child components can use useMfaErrorHandler
   return (
-    <MfaContext.Provider value={requiredScope}>
-      {children}
-    </MfaContext.Provider>
+    <MfaContext.Provider value={requiredScope}>{children}</MfaContext.Provider>
   );
 };

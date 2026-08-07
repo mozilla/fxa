@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 
 import VerificationMethods from '../../../constants/verification-methods';
@@ -98,7 +99,9 @@ export const SigninUnblockContainer = ({
     // Get credentials with the correct key version
     const status = await (async () => {
       try {
-        const result = await authClient.getCredentialStatusV2({ primary: email });
+        const result = await authClient.getCredentialStatusV2({
+          primary: email,
+        });
         return result;
       } catch (err) {
         // In the event there's a downstream error, this could be useful a breadcrumb to capture.
@@ -173,8 +176,10 @@ export const SigninUnblockContainer = ({
                 metricsEnabled: response.metricsEnabled ?? true,
                 emailVerified: response.emailVerified ?? false,
                 sessionVerified: response.sessionVerified ?? false,
-                verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
-                verificationReason: response.verificationReason as VerificationReasons,
+                verificationMethod: (response.verificationMethod ||
+                  VerificationMethods.EMAIL_OTP) as VerificationMethods,
+                verificationReason:
+                  response.verificationReason as VerificationReasons,
                 keyFetchToken: response.keyFetchToken,
               },
               unwrapBKey: credentials.unwrapBKey,
@@ -221,6 +226,13 @@ export const SigninUnblockContainer = ({
     }
   };
 
+  // React 19 forbids calling navigate() during render.
+  useEffect(() => {
+    if (!email || !password) {
+      navigateWithQuery('/');
+    }
+  }, [email, password, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -229,7 +241,6 @@ export const SigninUnblockContainer = ({
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
 
   if (!email || !password) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

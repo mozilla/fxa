@@ -5,8 +5,7 @@
 // @ts-ignore
 import './styles/tailwind.out.css';
 
-import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
@@ -80,23 +79,24 @@ try {
         return <CookiesDisabled />;
       };
 
-  render(
-    <React.StrictMode>
-      <BrowserRouter>
-        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-          <AppErrorBoundary>
-            <AppContext.Provider value={appContext}>
-              <NimbusProvider>
-                <ThemeProvider enabled={config.darkMode?.enabled}>
-                  <View />
-                </ThemeProvider>
-              </NimbusProvider>
-            </AppContext.Provider>
-          </AppErrorBoundary>
-        </DynamicLocalizationProvider>
-      </BrowserRouter>
-    </React.StrictMode>,
-    document.getElementById('root')
+  const root = createRoot(document.getElementById('root') as HTMLElement);
+  // StrictMode disabled: PagePasskeyAdd auto-starts the ceremony in a
+  // mount effect: cleanup aborts it, the second run short-circuits on
+  // ceremonyStarted, and the AbortError gets swallowed.
+  root.render(
+    <BrowserRouter>
+      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+        <AppErrorBoundary>
+          <AppContext.Provider value={appContext}>
+            <NimbusProvider>
+              <ThemeProvider enabled={config.darkMode?.enabled}>
+                <View />
+              </ThemeProvider>
+            </NimbusProvider>
+          </AppContext.Provider>
+        </AppErrorBoundary>
+      </DynamicLocalizationProvider>
+    </BrowserRouter>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

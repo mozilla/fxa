@@ -8,7 +8,7 @@ import { ReactComponent as IconKey } from './icon-key.svg';
 import { ReactComponent as IconLock } from './icon-lock.svg';
 import { ReactComponent as IconPrinter } from './icon-printer.svg';
 import { ReactComponent as IconShield } from './icon-shield.svg';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
+import { ReactElement } from 'react';
 
 interface IconListItemProps {
   icon: ReactElement;

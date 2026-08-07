@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useFxAStatus } from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
@@ -44,8 +44,10 @@ describe('useFxAStatus', () => {
         isFirefoxNonSync: () => false,
       };
 
-      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
-      await waitForNextUpdate();
+      renderHook(() => useFxAStatus(integration));
+      await waitFor(() => {
+        expect(firefox.fxaStatus).toHaveBeenCalled();
+      });
 
       expect(firefox.fxaStatus).toHaveBeenCalledWith({
         context: Constants.FX_DESKTOP_V3_CONTEXT,
@@ -70,8 +72,10 @@ describe('useFxAStatus', () => {
         isFirefoxNonSync: () => false,
       };
 
-      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
-      await waitForNextUpdate();
+      renderHook(() => useFxAStatus(integration));
+      await waitFor(() => {
+        expect(firefox.fxaStatus).toHaveBeenCalled();
+      });
 
       expect(firefox.fxaStatus).toHaveBeenCalledWith({
         context: Constants.OAUTH_CONTEXT,
@@ -94,14 +98,13 @@ describe('useFxAStatus', () => {
         isFirefoxNonSync: () => false,
       };
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      await waitForNextUpdate();
-      expect(result.current.offeredSyncEngines).toEqual(
-        expect.arrayContaining(['tabs', 'bookmarks', 'addons'])
-      );
+      await waitFor(() => {
+        expect(result.current.offeredSyncEngines).toEqual(
+          expect.arrayContaining(['tabs', 'bookmarks', 'addons'])
+        );
+      });
 
       expect(result.current.selectedEnginesForGlean).toEqual({
         tabs: true,
@@ -126,12 +129,11 @@ describe('useFxAStatus', () => {
           isSync: () => false,
           isFirefoxNonSync: () => true,
         };
-        const { result, waitForNextUpdate } = renderHook(() =>
-          useFxAStatus(integration)
-        );
+        const { result } = renderHook(() => useFxAStatus(integration));
 
-        await waitForNextUpdate();
-        expect(result.current.supportsKeysOptionalLogin).toBe(true);
+        await waitFor(() => {
+          expect(result.current.supportsKeysOptionalLogin).toBe(true);
+        });
       });
 
       it('returns supportsKeysOptionalLogin: false for Sync', async () => {
@@ -140,11 +142,10 @@ describe('useFxAStatus', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
         };
-        const { result, waitForNextUpdate } = renderHook(() =>
-          useFxAStatus(integration)
-        );
-        await waitForNextUpdate();
-        expect(result.current.supportsKeysOptionalLogin).toBe(false);
+        const { result } = renderHook(() => useFxAStatus(integration));
+        await waitFor(() => {
+          expect(result.current.supportsKeysOptionalLogin).toBe(false);
+        });
       });
     });
   });

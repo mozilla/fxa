@@ -33,7 +33,12 @@ export const TableRowXHeader = ({ children, testId }: TableRowXHeaderProps) => {
   return (
     <tr data-testid={testId}>
       {arrayElements.map((element, i) => {
-        if (React.isValidElement(element) && element.type === 'td') {
+        if (
+          React.isValidElement<React.TdHTMLAttributes<HTMLTableCellElement>>(
+            element
+          ) &&
+          element.type === 'td'
+        ) {
           const {
             className: elementClassNames,
             children: elementChildren,
