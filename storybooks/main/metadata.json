@@ -1,8 +1,8 @@
 {
-  "commit": "fa80491ca49fad028854e8d52d51432ed0dcda4c",
-  "summary": "Merge pull request #20911 from mozilla/PAY-3829-switch-all-mozilla-accounts-legal-links",
-  "description": "feat(payments): Switch all Mozilla accounts legal links over to Mozilla.org version",
-  "timestamp": 1786127722000,
+  "commit": "4276bb36acf81bd3198c7fbed9daa7b010f6b859",
+  "summary": "Merge pull request #20976 from mozilla/dep-reduce-request-1",
+  "description": "chore(deps): remove unused request and request-promise dependencies",
+  "timestamp": 1786132171000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
