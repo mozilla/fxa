@@ -1,0 +1,12 @@
+{
+  "commit": "dbc3d911d6364f04a8baf4d61032bff1deb5df45",
+  "summary": "chore(profile): replace request with native fetch",
+  "description": "",
+  "timestamp": 1786141174000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
