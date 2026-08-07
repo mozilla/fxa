@@ -1,8 +1,8 @@
 {
-  "commit": "18e448d2b95f03abf3ead34abd0846020384b7ea",
-  "summary": "Revisions based on PR feedback",
-  "description": "",
-  "timestamp": 1786121392000,
+  "commit": "a730e1ffd6900e9c56ee6f20d1e439050bd2dcc6",
+  "summary": "fix(fxa-react): move shared Jest file transformer into fxa-react",
+  "description": "Because:\n\n- fxa-react/jest.config.js pointed at svg-transform.js, which this branch\n  deleted, so fxa-react:test-unit failed Jest config validation before\n  running a single test\n- the replacement transformer lived in fxa-settings, so fxa-react and\n  fxa-admin-panel reached into an app package for library test config\n\nThis commit:\n\n- moves fileTransform.js to fxa-react/configs\n- repoints fxa-react's jest.config.js, the shared rescripts config, and\n  fxa-settings' Jest transform at the new location",
+  "timestamp": 1786126748000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
