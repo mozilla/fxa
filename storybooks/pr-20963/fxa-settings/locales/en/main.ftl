@@ -178,6 +178,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimated)
 device-info-block-location-country = { $country } (estimated)
 device-info-block-location-unknown = Location unknown
 device-info-browser-os = { $browserName } on { $genericOSName }
+device-info-browser-device = { $browserName } on { $deviceName }
 device-info-ip-address = IP address: { $ipAddress }
 
 
@@ -337,6 +338,12 @@ confetti-falling-image-aria-label =
   .aria-label = Animated falling confetti
 vpn-welcome-image-aria-label =
   .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+  .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+firefox-wordmark-image-aria-label =
+  .aria-label = { -brand-firefox } logo
+password-success-image-aria-label =
+  .aria-label = Illustration to represent a successful password change.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = You’re signed in to { -brand-firefox }.
@@ -1490,6 +1497,11 @@ pair-unsupported-learn-more-link-v2 = Learn more
 
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
+
+
+pair2-supplicant-approve-sign-in-heading = One last step to sync
+pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
+pair2-supplicant-approve-sign-in-cancel-button = Cancel
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
