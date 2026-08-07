@@ -109,6 +109,41 @@ describe('lib/jwt_access_token', () => {
       );
     });
 
+    it('propagates `acr` derived from the grant AAL', async () => {
+      requestedGrant.aal = 2;
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockSign.mock.calls[0][0];
+      expect(Object.keys(signedClaims)).toHaveLength(8);
+
+      expect(signedClaims.acr).toBe('AAL2');
+    });
+
+    it('reflects a lower AAL in the `acr` claim', async () => {
+      requestedGrant.aal = 1;
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockSign.mock.calls[0][0];
+
+      expect(signedClaims.acr).toBe('AAL1');
+    });
+
+    it('propagates `auth_time` directly (already in seconds, no /1000)', async () => {
+      // grant.authAt is seconds-since-epoch, matching the token response `auth_at`.
+      requestedGrant.authAt = 1_700_000_000;
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockSign.mock.calls[0][0];
+      expect(Object.keys(signedClaims)).toHaveLength(8);
+
+      expect(signedClaims.auth_time).toBe(1_700_000_000);
+    });
+
+    it('omits `acr` and `auth_time` when the grant carries no aal/authAt', async () => {
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockSign.mock.calls[0][0];
+
+      expect(signedClaims).not.toHaveProperty('acr');
+      expect(signedClaims).not.toHaveProperty('auth_time');
+    });
+
     it('defaults oldsync scope to tokenserver audience', async () => {
       requestedGrant.scope = ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC);
       await JWTAccessToken.create(mockAccessToken, requestedGrant);

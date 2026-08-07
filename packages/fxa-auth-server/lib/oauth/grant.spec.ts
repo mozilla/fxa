@@ -281,10 +281,11 @@ describe('generateTokens', () => {
   });
 
   it('should return authAt from grant', async () => {
-    const now = Date.now();
-    requestedGrant.authAt = now;
+    // authAt is seconds since the epoch (from session_token.lastAuthAt()).
+    const authAtSeconds = 1_700_000_000;
+    requestedGrant.authAt = authAtSeconds;
     const result = await generateTokens(requestedGrant);
-    expect(result.auth_at).toBe(now);
+    expect(result.auth_at).toBe(authAtSeconds);
   });
 
   it('should return keysJwe from grant', async () => {
@@ -320,12 +321,15 @@ describe('generateTokens', () => {
     ]);
   });
 
-  it('should propagate auth_time in claims', async () => {
+  it('propagates auth_time (seconds) in id_token claims without re-dividing', async () => {
     requestedGrant.scope = ScopeSet.fromArray(['openid']);
-    requestedGrant.authAt = Date.now();
+    // authAt is already seconds since the epoch; auth_time must equal it, not
+    // authAt/1000 (the previous bug produced a value ~1000x too small).
+    const authAtSeconds = 1_700_000_000;
+    requestedGrant.authAt = authAtSeconds;
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
     const jwt = decodeJWT(result.id_token);
-    expect(jwt.claims.auth_time).toBe(Math.floor(requestedGrant.authAt / 1000));
+    expect(jwt.claims.auth_time).toBe(authAtSeconds);
   });
 });

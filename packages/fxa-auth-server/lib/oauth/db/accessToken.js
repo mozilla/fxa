@@ -19,7 +19,10 @@ AccessToken.generate = function (
   scope,
   profileChangedAt,
   expiresAt,
-  ttl
+  ttl,
+  authAt,
+  amr,
+  aal
 ) {
   const token = unique.token();
   const tokenId = encrypt.hash(token);
@@ -36,7 +39,13 @@ AccessToken.generate = function (
     profileChangedAt || 0,
     expiresAt || new Date(Date.now() + (ttl * 1000 || MAX_TTL)),
     // This is the one and only time the caller can get at the unhashed token.
-    token
+    token,
+    'bearer',
+    // Authentication-event metadata for RFC 9470 step-up (undefined when the
+    // grant did not carry them).
+    authAt,
+    amr,
+    aal
   );
 };
 
