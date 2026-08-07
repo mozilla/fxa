@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (geschat)
 device-info-block-location-country = { $country } (geschat)
 device-info-block-location-unknown = Locatie onbekend
 device-info-browser-os = { $browserName } op { $genericOSName }
+device-info-browser-device = { $browserName } op { $deviceName }
 device-info-ip-address = IP-adres: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Geanimeerde vallende confetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-venster met een ronde badge met een groen vinkje en ‘VPN’, wat aangeeft dat de VPN actief is.
+sync-devices-image-aria-label =
+    .aria-label = Een desktopbrowser en een mobiele telefoon, beide synchroniserend, met de { -brand-firefox }-mascotte ernaast
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Illustratie om een succesvolle wachtwoordwijziging weer te geven.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = U bent aangemeld bij { -brand-firefox }.
@@ -1304,6 +1311,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Open { -brand-firefox } op 
 pair-unsupported-learn-more-link-v2 = Meer info
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oeps, er is iets misgegaan.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sluit dit tabblad en probeer het opnieuw.
+
+
+pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
+pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer goed.
+pair2-supplicant-approve-sign-in-cancel-button = Annuleren
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd

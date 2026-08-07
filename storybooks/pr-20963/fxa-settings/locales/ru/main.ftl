@@ -187,6 +187,7 @@ device-info-block-location-city-country = { $city }, { $country } (прибли�
 device-info-block-location-country = { $country } (приблизительно)
 device-info-block-location-unknown = Местоположение неизвестно
 device-info-browser-os = { $browserName } в { $genericOSName }
+device-info-browser-device = { $browserName } на { $deviceName }
 device-info-ip-address = IP-адрес: { $ipAddress }
 
 
@@ -320,6 +321,12 @@ confetti-falling-image-aria-label =
     .aria-label = Анимированное падающее конфетти
 vpn-welcome-image-aria-label =
     .aria-label = Окно { -brand-firefox } с круговым значком с зелёным флажком и «VPN», указывающим, что VPN активен.
+sync-devices-image-aria-label =
+    .aria-label = Окно браузера на компьютере и мобильном телефоне, оба синхронизируемые, с талисманом { -brand-firefox } рядом с ними
+firefox-wordmark-image-aria-label =
+    .aria-label = Логотип { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Иллюстрация для успешной смены пароля.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Вы вошли в { -brand-firefox }.
@@ -1343,6 +1350,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Откройте { -brand-f
 pair-unsupported-learn-more-link-v2 = Подробнее
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ой! Что-то пошло не так.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
+
+
+pair2-supplicant-approve-sign-in-heading = Последний шаг до синхронизации
+pair2-supplicant-approve-sign-in-instruction = Подтвердите вход на вашем компьютере.
+pair2-supplicant-approve-sign-in-cancel-button = Отмена
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "nominative_uppercase") } подтверждён

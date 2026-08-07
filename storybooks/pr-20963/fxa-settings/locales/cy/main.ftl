@@ -160,6 +160,7 @@ device-info-block-location-city-country = { $city }, { $country } (amcan)
 device-info-block-location-country = { $country } (amcan)
 device-info-block-location-unknown = Lleoliad anhysbys
 device-info-browser-os = { $browserName } ar { $genericOSName }
+device-info-browser-device = { $browserName } ar { $deviceName }
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
 
 
@@ -293,6 +294,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animeiddiad conffeti'n disgyn
 vpn-welcome-image-aria-label =
     .aria-label = Ffenestr { -brand-firefox } gyda bathodyn crwn yn dangos marc gwirio gwyrdd a “VPN,” yn dangos bod y VPN yn weithredol.
+sync-devices-image-aria-label =
+    .aria-label = Ffenestr porwr bwrdd gwaith a ffôn symudol, y ddau yn cydweddu, gyda'r masgot { -brand-firefox } wrth eu hochr
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Darlun i gynrychioli newid cyfrinair llwyddiannus.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Rydych wedi mewngofnodi i { -brand-firefox }
@@ -1326,6 +1333,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Agorwch { -brand-firefox } 
 pair-unsupported-learn-more-link-v2 = Dysgu rhagor
 pair-unsupported-desktop-firefox-fallback-header-v2 = Wps! Aeth rhywbeth o'i le.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisiwch eto.
+
+
+pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
+pair2-supplicant-approve-sign-in-instruction = Cymeradwyo'r mewngofnodi ar eich cyfrifiadur.
+pair2-supplicant-approve-sign-in-cancel-button = Diddymu
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau

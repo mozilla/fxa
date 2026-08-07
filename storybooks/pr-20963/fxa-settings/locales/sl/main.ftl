@@ -274,6 +274,7 @@ device-info-block-location-city-country = { $city }, { $country } (ocena)
 device-info-block-location-country = { $country } (ocena)
 device-info-block-location-unknown = Neznana lokacija
 device-info-browser-os = { $browserName } v { $genericOSName }
+device-info-browser-device = { $browserName } dne { $deviceName }
 device-info-ip-address = Naslov IP: { $ipAddress }
 
 
@@ -406,6 +407,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animirani padajoči konfeti
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
+sync-devices-image-aria-label =
+    .aria-label = Namizno okno brskalnika in mobilni telefon, oboje sinhronizirano, ob njem pa maskota { -brand-firefox }
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotip { -brand-firefox(sklon: "rodilnik") }
+password-success-image-aria-label =
+    .aria-label = Ilustracija uspešne spremembe gesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Prijavljeni ste v { -brand-firefox }.
@@ -1436,6 +1443,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Odprite { -brand-firefox(sk
 pair-unsupported-learn-more-link-v2 = Več o tem
 pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
+
+
+pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
+pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
+pair2-supplicant-approve-sign-in-cancel-button = Prekliči
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen
