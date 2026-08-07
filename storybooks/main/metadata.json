@@ -1,8 +1,8 @@
 {
-  "commit": "aa4e9c1ec69a9e29ec830c4a82fb4456655cf118",
-  "summary": "Merge pull request #20969 from mozilla/FXA-14304",
-  "description": "feat(settings): Auto-proceed to Firefox on Android in the deep-link POC",
-  "timestamp": 1785976801000,
+  "commit": "81d2a45c50753a8fd49697dccdc8dca90b66ae93",
+  "summary": "Merge pull request #20905 from mozilla/triage-2026-07-20",
+  "description": "feat(triage): add yardstick proxy fallback for Grafana auto-query",
+  "timestamp": 1786104673000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

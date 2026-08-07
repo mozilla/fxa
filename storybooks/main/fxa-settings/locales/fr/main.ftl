@@ -164,6 +164,7 @@ device-info-block-location-city-country = { $city }, { $country } (approximatif)
 device-info-block-location-country = { $country } (approximatif)
 device-info-block-location-unknown = Lieu inconnu
 device-info-browser-os = { $browserName } sur { $genericOSName }
+device-info-browser-device = { $browserName } sur { $deviceName }
 device-info-ip-address = Adresse IP : { $ipAddress }
 
 
@@ -297,6 +298,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animation de confettis qui tombent
 vpn-welcome-image-aria-label =
     .aria-label = Fenêtre { -brand-firefox } avec un badge circulaire comportant une coche verte et « VPN » indiquant que le VPN est actif.
+sync-devices-image-aria-label =
+    .aria-label = Une fenêtre de navigateur sur ordinateur et un téléphone mobile en cours de synchronisation, accompagnés de la mascotte { -brand-firefox }
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Illustration représentant un changement de mot de passe réussi.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Vous êtes connecté·e à { -brand-firefox }.
@@ -1312,6 +1319,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Ouvrez { -brand-firefox } s
 pair-unsupported-learn-more-link-v2 = En savoir plus
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oups, une erreur s’est produite.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Veuillez fermer cet onglet puis réessayer.
+
+
+pair2-supplicant-approve-sign-in-heading = Une dernière étape pour lancer la synchronisation
+pair2-supplicant-approve-sign-in-instruction = Approuvez la connexion sur votre ordinateur.
+pair2-supplicant-approve-sign-in-cancel-button = Annuler
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(capitalization: "uppercase") } confirmé

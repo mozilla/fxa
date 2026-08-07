@@ -437,6 +437,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhad)
 device-info-block-location-country = { $country } (odhad)
 device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
@@ -570,6 +571,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animované padající konfety
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakem, na kterém je zelená zaškrtávací značka a nápis „VPN“, což signalizuje, že je VPN aktivní.
+sync-devices-image-aria-label =
+    .aria-label = Okno prohlížeče na počítači a mobilním telefonu (oba synchronizované) s maskotem { -brand-firefox } vedle sebe
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+password-success-image-aria-label =
+    .aria-label = Ilustrace znázorňující úspěšnou změnu hesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Jste přihlášeni do { -brand-firefox(case: "gen") }.
@@ -1593,6 +1600,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox 
 pair-unsupported-learn-more-link-v2 = Zjistit více
 pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
+
+
+pair2-supplicant-approve-sign-in-heading = Poslední krok k synchronizaci
+pair2-supplicant-approve-sign-in-instruction = Schvalte přihlášení na svém počítači.
+pair2-supplicant-approve-sign-in-cancel-button = Zrušit
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen

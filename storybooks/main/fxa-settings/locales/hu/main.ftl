@@ -185,6 +185,7 @@ device-info-block-location-city-country = { $city }, { $country } (becsült)
 device-info-block-location-country = { $country } (becsült)
 device-info-block-location-unknown = Hely ismeretlen
 device-info-browser-os = { $browserName } ezen: { $genericOSName }
+device-info-browser-device = { $browserName } ekkor: { $deviceName }
 device-info-ip-address = IP-cím: { $ipAddress }
 
 
@@ -318,6 +319,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animált hulló konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } ablak egy kör alakú kitűzővel, zöld pipával és „VPN” felirattal, jelezve, hogy a VPN aktív.
+sync-devices-image-aria-label =
+    .aria-label = Egy asztali böngészőablak és egy mobiltelefon, mindkettő szinkronizálva, mellettük a(z) { -brand-firefox } kabalafigura
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logó
+password-success-image-aria-label =
+    .aria-label = Ábra, amely egy sikeres jelszóváltoztatást ábrázol.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Bejelentkezett a { -brand-firefox(case: "illative") } .
@@ -1345,6 +1352,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Nyissa meg a { -brand-firef
 pair-unsupported-learn-more-link-v2 = További tudnivalók
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppá, hiba történt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, és próbálja újra.
+
+
+pair2-supplicant-approve-sign-in-heading = Még egy utolsó lépés a szinkronizáláshoz
+pair2-supplicant-approve-sign-in-instruction = Jóváhagyja a bejelentkezést a számítógépén.
+pair2-supplicant-approve-sign-in-cancel-button = Mégse
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve
