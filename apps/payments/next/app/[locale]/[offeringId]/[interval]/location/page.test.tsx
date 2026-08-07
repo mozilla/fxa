@@ -124,8 +124,6 @@ jest.mock(
 const MOCK_PRODUCT_NAME = 'Test Product';
 const MOCK_TOS_URL = 'https://example.com/terms';
 const MOCK_PRIVACY_URL = 'https://example.com/privacy';
-const MOCK_PRIVACY_DOWNLOAD_URL = 'https://example.com/privacy-download';
-const MOCK_TOS_DOWNLOAD_URL = 'https://example.com/terms-download';
 const MOCK_CANCELLATION_URL = 'https://example.com/cancel';
 
 const baseCmsData = PageContentOfferingTransformedFactory({
@@ -140,9 +138,7 @@ const baseCmsData = PageContentOfferingTransformedFactory({
   commonContent: {
     ...PageContentCommonContentResultFactory({
       privacyNoticeUrl: MOCK_PRIVACY_URL,
-      privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
       termsOfServiceUrl: MOCK_TOS_URL,
-      termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
       cancellationUrl: MOCK_CANCELLATION_URL,
       emailIcon: null,
       newsletterLabelTextCode: null,
@@ -284,7 +280,6 @@ describe('Location page', () => {
     expect(screen.getByTestId('terms-and-privacy')).toBeInTheDocument();
     expect(mockTermsAndPrivacy).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentServerUrl: 'https://accounts.example.com',
         showFXALinks: true,
       })
     );

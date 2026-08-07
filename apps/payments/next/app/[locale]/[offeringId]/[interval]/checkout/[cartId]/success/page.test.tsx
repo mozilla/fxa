@@ -142,15 +142,11 @@ const MOCK_SUCCESS_URL = 'https://download.example.com/app';
 const MOCK_SUCCESS_LABEL = 'Download the app';
 const MOCK_TOS_URL = 'https://example.com/terms';
 const MOCK_PRIVACY_URL = 'https://example.com/privacy';
-const MOCK_PRIVACY_DOWNLOAD_URL = 'https://example.com/privacy-download';
-const MOCK_TOS_DOWNLOAD_URL = 'https://example.com/terms-download';
 const MOCK_CANCELLATION_URL = 'https://example.com/cancel';
 
 const mockCommonContent = PageContentCommonContentResultFactory({
   privacyNoticeUrl: MOCK_PRIVACY_URL,
-  privacyNoticeDownloadUrl: MOCK_PRIVACY_DOWNLOAD_URL,
   termsOfServiceUrl: MOCK_TOS_URL,
-  termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
   cancellationUrl: MOCK_CANCELLATION_URL,
   emailIcon: null,
   successActionButtonUrl: MOCK_SUCCESS_URL,
@@ -339,16 +335,6 @@ describe('Checkout layout legal links on confirmation page', () => {
     expect(mockTermsAndPrivacy).toHaveBeenCalledWith(
       expect.objectContaining({
         privacyNoticeUrl: MOCK_PRIVACY_URL,
-      })
-    );
-  });
-
-  it('passes the Terms of Service download URL to TermsAndPrivacy', async () => {
-    await renderLayout();
-
-    expect(mockTermsAndPrivacy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        termsOfServiceDownloadUrl: MOCK_TOS_DOWNLOAD_URL,
       })
     );
   });

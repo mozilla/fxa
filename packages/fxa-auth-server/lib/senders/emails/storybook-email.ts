@@ -37,8 +37,10 @@ const commonArgs = {
 
 const subplatCommonArgs = {
   email: 'customer@example.com',
-  subscriptionTermsUrl: 'https://payments-next.example.com/tos',
-  subscriptionPrivacyUrl: 'https://payments-next.example.com/privacy',
+  subscriptionTermsUrl:
+    'https://www.mozilla.org/about/legal/terms/subscription-services/',
+  subscriptionPrivacyUrl:
+    'https://www.mozilla.org/privacy/subscription-services/',
   cancelSubscriptionUrl: 'http://localhost:3030/subscriptions',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
   reactivateSubscriptionUrl: 'http://localhost:3030/subscriptions',

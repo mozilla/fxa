@@ -12,6 +12,11 @@ export const REACT_ENTRYPOINT = { entrypoint_variation: 'react' };
 
 export const FIREFOX_NOREPLY_EMAIL = 'accounts@firefox.com';
 
+export const MOZILLA_ACCOUNTS_TOS_URL =
+  'https://www.mozilla.org/about/legal/terms/services/';
+export const MOZILLA_ACCOUNTS_PRIVACY_URL =
+  'https://www.mozilla.org/privacy/mozilla-accounts/';
+
 export enum ENTRYPOINTS {
   FIREFOX_IOS_OAUTH_ENTRYPOINT = 'ios_settings_manage',
   FIREFOX_TOOLBAR_ENTRYPOINT = 'fxa_discoverability_native',

@@ -1116,14 +1116,22 @@ function mockProductConfigurationManager() {
           return {
             offering: {
               commonContent: {
+                privacyNoticeUrl:
+                  'https://www.mozilla.org/privacy/subscription-services',
                 privacyNoticeDownloadUrl:
                   'https://payments-next.example.com/privacy',
+                termsOfServiceUrl:
+                  'https://www.mozilla.org/about/legal/terms/subscription-services',
                 termsOfServiceDownloadUrl:
                   'https://payments-next.example.com/tos',
                 localizations: [
                   {
+                    privacyNoticeUrl:
+                      'https://www.mozilla.org/privacy/subscription-services',
                     privacyNoticeDownloadUrl:
                       'https://payments-next.example.com/privacy',
+                    termsOfServiceUrl:
+                      'https://www.mozilla.org/about/legal/terms/subscription-services',
                     termsOfServiceDownloadUrl:
                       'https://payments-next.example.com/tos',
                   },
