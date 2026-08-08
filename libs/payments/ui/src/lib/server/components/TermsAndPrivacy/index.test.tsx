@@ -22,9 +22,7 @@ const baseProps: TermsAndPrivacyProps = {
   l10n: mockL10n as unknown as TermsAndPrivacyProps['l10n'],
   productName: 'Mozilla VPN',
   termsOfServiceUrl: 'https://example.com/tos',
-  termsOfServiceDownloadUrl: 'https://example.com/tos-download',
   privacyNoticeUrl: 'https://example.com/privacy',
-  contentServerUrl: 'https://accounts.firefox.com',
 };
 
 async function renderTermsAndPrivacy(
@@ -90,19 +88,21 @@ describe('TermsAndPrivacy', () => {
       .filter(
         (link) =>
           link.getAttribute('href') === 'https://example.com/tos' ||
-          link.getAttribute('href') === 'https://example.com/privacy' ||
-          link.getAttribute('href') === 'https://example.com/tos-download'
+          link.getAttribute('href') === 'https://example.com/privacy'
       );
-    expect(productTermsLinks).toHaveLength(3);
+    expect(productTermsLinks).toHaveLength(2);
   });
 
   it('does not render FXA links when showFXALinks is false', async () => {
     await renderTermsAndPrivacy({ showFXALinks: false });
-    expect(
-      screen.queryByRole('link', {
-        name: /Terms of Service.*Opens in new window/i,
-      })
-    ).not.toHaveAttribute?.('href', 'https://accounts.firefox.com/legal/terms');
+    const fxaTermsLink = screen
+      .getAllByRole('link')
+      .find(
+        (link) =>
+          link.getAttribute('href') ===
+          'https://www.mozilla.org/about/legal/terms/services/'
+      );
+    expect(fxaTermsLink).toBeUndefined();
   });
 
   it('renders FXA links when showFXALinks is true', async () => {
@@ -112,7 +112,7 @@ describe('TermsAndPrivacy', () => {
       .find(
         (link) =>
           link.getAttribute('href') ===
-          'https://accounts.firefox.com/legal/terms'
+          'https://www.mozilla.org/about/legal/terms/services/'
       );
     expect(fxaTermsLink).toBeInTheDocument();
   });
